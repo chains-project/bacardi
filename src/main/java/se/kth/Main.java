@@ -9,6 +9,8 @@ public class Main {
 
     public static void main(String[] args) {
 
+        logger.info("Starting the program...");
+
         System.out.println("   ( (  )__( )__( ) ) ");
         System.out.println("    |\\   /\\  /\\  /|");
         System.out.println("    | \\_/  \\/  \\/ | ");
