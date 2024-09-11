@@ -25,5 +25,8 @@ public enum FailureCategory {
      * The compilation failed after updating the dependency
      */
     COMPILATION_FAILURE,
+    ENFORCER_FAILURE,
+    DEPENDENCY_RESOLUTION_FAILURE,
+    DEPENDENCY_LOCK_FAILURE,
 
 }
