@@ -43,7 +43,7 @@ public class MavenLogAnalyzer {
      *
      * @return the failure category @see FailureCategory
      */
-    public FailureCategory analyze() {
+    public FailureCategory getFailureCategory() {
 
         try {
             String logContent = Files.readString(logFile.toPath());
