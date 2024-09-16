@@ -1,0 +1,59 @@
+package se.kth.utils;
+
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.command.PullImageResultCallback;
+import com.github.dockerjava.api.model.AccessMode;
+import com.github.dockerjava.api.model.Bind;
+import com.github.dockerjava.api.model.HostConfig;
+import com.github.dockerjava.api.model.Volume;
+import se.kth.TestFailuresProvider;
+import se.kth.model.BreakingUpdate;
+
+import java.nio.file.Path;
+import java.util.List;
+
+public class DependenciesExtractor {
+
+    public static void main(String[] args) {
+        String filePath = "/home/leonard/code/java/bump/data/benchmark/";
+        String outputDirectory = "/home/leonard/tmp-output";
+        String dockerOutputDirectory = "/app";
+        List<BreakingUpdate> testFailureUpdates = TestFailuresProvider.getTestFailuresFromResources(filePath);
+
+        DockerClient dockerClient = Config.getDockerClient();
+
+        Volume volume = new Volume(dockerOutputDirectory);
+        Bind bind = new Bind(outputDirectory, volume, AccessMode.rw);
+
+
+        for (BreakingUpdate update : testFailureUpdates) {
+            try {
+                String imageId = update.preCommitReproductionCommand.replace("docker run ", "");
+                String outputTag = getOutputFileTagFromImageId(imageId);
+                Path dockerOutputPath = Path.of(dockerOutputDirectory, outputTag + ".log");
+
+                String command = "mvn dependency:tree -DoutputType=dot -DoutputFile=%s".formatted(dockerOutputPath.toAbsolutePath().toString());
+                String[] entrypoint = command.split(" ");
+
+                dockerClient.pullImageCmd(imageId).exec(new PullImageResultCallback()).awaitCompletion();
+
+                CreateContainerResponse container = dockerClient
+                        .createContainerCmd(imageId)
+                        .withHostConfig(new HostConfig().withBinds(bind))
+                        .withEntrypoint(entrypoint)
+                        .exec();
+
+                dockerClient.startContainerCmd(container.getId()).exec();
+                dockerClient.waitContainerCmd(container.getId());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static String getOutputFileTagFromImageId(String imageId) {
+        String[] split = imageId.split("/");
+        return split[split.length - 1];
+    }
+}
