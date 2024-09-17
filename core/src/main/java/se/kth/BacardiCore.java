@@ -3,6 +3,7 @@ package se.kth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.models.FailureCategory;
+import se.kth.models.WerrorInfo;
 
 import java.nio.file.Path;
 
@@ -25,14 +26,29 @@ public class BacardiCore {
 
     public void analyze() {
 
-        System.out.println("Analyzing project: " + project.getFileName());
-        System.out.println("Log file: " + logFile.getFileName());
-        System.out.println("Failure category: " + failureCategory);
-
-
-        log.info("Analyzing project: {}", project.getFileName());
-        log.info("Log file: {}", logFile.getFileName());
-        log.info("Failure category: {}", failureCategory);
+        switch (failureCategory) {
+            case JAVA_VERSION_FAILURE:
+                log.info("Java version failure detected.");
+                break;
+            case TEST_FAILURE:
+                log.info("Test failure detected.");
+                break;
+            case WERROR_FAILURE:
+                log.info("Werror failure detected.");
+                WerrorInformation werrorInformation = new WerrorInformation(logFile.toFile());
+                try {
+                   WerrorInfo werrorInfo =  werrorInformation.analyzeWerror(project.toString());
+                     log.info("Werror info: {}", werrorInfo);
+                } catch (Exception e) {
+                    log.error("Error extracting warning lines.", e);
+                }
+                break;
+            case COMPILATION_FAILURE:
+                log.info("Compilation failure detected.");
+                break;
+            default:
+                log.info("Unknown failure category.");
+        }
 
 
     }

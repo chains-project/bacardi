@@ -47,5 +47,14 @@ public class WerrorInfo {
         this.client = client;
     }
 
-
+    @Override
+    public String toString() {
+        return "WerrorInfo{" +
+                "errorLine=" + errorLine +
+                ", warningList=" + warningList +
+                ", wErrorFiles=" + wErrorFiles +
+                ", isClientConfigProblem=" + isClientConfigProblem +
+                ", client='" + client + '\'' +
+                '}';
+    }
 }

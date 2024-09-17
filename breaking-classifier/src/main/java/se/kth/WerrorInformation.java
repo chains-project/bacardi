@@ -23,7 +23,7 @@ public class WerrorInformation extends MavenErrorInformation {
     private final String wError = "Werror";
     private final String fileName = "pom.xml";
 
-    private final Logger log  = LoggerFactory.getLogger(WerrorInformation.class);
+    private final Logger log = LoggerFactory.getLogger(WerrorInformation.class);
 
 
     public WerrorInformation(File logFile) {
@@ -33,8 +33,9 @@ public class WerrorInformation extends MavenErrorInformation {
 
     /**
      * Extract the Werror line from the log file
+     *
      * @param logFilePath the path to the log file
-     * @return  the MavenErrorLog object containing the Werror line
+     * @return the MavenErrorLog object containing the Werror line
      * @throws IOException if an I/O error occurs
      */
     public MavenErrorLog extractWarningLines(String logFilePath) throws IOException {
@@ -79,6 +80,42 @@ public class WerrorInformation extends MavenErrorInformation {
         return mavenErrorLogs;
     }
 
+    public MavenErrorLog extractWerrorLine(String logFilePath) throws IOException {
+
+        MavenErrorLog mavenErrorLogs = new MavenErrorLog();
+
+        try {
+            FileInputStream fileInputStream = new FileInputStream(logFilePath);
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, StandardCharsets.ISO_8859_1);
+            BufferedReader reader = new BufferedReader(inputStreamReader);
+            String line;
+            String currentPath = null;
+            Pattern errorPattern = Pattern.compile("warnings found and -Werror specified");
+            Pattern pathPattern = Pattern.compile("/[^:/]+(/[^\\[\\]:]+)");
+
+            int lineNumberInFile = 0;
+            while ((line = reader.readLine()) != null) {
+                lineNumberInFile++;
+                Map<Integer, String> lines = new HashMap<>();
+                Matcher matcher = errorPattern.matcher(line);
+                if (matcher.find()) {
+                    Matcher pathMatcher = pathPattern.matcher(line);
+                    if (pathMatcher.find()) {
+                        currentPath = pathMatcher.group();
+                    }
+                    if (currentPath != null) {
+                        ErrorInfo errorInfo = new ErrorInfo("", currentPath, line, lineNumberInFile, extractAdditionalInfo(reader));
+                        errorInfo.setErrorLogGithubLink(generateLogsLink(projectURL, 4, lineNumberInFile));
+                        mavenErrorLogs.addErrorInfo(currentPath, errorInfo);
+                    }
+                }
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return mavenErrorLogs;
+    }
 
 
     /**
@@ -88,8 +125,8 @@ public class WerrorInformation extends MavenErrorInformation {
      * @param tag the tag name to search for in the POM file
      * @return a NodeList containing the elements with the specified tag
      * @throws ParserConfigurationException if a DocumentBuilder cannot be created
-     * @throws IOException if an I/O error occurs
-     * @throws SAXException if a parsing error occurs
+     * @throws IOException                  if an I/O error occurs
+     * @throws SAXException                 if a parsing error occurs
      */
     private NodeList parsePOM(File pom, String tag) throws ParserConfigurationException, IOException, SAXException {
 
@@ -148,11 +185,10 @@ public class WerrorInformation extends MavenErrorInformation {
     /**
      * Analyzes the Werror in the Maven log file.
      *
-     * @param mavenErrorInformation the MavenErrorInformation object containing the Maven log file
      * @param client the client root folder
      * @throws IOException if an I/O error occurs
      */
-    public WerrorInfo analyzeWerror(MavenErrorInformation mavenErrorInformation,String client) throws IOException {
+    public WerrorInfo analyzeWerror(String client) throws IOException {
         // prepare the log file
 
         // Extract the Werror line from the log file
@@ -167,7 +203,6 @@ public class WerrorInformation extends MavenErrorInformation {
         List<File> werrorFiles = findWerror(new File(client));
 
         // Create a WErrorMetadata object with the extracted information
-
         return new WerrorInfo(wError, warningLines, !werrorFiles.isEmpty(), werrorFiles, clientName(client));
 
     }

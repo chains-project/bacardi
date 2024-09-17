@@ -20,9 +20,12 @@ public class MavenErrorInformation {
         this.logFile = logFile;
     }
 
+    protected String generateLogsLink(String projectURL, int step, int lineNumber) {
+        return "".formatted(step, lineNumber);
+    }
 
-    protected MavenErrorLog extractWerrorLine(String logFilePath) throws IOException {
-
+    private MavenErrorLog extractLineNumbersWithPaths(String logFilePath) throws IOException {
+        Map<String, Map<Integer, String>> lineNumbersWithPaths = new HashMap<>();
         MavenErrorLog mavenErrorLogs = new MavenErrorLog();
 
         try {
@@ -31,7 +34,7 @@ public class MavenErrorInformation {
             BufferedReader reader = new BufferedReader(inputStreamReader);
             String line;
             String currentPath = null;
-            Pattern errorPattern = Pattern.compile("warnings found and -Werror specified");
+            Pattern errorPattern = Pattern.compile("\\[ERROR\\] .*:\\[(\\d+),\\d+\\]");
             Pattern pathPattern = Pattern.compile("/[^:/]+(/[^\\[\\]:]+)");
 
             int lineNumberInFile = 0;
@@ -40,12 +43,14 @@ public class MavenErrorInformation {
                 Map<Integer, String> lines = new HashMap<>();
                 Matcher matcher = errorPattern.matcher(line);
                 if (matcher.find()) {
+                    Integer lineNumber = Integer.valueOf(matcher.group(1));
                     Matcher pathMatcher = pathPattern.matcher(line);
+                    lines.put(lineNumber, line);
                     if (pathMatcher.find()) {
                         currentPath = pathMatcher.group();
                     }
                     if (currentPath != null) {
-                        ErrorInfo errorInfo = new ErrorInfo("", currentPath, line, lineNumberInFile, extractAdditionalInfo(reader));
+                        ErrorInfo errorInfo = new ErrorInfo(String.valueOf(lineNumber), currentPath, line, lineNumberInFile, extractAdditionalInfo(reader));
                         errorInfo.setErrorLogGithubLink(generateLogsLink(projectURL, 4, lineNumberInFile));
                         mavenErrorLogs.addErrorInfo(currentPath, errorInfo);
                     }
@@ -56,10 +61,6 @@ public class MavenErrorInformation {
             e.printStackTrace();
         }
         return mavenErrorLogs;
-    }
-
-    protected String generateLogsLink(String projectURL, int step, int lineNumber) {
-        return "".formatted(step, lineNumber);
     }
 
     /**

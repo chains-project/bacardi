@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,7 +21,7 @@ public class FailureCategoryExtract {
     /**
      * Patterns to identify different types of failures in the Maven log.
      */
-    public static final Map<Pattern, FailureCategory> FAILURE_PATTERNS = new HashMap<>();
+    public static final Map<Pattern, FailureCategory> FAILURE_PATTERNS = new LinkedHashMap<>();
     private static final Logger log = LoggerFactory.getLogger(FailureCategoryExtract.class);
 
     static {
