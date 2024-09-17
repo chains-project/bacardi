@@ -3,10 +3,13 @@ package se.kth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
+import se.kth.models.FailureCategory;
 
 import java.nio.file.Path;
 
 public class BacardiCli {
+
+    static Logger log = LoggerFactory.getLogger(BacardiCli.class);
 
     public static void main(String[] args) {
         int exitCode = new CommandLine(new BacardiEntryPoint()).execute(args);
@@ -31,9 +34,24 @@ public class BacardiCli {
                 required = true)
         Path project;
 
+
+        @CommandLine.Option(
+                names = {"-l", "--logFile"},
+                paramLabel = "Log file",
+                description = "A log file to analyze.",
+                required = true)
+        Path logFile;
+
         @Override
         public void run() {
-            System.out.println("Analyzing project: " + project);
+
+            log.info("Analyzing project: {}", project.getFileName());
+
+            FailureCategoryExtract failureCategoryExtract = new FailureCategoryExtract(logFile.toFile());
+            final FailureCategory failureCategory = failureCategoryExtract.getFailureCategory();
+
+            BacardiCore bacardiCore = new BacardiCore(project, logFile, failureCategory);
+            bacardiCore.analyze();
 
         }
     }
@@ -54,9 +72,9 @@ public class BacardiCli {
         public void run() {
             log.info("Analyzing log file: {}", logFile.getFileName());
 
-            MavenLogAnalyzer mavenLogAnalyzer = new MavenLogAnalyzer(logFile.toFile());
+            FailureCategoryExtract failureCategoryExtract = new FailureCategoryExtract(logFile.toFile());
 
-            final FailureCategory failureCategory = mavenLogAnalyzer.getFailureCategory();
+            final FailureCategory failureCategory = failureCategoryExtract.getFailureCategory();
 
             log.info("Failure category: {}", failureCategory);
 
