@@ -59,7 +59,7 @@ public class BacardiCli {
 
     @CommandLine.Command(name = "classifier", mixinStandardHelpOptions = true, version = "0.1")
     private static class Classifier implements Runnable {
-        Logger log = LoggerFactory.getLogger(Main.class);
+        Logger log = LoggerFactory.getLogger(Classifier.class);
 
         @CommandLine.Option(
                 names = {"-l", "--logFile"},
