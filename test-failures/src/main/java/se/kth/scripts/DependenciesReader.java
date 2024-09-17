@@ -1,6 +1,7 @@
-package se.kth.utils;
+package se.kth.scripts;
 
 import se.kth.model.Dependency;
+import se.kth.utils.FileUtils;
 
 import java.io.File;
 import java.io.IOException;

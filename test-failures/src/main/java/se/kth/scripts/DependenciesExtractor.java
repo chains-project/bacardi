@@ -1,4 +1,4 @@
-package se.kth.utils;
+package se.kth.scripts;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -9,6 +9,7 @@ import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Volume;
 import se.kth.TestFailuresProvider;
 import se.kth.model.BreakingUpdate;
+import se.kth.utils.Config;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -31,13 +32,15 @@ public class DependenciesExtractor {
         }
     }
 
-    private static void extractSingleContainer(BreakingUpdate update, String dockerOutputDirectory, DockerClient dockerClient, Bind bind) {
+    private static void extractSingleContainer(BreakingUpdate update, String dockerOutputDirectory,
+                                               DockerClient dockerClient, Bind bind) {
         try {
             String imageId = update.preCommitReproductionCommand.replace("docker run ", "");
             String outputTag = getOutputFileTagFromImageId(imageId);
             Path dockerOutputPath = Path.of(dockerOutputDirectory, outputTag + ".log");
 
-            String command = "mvn dependency:tree -DoutputType=dot -DoutputFile=%s -DappendOutput=true -am".formatted(dockerOutputPath.toAbsolutePath().toString());
+            String command =
+                    "mvn dependency:tree -DoutputType=dot -DoutputFile=%s -DappendOutput=true -am".formatted(dockerOutputPath.toAbsolutePath().toString());
             String[] entrypoint = new String[]{"/bin/sh", "-c", command};
 
             dockerClient.pullImageCmd(imageId).exec(new PullImageResultCallback()).awaitCompletion();
