@@ -26,29 +26,31 @@ public class DependenciesExtractor {
         Volume volume = new Volume(dockerOutputDirectory);
         Bind bind = new Bind(outputDirectory, volume, AccessMode.rw);
 
-
         for (BreakingUpdate update : testFailureUpdates) {
-            try {
-                String imageId = update.preCommitReproductionCommand.replace("docker run ", "");
-                String outputTag = getOutputFileTagFromImageId(imageId);
-                Path dockerOutputPath = Path.of(dockerOutputDirectory, outputTag + ".log");
+            extractSingleContainer(update, dockerOutputDirectory, dockerClient, bind);
+        }
+    }
 
-                String command = "mvn dependency:tree -DoutputType=dot -DoutputFile=%s".formatted(dockerOutputPath.toAbsolutePath().toString());
-                String[] entrypoint = command.split(" ");
+    private static void extractSingleContainer(BreakingUpdate update, String dockerOutputDirectory, DockerClient dockerClient, Bind bind) {
+        try {
+            String imageId = update.preCommitReproductionCommand.replace("docker run ", "");
+            String outputTag = getOutputFileTagFromImageId(imageId);
+            Path dockerOutputPath = Path.of(dockerOutputDirectory, outputTag + ".log");
 
-                dockerClient.pullImageCmd(imageId).exec(new PullImageResultCallback()).awaitCompletion();
+            String command = "mvn dependency:tree -DoutputType=dot -DoutputFile=%s -DappendOutput=true -am".formatted(dockerOutputPath.toAbsolutePath().toString());
+            String[] entrypoint = new String[]{"/bin/sh", "-c", command};
 
-                CreateContainerResponse container = dockerClient
-                        .createContainerCmd(imageId)
-                        .withHostConfig(new HostConfig().withBinds(bind))
-                        .withEntrypoint(entrypoint)
-                        .exec();
+            dockerClient.pullImageCmd(imageId).exec(new PullImageResultCallback()).awaitCompletion();
 
-                dockerClient.startContainerCmd(container.getId()).exec();
-                dockerClient.waitContainerCmd(container.getId());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            CreateContainerResponse container = dockerClient
+                    .createContainerCmd(imageId)
+                    .withHostConfig(new HostConfig().withBinds(bind))
+                    .withEntrypoint(entrypoint)
+                    .exec();
+
+            dockerClient.startContainerCmd(container.getId()).exec();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
