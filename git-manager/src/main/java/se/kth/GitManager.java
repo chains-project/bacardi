@@ -31,7 +31,7 @@ public class GitManager {
                     .findGitDir()
                     .build();
 
-            Git git = new Git(repository);
+            Git git = Git.init().setBare(false).setDirectory(repo).call();
 
             if (repository.resolve("HEAD") == null) {
                 log.error("Repository is empty");
@@ -41,6 +41,8 @@ public class GitManager {
             }
 
             git.checkout().setCreateBranch(true).setName(branchName).call();
+
+
             log.info("Branch {} created", branchName);
             return true;
 
@@ -61,6 +63,7 @@ public class GitManager {
 
             Git git = new Git(repository);
 
+
             git.branchDelete().setBranchNames(branchName).call();
             log.info("Branch {} deleted", branchName);
             return true;
@@ -72,9 +75,9 @@ public class GitManager {
     }
 
     public static void main(String[] args) {
-        File repo = new File("/Users/frank/Documents/Work/PHD/bacardi/experiments/nem");
+        File repo = new File("/Users/frank/Downloads/tmp/sbom.exe");
         GitManager gitManager = new GitManager(repo);
-        gitManager.newBranch("test");
+        gitManager.newBranch("testdfgdfg");
 
     }
 
