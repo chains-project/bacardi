@@ -1,6 +1,4 @@
-package se.kth;
-
-import se.kth.models.ErrorInfo;
+package se.kth.models;
 
 import java.util.HashMap;
 import java.util.HashSet;
