@@ -1,6 +1,7 @@
 package se.kth;
 
 import se.kth.models.ErrorInfo;
+import se.kth.models.MavenErrorLog;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -21,7 +22,7 @@ public class MavenErrorInformation {
     }
 
     protected String generateLogsLink(String projectURL, int step, int lineNumber) {
-        return "".formatted(step, lineNumber);
+        return "git%s%s".formatted(step, lineNumber);
     }
 
     private MavenErrorLog extractLineNumbersWithPaths(String logFilePath) throws IOException {

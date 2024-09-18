@@ -6,6 +6,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import se.kth.models.ErrorInfo;
+import se.kth.models.MavenErrorLog;
 import se.kth.models.WerrorInfo;
 
 import javax.xml.parsers.DocumentBuilder;
