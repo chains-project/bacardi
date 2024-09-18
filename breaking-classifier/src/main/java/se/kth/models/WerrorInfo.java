@@ -1,8 +1,6 @@
 package se.kth.models;
 
 
-import se.kth.MavenErrorLog;
-
 import java.io.File;
 import java.util.List;
 
