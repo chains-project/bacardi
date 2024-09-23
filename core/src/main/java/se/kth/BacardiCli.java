@@ -50,6 +50,19 @@ public class BacardiCli {
             FailureCategoryExtract failureCategoryExtract = new FailureCategoryExtract(logFile.toFile());
             final FailureCategory failureCategory = failureCategoryExtract.getFailureCategory();
 
+            if (failureCategory == FailureCategory.UNKNOWN_FAILURE) {
+                log.error("Unknown failure category.");
+                return;
+            }
+
+            GitManager gitManager = new GitManager(project.toFile());
+            boolean isNewBranch =  gitManager.newBranch();
+
+            if (!isNewBranch) {
+                log.error("Failed to create a new branch.");
+                return;
+            }
+
             BacardiCore bacardiCore = new BacardiCore(project, logFile, failureCategory);
             bacardiCore.analyze();
 

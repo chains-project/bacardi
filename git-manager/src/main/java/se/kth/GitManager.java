@@ -12,45 +12,57 @@ import java.io.IOException;
 
 public class GitManager {
 
-    private File repo;
+    private final File repo;
 
-    // Logger
     private final Logger log = LoggerFactory.getLogger(GitManager.class);
 
+    private String branchName = "Fixing-breaking-dependency-update";
 
     public GitManager(File repo) {
         this.repo = repo;
     }
 
 
-    public boolean newBranch(String branchName) {
-        try {
-            Repository repository = new FileRepositoryBuilder()
-                    .setGitDir(repo)
-                    .readEnvironment()
-                    .findGitDir()
-                    .build();
+    /**
+ * Creates a new branch in the Git repository.
+ *
+ * @return true if the branch was successfully created, false otherwise.
+ * @throws RuntimeException if there is an error opening the repository or creating the branch.
+ */
+public boolean newBranch() {
+    try {
+        Repository repository = new FileRepositoryBuilder()
+                .setGitDir(repo)
+                .readEnvironment()
+                .findGitDir()
+                .build();
 
-            Git git = Git.init().setBare(false).setDirectory(repo).call();
-
-            if (repository.resolve("HEAD") == null) {
-                log.error("Repository is empty");
-                git.commit().setMessage("Initial commit").call();
-
-
-            }
-
-            git.checkout().setCreateBranch(true).setName(branchName).call();
-
-
-            log.info("Branch {} created", branchName);
-            return true;
-
-        } catch (IOException | GitAPIException e) {
-            log.error("Error opening repository", e);
-            throw new RuntimeException(e);
+        Git git = new Git(repository);
+        if (repository.isBare()) {
+            git = Git.init().setBare(false).setDirectory(repo).call();
         }
+
+        // Check if repository head is null
+        if (repository.resolve("HEAD") == null) {
+            log.error("Repository HEAD is null");
+            git.commit().setMessage("Initial commit for breaking dependency update").call();
+        }
+
+        // Check if branch already exists
+        if (git.branchList().call().stream().anyMatch(ref -> ref.getName().equals("refs/heads/" + branchName))) {
+            branchName = branchName + System.currentTimeMillis();
+        }
+        // Create a new branch with the given name and checkout
+        git.checkout().setCreateBranch(true).setName(branchName).call();
+
+        log.info("Branch {} created", branchName);
+        return true;
+
+    } catch (IOException | GitAPIException e) {
+        log.error("Error opening repository", e);
+        throw new RuntimeException(e);
     }
+}
 
 
     public boolean deleteBranch(String branchName) {
@@ -63,7 +75,6 @@ public class GitManager {
 
             Git git = new Git(repository);
 
-
             git.branchDelete().setBranchNames(branchName).call();
             log.info("Branch {} deleted", branchName);
             return true;
@@ -72,13 +83,6 @@ public class GitManager {
             log.error("Error deleting branch", e);
             throw new RuntimeException(e);
         }
-    }
-
-    public static void main(String[] args) {
-        File repo = new File("/Users/frank/Downloads/tmp/sbom.exe");
-        GitManager gitManager = new GitManager(repo);
-        gitManager.newBranch("testdfgdfg");
-
     }
 
 }
