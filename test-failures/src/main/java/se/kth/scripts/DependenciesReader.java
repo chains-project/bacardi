@@ -2,56 +2,61 @@ package se.kth.scripts;
 
 import se.kth.model.Dependency;
 import se.kth.utils.FileUtils;
+import se.kth.utils.JsonUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 
 public class DependenciesReader {
 
     public static void main(String[] args) {
         String directory = "/home/leonard/tmp-output/";
+        Path outputPath = Paths.get(directory, "results.json");
         List<File> allFiles = FileUtils.getFilesInDirectory(directory);
-        List<Set<Dependency>> projects = new ArrayList<>();
+        Map<String, Set<Dependency>> projects = new HashMap<>();
 
         for (File file : allFiles) {
             Set<Dependency> dependencies = parseDependencies(file);
-            projects.add(dependencies);
+            projects.put(trim(file.getName()), dependencies);
         }
 
-        List<Set<Dependency>> junit3Projects = projects.stream()
-                .filter(project -> containsArtifact("junit", "3", project))
-                .toList();
+        Map<String, Set<Dependency>> junit3Projects = projects.entrySet().stream()
+                .filter(tuple -> containsArtifact("junit", "3", tuple.getValue()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        List<Set<Dependency>> junit4Projects = projects.stream()
-                .filter(dependencies -> containsArtifact("junit", "4", dependencies))
-                .toList();
+        Map<String, Set<Dependency>> junit4Projects = projects.entrySet().stream()
+                .filter(tuple -> containsArtifact("junit", "4", tuple.getValue()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        List<Set<Dependency>> junit5Projects = projects.stream()
-                .filter(dependencies -> containsGroupId("org.junit.jupiter", dependencies))
-                .toList();
+        Map<String, Set<Dependency>> junit5Projects = projects.entrySet().stream()
+                .filter(tuple -> containsGroupId("org.junit.jupiter", tuple.getValue()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        List<Set<Dependency>> junit4andJupiterProjects = projects.stream()
-                .filter(dependencies -> containsArtifact("junit", "4", dependencies))
-                .filter(dependencies -> containsGroupId("org.junit.jupiter", dependencies))
-                .toList();
+        Map<String, Set<Dependency>> junit4andJupiterProjects = projects.entrySet().stream()
+                .filter(tuple -> containsArtifact("junit", "4", tuple.getValue()))
+                .filter(tuple -> containsGroupId("org.junit.jupiter", tuple.getValue()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        List<Set<Dependency>> testNGProjects = projects.stream()
-                .filter(dependencies -> containsGroupId("org.testng", dependencies))
-                .toList();
+        Map<String, Set<Dependency>> testNGProjects = projects.entrySet().stream()
+                .filter(tuple -> containsGroupId("org.testng", tuple.getValue()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        List<Set<Dependency>> others = projects.stream()
-                .filter(dependencies -> !junit3Projects.contains(dependencies)
-                        && !junit4Projects.contains(dependencies)
-                        && !junit5Projects.contains(dependencies)
-                        && !testNGProjects.contains(dependencies))
-                .toList();
+        Map<String, Set<Dependency>> others = projects.entrySet().stream()
+                .filter(tuple -> !junit3Projects.containsValue(tuple.getValue())
+                        && !junit4Projects.containsValue(tuple.getValue())
+                        && !junit5Projects.containsValue(tuple.getValue())
+                        && !testNGProjects.containsValue(tuple.getValue()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        System.out.println(junit4Projects);
+        saveToFile(outputPath, junit3Projects, junit4Projects, junit5Projects, testNGProjects, others);
 
     }
 
@@ -108,5 +113,33 @@ public class DependenciesReader {
                 parts[3].split("\"")[0],
                 parts[2],
                 scope);
+    }
+
+    private static String trim(String input) {
+        String regex = "(?<=:)[a-f0-9]{40}(?=-)";
+
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+
+        if (matcher.find()) {
+            return matcher.group();
+        } else {
+            return input;
+        }
+    }
+
+    private static void saveToFile(Path path, Map<String, Set<Dependency>> junit3Projects, Map<String,
+            Set<Dependency>> junit4Projects, Map<String, Set<Dependency>> junit5Projects, Map<String,
+            Set<Dependency>> testNGProjects, Map<String,
+            Set<Dependency>> others) {
+
+        Map<String, Set<String>> output = new HashMap<>();
+        output.put("junit3", junit3Projects.keySet());
+        output.put("junit4", junit4Projects.keySet());
+        output.put("junit5", junit5Projects.keySet());
+        output.put("testng", testNGProjects.keySet());
+        output.put("others", others.keySet());
+
+        JsonUtils.writeToFile(path, output);
     }
 }

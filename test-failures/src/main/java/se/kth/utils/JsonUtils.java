@@ -16,4 +16,12 @@ public class JsonUtils {
             throw new RuntimeException(e);
         }
     }
+
+    public static void writeToFile(Path path, Object obj) {
+        try {
+            mapper.writeValue(path.toFile(), obj);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
