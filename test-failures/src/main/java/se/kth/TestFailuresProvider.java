@@ -1,6 +1,7 @@
 package se.kth;
 
 import se.kth.model.BreakingUpdate;
+import se.kth.models.FailureCategory;
 import se.kth.utils.JsonUtils;
 
 import java.io.File;
