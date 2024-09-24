@@ -2,7 +2,7 @@ package se.kth.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import se.kth.FailureCategory;
+import se.kth.models.FailureCategory;
 
 public class BreakingUpdate {
     public final String url;
