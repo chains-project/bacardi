@@ -1,4 +1,4 @@
-package se.kth;
+package se.kth.models;
 
 public enum FailureCategory {
     /**

@@ -2,22 +2,27 @@ package se.kth;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.kth.models.FailureCategory;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MavenLogAnalyzer {
+/**
+ * Extract the failure category from the Maven log file.
+ */
+public class FailureCategoryExtract {
 
     /**
      * Patterns to identify different types of failures in the Maven log.
      */
-    public static final Map<Pattern, FailureCategory> FAILURE_PATTERNS = new HashMap<>();
-    private static final Logger log = LoggerFactory.getLogger(MavenLogAnalyzer.class);
+    public static final Map<Pattern, FailureCategory> FAILURE_PATTERNS = new LinkedHashMap<>();
+    private static final Logger log = LoggerFactory.getLogger(FailureCategoryExtract.class);
 
     static {
         FAILURE_PATTERNS.put(Pattern.compile("(?i)(class file has wrong version (\\d+\\.\\d+), should be (\\d+\\.\\d+))"),
@@ -33,7 +38,7 @@ public class MavenLogAnalyzer {
 
     private final File logFile;
 
-    public MavenLogAnalyzer(File logFile) {
+    public FailureCategoryExtract(File logFile) {
         this.logFile = logFile;
     }
 
@@ -43,7 +48,7 @@ public class MavenLogAnalyzer {
      *
      * @return the failure category @see FailureCategory
      */
-    public FailureCategory analyze() {
+    public FailureCategory getFailureCategory() {
 
         try {
             String logContent = Files.readString(logFile.toPath());
