@@ -16,7 +16,7 @@ public class CustomExecutionListener implements TestExecutionListener {
         System.out.println(testIdentifier.toString() + ": " + testExecutionResult.toString());
         System.out.println("-------------------------------------------------");
         TestResult testResult = new TestResult(testIdentifier.getUniqueId(),
-                testExecutionResult.getThrowable().orElseGet(() -> null));
+                testExecutionResult.getThrowable().orElse(null));
         saveTestResult(testResult);
     }
 
