@@ -48,9 +48,9 @@ public class BacardiCli {
             log.info("Analyzing project: {}", project.getFileName());
 
             FailureCategoryExtract failureCategoryExtract = new FailureCategoryExtract(logFile.toFile());
-            final FailureCategory failureCategory = failureCategoryExtract.getFailureCategory();
+            final FailureCategory failureCategory = failureCategoryExtract.getFailureCategory(logFile.toFile());
 
-            BacardiCore bacardiCore = new BacardiCore(project, logFile, failureCategory);
+            BacardiCore bacardiCore = new BacardiCore(project, logFile, failureCategoryExtract);
             bacardiCore.analyze();
 
         }
@@ -70,11 +70,12 @@ public class BacardiCli {
 
         @Override
         public void run() {
+
             log.info("Analyzing log file: {}", logFile.getFileName());
 
             FailureCategoryExtract failureCategoryExtract = new FailureCategoryExtract(logFile.toFile());
 
-            final FailureCategory failureCategory = failureCategoryExtract.getFailureCategory();
+            final FailureCategory failureCategory = failureCategoryExtract.getFailureCategory(logFile.toFile());
 
             log.info("Failure category: {}", failureCategory);
 
