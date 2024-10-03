@@ -50,6 +50,11 @@ public class BacardiCli {
             FailureCategoryExtract failureCategoryExtract = new FailureCategoryExtract(logFile.toFile());
             final FailureCategory failureCategory = failureCategoryExtract.getFailureCategory(logFile.toFile());
 
+            if (failureCategory == FailureCategory.BUILD_SUCCESS) {
+                log.info("Build success. No need to analyze further.");
+                return;
+            }
+
             BacardiCore bacardiCore = new BacardiCore(project, logFile, failureCategoryExtract);
             bacardiCore.analyze();
 

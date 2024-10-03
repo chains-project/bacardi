@@ -3,14 +3,15 @@ package se.kth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.java_version.RepairJavaVersionIncompatibility;
-import se.kth.models.FailureCategory;
-import se.kth.models.JavaVersionInfo;
-import se.kth.models.WerrorInfo;
+import se.kth.models.*;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
+
+import static se.kth.Constants.MAVEN_LOG_FILE;
 
 public class BacardiCore {
 
@@ -44,9 +45,9 @@ public class BacardiCore {
 
         FailureCategory failureCategory = failureCategoryExtract.getFailureCategory(logFile.toFile());
 
-        int attempts = 1;
+        int attempts = 0;
 
-        while (failureCategory != FailureCategory.BUILD_SUCCESS && attempts < 2) {
+        while (failureCategory != FailureCategory.BUILD_SUCCESS && attempts < 3) {
 
             switch (failureCategory) {
                 case JAVA_VERSION_FAILURE:
@@ -69,11 +70,19 @@ public class BacardiCore {
                 case COMPILATION_FAILURE:
                     log.info("Compilation failure detected.");
                     break;
+
                 default:
                     log.info("Unknown failure category.");
             }
+
+            // number of attempts to repair the failure
             attempts++;
         }
+
+        if (failureCategory == FailureCategory.BUILD_SUCCESS) {
+            log.info("Build success in attempt: {}", attempts);
+        }
+
     }
 
 
@@ -81,20 +90,30 @@ public class BacardiCore {
         JavaVersionInformation javaVersionInformation = new JavaVersionInformation(logFile.toFile());
         JavaVersionInfo javaVersionInfo = javaVersionInformation.analyse(logFile.toAbsolutePath().toString(), project.toAbsolutePath().toString());
 
+        JavaVersionIncompatibility incompatibility = javaVersionInfo.getIncompatibility();
+       String newJavaVersion =  javaVersionInfo.getIncompatibility().mapVersions(incompatibility.wrongVersion());
+
+
         log.info("************************************************************");
         log.info("Starting Java version incompatibility repair.");
         log.info("*************************************************************");
 
         RepairJavaVersionIncompatibility repairJavaVersionIncompatibility = new RepairJavaVersionIncompatibility(javaVersionInfo, project);
+
         repairJavaVersionIncompatibility.repair();
 
-        File logFilePath = new File("maven.log");
-        //get new failure category
+        File logFilePath = new File(MAVEN_LOG_FILE);
 
-        javaVersionInfo.getJavaInWorkflowFiles().forEach((k, v) -> {
-            log.info("Java version in workflow file: {}", k);
-            log.info("Java version in workflow file: {}", v);
-        });
+
+        List<YamlInfo> javaVersions = javaVersionInfo.getJavaInWorkflowFiles();
+
+
+        //check if the new failure category is success
+        FailureCategory newFailureCategory = failureCategoryExtract.getFailureCategory(logFilePath);
+
+        if (newFailureCategory == FailureCategory.BUILD_SUCCESS) {
+            repairJavaVersionIncompatibility.updateJavaVersions(project.toString(),17);
+        }
 
         return failureCategoryExtract.getFailureCategory(logFilePath);
 
