@@ -21,8 +21,10 @@ import java.util.regex.Pattern;
  */
 public class RepairJavaVersionIncompatibility {
 
+
     private final JavaVersionInfo javaVersionInfo;
     private final Path clientCode;
+
     private final Logger log = LoggerFactory.getLogger(RepairJavaVersionIncompatibility.class);
 
     /**
@@ -31,6 +33,7 @@ public class RepairJavaVersionIncompatibility {
      * @param javaVersionInfo Information about the Java versions used in the project.
      * @param clientCode Path to the client code.
      */
+
     public RepairJavaVersionIncompatibility(JavaVersionInfo javaVersionInfo, Path clientCode) {
         this.javaVersionInfo = javaVersionInfo;
         this.clientCode = clientCode;
