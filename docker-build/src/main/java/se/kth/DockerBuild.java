@@ -150,7 +150,7 @@ public class DockerBuild {
             throw new RuntimeException(waitResult.toString());
         }
         dockerClient.commitCmd(container.getId())
-                .withRepository(clientName.toString())
+                .withRepository(clientName.toString().toLowerCase())
                 .withTag("base-17").exec();
         log.warn("Created docker image for  {}", clientName);
         dockerClient.removeContainerCmd(container.getId()).exec();
