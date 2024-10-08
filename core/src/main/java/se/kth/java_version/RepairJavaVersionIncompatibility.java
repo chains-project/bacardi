@@ -52,7 +52,7 @@ public class RepairJavaVersionIncompatibility {
             String dockerImageName = dockerBuild.createBaseImageForBreakingUpdate(clientCode, javaVersionInfo.getIncompatibility().mapVersions(incompatibility.wrongVersion()));
 
             // Reproduce the breaking update in the new Java version
-            Result result = dockerBuild.reproduce(dockerImageName, FailureCategory.JAVA_VERSION_FAILURE, clientCode.getFileName().toString());
+            Result result = dockerBuild.reproduce(dockerImageName.toLowerCase(), FailureCategory.JAVA_VERSION_FAILURE, clientCode.getFileName().toString());
 
             // Log the Java versions found in YAML workflow files
             List<YamlInfo> javaVersions = javaVersionInfo.getJavaInWorkflowFiles();

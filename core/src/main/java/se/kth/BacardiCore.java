@@ -71,6 +71,17 @@ public class BacardiCore {
                     log.info("Compilation failure detected.");
                     break;
 
+                case DEPENDENCY_LOCK_FAILURE:
+                    log.info("Dependency lock failure detected.");
+                    break;
+
+                case DEPENDENCY_RESOLUTION_FAILURE:
+                    log.info("Dependency resolution failure detected.");
+                    break;
+                case ENFORCER_FAILURE:
+                    log.info("Enforcer failure detected.");
+                    break;
+
                 default:
                     log.info("Unknown failure category.");
             }
@@ -91,12 +102,14 @@ public class BacardiCore {
         JavaVersionInfo javaVersionInfo = javaVersionInformation.analyse(logFile.toAbsolutePath().toString(), project.toAbsolutePath().toString());
 
         JavaVersionIncompatibility incompatibility = javaVersionInfo.getIncompatibility();
-       String newJavaVersion =  javaVersionInfo.getIncompatibility().mapVersions(incompatibility.wrongVersion());
+        String newJavaVersion = javaVersionInfo.getIncompatibility().mapVersions(incompatibility.wrongVersion());
 
 
+        log.info("");
         log.info("************************************************************");
         log.info("Starting Java version incompatibility repair.");
         log.info("*************************************************************");
+        log.info("");
 
         RepairJavaVersionIncompatibility repairJavaVersionIncompatibility = new RepairJavaVersionIncompatibility(javaVersionInfo, project);
 
@@ -111,9 +124,9 @@ public class BacardiCore {
         //check if the new failure category is success
         FailureCategory newFailureCategory = failureCategoryExtract.getFailureCategory(logFilePath);
 
-        if (newFailureCategory == FailureCategory.BUILD_SUCCESS) {
-            repairJavaVersionIncompatibility.updateJavaVersions(project.toString(),17);
-        }
+//        if (newFailureCategory.equals(failureCategoryExtract.)newFailureCategory == FailureCategory.BUILD_SUCCESS) {
+        repairJavaVersionIncompatibility.updateJavaVersions(project.toString(), 17);
+//        }
 
         return failureCategoryExtract.getFailureCategory(logFilePath);
 

@@ -35,6 +35,14 @@ public class FailureCategoryExtract {
                 FailureCategory.COMPILATION_FAILURE);
         FAILURE_PATTERNS.put(Pattern.compile("(?i)(BUILD SUCCESS)"),
                 FailureCategory.BUILD_SUCCESS);
+        FAILURE_PATTERNS.put(Pattern.compile("(?i)(Failed to execute goal org\\.apache\\.maven\\.plugins:maven-enforcer-plugin|" +
+                        "Failed to execute goal org\\.jenkins-ci\\.tools:maven-hpi-plugin)"),
+                FailureCategory.ENFORCER_FAILURE);
+        FAILURE_PATTERNS.put(Pattern.compile("(?i)(Could not resolve dependencies|\\[ERROR] Some problems were encountered while processing the POMs|" +
+                        "\\[ERROR] .*?The following artifacts could not be resolved)"),
+                FailureCategory.DEPENDENCY_RESOLUTION_FAILURE);
+        FAILURE_PATTERNS.put(Pattern.compile("(?i)(Failed to execute goal se\\.vandmo:dependency-lock-maven-plugin:.*?:check)"),
+                FailureCategory.DEPENDENCY_LOCK_FAILURE);
 
     }
 
