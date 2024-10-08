@@ -29,4 +29,9 @@ public enum FailureCategory {
     DEPENDENCY_RESOLUTION_FAILURE,
     DEPENDENCY_LOCK_FAILURE,
 
+
+    /*
+     * Only for repair purposes
+     */
+    BUILD_SUCCESS
 }

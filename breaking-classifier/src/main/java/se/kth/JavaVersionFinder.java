@@ -1,30 +1,36 @@
 package se.kth;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import se.kth.models.YamlInfo;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class JavaVersionFinder {
-    public Map<String, List<Integer>> findJavaVersions(String projectPath) {
-        Map<String, List<Integer>> javaVersions = new HashMap<>();
+
+    Logger log = LoggerFactory.getLogger(JavaVersionFinder.class);
+
+    public List<YamlInfo> findJavaVersions(String projectPath) {
+
+        List<YamlInfo> javaVersions = new ArrayList<>();
         File projectFolder = new File(projectPath);
         if (!projectFolder.exists() || !projectFolder.isDirectory()) {
             //
-            System.out.println("Folder not exist " + projectPath + " or is not a directory.");
+            log.error("Folder not exist {} or is not a directory.", projectPath);
             return null;
         }
         searchJavaVersionsInFolder(projectFolder, javaVersions);
         return javaVersions;
     }
 
-    private void searchJavaVersionsInFolder(File folder, Map<String, List<Integer>> javaVersions) {
+    private void searchJavaVersionsInFolder(File folder, List<YamlInfo> javaVersions) {
         File[] files = folder.listFiles();
         if (files == null) {
             return;
@@ -34,17 +40,19 @@ public class JavaVersionFinder {
             if (file.isDirectory()) {
                 searchJavaVersionsInFolder(file, javaVersions);
             } else if (file.getName().endsWith(".yml") || file.getName().contains((".yaml"))) {
-                List<Integer> versions = getJavaVersionsFromFile(file);
-                if (!versions.isEmpty()) {
-                    javaVersions.put(file.getName(), versions);
+                YamlInfo versions = getJavaVersionsFromFile(file);
+                if (versions != null && !versions.getJavaVersions().isEmpty()) {
+                    javaVersions.add(versions);
                 }
             }
         }
     }
 
+    private YamlInfo getJavaVersionsFromFile(File file) {
 
-    private List<Integer> getJavaVersionsFromFile(File file) {
+        YamlInfo yamlInfo = null;
         List<Integer> versions = new ArrayList<>();
+
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -118,11 +126,30 @@ public class JavaVersionFinder {
                     }
                 }
 
+                Pattern pattern5 = Pattern.compile("java-version:\\s*\\[\\s*(\\d+)(?:\\s*,\\s*(\\d+))*\\s*]");
+                Matcher matcher5 = pattern5.matcher(line);
+                while (matcher5.find()) {
+                    Pattern numberPattern = Pattern.compile("(\\d+)");
+                    Matcher numberMatcher = numberPattern.matcher(matcher5.group(0));
+                    while (numberMatcher.find()) {
+                        int number = Integer.parseInt(numberMatcher.group(1));
+                        if (!versions.contains(number)) {
+                            versions.add(number);
+                        }
+                    }
+                }
+
+                if (!versions.isEmpty()) {
+                    yamlInfo = new YamlInfo(file.getName(), line, new ArrayList<>(versions));
+                    versions.clear();
+                }
+
             }
         } catch (IOException e) {
             System.out.println("Fail to read file " + file.getAbsolutePath() + ": " + e.getMessage());
         }
-        return versions;
+        return yamlInfo;
     }
+
 
 }
