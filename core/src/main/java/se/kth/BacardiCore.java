@@ -11,16 +11,16 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
-import static se.kth.Constants.MAVEN_LOG_FILE;
+import static Util.Constants.MAVEN_LOG_FILE;
 
 public class BacardiCore {
 
     private static final Logger log = LoggerFactory.getLogger(BacardiCore.class);
-    private Path project;
+    private final Path project;
 
-    private Path logFile;
+    private final Path logFile;
 
-    private FailureCategoryExtract failureCategoryExtract;
+    private final FailureCategoryExtract failureCategoryExtract;
 
 
     public BacardiCore(Path project, Path logFile, FailureCategoryExtract failureCategoryExtract) {

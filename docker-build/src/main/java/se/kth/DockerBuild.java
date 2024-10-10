@@ -74,22 +74,7 @@ public class DockerBuild {
 
         try (InputStream dependencyStream = dockerClient.copyArchiveFromContainerCmd(containerId, "/" + project)
                 .exec()) {
-            try (TarArchiveInputStream tarStream = new TarArchiveInputStream(dependencyStream)) {
-                TarArchiveEntry entry;
-                while ((entry = tarStream.getNextTarEntry()) != null) {
-                    if (!entry.isDirectory()) {
-                        Path filePath = dir.resolve(entry.getName());
-
-                        if (!Files.exists(filePath)) {
-                            Files.createDirectories(filePath.getParent());
-                            Files.createFile(filePath);
-
-                            byte[] fileContent = tarStream.readAllBytes();
-                            Files.write(filePath, fileContent, StandardOpenOption.WRITE);
-                        }
-                    }
-                }
-            }
+            copyFiles(dir, dependencyStream);
             log.info("Project {} copied successfully", project);
             return dir;
         } catch (Exception e) {
@@ -201,6 +186,7 @@ public class DockerBuild {
             dockerClient.inspectImageCmd(image).exec();
         } catch (NotFoundException e) {
             log.info("Base image not present, pulling {}", image);
+            log.info("Pulling Maven image {} ...", image);
             dockerClient.pullImageCmd(image)
                     .exec(new PullImageResultCallback())
                     .awaitCompletion();
@@ -282,6 +268,59 @@ public class DockerBuild {
         } catch (IOException e) {
             log.error("Could not store the log file for breaking update ", e);
             throw new RuntimeException(e);
+        }
+    }
+
+    public CreateContainerResponse startContainerEntryPoint(String imageId, String[] entrypoint) {
+        CreateContainerResponse container = dockerClient
+                .createContainerCmd(imageId)
+                .withEntrypoint(entrypoint)
+                .exec();
+
+        dockerClient.startContainerCmd(container.getId()).exec();
+
+        return container;
+    }
+
+    public void copyM2FolderToLocalPath(String containerId, Path localPath) {
+
+        if (Files.notExists(localPath)) {
+            try {
+                log.info("Creating local path {}", localPath);
+                Files.createDirectories(localPath);
+            } catch (IOException e) {
+                log.error("Could not create local path", e);
+                throw new RuntimeException(e);
+            }
+        }
+        log.info("");
+        log.info("Copying M2 folder from container to local path");
+
+        try (InputStream m2Stream = dockerClient.copyArchiveFromContainerCmd(containerId, "/root/.m2")
+                .exec()) {
+            copyFiles(localPath, m2Stream);
+            log.info("M2 folder copied successfully");
+        } catch (Exception e) {
+            log.error("Could not copy the M2 folder", e);
+        }
+    }
+
+    private void copyFiles(Path localPath, InputStream m2Stream) throws IOException {
+        try (TarArchiveInputStream tarStream = new TarArchiveInputStream(m2Stream)) {
+            TarArchiveEntry entry;
+            while ((entry = tarStream.getNextTarEntry()) != null) {
+                if (!entry.isDirectory()) {
+                    Path filePath = localPath.resolve(entry.getName());
+
+                    if (!Files.exists(filePath)) {
+                        Files.createDirectories(filePath.getParent());
+                        Files.createFile(filePath);
+
+                        byte[] fileContent = tarStream.readAllBytes();
+                        Files.write(filePath, fileContent, StandardOpenOption.WRITE);
+                    }
+                }
+            }
         }
     }
 
