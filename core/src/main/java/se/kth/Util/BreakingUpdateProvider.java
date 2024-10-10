@@ -1,4 +1,4 @@
-package Util;
+package se.kth.Util;
 
 import se.kth.model.BreakingUpdate;
 import se.kth.models.FailureCategory;

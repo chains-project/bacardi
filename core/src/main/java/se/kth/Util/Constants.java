@@ -1,4 +1,4 @@
-package Util;
+package se.kth.Util;
 
 public class Constants {
 

@@ -1,6 +1,6 @@
 package se.kth;
 
-import Util.BreakingUpdateProvider;
+import se.kth.Util.BreakingUpdateProvider;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +10,7 @@ import se.kth.models.FailureCategory;
 import java.nio.file.Path;
 import java.util.List;
 
-import static Util.Constants.BENCHMARK_PATH;
+import static se.kth.Util.Constants.BENCHMARK_PATH;
 
 public class Bump {
 

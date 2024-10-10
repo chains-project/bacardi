@@ -11,7 +11,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
-import static Util.Constants.MAVEN_LOG_FILE;
+import static se.kth.Util.Constants.MAVEN_LOG_FILE;
 
 public class BacardiCore {
 
