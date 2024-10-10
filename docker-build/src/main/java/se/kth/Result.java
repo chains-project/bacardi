@@ -9,6 +9,7 @@ import java.util.List;
 @lombok.Setter
 public class Result {
 
+    String breakingCommit;
     private FailureCategory originalFailureCategory;
     private List<Attempt> attempts;
 

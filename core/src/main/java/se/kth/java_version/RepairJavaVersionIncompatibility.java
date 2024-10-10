@@ -24,6 +24,7 @@ public class RepairJavaVersionIncompatibility {
 
     private final JavaVersionInfo javaVersionInfo;
     private final Path clientCode;
+    private Boolean isBump = false;
 
     private final Logger log = LoggerFactory.getLogger(RepairJavaVersionIncompatibility.class);
 
@@ -31,12 +32,13 @@ public class RepairJavaVersionIncompatibility {
      * Constructor that initializes the repair process with the provided Java version info and client code.
      *
      * @param javaVersionInfo Information about the Java versions used in the project.
-     * @param clientCode Path to the client code.
+     * @param clientCode      Path to the client code.
      */
 
-    public RepairJavaVersionIncompatibility(JavaVersionInfo javaVersionInfo, Path clientCode) {
+    public RepairJavaVersionIncompatibility(JavaVersionInfo javaVersionInfo, Path clientCode, Boolean isBump) {
         this.javaVersionInfo = javaVersionInfo;
         this.clientCode = clientCode;
+        this.isBump = isBump;
     }
 
     /**
@@ -44,14 +46,14 @@ public class RepairJavaVersionIncompatibility {
      * and logging the Java versions found in the YAML files of the project.
      */
     public void repair() {
-        DockerBuild dockerBuild = new DockerBuild();
+        DockerBuild dockerBuild = new DockerBuild(isBump);
         JavaVersionIncompatibility incompatibility = javaVersionInfo.getIncompatibility();
 
         try {
             // Create a base image for the breaking update with the project code
             String dockerImageName = dockerBuild.createBaseImageForBreakingUpdate(clientCode, javaVersionInfo.getIncompatibility().mapVersions(incompatibility.wrongVersion()));
 
-            // Reproduce the breaking update in the new Java version
+//             Reproduce the breaking update in the new Java version
             Result result = dockerBuild.reproduce(dockerImageName.toLowerCase(), FailureCategory.JAVA_VERSION_FAILURE, clientCode.getFileName().toString());
 
             // Log the Java versions found in YAML workflow files
@@ -72,7 +74,7 @@ public class RepairJavaVersionIncompatibility {
      * Updates all Java versions found in the YAML configuration files within the project to the specified new version.
      *
      * @param projectPath Path to the project folder.
-     * @param newVersion New Java version to be updated to.
+     * @param newVersion  New Java version to be updated to.
      */
     public void updateJavaVersions(String projectPath, int newVersion) {
         File projectFolder = new File(projectPath);
@@ -82,7 +84,7 @@ public class RepairJavaVersionIncompatibility {
     /**
      * Recursively updates Java versions in all files within the specified folder.
      *
-     * @param folder Folder containing the project files.
+     * @param folder     Folder containing the project files.
      * @param newVersion New Java version to be updated to.
      */
     private void updateJavaVersionsInFolder(File folder, int newVersion) {
@@ -104,7 +106,7 @@ public class RepairJavaVersionIncompatibility {
      * Updates the Java versions within a single file by replacing the current versions with the new one,
      * while maintaining versions that are greater or equal to the new version.
      *
-     * @param file File where Java versions need to be updated.
+     * @param file       File where Java versions need to be updated.
      * @param newVersion New Java version to update to.
      */
     private void updateJavaVersionsInFile(File file, int newVersion) {
@@ -142,7 +144,7 @@ public class RepairJavaVersionIncompatibility {
     /**
      * Replaces Java versions in a line with the new version, keeping the format of the original version string.
      *
-     * @param line Line containing Java versions.
+     * @param line       Line containing Java versions.
      * @param newVersion New Java version to replace in the line.
      * @return Updated line with the new version.
      */
@@ -197,7 +199,7 @@ public class RepairJavaVersionIncompatibility {
     /**
      * Formats a list of versions into a string, optionally adding quotes around each version.
      *
-     * @param versions List of Java versions.
+     * @param versions  List of Java versions.
      * @param useQuotes Whether to wrap each version in quotes.
      * @return Formatted version list as a string.
      */
@@ -237,7 +239,7 @@ public class RepairJavaVersionIncompatibility {
     /**
      * Filters Java versions, removing versions lower than the specified new version.
      *
-     * @param versions List of Java versions.
+     * @param versions   List of Java versions.
      * @param newVersion The new Java version to keep or add.
      * @return A filtered list of Java versions.
      */

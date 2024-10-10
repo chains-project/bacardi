@@ -1,13 +1,16 @@
 package se.kth;
 
-import se.kth.Util.BreakingUpdateProvider;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.kth.Util.BreakingUpdateProvider;
 import se.kth.model.BreakingUpdate;
 import se.kth.models.FailureCategory;
+import se.kth.utils.JsonUtils;
 
+import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 import static se.kth.Util.Constants.BENCHMARK_PATH;
@@ -16,7 +19,9 @@ public class Bump {
 
     private static final Logger log = LoggerFactory.getLogger(Bump.class);
 
-    private final static String LOCAL_PATH_M2 = "/Users/frank/Documents/Work/PHD/bacardi/M2";
+    private final static String CLIENT_PATH = "/Users/frank/Documents/Work/PHD/bacardi/projects";
+
+    static List<Result> resultsList = new ArrayList<>();
 
 
     public static void main(String[] args) {
@@ -42,17 +47,54 @@ public class Bump {
         log.info("");
 
 
-        DockerBuild dockerBuild = new DockerBuild();
+        DockerBuild dockerBuild = new DockerBuild(true);
         // identify breaking updates and download image and copy the project
 
         breaking.stream()
-                .filter(e -> e.breakingCommit.equals("c8da6c3c823d745bb37b072a4a33b6342a86dcd9q"))
-                .forEach(e -> getProjectData(e, dockerBuild));
+                .filter(e -> e.breakingCommit.equals("c8da6c3c823d745bb37b072a4a33b6342a86dcd9"))
+                .forEach(e -> {
+
+                    // copy m2 folder to local path
+                    Path localPath = Path.of("%s/%s/m2/".formatted(CLIENT_PATH, e.breakingCommit));
+                    Path fromContainerM2 = Path.of("/root/.m2/");
+                    getProjectData(e, dockerBuild, fromContainerM2, localPath);
+
+                    //copy project from container
+                    Path fromContainerProject = Path.of(e.project);
+                    Path toLocalProject = Path.of("%s/%s".formatted(CLIENT_PATH, e.breakingCommit));
+                    getProjectData(e, dockerBuild, fromContainerProject, toLocalProject);
+
+
+                    repair(e, dockerBuild, toLocalProject);
+                });
+    }
+
+
+    public static void repair(BreakingUpdate breakingUpdate, DockerBuild dockerBuild, Path project) {
+
+        File logFile = new File("%s/%s/%s/%s.log".formatted(CLIENT_PATH, breakingUpdate.breakingCommit, breakingUpdate.project, breakingUpdate.breakingCommit));
+
+        FailureCategoryExtract failureCategoryExtract = new FailureCategoryExtract(logFile);
+
+        final FailureCategory failureCategory = failureCategoryExtract.getFailureCategory(logFile);
+
+        if (failureCategory == FailureCategory.BUILD_SUCCESS) {
+            log.info("Build success. No need to analyze further.");
+            return;
+        }
+
+        BacardiCore bacardiCore = new BacardiCore(project.resolve(breakingUpdate.project), logFile.toPath(), failureCategoryExtract, true);
+
+        Result results = bacardiCore.analyze();
+        results.setBreakingCommit(breakingUpdate.breakingCommit);
+        resultsList.add(results);
+
+        JsonUtils.writeToFile(Path.of("result_repair.json"), resultsList);
 
     }
 
 
-    private static void getProjectData(BreakingUpdate breakingUpdate, DockerBuild dockerBuild) {
+    private static void getProjectData(BreakingUpdate breakingUpdate, DockerBuild dockerBuild, Path fromContainer, Path toLocal) {
 
 
         try {
@@ -66,11 +108,11 @@ public class Bump {
             CreateContainerResponse container = dockerBuild.startContainerEntryPoint(imageId, entrypoint);
 
             // Copy m2 folder to local path in the breaking commit folder
-            Path localPath = Path.of("%s/%s".formatted(LOCAL_PATH_M2, breakingUpdate.breakingCommit));
-            dockerBuild.copyM2FolderToLocalPath(container.getId(), localPath);
-
+            dockerBuild.copyM2FolderToLocalPath(container.getId(), fromContainer, toLocal);
+//            dockerBuild.copyProjectFromContainer(container.getId(), breakingUpdate.project, Path.of("%s/%s", CLIENT_PATH, breakingUpdate.breakingCommit));
 
         } catch (InterruptedException e) {
+            log.error("Something went wrong", e);
             e.printStackTrace();
         }
 

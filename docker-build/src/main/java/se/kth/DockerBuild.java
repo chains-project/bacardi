@@ -1,6 +1,7 @@
 package se.kth;
 
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.CopyArchiveToContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.PullImageResultCallback;
 import com.github.dockerjava.api.command.WaitContainerResultCallback;
@@ -38,9 +39,13 @@ public class DockerBuild {
     private static final List<String> containers = new ArrayList<>();
     public static final String BASE_IMAGE = "ghcr.io/chains-project/breaking-updates:base-image";
 
+    private Boolean isBump = false;
 
-    public DockerBuild() {
+
+    public DockerBuild(Boolean isBump) {
+        this.isBump = isBump;
         createDockerClient();
+
     }
 
 
@@ -57,7 +62,7 @@ public class DockerBuild {
             log.warn("Failed to remove container with id: {}", containerId);
             return false;
         }
-        log.info("Container with id: " + containerId + " removed successfully");
+        log.info("Container with id: {} removed successfully", containerId);
         return true;
     }
 
@@ -119,10 +124,23 @@ public class DockerBuild {
         createTarFile(localFolder, tar);
         String containerPath = "/%s".formatted(clientName);
         try (var tarStream = Files.newInputStream(tar)) {
+
+            //copy client code to container
             dockerClient.copyArchiveToContainerCmd(container.getId())
                     .withTarInputStream(tarStream)
                     .withRemotePath(containerPath)
                     .exec();
+
+            if (isBump) {
+                log.info("Copying M2 folder to container ++++++++++++++++++++++++");
+                CopyArchiveToContainerCmd copyCmd = dockerClient.copyArchiveToContainerCmd(container.getId())
+                        .withHostResource(Path.of("/Users/frank/Documents/Work/PHD/bacardi/projects/c8da6c3c823d745bb37b072a4a33b6342a86dcd9/m2/.m2").toAbsolutePath().toString()) // local path
+                        .withRemotePath("/root/"); //  container path
+
+                copyCmd.exec();
+            }
+
+
         } catch (IOException e) {
             log.error("Could not copy project to container", e);
             throw new RuntimeException(e);
@@ -253,7 +271,7 @@ public class DockerBuild {
      * Command to compile and test the breaking update
      */
     private static String getPostCmd() {
-        return "set -o pipefail && mvn clean test -B | tee mavenLog.log";
+        return "set -o pipefail && mvn test -B | tee mavenLog.log";
 
     }
 
@@ -282,7 +300,7 @@ public class DockerBuild {
         return container;
     }
 
-    public void copyM2FolderToLocalPath(String containerId, Path localPath) {
+    public void copyM2FolderToLocalPath(String containerId, Path fromContainer, Path localPath) {
 
         if (Files.notExists(localPath)) {
             try {
@@ -296,7 +314,7 @@ public class DockerBuild {
         log.info("");
         log.info("Copying M2 folder from container to local path");
 
-        try (InputStream m2Stream = dockerClient.copyArchiveFromContainerCmd(containerId, "/root/.m2")
+        try (InputStream m2Stream = dockerClient.copyArchiveFromContainerCmd(containerId, fromContainer.toString())
                 .exec()) {
             copyFiles(localPath, m2Stream);
             log.info("M2 folder copied successfully");

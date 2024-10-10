@@ -22,11 +22,13 @@ public class BacardiCore {
 
     private final FailureCategoryExtract failureCategoryExtract;
 
+    Boolean isBump = false;
 
-    public BacardiCore(Path project, Path logFile, FailureCategoryExtract failureCategoryExtract) {
+    public BacardiCore(Path project, Path logFile, FailureCategoryExtract failureCategoryExtract, Boolean isBump) {
         this.project = Objects.requireNonNull(project, "Project path cannot be null");
         this.logFile = Objects.requireNonNull(logFile, "Log file path cannot be null");
         this.failureCategoryExtract = Objects.requireNonNull(failureCategoryExtract, "Failure category cannot be null");
+        this.isBump = isBump;
         verify();
     }
 
@@ -41,9 +43,12 @@ public class BacardiCore {
     }
 
 
-    public void analyze() {
+    public Result analyze() {
 
         FailureCategory failureCategory = failureCategoryExtract.getFailureCategory(logFile.toFile());
+
+        Result result = new Result(failureCategory);
+
 
         int attempts = 0;
 
@@ -86,6 +91,9 @@ public class BacardiCore {
                     log.info("Unknown failure category.");
             }
 
+            Attempt attempt = new Attempt(attempts, failureCategory, failureCategory == FailureCategory.BUILD_SUCCESS);
+            log.info("Attempt: {}", attempt);
+            result.getAttempts().add(attempt);
             // number of attempts to repair the failure
             attempts++;
         }
@@ -94,6 +102,7 @@ public class BacardiCore {
             log.info("Build success in attempt: {}", attempts);
         }
 
+        return result;
     }
 
 
@@ -111,7 +120,7 @@ public class BacardiCore {
         log.info("*************************************************************");
         log.info("");
 
-        RepairJavaVersionIncompatibility repairJavaVersionIncompatibility = new RepairJavaVersionIncompatibility(javaVersionInfo, project);
+        RepairJavaVersionIncompatibility repairJavaVersionIncompatibility = new RepairJavaVersionIncompatibility(javaVersionInfo, project, isBump);
 
         repairJavaVersionIncompatibility.repair();
 
