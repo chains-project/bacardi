@@ -46,7 +46,7 @@ public class Bump {
         // identify breaking updates and download image and copy the project
 
         breaking.stream()
-                .filter(e -> e.breakingCommit.equals("c8da6c3c823d745bb37b072a4a33b6342a86dcd9"))
+                .filter(e -> e.breakingCommit.equals("c8da6c3c823d745bb37b072a4a33b6342a86dcd9q"))
                 .forEach(e -> getProjectData(e, dockerBuild));
 
     }
