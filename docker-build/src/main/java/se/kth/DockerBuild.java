@@ -1,10 +1,16 @@
 package se.kth;
 
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.command.ExecCreateCmdResponse;
 import com.github.dockerjava.api.command.PullImageResultCallback;
 import com.github.dockerjava.api.command.WaitContainerResultCallback;
 import com.github.dockerjava.api.exception.NotFoundException;
+import com.github.dockerjava.api.model.Frame;
+import com.github.dockerjava.api.model.HostConfig;
+import com.github.dockerjava.api.model.Mount;
+import com.github.dockerjava.api.model.StreamType;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
@@ -17,9 +23,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.models.FailureCategory;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -203,6 +211,59 @@ public class DockerBuild {
         return container.getId();
     }
 
+
+    /**
+     * Starts a container which just spins infinitely long, meant to keep the container alive and execute multiple
+     * commands later on. The container must be killed manually!
+     *
+     * @param imageId    the docker image to use
+     * @param hostConfig the HostConfig the container should be started with
+     * @return the containerID of the started container
+     */
+    public String startSpinningContainer(String imageId, HostConfig hostConfig) {
+        CreateContainerResponse container = dockerClient
+                .createContainerCmd(imageId)
+                .withHostConfig(hostConfig)
+                .withCmd("sh", "-c", "sleep infinity")
+                .exec();
+
+        return container.getId();
+    }
+
+    /**
+     * Executes the given command inside an already running container and returns the output.
+     *
+     * @param containerId the ID of the container to execute the command in
+     * @param command     the command to execute
+     * @return the output of the command
+     */
+    public String executeInContainer(String containerId, String... command) {
+        ExecCreateCmdResponse response = dockerClient.execCreateCmd(containerId)
+                .withCmd(command)
+                .withAttachStdout(true)
+                .withAttachStderr(true)
+                .exec();
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            dockerClient.execStartCmd(response.getId()).exec(new ResultCallback.Adapter<Frame>() {
+                @Override
+                public void onNext(Frame item) {
+                    if (item.getStreamType() == StreamType.STDOUT || item.getStreamType() == StreamType.STDERR) {
+                        try {
+                            outputStream.write(item.getPayload());
+                        } catch (Exception e) {
+                            log.error(e.getMessage(), e);
+                        }
+                    }
+                }
+            }).awaitCompletion();
+        } catch (InterruptedException e) {
+            log.error(e.getMessage(), e);
+        }
+        return outputStream.toString(StandardCharsets.UTF_8);
+    }
+
     /**
      * Reproduces a breaking update using a specified Docker image and failure category.
      *
@@ -221,7 +282,8 @@ public class DockerBuild {
 
         for (attemptCount = 3; attemptCount < 4; attemptCount++) {
 
-            startedContainers.put("postContainer%s".formatted(attemptCount), startContainer(getPostCmd(), image, client));
+            startedContainers.put("postContainer%s".formatted(attemptCount), startContainer(getPostCmd(), image,
+                    client));
 
             WaitContainerResultCallback result = dockerClient.waitContainerCmd(startedContainers.get("postContainer%s"
                     .formatted(attemptCount))).exec(new WaitContainerResultCallback());
@@ -231,12 +293,14 @@ public class DockerBuild {
                 storeLogFile(startedContainers.get("postContainer%s".formatted(attemptCount)), client);
                 // stop the process and store the log file
                 log.info("Breaking commit failed in the {} attempt.", attemptCount);
-                breakingUpdateReproductionResult.getAttempts().add(new Attempt(attemptCount, FailureCategory.UNKNOWN_FAILURE, false));
+                breakingUpdateReproductionResult.getAttempts().add(new Attempt(attemptCount,
+                        FailureCategory.UNKNOWN_FAILURE, false));
 
             } else {
                 log.info("Breaking commit did not fail in the {} attempt.", attemptCount);
                 if (attemptCount == 3) {
-                    breakingUpdateReproductionResult.getAttempts().add(new Attempt(attemptCount, FailureCategory.BUILD_SUCCESS, false));
+                    breakingUpdateReproductionResult.getAttempts().add(new Attempt(attemptCount,
+                            FailureCategory.BUILD_SUCCESS, false));
                     storeLogFile(startedContainers.get("postContainer%s".formatted(attemptCount)), client);
                 }
             }
@@ -275,6 +339,18 @@ public class DockerBuild {
         CreateContainerResponse container = dockerClient
                 .createContainerCmd(imageId)
                 .withEntrypoint(entrypoint)
+                .exec();
+
+        dockerClient.startContainerCmd(container.getId()).exec();
+
+        return container;
+    }
+
+    public CreateContainerResponse startContainerEntryPoint(String imageId, String[] entrypoint, List<Mount> mounts) {
+        CreateContainerResponse container = dockerClient
+                .createContainerCmd(imageId)
+                .withEntrypoint(entrypoint)
+                .withHostConfig(new HostConfig().withMounts(mounts))
                 .exec();
 
         dockerClient.startContainerCmd(container.getId()).exec();
