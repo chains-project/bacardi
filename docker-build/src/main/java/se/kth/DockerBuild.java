@@ -134,9 +134,12 @@ public class DockerBuild {
 
 
         if (isBump) {
+
+            Path m2 = localFolder.resolveSibling("m2/.m2").normalize();
+
             log.info("Copying M2 folder to container ++++++++++++++++++++++++");
             CopyArchiveToContainerCmd copyCmd = dockerClient.copyArchiveToContainerCmd(container.getId())
-                    .withHostResource(Path.of("/Users/frank/Documents/Work/PHD/bacardi/projects/c8da6c3c823d745bb37b072a4a33b6342a86dcd9/m2/.m2").toAbsolutePath().toString()) // local path
+                    .withHostResource(m2.toAbsolutePath().toString()) // local path
                     .withRemotePath("/root/"); //  container path
 
             copyCmd.exec();
