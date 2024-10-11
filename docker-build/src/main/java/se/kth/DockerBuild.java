@@ -114,37 +114,34 @@ public class DockerBuild {
         CreateContainerResponse container = dockerClient.createContainerCmd(baseImage)
                 .withWorkingDir("/%s".formatted(clientName))
                 .withCmd("sh")
-                .withCmd("mkdir", "-p", "/%s".formatted(clientName))
+//                .withCmd("mkdir", "-p", "/%s".formatted(clientName))
                 .exec();
 
         dockerClient.startContainerCmd(container.getId()).exec();
         Path localFolder = Paths.get("%s".formatted(client));
         Path tar = Paths.get("%s.tar".formatted(clientName));
 
-        createTarFile(localFolder, tar);
+//        createTarFile(localFolder, tar);
+
         String containerPath = "/%s".formatted(clientName);
-        try (var tarStream = Files.newInputStream(tar)) {
-
-            //copy client code to container
-            dockerClient.copyArchiveToContainerCmd(container.getId())
-                    .withTarInputStream(tarStream)
-                    .withRemotePath(containerPath)
-                    .exec();
-
-            if (isBump) {
-                log.info("Copying M2 folder to container ++++++++++++++++++++++++");
-                CopyArchiveToContainerCmd copyCmd = dockerClient.copyArchiveToContainerCmd(container.getId())
-                        .withHostResource(Path.of("/Users/frank/Documents/Work/PHD/bacardi/projects/c8da6c3c823d745bb37b072a4a33b6342a86dcd9/m2/.m2").toAbsolutePath().toString()) // local path
-                        .withRemotePath("/root/"); //  container path
-
-                copyCmd.exec();
-            }
 
 
-        } catch (IOException e) {
-            log.error("Could not copy project to container", e);
-            throw new RuntimeException(e);
+        CopyArchiveToContainerCmd copyProjectToContainer = dockerClient.copyArchiveToContainerCmd(container.getId())
+                .withHostResource(localFolder.toAbsolutePath().toString()) // local path
+                .withRemotePath("/"); //  container path
+
+        copyProjectToContainer.exec();
+
+
+        if (isBump) {
+            log.info("Copying M2 folder to container ++++++++++++++++++++++++");
+            CopyArchiveToContainerCmd copyCmd = dockerClient.copyArchiveToContainerCmd(container.getId())
+                    .withHostResource(Path.of("/Users/frank/Documents/Work/PHD/bacardi/projects/c8da6c3c823d745bb37b072a4a33b6342a86dcd9/m2/.m2").toAbsolutePath().toString()) // local path
+                    .withRemotePath("/root/"); //  container path
+
+            copyCmd.exec();
         }
+
 
         WaitContainerResultCallback waitResult = dockerClient.waitContainerCmd(container.getId())
                 .exec(new WaitContainerResultCallback());
@@ -312,14 +309,14 @@ public class DockerBuild {
             }
         }
         log.info("");
-        log.info("Copying M2 folder from container to local path");
+        log.info("Copying folder {} from container to local path", localPath.getFileName());
 
         try (InputStream m2Stream = dockerClient.copyArchiveFromContainerCmd(containerId, fromContainer.toString())
                 .exec()) {
             copyFiles(localPath, m2Stream);
-            log.info("M2 folder copied successfully");
+            log.info("Folder {} copied successfully", localPath.getFileName());
         } catch (Exception e) {
-            log.error("Could not copy the M2 folder", e);
+            log.error("Could not copy the {} folder", localPath, e);
         }
     }
 

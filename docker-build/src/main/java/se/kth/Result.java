@@ -18,6 +18,10 @@ public class Result {
         this.attempts = new ArrayList<>();
     }
 
+    public Result() {
+        this.attempts = new ArrayList<>();
+    }
+
     @Override
     public String toString() {
         return "Result{\n" +

@@ -107,6 +107,8 @@ public class BacardiCore {
 
 
     private FailureCategory repairJavaVersionIncompatibility() {
+
+
         JavaVersionInformation javaVersionInformation = new JavaVersionInformation(logFile.toFile());
         JavaVersionInfo javaVersionInfo = javaVersionInformation.analyse(logFile.toAbsolutePath().toString(), project.toAbsolutePath().toString());
 
