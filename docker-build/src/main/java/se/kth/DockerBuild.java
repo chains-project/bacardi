@@ -227,6 +227,8 @@ public class DockerBuild {
                 .withCmd("sh", "-c", "sleep infinity")
                 .exec();
 
+        dockerClient.startContainerCmd(container.getId()).exec();
+
         return container.getId();
     }
 
