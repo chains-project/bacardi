@@ -37,12 +37,24 @@ public class CustomExecutionListener implements TestExecutionListener {
     public static class TestResult implements Serializable {
         public final String testIdentifier;
         public final TestExecutionResult.Status status;
-        public final Throwable throwable;
+        public final SerializableThrowable throwable;
 
         public TestResult(String testIdentifier, TestExecutionResult.Status status, Throwable throwable) {
             this.testIdentifier = testIdentifier;
             this.status = status;
-            this.throwable = throwable;
+            this.throwable = throwable == null ? null : new SerializableThrowable(throwable);
+        }
+    }
+
+    public static class SerializableThrowable implements Serializable {
+        public final String className;
+        public final String message;
+        public final StackTraceElement[] stackTrace;
+
+        public SerializableThrowable(Throwable throwable) {
+            this.className = throwable.getClass().getName();
+            this.message = throwable.getMessage();
+            this.stackTrace = throwable.getStackTrace();
         }
     }
 }
