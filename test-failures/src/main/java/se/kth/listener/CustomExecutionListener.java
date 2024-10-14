@@ -35,6 +35,9 @@ public class CustomExecutionListener implements TestExecutionListener {
     }
 
     public static class TestResult implements Serializable {
+
+        private static final long serialVersionUID = -5652087931635613645L;
+
         public final String testIdentifier;
         public final TestExecutionResult.Status status;
         public final SerializableThrowable throwable;
@@ -47,6 +50,9 @@ public class CustomExecutionListener implements TestExecutionListener {
     }
 
     public static class SerializableThrowable implements Serializable {
+
+        private static final long serialVersionUID = 2988580623727952827L;
+
         public final String className;
         public final String message;
         public final StackTraceElement[] stackTrace;
