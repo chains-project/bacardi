@@ -1,20 +1,15 @@
 package se.kth;
 
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.CreateContainerResponse;
-import com.github.dockerjava.api.command.PullImageResultCallback;
+import com.github.dockerjava.api.model.HostConfig;
+import com.github.dockerjava.api.model.Mount;
+import se.kth.injector.TestFrameworkHandler;
 import se.kth.model.BreakingUpdate;
-import se.kth.model.MavenModel;
 import se.kth.utils.Config;
 
+import java.nio.file.Path;
 import java.util.List;
 
-import static se.kth.injector.PomFileLocator.getAllModels;
-import static se.kth.injector.PomFileLocator.getPomFileLocations;
-
 public class Main {
-
-    private static DockerClient dockerClient = Config.getDockerClient();
 
     public static void main(String[] args) throws InterruptedException {
         String filePath = "/home/leonard/code/java/bump/data/benchmark/";
@@ -23,20 +18,33 @@ public class Main {
         for (BreakingUpdate update : breakingUpdates) {
             String imageId = update.getPreImageId();
 
-            dockerClient.pullImageCmd(imageId).exec(new PullImageResultCallback()).awaitCompletion();
+            TestFrameworkHandler testFrameworkHandler = new TestFrameworkHandler(imageId)
+                    .withMountsForModifiedPomFiles()
+                    .withMetaInfMounts()
+                    .withListenerMounts()
+                    .withOutputMount();
 
-            CreateContainerResponse container = dockerClient.createContainerCmd(imageId)
-                    .withCmd("sh", "-c", "sleep 60")
-                    .exec();
+            List<Mount> mounts = testFrameworkHandler.getMounts();
 
-            dockerClient.startContainerCmd(container.getId()).exec();
-            String containerId = container.getId();
+            HostConfig config = HostConfig.newHostConfig()
+                    .withMounts(mounts);
 
+            Path modifiedRootPom = testFrameworkHandler.getRootModifiedPomFile();
 
-            List<String> paths = getPomFileLocations(containerId);
-            List<MavenModel> models = getAllModels(containerId, paths);
+            DockerBuild dockerBuild = new DockerBuild(false);
+            String containerId = dockerBuild.startSpinningContainer(imageId, config);
+            String commandOutput = dockerBuild.executeInContainer(containerId, "tree");
 
-            System.out.println(models);
+            String projectOutputPath = modifiedRootPom.getParent().toString();
+            Path copyPath = dockerBuild.copyProjectFromContainer(containerId, modifiedRootPom.getParent().toString(),
+                    Config.getTmpDirPath().resolve("container").toAbsolutePath());
+
+            String testOutput = dockerBuild.executeInContainer(containerId, "mvn", "-f", modifiedRootPom.toString(),
+                    "test");
+
+            dockerBuild.removeContainer(containerId);
+
+            System.out.println("done");
         }
     }
 }
