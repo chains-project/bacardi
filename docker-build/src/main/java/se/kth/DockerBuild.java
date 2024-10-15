@@ -224,7 +224,7 @@ public class DockerBuild {
         CreateContainerResponse container = dockerClient
                 .createContainerCmd(imageId)
                 .withHostConfig(hostConfig)
-                .withCmd("sh", "-c", "sleep infinity")
+                .withEntrypoint("sh", "-c", "sleep 60")
                 .exec();
 
         dockerClient.startContainerCmd(container.getId()).exec();
