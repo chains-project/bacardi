@@ -33,7 +33,7 @@ import java.util.Map;
 
 public class DockerBuild {
 
-    Logger log = LoggerFactory.getLogger(DockerBuild.class);
+    static Logger log = LoggerFactory.getLogger(DockerBuild.class);
     private static DockerClient dockerClient;
     private static final int EXIT_CODE_OK = 0;
     private static final List<String> containers = new ArrayList<>();
@@ -343,4 +343,11 @@ public class DockerBuild {
     }
 
 
+    public static void deleteImage(String imageId) {
+        try {
+            dockerClient.removeImageCmd(imageId).withForce(true).exec();
+        } catch (Exception e) {
+            log.error("Could not delete image {}", imageId, e);
+        }
+    }
 }

@@ -45,7 +45,7 @@ public class RepairJavaVersionIncompatibility {
      * Attempts to repair Java version incompatibility by creating a Docker image, reproducing the failure,
      * and logging the Java versions found in the YAML files of the project.
      */
-    public void repair() {
+    public String repair() {
         DockerBuild dockerBuild = new DockerBuild(isBump);
         JavaVersionIncompatibility incompatibility = javaVersionInfo.getIncompatibility();
 
@@ -64,10 +64,13 @@ public class RepairJavaVersionIncompatibility {
                 log.info("Java versions: {}", yamlInfo.getJavaVersions());
             });
 
+            return dockerImageName;
+
         } catch (IOException e) {
             log.error("Error creating base image for breaking update.", e);
             throw new RuntimeException(e);
         }
+
     }
 
     /**

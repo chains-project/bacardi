@@ -24,6 +24,8 @@ public class BacardiCore {
 
     Boolean isBump = false;
 
+    String actualImage;
+
     public BacardiCore(Path project, Path logFile, FailureCategoryExtract failureCategoryExtract, Boolean isBump) {
         this.project = Objects.requireNonNull(project, "Project path cannot be null");
         this.logFile = Objects.requireNonNull(logFile, "Log file path cannot be null");
@@ -99,6 +101,7 @@ public class BacardiCore {
         }
 
         if (failureCategory == FailureCategory.BUILD_SUCCESS) {
+            DockerBuild.deleteImage(actualImage);
             log.info("Build success in attempt: {}", attempts);
         }
 
@@ -124,7 +127,7 @@ public class BacardiCore {
 
         RepairJavaVersionIncompatibility repairJavaVersionIncompatibility = new RepairJavaVersionIncompatibility(javaVersionInfo, project, isBump);
 
-        repairJavaVersionIncompatibility.repair();
+        actualImage = repairJavaVersionIncompatibility.repair();
 
         File logFilePath = new File(MAVEN_LOG_FILE);
 

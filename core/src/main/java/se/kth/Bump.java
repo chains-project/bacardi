@@ -11,6 +11,7 @@ import se.kth.model.BreakingUpdate;
 import se.kth.models.FailureCategory;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ public class Bump {
     private final static String CLIENT_PATH = "/Users/frank/Documents/Work/PHD/bacardi/projects";
 
     static Set<Result> resultsList = new HashSet<>();
-    private final static String JSON_PATH = "result_repair.json";
+    private final static String JSON_PATH = "result_repair_test.json";
 
 
     public static void main(String[] args) {
@@ -55,6 +56,17 @@ public class Bump {
 
         // read Json file with attempts information
         JavaType type = JsonUtils.getTypeFactory().constructCollectionType(List.class, Result.class);
+
+        if (!Files.exists(Path.of(JSON_PATH))) {
+            try {
+                Files.createFile(Path.of(JSON_PATH));
+                JsonUtils.writeToFile(Path.of(JSON_PATH), new ArrayList<Result>());
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         resultsList.addAll(JsonUtils.readFromFile(Path.of(JSON_PATH), type));
 
 
@@ -63,7 +75,7 @@ public class Bump {
 
         breaking
                 .stream()
-                .filter(e -> e.breakingCommit.equals("c5905f7220e1129a0448715ee5d0e61ee5ac31e1")) // filter by breaking commit
+                .filter(e -> e.breakingCommit.equals("c83979c19ca572bfef0fa96d73772fdbeeddd109")) // filter by breaking commit
 //                .filter(e -> javaVersionIncompatibilityLines.contains(e.breakingCommit)) // filter by failure category
                 .forEach(e -> {
 
@@ -85,8 +97,13 @@ public class Bump {
 
                         //copy project from container
                         Path fromContainerProject = Path.of(e.project);
-                        getProjectData(e, dockerBuild, fromContainerProject, clientFolder);
+                        String imageId = getProjectData(e, dockerBuild, fromContainerProject, clientFolder);
 
+
+                        //delete Image
+                        if (imageId != null) {
+//                            dockerBuild.deleteImage(imageId);
+                        }
                     }
 
 
@@ -130,11 +147,11 @@ public class Bump {
     }
 
 
-    private static void getProjectData(BreakingUpdate breakingUpdate, DockerBuild dockerBuild, Path fromContainer, Path toLocal) {
+    private static String getProjectData(BreakingUpdate breakingUpdate, DockerBuild dockerBuild, Path fromContainer, Path toLocal) {
 
-
+        String imageId = null;
         try {
-            String imageId = breakingUpdate.breakingUpdateReproductionCommand.replace("docker run ", "");
+            imageId = breakingUpdate.breakingUpdateReproductionCommand.replace("docker run ", "");
             String[] entrypoint = new String[]{"/bin/sh"};
 
             //pull image
@@ -144,11 +161,16 @@ public class Bump {
             // Copy m2 folder to local path in the breaking commit folder
             dockerBuild.copyM2FolderToLocalPath(container.getId(), fromContainer, toLocal);
 
+            dockerBuild.removeContainer(container.getId());
+
+            return imageId;
+
+
         } catch (InterruptedException e) {
             log.error("Something went wrong", e);
             e.printStackTrace();
         }
-
+        return imageId;
     }
 
 
