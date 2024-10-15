@@ -1,1 +1,151 @@
-package se.kth.injector;import com.github.dockerjava.api.DockerClient;import com.github.dockerjava.api.command.CreateContainerResponse;import com.github.dockerjava.api.command.PullImageResultCallback;import com.github.dockerjava.api.model.Mount;import com.github.dockerjava.api.model.MountType;import org.apache.maven.api.model.Dependency;import org.apache.maven.api.model.Model;import se.kth.model.MavenModel;import se.kth.utils.Config;import java.io.IOException;import java.nio.file.Files;import java.nio.file.Path;import java.util.Comparator;import java.util.LinkedList;import java.util.List;import static se.kth.injector.PomFileLocator.getAllModels;import static se.kth.injector.PomFileLocator.getPomFilePaths;public class TestFrameworkHandler {    private static final DockerClient dockerClient = Config.getDockerClient();    private String imageId;    private String containerId;    private final List<MavenModel> models;    private List<Mount> mounts = new LinkedList<>();    private List<Path> modifiedPomFiles = new LinkedList<>();    public TestFrameworkHandler(String imageId) throws InterruptedException {        this.imageId = imageId;        dockerClient.pullImageCmd(imageId).exec(new PullImageResultCallback()).awaitCompletion();        CreateContainerResponse container = dockerClient.createContainerCmd(imageId)                .withCmd("sh", "-c", "sleep 60")                .exec();        dockerClient.startContainerCmd(container.getId()).exec();        this.containerId = container.getId();        List<Path> paths = getPomFilePaths(containerId);        this.models = getAllModels(containerId, paths);    }    public TestFrameworkHandler withMountsForModifiedPomFiles() {        List<Path> paths = getPomFilePaths(containerId);        List<MavenModel> models = getAllModels(containerId, paths);        List<Mount> pomFileMounts = models.stream()                .map(this::createBindForModifiedPomFile)                .toList();        this.mounts.addAll(pomFileMounts);        return this;    }    public TestFrameworkHandler withMetaInfMounts() {        List<Mount> metaInfMounts = models.stream()                .map(this::createBindMountForMetaInf)                .toList();        this.mounts.addAll(metaInfMounts);        return this;    }    public TestFrameworkHandler withListenerMounts() {        List<Mount> listenerMounts = models.stream()                .map(this::createBindMountForListener)                .toList();        this.mounts.addAll(listenerMounts);        return this;    }    public TestFrameworkHandler withOutputMount() {        Mount outputMount = this.createBindMountForOutput();        this.mounts.add(outputMount);        return this;    }    public List<Mount> getMounts() {        return this.mounts;    }    public Path getRootModifiedPomFile() {        return this.modifiedPomFiles.stream().min(Comparator.comparingInt(Path::getNameCount))                .orElse(null);    }    private Mount createBindForModifiedPomFile(MavenModel mavenModel) {        Model model = mavenModel.getModel();        Dependency vintageEngine = Dependency.newBuilder()                .groupId("org.junit.vintage")                .artifactId("junit-vintage-engine")                .version("5.11.2")                .scope("test")                .build();        Dependency jupiterPlatform = Dependency.newBuilder()                .groupId("org.junit.platform")                .artifactId("junit-platform-launcher")                .version("1.10.3")                .scope("test")                .build();        List<Dependency> newDependencies = new LinkedList<>(model.getDependencies());        newDependencies.add(vintageEngine);        newDependencies.add(jupiterPlatform);        Model newModel = Model.newBuilder(model)                .dependencies(newDependencies)                .build();        String modifiedPomFileName = "pom.xml";        String modifiedPomFileAbsolutePath = PomFileLocator.writeCustomPomFile(newModel, modifiedPomFileName);        Path modifiedPomFileDockerPath = mavenModel.getFilePath().resolveSibling(modifiedPomFileName);        this.modifiedPomFiles.add(modifiedPomFileDockerPath);        return new Mount()                .withSource(modifiedPomFileAbsolutePath)                .withTarget(modifiedPomFileDockerPath.toString())                .withType(MountType.BIND);    }    private Mount createBindMountForMetaInf(MavenModel mavenModel) {        Path metaInfPath = Path.of("src", "test", "resources", "META-INF", "services", "org.junit.platform.launcher" +                ".TestExecutionListener");        Path dockerPath = mavenModel.getFilePath().resolveSibling(metaInfPath);        Path metaInfSourcePath = Path.of("test-failures", "src", "main", "resources", "org.junit.platform.launcher" +                ".TestExecutionListener").toAbsolutePath();        return new Mount()                .withSource(metaInfSourcePath.toString())                .withTarget(dockerPath.toString())                .withType(MountType.BIND);    }    private Mount createBindMountForListener(MavenModel mavenModel) {        Path listenerPath = Path.of("src", "test", "java", "se", "kth", "listener", "CustomExecutionListener.java");        Path listenerDockerPath = mavenModel.getFilePath().resolveSibling(listenerPath);        Path listenerSourcePath = Path.of("test-failures", "src", "main", "java", "se", "kth", "listener",                "CustomExecutionListener.java").toAbsolutePath();        return new Mount()                .withSource(listenerSourcePath.toString())                .withTarget(listenerDockerPath.toString())                .withType(MountType.BIND);    }    private Mount createBindMountForOutput() {        Path dockerPath = Path.of("/bacardi-output");        Path projectOutputPath = Path.of("output", this.imageId.split(":")[1]);        Path localOutputPath = Config.getTmpDirPath().resolve(projectOutputPath);        try {            Files.createDirectory(localOutputPath);        } catch (IOException e) {            throw new RuntimeException(e);        }        return new Mount()                .withSource(localOutputPath.toString())                .withTarget(dockerPath.toString())                .withType(MountType.BIND);    }}
+package se.kth.injector;
+
+import org.apache.maven.api.model.Dependency;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+public class TestFrameworkHandler {
+
+    private final List<Dependency> dependencies;
+
+    public TestFrameworkHandler(List<Dependency> dependencies) {
+        this.dependencies = new LinkedList<>(dependencies);
+    }
+
+    public List<Dependency> getWithAddedDependencies() {
+        List<Dependency> result = new ArrayList<>();
+
+        String jupiterVersionToUse = this.containsAnyJupiterDependency() ? this.getJupiterVersion() : "5.10.1";
+
+        if (this.containsOnlyJunit4()) {
+            this.performJunit4Migration();
+        } else if (this.containsJunit4() && this.containsAnyJupiterDependency()) {
+            this.performMixedMigration(jupiterVersionToUse);
+        } else if (!this.containsJunit4() && this.containsAnyJupiterDependency()) {
+            this.performJupiterMigration(jupiterVersionToUse);
+        } else {
+            this.performJunit4Migration();
+        }
+
+        return result;
+    }
+
+    private boolean containsJunit4() {
+        return this.containsDependency("junit", "junit");
+    }
+
+    private boolean containsOnlyJunit4() {
+        return this.containsJunit4() && !this.containsAnyJupiterDependency();
+    }
+
+    private boolean containsAnyJupiterDependency() {
+        return this.dependencies.stream().anyMatch(d -> d.getGroupId().equals("org.junit.jupiter"));
+    }
+
+    private String getJupiterVersion() {
+        return this.dependencies.stream()
+                .filter(d -> d.getGroupId().equals("org.junit.jupiter"))
+                .findFirst()
+                .get()
+                .getVersion();
+    }
+
+    private boolean containsDependency(String groupId, String artifactId) {
+        return this.dependencies.stream().anyMatch(
+                dependency -> dependency.getGroupId().equals(groupId) && dependency.getArtifactId().equals(artifactId));
+    }
+
+    private void performJunit4Migration() {
+        Dependency vintageEngine = Dependency.newBuilder()
+                .groupId("org.junit.vintage")
+                .artifactId("junit-vintage-engine")
+                .version("5.10.1")
+                .scope("test")
+                .build();
+
+        Dependency jupiterAggregator = Dependency.newBuilder()
+                .groupId("org.junit.jupiter")
+                .artifactId("junit-jupiter")
+                .version("5.10.1")
+                .scope("test")
+                .build();
+
+        this.dependencies.add(vintageEngine);
+        this.dependencies.add(jupiterAggregator);
+    }
+
+    private void performMixedMigration(String jupiterVersion) {
+        Dependency vintageEngine = Dependency.newBuilder()
+                .groupId("org.junit.vintage")
+                .artifactId("junit-vintage-engine")
+                .version(jupiterVersion)
+                .scope("test")
+                .build();
+
+        Dependency jupiterPlatform = Dependency.newBuilder()
+                .groupId("org.junit.platform")
+                .artifactId("junit-platform-launcher")
+                .version("1.11.2")
+                .scope("test")
+                .build();
+
+        Dependency jupiterEngine = Dependency.newBuilder()
+                .groupId("org.junit.jupiter")
+                .artifactId("junit-jupiter-engine")
+                .version(jupiterVersion)
+                .scope("test")
+                .build();
+
+        Dependency jupiterApi = Dependency.newBuilder()
+                .groupId("org.junit.jupiter")
+                .artifactId("junit-jupiter-api")
+                .version(jupiterVersion)
+                .scope("test")
+                .build();
+
+        Dependency jupiterAggregator = Dependency.newBuilder()
+                .groupId("org.junit.jupiter")
+                .artifactId("junit-jupiter")
+                .version(jupiterVersion)
+                .scope("test")
+                .build();
+
+        this.safeAdd(vintageEngine);
+        this.safeAdd(jupiterPlatform);
+        this.safeAdd(jupiterEngine);
+        this.safeAdd(jupiterApi);
+        this.safeAdd(jupiterAggregator);
+    }
+
+    private void performJupiterMigration(String jupiterVersion) {
+        Dependency jupiterPlatform = Dependency.newBuilder()
+                .groupId("org.junit.platform")
+                .artifactId("junit-platform-launcher")
+                .version("1.11.2")
+                .scope("test")
+                .build();
+
+        Dependency jupiterAggregator = Dependency.newBuilder()
+                .groupId("org.junit.jupiter")
+                .artifactId("junit-jupiter")
+                .version(jupiterVersion)
+                .scope("test")
+                .build();
+
+        this.safeAdd(jupiterPlatform);
+        this.safeAdd(jupiterAggregator);
+    }
+
+    private boolean safeAdd(Dependency dependency) {
+        boolean alreadyContained = this.dependencies.stream()
+                .anyMatch(d -> d.getGroupId().equals(dependency.getGroupId()) && d.getArtifactId().equals(dependency.getArtifactId()));
+        if (alreadyContained) {
+            return false;
+        } else {
+            this.dependencies.add(dependency);
+            return true;
+        }
+    }
+}

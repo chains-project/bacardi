@@ -233,6 +233,24 @@ public class DockerBuild {
     }
 
     /**
+     * Starts a container which just spins infinitely long, meant to keep the container alive and execute multiple
+     * commands later on. The container must be killed manually!
+     *
+     * @param imageId the docker image to use
+     * @return the containerID of the started container
+     */
+    public String startSpinningContainer(String imageId) {
+        CreateContainerResponse container = dockerClient
+                .createContainerCmd(imageId)
+                .withEntrypoint("sh", "-c", "sleep 60")
+                .exec();
+
+        dockerClient.startContainerCmd(container.getId()).exec();
+
+        return container.getId();
+    }
+
+    /**
      * Executes the given command inside an already running container and returns the output.
      *
      * @param containerId the ID of the container to execute the command in

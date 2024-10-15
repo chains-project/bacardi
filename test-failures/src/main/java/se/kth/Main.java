@@ -2,10 +2,11 @@ package se.kth;
 
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Mount;
-import se.kth.injector.TestFrameworkHandler;
+import se.kth.injector.MountsBuilder;
 import se.kth.model.BreakingUpdate;
 import se.kth.utils.Config;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -17,34 +18,47 @@ public class Main {
 
         for (BreakingUpdate update : breakingUpdates) {
             String imageId = update.getPreImageId();
+            String hash = imageId.split(":")[1].replace("-pre", "");
 
-            TestFrameworkHandler testFrameworkHandler = new TestFrameworkHandler(imageId)
-                    .withMountsForModifiedPomFiles()
-                    .withMetaInfMounts()
-                    .withListenerMounts()
-                    .withOutputMount();
+            Path subPath = Path.of("output", imageId.split(":")[1]);
+            Path potentialOutput = Config.getTmpDirPath().resolve(subPath);
+            if (Files.exists(potentialOutput)) {
+                continue;
+            }
 
-            List<Mount> mounts = testFrameworkHandler.getMounts();
+            try {
 
-            HostConfig config = HostConfig.newHostConfig()
-                    .withMounts(mounts);
+                MountsBuilder mountsBuilder = new MountsBuilder(imageId)
+                        .withMountsForModifiedPomFiles()
+                        .withMetaInfMounts()
+                        .withListenerMounts()
+                        .withOutputMount();
 
-            Path modifiedRootPom = testFrameworkHandler.getRootModifiedPomFile();
+                List<Mount> mounts = mountsBuilder.build();
 
-            DockerBuild dockerBuild = new DockerBuild();
-            String containerId = dockerBuild.startSpinningContainer(imageId, config);
-            String commandOutput = dockerBuild.executeInContainer(containerId, "tree");
+                HostConfig config = HostConfig.newHostConfig()
+                        .withMounts(mounts);
 
-            String projectOutputPath = modifiedRootPom.getParent().toString();
-            Path copyPath = dockerBuild.copyProjectFromContainer(containerId, modifiedRootPom.getParent().toString(),
-                    Config.getTmpDirPath().resolve("container").toAbsolutePath());
+                Path modifiedRootPom = mountsBuilder.getRootModifiedPomFile();
 
-            String testOutput = dockerBuild.executeInContainer(containerId, "mvn", "-f", modifiedRootPom.toString(),
-                    "test");
+                DockerBuild dockerBuild = new DockerBuild();
+                String containerId = dockerBuild.startSpinningContainer(imageId, config);
 
-            dockerBuild.removeContainer(containerId);
+                String projectOutputPath = modifiedRootPom.getParent().toString();
 
-            System.out.println("done");
+                String testOutput = dockerBuild.executeInContainer(containerId, "mvn", "-l", "test-output.log", "test");
+
+                Path containerOutput = Path.of("container", imageId.split(":")[1]);
+                Path copyPath = dockerBuild.copyProjectFromContainer(containerId,
+                        modifiedRootPom.getParent().toString(),
+                        Config.getTmpDirPath().resolve(containerOutput).toAbsolutePath());
+
+                dockerBuild.removeContainer(containerId);
+
+                System.out.println("done");
+            } catch (Exception e) {
+                System.err.println(e);
+            }
         }
     }
 }
