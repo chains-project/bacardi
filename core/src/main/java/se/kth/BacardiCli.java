@@ -42,6 +42,8 @@ public class BacardiCli {
                 required = true)
         Path logFile;
 
+
+
         @Override
         public void run() {
 
@@ -55,7 +57,7 @@ public class BacardiCli {
                 return;
             }
 
-            BacardiCore bacardiCore = new BacardiCore(project, logFile, failureCategoryExtract);
+            BacardiCore bacardiCore = new BacardiCore(project, logFile, failureCategoryExtract, false);
             bacardiCore.analyze();
 
         }
@@ -86,7 +88,6 @@ public class BacardiCli {
 
         }
     }
-
 
 
 }

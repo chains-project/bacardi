@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 
 public class PomFileLocator {
 
-    private static DockerBuild dockerBuild = new DockerBuild();
+    private static DockerBuild dockerBuild = new DockerBuild(false);
 
     public static List<Path> getPomFilePaths(String containerId) {
         String commandOutput = dockerBuild.executeInContainer(containerId, "find", "/", "-type", "f", "-name",

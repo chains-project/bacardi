@@ -31,7 +31,7 @@ public class Main {
 
             Path modifiedRootPom = testFrameworkHandler.getRootModifiedPomFile();
 
-            DockerBuild dockerBuild = new DockerBuild();
+            DockerBuild dockerBuild = new DockerBuild(false);
             String containerId = dockerBuild.startSpinningContainer(imageId, config);
             String commandOutput = dockerBuild.executeInContainer(containerId, "tree");
 

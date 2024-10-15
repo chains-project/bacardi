@@ -1,5 +1,6 @@
 package se.kth.utils;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -22,6 +23,14 @@ public class JsonUtils {
             mapper.writeValue(path.toFile(), obj);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public static <T> T readFromFile(Path path, TypeReference<T> jsonType) {
+        try {
+            return mapper.readValue(Files.readString(path), jsonType);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }
