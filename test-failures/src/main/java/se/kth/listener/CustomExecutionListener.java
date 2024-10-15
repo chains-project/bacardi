@@ -27,10 +27,25 @@ public class CustomExecutionListener implements TestExecutionListener {
 
     private void saveTestResult(TestResult testResult) {
         Path filePath = OUTPUT_DIR.resolve("test-" + testResult.hashCode() + ".log");
-        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(filePath.toFile()))) {
+        ObjectOutputStream objectOutputStream = null;
+        FileOutputStream fileOutputStream = null;
+        try {
+            fileOutputStream = new FileOutputStream(filePath.toFile());
+            objectOutputStream = new ObjectOutputStream(fileOutputStream);
             objectOutputStream.writeObject(testResult);
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (objectOutputStream != null) {
+                    objectOutputStream.close();
+                }
+                if (fileOutputStream != null) {
+                    fileOutputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
