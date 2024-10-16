@@ -2,7 +2,6 @@ package se.kth.injector;
 
 import org.apache.maven.api.model.Dependency;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,9 +14,7 @@ public class TestFrameworkHandler {
     }
 
     public List<Dependency> getWithAddedDependencies() {
-        List<Dependency> result = new ArrayList<>();
-
-        String jupiterVersionToUse = this.containsAnyJupiterDependency() ? this.getJupiterVersion() : "5.10.1";
+        String jupiterVersionToUse = this.containsAnyJupiterDependency() ? this.getJupiterVersion() : "5.11.2";
 
         if (this.containsOnlyJunit4()) {
             this.performJunit4Migration();
@@ -29,7 +26,7 @@ public class TestFrameworkHandler {
             this.performJunit4Migration();
         }
 
-        return result;
+        return this.dependencies;
     }
 
     private boolean containsJunit4() {
@@ -72,8 +69,17 @@ public class TestFrameworkHandler {
                 .scope("test")
                 .build();
 
+
+        Dependency jupiterPlatform = Dependency.newBuilder()
+                .groupId("org.junit.platform")
+                .artifactId("junit-platform-launcher")
+                .version("1.11.2")
+                .scope("test")
+                .build();
+
         this.dependencies.add(vintageEngine);
         this.dependencies.add(jupiterAggregator);
+        this.dependencies.add(jupiterPlatform);
     }
 
     private void performMixedMigration(String jupiterVersion) {
