@@ -1,6 +1,6 @@
 package se.kth.scripts;
 
-import org.junit.platform.engine.TestExecutionResult;
+import org.junit.platform.engine.TestExecutionResult.Status;
 import se.kth.listener.CustomExecutionListener;
 import se.kth.utils.FileUtils;
 import se.kth.utils.JsonUtils;
@@ -9,77 +9,68 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class TestResultReader {
     public static void main(String[] args) throws IOException {
-        Path resultsJsonPath = Path.of("test-failures", "src", "main", "resources", "results.json");
-
-        Map<String, List<String>> results = JsonUtils.readFromFile(resultsJsonPath.toFile().toPath(), Map.class);
-
-
-        Path directory = Path.of(".tmp2", "output").toAbsolutePath();
-
-        List<Path> nonEmptyDirs = Files.walk(directory)
-                .filter(path -> {
-                    try {
-                        return Files.isDirectory(path) && Files.list(path).findFirst().isPresent();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .toList();
-
-        List<Path> emptyDirs = Files.walk(directory)
-                .filter(path -> {
-                    try {
-                        return Files.isDirectory(path) && Files.list(path).findFirst().isEmpty();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .toList();
+        Path directory = Path.of(".tmp", "output").toAbsolutePath();
 
         List<Path> all = Files.walk(directory)
                 .filter(Files::isDirectory)
                 .toList();
 
-        List<String> emptyJunit5 = emptyDirs.stream()
-                .map(path -> path.getFileName().toString().replace("-pre", ""))
-                .filter(s -> results.get("junit5").contains(s))
-                .collect(Collectors.toUnmodifiableList());
+        List<Path> collectableDirs = all.stream()
+                .filter(path -> {
+                    try {
+                        return Files.list(path).findFirst().isPresent();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .toList();
 
+        List<Path> nonCollectableDirs = all.stream()
+                .filter(path -> {
+                    try {
+                        return Files.list(path).findFirst().isEmpty();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .toList();
 
-        List<String> realMigrations = emptyDirs.stream()
-                .map(path -> path.getFileName().toString().replace("-pre", ""))
-                .filter(s -> results.get("junit4").contains(s) && !results.get("junit5").contains(s))
-                .collect(Collectors.toUnmodifiableList());
+        List<String> collectableCommitIds = collectableDirs.stream()
+                .map(path -> path.getFileName().toString())
+                .toList();
+        List<String> nonCollectableCommitIds = nonCollectableDirs.stream()
+                .map(path -> path.getFileName().toString())
+                .toList();
 
-        List<String> unrealMigrations = emptyDirs.stream()
-                .map(path -> path.getFileName().toString().replace("-pre", ""))
-                .filter(s -> results.get("junit4").contains(s) && results.get("junit5").contains(s))
-                .collect(Collectors.toUnmodifiableList());
-        int total = 0;
-        int failed = 0;
+        Map<String, List<String>> collectableNonCollectableProjects = new HashMap<>();
+        collectableNonCollectableProjects.put("collectable", collectableCommitIds);
+        collectableNonCollectableProjects.put("nonCollectable", nonCollectableCommitIds);
+        Path collectableOutputPath = Path.of("test-failures", "src", "main", "resources", "collectable.json");
+        JsonUtils.writeToFile(collectableOutputPath, collectableNonCollectableProjects);
 
-
-        for (Path path : nonEmptyDirs) {
-
+        Map<String, List<String>> unsuccessfulTestCasesResult = new HashMap<>();
+        for (Path path : collectableDirs) {
+            List<String> unsuccessfulTestCases = new LinkedList<>();
             for (File file : FileUtils.getFilesInDirectory(path.toString())) {
                 CustomExecutionListener.TestResult testResult =
                         (CustomExecutionListener.TestResult) FileUtils.readFromBinary(file.getPath());
-
-                total++;
-                if (testResult.status != TestExecutionResult.Status.SUCCESSFUL) {
-                    System.out.println(testResult);
-                    failed++;
+                if (testResult.status != Status.SUCCESSFUL) {
+                    unsuccessfulTestCases.add(testResult.testIdentifier);
                 }
-                System.out.println(testResult);
             }
-
+            if (!unsuccessfulTestCases.isEmpty()) {
+                unsuccessfulTestCasesResult.put(path.getFileName().toString(), unsuccessfulTestCases);
+            }
         }
-        System.out.println("Finished");
+
+        Path unsuccessfulTestCasesOutputPath = Path.of("test-failures", "src", "main", "resources", "unsuccessfulTestCases.json");
+        JsonUtils.writeToFile(unsuccessfulTestCasesOutputPath, unsuccessfulTestCasesResult);
     }
 }
