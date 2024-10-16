@@ -1,88 +1,21 @@
 package se.kth.injector;
 
 import org.apache.maven.api.model.Dependency;
+import org.apache.maven.api.model.Model;
 
 import java.util.LinkedList;
 import java.util.List;
 
 public class TestFrameworkHandler {
 
-    private final List<Dependency> dependencies;
+    private final Model model;
 
-    public TestFrameworkHandler(List<Dependency> dependencies) {
-        this.dependencies = new LinkedList<>(dependencies);
+    public TestFrameworkHandler(Model model) {
+        this.model = model;
     }
 
-    public List<Dependency> getWithAddedDependencies() {
-        String jupiterVersionToUse = this.containsAnyJupiterDependency() ? this.getJupiterVersion() : "5.11.2";
-
-        if (this.containsOnlyJunit4()) {
-            this.performJunit4Migration();
-        } else if (this.containsJunit4() && this.containsAnyJupiterDependency()) {
-            this.performMixedMigration(jupiterVersionToUse);
-        } else if (!this.containsJunit4() && this.containsAnyJupiterDependency()) {
-            this.performJupiterMigration(jupiterVersionToUse);
-        } else {
-            this.performJunit4Migration();
-        }
-
-        return this.dependencies;
-    }
-
-    private boolean containsJunit4() {
-        return this.containsDependency("junit", "junit");
-    }
-
-    private boolean containsOnlyJunit4() {
-        return this.containsJunit4() && !this.containsAnyJupiterDependency();
-    }
-
-    private boolean containsAnyJupiterDependency() {
-        return this.dependencies.stream().anyMatch(d -> d.getGroupId().equals("org.junit.jupiter"));
-    }
-
-    private String getJupiterVersion() {
-        return this.dependencies.stream()
-                .filter(d -> d.getGroupId().equals("org.junit.jupiter"))
-                .findFirst()
-                .get()
-                .getVersion();
-    }
-
-    private boolean containsDependency(String groupId, String artifactId) {
-        return this.dependencies.stream().anyMatch(
-                dependency -> dependency.getGroupId().equals(groupId) && dependency.getArtifactId().equals(artifactId));
-    }
-
-    private void performJunit4Migration() {
-        Dependency vintageEngine = Dependency.newBuilder()
-                .groupId("org.junit.vintage")
-                .artifactId("junit-vintage-engine")
-                .version("5.10.1")
-                .scope("test")
-                .build();
-
-        Dependency jupiterAggregator = Dependency.newBuilder()
-                .groupId("org.junit.jupiter")
-                .artifactId("junit-jupiter")
-                .version("5.10.1")
-                .scope("test")
-                .build();
-
-
-        Dependency jupiterPlatform = Dependency.newBuilder()
-                .groupId("org.junit.platform")
-                .artifactId("junit-platform-launcher")
-                .version("1.11.2")
-                .scope("test")
-                .build();
-
-        this.dependencies.add(vintageEngine);
-        this.dependencies.add(jupiterAggregator);
-        this.dependencies.add(jupiterPlatform);
-    }
-
-    private void performMixedMigration(String jupiterVersion) {
+    public Model migrate() {
+        String jupiterVersion = "5.11.2";
         Dependency vintageEngine = Dependency.newBuilder()
                 .groupId("org.junit.vintage")
                 .artifactId("junit-vintage-engine")
@@ -111,47 +44,14 @@ public class TestFrameworkHandler {
                 .scope("test")
                 .build();
 
-        Dependency jupiterAggregator = Dependency.newBuilder()
-                .groupId("org.junit.jupiter")
-                .artifactId("junit-jupiter")
-                .version(jupiterVersion)
-                .scope("test")
+        List<Dependency> newDependencies = new LinkedList<>(model.getDependencies());
+        newDependencies.add(vintageEngine);
+        newDependencies.add(jupiterPlatform);
+        newDependencies.add(jupiterEngine);
+        newDependencies.add(jupiterApi);
+
+        return Model.newBuilder(model)
+                .dependencies(newDependencies)
                 .build();
-
-        this.safeAdd(vintageEngine);
-        this.safeAdd(jupiterPlatform);
-        this.safeAdd(jupiterEngine);
-        this.safeAdd(jupiterApi);
-        this.safeAdd(jupiterAggregator);
-    }
-
-    private void performJupiterMigration(String jupiterVersion) {
-        Dependency jupiterPlatform = Dependency.newBuilder()
-                .groupId("org.junit.platform")
-                .artifactId("junit-platform-launcher")
-                .version("1.11.2")
-                .scope("test")
-                .build();
-
-        Dependency jupiterAggregator = Dependency.newBuilder()
-                .groupId("org.junit.jupiter")
-                .artifactId("junit-jupiter")
-                .version(jupiterVersion)
-                .scope("test")
-                .build();
-
-        this.safeAdd(jupiterPlatform);
-        this.safeAdd(jupiterAggregator);
-    }
-
-    private boolean safeAdd(Dependency dependency) {
-        boolean alreadyContained = this.dependencies.stream()
-                .anyMatch(d -> d.getGroupId().equals(dependency.getGroupId()) && d.getArtifactId().equals(dependency.getArtifactId()));
-        if (alreadyContained) {
-            return false;
-        } else {
-            this.dependencies.add(dependency);
-            return true;
-        }
     }
 }

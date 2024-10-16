@@ -9,56 +9,78 @@ import se.kth.utils.Config;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executors;
 
 public class Main {
 
     public static void main(String[] args) throws InterruptedException {
-        String filePath = "/home/leonard/code/java/bump/data/benchmark/";
+        String filePath = "/home/leohus/bump/data/benchmark/";
         List<BreakingUpdate> breakingUpdates = TestFailuresProvider.getTestFailuresFromResources(filePath);
 
-        for (BreakingUpdate update : breakingUpdates) {
-            String imageId = update.getPreImageId();
-            String hash = imageId.split(":")[1].replace("-pre", "");
+        try (ExecutorService executorService = Executors.newFixedThreadPool(30)) {
 
-            Path subPath = Path.of("output", imageId.split(":")[1]);
-            Path potentialOutput = Config.getTmpDirPath().resolve(subPath);
-            if (Files.exists(potentialOutput)) {
-                continue;
+            for (BreakingUpdate update : breakingUpdates) {
+                String imageId = update.getPreImageId();
+                executorService.submit(() -> {
+                    try {
+                        executeForImageId(imageId);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
             }
+            executorService.shutdown();
+            executorService.awaitTermination(1, TimeUnit.HOURS);
+        }
+        System.out.println("finished");
+    }
 
-            try {
+    private static void executeForImageId(String imageId) throws InterruptedException {
+        String hash = imageId.split(":")[1].replace("-pre", "");
 
-                MountsBuilder mountsBuilder = new MountsBuilder(imageId)
-                        .withMountsForModifiedPomFiles()
-                        .withMetaInfMounts()
-                        .withListenerMounts()
-                        .withOutputMount();
+        DockerBuild dockerBuild2 = new DockerBuild();
+        dockerBuild2.ensureBaseMavenImageExists(imageId);
 
-                List<Mount> mounts = mountsBuilder.build();
+        Path subPath = Path.of("output", hash);
+        Path potentialOutput = Config.getTmpDirPath().resolve(subPath);
+        if (Files.exists(potentialOutput)) {
+            return;
+        }
 
-                HostConfig config = HostConfig.newHostConfig()
-                        .withMounts(mounts);
+        try {
 
-                Path modifiedRootPom = mountsBuilder.getRootModifiedPomFile();
+            MountsBuilder mountsBuilder = new MountsBuilder(imageId)
+                    .withMountsForModifiedPomFiles()
+                    .withMetaInfMounts()
+                    .withListenerMounts()
+                    .withOutputMount();
 
-                DockerBuild dockerBuild = new DockerBuild();
-                String containerId = dockerBuild.startSpinningContainer(imageId, config);
+            List<Mount> mounts = mountsBuilder.build();
 
-                String projectOutputPath = modifiedRootPom.getParent().toString();
+            HostConfig config = HostConfig.newHostConfig()
+                    .withMounts(mounts);
 
-                String testOutput = dockerBuild.executeInContainer(containerId, "mvn", "-l", "test-output.log", "test");
+            Path modifiedRootPom = mountsBuilder.getRootModifiedPomFile();
 
-                Path containerOutput = Path.of("container", imageId.split(":")[1]);
-                Path copyPath = dockerBuild.copyProjectFromContainer(containerId,
-                        modifiedRootPom.getParent().toString(),
-                        Config.getTmpDirPath().resolve(containerOutput).toAbsolutePath());
+            DockerBuild dockerBuild = new DockerBuild();
+            String containerId = dockerBuild.startSpinningContainer(imageId, config);
 
-                dockerBuild.removeContainer(containerId);
+            String projectOutputPath = modifiedRootPom.getParent().toString();
 
-                System.out.println("done");
-            } catch (Exception e) {
-                System.err.println(e);
-            }
+            String testOutput = dockerBuild.executeInContainer(containerId, "mvn", "-l", "test-output.log", "test");
+
+            Path containerOutput = Path.of("container", hash);
+            Path copyPath = dockerBuild.copyProjectFromContainer(containerId,
+                    modifiedRootPom.getParent().toString(),
+                    Config.getTmpDirPath().resolve(containerOutput).toAbsolutePath());
+
+            dockerBuild.removeContainer(containerId);
+
+            System.out.println("done");
+        } catch (Exception e) {
+            System.err.println(e);
         }
     }
 }
