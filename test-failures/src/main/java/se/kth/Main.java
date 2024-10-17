@@ -40,7 +40,7 @@ public class Main {
     private static void executeForImageId(String imageId) throws InterruptedException {
         String hash = imageId.split(":")[1].replace("-pre", "");
 
-        DockerBuild dockerBuild = new DockerBuild();
+        DockerBuild dockerBuild = new DockerBuild(false);
         dockerBuild.ensureBaseMavenImageExists(imageId);
 
         Path subPath = Path.of("output", hash);
@@ -62,7 +62,7 @@ public class Main {
                     .withMounts(mounts);
 
             Path modifiedRootPom = mountsBuilder.getRootModifiedPomFile();
-
+          
             String containerId = dockerBuild.startSpinningContainer(imageId, config);
 
             String testOutput = dockerBuild.executeInContainer(containerId, "mvn", "-l", "test-output.log", "test");

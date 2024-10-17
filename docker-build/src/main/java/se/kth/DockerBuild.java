@@ -2,10 +2,7 @@ package se.kth;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
-import com.github.dockerjava.api.command.CreateContainerResponse;
-import com.github.dockerjava.api.command.ExecCreateCmdResponse;
-import com.github.dockerjava.api.command.PullImageResultCallback;
-import com.github.dockerjava.api.command.WaitContainerResultCallback;
+import com.github.dockerjava.api.command.*;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.api.model.HostConfig;
@@ -38,17 +35,22 @@ import java.util.List;
 import java.util.Map;
 
 
+
 public class DockerBuild {
 
-    Logger log = LoggerFactory.getLogger(DockerBuild.class);
+    static Logger log = LoggerFactory.getLogger(DockerBuild.class);
     private static DockerClient dockerClient;
     private static final int EXIT_CODE_OK = 0;
     private static final List<String> containers = new ArrayList<>();
     public static final String BASE_IMAGE = "ghcr.io/chains-project/breaking-updates:base-image";
 
+    private Boolean isBump = false;
 
-    public DockerBuild() {
+
+    public DockerBuild(Boolean isBump) {
+        this.isBump = isBump;
         createDockerClient();
+
     }
 
 
@@ -65,7 +67,7 @@ public class DockerBuild {
             log.warn("Failed to remove container with id: {}", containerId);
             return false;
         }
-        log.info("Container with id: " + containerId + " removed successfully");
+        log.info("Container with id: {} removed successfully", containerId);
         return true;
     }
 
@@ -117,24 +119,37 @@ public class DockerBuild {
         CreateContainerResponse container = dockerClient.createContainerCmd(baseImage)
                 .withWorkingDir("/%s".formatted(clientName))
                 .withCmd("sh")
-                .withCmd("mkdir", "-p", "/%s".formatted(clientName))
+//                .withCmd("mkdir", "-p", "/%s".formatted(clientName))
                 .exec();
 
         dockerClient.startContainerCmd(container.getId()).exec();
         Path localFolder = Paths.get("%s".formatted(client));
         Path tar = Paths.get("%s.tar".formatted(clientName));
 
-        createTarFile(localFolder, tar);
+//        createTarFile(localFolder, tar);
+
         String containerPath = "/%s".formatted(clientName);
-        try (var tarStream = Files.newInputStream(tar)) {
-            dockerClient.copyArchiveToContainerCmd(container.getId())
-                    .withTarInputStream(tarStream)
-                    .withRemotePath(containerPath)
-                    .exec();
-        } catch (IOException e) {
-            log.error("Could not copy project to container", e);
-            throw new RuntimeException(e);
+
+
+        CopyArchiveToContainerCmd copyProjectToContainer = dockerClient.copyArchiveToContainerCmd(container.getId())
+                .withHostResource(localFolder.toAbsolutePath().toString()) // local path
+                .withRemotePath("/"); //  container path
+
+        copyProjectToContainer.exec();
+
+
+        if (isBump) {
+
+            Path m2 = localFolder.resolveSibling("m2/.m2").normalize();
+
+            log.info("Copying M2 folder to container ++++++++++++++++++++++++");
+            CopyArchiveToContainerCmd copyCmd = dockerClient.copyArchiveToContainerCmd(container.getId())
+                    .withHostResource(m2.toAbsolutePath().toString()) // local path
+                    .withRemotePath("/root/"); //  container path
+
+            copyCmd.exec();
         }
+
 
         WaitContainerResultCallback waitResult = dockerClient.waitContainerCmd(container.getId())
                 .exec(new WaitContainerResultCallback());
@@ -211,6 +226,135 @@ public class DockerBuild {
         return container.getId();
     }
 
+    /**
+     * Reproduces a breaking update using a specified Docker image and failure category.
+     *
+     * @param image           the Docker image to use for the reproduction
+     * @param failureCategory the category of failure to reproduce
+     * @param client          the client name
+     * @return a Result object containing the outcome of the reproduction attempts
+     */
+    public Result reproduce(String image, FailureCategory failureCategory, String client) {
+
+        // Store result for each attempt
+        Result breakingUpdateReproductionResult = new Result(failureCategory);
+
+        Map<String, String> startedContainers = new HashMap<>();
+        int attemptCount;
+
+        for (attemptCount = 3; attemptCount < 4; attemptCount++) {
+
+            startedContainers.put("postContainer%s".formatted(attemptCount), startContainer(getPostCmd(), image, client));
+
+            WaitContainerResultCallback result = dockerClient.waitContainerCmd(startedContainers.get("postContainer%s"
+                    .formatted(attemptCount))).exec(new WaitContainerResultCallback());
+
+            if (result.awaitStatusCode().intValue() != EXIT_CODE_OK) {
+                // if fail store the log file
+                storeLogFile(startedContainers.get("postContainer%s".formatted(attemptCount)), client);
+                // stop the process and store the log file
+                log.info("Breaking commit failed in the {} attempt.", attemptCount);
+                breakingUpdateReproductionResult.getAttempts().add(new Attempt(attemptCount, FailureCategory.UNKNOWN_FAILURE, false));
+
+            } else {
+                log.info("Breaking commit did not fail in the {} attempt.", attemptCount);
+                if (attemptCount == 3) {
+                    breakingUpdateReproductionResult.getAttempts().add(new Attempt(attemptCount, FailureCategory.BUILD_SUCCESS, false));
+                    storeLogFile(startedContainers.get("postContainer%s".formatted(attemptCount)), client);
+                }
+            }
+
+            // remove the containers
+
+        }
+        startedContainers.forEach((key, value) -> removeContainer(value));
+        return breakingUpdateReproductionResult;
+    }
+
+
+    /**
+     * Command to compile and test the breaking update
+     */
+    private static String getPostCmd() {
+        return "set -o pipefail && mvn test -B | tee mavenLog.log";
+
+    }
+
+    private Path storeLogFile(String containerId, String client) {
+
+        Path logOutputLocation = Path.of("maven.log");
+        String logLocation = "/%s/mavenLog.log".formatted(client);
+        try (InputStream logStream = dockerClient.copyArchiveFromContainerCmd(containerId, logLocation).exec()) {
+            byte[] fileContent = logStream.readAllBytes();
+            Files.write(logOutputLocation, fileContent);
+            return logOutputLocation;
+        } catch (IOException e) {
+            log.error("Could not store the log file for breaking update ", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public CreateContainerResponse startContainerEntryPoint(String imageId, String[] entrypoint) {
+        CreateContainerResponse container = dockerClient
+                .createContainerCmd(imageId)
+                .withEntrypoint(entrypoint)
+                .exec();
+
+        dockerClient.startContainerCmd(container.getId()).exec();
+
+        return container;
+    }
+
+    public void copyM2FolderToLocalPath(String containerId, Path fromContainer, Path localPath) {
+
+        if (Files.notExists(localPath)) {
+            try {
+                log.info("Creating local path {}", localPath);
+                Files.createDirectories(localPath);
+            } catch (IOException e) {
+                log.error("Could not create local path", e);
+                throw new RuntimeException(e);
+            }
+        }
+        log.info("");
+        log.info("Copying folder {} from container to local path", localPath.getFileName());
+
+        try (InputStream m2Stream = dockerClient.copyArchiveFromContainerCmd(containerId, fromContainer.toString())
+                .exec()) {
+            copyFiles(localPath, m2Stream);
+            log.info("Folder {} copied successfully", localPath.getFileName());
+        } catch (Exception e) {
+            log.error("Could not copy the {} folder", localPath, e);
+        }
+    }
+
+    private void copyFiles(Path localPath, InputStream m2Stream) throws IOException {
+        try (TarArchiveInputStream tarStream = new TarArchiveInputStream(m2Stream)) {
+            TarArchiveEntry entry;
+            while ((entry = tarStream.getNextTarEntry()) != null) {
+                if (!entry.isDirectory()) {
+                    Path filePath = localPath.resolve(entry.getName());
+
+                    if (!Files.exists(filePath)) {
+                        Files.createDirectories(filePath.getParent());
+                        Files.createFile(filePath);
+
+                        byte[] fileContent = tarStream.readAllBytes();
+                        Files.write(filePath, fileContent, StandardOpenOption.WRITE);
+                    }
+                }
+            }
+        }
+    }
+
+
+    public static void deleteImage(String imageId) {
+        try {
+            dockerClient.removeImageCmd(imageId).withForce(true).exec();
+        } catch (Exception e) {
+            log.error("Could not delete image {}", imageId, e);
+        }
+    }
 
     /**
      * Starts a container which just spins infinitely long, meant to keep the container alive and execute multiple
@@ -283,142 +427,5 @@ public class DockerBuild {
         }
         return outputStream.toString(StandardCharsets.UTF_8);
     }
-
-    /**
-     * Reproduces a breaking update using a specified Docker image and failure category.
-     *
-     * @param image           the Docker image to use for the reproduction
-     * @param failureCategory the category of failure to reproduce
-     * @param client          the client name
-     * @return a Result object containing the outcome of the reproduction attempts
-     */
-    public Result reproduce(String image, FailureCategory failureCategory, String client) {
-
-        // Store result for each attempt
-        Result breakingUpdateReproductionResult = new Result(failureCategory);
-
-        Map<String, String> startedContainers = new HashMap<>();
-        int attemptCount;
-
-        for (attemptCount = 3; attemptCount < 4; attemptCount++) {
-
-            startedContainers.put("postContainer%s".formatted(attemptCount), startContainer(getPostCmd(), image,
-                    client));
-
-            WaitContainerResultCallback result = dockerClient.waitContainerCmd(startedContainers.get("postContainer%s"
-                    .formatted(attemptCount))).exec(new WaitContainerResultCallback());
-
-            if (result.awaitStatusCode().intValue() != EXIT_CODE_OK) {
-                // if fail store the log file
-                storeLogFile(startedContainers.get("postContainer%s".formatted(attemptCount)), client);
-                // stop the process and store the log file
-                log.info("Breaking commit failed in the {} attempt.", attemptCount);
-                breakingUpdateReproductionResult.getAttempts().add(new Attempt(attemptCount,
-                        FailureCategory.UNKNOWN_FAILURE, false));
-
-            } else {
-                log.info("Breaking commit did not fail in the {} attempt.", attemptCount);
-                if (attemptCount == 3) {
-                    breakingUpdateReproductionResult.getAttempts().add(new Attempt(attemptCount,
-                            FailureCategory.BUILD_SUCCESS, false));
-                    storeLogFile(startedContainers.get("postContainer%s".formatted(attemptCount)), client);
-                }
-            }
-
-            // remove the containers
-
-        }
-        startedContainers.forEach((key, value) -> removeContainer(value));
-        return breakingUpdateReproductionResult;
-    }
-
-
-    /**
-     * Command to compile and test the breaking update
-     */
-    private static String getPostCmd() {
-        return "set -o pipefail && mvn clean test -B | tee mavenLog.log";
-
-    }
-
-    private Path storeLogFile(String containerId, String client) {
-
-        Path logOutputLocation = Path.of("maven.log");
-        String logLocation = "/%s/mavenLog.log".formatted(client);
-        try (InputStream logStream = dockerClient.copyArchiveFromContainerCmd(containerId, logLocation).exec()) {
-            byte[] fileContent = logStream.readAllBytes();
-            Files.write(logOutputLocation, fileContent);
-            return logOutputLocation;
-        } catch (IOException e) {
-            log.error("Could not store the log file for breaking update ", e);
-            throw new RuntimeException(e);
-        }
-    }
-
-    public CreateContainerResponse startContainerEntryPoint(String imageId, String[] entrypoint) {
-        CreateContainerResponse container = dockerClient
-                .createContainerCmd(imageId)
-                .withEntrypoint(entrypoint)
-                .exec();
-
-        dockerClient.startContainerCmd(container.getId()).exec();
-
-        return container;
-    }
-
-    public CreateContainerResponse startContainerEntryPoint(String imageId, String[] entrypoint, List<Mount> mounts) {
-        CreateContainerResponse container = dockerClient
-                .createContainerCmd(imageId)
-                .withEntrypoint(entrypoint)
-                .withHostConfig(new HostConfig().withMounts(mounts))
-                .exec();
-
-        dockerClient.startContainerCmd(container.getId()).exec();
-
-        return container;
-    }
-
-    public void copyM2FolderToLocalPath(String containerId, Path localPath) {
-
-        if (Files.notExists(localPath)) {
-            try {
-                log.info("Creating local path {}", localPath);
-                Files.createDirectories(localPath);
-            } catch (IOException e) {
-                log.error("Could not create local path", e);
-                throw new RuntimeException(e);
-            }
-        }
-        log.info("");
-        log.info("Copying M2 folder from container to local path");
-
-        try (InputStream m2Stream = dockerClient.copyArchiveFromContainerCmd(containerId, "/root/.m2")
-                .exec()) {
-            copyFiles(localPath, m2Stream);
-            log.info("M2 folder copied successfully");
-        } catch (Exception e) {
-            log.error("Could not copy the M2 folder", e);
-        }
-    }
-
-    private void copyFiles(Path localPath, InputStream m2Stream) throws IOException {
-        try (TarArchiveInputStream tarStream = new TarArchiveInputStream(m2Stream)) {
-            TarArchiveEntry entry;
-            while ((entry = tarStream.getNextTarEntry()) != null) {
-                if (!entry.isDirectory()) {
-                    Path filePath = localPath.resolve(entry.getName());
-
-                    if (!Files.exists(filePath)) {
-                        Files.createDirectories(filePath.getParent());
-                        Files.createFile(filePath);
-
-                        byte[] fileContent = tarStream.readAllBytes();
-                        Files.write(filePath, fileContent, StandardOpenOption.WRITE);
-                    }
-                }
-            }
-        }
-    }
-
 
 }
