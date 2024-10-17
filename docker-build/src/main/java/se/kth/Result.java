@@ -9,11 +9,16 @@ import java.util.List;
 @lombok.Setter
 public class Result {
 
+    String breakingCommit;
     private FailureCategory originalFailureCategory;
     private List<Attempt> attempts;
 
     public Result(FailureCategory originalFailureCategory) {
         this.originalFailureCategory = originalFailureCategory;
+        this.attempts = new ArrayList<>();
+    }
+
+    public Result() {
         this.attempts = new ArrayList<>();
     }
 
