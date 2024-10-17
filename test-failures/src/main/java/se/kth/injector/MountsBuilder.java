@@ -24,7 +24,7 @@ public class MountsBuilder {
     private final List<MavenModel> models;
     private List<Mount> mounts = new LinkedList<>();
     private List<Path> modifiedPomFiles = new LinkedList<>();
-    private final DockerBuild dockerBuild = new DockerBuild();
+    private final DockerBuild dockerBuild = new DockerBuild(false);
 
 
     public MountsBuilder(String imageId) throws InterruptedException {
