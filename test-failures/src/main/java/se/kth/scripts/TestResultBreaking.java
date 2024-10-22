@@ -1,31 +1,41 @@
-package se.kth;
+package se.kth.scripts;
 
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Mount;
+import se.kth.DockerBuild;
+import se.kth.TestFailuresProvider;
 import se.kth.injector.MountsBuilder;
 import se.kth.model.BreakingUpdate;
 import se.kth.utils.Config;
+import se.kth.utils.JsonUtils;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-public class Main {
-
+public class TestResultBreaking {
     public static void main(String[] args) throws InterruptedException {
-        String filePath = "/home/leohus/bump/data/benchmark/";
-        List<BreakingUpdate> breakingUpdates = TestFailuresProvider.getTestFailuresFromResources(filePath);
+        Path bumpDir = Config.getBumpDir();
+        Path resourcesDir = Config.getResourcesDir();
+        Path collectablePath = resourcesDir.resolve("collectable.json");
+        Path unsuccessfulTestCasesPath = resourcesDir.resolve("unsuccessfulTestCases.json");
+
+        List<BreakingUpdate> breakingUpdates = TestFailuresProvider.getTestFailuresFromResources(bumpDir.toString());
+        List<String> collectable = (List<String>) JsonUtils.readFromFile(collectablePath, Map.class).get("collectable");
+        Map<String, List<String>> unsuccessfulTestCases = JsonUtils.readFromFile(unsuccessfulTestCasesPath, Map.class);
+
+        List<BreakingUpdate> collectableBreakingUpdates = breakingUpdates.stream()
+                .filter(breakingUpdate -> collectable.contains(breakingUpdate.breakingCommit))
+                .toList();
 
         try (ExecutorService executorService = Executors.newFixedThreadPool(30)) {
-
-            for (BreakingUpdate update : breakingUpdates) {
-                String imageId = update.getPreImageId();
+            for (BreakingUpdate breakingUpdate : collectableBreakingUpdates) {
                 executorService.submit(() -> {
                     try {
-                        executeForImageId(imageId);
+                        executeBreakingUpdate(breakingUpdate);
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
@@ -37,37 +47,30 @@ public class Main {
         System.out.println("finished");
     }
 
-    private static void executeForImageId(String imageId) throws InterruptedException {
-        String hash = imageId.split(":")[1].replace("-pre", "");
+    private static void executeBreakingUpdate(BreakingUpdate breakingUpdate) throws InterruptedException {
+        String imageId = breakingUpdate.getBreakingImageId();
+        String hash = breakingUpdate.breakingCommit;
 
         DockerBuild dockerBuild = new DockerBuild(false);
         dockerBuild.ensureBaseMavenImageExists(imageId);
-
-        Path subPath = Path.of("output", hash);
-        Path potentialOutput = Config.getTmpDirPath().resolve(subPath);
-        if (Files.exists(potentialOutput)) {
-            return;
-        }
 
         try {
             MountsBuilder mountsBuilder = new MountsBuilder(imageId)
                     .withMountsForModifiedPomFiles()
                     .withMetaInfMounts()
                     .withListenerMounts()
-                    .withOutputMount("output", hash);
+                    .withOutputMount("breaking-output", hash);
 
             List<Mount> mounts = mountsBuilder.build();
-
-            HostConfig config = HostConfig.newHostConfig()
+            HostConfig hostConfig = HostConfig.newHostConfig()
                     .withMounts(mounts);
 
             Path modifiedRootPom = mountsBuilder.getRootModifiedPomFile();
-          
-            String containerId = dockerBuild.startSpinningContainer(imageId, config);
+            String containerId = dockerBuild.startSpinningContainer(imageId, hostConfig);
 
-            String testOutput = dockerBuild.executeInContainer(containerId, "mvn", "-l", "test-output.log", "test");
+            dockerBuild.executeInContainer(containerId, "mvn", "-l", "test-output.log", "test");
 
-            Path containerOutput = Path.of("container", hash);
+            Path containerOutput = Path.of("breaking-container", hash);
             Path copyPath = dockerBuild.copyProjectFromContainer(containerId,
                     modifiedRootPom.getParent().toString(),
                     Config.getTmpDirPath().resolve(containerOutput).toAbsolutePath());
