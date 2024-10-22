@@ -47,4 +47,14 @@ public class Config {
         }
         return tmpPath;
     }
+
+    public static Path getBumpDir() {
+        Path currentDir = Paths.get("").toAbsolutePath();
+        Path bumpRelativePath = Path.of("bump", "data", "benchmark");
+        return currentDir.resolveSibling(bumpRelativePath);
+    }
+
+    public static Path getResourcesDir() {
+        return Path.of("test-failures", "src", "main", "resources").toAbsolutePath();
+    }
 }
