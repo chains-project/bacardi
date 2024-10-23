@@ -41,10 +41,9 @@ public class FileUtils {
                 .toList();
     }
 
-    public static Optional<File> findFileInDirectory(String directory, String fileName) {
-        try {
-            return Files.walk(Path.of(directory))
-                    .filter(path -> path.getFileName().equals(fileName))
+    public static Optional<File> findFileInDirectory(Path directory, String fileName) {
+        try (Stream<Path> files = Files.walk(directory)) {
+            return files.filter(path -> path.getFileName().toString().equals(fileName))
                     .map(Path::toFile)
                     .findFirst();
         } catch (IOException e) {
