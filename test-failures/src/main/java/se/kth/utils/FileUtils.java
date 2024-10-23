@@ -1,14 +1,25 @@
 package se.kth.utils;
 
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class FileUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
+
     public static List<File> getFilesInDirectory(String directory) {
         return Stream.of(new File(directory).listFiles())
                 .filter(file -> !file.isDirectory())
@@ -22,5 +33,23 @@ public class FileUtils {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static List<File> getDirectoriesInDirectory(String directory) {
+        return Arrays.stream(new File(directory).listFiles())
+                .filter(File::isDirectory)
+                .toList();
+    }
+
+    public static Optional<File> findFileInDirectory(String directory, String fileName) {
+        try {
+            return Files.walk(Path.of(directory))
+                    .filter(path -> path.getFileName().equals(fileName))
+                    .map(Path::toFile)
+                    .findFirst();
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+            return Optional.empty();
+        }
     }
 }
