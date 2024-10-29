@@ -1,8 +1,8 @@
 package se.kth.scripts;
 
+import se.kth.Util.FileUtils;
+import se.kth.Util.JsonUtils;
 import se.kth.model.Dependency;
-import se.kth.utils.FileUtils;
-import se.kth.utils.JsonUtils;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,9 +1,9 @@
 package se.kth.scripts;
 
 import org.junit.platform.engine.TestExecutionResult.Status;
+import se.kth.Util.JsonUtils;
 import se.kth.listener.CustomExecutionListener;
-import se.kth.utils.FileUtils;
-import se.kth.utils.JsonUtils;
+import se.kth.Util.FileUtils;
 
 import java.io.File;
 import java.io.IOException;

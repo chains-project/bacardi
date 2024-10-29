@@ -7,7 +7,7 @@ import se.kth.TestFailuresProvider;
 import se.kth.injector.MountsBuilder;
 import se.kth.model.BreakingUpdate;
 import se.kth.utils.Config;
-import se.kth.utils.JsonUtils;
+import se.kth.Util.JsonUtils;
 
 import java.nio.file.Path;
 import java.util.List;

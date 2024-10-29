@@ -1,8 +1,13 @@
 package se.kth.scripts;
 
-import se.kth.extractor.TestMethodLoader;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import se.kth.Util.BreakingUpdateProvider;
+import se.kth.extractor.SpoonLocalizer;
+import se.kth.extractor.TestFileLoader;
 import se.kth.listener.CustomExecutionListener.TestResult;
-import se.kth.utils.FileUtils;
+import se.kth.model.BreakingUpdate;
+import se.kth.models.FailureCategory;
+import se.kth.Util.FileUtils;
 
 import java.io.File;
 import java.util.List;

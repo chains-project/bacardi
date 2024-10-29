@@ -2,12 +2,12 @@ package se.kth;
 
 import se.kth.model.BreakingUpdate;
 import se.kth.models.FailureCategory;
-import se.kth.utils.JsonUtils;
+import se.kth.Util.JsonUtils;
 
 import java.io.File;
 import java.util.List;
 
-import static se.kth.utils.FileUtils.getFilesInDirectory;
+import static se.kth.Util.FileUtils.getFilesInDirectory;
 
 public class TestFailuresProvider {
     public static List<BreakingUpdate> getTestFailuresFromResources(String directory) {

@@ -1,4 +1,4 @@
-package se.kth.utils;
+package se.kth.Util;
 
 
 import org.slf4j.Logger;
