@@ -51,4 +51,15 @@ public class FileUtils {
             return Optional.empty();
         }
     }
+
+    public static void ensureDirectoryExists(Path directory) {
+        if (!Files.exists(directory)) {
+            try {
+                Files.createDirectory(directory);
+            } catch (IOException e) {
+                logger.error("Could not create directory", e);
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }

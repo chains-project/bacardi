@@ -1,0 +1,57 @@
+package se.kth;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import se.kth.Util.BreakingUpdateProvider;
+import se.kth.Util.FileUtils;
+import se.kth.model.BreakingUpdate;
+import se.kth.models.FailureCategory;
+import se.kth.utils.Config;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+public class Pipeline {
+
+    private static final Logger logger = LoggerFactory.getLogger(Pipeline.class);
+
+    private List<PipelineComponent> components;
+    private List<BreakingUpdate> breakingUpdates;
+
+    public Pipeline() {
+        this.components = new LinkedList<>();
+        this.breakingUpdates =
+                BreakingUpdateProvider.getBreakingUpdatesFromResourcesByCategory(Config.getBumpDir().toString(),
+                        FailureCategory.TEST_FAILURE);
+    }
+
+    public Pipeline with(PipelineComponent component) {
+        this.components.add(component);
+        return this;
+    }
+
+    public void run() {
+        for (PipelineComponent component : components) {
+            logger.info("Starting pipeline step " + component.getClass());
+
+            component.ensureOutputDirsExist();
+
+            try (ExecutorService executorService = Executors.newFixedThreadPool(30)) {
+                for (BreakingUpdate update : this.breakingUpdates) {
+                    executorService.submit(() -> {
+                        component.execute(update);
+                    });
+                }
+                executorService.shutdown();
+                executorService.awaitTermination(1, TimeUnit.HOURS);
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage(), e);
+            }
+
+            logger.info("Finished pipeline step " + component.getClass());
+        }
+    }
+}

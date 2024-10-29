@@ -67,7 +67,7 @@ public class MountsBuilder {
         return this;
     }
 
-    public MountsBuilder withOutputMount(String baseDir, String outputDir) {
+    public MountsBuilder withOutputMount(Path baseDir, String outputDir) {
         Mount outputMount = this.createBindMountForOutput(baseDir, outputDir);
         this.mounts.add(outputMount);
 
@@ -131,10 +131,9 @@ public class MountsBuilder {
                 .withType(MountType.BIND);
     }
 
-    private Mount createBindMountForOutput(String baseDir, String outputDir) {
+    private Mount createBindMountForOutput(Path baseDir, String outputDir) {
         Path dockerPath = Path.of("/bacardi-output");
-        Path projectOutputPath = Path.of(baseDir, outputDir);
-        Path localOutputPath = Config.getTmpDirPath().resolve(projectOutputPath);
+        Path localOutputPath = baseDir.resolve(outputDir);
         try {
             Files.createDirectory(localOutputPath);
         } catch (IOException e) {

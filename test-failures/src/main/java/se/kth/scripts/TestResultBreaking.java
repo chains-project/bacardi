@@ -58,11 +58,12 @@ public class TestResultBreaking {
         dockerBuild.ensureBaseMavenImageExists(imageId);
 
         try {
+            Path breakingOutputDir = Config.relativeToTmpDir("breaking-output");
             MountsBuilder mountsBuilder = new MountsBuilder(imageId)
                     .withMountsForModifiedPomFiles()
                     .withMetaInfMounts()
                     .withListenerMounts()
-                    .withOutputMount("breaking-output", hash);
+                    .withOutputMount(breakingOutputDir, hash);
 
             List<Mount> mounts = mountsBuilder.build();
             HostConfig hostConfig = HostConfig.newHostConfig()
