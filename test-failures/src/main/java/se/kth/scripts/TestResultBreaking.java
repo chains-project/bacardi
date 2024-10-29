@@ -3,11 +3,12 @@ package se.kth.scripts;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Mount;
 import se.kth.DockerBuild;
-import se.kth.TestFailuresProvider;
+import se.kth.Util.BreakingUpdateProvider;
+import se.kth.Util.JsonUtils;
 import se.kth.injector.MountsBuilder;
 import se.kth.model.BreakingUpdate;
+import se.kth.models.FailureCategory;
 import se.kth.utils.Config;
-import se.kth.Util.JsonUtils;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -23,7 +24,9 @@ public class TestResultBreaking {
         Path collectablePath = resourcesDir.resolve("collectable.json");
         Path unsuccessfulTestCasesPath = resourcesDir.resolve("unsuccessfulTestCases.json");
 
-        List<BreakingUpdate> breakingUpdates = TestFailuresProvider.getTestFailuresFromResources(bumpDir.toString());
+        List<BreakingUpdate> breakingUpdates =
+                BreakingUpdateProvider.getBreakingUpdatesFromResourcesByCategory(bumpDir.toString(),
+                        FailureCategory.TEST_FAILURE);
         List<String> collectable = (List<String>) JsonUtils.readFromFile(collectablePath, Map.class).get("collectable");
         Map<String, List<String>> unsuccessfulTestCases = JsonUtils.readFromFile(unsuccessfulTestCasesPath, Map.class);
 

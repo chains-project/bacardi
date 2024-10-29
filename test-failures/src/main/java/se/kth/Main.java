@@ -2,22 +2,26 @@ package se.kth;
 
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Mount;
+import se.kth.Util.BreakingUpdateProvider;
 import se.kth.injector.MountsBuilder;
 import se.kth.model.BreakingUpdate;
+import se.kth.models.FailureCategory;
 import se.kth.utils.Config;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
 
     public static void main(String[] args) throws InterruptedException {
         String filePath = "/home/leohus/bump/data/benchmark/";
-        List<BreakingUpdate> breakingUpdates = TestFailuresProvider.getTestFailuresFromResources(filePath);
+        List<BreakingUpdate> breakingUpdates =
+                BreakingUpdateProvider.getBreakingUpdatesFromResourcesByCategory(filePath,
+                        FailureCategory.TEST_FAILURE);
 
         try (ExecutorService executorService = Executors.newFixedThreadPool(30)) {
 
@@ -62,7 +66,7 @@ public class Main {
                     .withMounts(mounts);
 
             Path modifiedRootPom = mountsBuilder.getRootModifiedPomFile();
-          
+
             String containerId = dockerBuild.startSpinningContainer(imageId, config);
 
             String testOutput = dockerBuild.executeInContainer(containerId, "mvn", "-l", "test-output.log", "test");

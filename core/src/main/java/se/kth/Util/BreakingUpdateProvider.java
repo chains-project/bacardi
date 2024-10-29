@@ -16,7 +16,8 @@ import static se.kth.Util.FileUtils.getFilesInDirectory;
 public class BreakingUpdateProvider {
 
 
-    public static List<BreakingUpdate> getBreakingUpdatesFromResourcesByCategory(String directory, FailureCategory category) {
+    public static List<BreakingUpdate> getBreakingUpdatesFromResourcesByCategory(String directory,
+                                                                                 FailureCategory category) {
         List<File> files = getFilesInDirectory(directory);
         return files.stream()
                 .map(File::toPath)
