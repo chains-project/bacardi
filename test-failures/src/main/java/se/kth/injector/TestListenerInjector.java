@@ -2,6 +2,8 @@ package se.kth.injector;
 
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Mount;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import se.kth.DockerBuild;
 import se.kth.PipelineComponent;
 import se.kth.Util.FileUtils;
@@ -13,6 +15,9 @@ import java.nio.file.Path;
 import java.util.List;
 
 public class TestListenerInjector extends PipelineComponent {
+
+    private static final Logger logger = LoggerFactory.getLogger(TestListenerInjector.class);
+
     private final Path containerOutputDirectory;
     private final Path testOutputDirectory;
     private final Path pomsDirectory;
@@ -25,8 +30,8 @@ public class TestListenerInjector extends PipelineComponent {
 
     @Override
     public void ensureOutputDirsExist() {
-        FileUtils.ensureDirectoryExists(containerOutputDirectory);
-        FileUtils.ensureDirectoryExists(testOutputDirectory);
+        FileUtils.ensureDirectoryExists(this.containerOutputDirectory);
+        FileUtils.ensureDirectoryExists(this.testOutputDirectory);
         FileUtils.ensureDirectoryExists(this.pomsDirectory);
     }
 
@@ -52,26 +57,21 @@ public class TestListenerInjector extends PipelineComponent {
                     .withOutputMount(this.testOutputDirectory, commitId);
 
             List<Mount> mounts = mountsBuilder.build();
-
             HostConfig config = HostConfig.newHostConfig()
                     .withMounts(mounts);
 
-            Path modifiedRootPom = mountsBuilder.getRootModifiedPomFile();
-
             String containerId = dockerBuild.startSpinningContainer(imageId, config);
-
             String testOutput = dockerBuild.executeInContainer(containerId, "mvn", "-l", "test-output.log", "test");
 
+            Path modifiedRootPom = mountsBuilder.getRootModifiedPomFile();
             Path containerOutput = this.containerOutputDirectory.resolve(commitId);
             Path copyPath = dockerBuild.copyProjectFromContainer(containerId,
                     modifiedRootPom.getParent().toString(),
                     containerOutput.toAbsolutePath());
 
             dockerBuild.removeContainer(containerId);
-
-            System.out.println("done");
         } catch (Exception e) {
-            System.err.println(e);
+            logger.error(e.getMessage(), e);
         }
     }
 }
