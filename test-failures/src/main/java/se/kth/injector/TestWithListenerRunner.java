@@ -54,7 +54,7 @@ public class TestWithListenerRunner extends PipelineComponent {
             }
 
             MountsBuilder mountsBuilder = new MountsBuilder(imageId)
-                    .withMountsForModifiedPomFiles()
+                    .withMountsForModifiedPomFiles(pomsDirectory)
                     .withMetaInfMounts()
                     .withListenerMounts()
                     .withOutputMount(this.testOutputDirectory, commitId);

@@ -37,12 +37,12 @@ public class MountsBuilder {
         this.models = getAllModels(containerId, paths);
     }
 
-    public MountsBuilder withMountsForModifiedPomFiles() {
+    public MountsBuilder withMountsForModifiedPomFiles(Path pomsDirectory) {
         List<Path> paths = getPomFilePaths(containerId);
         List<MavenModel> models = getAllModels(containerId, paths);
 
         List<Mount> pomFileMounts = models.stream()
-                .map(this::createBindForModifiedPomFile)
+                .map(mavenModel -> createBindForModifiedPomFile(mavenModel, pomsDirectory))
                 .toList();
         this.mounts.addAll(pomFileMounts);
 
@@ -84,7 +84,7 @@ public class MountsBuilder {
                 .orElse(null);
     }
 
-    private Mount createBindForModifiedPomFile(MavenModel mavenModel) {
+    private Mount createBindForModifiedPomFile(MavenModel mavenModel, Path pomsDirectory) {
         Model model = mavenModel.getModel();
         model.getDependencies();
 
@@ -94,7 +94,7 @@ public class MountsBuilder {
         String modifiedPomFileName = "pom-" + newModel.hashCode() + ".xml";
         String modifiedPomMountFileName = "pom.xml";
 
-        String modifiedPomFileAbsolutePath = PomFileLocator.writeCustomPomFile(newModel, modifiedPomFileName);
+        String modifiedPomFileAbsolutePath = PomFileLocator.writeCustomPomFile(newModel, modifiedPomFileName, pomsDirectory);
         Path modifiedPomFileDockerPath = mavenModel.getFilePath().resolveSibling(modifiedPomMountFileName);
         this.modifiedPomFiles.add(modifiedPomFileDockerPath);
 

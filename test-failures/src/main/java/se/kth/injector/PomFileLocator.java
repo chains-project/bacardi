@@ -53,11 +53,10 @@ public class PomFileLocator {
                 .orElse(null);
     }
 
-    public static String writeCustomPomFile(Model model, String fileName) {
+    public static String writeCustomPomFile(Model model, String fileName, Path pomsDirectory) {
         MavenStaxWriter writer = new MavenStaxWriter();
 
-        Path tmpDir = Config.getTmpDirPath().resolve("poms");
-        File customPomFile = tmpDir.resolve(fileName).toFile();
+        File customPomFile = pomsDirectory.resolve(fileName).toFile();
 
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(customPomFile);
