@@ -6,7 +6,11 @@ import se.kth.model.BreakingUpdate;
 @Getter
 public abstract class PipelineComponent {
 
-    public void ensureOutputDirsExist() {}
+    public void ensureOutputDirsExist() {
+    }
 
     public abstract void execute(BreakingUpdate breakingUpdate);
+
+    public void finish() {
+    }
 }

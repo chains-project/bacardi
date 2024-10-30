@@ -1,5 +1,6 @@
 package se.kth;
 
+import se.kth.analysis.TestResultAnalyzer;
 import se.kth.injector.TestListenerInjector;
 import se.kth.utils.Config;
 
@@ -15,8 +16,11 @@ public class Main {
         TestListenerInjector testListenerInjector = new TestListenerInjector(testListenerTestOutput,
                 testListenerContainerOutput, pomsDirectory);
 
+        TestResultAnalyzer testResultAnalyzer = new TestResultAnalyzer(testListenerTestOutput);
+
         Pipeline pipeline = new Pipeline()
-                .with(testListenerInjector);
+                .with(testListenerInjector)
+                .with(testResultAnalyzer);
 
         pipeline.run();
     }

@@ -47,6 +47,8 @@ public class Pipeline {
                 }
                 executorService.shutdown();
                 executorService.awaitTermination(1, TimeUnit.HOURS);
+
+                component.finish();
             } catch (InterruptedException e) {
                 logger.error(e.getMessage(), e);
             }
