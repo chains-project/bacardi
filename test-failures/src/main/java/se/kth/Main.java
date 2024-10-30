@@ -1,6 +1,8 @@
 package se.kth;
 
 import se.kth.analysis.TestResultAnalyzer;
+import se.kth.extractor.CausingConstructExtractor;
+import se.kth.extractor.TrueFailingTestCasesProvider;
 import se.kth.injector.TestWithListenerRunner;
 import se.kth.utils.Config;
 
@@ -23,10 +25,15 @@ public class Main {
         TestWithListenerRunner testBreakingRunner = new TestWithListenerRunner(testListenerBreakingOutput,
                 testListenerBreakingContainer, breakingPomsDirectory, true);
 
+        Path unsuccessfulTestCasesFile = Config.getResourcesDir().resolve("unsuccessfulTestCases.json");
+        TrueFailingTestCasesProvider testCasesProvider = new TrueFailingTestCasesProvider(testListenerBreakingOutput,
+                unsuccessfulTestCasesFile);
+        CausingConstructExtractor causingConstructExtractor = new CausingConstructExtractor(testCasesProvider);
         Pipeline pipeline = new Pipeline()
                 .with(testPreRunner)
                 .with(testResultAnalyzer)
-                .with(testBreakingRunner);
+                .with(testBreakingRunner)
+                .with(causingConstructExtractor);
 
         pipeline.run();
     }
