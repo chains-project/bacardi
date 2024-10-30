@@ -14,18 +14,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-public class TestListenerInjector extends PipelineComponent {
+public class TestWithListenerRunner extends PipelineComponent {
 
-    private static final Logger logger = LoggerFactory.getLogger(TestListenerInjector.class);
+    private static final Logger logger = LoggerFactory.getLogger(TestWithListenerRunner.class);
 
     private final Path containerOutputDirectory;
     private final Path testOutputDirectory;
     private final Path pomsDirectory;
+    private final boolean runBreaking;
 
-    public TestListenerInjector(Path testOutputDirectory, Path containerOutputDirectory, Path pomsDirectory) {
+    public TestWithListenerRunner(Path testOutputDirectory, Path containerOutputDirectory, Path pomsDirectory,
+                                  boolean runBreaking) {
         this.testOutputDirectory = testOutputDirectory;
         this.containerOutputDirectory = containerOutputDirectory;
         this.pomsDirectory = pomsDirectory;
+        this.runBreaking = runBreaking;
     }
 
     @Override
@@ -38,7 +41,7 @@ public class TestListenerInjector extends PipelineComponent {
     @Override
     public void execute(BreakingUpdate breakingUpdate) {
         String commitId = breakingUpdate.breakingCommit;
-        String imageId = breakingUpdate.getPreImageId();
+        String imageId = this.runBreaking ? breakingUpdate.getBreakingImageId() : breakingUpdate.getPreImageId();
 
         try {
             DockerBuild dockerBuild = new DockerBuild(false);
