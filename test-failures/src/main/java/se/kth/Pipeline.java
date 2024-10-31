@@ -3,7 +3,6 @@ package se.kth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.Util.BreakingUpdateProvider;
-import se.kth.Util.FileUtils;
 import se.kth.model.BreakingUpdate;
 import se.kth.models.FailureCategory;
 import se.kth.utils.Config;

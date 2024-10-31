@@ -12,8 +12,6 @@ import java.util.Optional;
 public class CausingConstructExtractor extends PipelineComponent {
 
     private final TrueFailingTestCasesProvider failingTestCasesProvider;
-    private int total = 0;
-    private int notFound = 0;
 
     public CausingConstructExtractor(TrueFailingTestCasesProvider failingTestCasesProvider) {
         this.failingTestCasesProvider = failingTestCasesProvider;
@@ -26,13 +24,10 @@ public class CausingConstructExtractor extends PipelineComponent {
 
         TestFileLoader testFileLoader = new TestFileLoader(commitId);
         for (TestResult testResult : failingTestCases) {
-            this.total++;
             List<ImmutablePair<StackTraceElement, Optional<File>>> projectFiles =
                     testFileLoader.loadProjectTestFiles(testResult.throwable.stackTrace);
             if (this.foundAnyProjectTestFile(projectFiles)) {
                 SpoonLocalizer.localize(projectFiles, testResult, breakingUpdate.updatedDependency);
-            } else {
-                this.notFound++;
             }
         }
     }
