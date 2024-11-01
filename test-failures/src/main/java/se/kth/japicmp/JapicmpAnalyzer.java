@@ -5,7 +5,6 @@ import japicmp.cmp.JarArchiveComparator;
 import japicmp.cmp.JarArchiveComparatorOptions;
 import japicmp.config.Options;
 import japicmp.model.JApiClass;
-import se.kth.PipelineComponent;
 import se.kth.Util.FileUtils;
 import se.kth.model.BreakingUpdate;
 
@@ -13,7 +12,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 
-public class JapicmpAnalyzer extends PipelineComponent {
+public class JapicmpAnalyzer {
 
     private final Path preM2Path;
     private final Path breakingM2Path;
@@ -23,8 +22,7 @@ public class JapicmpAnalyzer extends PipelineComponent {
         this.breakingM2Path = breakingM2Path;
     }
 
-    @Override
-    public void execute(BreakingUpdate breakingUpdate) {
+    public List<JApiClass> getChanges(BreakingUpdate breakingUpdate) {
         JarArchiveComparatorOptions comparatorOptions = JarArchiveComparatorOptions.of(getDefaultOptions());
         JarArchiveComparator jarArchiveComparator = new JarArchiveComparator(comparatorOptions);
         String commitId = breakingUpdate.breakingCommit;
@@ -34,16 +32,15 @@ public class JapicmpAnalyzer extends PipelineComponent {
 
         JApiCmpArchive preArchive = new JApiCmpArchive(jarFilePre, "v1");
         JApiCmpArchive breakingArchive = new JApiCmpArchive(jarFileBreaking, "v2");
-        List<JApiClass> jApiClasses = jarArchiveComparator.compare(preArchive, breakingArchive);
-        System.out.println(jApiClasses);
+        return jarArchiveComparator.compare(preArchive, breakingArchive);
     }
 
-    public File getJarFile(Path basePath, String commitId) {
+    private File getJarFile(Path basePath, String commitId) {
         Path projectPath = basePath.resolve(commitId);
         return FileUtils.getFilesInDirectory(projectPath.toString()).getFirst();
     }
 
-    public Options getDefaultOptions() {
+    private Options getDefaultOptions() {
         Options defaultOptions = Options.newDefault();
         defaultOptions.setOutputOnlyModifications(true);
         defaultOptions.setIgnoreMissingClasses(true);

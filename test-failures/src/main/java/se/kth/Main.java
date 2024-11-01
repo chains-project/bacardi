@@ -32,18 +32,19 @@ public class Main {
         UpdatedDependencyExtractor updatedDependencyExtractor = new UpdatedDependencyExtractor(preM2OutputDirectory,
                 breakingM2OutputDirectory);
 
-        JapicmpAnalyzer japicmpAnalyzer = new JapicmpAnalyzer(preM2OutputDirectory, breakingM2OutputDirectory);
 
         Path unsuccessfulTestCasesFile = Config.getResourcesDir().resolve("unsuccessfulTestCases.json");
         TrueFailingTestCasesProvider testCasesProvider = new TrueFailingTestCasesProvider(testListenerBreakingOutput,
                 unsuccessfulTestCasesFile);
-        CausingConstructExtractor causingConstructExtractor = new CausingConstructExtractor(testCasesProvider);
+        JapicmpAnalyzer japicmpAnalyzer = new JapicmpAnalyzer(preM2OutputDirectory, breakingM2OutputDirectory);
+        CausingConstructExtractor causingConstructExtractor = new CausingConstructExtractor(testCasesProvider,
+                japicmpAnalyzer);
+
         Pipeline pipeline = new Pipeline()
                 .with(testPreRunner)
                 .with(testResultAnalyzer)
                 .with(testBreakingRunner)
                 .with(updatedDependencyExtractor)
-                .with(japicmpAnalyzer)
                 .with(causingConstructExtractor);
 
         pipeline.run();

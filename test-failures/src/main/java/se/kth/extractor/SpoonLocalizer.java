@@ -1,5 +1,6 @@
 package se.kth.extractor;
 
+import japicmp.model.JApiClass;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import se.kth.listener.CustomExecutionListener.TestResult;
 import se.kth.model.UpdatedDependency;
@@ -17,7 +18,7 @@ import java.util.Optional;
 public class SpoonLocalizer {
 
     public static void localize(List<ImmutablePair<StackTraceElement, Optional<File>>> files, TestResult testResult,
-                                UpdatedDependency updatedDependency) {
+                                UpdatedDependency updatedDependency, List<JApiClass> changedClasses) {
         ImmutablePair<StackTraceElement, File> first = files.stream()
                 .filter(pair -> pair.right.isPresent())
                 .findFirst()

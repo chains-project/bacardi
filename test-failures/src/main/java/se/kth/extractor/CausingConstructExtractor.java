@@ -1,7 +1,9 @@
 package se.kth.extractor;
 
+import japicmp.model.JApiClass;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import se.kth.PipelineComponent;
+import se.kth.japicmp.JapicmpAnalyzer;
 import se.kth.listener.CustomExecutionListener.TestResult;
 import se.kth.model.BreakingUpdate;
 
@@ -12,9 +14,13 @@ import java.util.Optional;
 public class CausingConstructExtractor extends PipelineComponent {
 
     private final TrueFailingTestCasesProvider failingTestCasesProvider;
+    private final JapicmpAnalyzer japicmpAnalyzer;
 
     public CausingConstructExtractor(TrueFailingTestCasesProvider failingTestCasesProvider) {
+    public CausingConstructExtractor(TrueFailingTestCasesProvider failingTestCasesProvider,
+                                     JapicmpAnalyzer japicmpAnalyzer) {
         this.failingTestCasesProvider = failingTestCasesProvider;
+        this.japicmpAnalyzer = japicmpAnalyzer;
     }
 
     @Override
@@ -23,6 +29,8 @@ public class CausingConstructExtractor extends PipelineComponent {
         List<TestResult> failingTestCases = failingTestCasesProvider.getTrueFailingTestCases(commitId);
 
         TestFileLoader testFileLoader = new TestFileLoader(commitId);
+        List<JApiClass> classes = this.japicmpAnalyzer.getChanges(breakingUpdate);
+
         for (TestResult testResult : failingTestCases) {
             List<ImmutablePair<StackTraceElement, Optional<File>>> projectFiles =
                     testFileLoader.loadProjectTestFiles(testResult.throwable.stackTrace);
