@@ -16,7 +16,6 @@ public class CausingConstructExtractor extends PipelineComponent {
     private final TrueFailingTestCasesProvider failingTestCasesProvider;
     private final JapicmpAnalyzer japicmpAnalyzer;
 
-    public CausingConstructExtractor(TrueFailingTestCasesProvider failingTestCasesProvider) {
     public CausingConstructExtractor(TrueFailingTestCasesProvider failingTestCasesProvider,
                                      JapicmpAnalyzer japicmpAnalyzer) {
         this.failingTestCasesProvider = failingTestCasesProvider;
@@ -28,14 +27,17 @@ public class CausingConstructExtractor extends PipelineComponent {
         String commitId = breakingUpdate.breakingCommit;
         List<TestResult> failingTestCases = failingTestCasesProvider.getTrueFailingTestCases(commitId);
 
-        TestFileLoader testFileLoader = new TestFileLoader(commitId);
         List<JApiClass> classes = this.japicmpAnalyzer.getChanges(breakingUpdate);
 
+
+        TestFileLoader testFileLoader = new TestFileLoader(commitId);
         for (TestResult testResult : failingTestCases) {
             List<ImmutablePair<StackTraceElement, Optional<File>>> projectFiles =
                     testFileLoader.loadProjectTestFiles(testResult.throwable.stackTrace);
             if (this.foundAnyProjectTestFile(projectFiles)) {
-                SpoonLocalizer.localize(projectFiles, testResult, breakingUpdate.updatedDependency);
+                File testFile = getFirstTestFile(projectFiles);
+                SpoonLocalizer spoonLocalizer = new SpoonLocalizer(testFile);
+                spoonLocalizer.localize(projectFiles, testResult, breakingUpdate.updatedDependency, classes);
             }
         }
     }
@@ -48,5 +50,14 @@ public class CausingConstructExtractor extends PipelineComponent {
     private boolean foundAnyProjectTestFile(List<ImmutablePair<StackTraceElement, Optional<File>>> projectTestFilePerStackTraceElement) {
         return projectTestFilePerStackTraceElement.stream()
                 .anyMatch(pair -> pair.right.isPresent());
+    }
+
+    private File getFirstTestFile(List<ImmutablePair<StackTraceElement, Optional<File>>> projectTestFilePerStackTraceElement) {
+        return projectTestFilePerStackTraceElement.stream()
+                .filter(pair -> pair.right.isPresent())
+                .findFirst()
+                .get()
+                .right
+                .get();
     }
 }

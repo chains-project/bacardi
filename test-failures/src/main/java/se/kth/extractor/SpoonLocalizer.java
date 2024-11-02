@@ -17,8 +17,34 @@ import java.util.Optional;
 
 public class SpoonLocalizer {
 
-    public static void localize(List<ImmutablePair<StackTraceElement, Optional<File>>> files, TestResult testResult,
-                                UpdatedDependency updatedDependency, List<JApiClass> changedClasses) {
+    private final CtModel model;
+
+    public SpoonLocalizer(File inputFile) {
+        SpoonAPI spoon = new Launcher();
+        spoon.addInputResource(inputFile.getAbsolutePath().toString());
+        this.model = spoon.buildModel();
+    }
+
+    public CtElement localizeTestMethodFromStackTraceElement(StackTraceElement stackTraceElement) {
+        int lineNumber = stackTraceElement.getLineNumber();
+        String fileName = stackTraceElement.getFileName();
+        List<CtElement> result = new LinkedList<>();
+
+        this.model.getElements(new TypeFilter<>(CtElement.class)).stream()
+                .forEach(ctElement -> {
+                    if (!ctElement.isImplicit() && ctElement.getPosition().isValidPosition()) {
+                        System.out.println(ctElement.getPosition().getLine());
+                        if (ctElement.getPosition().getFile().getName().equals(fileName) &&
+                                ctElement.getPosition().getLine() == lineNumber) {
+                            result.add(ctElement);
+                        }
+                    }
+                });
+        return null;
+    }
+
+    public void localize(List<ImmutablePair<StackTraceElement, Optional<File>>> files, TestResult testResult,
+                         UpdatedDependency updatedDependency, List<JApiClass> changedClasses) {
         ImmutablePair<StackTraceElement, File> first = files.stream()
                 .filter(pair -> pair.right.isPresent())
                 .findFirst()
@@ -37,21 +63,14 @@ public class SpoonLocalizer {
         String testClassFileName = testMethod.getFileName();
         long lineNumber = testMethod.getLineNumber();
 
+
         SpoonAPI spoon = new Launcher();
         spoon.addInputResource(first.right.getAbsolutePath());
         CtModel model = spoon.buildModel();
 
+//        localizeTestMethodFromStackTraceElement(testMethod, model);
         File testFile = first.right;
         List<CtElement> result = new LinkedList<>();
-        model.getElements(new TypeFilter<>(CtElement.class)).stream()
-                .forEach(ctElement -> {
-                    if (!ctElement.isImplicit() && ctElement.getPosition().isValidPosition()) {
-                        System.out.println(ctElement.getPosition().getLine());
-                        if (ctElement.getPosition().getLine() == lineNumber) {
-                            result.add(ctElement);
-                        }
-                    }
-                });
         List<CtElement> parent = extractParents(result);
     }
 
