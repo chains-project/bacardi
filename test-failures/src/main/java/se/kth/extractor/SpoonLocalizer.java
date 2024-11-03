@@ -2,6 +2,7 @@ package se.kth.extractor;
 
 import japicmp.model.JApiClass;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import se.kth.Util.FileUtils;
 import se.kth.listener.CustomExecutionListener.TestResult;
 import se.kth.model.UpdatedDependency;
 import spoon.Launcher;
@@ -11,6 +12,7 @@ import spoon.reflect.declaration.CtElement;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -19,10 +21,18 @@ public class SpoonLocalizer {
 
     private final CtModel model;
 
-    public SpoonLocalizer(File inputFile) {
-        SpoonAPI spoon = new Launcher();
-        spoon.addInputResource(inputFile.getAbsolutePath().toString());
-        this.model = spoon.buildModel();
+    public SpoonLocalizer(File seedFile) {
+        Path pomFile = this.getClosestPomDir(seedFile.toPath());
+        Launcher launcher = new Launcher();
+        launcher.addInputResource(pomFile.getParent().toString());
+        launcher.buildModel();
+        this.model = launcher.getModel();
+    }
+
+    private Path getClosestPomDir(Path seed) {
+        Path parent = seed.getParent();
+        Optional<File> pomFile = FileUtils.findFileInDirectory(parent, "pom.xml");
+        return pomFile.map(File::toPath).orElseGet(() -> this.getClosestPomDir(parent));
     }
 
     public CtElement localizeTestMethodFromStackTraceElement(StackTraceElement stackTraceElement) {
@@ -68,7 +78,7 @@ public class SpoonLocalizer {
         spoon.addInputResource(first.right.getAbsolutePath());
         CtModel model = spoon.buildModel();
 
-//        localizeTestMethodFromStackTraceElement(testMethod, model);
+        localizeTestMethodFromStackTraceElement(testMethod);
         File testFile = first.right;
         List<CtElement> result = new LinkedList<>();
         List<CtElement> parent = extractParents(result);
