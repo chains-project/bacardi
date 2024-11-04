@@ -38,7 +38,7 @@ public class Main {
                 unsuccessfulTestCasesFile);
         JapicmpAnalyzer japicmpAnalyzer = new JapicmpAnalyzer(preM2OutputDirectory, breakingM2OutputDirectory);
         CausingConstructExtractor causingConstructExtractor = new CausingConstructExtractor(testCasesProvider,
-                japicmpAnalyzer);
+                japicmpAnalyzer, testListenerBreakingContainer);
 
         Pipeline pipeline = new Pipeline()
                 .with(testPreRunner)

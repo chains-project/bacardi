@@ -1,17 +1,19 @@
 package se.kth.extractor;
 
 import japicmp.model.JApiClass;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import se.kth.Util.FileUtils;
 import se.kth.listener.CustomExecutionListener.TestResult;
 import se.kth.model.UpdatedDependency;
 import spoon.Launcher;
-import spoon.SpoonAPI;
 import spoon.reflect.CtModel;
+import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.visitor.filter.TypeFilter;
+import spoon.support.reflect.declaration.CtAnnotationImpl;
+import spoon.support.reflect.declaration.CtClassImpl;
+import spoon.support.reflect.declaration.CtFieldImpl;
+import spoon.support.reflect.declaration.CtMethodImpl;
 
-import java.io.File;
+import java.lang.annotation.Annotation;
 import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,21 +23,14 @@ public class SpoonLocalizer {
 
     private final CtModel model;
 
-    public SpoonLocalizer(File seedFile) {
-        Path pomFile = this.getClosestPomDir(seedFile.toPath());
+    public SpoonLocalizer(Path projectPath) {
         Launcher launcher = new Launcher();
-        launcher.addInputResource(pomFile.getParent().toString());
+        launcher.addInputResource(projectPath.toString());
         launcher.buildModel();
         this.model = launcher.getModel();
     }
 
-    private Path getClosestPomDir(Path seed) {
-        Path parent = seed.getParent();
-        Optional<File> pomFile = FileUtils.findFileInDirectory(parent, "pom.xml");
-        return pomFile.map(File::toPath).orElseGet(() -> this.getClosestPomDir(parent));
-    }
-
-    public CtElement localizeTestMethodFromStackTraceElement(StackTraceElement stackTraceElement) {
+    public CtElement localizeTestRootElementFromStackTraceElement(StackTraceElement stackTraceElement) {
         int lineNumber = stackTraceElement.getLineNumber();
         String fileName = stackTraceElement.getFileName();
         List<CtElement> result = new LinkedList<>();
@@ -43,65 +38,64 @@ public class SpoonLocalizer {
         this.model.getElements(new TypeFilter<>(CtElement.class)).stream()
                 .forEach(ctElement -> {
                     if (!ctElement.isImplicit() && ctElement.getPosition().isValidPosition()) {
-                        System.out.println(ctElement.getPosition().getLine());
                         if (ctElement.getPosition().getFile().getName().equals(fileName) &&
                                 ctElement.getPosition().getLine() == lineNumber) {
                             result.add(ctElement);
                         }
                     }
                 });
+        Optional<CtElement> parent = extractParent(result);
+        if (parent.isPresent()) {
+            CtElement parentElement = parent.get();
+            if (parentElement instanceof CtFieldImpl<?>) {
+                return parentElement;
+            }
+            if (parentElement instanceof CtAnnotationImpl<?>) {
+                return parentElement;
+            }
+            return getTestMethod(parentElement);
+        } else {
+            System.out.println("no parent found");
+        }
         return null;
     }
 
-    public void localize(List<ImmutablePair<StackTraceElement, Optional<File>>> files, TestResult testResult,
-                         UpdatedDependency updatedDependency, List<JApiClass> changedClasses) {
-        ImmutablePair<StackTraceElement, File> first = files.stream()
-                .filter(pair -> pair.right.isPresent())
-                .findFirst()
-                .map(pair -> new ImmutablePair<>(pair.left, pair.right.get()))
-                .get();
+    private CtElement getTestMethod(CtElement element) {
+        CtElement parent = element.getParent();
 
-        var firstElement = files.stream().filter(pair -> pair.left.equals(first.left)).findFirst().orElse(null);
-        int firstIndex = files.indexOf(firstElement);
-
-        List<StackTraceElement> stackTraceElements = files.stream()
-                .map(pair -> pair.left)
-                .toList();
-        int firstDependencyIndex = findFirstUpdatedDependencyClassInStackTrace(stackTraceElements, updatedDependency);
-
-        StackTraceElement testMethod = first.left;
-        String testClassFileName = testMethod.getFileName();
-        long lineNumber = testMethod.getLineNumber();
-
-
-        SpoonAPI spoon = new Launcher();
-        spoon.addInputResource(first.right.getAbsolutePath());
-        CtModel model = spoon.buildModel();
-
-        localizeTestMethodFromStackTraceElement(testMethod);
-        File testFile = first.right;
-        List<CtElement> result = new LinkedList<>();
-        List<CtElement> parent = extractParents(result);
+        if (parent instanceof CtMethodImpl) {
+            return isAnnotatedAsTest((CtMethodImpl) parent) ? parent : getTestMethod(parent);
+        }
+        if (parent instanceof CtClassImpl<?>) {
+            return null;
+        }
+        return getTestMethod(parent);
     }
 
-    private static List<CtElement> extractParents(List<CtElement> elements) {
+    private boolean isAnnotatedAsTest(CtMethodImpl method) {
+        List<String> testAnnotationNames = List.of("Test", "ParameterizedTest", "RepeatedTest", "After", "Before",
+                "AfterEach",
+                "BeforeEach", "AfterAll", "BeforeAll");
+        List<CtAnnotation<? extends Annotation>> annotations = method.getAnnotations();
+        return annotations.stream()
+                .map(CtAnnotation::getName)
+                .anyMatch(s -> testAnnotationNames.contains(s));
+    }
+
+    public boolean localize(StackTraceElement first, TestResult testResult,
+                            UpdatedDependency updatedDependency, List<JApiClass> changedClasses) {
+        StackTraceElement testMethod = first;
+
+        CtElement element = localizeTestRootElementFromStackTraceElement(testMethod);
+        if (element == null) {
+            System.out.println("not found");
+        }
+        return element != null;
+    }
+
+    private static Optional<CtElement> extractParent(List<CtElement> elements) {
         return elements.stream()
                 .filter(ctElement -> !elements.contains(ctElement.getParent()))
-                .toList();
-    }
-
-    private static int findFirstUpdatedDependencyClassInStackTrace(List<StackTraceElement> stackTraceElements,
-                                                                   UpdatedDependency updatedDependency) {
-        String groupId = updatedDependency.dependencyGroupID;
-        StackTraceElement first = stackTraceElements.stream()
-                .filter(e -> e.getClassName().startsWith(groupId))
-                .findFirst()
-                .orElse(null);
-
-        if (first != null) {
-            return stackTraceElements.indexOf(first);
-        } else {
-            return -1;
-        }
+                .findFirst();
     }
 }
