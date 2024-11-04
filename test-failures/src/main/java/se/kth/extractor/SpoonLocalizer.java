@@ -1,8 +1,5 @@
 package se.kth.extractor;
 
-import japicmp.model.JApiClass;
-import se.kth.listener.CustomExecutionListener.TestResult;
-import se.kth.model.UpdatedDependency;
 import spoon.Launcher;
 import spoon.reflect.CtModel;
 import spoon.reflect.declaration.CtAnnotation;
@@ -15,9 +12,7 @@ import spoon.support.reflect.declaration.CtMethodImpl;
 
 import java.lang.annotation.Annotation;
 import java.nio.file.Path;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class SpoonLocalizer {
 
@@ -61,6 +56,9 @@ public class SpoonLocalizer {
     }
 
     private CtElement getTestMethod(CtElement element) {
+        if (element == null) {
+            return null;
+        }
         CtElement parent = element.getParent();
 
         if (parent instanceof CtMethodImpl) {
@@ -79,18 +77,24 @@ public class SpoonLocalizer {
         List<CtAnnotation<? extends Annotation>> annotations = method.getAnnotations();
         return annotations.stream()
                 .map(CtAnnotation::getName)
-                .anyMatch(s -> testAnnotationNames.contains(s));
+                .anyMatch(testAnnotationNames::contains);
     }
 
-    public boolean localize(StackTraceElement first, TestResult testResult,
-                            UpdatedDependency updatedDependency, List<JApiClass> changedClasses) {
-        StackTraceElement testMethod = first;
-
-        CtElement element = localizeTestRootElementFromStackTraceElement(testMethod);
-        if (element == null) {
-            System.out.println("not found");
+    public Set<CtElement> getAllChildren(List<CtElement> elements) {
+        Set<CtElement> executedElements = new HashSet<>();
+        CustomScanner scanner = new CustomScanner(executedElements);
+        for (CtElement element : elements) {
+            element.accept(scanner);
         }
-        return element != null;
+        return scanner.getExecutedElements();
+    }
+
+    public Set<CtElement> localize(List<StackTraceElement> testElements) {
+        List<CtElement> rootElements = testElements.stream()
+                .map(this::localizeTestRootElementFromStackTraceElement)
+                .filter(Objects::nonNull)
+                .toList();
+        return this.getAllChildren(rootElements);
     }
 
     private static Optional<CtElement> extractParent(List<CtElement> elements) {
