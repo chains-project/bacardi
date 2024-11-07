@@ -7,7 +7,6 @@ import se.kth.models.FailureCategory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -27,13 +26,24 @@ public class FailureCategoryExtract {
     static {
         FAILURE_PATTERNS.put(Pattern.compile("(?i)(class file has wrong version (\\d+\\.\\d+), should be (\\d+\\.\\d+))"),
                 FailureCategory.JAVA_VERSION_FAILURE);
-                FAILURE_PATTERNS.put(Pattern.compile("(?i)(\\[ERROR] Tests run:|There are test failures|There were test failures|" +
+        FAILURE_PATTERNS.put(Pattern.compile("(?i)(\\[ERROR] Tests run:|There are test failures|There were test failures|" +
                         "Failed to execute goal org\\.apache\\.maven\\.plugins:maven-surefire-plugin)"),
                 FailureCategory.TEST_FAILURE);
         FAILURE_PATTERNS.put(Pattern.compile("(?i)(warnings found and -Werror specified)"),
                 FailureCategory.WERROR_FAILURE);
         FAILURE_PATTERNS.put(Pattern.compile("(?i)(COMPILATION ERROR|Failed to execute goal io\\.takari\\.maven\\.plugins:takari-lifecycle-plugin.*?:compile)"),
                 FailureCategory.COMPILATION_FAILURE);
+        FAILURE_PATTERNS.put(Pattern.compile("(?i)(BUILD SUCCESS)"),
+                FailureCategory.BUILD_SUCCESS);
+        FAILURE_PATTERNS.put(Pattern.compile("(?i)(Failed to execute goal org\\.apache\\.maven\\.plugins:maven-enforcer-plugin|" +
+                        "Failed to execute goal org\\.jenkins-ci\\.tools:maven-hpi-plugin)"),
+                FailureCategory.ENFORCER_FAILURE);
+        FAILURE_PATTERNS.put(Pattern.compile("(?i)(Could not resolve dependencies|\\[ERROR] Some problems were encountered while processing the POMs|" +
+                        "\\[ERROR] .*?The following artifacts could not be resolved)"),
+                FailureCategory.DEPENDENCY_RESOLUTION_FAILURE);
+        FAILURE_PATTERNS.put(Pattern.compile("(?i)(Failed to execute goal se\\.vandmo:dependency-lock-maven-plugin:.*?:check)"),
+                FailureCategory.DEPENDENCY_LOCK_FAILURE);
+
     }
 
     private final File logFile;
@@ -48,10 +58,10 @@ public class FailureCategoryExtract {
      *
      * @return the failure category @see FailureCategory
      */
-    public FailureCategory getFailureCategory() {
+    public FailureCategory getFailureCategory(File logFilePath) {
 
         try {
-            String logContent = Files.readString(logFile.toPath());
+            String logContent = Files.readString(logFilePath.toPath());
             for (Map.Entry<Pattern, FailureCategory> entry : FAILURE_PATTERNS.entrySet()) {
                 Pattern pattern = entry.getKey();
                 Matcher matcher = pattern.matcher(logContent);

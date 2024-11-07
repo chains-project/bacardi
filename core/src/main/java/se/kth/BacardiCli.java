@@ -42,13 +42,15 @@ public class BacardiCli {
                 required = true)
         Path logFile;
 
+
+
         @Override
         public void run() {
 
             log.info("Analyzing project: {}", project.getFileName());
 
             FailureCategoryExtract failureCategoryExtract = new FailureCategoryExtract(logFile.toFile());
-            final FailureCategory failureCategory = failureCategoryExtract.getFailureCategory();
+            final FailureCategory failureCategory = failureCategoryExtract.getFailureCategory(logFile.toFile());
 
             if (failureCategory == FailureCategory.UNKNOWN_FAILURE) {
                 log.error("Unknown failure category.");
@@ -63,7 +65,7 @@ public class BacardiCli {
                 return;
             }
 
-            BacardiCore bacardiCore = new BacardiCore(project, logFile, failureCategory);
+            BacardiCore bacardiCore = new BacardiCore(project, logFile, failureCategoryExtract, false);
             bacardiCore.analyze();
 
         }
@@ -83,11 +85,12 @@ public class BacardiCli {
 
         @Override
         public void run() {
+
             log.info("Analyzing log file: {}", logFile.getFileName());
 
             FailureCategoryExtract failureCategoryExtract = new FailureCategoryExtract(logFile.toFile());
 
-            final FailureCategory failureCategory = failureCategoryExtract.getFailureCategory();
+            final FailureCategory failureCategory = failureCategoryExtract.getFailureCategory(logFile.toFile());
 
             log.info("Failure category: {}", failureCategory);
 

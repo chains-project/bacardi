@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.models.JavaVersionIncompatibility;
 import se.kth.models.JavaVersionInfo;
+import se.kth.models.YamlInfo;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -123,7 +124,7 @@ public class JavaVersionInformation {
         JavaVersionFinder javaVersionFinder = new JavaVersionFinder();
 
         // Find Java versions in the client path
-        Map<String, List<Integer>> javaVersions = javaVersionFinder.findJavaVersions(clientPath);
+        List<YamlInfo> javaVersions = javaVersionFinder.findJavaVersions(clientPath);
 
         // Create a new JavaVersionInfo object to store the analysis results
         JavaVersionInfo javaVersionFailure = new JavaVersionInfo();
