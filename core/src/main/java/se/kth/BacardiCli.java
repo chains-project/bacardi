@@ -1,5 +1,6 @@
 package se.kth;
 
+import org.eclipse.jgit.api.Git;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -43,7 +44,6 @@ public class BacardiCli {
         Path logFile;
 
 
-
         @Override
         public void run() {
 
@@ -52,13 +52,20 @@ public class BacardiCli {
             FailureCategoryExtract failureCategoryExtract = new FailureCategoryExtract(logFile.toFile());
             final FailureCategory failureCategory = failureCategoryExtract.getFailureCategory(logFile.toFile());
 
-            if (failureCategory == FailureCategory.BUILD_SUCCESS) {
-                log.info("Build success. No need to analyze further.");
+            if (failureCategory == FailureCategory.UNKNOWN_FAILURE) {
+                log.error("Unknown failure category.");
                 return;
             }
 
-            BacardiCore bacardiCore = new BacardiCore(project, logFile, failureCategoryExtract, false);
-            bacardiCore.analyze();
+            GitManager gitManager = new GitManager(project.toFile());
+
+            try {
+                Git git = gitManager.checkRepoStatus();
+
+
+            } catch (Exception e) {
+                log.error("Error checking repository status", e);
+            }
 
         }
     }
