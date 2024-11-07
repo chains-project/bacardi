@@ -47,4 +47,12 @@ public class BreakingUpdate {
         this.failureCategory = failureCategory;
         this.licenseInfo = licenseInfo;
     }
+
+    public String getPreImageId() {
+        return this.preCommitReproductionCommand.replace("docker run ", "");
+    }
+
+    public String getBreakingImageId() {
+        return this.breakingUpdateReproductionCommand.replace("docker run ", "");
+    }
 }

@@ -16,7 +16,7 @@ public class JavaVersionInfo {
     // List of error messages for each Java version incompatibility
     private Map<JavaVersionIncompatibility, Set<String>> diffVersionErrors;
     // List of Java versions in the workflow files
-    private Map<String, List<Integer>> javaInWorkflowFiles;
+    private List<YamlInfo> javaInWorkflowFiles;
     // List of error messages
     private Set<String> errorMessages;
 
@@ -32,7 +32,7 @@ public class JavaVersionInfo {
      * @param incompatibility     the Java version incompatibility
      * @param javaInWorkflowFiles the Java files in the workflow
      */
-    public JavaVersionInfo(JavaVersionIncompatibility incompatibility, Map<String, List<Integer>> javaInWorkflowFiles) {
+    public JavaVersionInfo(JavaVersionIncompatibility incompatibility, List<YamlInfo> javaInWorkflowFiles) {
         this.incompatibility = incompatibility;
         this.javaInWorkflowFiles = javaInWorkflowFiles;
     }
@@ -52,11 +52,13 @@ public class JavaVersionInfo {
 
     @Override
     public String toString() {
-        return "JavaVersionInfo{" +
-                "incompatibility=" + incompatibility +
-                ",\n diffVersionErrors=" + diffVersionErrors +
-                ",\n javaInWorkflowFiles=" + javaInWorkflowFiles +
-                ",\n errorMessages=" + errorMessages +
-                '}';
+       return "JavaVersionInfo{" +
+               "incompatibility=" + incompatibility +
+               ", diffVersionErrors=" + diffVersionErrors +
+               ", javaInWorkflowFiles=" + javaInWorkflowFiles +
+               ", errorMessages=" + errorMessages +
+               '}';
     }
+
+
 }

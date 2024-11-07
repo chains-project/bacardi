@@ -12,6 +12,7 @@
         <module>docker-build</module>
         <module>breaking-classifier</module>
         <module>core</module>
+        <module>git-manager</module>
         <module>test-failures</module>
     </modules>
 
@@ -19,7 +20,6 @@
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -45,6 +45,15 @@
         </developer>
     </developers>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.eclipse.jgit</groupId>
+                <artifactId>org.eclipse.jgit</artifactId>
+                <version>6.7.0.202309050840-r</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- SLF4 API -->
@@ -64,9 +73,14 @@
             <artifactId>lombok</artifactId>
             <version>1.18.34</version>
         </dependency>
+        <!--        Trace yaml files-->
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>2.0</version>
+        </dependency>
 
     </dependencies>
-
 
 
 </project>

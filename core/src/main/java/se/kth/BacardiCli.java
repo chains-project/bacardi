@@ -1,5 +1,6 @@
 package se.kth;
 
+import org.eclipse.jgit.api.Git;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -42,16 +43,29 @@ public class BacardiCli {
                 required = true)
         Path logFile;
 
+
         @Override
         public void run() {
 
             log.info("Analyzing project: {}", project.getFileName());
 
             FailureCategoryExtract failureCategoryExtract = new FailureCategoryExtract(logFile.toFile());
-            final FailureCategory failureCategory = failureCategoryExtract.getFailureCategory();
+            final FailureCategory failureCategory = failureCategoryExtract.getFailureCategory(logFile.toFile());
 
-            BacardiCore bacardiCore = new BacardiCore(project, logFile, failureCategory);
-            bacardiCore.analyze();
+            if (failureCategory == FailureCategory.UNKNOWN_FAILURE) {
+                log.error("Unknown failure category.");
+                return;
+            }
+
+            GitManager gitManager = new GitManager(project.toFile());
+
+            try {
+                Git git = gitManager.checkRepoStatus();
+
+
+            } catch (Exception e) {
+                log.error("Error checking repository status", e);
+            }
 
         }
     }
@@ -70,17 +84,17 @@ public class BacardiCli {
 
         @Override
         public void run() {
+
             log.info("Analyzing log file: {}", logFile.getFileName());
 
             FailureCategoryExtract failureCategoryExtract = new FailureCategoryExtract(logFile.toFile());
 
-            final FailureCategory failureCategory = failureCategoryExtract.getFailureCategory();
+            final FailureCategory failureCategory = failureCategoryExtract.getFailureCategory(logFile.toFile());
 
             log.info("Failure category: {}", failureCategory);
 
         }
     }
-
 
 
 }

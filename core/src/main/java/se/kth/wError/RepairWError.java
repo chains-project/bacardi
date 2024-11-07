@@ -83,46 +83,46 @@ public class RepairWError {
         return false;
     }
 
-   /**
- * Replaces the Java version in the `pom.xml` file with the specified version.
- * Creates a backup of the original `pom.xml` file before making changes.
- *
- * @param pomFilePath the path to the `pom.xml` file
- * @param javaVersion the Java version to set in the `pom.xml` file
- * @throws IOException if an I/O error occurs during file operations
- */
-public void replaceJavaVersion(String pomFilePath, int javaVersion) throws IOException {
-    File pomFile = new File(pomFilePath);
-    File backupPomFile = new File(pomFilePath.replace(".xml", "_backup.xml"));
+    /**
+     * Replaces the Java version in the `pom.xml` file with the specified version.
+     * Creates a backup of the original `pom.xml` file before making changes.
+     *
+     * @param pomFilePath the path to the `pom.xml` file
+     * @param javaVersion the Java version to set in the `pom.xml` file
+     * @throws IOException if an I/O error occurs during file operations
+     */
+    public void replaceJavaVersion(String pomFilePath, int javaVersion) throws IOException {
+        File pomFile = new File(pomFilePath);
+        File backupPomFile = new File(pomFilePath.replace(".xml", "_backup.xml"));
 
-    // Create a backup copy of the original pom.xml file
-    Files.copy(pomFile.toPath(), backupPomFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        // Create a backup copy of the original pom.xml file
+        Files.copy(pomFile.toPath(), backupPomFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
-    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-    try {
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document doc = builder.parse(pomFile.getAbsolutePath());
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(pomFile.getAbsolutePath());
 
-        // Normalize the XML structure
-        doc.getDocumentElement().normalize();
+            // Normalize the XML structure
+            doc.getDocumentElement().normalize();
 
-        Element root = doc.getDocumentElement();
-        // Set the new Java version for maven.compiler.source and maven.compiler.target
-        root.getElementsByTagName("maven.compiler.source").item(0).setTextContent(String.valueOf(javaVersion));
-        root.getElementsByTagName("maven.compiler.target").item(0).setTextContent(String.valueOf(javaVersion));
+            Element root = doc.getDocumentElement();
+            // Set the new Java version for maven.compiler.source and maven.compiler.target
+            root.getElementsByTagName("maven.compiler.source").item(0).setTextContent(String.valueOf(javaVersion));
+            root.getElementsByTagName("maven.compiler.target").item(0).setTextContent(String.valueOf(javaVersion));
 
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        DOMSource source = new DOMSource(doc);
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(doc);
 
-        // Save the modified content back to the original pom.xml file
-        StreamResult result = new StreamResult(pomFile);
-        transformer.transform(source, result);
+            // Save the modified content back to the original pom.xml file
+            StreamResult result = new StreamResult(pomFile);
+            transformer.transform(source, result);
 
-    } catch (ParserConfigurationException | SAXException | TransformerException e) {
-        throw new RuntimeException(e);
+        } catch (ParserConfigurationException | SAXException | TransformerException e) {
+            throw new RuntimeException(e);
+        }
     }
-}
 
 
 }
