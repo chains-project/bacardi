@@ -1,5 +1,6 @@
 package se.kth;
 
+import org.eclipse.jgit.api.Git;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.java_version.RepairJavaVersionIncompatibility;
@@ -21,6 +22,7 @@ public class BacardiCore {
     private final Path logFile;
 
     private final FailureCategoryExtract failureCategoryExtract;
+
 
     Boolean isBump = false;
 
@@ -51,15 +53,20 @@ public class BacardiCore {
 
         Result result = new Result(failureCategory);
 
-
         int attempts = 0;
 
         while (failureCategory != FailureCategory.BUILD_SUCCESS && attempts < 3) {
 
+            // Check if the project is a git repository
+            GitManager gitManager = new GitManager(project.toFile());
+            // Check the status of the repository and create a new branch for the original status
+
+            Git git = gitManager.checkRepoStatus();
+
             switch (failureCategory) {
                 case JAVA_VERSION_FAILURE:
                     log.info("Java version failure detected.");
-                    failureCategory = repairJavaVersionIncompatibility();
+                    failureCategory = repairJavaVersionIncompatibility(gitManager);
                     break;
                 case TEST_FAILURE:
                     log.info("Test failure detected.");
@@ -109,8 +116,10 @@ public class BacardiCore {
     }
 
 
-    private FailureCategory repairJavaVersionIncompatibility() {
+    private FailureCategory repairJavaVersionIncompatibility(GitManager gitManager) {
 
+        //Create a branch for the java version incompatibility repair
+        gitManager.newBranch(Constants.BRANCH_JAVA_VERSION_INCOMPATIBILITY);
 
         JavaVersionInformation javaVersionInformation = new JavaVersionInformation(logFile.toFile());
         JavaVersionInfo javaVersionInfo = javaVersionInformation.analyse(logFile.toAbsolutePath().toString(), project.toAbsolutePath().toString());
@@ -131,9 +140,7 @@ public class BacardiCore {
 
         File logFilePath = new File(MAVEN_LOG_FILE);
 
-
         List<YamlInfo> javaVersions = javaVersionInfo.getJavaInWorkflowFiles();
-
 
         //check if the new failure category is success
         FailureCategory newFailureCategory = failureCategoryExtract.getFailureCategory(logFilePath);
@@ -142,8 +149,9 @@ public class BacardiCore {
         repairJavaVersionIncompatibility.updateJavaVersions(project.toString(), 17);
 //        }
 
-        return failureCategoryExtract.getFailureCategory(logFilePath);
+        gitManager.commitAllChanges("Java version incompatibility repair");
 
+        return failureCategoryExtract.getFailureCategory(logFilePath);
 
     }
 }

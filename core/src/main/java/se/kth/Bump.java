@@ -75,7 +75,7 @@ public class Bump {
 
         breaking
                 .stream()
-                .filter(e -> e.breakingCommit.equals("c83979c19ca572bfef0fa96d73772fdbeeddd109")) // filter by breaking commit
+                .filter(e -> e.breakingCommit.equals("c5905f7220e1129a0448715ee5d0e61ee5ac31e1")) // filter by breaking commit
 //                .filter(e -> javaVersionIncompatibilityLines.contains(e.breakingCommit)) // filter by failure category
                 .forEach(e -> {
 
@@ -168,7 +168,6 @@ public class Bump {
 
         } catch (InterruptedException e) {
             log.error("Something went wrong", e);
-            e.printStackTrace();
         }
         return imageId;
     }
