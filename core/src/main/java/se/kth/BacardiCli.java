@@ -1,5 +1,6 @@
 package se.kth;
 
+import org.eclipse.jgit.api.Git;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -43,7 +44,6 @@ public class BacardiCli {
         Path logFile;
 
 
-
         @Override
         public void run() {
 
@@ -58,15 +58,14 @@ public class BacardiCli {
             }
 
             GitManager gitManager = new GitManager(project.toFile());
-            boolean isNewBranch =  gitManager.newBranch();
 
-            if (!isNewBranch) {
-                log.error("Failed to create a new branch.");
-                return;
+            try {
+                Git git = gitManager.checkRepoStatus();
+
+
+            } catch (Exception e) {
+                log.error("Error checking repository status", e);
             }
-
-            BacardiCore bacardiCore = new BacardiCore(project, logFile, failureCategoryExtract, false);
-            bacardiCore.analyze();
 
         }
     }
@@ -96,7 +95,6 @@ public class BacardiCli {
 
         }
     }
-
 
 
 }
