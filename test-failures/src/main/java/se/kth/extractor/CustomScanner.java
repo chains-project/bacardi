@@ -122,4 +122,24 @@ public class CustomScanner extends CtScanner {
                 .forEach(this::collectExecutedElements);
         super.visitCtClass(ctClass);
     }
+
+    @Override
+    public <T, A extends T> void visitCtAssignment(CtAssignment<T, A> assignment) {
+        this.collectExecutedElements(assignment.getAssigned());
+        this.collectExecutedElements(assignment.getAssignment());
+        super.visitCtAssignment(assignment);
+    }
+
+    @Override
+    public <R> void visitCtReturn(CtReturn<R> returnStatement) {
+        this.collectExecutedElements(returnStatement.getReturnedExpression());
+        super.visitCtReturn(returnStatement);
+    }
+
+    @Override
+    public <T> void visitCtFieldRead(CtFieldRead<T> fieldRead) {
+        this.collectExecutedElements(fieldRead.getVariable());
+        super.visitCtFieldRead(fieldRead);
+    }
+
 }
