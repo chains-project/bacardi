@@ -10,11 +10,17 @@ import spoon.reflect.declaration.CtElement;
 import spoon.reflect.reference.CtTypeReference;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CausingConstructExtractor extends PipelineComponent {
 
@@ -22,11 +28,17 @@ public class CausingConstructExtractor extends PipelineComponent {
     private final JapicmpAnalyzer japicmpAnalyzer;
     private final Path projectBaseDir;
 
-    private int notFound = 0;
-    private int total = 0;
-    private int found = 0;
-    private int noFileFound = 0;
-    private int failed = 0;
+    private final ConcurrentLinkedQueue<CtElement> result = new ConcurrentLinkedQueue();
+
+    private AtomicInteger notFound = new AtomicInteger(0);
+    private AtomicInteger total = new AtomicInteger(0);
+    private AtomicInteger found = new AtomicInteger(0);
+    private AtomicInteger noFileFound = new AtomicInteger(0);
+    private AtomicInteger foundExact = new AtomicInteger(0);
+    private AtomicInteger noChangeInvolved = new AtomicInteger(0);
+    private AtomicInteger failed = new AtomicInteger(0);
+
+    private final List<CtElement> exactMatches = new LinkedList<>();
 
     public CausingConstructExtractor(TrueFailingTestCasesProvider failingTestCasesProvider,
                                      JapicmpAnalyzer japicmpAnalyzer, Path projectBaseDir) {
@@ -46,43 +58,75 @@ public class CausingConstructExtractor extends PipelineComponent {
                 .toList();
 
         TestFileLoader testFileLoader = new TestFileLoader(commitId);
-        for (TestResult testResult : failingTestCases) {
 
-            try {
-                List<ImmutablePair<StackTraceElement, Optional<File>>> projectFiles =
-                        testFileLoader.loadProjectTestFiles(testResult.throwable.stackTrace);
-                total++;
+        try (ExecutorService executorService = Executors.newFixedThreadPool(10)) {
+            for (TestResult testResult : failingTestCases) {
+                executorService.submit(() -> {
+                    analyzeTestResult(testResult, testFileLoader, commitId, classNamesJapicmp);
+                });
+            }
+            executorService.shutdown();
+            executorService.awaitTermination(1, TimeUnit.HOURS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void analyzeTestResult(TestResult testResult, TestFileLoader testFileLoader, String commitId, List<String> classNamesJapicmp) {
+        try {
+            List<ImmutablePair<StackTraceElement, Optional<File>>> projectFiles =
+                    testFileLoader.loadProjectTestFiles(testResult.throwable.stackTrace);
+            if (!testResult.throwable.className.contains("ssertion") && !testResult.throwable.className.contains("ssumption")) {
+                List<String> files = projectFiles.stream()
+                        .filter(pair -> pair.right.isPresent())
+                        .map(pair -> pair.right.get())
+                        .map(e -> {
+                            try {
+                                return Files.readString(e.toPath());
+                            } catch (IOException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        })
+                        .toList();
+                total.getAndIncrement();
                 if (this.foundAnyProjectTestFile(projectFiles)) {
                     List<StackTraceElement> locatedElements = this.getLocatedStackTraceElements(projectFiles);
                     SpoonLocalizer spoonLocalizer = new SpoonLocalizer(projectBaseDir.resolve(commitId));
-                    Set<CtElement> involvedElements = spoonLocalizer.localize(locatedElements);
+                    var raw = spoonLocalizer.localize(locatedElements).stream().toList();
+                    List<CtElement> involvedElements = this.removeParents(raw);
                     if (!involvedElements.isEmpty()) {
-                        var types = involvedElements.stream()
-                                .map(CtElement::getReferencedTypes)
-                                .toList();
-                        var result = this.checkChangedInvolved(types, classNamesJapicmp);
+                        var result = this.checkChangedInvolved(involvedElements, classNamesJapicmp);
                         if (!result.isEmpty()) {
-                            found++;
+                            if (result.size() == 1) {
+                                foundExact.getAndIncrement();
+                                this.exactMatches.add(result.getFirst());
+                            } else {
+                                System.out.println(result.size());
+                            }
+                            found.getAndIncrement();
                         } else {
-                            notFound++;
+                            noChangeInvolved.getAndIncrement();
                         }
                     } else {
-                        notFound++;
+                        notFound.getAndIncrement();
                     }
                 } else {
-                    noFileFound++;
+                    noFileFound.getAndIncrement();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                failed++;
             }
-            System.out.println("noFileFound: " + noFileFound);
-            System.out.println("notFound: " + notFound);
-            System.out.println("found: " + found);
-            System.out.println("failed: " + failed);
-            System.out.println("total: " + total);
-            System.out.println("-----------------------");
+        } catch (Exception e) {
+            e.printStackTrace();
+            failed.getAndIncrement();
         }
+
+        System.out.println("noFileFound: " + noFileFound);
+        System.out.println("notFound: " + notFound);
+        System.out.println("noChangeInvolved: " + noChangeInvolved);
+        System.out.println("found: " + found);
+        System.out.println("foundExact: " + foundExact);
+        System.out.println("failed: " + failed);
+        System.out.println("total: " + total);
+        System.out.println("-----------------------");
     }
 
     @Override
@@ -90,25 +134,36 @@ public class CausingConstructExtractor extends PipelineComponent {
         System.out.println("");
     }
 
-    private List<Set<String>> checkChangedInvolved(List<Set<CtTypeReference<?>>> references, List<String> changedClassnames) {
-        var tmp = references.stream()
-                .map(ctTypeReferences -> ctTypeReferences.stream()
-                        .map(ctTypeReference -> ctTypeReference.getQualifiedName())
-                        .collect(Collectors.toSet()))
+    private List<CtElement> checkChangedInvolved(List<CtElement> elements, List<String> changedClassnames) {
+        return removeParents(elements).stream()
+                .filter(ctElement -> referencesChangedType(ctElement, changedClassnames))
                 .toList();
-        var involved = tmp.stream()
-                .filter(strings -> containsAny(strings, changedClassnames))
-                .toList();
-        return involved;
     }
 
-    private boolean containsAny(Set<String> first, List<String> second) {
+    private boolean referencesChangedType(CtElement element, List<String> changedClassnames) {
+        List<String> referencedElementsTypes = element.getReferencedTypes().stream()
+                .map(CtTypeReference::getQualifiedName)
+                .toList();
+        return containsAny(changedClassnames, referencedElementsTypes);
+    }
+
+    private boolean containsAny(List<String> first, List<String> second) {
         for (String s : second) {
             if (first.contains(s)) {
                 return true;
             }
         }
         return false;
+    }
+
+    private List<CtElement> removeParents(List<CtElement> elements) {
+        List<CtElement> parents = elements.stream()
+                .filter(ctElement -> ctElement.getParent() != null)
+                .map(CtElement::getParent)
+                .toList();
+        return elements.stream()
+                .filter(ctElement -> !parents.contains(ctElement))
+                .toList();
     }
 
     private boolean foundAnyProjectTestFile(List<ImmutablePair<StackTraceElement, Optional<File>>> projectTestFilePerStackTraceElement) {

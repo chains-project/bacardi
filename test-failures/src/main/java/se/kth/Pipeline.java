@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Pipeline {
 
@@ -39,21 +38,15 @@ public class Pipeline {
 
             component.ensureOutputDirsExist();
 
-            AtomicInteger failed = new AtomicInteger();
             try (ExecutorService executorService = Executors.newFixedThreadPool(50)) {
                 for (BreakingUpdate update : this.breakingUpdates) {
                     executorService.submit(() -> {
-                        try {
-                            component.execute(update);
-                        } catch (Exception e) {
-                            failed.getAndIncrement();
-                        }
+                        component.execute(update);
                     });
                 }
                 executorService.shutdown();
                 executorService.awaitTermination(1, TimeUnit.HOURS);
 
-                System.out.println("failed: " + failed);
                 component.finish();
             } catch (InterruptedException e) {
                 logger.error(e.getMessage(), e);

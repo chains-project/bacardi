@@ -2,11 +2,13 @@ package se.kth.extractor;
 
 import lombok.Getter;
 import spoon.reflect.code.*;
-import spoon.reflect.declaration.CtElement;
-import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.*;
 import spoon.reflect.reference.CtExecutableReference;
+import spoon.reflect.reference.CtFieldReference;
+import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.CtScanner;
 
+import java.lang.annotation.Annotation;
 import java.util.Set;
 
 @Getter
@@ -75,4 +77,49 @@ public class CustomScanner extends CtScanner {
         super.visitCtExecutableReference(reference);
     }
 
+    @Override
+    public <T> void visitCtTypeReference(CtTypeReference<T> reference) {
+        this.collectExecutedElements(reference.getDeclaration());
+        super.visitCtTypeReference(reference);
+    }
+
+    @Override
+    public <A extends Annotation> void visitCtAnnotation(CtAnnotation<A> annotation) {
+        this.collectExecutedElements(annotation.getAnnotationType());
+        super.visitCtAnnotation(annotation);
+    }
+
+    @Override
+    public <T> void visitCtFieldReference(CtFieldReference<T> reference) {
+        this.collectExecutedElements(reference.getDeclaringType());
+        super.visitCtFieldReference(reference);
+    }
+
+    @Override
+    public void visitCtTry(CtTry tryBlock) {
+        this.collectExecutedElements(tryBlock.getBody());
+        super.visitCtTry(tryBlock);
+    }
+
+    @Override
+    public void visitCtCatch(CtCatch catchBlock) {
+        this.collectExecutedElements(catchBlock.getBody());
+        super.visitCtCatch(catchBlock);
+    }
+
+    @Override
+    public void visitCtTryWithResource(CtTryWithResource tryWithResource) {
+        this.collectExecutedElements(tryWithResource.getBody());
+        super.visitCtTryWithResource(tryWithResource);
+    }
+
+    @Override
+    public <T> void visitCtClass(CtClass<T> ctClass) {
+        ctClass.getFields().stream()
+                .filter(CtModifiable::isStatic)
+                .forEach(this::collectExecutedElements);
+        ctClass.getAnnotations()
+                .forEach(this::collectExecutedElements);
+        super.visitCtClass(ctClass);
+    }
 }
