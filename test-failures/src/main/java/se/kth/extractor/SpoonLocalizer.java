@@ -118,12 +118,13 @@ public class SpoonLocalizer {
     }
 
     public Set<CtElement> localize(List<StackTraceElement> testElements) {
-        List<CtElement> rootElements = testElements.stream()
+        CtElement rootElement = testElements.stream()
                 .map(this::localizeElementFromStackTraceElement)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList();
-        return this.getAllChildren(rootElements);
+                .filter(elements -> !elements.isEmpty())
+                .findFirst()
+                .get()
+                .get();
+        return this.getAllChildren(List.of(rootElement));
     }
 
     private static Optional<CtElement> extractParent(List<CtElement> elements) {

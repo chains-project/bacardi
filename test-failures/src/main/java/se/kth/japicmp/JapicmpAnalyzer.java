@@ -42,7 +42,7 @@ public class JapicmpAnalyzer {
 
     private Options getDefaultOptions() {
         Options defaultOptions = Options.newDefault();
-        defaultOptions.setOutputOnlyModifications(true);
+        defaultOptions.setOutputOnlyBinaryIncompatibleModifications(true);
         defaultOptions.setIgnoreMissingClasses(true);
         return defaultOptions;
     }
