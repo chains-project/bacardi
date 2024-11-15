@@ -29,7 +29,7 @@ public class Bump {
     private final static String CLIENT_PATH = "/Users/frank/Documents/Work/PHD/bacardi/projects";
 
     static Set<Result> resultsList = new HashSet<>();
-    private final static String JSON_PATH = "result_repair_test.json";
+    private final static String JSON_PATH = "result_repair_test1.json";
 
 
     public static void main(String[] args) {
@@ -75,7 +75,7 @@ public class Bump {
 
         breaking
                 .stream()
-                .filter(e -> e.breakingCommit.equals("c5905f7220e1129a0448715ee5d0e61ee5ac31e1")) // filter by breaking commit
+                .filter(e -> e.breakingCommit.equals("bdbb81614557858922836294d1d6dd3dd661f10c")) // filter by breaking commit
 //                .filter(e -> javaVersionIncompatibilityLines.contains(e.breakingCommit)) // filter by failure category
                 .forEach(e -> {
 

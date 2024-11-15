@@ -3,15 +3,19 @@ package se.kth.wError;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.maven.api.model.Model;
+import org.apache.maven.model.v4.MavenStaxReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -103,13 +107,28 @@ public class RepairWError {
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document doc = builder.parse(pomFile.getAbsolutePath());
 
-            // Normalize the XML structure
             doc.getDocumentElement().normalize();
 
             Element root = doc.getDocumentElement();
-            // Set the new Java version for maven.compiler.source and maven.compiler.target
-            root.getElementsByTagName("maven.compiler.source").item(0).setTextContent(String.valueOf(javaVersion));
-            root.getElementsByTagName("maven.compiler.target").item(0).setTextContent(String.valueOf(javaVersion));
+
+            // Update the Java version in the pom.xml file
+            NodeList mavenCompilerSource = root.getElementsByTagName("maven.compiler.source");
+            NodeList mavenCompilerTarget = root.getElementsByTagName("maven.compiler.target");
+            NodeList mavenCompilerFailOnWarning = root.getElementsByTagName("maven.compiler.failOnWarning");
+            NodeList properties = root.getElementsByTagName(failOnWarningTag);
+
+            if (mavenCompilerSource.getLength() > 0) {
+                mavenCompilerSource.item(0).setTextContent(String.valueOf(javaVersion));
+            }
+            if (mavenCompilerTarget.getLength() > 0) {
+                mavenCompilerTarget.item(0).setTextContent(String.valueOf(javaVersion));
+            }
+            if (mavenCompilerFailOnWarning.getLength() > 0) {
+                mavenCompilerFailOnWarning.item(0).setTextContent("false");
+            }
+            if (properties.getLength() > 0) {
+                properties.item(0).setTextContent("false");
+            }
 
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
