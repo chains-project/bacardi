@@ -8,23 +8,24 @@ import se.kth.wError.RepairWError;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class BacardiCore {
 
     private static final Logger log = LoggerFactory.getLogger(BacardiCore.class);
     private final Path project;
-
     private final Path logFile;
 
     private final FailureCategoryExtract failureCategoryExtract;
     private FailureCategory previousFailureCategory;
     private FailureCategory failureCategory;
-    Result result;
+
+    private Result result;
 
     Boolean isBump = false;
-
     String actualImage;
 
     public BacardiCore(Path project, Path logFile, FailureCategoryExtract failureCategoryExtract, Boolean isBump) {
@@ -124,11 +125,7 @@ public class BacardiCore {
         String newJavaVersion = javaVersionInfo.getIncompatibility().mapVersions(incompatibility.wrongVersion());
 
 
-        log.info("");
-        log.info("************************************************************");
-        log.info("Starting Java version incompatibility repair.");
-        log.info("*************************************************************");
-        log.info("");
+        initialMessage("Starting Java version incompatibility repair.");
 
         RepairJavaVersionIncompatibility repairJavaVersionIncompatibility = new RepairJavaVersionIncompatibility(javaVersionInfo, project, isBump);
 
@@ -156,11 +153,7 @@ public class BacardiCore {
         gitManager.newBranch(Constants.BRANCH_WERROR);
 
 
-        log.info("");
-        log.info("************************************************************");
-        log.info("Starting Werror repair.");
-        log.info("*************************************************************");
-        log.info("");
+        initialMessage("Starting Werror incompatibility repair.");
 
         Path logFile = project.resolve("output.log");
 
@@ -186,5 +179,13 @@ public class BacardiCore {
 
         return failureCategoryExtract.getFailureCategory(logFile.toFile());
 
+    }
+
+    private static void initialMessage(String message) {
+        log.info("");
+        log.info("************************************************************");
+        log.info(message);
+        log.info("*************************************************************");
+        log.info("");
     }
 }
