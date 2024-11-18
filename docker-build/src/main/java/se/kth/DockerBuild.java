@@ -89,19 +89,24 @@ public class DockerBuild {
         }
     }
 
-    public String createBaseImageForBreakingUpdate(Path client, String javaVersion) throws IOException {
+    public String createBaseImageForBreakingUpdate(Path client, String javaVersion, String dockerImage) throws IOException {
 
         String baseImage;
         String imageName = "";
         Path clientName = client.toAbsolutePath().getFileName();
 
-        if (javaVersion.equals("Java 17")) {
-            baseImage = "%s-java-17".formatted(BASE_IMAGE);
-            imageName = "%s:base-17".formatted(clientName);
+        if (dockerImage == null) {
+            if (javaVersion.equals("Java 17")) {
+                baseImage = "%s-java-17".formatted(BASE_IMAGE);
+                imageName = "%s:base-17".formatted(clientName);
+            } else {
+                baseImage = BASE_IMAGE;
+                imageName = "%s:base".formatted(clientName);
+            }
         } else {
-            baseImage = BASE_IMAGE;
-            imageName = "%s:base".formatted(clientName);
+            baseImage = dockerImage;
         }
+
 
         try {
             ensureBaseMavenImageExists(baseImage);
@@ -122,10 +127,7 @@ public class DockerBuild {
         Path localFolder = Paths.get("%s".formatted(client));
         Path tar = Paths.get("%s.tar".formatted(clientName));
 
-//        createTarFile(localFolder, tar);
-
         String containerPath = "/%s".formatted(clientName);
-
 
         CopyArchiveToContainerCmd copyProjectToContainer = dockerClient.copyArchiveToContainerCmd(container.getId())
                 .withHostResource(localFolder.toAbsolutePath().toString()) // local path
@@ -133,19 +135,14 @@ public class DockerBuild {
 
         copyProjectToContainer.exec();
 
-
         if (isBump) {
-
             Path m2 = localFolder.resolveSibling("m2/.m2").normalize();
-
             log.info("Copying M2 folder to container ++++++++++++++++++++++++");
             CopyArchiveToContainerCmd copyCmd = dockerClient.copyArchiveToContainerCmd(container.getId())
                     .withHostResource(m2.toAbsolutePath().toString()) // local path
                     .withRemotePath("/root/"); //  container path
-
             copyCmd.exec();
         }
-
 
         WaitContainerResultCallback waitResult = dockerClient.waitContainerCmd(container.getId())
                 .exec(new WaitContainerResultCallback());
