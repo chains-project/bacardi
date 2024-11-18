@@ -1,31 +1,30 @@
 package se.kth;
 
-import org.eclipse.jgit.api.Git;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.kth.Util.LogUtils;
 import se.kth.java_version.RepairJavaVersionIncompatibility;
 import se.kth.models.*;
+import se.kth.wError.RepairWError;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
-import static se.kth.Util.Constants.MAVEN_LOG_FILE;
-
 public class BacardiCore {
 
     private static final Logger log = LoggerFactory.getLogger(BacardiCore.class);
     private final Path project;
-
     private final Path logFile;
 
     private final FailureCategoryExtract failureCategoryExtract;
+    private FailureCategory previousFailureCategory;
+    private FailureCategory failureCategory;
 
+    private Result result;
 
     Boolean isBump = false;
-
     String actualImage;
 
     public BacardiCore(Path project, Path logFile, FailureCategoryExtract failureCategoryExtract, Boolean isBump) {
@@ -49,19 +48,22 @@ public class BacardiCore {
 
     public Result analyze() {
 
-        FailureCategory failureCategory = failureCategoryExtract.getFailureCategory(logFile.toFile());
+        failureCategory = failureCategoryExtract.getFailureCategory(logFile.toFile());
 
-        Result result = new Result(failureCategory);
+        // Result value for each attempt
+        result = new Result(failureCategory);
 
         int attempts = 0;
 
+
         while (failureCategory != FailureCategory.BUILD_SUCCESS && attempts < 3) {
+
 
             // Check if the project is a git repository
             GitManager gitManager = new GitManager(project.toFile());
             // Check the status of the repository and create a new branch for the original status
 
-            Git git = gitManager.checkRepoStatus();
+            gitManager.checkRepoStatus();
 
             switch (failureCategory) {
                 case JAVA_VERSION_FAILURE:
@@ -73,22 +75,14 @@ public class BacardiCore {
                     break;
                 case WERROR_FAILURE:
                     log.info("Werror failure detected.");
-                    WerrorInformation werrorInformation = new WerrorInformation(logFile.toFile());
-                    try {
-                        WerrorInfo werrorInfo = werrorInformation.analyzeWerror(project.toString());
-                        log.info("Werror info: {}", werrorInfo);
-                    } catch (Exception e) {
-                        log.error("Error extracting warning lines.", e);
-                    }
+                    failureCategory = repairWErrorIncompatibility(gitManager);
                     break;
                 case COMPILATION_FAILURE:
                     log.info("Compilation failure detected.");
                     break;
-
                 case DEPENDENCY_LOCK_FAILURE:
                     log.info("Dependency lock failure detected.");
                     break;
-
                 case DEPENDENCY_RESOLUTION_FAILURE:
                     log.info("Dependency resolution failure detected.");
                     break;
@@ -128,22 +122,18 @@ public class BacardiCore {
         String newJavaVersion = javaVersionInfo.getIncompatibility().mapVersions(incompatibility.wrongVersion());
 
 
-        log.info("");
-        log.info("************************************************************");
-        log.info("Starting Java version incompatibility repair.");
-        log.info("*************************************************************");
-        log.info("");
+        LogUtils.logWithBox(log, "Starting Java version incompatibility repair.");
 
         RepairJavaVersionIncompatibility repairJavaVersionIncompatibility = new RepairJavaVersionIncompatibility(javaVersionInfo, project, isBump);
 
         actualImage = repairJavaVersionIncompatibility.repair();
 
-        File logFilePath = new File(MAVEN_LOG_FILE);
-
         List<YamlInfo> javaVersions = javaVersionInfo.getJavaInWorkflowFiles();
 
+        Path logFile = project.resolve("output.log".formatted(result.getAttempts().size()));
+
         //check if the new failure category is success
-        FailureCategory newFailureCategory = failureCategoryExtract.getFailureCategory(logFilePath);
+        FailureCategory newFailureCategory = failureCategoryExtract.getFailureCategory(logFile.toFile());
 
 //        if (newFailureCategory.equals(failureCategoryExtract.)newFailureCategory == FailureCategory.BUILD_SUCCESS) {
         repairJavaVersionIncompatibility.updateJavaVersions(project.toString(), 17);
@@ -151,7 +141,51 @@ public class BacardiCore {
 
         gitManager.commitAllChanges("Java version incompatibility repair");
 
-        return failureCategoryExtract.getFailureCategory(logFilePath);
+        return newFailureCategory;
 
     }
+
+    private FailureCategory repairWErrorIncompatibility(GitManager gitManager) {
+        //Create a branch for the werror repair
+        if (previousFailureCategory != failureCategory) {
+            gitManager.newBranch(Constants.BRANCH_WERROR);
+        }
+
+        //get Docker image in case of bump
+        /*
+        modify the version to get the docker image from bump and not from the project
+         */
+
+        LogUtils.logWithBox(log, "Starting Werror incompatibility repair.");
+
+        Path logFile = project.resolve("output.log");
+
+        try {
+
+            WerrorInformation werrorInformation = new WerrorInformation(logFile.toFile());
+
+            WerrorInfo werrorInfo = werrorInformation.analyzeWerror(project.toString());
+
+            RepairWError repairWError = new RepairWError(project, isBump, actualImage);
+
+            if (repairWError.isWerrorJavaVersionIncompatibilityError(logFile.toAbsolutePath().toString())) {
+                //find all pom files with werror
+                repairWError.replaceJavaVersion(project.resolve("pom.xml").toString(), 17);
+            }
+
+            repairWError.reproduce();
+
+            log.info("Werror info: {}", werrorInfo);
+
+        } catch (Exception e) {
+            log.error("Error extracting warning lines.", e);
+        }
+
+        gitManager.commitAllChanges("Werror incompatibility repair");
+
+        return failureCategoryExtract.getFailureCategory(logFile.toFile());
+
+    }
+
+
 }
