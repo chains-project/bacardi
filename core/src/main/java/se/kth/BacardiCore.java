@@ -2,15 +2,14 @@ package se.kth;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.kth.Util.LogUtils;
 import se.kth.java_version.RepairJavaVersionIncompatibility;
 import se.kth.models.*;
 import se.kth.wError.RepairWError;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 public class BacardiCore {
@@ -56,13 +55,15 @@ public class BacardiCore {
 
         int attempts = 0;
 
+
         while (failureCategory != FailureCategory.BUILD_SUCCESS && attempts < 3) {
+
 
             // Check if the project is a git repository
             GitManager gitManager = new GitManager(project.toFile());
             // Check the status of the repository and create a new branch for the original status
 
-            previousFailureCategory = failureCategory;
+            gitManager.checkRepoStatus();
 
             switch (failureCategory) {
                 case JAVA_VERSION_FAILURE:
@@ -74,7 +75,7 @@ public class BacardiCore {
                     break;
                 case WERROR_FAILURE:
                     log.info("Werror failure detected.");
-                    repairWErrorIncompatibility(gitManager);
+                    failureCategory = repairWErrorIncompatibility(gitManager);
                     break;
                 case COMPILATION_FAILURE:
                     log.info("Compilation failure detected.");
@@ -111,10 +112,6 @@ public class BacardiCore {
 
     private FailureCategory repairJavaVersionIncompatibility(GitManager gitManager) {
 
-        if (previousFailureCategory == failureCategory) {
-            return previousFailureCategory;
-        }
-
         //Create a branch for the java version incompatibility repair
         gitManager.newBranch(Constants.BRANCH_JAVA_VERSION_INCOMPATIBILITY);
 
@@ -125,7 +122,7 @@ public class BacardiCore {
         String newJavaVersion = javaVersionInfo.getIncompatibility().mapVersions(incompatibility.wrongVersion());
 
 
-        initialMessage("Starting Java version incompatibility repair.");
+        LogUtils.logWithBox(log, "Starting Java version incompatibility repair.");
 
         RepairJavaVersionIncompatibility repairJavaVersionIncompatibility = new RepairJavaVersionIncompatibility(javaVersionInfo, project, isBump);
 
@@ -133,7 +130,7 @@ public class BacardiCore {
 
         List<YamlInfo> javaVersions = javaVersionInfo.getJavaInWorkflowFiles();
 
-        Path logFile = project.resolve("output_%s.log".formatted(result.getAttempts().size()));
+        Path logFile = project.resolve("output.log".formatted(result.getAttempts().size()));
 
         //check if the new failure category is success
         FailureCategory newFailureCategory = failureCategoryExtract.getFailureCategory(logFile.toFile());
@@ -149,11 +146,17 @@ public class BacardiCore {
     }
 
     private FailureCategory repairWErrorIncompatibility(GitManager gitManager) {
-        //Create a branch for the java version incompatibility repair
-        gitManager.newBranch(Constants.BRANCH_WERROR);
+        //Create a branch for the werror repair
+        if (previousFailureCategory != failureCategory) {
+            gitManager.newBranch(Constants.BRANCH_WERROR);
+        }
 
+        //get Docker image in case of bump
+        /*
+        modify the version to get the docker image from bump and not from the project
+         */
 
-        initialMessage("Starting Werror incompatibility repair.");
+        LogUtils.logWithBox(log, "Starting Werror incompatibility repair.");
 
         Path logFile = project.resolve("output.log");
 
@@ -163,14 +166,17 @@ public class BacardiCore {
 
             WerrorInfo werrorInfo = werrorInformation.analyzeWerror(project.toString());
 
-            RepairWError repairWError = new RepairWError();
+            RepairWError repairWError = new RepairWError(project, isBump, actualImage);
 
             if (repairWError.isWerrorJavaVersionIncompatibilityError(logFile.toAbsolutePath().toString())) {
                 //find all pom files with werror
                 repairWError.replaceJavaVersion(project.resolve("pom.xml").toString(), 17);
             }
 
+            repairWError.reproduce();
+
             log.info("Werror info: {}", werrorInfo);
+
         } catch (Exception e) {
             log.error("Error extracting warning lines.", e);
         }
@@ -181,11 +187,5 @@ public class BacardiCore {
 
     }
 
-    private static void initialMessage(String message) {
-        log.info("");
-        log.info("************************************************************");
-        log.info(message);
-        log.info("*************************************************************");
-        log.info("");
-    }
+
 }

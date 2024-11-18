@@ -3,7 +3,6 @@ package se.kth.java_version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.DockerBuild;
-import se.kth.Result;
 import se.kth.models.FailureCategory;
 import se.kth.models.JavaVersionIncompatibility;
 import se.kth.models.JavaVersionInfo;
@@ -46,15 +45,17 @@ public class RepairJavaVersionIncompatibility {
      * and logging the Java versions found in the YAML files of the project.
      */
     public String repair() {
+
         DockerBuild dockerBuild = new DockerBuild(isBump);
         JavaVersionIncompatibility incompatibility = javaVersionInfo.getIncompatibility();
 
         try {
+
             // Create a base image for the breaking update with the project code
-            String dockerImageName = dockerBuild.createBaseImageForBreakingUpdate(clientCode, javaVersionInfo.getIncompatibility().mapVersions(incompatibility.wrongVersion()));
+            String dockerImageName = dockerBuild.createBaseImageForBreakingUpdate(clientCode, javaVersionInfo.getIncompatibility().mapVersions(incompatibility.wrongVersion()), null);
 
 //             Reproduce the breaking update in the new Java version
-            Result result = dockerBuild.reproduce(dockerImageName.toLowerCase(), FailureCategory.JAVA_VERSION_FAILURE, clientCode);
+            dockerBuild.reproduce(dockerImageName.toLowerCase(), FailureCategory.JAVA_VERSION_FAILURE, clientCode);
 
             // Log the Java versions found in YAML workflow files
             List<YamlInfo> javaVersions = javaVersionInfo.getJavaInWorkflowFiles();

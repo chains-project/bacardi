@@ -1,7 +1,6 @@
 package se.kth;
 
 
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import org.slf4j.Logger;
@@ -29,13 +28,13 @@ public class Bump {
 
     static Set<Result> resultsList = new HashSet<>();
     static Map<String, Result> resultsMap = new HashMap<>();
-    private final static String JSON_PATH = "result_repair_test3.json";
+    private final static String JSON_PATH = "result_repair_test33.json";
 
 
     public static void main(String[] args) {
 
 
-         LogUtils.logWithBox(log, "Bump analysis started");
+        LogUtils.logWithBox(log, "Bump analysis started");
 
 
         //filtering breaking dependency updates

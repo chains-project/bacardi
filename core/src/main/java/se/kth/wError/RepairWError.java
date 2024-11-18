@@ -3,19 +3,18 @@ package se.kth.wError;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.maven.api.model.Model;
-import org.apache.maven.model.v4.MavenStaxReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import se.kth.DockerBuild;
+import se.kth.models.FailureCategory;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -24,6 +23,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -42,6 +42,17 @@ public class RepairWError {
     private final String failOnWarningTag = "failOnWarning";
 
     private final Logger log = LoggerFactory.getLogger(RepairWError.class);
+
+    private final Path clientCode;
+    private Boolean isBump = false;
+    private String actualImage;
+
+
+    public RepairWError(Path clientCode, Boolean isBump, String actualImage) {
+        this.clientCode = clientCode;
+        this.isBump = isBump;
+        this.actualImage = actualImage;
+    }
 
 
     /**
@@ -141,6 +152,19 @@ public class RepairWError {
         } catch (ParserConfigurationException | SAXException | TransformerException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public String reproduce() throws IOException {
+
+        // create docker client
+        DockerBuild dockerBuild = new DockerBuild(true);
+
+        dockerBuild.createBaseImageForBreakingUpdate(clientCode, "", actualImage);
+
+        // identify docker image and reproduce changes
+        dockerBuild.reproduce(actualImage, FailureCategory.WERROR_FAILURE, clientCode);
+
+        return actualImage;
     }
 
 
