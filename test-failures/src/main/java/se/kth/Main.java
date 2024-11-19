@@ -1,82 +1,52 @@
 package se.kth;
 
-import com.github.dockerjava.api.model.HostConfig;
-import com.github.dockerjava.api.model.Mount;
-import se.kth.injector.MountsBuilder;
-import se.kth.model.BreakingUpdate;
+import se.kth.analysis.TestResultAnalyzer;
+import se.kth.extractor.CausingConstructExtractor;
+import se.kth.extractor.TrueFailingTestCasesProvider;
+import se.kth.injector.TestWithListenerRunner;
+import se.kth.japicmp.JapicmpAnalyzer;
+import se.kth.japicmp.UpdatedDependencyExtractor;
 import se.kth.utils.Config;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.Executors;
 
 public class Main {
 
-    public static void main(String[] args) throws InterruptedException {
-        String filePath = "/home/leohus/bump/data/benchmark/";
-        List<BreakingUpdate> breakingUpdates = TestFailuresProvider.getTestFailuresFromResources(filePath);
+    public static void main(String[] args) {
+        Path testListenerTestOutput = Config.relativeToTmpDir("pre-output");
+        Path testListenerContainerOutput = Config.relativeToTmpDir("pre-container");
+        Path pomsDirectory = Config.relativeToTmpDir("pre-poms");
+        TestWithListenerRunner testPreRunner = new TestWithListenerRunner(testListenerTestOutput,
+                testListenerContainerOutput, pomsDirectory, false);
 
-        try (ExecutorService executorService = Executors.newFixedThreadPool(30)) {
+        TestResultAnalyzer testResultAnalyzer = new TestResultAnalyzer(testListenerTestOutput);
 
-            for (BreakingUpdate update : breakingUpdates) {
-                String imageId = update.getPreImageId();
-                executorService.submit(() -> {
-                    try {
-                        executeForImageId(imageId);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-            }
-            executorService.shutdown();
-            executorService.awaitTermination(1, TimeUnit.HOURS);
-        }
-        System.out.println("finished");
-    }
+        Path testListenerBreakingOutput = Config.relativeToTmpDir("breaking-output");
+        Path testListenerBreakingContainer = Config.relativeToTmpDir("breaking-container");
+        Path breakingPomsDirectory = Config.relativeToTmpDir("breaking-poms");
+        TestWithListenerRunner testBreakingRunner = new TestWithListenerRunner(testListenerBreakingOutput,
+                testListenerBreakingContainer, breakingPomsDirectory, true);
 
-    private static void executeForImageId(String imageId) throws InterruptedException {
-        String hash = imageId.split(":")[1].replace("-pre", "");
+        Path preM2OutputDirectory = Config.relativeToTmpDir("pre-m2");
+        Path breakingM2OutputDirectory = Config.relativeToTmpDir("breaking-m2");
+        UpdatedDependencyExtractor updatedDependencyExtractor = new UpdatedDependencyExtractor(preM2OutputDirectory,
+                breakingM2OutputDirectory);
 
-        DockerBuild dockerBuild = new DockerBuild(false);
-        dockerBuild.ensureBaseMavenImageExists(imageId);
 
-        Path subPath = Path.of("output", hash);
-        Path potentialOutput = Config.getTmpDirPath().resolve(subPath);
-        if (Files.exists(potentialOutput)) {
-            return;
-        }
+        Path unsuccessfulTestCasesFile = Config.getResourcesDir().resolve("unsuccessfulTestCases.json");
+        TrueFailingTestCasesProvider testCasesProvider = new TrueFailingTestCasesProvider(testListenerBreakingOutput,
+                unsuccessfulTestCasesFile);
+        JapicmpAnalyzer japicmpAnalyzer = new JapicmpAnalyzer(preM2OutputDirectory, breakingM2OutputDirectory);
+        CausingConstructExtractor causingConstructExtractor = new CausingConstructExtractor(testCasesProvider,
+                japicmpAnalyzer, testListenerBreakingContainer);
 
-        try {
-            MountsBuilder mountsBuilder = new MountsBuilder(imageId)
-                    .withMountsForModifiedPomFiles()
-                    .withMetaInfMounts()
-                    .withListenerMounts()
-                    .withOutputMount("output", hash);
+        Pipeline pipeline = new Pipeline()
+                .with(testPreRunner)
+                .with(testResultAnalyzer)
+                .with(testBreakingRunner)
+                .with(updatedDependencyExtractor)
+                .with(causingConstructExtractor);
 
-            List<Mount> mounts = mountsBuilder.build();
-
-            HostConfig config = HostConfig.newHostConfig()
-                    .withMounts(mounts);
-
-            Path modifiedRootPom = mountsBuilder.getRootModifiedPomFile();
-          
-            String containerId = dockerBuild.startSpinningContainer(imageId, config);
-
-            String testOutput = dockerBuild.executeInContainer(containerId, "mvn", "-l", "test-output.log", "test");
-
-            Path containerOutput = Path.of("container", hash);
-            Path copyPath = dockerBuild.copyProjectFromContainer(containerId,
-                    modifiedRootPom.getParent().toString(),
-                    Config.getTmpDirPath().resolve(containerOutput).toAbsolutePath());
-
-            dockerBuild.removeContainer(containerId);
-
-            System.out.println("done");
-        } catch (Exception e) {
-            System.err.println(e);
-        }
+        pipeline.run();
     }
 }

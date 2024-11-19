@@ -37,12 +37,12 @@ public class MountsBuilder {
         this.models = getAllModels(containerId, paths);
     }
 
-    public MountsBuilder withMountsForModifiedPomFiles() {
+    public MountsBuilder withMountsForModifiedPomFiles(Path pomsDirectory) {
         List<Path> paths = getPomFilePaths(containerId);
         List<MavenModel> models = getAllModels(containerId, paths);
 
         List<Mount> pomFileMounts = models.stream()
-                .map(this::createBindForModifiedPomFile)
+                .map(mavenModel -> createBindForModifiedPomFile(mavenModel, pomsDirectory))
                 .toList();
         this.mounts.addAll(pomFileMounts);
 
@@ -67,7 +67,7 @@ public class MountsBuilder {
         return this;
     }
 
-    public MountsBuilder withOutputMount(String baseDir, String outputDir) {
+    public MountsBuilder withOutputMount(Path baseDir, String outputDir) {
         Mount outputMount = this.createBindMountForOutput(baseDir, outputDir);
         this.mounts.add(outputMount);
 
@@ -84,7 +84,7 @@ public class MountsBuilder {
                 .orElse(null);
     }
 
-    private Mount createBindForModifiedPomFile(MavenModel mavenModel) {
+    private Mount createBindForModifiedPomFile(MavenModel mavenModel, Path pomsDirectory) {
         Model model = mavenModel.getModel();
         model.getDependencies();
 
@@ -94,7 +94,7 @@ public class MountsBuilder {
         String modifiedPomFileName = "pom-" + newModel.hashCode() + ".xml";
         String modifiedPomMountFileName = "pom.xml";
 
-        String modifiedPomFileAbsolutePath = PomFileLocator.writeCustomPomFile(newModel, modifiedPomFileName);
+        String modifiedPomFileAbsolutePath = PomFileLocator.writeCustomPomFile(newModel, modifiedPomFileName, pomsDirectory);
         Path modifiedPomFileDockerPath = mavenModel.getFilePath().resolveSibling(modifiedPomMountFileName);
         this.modifiedPomFiles.add(modifiedPomFileDockerPath);
 
@@ -131,10 +131,9 @@ public class MountsBuilder {
                 .withType(MountType.BIND);
     }
 
-    private Mount createBindMountForOutput(String baseDir, String outputDir) {
+    private Mount createBindMountForOutput(Path baseDir, String outputDir) {
         Path dockerPath = Path.of("/bacardi-output");
-        Path projectOutputPath = Path.of(baseDir, outputDir);
-        Path localOutputPath = Config.getTmpDirPath().resolve(projectOutputPath);
+        Path localOutputPath = baseDir.resolve(outputDir);
         try {
             Files.createDirectory(localOutputPath);
         } catch (IOException e) {
