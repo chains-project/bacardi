@@ -6,7 +6,6 @@ import com.github.dockerjava.api.command.*;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.api.model.HostConfig;
-import com.github.dockerjava.api.model.Mount;
 import com.github.dockerjava.api.model.StreamType;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
@@ -15,13 +14,11 @@ import com.github.dockerjava.okhttp.OkDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.models.FailureCategory;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -33,7 +30,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 
 
 public class DockerBuild {
@@ -93,19 +89,24 @@ public class DockerBuild {
         }
     }
 
-    public String createBaseImageForBreakingUpdate(Path client, String javaVersion) throws IOException {
+    public String createBaseImageForBreakingUpdate(Path client, String javaVersion, String dockerImage) throws IOException {
 
         String baseImage;
         String imageName = "";
         Path clientName = client.toAbsolutePath().getFileName();
 
-        if (javaVersion.equals("Java 17")) {
-            baseImage = "%s-java-17".formatted(BASE_IMAGE);
-            imageName = "%s:base-17".formatted(clientName);
+        if (dockerImage == null) {
+            if (javaVersion.equals("Java 17")) {
+                baseImage = "%s-java-17".formatted(BASE_IMAGE);
+                imageName = "%s:base-17".formatted(clientName);
+            } else {
+                baseImage = BASE_IMAGE;
+                imageName = "%s:base".formatted(clientName);
+            }
         } else {
-            baseImage = BASE_IMAGE;
-            imageName = "%s:base".formatted(clientName);
+            baseImage = dockerImage;
         }
+
 
         try {
             ensureBaseMavenImageExists(baseImage);
@@ -126,10 +127,7 @@ public class DockerBuild {
         Path localFolder = Paths.get("%s".formatted(client));
         Path tar = Paths.get("%s.tar".formatted(clientName));
 
-//        createTarFile(localFolder, tar);
-
         String containerPath = "/%s".formatted(clientName);
-
 
         CopyArchiveToContainerCmd copyProjectToContainer = dockerClient.copyArchiveToContainerCmd(container.getId())
                 .withHostResource(localFolder.toAbsolutePath().toString()) // local path
@@ -137,19 +135,14 @@ public class DockerBuild {
 
         copyProjectToContainer.exec();
 
-
         if (isBump) {
-
             Path m2 = localFolder.resolveSibling("m2/.m2").normalize();
-
             log.info("Copying M2 folder to container ++++++++++++++++++++++++");
             CopyArchiveToContainerCmd copyCmd = dockerClient.copyArchiveToContainerCmd(container.getId())
                     .withHostResource(m2.toAbsolutePath().toString()) // local path
                     .withRemotePath("/root/"); //  container path
-
             copyCmd.exec();
         }
-
 
         WaitContainerResultCallback waitResult = dockerClient.waitContainerCmd(container.getId())
                 .exec(new WaitContainerResultCallback());
@@ -163,32 +156,6 @@ public class DockerBuild {
         log.warn("Created docker image for  {}", clientName);
         dockerClient.removeContainerCmd(container.getId()).exec();
         return imageName;
-    }
-
-
-    public void createTarFile(Path sourceDir, Path tarFile) throws IOException {
-        try (TarArchiveOutputStream out = new TarArchiveOutputStream(new FileOutputStream(tarFile.toFile()))) {
-            // Config the tar file to use GNU tar format
-            out.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
-
-            Files.walk(sourceDir)
-                    .filter(path -> !Files.isDirectory(path))
-                    .forEach(path -> {
-                        // Create a tar entry
-                        TarArchiveEntry entry = new TarArchiveEntry(sourceDir.relativize(path).toString());
-                        entry.setSize(path.toFile().length());
-                        try {
-                            out.putArchiveEntry(entry);
-                            Files.copy(path, out);
-                            out.closeArchiveEntry();
-                        } catch (IOException e) {
-                            log.error("Could not create tar file", e);
-                            throw new RuntimeException(e);
-                        }
-                    });
-            // Close the output stream
-            out.finish();
-        }
     }
 
 
@@ -217,9 +184,12 @@ public class DockerBuild {
         }
     }
 
-    private String startContainer(String cmd, String image, String client) {
+    private String startContainer(String cmd, String image, Path client) {
+
+        String clientName = client.getFileName().toString();
+
         CreateContainerResponse container = dockerClient.createContainerCmd(image)
-                .withWorkingDir("/" + client)
+                .withWorkingDir("/" + clientName)
                 .withCmd("sh", "-c", cmd)
                 .exec();
         dockerClient.startContainerCmd(container.getId()).exec();
@@ -234,7 +204,7 @@ public class DockerBuild {
      * @param client          the client name
      * @return a Result object containing the outcome of the reproduction attempts
      */
-    public Result reproduce(String image, FailureCategory failureCategory, String client) {
+    public Result reproduce(String image, FailureCategory failureCategory, Path client) {
 
         // Store result for each attempt
         Result breakingUpdateReproductionResult = new Result(failureCategory);
@@ -280,10 +250,11 @@ public class DockerBuild {
 
     }
 
-    private Path storeLogFile(String containerId, String client) {
+    private Path storeLogFile(String containerId, Path client) {
+        String clientName = client.getFileName().toString();
 
-        Path logOutputLocation = Path.of("maven.log");
-        String logLocation = "/%s/mavenLog.log".formatted(client);
+        Path logOutputLocation = client.resolve("output.log");
+        String logLocation = "/%s/mavenLog.log".formatted(clientName);
         try (InputStream logStream = dockerClient.copyArchiveFromContainerCmd(containerId, logLocation).exec()) {
             byte[] fileContent = logStream.readAllBytes();
             Files.write(logOutputLocation, fileContent);

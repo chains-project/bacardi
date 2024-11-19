@@ -7,7 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import se.kth.DockerBuild;
+import se.kth.models.FailureCategory;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -20,6 +23,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,6 +42,17 @@ public class RepairWError {
     private final String failOnWarningTag = "failOnWarning";
 
     private final Logger log = LoggerFactory.getLogger(RepairWError.class);
+
+    private final Path clientCode;
+    private Boolean isBump = false;
+    private String actualImage;
+
+
+    public RepairWError(Path clientCode, Boolean isBump, String actualImage) {
+        this.clientCode = clientCode;
+        this.isBump = isBump;
+        this.actualImage = actualImage;
+    }
 
 
     /**
@@ -103,13 +118,28 @@ public class RepairWError {
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document doc = builder.parse(pomFile.getAbsolutePath());
 
-            // Normalize the XML structure
             doc.getDocumentElement().normalize();
 
             Element root = doc.getDocumentElement();
-            // Set the new Java version for maven.compiler.source and maven.compiler.target
-            root.getElementsByTagName("maven.compiler.source").item(0).setTextContent(String.valueOf(javaVersion));
-            root.getElementsByTagName("maven.compiler.target").item(0).setTextContent(String.valueOf(javaVersion));
+
+            // Update the Java version in the pom.xml file
+            NodeList mavenCompilerSource = root.getElementsByTagName("maven.compiler.source");
+            NodeList mavenCompilerTarget = root.getElementsByTagName("maven.compiler.target");
+            NodeList mavenCompilerFailOnWarning = root.getElementsByTagName("maven.compiler.failOnWarning");
+            NodeList properties = root.getElementsByTagName(failOnWarningTag);
+
+            if (mavenCompilerSource.getLength() > 0) {
+                mavenCompilerSource.item(0).setTextContent(String.valueOf(javaVersion));
+            }
+            if (mavenCompilerTarget.getLength() > 0) {
+                mavenCompilerTarget.item(0).setTextContent(String.valueOf(javaVersion));
+            }
+            if (mavenCompilerFailOnWarning.getLength() > 0) {
+                mavenCompilerFailOnWarning.item(0).setTextContent("false");
+            }
+            if (properties.getLength() > 0) {
+                properties.item(0).setTextContent("false");
+            }
 
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
@@ -122,6 +152,19 @@ public class RepairWError {
         } catch (ParserConfigurationException | SAXException | TransformerException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public String reproduce() throws IOException {
+
+        // create docker client
+        DockerBuild dockerBuild = new DockerBuild(true);
+
+        dockerBuild.createBaseImageForBreakingUpdate(clientCode, "", actualImage);
+
+        // identify docker image and reproduce changes
+        dockerBuild.reproduce(actualImage, FailureCategory.WERROR_FAILURE, clientCode);
+
+        return actualImage;
     }
 
 

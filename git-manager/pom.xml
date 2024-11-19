@@ -7,9 +7,10 @@
         <groupId>se.kth</groupId>
         <artifactId>bacardi</artifactId>
         <version>1.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>core</artifactId>
+    <artifactId>git-manager</artifactId>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -19,29 +20,10 @@
 
     <dependencies>
         <dependency>
-            <groupId>se.kth</groupId>
-            <artifactId>breaking-classifier</artifactId>
-            <version>${project.parent.version}</version>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
         </dependency>
-        <dependency>
-            <groupId>se.kth</groupId>
-            <artifactId>git-manager</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>info.picocli</groupId>
-            <artifactId>picocli-codegen</artifactId>
-            <version>4.7.6</version>
-        </dependency>
-        <dependency>
-            <groupId>se.kth</groupId>
-            <artifactId>docker-build</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-
-
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -55,7 +37,7 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>bacardi</id>
+                        <id>git-manager</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
@@ -63,10 +45,10 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>se.kth.BacardiCli</mainClass>
+                                    <mainClass>se.kth.GitManager</mainClass>
                                 </manifest>
                             </archive>
-                            <finalName>Bacardi</finalName>
+                            <finalName>GitManager</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                         </configuration>
                     </execution>
@@ -74,13 +56,5 @@
             </plugin>
         </plugins>
     </build>
-    <repositories>
-        <repository>
-            <id>maven_central</id>
-            <name>Maven Central</name>
-            <url>https://repo.maven.apache.org/maven2/</url>
-        </repository>
-    </repositories>
-
 
 </project>
