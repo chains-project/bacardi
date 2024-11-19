@@ -7,8 +7,9 @@ import com.github.dockerjava.api.model.AccessMode;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Volume;
-import se.kth.TestFailuresProvider;
+import se.kth.Util.BreakingUpdateProvider;
 import se.kth.model.BreakingUpdate;
+import se.kth.models.FailureCategory;
 import se.kth.utils.Config;
 
 import java.nio.file.Path;
@@ -20,7 +21,9 @@ public class DependenciesExtractor {
         String filePath = "/home/leonard/code/java/bump/data/benchmark/";
         String outputDirectory = "/home/leonard/tmp-output";
         String dockerOutputDirectory = "/app";
-        List<BreakingUpdate> testFailureUpdates = TestFailuresProvider.getTestFailuresFromResources(filePath);
+        List<BreakingUpdate> testFailureUpdates =
+                BreakingUpdateProvider.getBreakingUpdatesFromResourcesByCategory(filePath,
+                        FailureCategory.TEST_FAILURE);
 
         DockerClient dockerClient = Config.getDockerClient();
 

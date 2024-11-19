@@ -8,9 +8,8 @@ import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.kth.Util.FileUtils;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -37,15 +36,12 @@ public class Config {
 
     public static Path getTmpDirPath() {
         Path tmpPath = Paths.get(".tmp").toAbsolutePath();
-        if (!Files.exists(tmpPath)) {
-            try {
-                Files.createDirectory(tmpPath);
-            } catch (IOException e) {
-                logger.error("Could not create tmp directory", e);
-                throw new RuntimeException(e);
-            }
-        }
+        FileUtils.ensureDirectoryExists(tmpPath);
         return tmpPath;
+    }
+
+    public static Path relativeToTmpDir(String other) {
+        return getTmpDirPath().resolve(other);
     }
 
     public static Path getBumpDir() {
