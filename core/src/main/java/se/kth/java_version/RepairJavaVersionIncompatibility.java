@@ -3,6 +3,7 @@ package se.kth.java_version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.DockerBuild;
+import se.kth.model.SetupPipeline;
 import se.kth.models.FailureCategory;
 import se.kth.models.JavaVersionIncompatibility;
 import se.kth.models.JavaVersionInfo;
@@ -18,6 +19,8 @@ import java.util.regex.Pattern;
 /**
  * This class is responsible for detecting and repairing Java version incompatibilities in project configurations.
  */
+@lombok.Getter
+@lombok.Setter
 public class RepairJavaVersionIncompatibility {
 
 
@@ -44,34 +47,34 @@ public class RepairJavaVersionIncompatibility {
      * Attempts to repair Java version incompatibility by creating a Docker image, reproducing the failure,
      * and logging the Java versions found in the YAML files of the project.
      */
-    public String repair() {
+    public String repair(SetupPipeline setupPipeline) {
 
-        DockerBuild dockerBuild = new DockerBuild(isBump);
         JavaVersionIncompatibility incompatibility = javaVersionInfo.getIncompatibility();
 
-        try {
+        Path logFile = setupPipeline.getLogFilePath().getParent().resolve("output.log");
 
-            // Create a base image for the breaking update with the project code
-            String dockerImageName = dockerBuild.createBaseImageForBreakingUpdate(clientCode, javaVersionInfo.getIncompatibility().mapVersions(incompatibility.wrongVersion()), null);
+        // get the DockerBuild object from the setupPipeline
+        DockerBuild dockerBuild = setupPipeline.getDockerBuild();
+
+        // Create a base image for the breaking update with the project code
+        String dockerImageName = dockerBuild.createNewBaseImageWithNewJavaVersion(clientCode, javaVersionInfo.getIncompatibility().mapVersions(incompatibility.wrongVersion()), null);
 
 //             Reproduce the breaking update in the new Java version
-            dockerBuild.reproduce(dockerImageName.toLowerCase(), FailureCategory.JAVA_VERSION_FAILURE, clientCode);
+        dockerBuild.reproduce(dockerImageName.toLowerCase(), FailureCategory.JAVA_VERSION_FAILURE, clientCode, logFile);
 
-            // Log the Java versions found in YAML workflow files
-            List<YamlInfo> javaVersions = javaVersionInfo.getJavaInWorkflowFiles();
-            javaVersions.forEach(yamlInfo -> {
-                log.info("Yaml file: {}", yamlInfo.getYamlFile());
-                log.info("Line: {}", yamlInfo.getLine());
-                log.info("Java versions: {}", yamlInfo.getJavaVersions());
-            });
+        // Updating the Docker image name in the setupPipeline
+        setupPipeline.setDockerImage(dockerImageName);
+        //Updating the log file path in the setupPipeline
+        setupPipeline.setLogFilePath(logFile);
 
-            return dockerImageName;
-
-        } catch (IOException e) {
-            log.error("Error creating base image for breaking update.", e);
-            throw new RuntimeException(e);
-        }
-
+        // Log the Java versions found in YAML workflow files
+        List<YamlInfo> javaVersions = javaVersionInfo.getJavaInWorkflowFiles();
+        javaVersions.forEach(yamlInfo -> {
+            log.info("Yaml file: {}", yamlInfo.getYamlFile());
+            log.info("Line: {}", yamlInfo.getLine());
+            log.info("Java versions: {}", yamlInfo.getJavaVersions());
+        });
+        return dockerImageName;
     }
 
     /**

@@ -10,6 +10,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import se.kth.DockerBuild;
+import se.kth.model.SetupPipeline;
 import se.kth.models.FailureCategory;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -46,12 +47,14 @@ public class RepairWError {
     private final Path clientCode;
     private Boolean isBump = false;
     private String actualImage;
+    private SetupPipeline setupPipeline;
 
 
-    public RepairWError(Path clientCode, Boolean isBump, String actualImage) {
+    public RepairWError(Path clientCode, Boolean isBump, String actualImage, SetupPipeline setupPipeline) {
         this.clientCode = clientCode;
         this.isBump = isBump;
         this.actualImage = actualImage;
+        this.setupPipeline = setupPipeline;
     }
 
 
@@ -155,14 +158,16 @@ public class RepairWError {
     }
 
     public String reproduce() throws IOException {
-
         // create docker client
-        DockerBuild dockerBuild = new DockerBuild(true);
+        DockerBuild dockerBuild = setupPipeline.getDockerBuild();
 
-        dockerBuild.createBaseImageForBreakingUpdate(clientCode, "", actualImage);
+        dockerBuild.copyFolderToDockerImage(setupPipeline.getDockerImage(), setupPipeline.getClientFolder().toString());
 
-        // identify docker image and reproduce changes
-        dockerBuild.reproduce(actualImage, FailureCategory.WERROR_FAILURE, clientCode);
+        Path logFilePath = setupPipeline.getLogFilePath().getParent().resolve("output.log");
+
+        dockerBuild.reproduce(setupPipeline.getDockerImage(), FailureCategory.WERROR_FAILURE, setupPipeline.getClientFolder(), logFilePath);
+
+        setupPipeline.setLogFilePath(logFilePath);
 
         return actualImage;
     }
