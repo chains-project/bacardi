@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.Util.LogUtils;
 import se.kth.java_version.RepairJavaVersionIncompatibility;
+import se.kth.model.SetupPipeline;
 import se.kth.models.*;
 import se.kth.wError.RepairWError;
 
@@ -21,6 +22,7 @@ public class BacardiCore {
     private final FailureCategoryExtract failureCategoryExtract;
     private FailureCategory previousFailureCategory;
     private FailureCategory failureCategory;
+    private SetupPipeline setupPipeline;
 
     private Result result;
 
@@ -35,11 +37,20 @@ public class BacardiCore {
         verify();
     }
 
+    public BacardiCore(SetupPipeline setupPipeline, FailureCategoryExtract failureCategoryExtract, Boolean isBump) {
+        this.project = Objects.requireNonNull(setupPipeline.getClientFolder(), "Project path cannot be null");
+        this.logFile = Objects.requireNonNull(setupPipeline.getLogFilePath(), "Log file path cannot be null");
+        this.failureCategoryExtract = Objects.requireNonNull(failureCategoryExtract, "Failure category cannot be null");
+        this.setupPipeline = Objects.requireNonNull(setupPipeline, "Check setup pipeline");
+        this.isBump = isBump;
+        verify();
+    }
+
+
     public void verify() {
         if (!Files.exists(project)) {
             throw new IllegalArgumentException("Project path does not exist.");
         }
-
         if (!Files.exists(logFile)) {
             throw new IllegalArgumentException("Log file path does not exist.");
         }
@@ -48,8 +59,7 @@ public class BacardiCore {
 
     public Result analyze() {
 
-        failureCategory = failureCategoryExtract.getFailureCategory(logFile.toFile());
-
+        failureCategory = failureCategoryExtract.getFailureCategory(setupPipeline.getLogFilePath().toFile());
         // Result value for each attempt
         result = new Result(failureCategory);
 
@@ -115,7 +125,7 @@ public class BacardiCore {
         //Create a branch for the java version incompatibility repair
         gitManager.newBranch(Constants.BRANCH_JAVA_VERSION_INCOMPATIBILITY);
 
-        JavaVersionInformation javaVersionInformation = new JavaVersionInformation(logFile.toFile());
+        JavaVersionInformation javaVersionInformation = new JavaVersionInformation(setupPipeline.getLogFilePath().toFile());
         JavaVersionInfo javaVersionInfo = javaVersionInformation.analyse(logFile.toAbsolutePath().toString(), project.toAbsolutePath().toString());
 
         JavaVersionIncompatibility incompatibility = javaVersionInfo.getIncompatibility();
@@ -126,7 +136,8 @@ public class BacardiCore {
 
         RepairJavaVersionIncompatibility repairJavaVersionIncompatibility = new RepairJavaVersionIncompatibility(javaVersionInfo, project, isBump);
 
-        actualImage = repairJavaVersionIncompatibility.repair();
+        actualImage = repairJavaVersionIncompatibility.repair(setupPipeline);
+        setupPipeline.setDockerImage(actualImage);
 
         List<YamlInfo> javaVersions = javaVersionInfo.getJavaInWorkflowFiles();
 
@@ -141,6 +152,8 @@ public class BacardiCore {
 
         gitManager.commitAllChanges("Java version incompatibility repair");
 
+
+
         return newFailureCategory;
 
     }
@@ -154,19 +167,26 @@ public class BacardiCore {
         //get Docker image in case of bump
         /*
         modify the version to get the docker image from bump and not from the project
-         */
+        */
+
+        try {
+            setupPipeline.getDockerBuild().ensureBaseMavenImageExists(setupPipeline.getDockerImage());
+        } catch (InterruptedException e) {
+            log.error("Error ensuring base maven image exists.", e);
+            throw new RuntimeException(e);
+        }
 
         LogUtils.logWithBox(log, "Starting Werror incompatibility repair.");
 
-        Path logFile = project.resolve("output.log");
+        Path logFile = setupPipeline.getLogFilePath();
 
         try {
 
-            WerrorInformation werrorInformation = new WerrorInformation(logFile.toFile());
+            WerrorInformation werrorInformation = new WerrorInformation(setupPipeline.getLogFilePath().toFile());
 
-            WerrorInfo werrorInfo = werrorInformation.analyzeWerror(project.toString());
+            WerrorInfo werrorInfo = werrorInformation.analyzeWerror(setupPipeline.getClientFolder().toString());
 
-            RepairWError repairWError = new RepairWError(project, isBump, actualImage);
+            RepairWError repairWError = new RepairWError(project, isBump, setupPipeline.getDockerImage(),setupPipeline);
 
             if (repairWError.isWerrorJavaVersionIncompatibilityError(logFile.toAbsolutePath().toString())) {
                 //find all pom files with werror
@@ -174,6 +194,8 @@ public class BacardiCore {
             }
 
             repairWError.reproduce();
+            // update the setup pipeline with the new log file and all information
+            setupPipeline = repairWError.getSetupPipeline();
 
             log.info("Werror info: {}", werrorInfo);
 
@@ -182,7 +204,6 @@ public class BacardiCore {
         }
 
         gitManager.commitAllChanges("Werror incompatibility repair");
-
         return failureCategoryExtract.getFailureCategory(logFile.toFile());
 
     }
