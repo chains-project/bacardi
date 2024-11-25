@@ -1,24 +1,23 @@
 package se.kth;
 
 
-import com.fasterxml.jackson.databind.type.MapType;
-import com.github.dockerjava.api.command.CreateContainerResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.Util.BreakingUpdateProvider;
 import se.kth.Util.JsonUtils;
 import se.kth.Util.LogUtils;
 import se.kth.model.BreakingUpdate;
+import se.kth.model.SetupPipeline;
 import se.kth.models.FailureCategory;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-import static se.kth.Util.BreakingUpdateProvider.readLinesFromFile;
+import static se.kth.Util.BreakingUpdateProvider.*;
 import static se.kth.Util.Constants.BENCHMARK_PATH;
+import static se.kth.Util.Constants.JAVA_VERSION_INCOMPATIBILITY_FILE;
 
 public class Bump {
 
@@ -36,40 +35,23 @@ public class Bump {
 
         LogUtils.logWithBox(log, "Bump analysis started");
 
-
         //filtering breaking dependency updates
         log.info("Filtering breaking dependency updates");
         log.info("");
+        // Filter by java version incompatibility
+        ArrayList<String> listOfJavaVersionIncompatibilities = readJavaVersionIncompatibilities(JAVA_VERSION_INCOMPATIBILITY_FILE);
+
 
         // List of breaking updates
+//        List<BreakingUpdate> breaking = BreakingUpdateProvider.getBreakingUpdatesFromResourcesByCategory(BENCHMARK_PATH, FailureCategory.COMPILATION_FAILURE, listOfJavaVersionIncompatibilities);
         List<BreakingUpdate> breaking = BreakingUpdateProvider.getBreakingUpdatesFromResourcesByCategory(BENCHMARK_PATH, FailureCategory.COMPILATION_FAILURE);
 
-        //enable filter for only specific breaking update category
-        String javaVersionIncompatibilityFilePath = "/Users/frank/Documents/Work/PHD/BUMP/bump-execution/analysis/client_fail_due_java_version_incompatibility.txt";
-
-        ArrayList<String> javaVersionIncompatibilityLines = readLinesFromFile(javaVersionIncompatibilityFilePath);
-
         // read Json file with attempts information
-        MapType jsonType = JsonUtils.getTypeFactory().constructMapType(Map.class, String.class, Result.class);
-
-
-        final var path = Path.of(JSON_PATH);
-
-        if (!Files.exists(path)) {
-            try {
-                Files.createFile(path);
-                JsonUtils.writeToFile(path, resultsMap);
-
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        resultsMap.putAll(JsonUtils.readFromFile(path, jsonType));
-
+        resultsMap.putAll(getPreviousResults(JSON_PATH));
 
         DockerBuild dockerBuild = new DockerBuild(true);
         // identify breaking updates and download image and copy the project
+
 
         breaking
                 .stream()
@@ -77,48 +59,68 @@ public class Bump {
 //                .filter(e -> javaVersionIncompatibilityLines.contains(e.breakingCommit)) // filter by failure category
                 .forEach(e -> {
 
+                    //starting processing breaking update
 
                     LogUtils.logWithBox(log, "Processing breaking update: %s".formatted(e.breakingCommit));
+                    //Full path Folder/breaking-commit/project
 
+                    Path clientFolder = settingClientFolderAndM2Folder(e, dockerBuild);
 
-                    //Setting same m2 folder for the new docker image
-                    final var clientFolder = Path.of("%s/%s".formatted(CLIENT_PATH, e.breakingCommit));
-                    if (Files.exists(clientFolder)) {
-                        log.info("Project already exists. Skipping download process...");
-                    } else {
-                        // copy m2 folder to local path
-                        Path localPath = Path.of("%s/%s/m2/".formatted(CLIENT_PATH, e.breakingCommit));
-                        Path fromContainerM2 = Path.of("/root/.m2/");
-                        getProjectData(e, dockerBuild, fromContainerM2, localPath);
-
-                        //copy project from container
-                        Path fromContainerProject = Path.of(e.project);
-                        String imageId = getProjectData(e, dockerBuild, fromContainerProject, clientFolder);
-                        //delete Image
-                        if (imageId != null) {
-//                            dockerBuild.deleteImage(imageId);
-                        }
-                    }
+                    SetupPipeline setupPipeline = new SetupPipeline();
+                    //adding breaking update to the pipeline
+                    setupPipeline.setBreakingUpdate(e);
+                    //adding docker build to the pipeline
+                    setupPipeline.setDockerBuild(dockerBuild);
+                    //adding client folder to the pipeline
+                    setupPipeline.setClientFolder(clientFolder.resolve(e.project));
+                    //adding log file path to the pipeline
+                    setupPipeline.setLogFilePath(Path.of("%s/%s.log".formatted(clientFolder.resolve(e.project), e.breakingCommit)));
+                    //adding m2 folder path to the pipeline
+                    setupPipeline.setM2FolderPath(Path.of("%s/%s/m2/".formatted(CLIENT_PATH, e.breakingCommit)));
+                    //adding docker image to the pipeline
+                    setupPipeline.setDockerImage(e.breakingUpdateReproductionCommand.replace("docker run ", ""));
 
                     //start repair process
-                    repair(e, dockerBuild, clientFolder);
+                    repair(setupPipeline);
                 });
     }
 
+    private static Path settingClientFolderAndM2Folder(BreakingUpdate e, DockerBuild dockerBuild) {
+        //Setting same m2 folder for the new docker image
+        final var clientFolder = Path.of("%s/%s".formatted(CLIENT_PATH, e.breakingCommit));
+        if (Files.exists(clientFolder)) {
+            log.info("Project already exists. Skipping download process...");
+        } else {
+            // copy m2 folder to local path
+            Path localPath = Path.of("%s/%s/m2/".formatted(CLIENT_PATH, e.breakingCommit));
+            Path fromContainerM2 = Path.of("/root/.m2/");
+            //Copy m2 folder from container
+            getProjectData(e, dockerBuild, fromContainerM2, localPath);
+
+            //copy project from container
+            Path fromContainerProject = Path.of(e.project);
+            String imageId = getProjectData(e, dockerBuild, fromContainerProject, clientFolder);
+            //delete Image
+//            if (imageId != null) {
+//                            dockerBuild.deleteImage(imageId);
+//            }
+        }
+        return clientFolder;
+    }
+
+
     /**
-     * Repairs the given project based on the breaking update.
+     * Repair the breaking update
      *
-     * @param breakingUpdate The breaking update information.
-     * @param dockerBuild    The Docker build instance.
-     * @param project        The path to the project.
+     * @param setupPipeline the pipeline setup
      */
-    public static void repair(BreakingUpdate breakingUpdate, DockerBuild dockerBuild, Path project) {
+    public static void repair(SetupPipeline setupPipeline) {
 
     /*
       Read the log file and extract the failure category
       If the failure category is BUILD_SUCCESS, no need to analyze further
      */
-        File logFile = new File("%s/%s/%s/%s.log".formatted(CLIENT_PATH, breakingUpdate.breakingCommit, breakingUpdate.project, breakingUpdate.breakingCommit));
+        File logFile = setupPipeline.getLogFilePath().toFile();
 
         FailureCategoryExtract failureCategoryExtract = new FailureCategoryExtract(logFile);
 
@@ -129,43 +131,13 @@ public class Bump {
             return;
         }
 
-        BacardiCore bacardiCore = new BacardiCore(project.resolve(breakingUpdate.project), logFile.toPath(), failureCategoryExtract, true);
+        BacardiCore bacardiCore = new BacardiCore(setupPipeline, failureCategoryExtract, true);
 
         Result results = bacardiCore.analyze();
 
-
-        results.setBreakingCommit(breakingUpdate.breakingCommit);
-        resultsMap.put(breakingUpdate.breakingCommit, results);
-        resultsList.add(results);
-
+        resultsMap.put(setupPipeline.getBreakingUpdate().breakingCommit, results);
         JsonUtils.writeToFile(Path.of(JSON_PATH), resultsMap);
 
-    }
-
-
-    private static String getProjectData(BreakingUpdate breakingUpdate, DockerBuild dockerBuild, Path fromContainer, Path toLocal) {
-
-        String imageId = null;
-        try {
-            imageId = breakingUpdate.breakingUpdateReproductionCommand.replace("docker run ", "");
-            String[] entrypoint = new String[]{"/bin/sh"};
-
-            //pull image
-            dockerBuild.ensureBaseMavenImageExists(imageId);
-            CreateContainerResponse container = dockerBuild.startContainerEntryPoint(imageId, entrypoint);
-
-            // Copy m2 folder to local path in the breaking commit folder
-            dockerBuild.copyM2FolderToLocalPath(container.getId(), fromContainer, toLocal);
-
-            dockerBuild.removeContainer(container.getId());
-
-            return imageId;
-
-
-        } catch (InterruptedException e) {
-            log.error("Something went wrong", e);
-        }
-        return imageId;
     }
 
 
