@@ -93,6 +93,20 @@ public class DockerBuild {
         }
     }
 
+    public Path copyFromContainer(String containerId, String file, Path dir) {
+
+        try (InputStream dependencyStream = dockerClient.copyArchiveFromContainerCmd(containerId, file)
+                .exec()) {
+            copyFile(dir, dependencyStream);
+            log.info("File {} copied successfully", file);
+            return dir;
+        } catch (Exception e) {
+            log.error("Could not copy the file {}", file, e);
+            return null;
+        }
+    }
+
+
     public void copyFolderToDockerImage(String dockerImage, String folderPath) throws IOException {
         DockerClient dockerClient = DockerClientBuilder.getInstance().build();
 
@@ -456,10 +470,8 @@ public class DockerBuild {
 
     }
 
-    private Path storeLogFile(String containerId, Path client, Path logFile) {
+    public Path storeLogFile(String containerId, Path client, Path logFile) {
         String clientName = client.getFileName().toString();
-
-
         String logLocation = "/%s/mavenLog.log".formatted(clientName);
         try (InputStream logStream = dockerClient.copyArchiveFromContainerCmd(containerId, logLocation).exec()) {
             byte[] fileContent = logStream.readAllBytes();
@@ -524,6 +536,22 @@ public class DockerBuild {
         }
     }
 
+    private void copyFile(Path localPath, InputStream m2Stream) throws IOException {
+        try (TarArchiveInputStream tarStream = new TarArchiveInputStream(m2Stream)) {
+            TarArchiveEntry entry;
+            while ((entry = tarStream.getNextTarEntry()) != null) {
+                if (!entry.isDirectory()) {
+
+                    if (!Files.exists(localPath)) {
+                        Files.createFile(localPath);
+                        byte[] fileContent = tarStream.readAllBytes();
+                        Files.write(localPath, fileContent, StandardOpenOption.WRITE);
+                    }
+                }
+            }
+        }
+    }
+
 
     public static void deleteImage(String imageId) {
         try {
@@ -563,7 +591,7 @@ public class DockerBuild {
     public String startSpinningContainer(String imageId) {
         CreateContainerResponse container = dockerClient
                 .createContainerCmd(imageId)
-                .withEntrypoint("sh", "-c", "sleep 60")
+                .withEntrypoint("sh", "-c", "sleep infinity")
                 .exec();
 
         dockerClient.startContainerCmd(container.getId()).exec();
