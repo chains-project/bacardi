@@ -21,15 +21,13 @@ import se.kth.models.FailureCategory;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class DockerBuild {
@@ -86,6 +84,51 @@ public class DockerBuild {
         } catch (Exception e) {
             log.error("Could not copy the project {}", project, e);
             return null;
+        }
+    }
+
+    public Optional<String> createImageForRepositoryAtVersion(String baseImage, URL gitUrl, String version) {
+        String projectDirectoryName = "project";
+
+        String preContainerId = this.startSpinningContainer(baseImage);
+        log.info("Start cloning for {}", gitUrl);
+        this.executeInContainer(preContainerId, "sh", "-c", "git clone %s %s".formatted(gitUrl, projectDirectoryName));
+        log.info("Finished cloning for {}", gitUrl);
+
+        String[] tags = this.executeInContainer(preContainerId, "sh", "-c",
+                "cd %s && git tag".formatted(projectDirectoryName)).split("\n");
+        List<String> matchingTags = Arrays.stream(tags)
+                .filter(tag -> tag.contains(version))
+                .toList();
+
+        this.removeContainer(preContainerId);
+
+        String tag;
+        if (matchingTags.isEmpty()) {
+            log.info("Couldn't find tag for version {} in project {}", version, gitUrl);
+            return Optional.empty();
+        } else {
+            tag = matchingTags.getFirst();
+        }
+
+        log.info("Creating container for {} with version {} in {}", gitUrl, version, baseImage);
+        CreateContainerResponse container = dockerClient.createContainerCmd(baseImage)
+                .withCmd("/bin/sh", "-c",
+                        "git clone %s %s && cd %s && git checkout %s && mvn clean install -B".formatted(gitUrl,
+                                projectDirectoryName, projectDirectoryName, tag))
+                .exec();
+        dockerClient.startContainerCmd(container.getId()).exec();
+        WaitContainerResultCallback waitResult = dockerClient.waitContainerCmd(container.getId())
+                .exec(new WaitContainerResultCallback());
+        if (waitResult.awaitStatusCode() != EXIT_CODE_OK) {
+            log.warn("Could not create docker image for project {} at version {} in {}", gitUrl, version, baseImage);
+            dockerClient.removeContainerCmd(container.getId()).exec();
+            return Optional.empty();
+        } else {
+            dockerClient.removeVolumeCmd(container.getId()).exec();
+            log.info("Successfully created docker image for project {} at version {} in {}", gitUrl, version,
+                    baseImage);
+            return Optional.of(gitUrl.toString() + ":" + version);
         }
     }
 
@@ -357,7 +400,7 @@ public class DockerBuild {
     public String startSpinningContainer(String imageId) {
         CreateContainerResponse container = dockerClient
                 .createContainerCmd(imageId)
-                .withEntrypoint("sh", "-c", "sleep 60")
+                .withEntrypoint("sh", "-c", "sleep infinity")
                 .exec();
 
         dockerClient.startContainerCmd(container.getId()).exec();
