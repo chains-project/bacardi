@@ -3,11 +3,14 @@ package se.kth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.Util.LogUtils;
+import se.kth.direct_failures.RepairDirectFailures;
 import se.kth.java_version.RepairJavaVersionIncompatibility;
+import se.kth.model.DependencyTree;
 import se.kth.model.SetupPipeline;
 import se.kth.models.*;
 import se.kth.wError.RepairWError;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -89,6 +92,7 @@ public class BacardiCore {
                     break;
                 case COMPILATION_FAILURE:
                     log.info("Compilation failure detected.");
+                    failureCategory = repairDirectCompilationFailure(gitManager);
                     break;
                 case DEPENDENCY_LOCK_FAILURE:
                     log.info("Dependency lock failure detected.");
@@ -112,11 +116,73 @@ public class BacardiCore {
         }
 
         if (failureCategory == FailureCategory.BUILD_SUCCESS) {
-            DockerBuild.deleteImage(actualImage);
+//            DockerBuild.deleteImage(actualImage);
             log.info("Build success in attempt: {}", attempts);
         }
 
         return result;
+    }
+
+
+    /**
+     * Repairs direct compilation failures.
+     *
+     * @param gitManager the Git manager to handle repository operations
+     * @return the new failure category after attempting the repair
+     */
+    private FailureCategory repairDirectCompilationFailure(GitManager gitManager) {
+        // checking if the previous failure category is different from the current failure category and create a new branch
+        if (previousFailureCategory != failureCategory) {
+            previousFailureCategory = failureCategory;
+            gitManager.newBranch(Constants.BRANCH_DIRECT_COMPILATION_FAILURE);
+        }
+
+        DockerBuild dockerBuild = setupPipeline.getDockerBuild();
+
+        try {
+            dockerBuild.ensureBaseMavenImageExists(setupPipeline.getDockerImage());
+        } catch (InterruptedException e) {
+            log.error("Error ensuring base maven image exists.", e);
+            throw new RuntimeException(e);
+        }
+
+        Path project = setupPipeline.getClientFolder();
+        Path logFile = setupPipeline.getLogFilePath();
+
+        //check if exist any dependency conflict
+        RepairDirectFailures repairDirectFailures = new RepairDirectFailures(setupPipeline.getDockerBuild(),
+                setupPipeline.getBreakingUpdate().updatedDependency.dependencyGroupID,
+                setupPipeline.getBreakingUpdate().updatedDependency.dependencyArtifactID,
+                setupPipeline);
+
+        // Check and try dependency resolution conflicts
+        Path treeFile = project.resolve("tree.json");
+        Path generatedTreeFile = repairDirectFailures.generateDependencyTree(treeFile, setupPipeline.getDockerImage(), setupPipeline.getClientFolder().getFileName().toString());
+        // Check if there are any conflicts
+        List<DependencyTree> dependencyTreeList = repairDirectFailures.identifyConflicts(generatedTreeFile);
+        // If there are conflicts, try to resolve them
+        for (DependencyTree dependencyTree : dependencyTreeList) {
+            try {
+                repairDirectFailures.modifyPomFile(project.resolve("pom.xml"), dependencyTree);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        if (dependencyTreeList.isEmpty()) {
+            log.info("No conflicts found");
+        } else {
+            log.info("Conflicts found");
+
+            String dockerImage = repairDirectFailures.reproduce();
+        }
+        FailureCategory category = failureCategoryExtract.getFailureCategory(setupPipeline.getLogFilePath().toFile());
+        if (category == FailureCategory.BUILD_SUCCESS) {
+            //repair process failed
+            gitManager.commitAllChanges("Direct compilation failure repair");
+            //roll back to the original branch
+        }
+
+        return category;
     }
 
 
@@ -126,7 +192,7 @@ public class BacardiCore {
         gitManager.newBranch(Constants.BRANCH_JAVA_VERSION_INCOMPATIBILITY);
 
         JavaVersionInformation javaVersionInformation = new JavaVersionInformation(setupPipeline.getLogFilePath().toFile());
-        JavaVersionInfo javaVersionInfo = javaVersionInformation.analyse(logFile.toAbsolutePath().toString(), project.toAbsolutePath().toString());
+        JavaVersionInfo javaVersionInfo = javaVersionInformation.analyse(setupPipeline.getLogFilePath().toString(), project.toAbsolutePath().toString());
 
         JavaVersionIncompatibility incompatibility = javaVersionInfo.getIncompatibility();
         String newJavaVersion = javaVersionInfo.getIncompatibility().mapVersions(incompatibility.wrongVersion());
@@ -151,7 +217,6 @@ public class BacardiCore {
 //        }
 
         gitManager.commitAllChanges("Java version incompatibility repair");
-
 
 
         return newFailureCategory;
@@ -186,7 +251,7 @@ public class BacardiCore {
 
             WerrorInfo werrorInfo = werrorInformation.analyzeWerror(setupPipeline.getClientFolder().toString());
 
-            RepairWError repairWError = new RepairWError(project, isBump, setupPipeline.getDockerImage(),setupPipeline);
+            RepairWError repairWError = new RepairWError(project, isBump, setupPipeline.getDockerImage(), setupPipeline);
 
             if (repairWError.isWerrorJavaVersionIncompatibilityError(logFile.toAbsolutePath().toString())) {
                 //find all pom files with werror
