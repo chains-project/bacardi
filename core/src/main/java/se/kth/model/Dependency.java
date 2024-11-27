@@ -1,12 +1,18 @@
 package se.kth.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+@lombok.Getter
+@lombok.Setter
 public class Dependency {
+
 
     public final String groupId;
     public final String artifactId;
-    public final String version;
+    public String version;
     public final String scope;
     public final String type;
+
 
 
     public Dependency(String groupId, String artifactId, String version, String type, String scope) {
@@ -15,7 +21,14 @@ public class Dependency {
         this.version = version;
         this.scope = scope;
         this.type = type;
+    }
 
+    public Dependency(){
+        this.groupId = "";
+        this.artifactId = "";
+        this.version = "";
+        this.scope = "";
+        this.type = "";
     }
 
     @Override

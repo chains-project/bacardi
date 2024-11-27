@@ -9,15 +9,15 @@ import se.kth.models.FailureCategory;
 /**
  * @param index Getters
  */
-public record Attempt(@Getter int index, @Getter FailureCategory failureCategory, boolean isSuccessful) {
+public record Attempt(@Getter int index, @Getter FailureCategory failureCategory, boolean successful) {
     @JsonCreator
     public Attempt(
             @JsonProperty("index") int index,
             @JsonProperty("failureCategory") FailureCategory failureCategory,
-            @JsonProperty("isSuccessful") boolean isSuccessful) {
+            @JsonProperty("successful") boolean successful) {
         this.index = index;
         this.failureCategory = failureCategory;
-        this.isSuccessful = isSuccessful;
+        this.successful = successful;
     }
 }
 
