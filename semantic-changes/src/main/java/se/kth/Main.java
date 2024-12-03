@@ -1,44 +1,33 @@
 package se.kth;
 
-import se.kth.Util.BreakingUpdateProvider;
-import se.kth.model.BreakingUpdate;
-import se.kth.model.UpdatedDependency;
-import se.kth.models.FailureCategory;
-import se.kth.rebuild.RepoResolver;
-import se.kth.rebuild.librariesio.LibrariesIO;
-import se.kth.rebuild.librariesio.Rebuilder;
+import se.kth.instrumentation.Instrumenter;
+import se.kth.instrumentation.ModelBuilder;
+import se.kth.instrumentation.ProjectExtractor;
+import se.kth.instrumentation.model.TargetMethod;
+import se.kth.util.Config;
+import spoon.reflect.CtModel;
 
-import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.Optional;
 
 public class Main {
     public static void main(String[] args) {
-        Path bumpDir = getBumpDir();
-        List<BreakingUpdate> breakingUpdates =
-                BreakingUpdateProvider.getBreakingUpdatesFromResourcesByCategory(bumpDir.toString(),
-                        FailureCategory.TEST_FAILURE);
-        LibrariesIO librariesIO = new LibrariesIO(args[0]);
-        RepoResolver repoResolver = new RepoResolver(librariesIO);
-        DockerBuild dockerClient = new DockerBuild(false);
-        Rebuilder rebuilder = new Rebuilder(dockerClient);
+        List<String> images = List.of("ghcr.io/chains-project/breaking-updates:jsoup-1.7.1");
 
-        breakingUpdates.forEach(breakingUpdate -> {
-            if (breakingUpdate.updatedDependency.dependencyArtifactID.contains("junit")) {
-                System.out.println("Skipping " + breakingUpdate.updatedDependency.dependencyArtifactID);
-                return;
-            }
-            UpdatedDependency updatedDependency = breakingUpdate.updatedDependency;
-            Optional<URL> repoUrl = repoResolver.getGitUrl(updatedDependency);
-            repoUrl.ifPresent(url -> rebuilder.rebuildProject(url, updatedDependency.previousVersion));
-        });
-    }
+        DockerBuild dockerBuild = new DockerBuild(false);
+        Path extractedProjectsOutputDir = Config.getTmpDirPath().resolve("instrumentation-sources");
+        ProjectExtractor projectExtractor = new ProjectExtractor(dockerBuild, extractedProjectsOutputDir);
+        for (String image : images) {
+            Path sourcesPath = projectExtractor.extract(image);
 
-    public static Path getBumpDir() {
-        Path currentDir = Paths.get("").toAbsolutePath();
-        Path bumpRelativePath = Path.of("bump", "data", "benchmark");
-        return currentDir.resolveSibling(bumpRelativePath);
+            ModelBuilder modelBuilder = new ModelBuilder(sourcesPath);
+            CtModel model = modelBuilder.buildModel();
+
+            Instrumenter instrumenter = new Instrumenter(model);
+
+            TargetMethod targetMethod = new TargetMethod("org.jsoup.nodes.Element", "prepend", List.of("java.lang.String"));
+            instrumenter.instrumentForMethod(targetMethod);
+
+        }
     }
 }
