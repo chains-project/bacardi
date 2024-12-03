@@ -87,48 +87,33 @@ public class DockerBuild {
         }
     }
 
-    public Optional<String> createImageForRepositoryAtVersion(String baseImage, URL gitUrl, String version) {
+    public Optional<String> createImageForRepositoryAtVersion(String baseImage, URL gitUrl, String versionTag,
+                                                              String imageName) {
         String projectDirectoryName = "project";
 
-        String preContainerId = this.startSpinningContainer(baseImage);
-        log.info("Start cloning for {}", gitUrl);
-        this.executeInContainer(preContainerId, "sh", "-c", "git clone %s %s".formatted(gitUrl, projectDirectoryName));
-        log.info("Finished cloning for {}", gitUrl);
-
-        String[] tags = this.executeInContainer(preContainerId, "sh", "-c",
-                "cd %s && git tag".formatted(projectDirectoryName)).split("\n");
-        List<String> matchingTags = Arrays.stream(tags)
-                .filter(tag -> tag.contains(version))
-                .toList();
-
-        this.removeContainer(preContainerId);
-
-        String tag;
-        if (matchingTags.isEmpty()) {
-            log.info("Couldn't find tag for version {} in project {}", version, gitUrl);
-            return Optional.empty();
-        } else {
-            tag = matchingTags.getFirst();
-        }
-
-        log.info("Creating container for {} with version {} in {}", gitUrl, version, baseImage);
+        log.info("Creating container for {} with version {} in {}", gitUrl, versionTag, baseImage);
         CreateContainerResponse container = dockerClient.createContainerCmd(baseImage)
                 .withCmd("/bin/sh", "-c",
-                        "git clone %s %s && cd %s && git checkout %s && mvn clean install -B".formatted(gitUrl,
-                                projectDirectoryName, projectDirectoryName, tag))
+                        "git clone --branch %s %s %s && cd %s && mvn test -B".formatted(versionTag, gitUrl,
+                                projectDirectoryName, projectDirectoryName))
                 .exec();
         dockerClient.startContainerCmd(container.getId()).exec();
         WaitContainerResultCallback waitResult = dockerClient.waitContainerCmd(container.getId())
                 .exec(new WaitContainerResultCallback());
         if (waitResult.awaitStatusCode() != EXIT_CODE_OK) {
-            log.warn("Could not create docker image for project {} at version {} in {}", gitUrl, version, baseImage);
+            log.warn("Could not create docker image for project {} at version {} in {}", gitUrl, versionTag, baseImage);
             dockerClient.removeContainerCmd(container.getId()).exec();
             return Optional.empty();
         } else {
-            dockerClient.removeVolumeCmd(container.getId()).exec();
-            log.info("Successfully created docker image for project {} at version {} in {}", gitUrl, version,
+            log.info("Successfully created docker image for project {} at version {} in {}", gitUrl, versionTag,
                     baseImage);
-            return Optional.of(gitUrl.toString() + ":" + version);
+            dockerClient.commitCmd(container.getId())
+                    .withWorkingDir("/project")
+                    .withRepository("ghcr.io/chains-project/breaking-updates")
+                    .withTag(imageName)
+                    .exec();
+            dockerClient.removeContainerCmd(container.getId()).exec();
+            return Optional.of(container.getId());
         }
     }
 
@@ -257,7 +242,8 @@ public class DockerBuild {
 
         for (attemptCount = 3; attemptCount < 4; attemptCount++) {
 
-            startedContainers.put("postContainer%s".formatted(attemptCount), startContainer(getPostCmd(), image, client));
+            startedContainers.put("postContainer%s".formatted(attemptCount), startContainer(getPostCmd(), image,
+                    client));
 
             WaitContainerResultCallback result = dockerClient.waitContainerCmd(startedContainers.get("postContainer%s"
                     .formatted(attemptCount))).exec(new WaitContainerResultCallback());
@@ -267,12 +253,14 @@ public class DockerBuild {
                 storeLogFile(startedContainers.get("postContainer%s".formatted(attemptCount)), client);
                 // stop the process and store the log file
                 log.info("Breaking commit failed in the {} attempt.", attemptCount);
-                breakingUpdateReproductionResult.getAttempts().add(new Attempt(attemptCount, FailureCategory.UNKNOWN_FAILURE, false));
+                breakingUpdateReproductionResult.getAttempts().add(new Attempt(attemptCount,
+                        FailureCategory.UNKNOWN_FAILURE, false));
 
             } else {
                 log.info("Breaking commit did not fail in the {} attempt.", attemptCount);
                 if (attemptCount == 3) {
-                    breakingUpdateReproductionResult.getAttempts().add(new Attempt(attemptCount, FailureCategory.BUILD_SUCCESS, false));
+                    breakingUpdateReproductionResult.getAttempts().add(new Attempt(attemptCount,
+                            FailureCategory.BUILD_SUCCESS, false));
                     storeLogFile(startedContainers.get("postContainer%s".formatted(attemptCount)), client);
                 }
             }

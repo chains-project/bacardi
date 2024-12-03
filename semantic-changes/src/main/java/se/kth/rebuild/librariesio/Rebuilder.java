@@ -28,7 +28,7 @@ public class Rebuilder {
     private void tryPullProject(URL gitUrl, String version) {
         logger.info("Trying to pull project {} at version {}", gitUrl, version);
         Optional<String> imageName = JAVA_VERSIONS.stream()
-                .map(javaVersion -> this.dockerBuild.createImageForRepositoryAtVersion(DockerBuild.BASE_IMAGE + "-" + javaVersion, gitUrl, version))
+                .map(javaVersion -> this.dockerBuild.createImageForRepositoryAtVersion(DockerBuild.BASE_IMAGE + "-" + javaVersion, gitUrl, version, ""))
                 .filter(Optional::isPresent)
                 .findFirst()
                 .map(Optional::get);
