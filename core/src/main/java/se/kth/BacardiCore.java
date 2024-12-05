@@ -136,9 +136,9 @@ public class BacardiCore {
             previousFailureCategory = failureCategory;
             gitManager.newBranch(Constants.BRANCH_DIRECT_COMPILATION_FAILURE);
         }
-
         DockerBuild dockerBuild = setupPipeline.getDockerBuild();
 
+        // Ensure the base Maven image exists
         try {
             dockerBuild.ensureBaseMavenImageExists(setupPipeline.getDockerImage());
         } catch (InterruptedException e) {
@@ -151,8 +151,6 @@ public class BacardiCore {
 
         //check if exist any dependency conflict
         RepairDirectFailures repairDirectFailures = new RepairDirectFailures(setupPipeline.getDockerBuild(),
-                setupPipeline.getBreakingUpdate().updatedDependency.dependencyGroupID,
-                setupPipeline.getBreakingUpdate().updatedDependency.dependencyArtifactID,
                 setupPipeline);
 
         // Check and try dependency resolution conflicts
@@ -163,7 +161,7 @@ public class BacardiCore {
         // If there are conflicts, try to resolve them
         for (DependencyTree dependencyTree : dependencyTreeList) {
             try {
-                repairDirectFailures.modifyPomFile(project.resolve("pom.xml"), dependencyTree);
+                RepairDirectFailures.modifyPomFile(project.resolve("pom.xml"), dependencyTree);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -172,9 +170,10 @@ public class BacardiCore {
             log.info("No conflicts found");
         } else {
             log.info("Conflicts found");
-
             String dockerImage = repairDirectFailures.reproduce();
         }
+
+
         FailureCategory category = failureCategoryExtract.getFailureCategory(setupPipeline.getLogFilePath().toFile());
         if (category == FailureCategory.BUILD_SUCCESS) {
             //repair process failed
