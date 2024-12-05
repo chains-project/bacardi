@@ -8,6 +8,7 @@ Fix breaking dependency updates
 - **[core](core)**: core functionality to fix breaking dependency updates
 - **[test-failures](test-failures)**: detect constructs that cause test failures
 - **[git-manager](git-manager)**: manage git repositories and create new branches for each failure category
+- **[extractor](extractor)**: extract information from the client's repository and api diff
  
 ##  Workflows
 

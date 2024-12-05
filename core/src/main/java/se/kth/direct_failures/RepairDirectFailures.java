@@ -24,16 +24,11 @@ public class RepairDirectFailures {
 
     private static Logger log = LoggerFactory.getLogger(RepairDirectFailures.class);
     private final DockerBuild dockerBuild;
-
-    private final String groupId;
-    private final String artifactId;
     private SetupPipeline setupPipeline;
 
 
-    public RepairDirectFailures(DockerBuild dockerBuild, String groupId, String artifactId, SetupPipeline setupPipeline) {
+    public RepairDirectFailures(DockerBuild dockerBuild, SetupPipeline setupPipeline) {
         this.dockerBuild = dockerBuild;
-        this.groupId = groupId;
-        this.artifactId = artifactId;
         this.setupPipeline = setupPipeline;
     }
 
@@ -108,7 +103,9 @@ public class RepairDirectFailures {
 
         ParseMavenDependencyTree parseMavenDependencyTree = new ParseMavenDependencyTree(dependencyTreePath);
         List<DependencyTree> dependencies = parseMavenDependencyTree.parseDependencies();
-        List<DependencyTree> children = parseMavenDependencyTree.findChildrenByName(dependencies, groupId, artifactId);
+        List<DependencyTree> children = parseMavenDependencyTree.findChildrenByName(dependencies,
+                this.setupPipeline.getBreakingUpdate().updatedDependency.dependencyGroupID,
+                this.setupPipeline.getBreakingUpdate().updatedDependency.dependencyArtifactID);
         return parseMavenDependencyTree.hasSameOrLowerLevelDependencies(dependencies, children);
     }
 }
