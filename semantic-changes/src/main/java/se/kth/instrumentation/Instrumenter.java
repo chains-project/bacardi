@@ -21,9 +21,13 @@ public class Instrumenter {
         this.model = model;
     }
 
-    public void instrumentForMethod(TargetMethod targetMethod) {
+    public CtMethod instrumentForMethod(TargetMethod targetMethod) {
         CtMethod first = this.locateTargetMethod(targetMethod);
+
+        LogProcessor logProcessor = new LogProcessor();
+        logProcessor.process(first);
         System.out.println(first);
+        return first;
     }
 
     private CtMethod locateTargetMethod(TargetMethod targetMethod) {
