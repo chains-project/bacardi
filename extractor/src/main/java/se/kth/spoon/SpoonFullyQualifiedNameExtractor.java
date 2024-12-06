@@ -4,10 +4,7 @@ import spoon.reflect.code.CtConstructorCall;
 import spoon.reflect.code.CtFieldRead;
 import spoon.reflect.code.CtFieldWrite;
 import spoon.reflect.code.CtInvocation;
-import spoon.reflect.declaration.CtConstructor;
-import spoon.reflect.declaration.CtField;
-import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.declaration.CtType;
+import spoon.reflect.declaration.*;
 import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtFieldReference;
 import spoon.reflect.reference.CtTypeReference;
@@ -64,5 +61,9 @@ public class SpoonFullyQualifiedNameExtractor {
 
     public static String getFullyQualifiedName(CtType<?> ctType) {
         return ctType.getQualifiedName();
+    }
+
+    public static String getFullyQualifiedName(CtElement ctElement) {
+        return getFullyQualifiedName((CtExecutableReference) ctElement);
     }
 }

@@ -3,9 +3,11 @@ package se.kth;
 import japicmp.model.JApiClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.kth.japicmp_analyzer.JapicmpAnalyzer;
+import se.kth.japicmp_analyzer.ApiChange;
+import se.kth.japicmp_analyzer.JApiCmpAnalyze;
 import se.kth.models.ErrorInfo;
 import se.kth.models.MavenErrorLog;
+import se.kth.spoon.SpoonFullyQualifiedNameExtractor;
 import se.kth.spoon.SpoonUtilities;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.reference.CtTypeReference;
@@ -21,12 +23,12 @@ public class SpoonConstructExtractor {
     private static final Logger log = LoggerFactory.getLogger(SpoonConstructExtractor.class);
 
     private final MavenErrorLog mavenErrorLog;
-    private final JapicmpAnalyzer japicmpAnalyzer;
+    private final JApiCmpAnalyze japicmpAnalyzer;
     private final SpoonUtilities spoonUtilities;
 
 
 
-    public SpoonConstructExtractor(MavenErrorLog mavenErrorLog, JapicmpAnalyzer japicmpAnalyzer, SpoonUtilities spoonUtilities) {
+    public SpoonConstructExtractor(MavenErrorLog mavenErrorLog, JApiCmpAnalyze japicmpAnalyzer, SpoonUtilities spoonUtilities) {
         this.mavenErrorLog = mavenErrorLog;
         this.japicmpAnalyzer = japicmpAnalyzer;
         this.spoonUtilities = spoonUtilities;
@@ -36,9 +38,13 @@ public class SpoonConstructExtractor {
     public void extractCausingConstructs() {
 
         List<JApiClass> classes = this.japicmpAnalyzer.getChanges();
+        //get all class names from the japicmpAnalyzer
         List<String> classNamesJapicmp = classes.stream()
                 .map(JApiClass::getFullyQualifiedName)
                 .toList();
+
+        Set<ApiChange> apiChanges = this.japicmpAnalyzer.getAllChanges(classes);
+
         Map<String, Set<ErrorInfo>> errorInfoMap = mavenErrorLog.getErrorInfo();
         /*
          * For each error in the error log, we try to find the corresponding construct in the client application code
@@ -50,7 +56,7 @@ public class SpoonConstructExtractor {
             value.forEach(errorInfo -> {
                 // all elements from the buggy line in the client application code
                 Set<CtElement> elements = spoonUtilities.localizeErrorInfoElements(errorInfo);
-                Set<CtElement> filteredElements = spoonUtilities.filterElements(elements, classNamesJapicmp);
+                Set<CtElement> filteredElements = spoonUtilities.filterElements(elements, classNamesJapicmp, apiChanges);
 
 //                List<CtElement> involvedElements = this.checkChangedInvolved(elements.stream().toList(), classNamesJapicmp);
 //                List<CtElement> result = this.removeParents(involvedElements);

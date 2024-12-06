@@ -1,14 +1,12 @@
 package se.kth.spoon;
 
-import se.kth.japicmp_analyzer.Client;
+import se.kth.japicmp_analyzer.ApiChange;
 import se.kth.models.ErrorInfo;
-import spoon.Launcher;
 import spoon.reflect.CtModel;
 import spoon.reflect.code.CtComment;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.reference.CtTypeReference;
 
-import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -21,7 +19,7 @@ public class SpoonUtilities {
     private final CtModel model;
     private final Client client;
 
-    public SpoonUtilities(Path projectPath, Client client) {
+    public SpoonUtilities(Client client) {
         this.client = client;
        /*
         @TODO: implement the case for MavenLauncher
@@ -49,7 +47,6 @@ public class SpoonUtilities {
      * @return The element.
      */
     public Set<CtElement> localizeElementFromTheClientApplicationCode(int lineNumber, String fileName) {
-        DirectFailuresScan scanner = new DirectFailuresScan();
         List<CtElement> result = model.filterChildren(element ->
                 shouldBeIgnored(element)
                         && element.getPosition().isValidPosition()
@@ -96,15 +93,30 @@ public class SpoonUtilities {
         return rootElement;
     }
 
-    public Set<CtElement> filterElements(Set<CtElement> elements, List<String> changedClassnames) {
+    public Set<CtElement> filterElements(Set<CtElement> elements, List<String> changedClassnames, Set<ApiChange> apiChanges) {
         List<CtElement> tmp = elements.stream()
                 .filter(element -> checkIfAnyConstructIsCalledFromLibrary(element, changedClassnames))
                 .toList();
-
-        DirectFailuresScan scanner = new DirectFailuresScan();
-        for (CtElement element : elements) {
+        //create relation between the elements and the api changes
+        DirectFailuresScan scanner = new DirectFailuresScan(apiChanges);
+        for (CtElement element : tmp) {
             element.accept(scanner);
         }
+        System.out.println("Executed elements: " + scanner.getMatchedApiChanges().size());
+
+        Set<ApiChange> executedElements = scanner.getMatchedApiChanges();
+        executedElements.forEach(matchedApiChange -> {
+            executedElements.addAll(apiChanges.stream().filter(apiChange -> apiChange.getName().equals(matchedApiChange.getName())).toList());
+        });
+        System.out.println("Matched API changes: " + executedElements.size());
+        scanner.getMatchedApiChanges().forEach(apiChange -> {
+            System.out.println("Found a match: " + apiChange.getLongName() + " : " + apiChange.getCategory());
+            System.out.println("Diff: " + apiChange.toDiffString());
+            System.out.println("Name: " + apiChange.getName());
+            System.out.println("-------------------");
+        });
+
+
         return scanner.getExecutedElements();
     }
 
