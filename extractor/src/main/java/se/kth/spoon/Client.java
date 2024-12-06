@@ -1,4 +1,4 @@
-package se.kth.japicmp_analyzer;
+package se.kth.spoon;
 
 import spoon.Launcher;
 import spoon.MavenLauncher;
