@@ -1,5 +1,6 @@
 from openai import OpenAI
 
+
 def get_llm_response(prompt, api_key, organization, temperature=0.7, output_file="response.txt"):
     client = OpenAI(
         organization=organization,
@@ -8,7 +9,12 @@ def get_llm_response(prompt, api_key, organization, temperature=0.7, output_file
 
     stream = client.chat.completions.create(
         model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}],
+        messages=[
+            {
+                "role": "system",
+                "content": "You are a smart code reviewer who can spot code that uses a non-existent or deprecated API.",
+            },
+            {"role": "user", "content": prompt}],
         stream=True,
     )
 
@@ -21,19 +27,11 @@ def get_llm_response(prompt, api_key, organization, temperature=0.7, output_file
 
     return response_text
 
-def check_openai_installation():
-    try:
-        print(f"OpenAI package version: {openai.__version__}")
-        print("OpenAI package is installed correctly.")
-    except ImportError:
-        print("OpenAI package is not installed.")
-    except Exception as e:
-        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     api_key = "sk-None-APHBjbapVsZJI436GiokT3BlbkFJjhWT9WJcegltDZt56m3p"
     organization = "org-8vaaikANoGLw18qMPf7FeuJm"
-    prompt="""Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+    prompt = """Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
     You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
     To solve the failure you can only work on the client code.
     

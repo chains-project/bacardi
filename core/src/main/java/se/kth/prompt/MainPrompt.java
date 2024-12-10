@@ -1,7 +1,9 @@
 package se.kth.prompt;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import se.kth.model.SetupPipeline;
+
+import java.nio.file.Path;
+import java.util.Set;
 
 import static se.kth.prompt.GeneratePrompt.callPythonScript;
 
@@ -13,7 +15,17 @@ public class MainPrompt {
 //        System.out.println(outputs);
 
 
-        Float.intBitsToFloat(5);
+        GeneratePrompt extract = new GeneratePrompt();
+        String content = extract.extractContentFromModelResponse(outputs);
+
+        SetupPipeline setupPipeline = new SetupPipeline();
+        setupPipeline.setOutPutPatchFolder(Path.of("/"));
+        StoreInfo storeInfo = new StoreInfo(setupPipeline);
+
+
+        System.out.println("Content: ");
+        System.out.println(content);
+
     }
 
 }
