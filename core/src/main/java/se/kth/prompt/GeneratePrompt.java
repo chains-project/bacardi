@@ -1,9 +1,16 @@
 package se.kth.prompt;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GeneratePrompt {
+    private static final Logger log = LoggerFactory.getLogger(GeneratePrompt.class);
+
     public static String callPythonScript(String scriptPath, String[] args) {
         StringBuilder output = new StringBuilder();
         try {
@@ -15,7 +22,7 @@ public class GeneratePrompt {
                 output.append(line).append("\n");
             }
 
-            // Lee los errores del script de Python
+            // Read all errors from the process
             BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
             StringBuilder errors = new StringBuilder();
 
@@ -24,15 +31,31 @@ public class GeneratePrompt {
             }
             int exitCode = process.waitFor();
             if (exitCode == 0) {
-                System.out.println("Script ejecutado con éxito. Salida:");
-                System.out.println(output.toString());
+                System.out.println("Script executed successfully:");
+                System.out.println(output);
             } else {
-                System.err.println("El script terminó con errores:");
+                System.err.println("Script failed with exit code: " + exitCode);
                 System.err.println(errors.toString());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error executing the Python script: {}", scriptPath, e);
         }
         return output.toString();
     }
+
+
+    public String extractContentFromModelResponse(String input) {
+        String pattern = "```java(.*?)```";
+        Pattern regex = Pattern.compile(pattern, Pattern.DOTALL);
+        Matcher matcher = regex.matcher(input);
+
+        if (matcher.find()) {
+            return matcher.group(1).trim();
+        } else {
+            log.error("Error extracting content from the model response");
+            return null;
+        }
+    }
+
+
 }

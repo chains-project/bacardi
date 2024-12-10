@@ -18,10 +18,14 @@ public class SetupPipeline {
     Path m2FolderPath;
     DockerBuild dockerBuild;
     BreakingUpdate breakingUpdate;
+    Path outPutPatchFolder;
 
 
     public SetupPipeline() {
+
     }
+
+
 
 
 
