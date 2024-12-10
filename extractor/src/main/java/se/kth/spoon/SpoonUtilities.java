@@ -1,17 +1,26 @@
 package se.kth.spoon;
 
+import se.kth.failure_detection.DetectedFileWithErrors;
 import se.kth.japicmp_analyzer.ApiChange;
 import se.kth.models.ErrorInfo;
+import spoon.Launcher;
 import spoon.reflect.CtModel;
 import spoon.reflect.code.CtComment;
+import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtElement;
+import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.declaration.CtType;
 import spoon.reflect.reference.CtTypeReference;
+import spoon.reflect.visitor.filter.TypeFilter;
+import spoon.support.reflect.declaration.CtMethodImpl;
 
 import java.util.*;
 
 /**
  * This class is responsible for extracting information from Spoon.
  */
+@lombok.Getter
+@lombok.Setter
 public class SpoonUtilities {
     /**
      * The Spoon model.
@@ -93,7 +102,7 @@ public class SpoonUtilities {
         return rootElement;
     }
 
-    public Set<CtElement> filterElements(Set<CtElement> elements, List<String> changedClassnames, Set<ApiChange> apiChanges) {
+    public DetectedFileWithErrors filterElements(Set<CtElement> elements, List<String> changedClassnames, Set<ApiChange> apiChanges) {
         List<CtElement> tmp = elements.stream()
                 .filter(element -> checkIfAnyConstructIsCalledFromLibrary(element, changedClassnames))
                 .toList();
@@ -102,27 +111,82 @@ public class SpoonUtilities {
         for (CtElement element : tmp) {
             element.accept(scanner);
         }
-        System.out.println("Executed elements: " + scanner.getMatchedApiChanges().size());
 
         Set<ApiChange> executedElements = scanner.getMatchedApiChanges();
+
         executedElements.forEach(matchedApiChange -> {
             executedElements.addAll(apiChanges.stream().filter(apiChange -> apiChange.getName().equals(matchedApiChange.getName())).toList());
         });
-        System.out.println("Matched API changes: " + executedElements.size());
-        scanner.getMatchedApiChanges().forEach(apiChange -> {
-            System.out.println("Found a match: " + apiChange.getLongName() + " : " + apiChange.getCategory());
-            System.out.println("Diff: " + apiChange.toDiffString());
-            System.out.println("Name: " + apiChange.getName());
-            System.out.println("-------------------");
-        });
-
-
-        return scanner.getExecutedElements();
+        return new DetectedFileWithErrors(executedElements, scanner.getExecutedElements());
     }
 
     public boolean checkIfAnyConstructIsCalledFromLibrary(CtElement element, List<String> changedClassnames) {
         return element.getReferencedTypes().stream()
                 .map(CtTypeReference::getQualifiedName)
                 .anyMatch(changedClassnames::contains);
+    }
+
+    public DetectedFileWithErrors getMethodAndClassInformationForElement(CtElement element, DetectedFileWithErrors fault, ErrorInfo errorInfo) {
+
+        CtModel localModel = buildLocalModel(element.getPosition().getFile().getAbsoluteFile().toString());
+
+        CtType<?> mainClass = localModel.getAllTypes().iterator().next();
+        mainClass.getElements(new TypeFilter<>(CtMethodImpl.class)).forEach(e -> {
+            System.out.println("File Name: " + e.getPosition().getFile().getName());
+            if (this.containsAnError(e, errorInfo)) {
+                fault.methodName = e.getSimpleName();
+                fault.qualifiedMethodCode = e.toStringDebug();
+                fault.methodCode = e.getOriginalSourceFragment().getSourceCode();
+
+                CtClass<?> parentClass = e.getParent(CtClass.class);
+                Set<CtMethod<?>> newMethods = new HashSet<CtMethod<?>>();
+                Set<CtMethod<?>> oldMethods = parentClass.getMethods();
+                newMethods.add(e);
+
+                parentClass.setMethods(newMethods);
+
+                fault.inClassCode = parentClass.toString();
+                fault.qualifiedInClassCode = parentClass.toStringDebug();
+                parentClass.setMethods(oldMethods);
+
+                fault.clientLineNumber = getRealLinePosition(e);
+                fault.clientEndLineNumber = e.getPosition().getEndLine();
+                fault.plausibleDependencyIdentifier = null;
+            }
+        });
+
+        return fault;
+
+    }
+    private CtModel buildLocalModel(String filePath) {
+
+        Launcher spoon = new Launcher();
+        spoon.getEnvironment().setAutoImports(true);
+        spoon.addInputResource(filePath);
+        spoon.buildModel();
+
+        return spoon.getModel();
+    }
+
+    private boolean containsAnError(CtElement element, ErrorInfo errorInfo) {
+        int startLineNumber = this.getRealLinePosition(element);
+        int endLineNumber = element.getPosition().getEndLine();
+        int errorLineNumber = Integer.parseInt(errorInfo.getClientLinePosition());
+
+        return errorLineNumber >= startLineNumber && errorLineNumber <= endLineNumber;
+
+    }
+
+    /**
+     * TODO Check this method and found a better way to get the error info
+     *
+     * @param element The element.
+     * @return The error info.
+     */
+    private int getRealLinePosition(CtElement element) {
+        // Need to do this trick as getLine does not take into account for decorators, and comments
+        String[] lines = element.getOriginalSourceFragment().getSourceCode().split("\r\n|\r|\n");
+        int numberOfLines = lines.length;
+        return element.getPosition().getEndLine() - numberOfLines + 1;
     }
 }

@@ -84,11 +84,14 @@ public class DirectFailuresScan extends CtScanner {
 
     @Override
     public <T> void visitCtMethod(CtMethod<T> method) {
-        String fullyQualifiedName = SpoonFullyQualifiedNameExtractor.getFullyQualifiedName(method);
-        apiChanges.stream().filter(apiChange -> apiChange.getLongName().equals(fullyQualifiedName)).forEach(apiChange -> {
-            matchedApiChanges.add(apiChange);
-            this.collectExecutedElements(method);
-        });
+        String cTElementQualifiedName = SpoonFullyQualifiedNameExtractor.getFullyQualifiedName(method);
+        apiChanges.stream().filter(apiChange -> apiChange.getLongName().equals(cTElementQualifiedName)).
+                forEach(apiChange -> {
+                    matchedApiChanges.add(apiChange);
+                    this.collectExecutedElements(method);
+
+
+                });
         super.visitCtMethod(method);
     }
 

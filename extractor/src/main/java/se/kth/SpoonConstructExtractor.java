@@ -3,19 +3,18 @@ package se.kth;
 import japicmp.model.JApiClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.kth.failure_detection.DetectedFileWithErrors;
 import se.kth.japicmp_analyzer.ApiChange;
 import se.kth.japicmp_analyzer.JApiCmpAnalyze;
 import se.kth.models.ErrorInfo;
 import se.kth.models.MavenErrorLog;
-import se.kth.spoon.SpoonFullyQualifiedNameExtractor;
 import se.kth.spoon.SpoonUtilities;
 import spoon.reflect.declaration.CtElement;
-import spoon.reflect.reference.CtTypeReference;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
 
 public class SpoonConstructExtractor {
@@ -27,7 +26,6 @@ public class SpoonConstructExtractor {
     private final SpoonUtilities spoonUtilities;
 
 
-
     public SpoonConstructExtractor(MavenErrorLog mavenErrorLog, JApiCmpAnalyze japicmpAnalyzer, SpoonUtilities spoonUtilities) {
         this.mavenErrorLog = mavenErrorLog;
         this.japicmpAnalyzer = japicmpAnalyzer;
@@ -35,7 +33,7 @@ public class SpoonConstructExtractor {
     }
 
 
-    public void extractCausingConstructs() {
+    public Map<String, DetectedFileWithErrors> extractCausingConstructs() {
 
         List<JApiClass> classes = this.japicmpAnalyzer.getChanges();
         //get all class names from the japicmpAnalyzer
@@ -44,6 +42,24 @@ public class SpoonConstructExtractor {
                 .toList();
 
         Set<ApiChange> apiChanges = this.japicmpAnalyzer.getAllChanges(classes);
+
+        final var detectedFiles = getStringDetectedFileWithErrorsMap(classNamesJapicmp, apiChanges);
+
+        detectedFiles.forEach((key, value) -> {
+            log.info("Detected file: {}", key);
+            log.info("API changes: {}", value.getApiChanges());
+            value.getApiChanges().forEach(apiChange -> {
+                log.info("API change: {}", apiChange.toDiffString());
+            });
+            log.info("Executed elements: {}", value.getExecutedElements());
+            log.info("Error info: {}", value.getErrorInfo());
+            log.info("Fault information: {}", value.toString());
+        });
+        return detectedFiles;
+    }
+
+    private Map<String, DetectedFileWithErrors> getStringDetectedFileWithErrorsMap(List<String> classNamesJapicmp, Set<ApiChange> apiChanges) {
+        Map<String, DetectedFileWithErrors> detectedFiles = new HashMap<>();
 
         Map<String, Set<ErrorInfo>> errorInfoMap = mavenErrorLog.getErrorInfo();
         /*
@@ -56,58 +72,16 @@ public class SpoonConstructExtractor {
             value.forEach(errorInfo -> {
                 // all elements from the buggy line in the client application code
                 Set<CtElement> elements = spoonUtilities.localizeErrorInfoElements(errorInfo);
-                Set<CtElement> filteredElements = spoonUtilities.filterElements(elements, classNamesJapicmp, apiChanges);
+                DetectedFileWithErrors detectedFault = spoonUtilities.filterElements(elements, classNamesJapicmp, apiChanges);
+                detectedFault.setErrorInfo(errorInfo);
+                CtElement element = detectedFault.getExecutedElements().stream().findFirst().orElse(null);
+                detectedFault = spoonUtilities.getMethodAndClassInformationForElement(element, detectedFault, errorInfo);
 
-//                List<CtElement> involvedElements = this.checkChangedInvolved(elements.stream().toList(), classNamesJapicmp);
-//                List<CtElement> result = this.removeParents(involvedElements);
-
-                log.info("Involved elements: ");
-                filteredElements.forEach(ctElement -> {
-                    log.info("Element: {}", ctElement);
-                });
-
+                detectedFiles.put(key, detectedFault);
             });
         });
+        return detectedFiles;
     }
 
-    private List<CtElement> checkChangedInvolved(List<CtElement> elements, List<String> changedClassnames) {
-        return removeParents(elements).stream()
-                .filter(ctElement -> referencesChangedType(ctElement, changedClassnames))
-                .toList();
-    }
 
-    private boolean referencesChangedType(CtElement element, List<String> changedClassnames) {
-        List<String> referencedElementsTypes = element.getReferencedTypes().stream()
-                .map(CtTypeReference::getQualifiedName)
-                .toList();
-        return containsAny(changedClassnames, referencedElementsTypes);
-    }
-
-    private boolean containsAny(List<String> first, List<String> second) {
-        for (String s : second) {
-            if (first.contains(s)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private List<CtElement> removeParents(List<CtElement> elements) {
-        List<CtElement> parents = elements.stream()
-                .filter(ctElement -> ctElement.getParent() != null)
-                .map(this::getAllParents)
-                .flatMap(List::stream)
-                .toList();
-        return elements.stream()
-                .filter(ctElement -> !parents.contains(ctElement))
-                .toList();
-    }
-
-    private List<CtElement> getAllParents(CtElement ctElement) {
-        if (ctElement.getParent() == null) {
-            return List.of();
-        } else {
-            return Stream.concat(getAllParents(ctElement.getParent()).stream(), Stream.of(ctElement.getParent())).toList();
-        }
-    }
 }
