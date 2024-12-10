@@ -3,16 +3,15 @@ package se.kth.failure_detection;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.Getter;
 import lombok.Setter;
-import se.kth.models.ErrorInfo;
+import spoon.reflect.declaration.CtElement;
 
 
 @Setter
 @Getter
 @lombok.experimental.Accessors(chain = true)
-public class DetectedFault {
+public class FaultInformation {
     public String methodName;
     public String methodCode;
     public String qualifiedMethodCode;
@@ -21,9 +20,8 @@ public class DetectedFault {
     public String plausibleDependencyIdentifier;
     public int clientLineNumber;
     public int clientEndLineNumber;
-    public ErrorInfo errorInfo;
 
-    public DetectedFault() {
+    public FaultInformation() {
     }
 
     @Override
@@ -34,9 +32,5 @@ public class DetectedFault {
         } catch (JsonProcessingException e) {
             return "";
         }
-    }
-
-    public int getIdentifier() {
-        return this.errorInfo.hashCode();
     }
 }
