@@ -166,8 +166,9 @@ public class BacardiCore {
         ArrayList<Boolean> isDifferent = new ArrayList<>();
         FailureCategory category;
 
-        try {
-            Map<String, Set<DetectedFileWithErrors>> listOfFilesWithErrors = repairDirectFailures.extractConstructsFromDirectFailures();
+//        try {
+//            Map<String, Set<DetectedFileWithErrors>> listOfFilesWithErrors = repairDirectFailures.extractConstructsFromDirectFailures();
+            Map<String, Set<DetectedFileWithErrors>> listOfFilesWithErrors = repairDirectFailures.basePipeLine();
 
             if (listOfFilesWithErrors.isEmpty()) {
                 log.info("No constructs found in the direct compilation failure.");
@@ -241,10 +242,10 @@ public class BacardiCore {
                 return category;
             }
 
-        } catch (IOException e) {
-            log.error("Error repairing direct compilation failure.", e);
-            throw new RuntimeException(e);
-        }
+//        } catch (IOException e) {
+//            log.error("Error repairing direct compilation failure.", e);
+//            throw new RuntimeException(e);
+//        }
 
     }
 
