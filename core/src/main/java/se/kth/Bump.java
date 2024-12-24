@@ -54,34 +54,39 @@ public class Bump {
         // identify breaking updates and download image and copy the project
         breaking
                 .stream()
-                .filter(e -> e.breakingCommit.equals("f6659d758a437f8b676481fe70671a68a6ee1cde")) // filter by breaking commit
-//                .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit)) // filter by failure category
+//                .filter(e -> e.breakingCommit.equals("d401e189fb6435110e3dc4ca1a94838f167e7ddf")) // filter by breaking commit
+                .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
+                .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure category
                 .forEach(e -> {
 
                     //starting processing breaking update
+                    try {
+                        LogUtils.logWithBox(log, "Processing breaking update: %s".formatted(e.breakingCommit));
+                        //Full path Folder/breaking-commit/project
 
-                    LogUtils.logWithBox(log, "Processing breaking update: %s".formatted(e.breakingCommit));
-                    //Full path Folder/breaking-commit/project
+                        Path clientFolder = settingClientFolderAndM2Folder(e, dockerBuild);
 
-                    Path clientFolder = settingClientFolderAndM2Folder(e, dockerBuild);
+                        SetupPipeline setupPipeline = new SetupPipeline();
+                        //adding breaking update to the pipeline
+                        setupPipeline.setBreakingUpdate(e);
+                        //adding docker build to the pipeline
+                        setupPipeline.setDockerBuild(dockerBuild);
+                        //adding client folder to the pipeline
+                        setupPipeline.setClientFolder(clientFolder.resolve(e.project));
+                        //adding log file path to the pipeline
+                        setupPipeline.setLogFilePath(Path.of("%s/%s.log".formatted(clientFolder.resolve(e.project), e.breakingCommit)));
+                        //adding m2 folder path to the pipeline
+                        setupPipeline.setM2FolderPath(Path.of("%s/%s/m2/".formatted(CLIENT_PATH, e.breakingCommit)));
+                        //adding docker image to the pipeline
+                        setupPipeline.setDockerImage(e.breakingUpdateReproductionCommand.replace("docker run ", ""));
+                        //adding output patch folder to the pipeline
+                        setupPipeline.setOutPutPatchFolder(Path.of("/Users/frank/Documents/Work/PHD/bacardi/bacardi/results"));
+                        //start repair process
+                        repair(setupPipeline);
+                    } catch (Exception ee) {
+                        log.error("Error processing breaking update: %s".formatted(e.breakingCommit), ee);
+                    }
 
-                    SetupPipeline setupPipeline = new SetupPipeline();
-                    //adding breaking update to the pipeline
-                    setupPipeline.setBreakingUpdate(e);
-                    //adding docker build to the pipeline
-                    setupPipeline.setDockerBuild(dockerBuild);
-                    //adding client folder to the pipeline
-                    setupPipeline.setClientFolder(clientFolder.resolve(e.project));
-                    //adding log file path to the pipeline
-                    setupPipeline.setLogFilePath(Path.of("%s/%s.log".formatted(clientFolder.resolve(e.project), e.breakingCommit)));
-                    //adding m2 folder path to the pipeline
-                    setupPipeline.setM2FolderPath(Path.of("%s/%s/m2/".formatted(CLIENT_PATH, e.breakingCommit)));
-                    //adding docker image to the pipeline
-                    setupPipeline.setDockerImage(e.breakingUpdateReproductionCommand.replace("docker run ", ""));
-                    //adding output patch folder to the pipeline
-                    setupPipeline.setOutPutPatchFolder(Path.of("/Users/frank/Documents/Work/PHD/bacardi/bacardi/results"));
-                    //start repair process
-                    repair(setupPipeline);
                 });
     }
 
@@ -124,11 +129,9 @@ public class Bump {
             String breakingImage = e.breakingUpdateReproductionCommand.replace("docker run ", "");
 
             //get jar from container for previous version
-            getProjectData(preBreakingImage, dockerBuild,clientFolder, null, null, prevoiusJarInContainerPath);
+//            getProjectData(preBreakingImage, dockerBuild, clientFolder, null, null, prevoiusJarInContainerPath);
             //get jar from container for new version and m2 folder and project
-            getProjectData(breakingImage, dockerBuild,clientFolder, fromContainerM2, fromContainerProject, newJarInContainerPath);
-
-
+            getProjectData(breakingImage, dockerBuild, clientFolder, fromContainerM2, fromContainerProject, newJarInContainerPath);
 
 
             //copy project from container

@@ -144,17 +144,17 @@ public class DockerBuild {
             try {
                 dockerClient.stopContainerCmd(containerId).exec();
             } catch (NotModifiedException e) {
-                log.error("Could not stop container", e);
+                log.error("Could not stop container {}", e.getMessage());
             }
 
             try {
                 dockerClient.removeContainerCmd(containerId).exec();
             } catch (Exception e) {
-                log.error("Could not remove container", e);
+                log.error("Could not remove container {}", e.getMessage());
             }
 
         } catch (DockerException e) {
-            log.error("Could not copy folder to Docker image", e);
+            log.error("Could not copy folder to Docker image {}", e.getMessage());
         }
     }
 

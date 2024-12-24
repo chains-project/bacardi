@@ -11,6 +11,8 @@ def get_llm_response(prompt, api_key, organization, temperature=0.7):
     stream = client.chat.completions.create(
         model="gpt-4o-mini",
         temperature=temperature,
+        max_tokens=16000,
+        timeout=400,
         messages=[
             {"role": "user", "content": prompt}],
         stream=True,
