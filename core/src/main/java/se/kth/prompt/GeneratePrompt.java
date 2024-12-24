@@ -58,8 +58,7 @@ public class GeneratePrompt {
     }
 
 
-    public  String callPythonScript(String scriptPath, String prompt) {
-
+    public String callPythonScript(String scriptPath, String prompt) {
 
 
         StringBuilder output = new StringBuilder();
@@ -82,7 +81,6 @@ public class GeneratePrompt {
             int exitCode = process.waitFor();
             if (exitCode == 0) {
                 System.out.println("Script executed successfully:");
-                System.out.println(output);
             } else {
                 System.err.println("Script failed with exit code: " + exitCode);
                 System.err.println(errors.toString());
@@ -106,8 +104,6 @@ public class GeneratePrompt {
             return null;
         }
     }
-
-
 
 
     /**
