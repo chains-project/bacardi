@@ -34,6 +34,11 @@ public class DetectedFileWithErrors {
      */
     private ErrorInfo errorInfo;
 
+    /*
+     * Path to the class file.
+     */
+    private String classPath;
+
     /**
      * Information about the fault detected in the file.
      */

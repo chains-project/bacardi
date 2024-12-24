@@ -5,11 +5,19 @@ import org.apache.maven.model.v4.MavenStaxWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.DockerBuild;
+import se.kth.MavenErrorInformation;
+import se.kth.SpoonConstructExtractor;
+import se.kth.failure_detection.DetectedFileWithErrors;
+import se.kth.japicmp_analyzer.JApiCmpAnalyze;
 import se.kth.model.DependencyTree;
 import se.kth.model.SetupPipeline;
 import se.kth.models.FailureCategory;
+import se.kth.models.MavenErrorLog;
 import se.kth.parse.ParseMavenDependencyTree;
 import se.kth.parse.PomModel;
+import se.kth.spoon.ApiMetadata;
+import se.kth.spoon.Client;
+import se.kth.spoon.SpoonUtilities;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.File;
@@ -19,6 +27,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class RepairDirectFailures {
 
@@ -32,6 +42,36 @@ public class RepairDirectFailures {
         this.setupPipeline = setupPipeline;
     }
 
+
+
+
+    public Map<String, Set<DetectedFileWithErrors>> extractConstructsFromDirectFailures() throws IOException {
+        // Maven error information
+        MavenErrorInformation mavenErrorInformation = new MavenErrorInformation(setupPipeline.getLogFilePath().toFile());
+        //Extracting the line numbers with paths
+        MavenErrorLog errorLog = mavenErrorInformation.extractLineNumbersWithPaths(setupPipeline.getLogFilePath().toString());
+
+        //Setting the path of the new and old jar files
+        Path newJarPath = setupPipeline.getClientFolder().getParent().resolve("%s-%s.jar".formatted(setupPipeline.getBreakingUpdate().updatedDependency.dependencyArtifactID, setupPipeline.getBreakingUpdate().updatedDependency.newVersion));
+        Path oldJarPath = setupPipeline.getClientFolder().getParent().resolve("%s-%s.jar".formatted(setupPipeline.getBreakingUpdate().updatedDependency.dependencyArtifactID, setupPipeline.getBreakingUpdate().updatedDependency.previousVersion));
+        //Setting the new and old jar files with Metadata
+        ApiMetadata newApi = new ApiMetadata(newJarPath.getFileName().toString(), newJarPath);
+        ApiMetadata oldApi = new ApiMetadata(oldJarPath.getFileName().toString(), oldJarPath);
+        //Analyzing the API changes
+        JApiCmpAnalyze japicmpAnalyzer = new JApiCmpAnalyze(oldApi, newApi);
+        //Setting the client folder
+        Client client = new Client(setupPipeline.getClientFolder());
+        //Setting the classpath
+        client.setClasspath(List.of(oldJarPath));
+        //Extracting the results from the client folder
+        SpoonUtilities spoonResults = new SpoonUtilities(
+                client
+        );
+        //Extracting the constructs that caused the failure
+        SpoonConstructExtractor causingConstructExtractor = new SpoonConstructExtractor(errorLog, japicmpAnalyzer, spoonResults);
+        //Extracting the files with errors
+        return causingConstructExtractor.extractCausingConstructs();
+    }
 
     public Path generateDependencyTree(Path treeFile, String dockerImage, String projectPath) {
 

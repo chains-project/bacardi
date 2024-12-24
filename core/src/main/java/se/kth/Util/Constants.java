@@ -8,6 +8,8 @@ public class Constants {
 
     public static final String JAVA_VERSION_INCOMPATIBILITY_FILE = "/Users/frank/Documents/Work/PHD/BUMP/bump-execution/analysis/client_fail_due_java_version_incompatibility.txt";
 
+    public static final String PYTHON_SCRIPT = "/Users/frank/Documents/Work/PHD/bacardi/bacardi/llm/call_llm.py";
+
 
     /**
      * Path to the projects

@@ -29,6 +29,8 @@ public enum FailureCategory {
     DEPENDENCY_RESOLUTION_FAILURE,
     DEPENDENCY_LOCK_FAILURE,
 
+    NOT_REPAIRED,
+
 
     /*
      * Only for repair purposes

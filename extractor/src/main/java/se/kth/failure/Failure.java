@@ -13,6 +13,7 @@ public class Failure {
     public FaultInformation detectedFault;
     public CtElement ctElement;
 
+
     public Failure(Set<ApiChange> apiChanges, FaultInformation detectedFault) {
         this.apiChanges = apiChanges;
         this.detectedFault = detectedFault;

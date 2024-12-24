@@ -3,18 +3,24 @@ package se.kth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.Util.LogUtils;
+import se.kth.Util.StoreInfo;
 import se.kth.direct_failures.RepairDirectFailures;
+import se.kth.failure_detection.DetectedFileWithErrors;
 import se.kth.java_version.RepairJavaVersionIncompatibility;
-import se.kth.model.DependencyTree;
+import se.kth.model.PromptModel;
+import se.kth.model.PromptPipeline;
 import se.kth.model.SetupPipeline;
 import se.kth.models.*;
+import se.kth.prompt.GeneratePrompt;
 import se.kth.wError.RepairWError;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+
+import static se.kth.Util.Constants.PYTHON_SCRIPT;
+import static se.kth.Util.FileUtils.getAbsolutePath;
 
 public class BacardiCore {
 
@@ -103,7 +109,10 @@ public class BacardiCore {
                 case ENFORCER_FAILURE:
                     log.info("Enforcer failure detected.");
                     break;
-
+                case NOT_REPAIRED:
+                    log.info("Not repaired.");
+                    attempts = 3;
+                    break;
                 default:
                     log.info("Unknown failure category.");
             }
@@ -149,39 +158,94 @@ public class BacardiCore {
         Path project = setupPipeline.getClientFolder();
         Path logFile = setupPipeline.getLogFilePath();
 
-        //check if exist any dependency conflict
+
+        //Repair with llm
         RepairDirectFailures repairDirectFailures = new RepairDirectFailures(setupPipeline.getDockerBuild(),
                 setupPipeline);
 
-        // Check and try dependency resolution conflicts
-        Path treeFile = project.resolve("tree.json");
-        Path generatedTreeFile = repairDirectFailures.generateDependencyTree(treeFile, setupPipeline.getDockerImage(), setupPipeline.getClientFolder().getFileName().toString());
-        // Check if there are any conflicts
-        List<DependencyTree> dependencyTreeList = repairDirectFailures.identifyConflicts(generatedTreeFile);
-        // If there are conflicts, try to resolve them
-        for (DependencyTree dependencyTree : dependencyTreeList) {
-            try {
-                RepairDirectFailures.modifyPomFile(project.resolve("pom.xml"), dependencyTree);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        ArrayList<Boolean> isDifferent = new ArrayList<>();
+        FailureCategory category;
+
+        try {
+            Map<String, Set<DetectedFileWithErrors>> listOfFilesWithErrors = repairDirectFailures.extractConstructsFromDirectFailures();
+
+            if (listOfFilesWithErrors.isEmpty()) {
+                log.info("No constructs found in the direct compilation failure.");
+                //try to get failures from indirect dependencies or conflicts between dependencies
+                return FailureCategory.NOT_REPAIRED;
+
+            } else {
+                log.info("Constructs found in the direct compilation failure: {}", listOfFilesWithErrors.size());
+                //generate prompt for the construct to repair
+
+                StoreInfo storeInfo = new StoreInfo(setupPipeline);
+
+
+                listOfFilesWithErrors.forEach((key, value) -> {
+                    log.info("File: {}", key);
+
+                    if (value.isEmpty()) {
+                        log.info("No errors found for: {}", key);
+                    } else {
+                        // if there are errors, generate a prompt for the file and execute the repair
+                        String absolutePathToBuggyClass = getAbsolutePath(setupPipeline, key);
+                        String fileName = key.substring(key.lastIndexOf("/") + 1);
+                        // create all structure for save information
+                        GeneratePrompt generatePrompt = new GeneratePrompt(PromptPipeline.BASELINE, new PromptModel(absolutePathToBuggyClass, value));
+                        String prompt = generatePrompt.generatePrompt();
+                        // save the prompt to a file for each file with errors
+                        try {
+                            storeInfo.copyContentToFile("prompts/%s_prompt.txt".formatted(fileName), prompt);
+                            String model_response = generatePrompt.callPythonScript(PYTHON_SCRIPT, prompt);
+                            // save model model_response to a file
+                            storeInfo.copyContentToFile("responses/%s_model_response.txt".formatted(fileName), model_response);
+                            String onlyCodeResponse = generatePrompt.extractContentFromModelResponse(model_response);
+                            storeInfo.copyContentToFile("responses/%s_response.txt".formatted(fileName), onlyCodeResponse);
+                            // save the updated file
+                            Path updatedFile = storeInfo.copyContentToFile("updated/%s".formatted(fileName), onlyCodeResponse);
+                            Path target = Path.of(absolutePathToBuggyClass);
+                            Path originalFile = storeInfo.copyContentToFile("original/%s".formatted(fileName), Files.readString(target));
+                            // execute the diff command
+                            boolean isDiff = storeInfo.executeDiffCommand(originalFile.toAbsolutePath().toString(), updatedFile.toAbsolutePath().toString(), storeInfo.getPatchFolder().resolve("diffs/%s_diff.txt".formatted(fileName)));
+                            isDifferent.add(isDiff);
+                            //replace original file with updated file
+                            if (isDiff) {
+                                Files.copy(updatedFile, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                            }
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+
+                });
+
+                if (isDifferent.contains(true)) {
+                    gitManager.commitAllChanges("Direct compilation failure repair attempt %s".formatted(result.getAttempts().size()));
+                    //copy the file to docker image
+                    try {
+                        dockerBuild.copyFolderToDockerImage(setupPipeline.getDockerImage(), setupPipeline.getClientFolder().toString());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    //reproduce the build
+                    Path logFilePath = storeInfo.getPatchFolder().resolve("output.log");
+                    dockerBuild.reproduce(setupPipeline.getDockerImage(), FailureCategory.WERROR_FAILURE, setupPipeline.getClientFolder(), logFilePath);
+                    setupPipeline.setLogFilePath(logFilePath);
+                } else {
+                    //no changes were made
+                    return FailureCategory.NOT_REPAIRED;
+                }
+                // Check and try dependency resolution conflicts
+                category = failureCategoryExtract.getFailureCategory(setupPipeline.getLogFilePath().toFile());
+
+                return category;
             }
-        }
-        if (dependencyTreeList.isEmpty()) {
-            log.info("No conflicts found");
-        } else {
-            log.info("Conflicts found");
-            String dockerImage = repairDirectFailures.reproduce();
+
+        } catch (IOException e) {
+            log.error("Error repairing direct compilation failure.", e);
+            throw new RuntimeException(e);
         }
 
-
-        FailureCategory category = failureCategoryExtract.getFailureCategory(setupPipeline.getLogFilePath().toFile());
-        if (category == FailureCategory.BUILD_SUCCESS) {
-            //repair process failed
-            gitManager.commitAllChanges("Direct compilation failure repair");
-            //roll back to the original branch
-        }
-
-        return category;
     }
 
 
