@@ -62,8 +62,14 @@ public class GitManager {
         try {
 
             if (git.branchList().call().stream().anyMatch(ref -> ref.getName().equals("refs/heads/" + branchName))) {
+
+                if (branchName.equals(Constants.BRANCH_ORIGINAL_STATUS)) {
+                    return true;
+                }
                 log.info("Branch {} already exists", branchName);
+                // delete branch
                 return false;
+//                git.branchDelete().setBranchNames(branchName).setForce(true).call();
             }
 
             //Add all changes in the working branch

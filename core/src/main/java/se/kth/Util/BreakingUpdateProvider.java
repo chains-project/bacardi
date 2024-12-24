@@ -23,7 +23,7 @@ import java.util.Map;
 import static se.kth.Util.FileUtils.getFilesInDirectory;
 
 
-public class  BreakingUpdateProvider {
+public class BreakingUpdateProvider {
 
 
     static Logger log = LoggerFactory.getLogger(DockerBuild.class);
@@ -119,18 +119,26 @@ public class  BreakingUpdateProvider {
 
     }
 
-    public static String getProjectData(BreakingUpdate breakingUpdate, DockerBuild dockerBuild, Path fromContainer, Path toLocal) {
+    public static String getProjectData(String imageId, DockerBuild dockerBuild, Path toLocal, Path m2InContainer, Path projectInContainer, Path jar) {
 
-        String imageId = null;
         try {
-            imageId = breakingUpdate.breakingUpdateReproductionCommand.replace("docker run ", "");
-            String[] entrypoint = new String[]{"/bin/sh"};
+
+            String[] entrypoint = new String[]{"/bin/sh","sleep","1000000"};
 
             //pull image
             dockerBuild.ensureBaseMavenImageExists(imageId);
             CreateContainerResponse container = dockerBuild.startContainerEntryPoint(imageId, entrypoint);
-            // Copy m2 folder to local path in the breaking commit folder
-            dockerBuild.copyM2FolderToLocalPath(container.getId(), fromContainer, toLocal);
+            // Copy m2 folder to local path in the breaking commit folder and project folder
+            if (m2InContainer != null) {
+                dockerBuild.copyM2FolderToLocalPath(container.getId(), m2InContainer, toLocal.resolve("m2"));
+                dockerBuild.copyM2FolderToLocalPath(container.getId(), projectInContainer, toLocal);
+            }
+            if (jar != null) {
+                // Copy the jar file to the local path
+                dockerBuild.copyFromContainer(container.getId(), jar.toString(), toLocal.resolve(jar.getFileName()));
+            }
+            // Copy the jar file to the local path
+
             dockerBuild.removeContainer(container.getId());
             return imageId;
         } catch (InterruptedException e) {

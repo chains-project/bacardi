@@ -6,15 +6,15 @@ import se.kth.models.ErrorInfo;
 import spoon.Launcher;
 import spoon.reflect.CtModel;
 import spoon.reflect.code.CtComment;
-import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtElement;
-import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.declaration.CtType;
+import spoon.reflect.declaration.*;
 import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
+import spoon.support.reflect.declaration.CtConstructorImpl;
+import spoon.support.reflect.declaration.CtFieldImpl;
 import spoon.support.reflect.declaration.CtMethodImpl;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This class is responsible for extracting information from Spoon.
@@ -112,12 +112,12 @@ public class SpoonUtilities {
             element.accept(scanner);
         }
 
-        Set<ApiChange> executedElements = scanner.getMatchedApiChanges();
+        Set<ApiChange> apiChangesMatch = scanner.getMatchedApiChanges();
 
-        executedElements.forEach(matchedApiChange -> {
-            executedElements.addAll(apiChanges.stream().filter(apiChange -> apiChange.getName().equals(matchedApiChange.getName())).toList());
+        apiChangesMatch.forEach(matchedApiChange -> {
+            apiChangesMatch.addAll(apiChanges.stream().filter(apiChange -> apiChange.getName().equals(matchedApiChange.getName())).toList());
         });
-        return new DetectedFileWithErrors(executedElements, scanner.getExecutedElements());
+        return new DetectedFileWithErrors(apiChangesMatch, scanner.getExecutedElements());
     }
 
     public boolean checkIfAnyConstructIsCalledFromLibrary(CtElement element, List<String> changedClassnames) {
@@ -127,37 +127,64 @@ public class SpoonUtilities {
     }
 
     public DetectedFileWithErrors getMethodAndClassInformationForElement(CtElement element, DetectedFileWithErrors fault, ErrorInfo errorInfo) {
-
         CtModel localModel = buildLocalModel(element.getPosition().getFile().getAbsoluteFile().toString());
-
         CtType<?> mainClass = localModel.getAllTypes().iterator().next();
+        AtomicBoolean found = new AtomicBoolean(false);
+
+        //extract method information
         mainClass.getElements(new TypeFilter<>(CtMethodImpl.class)).forEach(e -> {
-            System.out.println("File Name: " + e.getPosition().getFile().getName());
             if (this.containsAnError(e, errorInfo)) {
+                found.set(true);
                 fault.methodName = e.getSimpleName();
                 fault.qualifiedMethodCode = e.toStringDebug();
                 fault.methodCode = e.getOriginalSourceFragment().getSourceCode();
-
                 CtClass<?> parentClass = e.getParent(CtClass.class);
                 Set<CtMethod<?>> newMethods = new HashSet<CtMethod<?>>();
                 Set<CtMethod<?>> oldMethods = parentClass.getMethods();
                 newMethods.add(e);
-
                 parentClass.setMethods(newMethods);
-
                 fault.inClassCode = parentClass.toString();
                 fault.qualifiedInClassCode = parentClass.toStringDebug();
                 parentClass.setMethods(oldMethods);
-
                 fault.clientLineNumber = getRealLinePosition(e);
                 fault.clientEndLineNumber = e.getPosition().getEndLine();
                 fault.plausibleDependencyIdentifier = null;
+                fault.setClassPath(element.getPosition().getFile().getAbsolutePath());
             }
         });
 
-        return fault;
+        if (found.get()) {
+            return fault;
+        }
+        //extract field information
+        mainClass.getElements(new TypeFilter<>(CtFieldImpl.class))
+                .forEach((CtElement e) -> {
+                    if (this.containsAnError(e, errorInfo)) {
+                        found.set(true);
+                        fault.setMethodName("field");
+                        fault.setMethodCode(element.toString());
+                        fault.setClientLineNumber(element.getPosition().getLine());
+                        fault.setClientEndLineNumber(element.getPosition().getEndLine());
+                        fault.setClassPath(element.getPosition().getFile().getAbsolutePath());
+                    }
+                });
 
+        if (found.get()) {
+            return fault;
+        }
+        // check all constructors
+        mainClass.getElements(new TypeFilter<>(CtConstructor.class)).forEach(e -> {
+            if (this.containsAnError(e, errorInfo)) {
+                fault.setMethodName(element.toString());
+                fault.setMethodCode(e.getBody().toString());
+                fault.setClientLineNumber(element.getPosition().getLine());
+                fault.setClientEndLineNumber(element.getPosition().getEndLine());
+                fault.setClassPath(element.getPosition().getFile().getAbsolutePath());
+                }
+        });
+        return fault;
     }
+
     private CtModel buildLocalModel(String filePath) {
 
         Launcher spoon = new Launcher();
@@ -185,7 +212,12 @@ public class SpoonUtilities {
      */
     private int getRealLinePosition(CtElement element) {
         // Need to do this trick as getLine does not take into account for decorators, and comments
-        String[] lines = element.getOriginalSourceFragment().getSourceCode().split("\r\n|\r|\n");
+        String[] lines;
+        if (element instanceof CtConstructorImpl<?>) {
+            lines = ((CtConstructorImpl<?>) element).getBody().toString().split("\r\n|\r|\n");
+        } else {
+            lines = element.getOriginalSourceFragment().getSourceCode().split("\r\n|\r|\n");
+        }
         int numberOfLines = lines.length;
         return element.getPosition().getEndLine() - numberOfLines + 1;
     }

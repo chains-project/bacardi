@@ -132,32 +132,29 @@ public class DockerBuild {
                     .withHostResource(folderPath) // Path to folder on host
                     .withRemotePath("/")       // Destination in container
                     .exec();
-
-            System.out.println("Copied folder to container at /app");
+            log.info("Copied folder to container");
 
             // 4. Commit the container to create a new image
             String newImageId = dockerClient.commitCmd(containerId)
                     .withRepository(dockerImage)
                     .exec();
 
-            System.out.println("Committed container to create new image: " + newImageId);
-
+            log.info("Committed container to create new image: {}", newImageId);
             // 5. Stop and remove the temporary container
             try {
                 dockerClient.stopContainerCmd(containerId).exec();
             } catch (NotModifiedException e) {
-                System.out.println("Container was not running when stop was attempted: " + e.getMessage());
+                log.error("Could not stop container", e);
             }
 
             try {
                 dockerClient.removeContainerCmd(containerId).exec();
             } catch (Exception e) {
-                System.out.println("Error removing container: " + e.getMessage());
+                log.error("Could not remove container", e);
             }
 
-
         } catch (DockerException e) {
-            e.printStackTrace();
+            log.error("Could not copy folder to Docker image", e);
         }
     }
 

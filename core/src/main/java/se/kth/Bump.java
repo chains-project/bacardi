@@ -11,6 +11,7 @@ import se.kth.model.SetupPipeline;
 import se.kth.models.FailureCategory;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -27,7 +28,7 @@ public class Bump {
 
     static Set<Result> resultsList = new HashSet<>();
     static Map<String, Result> resultsMap = new HashMap<>();
-    private final static String JSON_PATH = "result_repair_test33.json";
+    private final static String JSON_PATH = "result_repair_gpt.json";
 
 
     public static void main(String[] args) {
@@ -51,13 +52,10 @@ public class Bump {
 
         DockerBuild dockerBuild = new DockerBuild(true);
         // identify breaking updates and download image and copy the project
-
-
         breaking
                 .stream()
-
-//                .filter(e -> e.breakingCommit.equals("43b3a858b77ec27fc8946aba292001c3de465012")) // filter by breaking commit
-                .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit)) // filter by failure category
+                .filter(e -> e.breakingCommit.equals("f6659d758a437f8b676481fe70671a68a6ee1cde")) // filter by breaking commit
+//                .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit)) // filter by failure category
                 .forEach(e -> {
 
                     //starting processing breaking update
@@ -80,7 +78,8 @@ public class Bump {
                     setupPipeline.setM2FolderPath(Path.of("%s/%s/m2/".formatted(CLIENT_PATH, e.breakingCommit)));
                     //adding docker image to the pipeline
                     setupPipeline.setDockerImage(e.breakingUpdateReproductionCommand.replace("docker run ", ""));
-
+                    //adding output patch folder to the pipeline
+                    setupPipeline.setOutPutPatchFolder(Path.of("/Users/frank/Documents/Work/PHD/bacardi/bacardi/results"));
                     //start repair process
                     repair(setupPipeline);
                 });
@@ -92,15 +91,47 @@ public class Bump {
         if (Files.exists(clientFolder)) {
             log.info("Project already exists. Skipping download process...");
         } else {
+            try {
+                Files.createDirectory(clientFolder);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
             // copy m2 folder to local path
-            Path localPath = Path.of("%s/%s/m2/".formatted(CLIENT_PATH, e.breakingCommit));
+
             Path fromContainerM2 = Path.of("/root/.m2/");
-            //Copy m2 folder from container
-            getProjectData(e, dockerBuild, fromContainerM2, localPath);
+
+            //root/.m2/repository/org/yaml/snakeyaml/2.1/snakeyaml-2.1.jar
+            //create this route
+
+            Path prevoiusJarInContainerPath = fromContainerM2.resolve("repository/%s/%s/%s/%s-%s.jar".formatted(
+                    e.updatedDependency.dependencyGroupID.replace(".", "/"),
+                    e.updatedDependency.dependencyArtifactID.replace(".", "/"),
+                    e.updatedDependency.previousVersion,
+                    e.updatedDependency.dependencyArtifactID,
+                    e.updatedDependency.previousVersion));
+
+            Path newJarInContainerPath = fromContainerM2.resolve("repository/%s/%s/%s/%s-%s.jar".formatted(
+                    e.updatedDependency.dependencyGroupID.replace(".", "/"),
+                    e.updatedDependency.dependencyArtifactID.replace(".", "/"),
+                    e.updatedDependency.newVersion,
+                    e.updatedDependency.dependencyArtifactID,
+                    e.updatedDependency.newVersion));
+
+
+            String preBreakingImage = e.preCommitReproductionCommand.replace("docker run ", "");
+            Path fromContainerProject = Path.of(e.project);
+
+            String breakingImage = e.breakingUpdateReproductionCommand.replace("docker run ", "");
+
+            //get jar from container for previous version
+            getProjectData(preBreakingImage, dockerBuild,clientFolder, null, null, prevoiusJarInContainerPath);
+            //get jar from container for new version and m2 folder and project
+            getProjectData(breakingImage, dockerBuild,clientFolder, fromContainerM2, fromContainerProject, newJarInContainerPath);
+
+
+
 
             //copy project from container
-            Path fromContainerProject = Path.of(e.project);
-            String imageId = getProjectData(e, dockerBuild, fromContainerProject, clientFolder);
             //delete Image
 //            if (imageId != null) {
 //                            dockerBuild.deleteImage(imageId);

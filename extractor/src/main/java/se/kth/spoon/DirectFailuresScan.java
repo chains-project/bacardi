@@ -36,9 +36,7 @@ public class DirectFailuresScan extends CtScanner {
 
     @Override
     public <T> void visitCtInvocation(CtInvocation<T> invocation) {
-
         String fullyQualifiedName = SpoonFullyQualifiedNameExtractor.getFullyQualifiedName(invocation);
-
         apiChanges.stream().filter(apiChange -> apiChange.getLongName().equals(fullyQualifiedName)).forEach(apiChange -> {
             matchedApiChanges.add(apiChange);
             this.collectExecutedElements(invocation.getExecutable());
@@ -114,13 +112,31 @@ public class DirectFailuresScan extends CtScanner {
     @Override
     public <A extends Annotation> void visitCtAnnotation(CtAnnotation<A> annotation) {
 //        this.collectExecutedElements(annotation.getAnnotationType());
+        System.out.println("Annotation: " + annotation.toString());
         super.visitCtAnnotation(annotation);
     }
 
     @Override
     public <T> void visitCtFieldReference(CtFieldReference<T> reference) {
 //        this.collectExecutedElements(reference.getDeclaringType());
-        super.visitCtFieldReference(reference);
+    }
+
+    @Override
+    public <T> void visitCtAnnotationMethod(CtAnnotationMethod<T> annotationMethod) {
+        System.out.println("Annotation Method: " + annotationMethod.toString());
+        super.visitCtAnnotationMethod(annotationMethod);
+    }
+
+    @Override
+    public <T> void visitCtAnnotationFieldAccess(CtAnnotationFieldAccess<T> annotationFieldAccess) {
+        System.out.println("Annotation Filed: " + annotationFieldAccess.toString());
+        super.visitCtAnnotationFieldAccess(annotationFieldAccess);
+    }
+
+    @Override
+    public <A extends Annotation> void visitCtAnnotationType(CtAnnotationType<A> annotationType) {
+        super.visitCtAnnotationType(annotationType);
+        System.out.println("Annotation Type: " + annotationType.toString());
     }
 
     @Override

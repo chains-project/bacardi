@@ -11,10 +11,7 @@ import se.kth.models.MavenErrorLog;
 import se.kth.spoon.SpoonUtilities;
 import spoon.reflect.declaration.CtElement;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 public class SpoonConstructExtractor {
@@ -33,7 +30,7 @@ public class SpoonConstructExtractor {
     }
 
 
-    public Map<String, DetectedFileWithErrors> extractCausingConstructs() {
+    public Map<String, Set<DetectedFileWithErrors>> extractCausingConstructs() {
 
         List<JApiClass> classes = this.japicmpAnalyzer.getChanges();
         //get all class names from the japicmpAnalyzer
@@ -45,21 +42,11 @@ public class SpoonConstructExtractor {
 
         final var detectedFiles = getStringDetectedFileWithErrorsMap(classNamesJapicmp, apiChanges);
 
-        detectedFiles.forEach((key, value) -> {
-            log.info("Detected file: {}", key);
-            log.info("API changes: {}", value.getApiChanges());
-            value.getApiChanges().forEach(apiChange -> {
-                log.info("API change: {}", apiChange.toDiffString());
-            });
-            log.info("Executed elements: {}", value.getExecutedElements());
-            log.info("Error info: {}", value.getErrorInfo());
-            log.info("Fault information: {}", value.toString());
-        });
         return detectedFiles;
     }
 
-    private Map<String, DetectedFileWithErrors> getStringDetectedFileWithErrorsMap(List<String> classNamesJapicmp, Set<ApiChange> apiChanges) {
-        Map<String, DetectedFileWithErrors> detectedFiles = new HashMap<>();
+    private Map<String, Set<DetectedFileWithErrors>> getStringDetectedFileWithErrorsMap(List<String> classNamesJapicmp, Set<ApiChange> apiChanges) {
+        Map<String, Set<DetectedFileWithErrors>> detectedFiles = new HashMap<>();
 
         Map<String, Set<ErrorInfo>> errorInfoMap = mavenErrorLog.getErrorInfo();
         /*
@@ -68,16 +55,30 @@ public class SpoonConstructExtractor {
          * Each value is a set of error information extracted from the log file and related to de bug file
          */
         errorInfoMap.forEach((key, value) -> {
-            log.info("Analyzing error in file: {}", key);
             value.forEach(errorInfo -> {
                 // all elements from the buggy line in the client application code
                 Set<CtElement> elements = spoonUtilities.localizeErrorInfoElements(errorInfo);
                 DetectedFileWithErrors detectedFault = spoonUtilities.filterElements(elements, classNamesJapicmp, apiChanges);
                 detectedFault.setErrorInfo(errorInfo);
-                CtElement element = detectedFault.getExecutedElements().stream().findFirst().orElse(null);
-                detectedFault = spoonUtilities.getMethodAndClassInformationForElement(element, detectedFault, errorInfo);
 
-                detectedFiles.put(key, detectedFault);
+
+                CtElement element = detectedFault.getExecutedElements().isEmpty() ? null : detectedFault.getExecutedElements().stream().toList().getFirst();
+                if (element != null) {
+                    detectedFault = spoonUtilities.getMethodAndClassInformationForElement(element, detectedFault, errorInfo);
+                    if (detectedFiles.containsKey(key)) {
+                        detectedFiles.get(key).add(detectedFault);
+                    } else {
+                        detectedFiles.put(key, new HashSet<>(Set.of(detectedFault)));
+                    }
+                } else {
+                    if (detectedFiles.containsKey(key)) {
+                        detectedFiles.get(key).add(detectedFault);
+                    } else {
+                        detectedFiles.put(key, new HashSet<>(Set.of(detectedFault)));
+                    }
+                }
+
+
             });
         });
         return detectedFiles;
