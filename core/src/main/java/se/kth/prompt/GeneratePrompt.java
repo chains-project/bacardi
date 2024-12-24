@@ -2,19 +2,69 @@ package se.kth.prompt;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.kth.model.PromptModel;
+import se.kth.model.PromptPipeline;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@lombok.Getter
+@lombok.Setter
 public class GeneratePrompt {
     private static final Logger log = LoggerFactory.getLogger(GeneratePrompt.class);
 
-    public static String callPythonScript(String scriptPath, String[] args) {
+    private PromptPipeline pipeline = PromptPipeline.BASELINE;
+    private PromptModel promptModel;
+
+    public GeneratePrompt() {
+    }
+
+    public GeneratePrompt(PromptPipeline pipeline, PromptModel promptModel) {
+        this.pipeline = pipeline;
+        this.promptModel = promptModel;
+    }
+
+
+    public void savePrompt(String prompt) {
+        // Save the prompt to a file
+    }
+
+    public String generatePrompt() {
+        // Generate the prompt
+        AbstractPromptTemplate promptTemplate = null;
+
+        switch (pipeline) {
+            case BASELINE:
+                promptTemplate = new BasePromptTemplate();
+                promptTemplate.setPromptModel(promptModel);
+                break;
+            case ADVANCED:
+                log.info("Advanced pipeline not implemented yet");
+                break;
+            default:
+                log.error("Invalid pipeline: {}", pipeline);
+                break;
+        }
+        // Check if the prompt template is not null
+        assert promptTemplate != null;
+        String prompt = promptTemplate.generatePrompt();
+        return prompt;
+    }
+
+
+    public  String callPythonScript(String scriptPath, String prompt) {
+
+
+
         StringBuilder output = new StringBuilder();
         try {
-            ProcessBuilder pb = new ProcessBuilder("python3", scriptPath);
+            ProcessBuilder pb = new ProcessBuilder("python3", scriptPath, prompt);
             Process process = pb.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
@@ -54,6 +104,27 @@ public class GeneratePrompt {
         } else {
             log.error("Error extracting content from the model response");
             return null;
+        }
+    }
+
+
+
+
+    /**
+     * replace the all content of one file with the response from the model
+     */
+    public void replaceFileContent(String sourceFilePath, String targetFilePath) {
+        try {
+            // Read the content of the source file
+            String content = Files.readString(Path.of(sourceFilePath));
+
+            // Write the content to the target file
+            Files.writeString(Path.of(targetFilePath), content);
+
+            log.info("Successfully replaced content of {} with content from {}", targetFilePath, sourceFilePath);
+        } catch (IOException e) {
+            log.error("Error replacing file content", e);
+            throw new RuntimeException(e);
         }
     }
 

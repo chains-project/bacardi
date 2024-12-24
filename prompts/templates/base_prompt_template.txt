@@ -10,11 +10,11 @@ the following client code fails:
 with the following error message:
 {{ error_message }}
 
-propose a patch that I can apply to the code in order to fix the error.
-Your response will be automatically parsed by an algorithm, be sure to only return the code.
-be sure to return a code segment that can replace the entire failing client code.
-you CANNOT change the function signature, but you can create variables if they help to make the code easier to understand.
-you CAN remove the Override decorator IF AND ONLY IF the method is not overriding any method in the new version.
-you CANNOT use removed library methods identified with `--`, but you CAN use added library methods identified with `++`.
-DO NOT USE '--' or '++' to indicate changes you make on the code, be sure to return only code that can be compiled.
-return only the fixed failing method, not the complete class code, you MUST change something in the code.
+
+propose a patch that can be applied to the code to fix the issue.
+Return only a complete and compilable class in a fenced code block.
+You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+Avoid removing any existing code unless it directly causes a compilation or functionality error.
+Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
