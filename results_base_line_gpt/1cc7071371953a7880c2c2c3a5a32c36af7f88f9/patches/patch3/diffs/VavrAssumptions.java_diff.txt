@@ -1,0 +1,21 @@
+34d33
+< import net.bytebuddy.dynamic.scaffold.subclass.SubclassStrategy;
+40,41c39,41
+<     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(SubclassStrategy.Default.SINGLETON)
+<             .with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
+---
+>     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy()
+>             .with(new net.bytebuddy.dynamic.scaffold.subclass.SubclassStrategy.Default())
+>             .with(new net.bytebuddy.dynamic.scaffold.subclass.SubclassStrategy.Default.SuffixingRandom("Assertj$Assumptions"));
+43c43
+<     private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
+---
+>     private static final net.bytebuddy.implementation.Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
+45c45
+<     private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
+---
+>     private static final TypeCache<Object> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
+145c145
+<                 .method(any())
+---
+>                 .method(net.bytebuddy.matcher.ElementMatchers.any())

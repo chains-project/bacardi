@@ -1,0 +1,19 @@
+12,16d11
+< import io.dropwizard.logging.AbstractAppenderFactory;
+< import io.dropwizard.logging.async.AsyncAppenderFactory;
+< import io.dropwizard.logging.filter.LevelFilterFactory;
+< import io.dropwizard.logging.layout.LayoutFactory;
+< import io.dropwizard.request.logging.layout.LogbackAccessRequestLayoutFactory;
+25c20,22
+< public class WireAppenderFactory<T extends DeferredProcessingAware> extends AbstractAppenderFactory<T> {
+---
+> public class WireAppenderFactory<T extends DeferredProcessingAware> {
+> 
+>     private String threshold; // Added to replace missing threshold variable
+27d23
+<     @Override
+32,33c28
+<             LevelFilterFactory<T> levelFilterFactory,
+<             AsyncAppenderFactory<T> asyncAppenderFactory) {
+---
+>             LevelFilterFactory<T> levelFilterFactory) { // Removed AsyncAppenderFactory as it was not needed

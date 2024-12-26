@@ -1,0 +1,41 @@
+0a1,13
+> import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
+> import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
+> import javax.xml.bind.annotation.XmlAccessorType;
+> import javax.xml.bind.annotation.XmlAccessType;
+> import javax.xml.bind.annotation.XmlElement;
+> import javax.xml.bind.annotation.XmlRootElement;
+> import javax.xml.bind.annotation.XmlType;
+> import javax.xml.datatype.XMLGregorianCalendar;
+> import javax.xml.bind.annotation.XmlSchemaType;
+> import java.math.BigDecimal;
+> import java.math.BigInteger;
+> import java.util.List;
+> 
+22,23d34
+<     // ... (rest of the code remains unchanged)
+< 
+25c36
+<         final ToStringStrategy2 strategy = new JAXBToStringStrategy(); // Updated instantiation
+---
+>         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance(); // Updated instantiation
+62,77d72
+<     // ... (rest of the code remains unchanged)
+< 
+<     public String toString() {
+<         final ToStringStrategy2 strategy = new JAXBToStringStrategy(); // Updated instantiation
+<         final StringBuilder buffer = new StringBuilder();
+<         append(null, buffer, strategy);
+<         return buffer.toString();
+<     }
+< 
+<     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<         strategy.appendStart(locator, this, buffer);
+<         appendFields(locator, buffer, strategy);
+<         strategy.appendEnd(locator, this, buffer);
+<         return buffer;
+<     }
+< 
+136,137d130
+< 
+<     // ... (rest of the code remains unchanged)

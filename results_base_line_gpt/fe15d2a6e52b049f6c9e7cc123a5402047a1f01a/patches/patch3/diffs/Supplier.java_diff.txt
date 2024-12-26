@@ -1,0 +1,24 @@
+18d17
+< import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
+385c384,402
+<         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+---
+>         final ToStringStrategy2 strategy = new ToStringStrategy2() {
+>             @Override
+>             public StringBuilder appendStart(ObjectLocator locator, Object obj, StringBuilder buffer) {
+>                 return buffer;
+>             }
+> 
+>             @Override
+>             public StringBuilder appendEnd(ObjectLocator locator, Object obj, StringBuilder buffer) {
+>                 return buffer;
+>             }
+> 
+>             @Override
+>             public StringBuilder appendField(ObjectLocator locator, Object obj, String fieldName, StringBuilder buffer, Object value, boolean isPresent) {
+>                 if (isPresent) {
+>                     buffer.append(fieldName).append("=").append(value).append(", ");
+>                 }
+>                 return buffer;
+>             }
+>         };

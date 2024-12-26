@@ -1,0 +1,49 @@
+26c26
+< import org.apache.thrift.transport.TFramedTransport; // Updated import
+---
+> import org.apache.thrift.transport.TTransportFactory; // Updated import
+45c45
+<   private static final class ByteOffsetTFramedTransport extends TFramedTransport {
+---
+>   private static final class ByteOffsetTTransport extends TTransport { // Updated class name
+47a48
+>     private final TTransport transport;
+49,50c50,51
+<     public ByteOffsetTFramedTransport(TTransport transport) {
+<       super(transport);
+---
+>     public ByteOffsetTTransport(TTransport transport) {
+>       this.transport = transport;
+55c56
+<       super.write(buf, off, len);
+---
+>       transport.write(buf, off, len);
+60c61
+<       super.flush();
+---
+>       transport.flush();
+67a69,80
+> 
+>     public void close() throws TTransportException {
+>       transport.close();
+>     }
+> 
+>     public boolean isOpen() {
+>       return transport.isOpen();
+>     }
+> 
+>     public void open() throws TTransportException {
+>       transport.open();
+>     }
+73c86
+<   private ByteOffsetTFramedTransport transport;
+---
+>   private ByteOffsetTTransport transport; // Updated type
+79c92
+<     transport = new ByteOffsetTFramedTransport(new TIOStreamTransport(bufferedOutputStream));
+---
+>     transport = new ByteOffsetTTransport(new TIOStreamTransport(bufferedOutputStream));
+113c126
+<     transport = new ByteOffsetTFramedTransport(new TIOStreamTransport(bufferedOutputStream));
+---
+>     transport = new ByteOffsetTTransport(new TIOStreamTransport(bufferedOutputStream));

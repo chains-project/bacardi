@@ -1,0 +1,13 @@
+34d33
+< import org.hamcrest.Matchers;
+35a35,36
+> import org.hamcrest.core.IsEqual; // Added import for IsEqual
+> import org.hamcrest.core.IsNull; // Added import for IsNull
+86c87
+<             Matchers.hasProperty("rawPath", path)
+---
+>             new IsEqual<>(path) // Changed Matchers.hasProperty to IsEqual
+98c99
+<             Matchers.hasProperty("rawQuery", query)
+---
+>             new IsEqual<>(query) // Changed Matchers.hasProperty to IsEqual

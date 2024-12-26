@@ -1,0 +1,11 @@
+69,72c69
+<                 new StringContains(
+<                     false,
+<                     String.format("Status: Downloaded newer image for %s", this.remote())
+<                 )
+---
+>                 StringContains.containsString(String.format("Status: Downloaded newer image for %s", this.remote()))
+84c81
+<             MatcherAssert.assertThat(output, new StringContains(false, "Pushed"));
+---
+>             MatcherAssert.assertThat(output, StringContains.containsString("Pushed"));

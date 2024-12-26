@@ -1,0 +1,148 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+package io.zold.api;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Path;
+import org.cactoos.collection.FilteredCollection;
+import org.cactoos.iterable.IterableOf;
+import org.cactoos.iterable.Joined;
+import org.cactoos.iterable.Mapped;
+import org.cactoos.iterable.Skipped;
+import org.cactoos.list.ListOf;
+import org.cactoos.scalar.Checked;
+import org.cactoos.scalar.Or;
+import org.cactoos.scalar.Unchecked;
+import org.cactoos.text.FormattedText;
+import org.cactoos.text.TextOf;
+
+/**
+ * Wallet.
+ * @since 0.1
+ * @todo #16:30min Merge method should update transactions
+ *  in wallet's file and return concrete implementation not a fake one.
+ *  Beware that tests should be refactored to take care of file cleanup
+ *  after each case that merges wallets.
+ */
+@SuppressWarnings({"PMD.ShortMethodName", "PMD.TooManyMethods",
+    "PMD.UnusedFormalParameter"})
+public interface Wallet {
+    // ... (rest of the code remains unchanged)
+
+    final class File implements Wallet {
+
+        /**
+         * Path of this wallet.
+         */
+        private final Path path;
+
+        /**
+         * Ctor.
+         * @param path Path of wallet
+         */
+        File(final Path path) {
+            this.path = path;
+        }
+
+        @Override
+        public long id() throws IOException {
+            return new Checked<>(
+                () -> Long.parseUnsignedLong(
+                    new ListOf<>(
+                        new TextOf(this.path).asString().split("\n")
+                    )[2],
+                    // @checkstyle MagicNumber (1 line)
+                    16
+                ),
+                e -> new IOException(e)
+            ).value();
+        }
+
+        @Override
+        public void pay(final long amt, final long bnf) throws IOException {
+            try (final Writer out = new FileWriter(this.path.toFile(), true)) {
+                out.write('\n');
+                out.write(new CpTransaction(amt, bnf).toString());
+            }
+        }
+
+        @Override
+        public Wallet merge(final Wallet other) throws IOException {
+            if (other.id() != this.id()) {
+                throw new IOException(
+                    new UncheckedText(
+                        new FormattedText(
+                            "Wallet ID mismatch, ours is %d, theirs is %d",
+                            other.id(),
+                            this.id()
+                        )
+                    ).asString()
+                );
+            }
+            final Iterable<Transaction> ledger = this.ledger();
+            final Iterable<Transaction> candidates = new FilteredCollection<>(
+                incoming -> new FilteredCollection<>(
+                    origin -> new Unchecked<>(
+                        new Or(
+                            () -> incoming.equals(origin),
+                            () -> incoming.id() == origin.id()
+                                && incoming.bnf().equals(origin.bnf()),
+                            () -> incoming.id() == origin.id()
+                                && incoming.amount() < 0L,
+                            () -> incoming.prefix().equals(origin.prefix())
+                        )
+                    ).value(),
+                    ledger
+                ).isEmpty(),
+                other.ledger()
+            );
+            return new Wallet.Fake(
+                this.id(),
+                new Joined<Transaction>(ledger, candidates)
+            );
+        }
+
+        @Override
+        public Iterable<Transaction> ledger() {
+            return new Mapped<>(
+                txt -> new RtTransaction(txt.asString()),
+                new Skipped<>(
+                    new ListOf<>(
+                        new TextOf(this.path).asString().split("\\n")
+                    ),
+                    // @checkstyle MagicNumberCheck (1 line)
+                    5
+                )
+            );
+        }
+
+        @Override
+        public String key() {
+            throw new UnsupportedOperationException(
+                "key() not yet supported"
+            );
+        }
+    }
+}
+
+ with the following error information:
+[ERROR] /java-api/src/main/java/io/zold/api/Wallet.java:[7,30] cannot find symbol
+  symbol:   class FilteredCollection
+  location: package org.cactoos.collection
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error.
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

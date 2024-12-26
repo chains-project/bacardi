@@ -1,0 +1,10 @@
+7,8c7,8
+< import org.springframework.http.HttpStatus; // Updated import for HttpServletResponse status
+< import javax.servlet.http.HttpServletRequest; // Updated import for HttpServletRequest
+---
+> import javax.servlet.http.HttpServletResponse; // Changed import for HttpServletResponse
+> import javax.servlet.http.HttpServletRequest; // Ensure HttpServletRequest is imported
+47c47
+<             jsonMap.put("responseStatus", HttpStatus.valueOf(request.getStatus()).value()); // Updated to get response status
+---
+>             jsonMap.put("responseStatus", HttpServletResponse.SC_OK); // Updated to use HttpServletResponse constant

@@ -1,0 +1,50 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+package io.github.wesleyosantos91.api.v1.mapper;
+
+import io.github.wesleyosantos91.api.v1.request.PersonRequest;
+import io.github.wesleyosantos91.api.v1.response.PersonResponse;
+import io.github.wesleyosantos91.core.domain.PersonDomain;
+import java.util.ArrayList;
+import java.util.List;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
+
+@Mapper(componentModel = "spring")
+public interface PersonHttpMapper {
+
+    PersonHttpMapper INSTANCE = Mappers.getMapper(PersonHttpMapper.class);
+    
+    PersonDomain toDomain(PersonRequest request);
+    PersonRequest toRequest(PersonDomain domain);
+
+    PersonDomain toDomain(PersonResponse response);
+    PersonResponse toResponse(PersonDomain domain);
+
+    default List<PersonResponse> toListResponse(List<PersonDomain> domains){
+        List<PersonResponse> list = new ArrayList<>();
+        if (domains != null) {
+            domains.forEach(d -> list.add(toResponse(d)));
+        }
+        return list;
+    }
+}
+
+ with the following error information:
+[ERROR] /poc-multi-module-arch-hexagonal-springboot/application/src/main/java/io/github/wesleyosantos91/api/v1/mapper/PersonHttpMapper.java:[12,1] Couldn't retrieve @Mapper annotation
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error.
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

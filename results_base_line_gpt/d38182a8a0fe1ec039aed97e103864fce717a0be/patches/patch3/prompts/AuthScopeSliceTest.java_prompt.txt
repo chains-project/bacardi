@@ -1,0 +1,110 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker.http;
+
+import com.artipie.asto.Content;
+import com.artipie.http.Headers;
+import com.artipie.http.Response;
+import com.artipie.http.auth.AuthScheme;
+import com.artipie.http.auth.Authentication;
+import com.artipie.http.rs.StandardRs;
+import java.nio.ByteBuffer;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.core.IsEqual;
+import org.junit.jupiter.api.Test;
+import org.reactivestreams.Publisher;
+
+/**
+ * Tests for {@link AuthScopeSlice}.
+ *
+ * @since 0.11
+ */
+class AuthScopeSliceTest {
+
+    @Test
+    void testScope() {
+        final String line = "GET /resource.txt HTTP/1.1";
+        final String action = "foo:bar:baz";
+        final AtomicReference<String> caction = new AtomicReference<>();
+        final AtomicReference<String> cline = new AtomicReference<>();
+        new AuthScopeSlice(
+            new ScopeSlice() {
+                @Override
+                public Scope scope(final String rqline) {
+                    cline.set(rqline);
+                    return new Scope.FromString(action);
+                }
+
+                @Override
+                public Response response(
+                    final String line,
+                    final Iterable<Map.Entry<String, String>> headers,
+                    final Publisher<ByteBuffer> body
+                ) {
+                    return StandardRs.OK;
+                }
+            },
+            (headers, rline) -> CompletableFuture.completedFuture(
+                new AuthScheme.Result() {
+                    @Override
+                    public Optional<Authentication.User> user() { // Updated to use Authentication.User
+                        return Optional.of(new Authentication.User("alice"));
+                    }
+
+                    @Override
+                    public String challenge() {
+                        return "";
+                    }
+                }
+            ),
+            (user, act) -> {
+                caction.set(act);
+                return true;
+            }
+        ).response(line, Headers.EMPTY, Content.EMPTY).send(
+            (status, headers, body) -> CompletableFuture.allOf()
+        ).toCompletableFuture().join();
+        MatcherAssert.assertThat(
+            "Request line passed to slice",
+            cline.get(),
+            new IsEqual<>(line)
+        );
+        MatcherAssert.assertThat(
+            "Scope passed as action to permissions",
+            caction.get(),
+            new IsEqual<>(action)
+        );
+    }
+}
+
+ with the following error information:
+[ERROR] /docker-adapter/src/test/java/com/artipie/docker/http/AuthScopeSliceTest.java:[56,51] cannot find symbol
+  symbol:   class User
+  location: interface com.artipie.http.auth.Authentication
+
+[ERROR] /docker-adapter/src/test/java/com/artipie/docker/http/AuthScopeSliceTest.java:[57,62] cannot find symbol
+  symbol:   class User
+  location: interface com.artipie.http.auth.Authentication
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error.
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

@@ -1,0 +1,106 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+package de.hilling.junit.cdi.scope;
+
+import de.hilling.junit.cdi.util.ReflectionsUtils;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
+
+import javax.annotation.Priority;
+import javax.enterprise.context.Dependent;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.Interceptor;
+import javax.interceptor.InvocationContext;
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+@Replaceable
+@Interceptor
+@Dependent
+@Priority(0)
+public class CallRedirectionInterceptor implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    @Inject
+    private Instance<InvocationTargetManager> invocationTargetManager;
+
+    @AroundInvoke
+    public Object invokeMockableBean(InvocationContext ctx) throws Throwable {
+        Class<?> javaClass = ReflectionsUtils.getOriginalClass(ctx.getTarget().getClass());
+        if (invocationTargetManager.get().isAlternativeEnabled(javaClass)) {
+            return callAlternative(ctx, javaClass);
+        } else if (invocationTargetManager.get().isMockEnabled(javaClass)) {
+            return callMock(ctx, javaClass);
+        } else {
+            return ctx.proceed();
+        }
+    }
+
+    @SuppressWarnings("squid:S00112")
+    private Object callAlternative(InvocationContext ctx, Class<?> javaClass) throws Throwable {
+        Method method = ctx.getMethod();
+        Object alternative = BeanProvider
+                .getContextualReference(invocationTargetManager.get().alternativeFor(javaClass));
+        try {
+            Method alternativeMethod = alternative.getClass().getMethod(method.getName(), method.getParameterTypes());
+            return alternativeMethod.invoke(alternative, ctx.getParameters());
+        } catch (NoSuchMethodException nme) {
+            throw new IllegalStateException("method " + method.getName() + " not found on alternative " + alternative);
+        } catch (InvocationTargetException ite) {
+            throw ite.getCause();
+        }
+    }
+
+    @SuppressWarnings("squid:S00112")
+    private Object callMock(InvocationContext ctx, Class<?> javaClass) throws Throwable {
+        try {
+            return ctx.getMethod().invoke(invocationTargetManager.get().mock(javaClass), ctx.getParameters());
+        } catch (InvocationTargetException ite) {
+            throw ite.getCause();
+        }
+    }
+}
+
+
+ with the following error information:
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[11,25] package javax.interceptor does not exist
+
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[10,25] package javax.interceptor does not exist
+
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[40,36] cannot find symbol
+  symbol:   class InvocationContext
+  location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
+
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[18,2] cannot find symbol
+  symbol: class Interceptor
+
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[27,6] cannot find symbol
+  symbol:   class AroundInvoke
+  location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
+
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[12,25] package javax.interceptor does not exist
+
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[28,38] cannot find symbol
+  symbol:   class InvocationContext
+  location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
+
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[55,29] cannot find symbol
+  symbol:   class InvocationContext
+  location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error.
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

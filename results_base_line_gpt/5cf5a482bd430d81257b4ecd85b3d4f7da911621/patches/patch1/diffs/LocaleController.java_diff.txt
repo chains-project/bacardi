@@ -1,0 +1,36 @@
+7,9d6
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.MvcContext;
+11a9,12
+> import javax.ws.rs.core.Context;
+> import javax.ws.rs.core.UriInfo;
+> import javax.ws.rs.core.Request;
+> import javax.ws.rs.core.Response;
+18d18
+< @Controller
+23,28d22
+<     MvcContext mvc;
+< 
+<     @Inject
+<     Models models;
+< 
+<     @Inject
+30a25,27
+>     @Context
+>     private UriInfo uriInfo;
+> 
+32,36c29,32
+<     public String get() {
+<         Locale locale = mvc.getLocale();
+<         models.put("locale", locale);
+<         return "locale.xhtml";
+<     }
+---
+>     public Response get() {
+>         Locale locale = uriInfo.getAbsolutePath().getQueryParameters().getFirst("locale") != null 
+>                 ? new Locale(uriInfo.getAbsolutePath().getQueryParameters().getFirst("locale")) 
+>                 : Locale.getDefault();
+37a34,35
+>         return Response.ok("locale.xhtml").build();
+>     }

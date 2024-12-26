@@ -1,0 +1,11 @@
+18,19c18,20
+< import org.codehaus.plexus.util.FileUtils;
+< import org.codehaus.plexus.logging.LoggerManager; // Added import
+---
+> import org.codehaus.plexus.logging.LoggerManager;
+> import org.codehaus.plexus.container.PlexusContainer; // Updated import
+> import org.codehaus.plexus.logging.console.ConsoleLoggerManager; // Updated import
+38c39
+<         LoggerManager loggerManager = getContainer().getLoggerManager(); // Updated to use LoggerManager
+---
+>         LoggerManager loggerManager = (LoggerManager) getContainer().lookup(LoggerManager.ROLE); // Updated to use lookup

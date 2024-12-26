@@ -1,0 +1,66 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+package com.wire.lithium.healthchecks;
+
+import com.codahale.metrics.health.HealthCheck;
+import com.wire.lithium.API;
+import com.wire.lithium.server.monitoring.MDCUtils;
+import com.wire.xenon.tools.Logger;
+
+import javax.ws.rs.client.Client;
+import javax.ws.rs.core.Response;
+
+public class Outbound extends HealthCheck {
+    private final Client client;
+
+    public Outbound(Client client) {
+        this.client = client;
+    }
+
+    @Override
+    protected Result check() {
+        MDCUtils.put("healthCheck", "Outbound"); // tag the logs with health check
+        Logger.debug("Starting Outbound healthcheck");
+        API api = new API(client, null);
+
+        try {
+            Response response = api.status();
+            String s = response.readEntity(String.class);
+            int status = response.getStatus();
+            return status == 200 ? Result.healthy() : Result.unhealthy(String.format("%s. status: %d", s, status));
+        } catch (Exception e) {
+            final String message = String.format("Unable to reach: %s, error: %s", api.getWireHost(), e.getMessage());
+            Logger.exception(message, e);
+            return Result.unhealthy(message);
+        } finally {
+            Logger.debug("Finished Outbound healthcheck");
+        }
+    }
+}
+
+
+ with the following error information:
+[ERROR] /lithium/src/main/java/com/wire/lithium/healthchecks/Outbound.java:[12,19] cannot find symbol
+  symbol:   class Client
+  location: class com.wire.lithium.healthchecks.Outbound
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/healthchecks/Outbound.java:[14,21] cannot find symbol
+  symbol:   class Client
+  location: class com.wire.lithium.healthchecks.Outbound
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/healthchecks/Outbound.java:[9,24] package javax.ws.rs.core does not exist
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error.
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

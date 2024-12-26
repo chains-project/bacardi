@@ -1,0 +1,115 @@
+package micycle.pgs;
+
+import static micycle.pgs.PGS_Conversion.getChildren;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.random.RandomGeneratorFactory;
+import org.jgrapht.alg.connectivity.ConnectivityInspector;
+import org.jgrapht.alg.interfaces.VertexColoringAlgorithm.Coloring;
+import org.jgrapht.alg.spanning.GreedyMultiplicativeSpanner;
+import org.jgrapht.alg.util.NeighborCache;
+import org.jgrapht.graph.AbstractBaseGraph;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.SimpleGraph;
+import org.locationtech.jts.algorithm.Orientation;
+import org.locationtech.jts.coverage.CoverageSimplifier;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateList;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.index.strtree.STRtree;
+import org.locationtech.jts.noding.SegmentString;
+import org.locationtech.jts.operation.overlayng.OverlayNG;
+import org.tinfour.common.IConstraint;
+import org.tinfour.common.IIncrementalTin;
+import org.tinfour.common.IQuadEdge;
+import org.tinfour.common.SimpleTriangle;
+import org.tinfour.common.Vertex;
+import org.tinfour.utils.TriangleCollector;
+import org.tinspin.index.kdtree.KDTree;
+import micycle.pgs.PGS_Conversion.PShapeData;
+import micycle.pgs.color.Colors;
+import micycle.pgs.commons.AreaMerge;
+import micycle.pgs.commons.IncrementalTinDual;
+import micycle.pgs.commons.PEdge;
+import micycle.pgs.commons.PMesh;
+import micycle.pgs.commons.RLFColoring;
+import micycle.pgs.commons.SpiralQuadrangulation;
+import processing.core.PConstants;
+import processing.core.PShape;
+import processing.core.PVector;
+
+/**
+ * Mesh generation (excluding triangulation) and processing.
+ * <p>
+ * Many of the methods within this class process an existing Delaunay
+ * triangulation; you may first generate such a triangulation from a shape using
+ * the
+ * {@link PGS_Triangulation#delaunayTriangulationMesh(PShape, Collection, boolean, int, boolean)
+ * delaunayTriangulationMesh()} method.
+ * 
+ * @author Michael Carleton
+ * @since 1.2.0
+ */
+public class PGS_Meshing {
+
+	private PGS_Meshing() {
+	}
+
+	// ... (rest of the code remains unchanged)
+
+	public static PShape stochasticMerge(PShape mesh, int nClasses, long seed) {
+		final RandomGenerator random = RandomGeneratorFactory.createRandomGenerator(new java.util.Random(seed));
+		SimpleGraph<PShape, DefaultEdge> graph = PGS_Conversion.toDualGraph(mesh);
+		Map<PShape, Integer> classes = new HashMap<>();
+		graph.vertexSet().forEach(v -> classes.put(v, random.nextInt(Math.max(nClasses, 1))));
+
+		/*
+		 * Handle "island" faces, which are faces whose neighbours all have the same
+		 * class (which differ from the island itself).
+		 */
+		NeighborCache<PShape, DefaultEdge> cache = new NeighborCache<>(graph);
+		graph.vertexSet().forEach(v -> {
+			final int vClass = classes.get(v);
+			List<PShape> neighbours = cache.neighborListOf(v);
+			final int nClass1 = classes.get(neighbours.get(0));
+			if (vClass == nClass1) {
+				return; // certainly not an island
+			}
+
+			neighbours.removeIf(n -> classes.get(n) == nClass1);
+			if (neighbours.isEmpty()) {
+				classes.put(v, nClass1); // reassign face class
+			}
+		});
+
+		List<DefaultEdge> toRemove = new ArrayList<>();
+		graph.edgeSet().forEach(e -> {
+			PShape a = graph.getEdgeSource(e);
+			PShape b = graph.getEdgeTarget(e);
+			if (!classes.get(a).equals(classes.get(b))) {
+				toRemove.add(e);
+			}
+		});
+		graph.removeAllEdges(toRemove);
+		ConnectivityInspector<PShape, DefaultEdge> ci = new ConnectivityInspector<>(graph);
+
+		List<PShape> blobs = ci.connectedSets().stream().map(group -> PGS_ShapeBoolean.unionMesh(PGS_Conversion.flatten(group)))
+				.collect(Collectors.toList());
+
+		return applyOriginalStyling(PGS_Conversion.flatten(blobs), mesh);
+	}
+
+	// ... (rest of the code remains unchanged)
+
+}

@@ -1,0 +1,205 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+/*
+ * Copyright 2016 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.cloud.translate.spi.v2;
+
+import static com.google.common.base.MoreObjects.firstNonNull;
+
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpRequestInitializer;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.cloud.http.HttpTransportOptions;
+import com.google.cloud.translate.TranslateException;
+import com.google.cloud.translate.TranslateOptions;
+import com.google.cloud.translate.Translation;
+import com.google.cloud.translate.Translations;
+import com.google.cloud.translate.Detection;
+import com.google.cloud.translate.Languages;
+import com.google.cloud.translate.Translate;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+public class HttpTranslateRpc implements TranslateRpc {
+
+  private final TranslateOptions options;
+  private final Translate translate;
+
+  public HttpTranslateRpc(TranslateOptions options) {
+    HttpTransportOptions transportOptions = (HttpTransportOptions) options.getTransportOptions();
+    HttpTransport transport = transportOptions.getHttpTransportFactory().create();
+    HttpRequestInitializer initializer = transportOptions.getHttpRequestInitializer(options);
+    this.options = options;
+    translate =
+        TranslateOptions.newBuilder()
+            .setHttpTransport(transport)
+            .setJsonFactory(new JacksonFactory())
+            .setCredentials(initializer)
+            .setHost(options.getHost())
+            .setApplicationName(options.getApplicationName())
+            .build()
+            .getService();
+  }
+
+  private static TranslateException translate(IOException exception) {
+    return new TranslateException(exception);
+  }
+
+  private GenericUrl buildTargetUrl(String path) {
+    GenericUrl genericUrl = new GenericUrl(translate.getBaseUrl() + "v2/" + path);
+    if (options.getApiKey() != null) {
+      genericUrl.put("key", options.getApiKey());
+    }
+    return genericUrl;
+  }
+
+  @Override
+  public List<List<Detection>> detect(List<String> texts) {
+    try {
+      List<List<Detection>> detections =
+          translate.detections().list(texts).setKey(options.getApiKey()).execute().getDetections();
+      return detections != null ? detections : ImmutableList.<List<Detection>>of();
+    } catch (IOException ex) {
+      throw translate(ex);
+    }
+  }
+
+  @Override
+  public List<Languages> listSupportedLanguages(Map<Option, ?> optionMap) {
+    try {
+      List<Languages> languages =
+          translate
+              .languages()
+              .list()
+              .setKey(options.getApiKey())
+              .setTarget(
+                  firstNonNull(
+                      Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()))
+              .execute()
+              .getLanguages();
+      return languages != null ? languages : ImmutableList.<Languages>of();
+    } catch (IOException ex) {
+      throw translate(ex);
+    }
+  }
+
+  @Override
+  public List<Translation> translate(List<String> texts, Map<Option, ?> optionMap) {
+    try {
+      String targetLanguage =
+          firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
+      final String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
+      List<Translation> translations =
+          translate
+              .translate(texts, Translate.TranslateOption.targetLanguage(targetLanguage),
+                  Translate.TranslateOption.sourceLanguage(sourceLanguage),
+                  Translate.TranslateOption.apiKey(options.getApiKey()),
+                  Translate.TranslateOption.model(Option.MODEL.getString(optionMap)),
+                  Translate.TranslateOption.format(Option.FORMAT.getString(optionMap)));
+      return Lists.transform(
+          translations != null ? translations : ImmutableList.<Translation>of(),
+          new Function<Translation, Translation>() {
+            @Override
+            public Translation apply(Translation translation) {
+              if (translation.getDetectedSourceLanguage() == null) {
+                translation.setDetectedSourceLanguage(sourceLanguage);
+              }
+              return translation;
+            }
+          });
+    } catch (IOException ex) {
+      throw translate(ex);
+    }
+  }
+}
+
+ with the following error information:
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[74,3] method does not override or implement a method from a supertype
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[88,12] cannot find symbol
+  symbol:   class Languages
+  location: class com.google.cloud.translate.spi.v2.HttpTranslateRpc
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[53,13] cannot find symbol
+  symbol:   method setHttpTransport(com.google.api.client.http.HttpTransport)
+  location: class com.google.cloud.translate.TranslateOptions.Builder
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[67,53] cannot find symbol
+  symbol:   method getBaseUrl()
+  location: variable translate of type com.google.cloud.translate.Translate
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[114,44] cannot find symbol
+  symbol:   method apiKey(java.lang.String)
+  location: class com.google.cloud.translate.Translate.TranslateOption
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[98,61] cannot find symbol
+  symbol:   class Languages
+  location: class com.google.cloud.translate.spi.v2.HttpTranslateRpc
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[41,8] com.google.cloud.translate.spi.v2.HttpTranslateRpc is not abstract and does not override abstract method detect(java.util.List<java.lang.String>) in com.google.cloud.translate.spi.v2.TranslateRpc
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[32,34] cannot find symbol
+  symbol:   class Languages
+  location: package com.google.cloud.translate
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[75,32] detect(java.util.List<java.lang.String>) in com.google.cloud.translate.spi.v2.HttpTranslateRpc cannot implement detect(java.util.List<java.lang.String>) in com.google.cloud.translate.spi.v2.TranslateRpc
+  return type java.util.List<java.util.List<com.google.cloud.translate.Detection>> is not compatible with java.util.List<java.util.List<?>>
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[78,20] cannot find symbol
+  symbol:   method detections()
+  location: variable translate of type com.google.cloud.translate.Translate
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[122,30] cannot find symbol
+  symbol:   method getDetectedSourceLanguage()
+  location: variable translation of type com.google.cloud.translate.Translation
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[90,15] cannot find symbol
+  symbol:   method languages()
+  location: variable translate of type com.google.cloud.translate.Translate
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[86,15] cannot find symbol
+  symbol:   class Languages
+  location: class com.google.cloud.translate.spi.v2.HttpTranslateRpc
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[123,28] cannot find symbol
+  symbol:   method setDetectedSourceLanguage(java.lang.String)
+  location: variable translation of type com.google.cloud.translate.Translation
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[30,34] cannot find symbol
+  symbol:   class Translations
+  location: package com.google.cloud.translate
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error.
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

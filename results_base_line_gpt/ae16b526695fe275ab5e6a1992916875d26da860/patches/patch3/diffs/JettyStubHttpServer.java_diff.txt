@@ -1,0 +1,17 @@
+14,15c14
+< import org.apache.commons.lang3.Validate; // Updated import to commons-lang3
+< import org.eclipse.jetty.server.handler.AbstractHandler; // Added import for AbstractHandler
+---
+> import java.util.Objects; // Changed import to java.util.Objects
+24c23
+<     private final ServerConnector httpConnector; // Changed Connector to ServerConnector
+---
+>     private final ServerConnector httpConnector;
+35c34
+<         this.httpConnector = new ServerConnector(server); // Changed to ServerConnector
+---
+>         this.httpConnector = new ServerConnector(server);
+45c44
+<         Validate.notNull(ruleProvider, "ruleProvider cannot be null");
+---
+>         Objects.requireNonNull(ruleProvider, "ruleProvider cannot be null"); // Updated to use Objects.requireNonNull

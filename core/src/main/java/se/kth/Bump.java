@@ -55,8 +55,8 @@ public class Bump {
 
         breaking
                 .stream()
-//                .filter(e -> e.breakingCommit.equals("c09896887acf0fe59320e01145a7034cd8d4e326")) // filter by breaking commit
-                .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
+                .filter(e -> e.breakingCommit.equals("43b3a858b77ec27fc8946aba292001c3de465012")) // filter by breaking commit
+//                .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
                 .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure category
                 .forEach(e -> {
 

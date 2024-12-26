@@ -1,0 +1,15 @@
+52d51
+< import org.cactoos.map.MapEntry;
+58a58
+> import org.hamcrest.core.IsMapContaining;
+136,138c136,137
+<                         new MapEntry<>("header", "value"),
+<                         new MapEntry<>("Content-Length", "4"),
+<                         new MapEntry<>("Content-Length", "4")
+---
+>                         IsMapContaining.hasEntry("header", "value"),
+>                         IsMapContaining.hasEntry("Content-Length", "4")
+166c165
+<                         new MapEntry<>("Content-Length", String.valueOf(body.length))
+---
+>                         IsMapContaining.hasEntry("Content-Length", String.valueOf(body.length))

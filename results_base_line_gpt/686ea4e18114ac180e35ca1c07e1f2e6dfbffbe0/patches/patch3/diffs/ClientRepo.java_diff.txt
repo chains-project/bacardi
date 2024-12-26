@@ -1,0 +1,16 @@
+12,13c12,13
+< import javax.ws.rs.client.ClientBuilder; // Updated import
+< import javax.ws.rs.client.Client; // Fixed import
+---
+> import javax.ws.rs.client.ClientBuilder;
+> import javax.ws.rs.client.Client;
+31,32c31,36
+<         WireAPI api = new WireAPI(httpClient, state.token); // Fixed class name
+<         return new WireClient(api, crypto, state); // Fixed class name
+---
+>         WireAPI api = new WireAPI(httpClient, state.token) {
+>             // Provide implementation for abstract methods if any
+>         };
+>         return new WireClient(api, crypto, state) {
+>             // Provide implementation for abstract methods if any
+>         };
