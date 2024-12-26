@@ -58,12 +58,12 @@ public class GeneratePrompt {
     }
 
 
-    public String callPythonScript(String scriptPath, String prompt) {
+    public String callPythonScript(String scriptPath, Path prompt) {
 
 
         StringBuilder output = new StringBuilder();
         try {
-            ProcessBuilder pb = new ProcessBuilder("python3", scriptPath, prompt);
+            ProcessBuilder pb = new ProcessBuilder("python3", scriptPath, prompt.toAbsolutePath().toString());
             Process process = pb.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;

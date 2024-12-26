@@ -130,7 +130,7 @@ public class BreakingUpdateProvider {
             CreateContainerResponse container = dockerBuild.startContainerEntryPoint(imageId, entrypoint);
             // Copy m2 folder to local path in the breaking commit folder and project folder
             if (m2InContainer != null) {
-                dockerBuild.copyM2FolderToLocalPath(container.getId(), m2InContainer, toLocal.resolve("m2"));
+//                dockerBuild.copyM2FolderToLocalPath(container.getId(), m2InContainer, toLocal.resolve("m2"));
                 dockerBuild.copyM2FolderToLocalPath(container.getId(), projectInContainer, toLocal);
             }
             if (jar != null) {
