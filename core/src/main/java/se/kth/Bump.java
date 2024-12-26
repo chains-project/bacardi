@@ -52,19 +52,21 @@ public class Bump {
 
         DockerBuild dockerBuild = new DockerBuild(true);
         // identify breaking updates and download image and copy the project
+
         breaking
                 .stream()
-//                .filter(e -> e.breakingCommit.equals("d401e189fb6435110e3dc4ca1a94838f167e7ddf")) // filter by breaking commit
+//                .filter(e -> e.breakingCommit.equals("c09896887acf0fe59320e01145a7034cd8d4e326")) // filter by breaking commit
                 .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
                 .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure category
                 .forEach(e -> {
+
+
 
                     try {
                         //starting processing breaking update
 
                         LogUtils.logWithBox(log, "Processing breaking update: %s".formatted(e.breakingCommit));
                         //Full path Folder/breaking-commit/project
-
                         Path clientFolder = settingClientFolderAndM2Folder(e, dockerBuild);
 
                         SetupPipeline setupPipeline = new SetupPipeline();
@@ -84,9 +86,10 @@ public class Bump {
                         setupPipeline.setOutPutPatchFolder(Path.of("results"));
                         //start repair process
                         repair(setupPipeline);
-                    } catch (Exception ex) {
-                        log.error("Error processing {}", e);
+                    } catch (Exception ee) {
+                        log.error("Error processing breaking update: %s".formatted(e.breakingCommit), ee);
                     }
+
                 });
     }
 
@@ -129,7 +132,7 @@ public class Bump {
             String breakingImage = e.breakingUpdateReproductionCommand.replace("docker run ", "");
 
             //get jar from container for previous version
-            getProjectData(preBreakingImage, dockerBuild, clientFolder, null, null, prevoiusJarInContainerPath);
+//            getProjectData(preBreakingImage, dockerBuild, clientFolder, null, null, prevoiusJarInContainerPath);
             //get jar from container for new version and m2 folder and project
             getProjectData(breakingImage, dockerBuild, clientFolder, fromContainerM2, fromContainerProject, newJarInContainerPath);
 

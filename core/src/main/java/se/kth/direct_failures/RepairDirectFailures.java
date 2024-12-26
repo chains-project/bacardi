@@ -26,9 +26,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class RepairDirectFailures {
 
@@ -43,6 +41,29 @@ public class RepairDirectFailures {
     }
 
 
+    public Map<String, Set<DetectedFileWithErrors>> basePipeLine() {
+
+        MavenErrorInformation mavenErrorInformation = new MavenErrorInformation(setupPipeline.getLogFilePath().toFile());
+        //Extracting the line numbers with paths
+        Map<String, Set<DetectedFileWithErrors>> detectedFiles = new HashMap<>();
+
+        try {
+            MavenErrorLog errorLog = mavenErrorInformation.extractLineNumbersWithPaths(setupPipeline.getLogFilePath().toString());
+
+            errorLog.getErrorInfo().forEach((key, value) -> {
+                Set<DetectedFileWithErrors> detectedFileWithErrors = new HashSet<>();
+                value.forEach(errorInfo -> {
+                    detectedFileWithErrors.add(new DetectedFileWithErrors(errorInfo));
+                });
+                detectedFiles.put(key, detectedFileWithErrors);
+            });
+
+            return detectedFiles;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 
 
     public Map<String, Set<DetectedFileWithErrors>> extractConstructsFromDirectFailures() throws IOException {

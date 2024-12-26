@@ -8,6 +8,7 @@ import se.kth.japicmp_analyzer.ApiChange;
 import se.kth.models.ErrorInfo;
 import spoon.reflect.declaration.CtElement;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Setter
@@ -61,5 +62,12 @@ public class DetectedFileWithErrors {
     public DetectedFileWithErrors(Set<ApiChange> apiChanges, Set<CtElement> executedElements) {
         this.apiChanges = apiChanges;
         this.executedElements = executedElements;
+    }
+
+    public DetectedFileWithErrors(ErrorInfo errorInfo) {
+        this.apiChanges = new HashSet<>();
+        this.executedElements = new HashSet<>();
+        this.errorInfo = errorInfo;
+        this.classPath = null;
     }
 }

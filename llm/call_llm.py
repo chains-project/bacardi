@@ -2,18 +2,22 @@ import argparse
 from openai import OpenAI
 
 
-def get_llm_response(prompt, api_key, organization, temperature=0.7):
+def get_llm_response(prompt, api_key, organization):
     client = OpenAI(
         organization=organization,
         api_key=api_key
     )
 
+    with open(prompt, "r") as f:
+        promptFromFile = f.read()
+
     stream = client.chat.completions.create(
         model="gpt-4o-mini",
-        temperature=temperature,
+        temperature=0.7,
         max_tokens=16000,
+        timeout=400,
         messages=[
-            {"role": "user", "content": prompt}],
+            {"role": "user", "content": promptFromFile}],
         stream=True,
     )
 
@@ -29,9 +33,7 @@ if __name__ == "__main__":
     organization = "org-8vaaikANoGLw18qMPf7FeuJm"
     parser = argparse.ArgumentParser(description="Get LLM response based on a prompt.")
     parser.add_argument("prompt", type=str, help="The prompt to send to the LLM.")
-    parser.add_argument("--temperature", type=float, default=0.7, help="The temperature for the LLM response.")
 
     args = parser.parse_args()
-
-    response = get_llm_response(args.prompt, api_key, organization, args.temperature)
+    response = get_llm_response(args.prompt, api_key, organization)
     print(response)
