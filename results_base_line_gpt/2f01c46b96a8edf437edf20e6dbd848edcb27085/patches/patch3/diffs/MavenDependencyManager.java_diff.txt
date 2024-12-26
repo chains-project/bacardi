@@ -1,0 +1,8 @@
+27c27
+< import org.codehaus.plexus.util.xml.Xpp3Dom; // Updated import
+---
+> import org.codehaus.plexus.util.xml.Xpp3Dom; // Ensure this import is correct for your dependencies
+162c162
+<         .map(exec -> (Xpp3Dom) exec.getConfiguration())
+---
+>         .map(exec -> exec.getConfiguration() instanceof Xpp3Dom ? (Xpp3Dom) exec.getConfiguration() : null)

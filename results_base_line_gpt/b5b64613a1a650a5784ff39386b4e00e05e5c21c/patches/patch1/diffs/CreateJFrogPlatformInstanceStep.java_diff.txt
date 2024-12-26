@@ -1,0 +1,14 @@
+73c73
+<             if (isAllBlank(step.url, step.artifactoryUrl, step.distributionUrl)) {
+---
+>             if (isAllEmpty(step.url, step.artifactoryUrl, step.distributionUrl)) {
+91a92,100
+>         
+>         private boolean isAllEmpty(String... strings) {
+>             for (String string : strings) {
+>                 if (!isEmpty(string)) {
+>                     return false;
+>                 }
+>             }
+>             return true;
+>         }

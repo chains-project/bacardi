@@ -1,0 +1,6 @@
+74,75c74,75
+<                                 double[] nearest = tree.queryNN(coords, distanceTolerance);
+<                                 if (nearest == null) {
+---
+>                                 PVector nearest = tree.queryNN(coords);
+>                                 if (nearest == null || PVector.dist(p, nearest) > distanceTolerance) {

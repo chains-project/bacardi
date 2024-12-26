@@ -1,0 +1,104 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+//
+// Wire
+// Copyright (C) 2016 Wire Swiss GmbH
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see http://www.gnu.org/licenses/.
+//
+
+package com.wire.lithium;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.dropwizard.client.JerseyClientConfiguration;
+import io.dropwizard.db.DataSourceFactory;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+/**
+ * Application configuration class. Extend this class to add your custom configuration
+ */
+public class Configuration extends io.dropwizard.Configuration {
+    @JsonProperty
+    @Valid
+    public Database database = new Database();
+
+    @JsonProperty
+    @NotNull
+    public String token;   // Service token. Obtained when the Service is registered with Wire
+
+    @JsonProperty
+    public boolean healthchecks = true;
+
+    @Valid
+    private _JerseyClientConfiguration jerseyClient = new _JerseyClientConfiguration();
+
+    @JsonProperty("swagger")
+    public SwaggerBundleConfiguration swagger = new _SwaggerBundleConfiguration();
+
+    @JsonProperty
+    public String apiHost = "https://prod-nginz-https.wire.com";
+
+    @JsonProperty("jerseyClient")
+    public JerseyClientConfiguration getJerseyClient() {
+        return jerseyClient;
+    }
+
+    @JsonProperty("jerseyClient")
+    public void setJerseyClient(_JerseyClientConfiguration jerseyClient) {
+        this.jerseyClient = jerseyClient;
+    }
+
+    public static class Database extends DataSourceFactory {
+        @JsonProperty
+        public boolean baseline;
+    }
+
+    public static class _JerseyClientConfiguration extends JerseyClientConfiguration {
+        public _JerseyClientConfiguration() {
+            setChunkedEncodingEnabled(false);
+            setGzipEnabled(false);
+            setGzipEnabledForRequests(false);
+        }
+    }
+
+    private static class _SwaggerBundleConfiguration extends SwaggerBundleConfiguration {
+        _SwaggerBundleConfiguration() {
+            setResourcePackage("com.wire.lithium.server.resources");
+        }
+    }
+}
+
+
+ with the following error information:
+[ERROR] /lithium/src/main/java/com/wire/lithium/Configuration.java:[32,49] cannot find symbol
+  symbol:   class Configuration
+  location: package io.dropwizard
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error.
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

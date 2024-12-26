@@ -1,0 +1,47 @@
+import java.util.ResourceBundle;
+import java.util.Locale;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.mvc.MvcContext;
+// Removed the incorrect import for LocaleResolver
+import org.glassfish.jersey.server.mvc.Viewable; // Updated import to a compatible library for localization
+
+/**
+ * Provides I18n messages for the UI per request. To get the correct locale, the method {@link MvcContext#getLocale()}
+ * is used. This method uses the built-in {@link javax.mvc.locale.LocaleResolver} of the used MVC Implementation.
+ *
+ * @author Tobias Erdle
+ * @see MvcContext#getLocale()
+ * @see javax.mvc.locale.LocaleResolver
+ */
+@RequestScoped
+@Named("msg")
+public class Messages {
+
+    private static final String BASE_NAME = "messages";
+
+    // private LocaleResolver localeResolver; // Removed the incorrect injection for LocaleResolver
+    private Locale locale; // Added a Locale variable
+
+    @Inject
+    private MvcContext mvcContext; // Added MvcContext injection
+
+    /**
+     * Get the assigned message to some key based on the {@link java.util.Locale} of the current request.
+     *
+     * @param key the message key to use
+     * @return the correct translation assigned to the key for the request locale, a fallback translation or a
+     * placeholder for unknown keys.
+     */
+    public final String get(final String key) {
+        locale = mvcContext.getLocale(); // Updated to use MvcContext to get Locale
+        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, locale);
+
+        return bundle.containsKey(key) ? bundle.getString(key) : formatUnknownKey(key);
+    }
+
+    private static String formatUnknownKey(final String key) {
+        return String.format("???%s???", key);
+    }
+}

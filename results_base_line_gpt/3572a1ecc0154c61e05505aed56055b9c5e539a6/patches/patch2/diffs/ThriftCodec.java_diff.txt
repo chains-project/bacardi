@@ -1,0 +1,12 @@
+28a29
+> import org.apache.thrift.transport.TTransportException;
+98a100,101
+>     } catch (TTransportException e) {
+>       throw new RuntimeException(e);
+132d134
+<     obj.write(new TJSONProtocol(new TIOStreamTransport(byteArrayOutputStream)));
+133a136
+>       obj.write(new TJSONProtocol(new TIOStreamTransport(byteArrayOutputStream)));
+136a140,141
+>     } catch (TTransportException e) {
+>       throw new TException(e);

@@ -1,0 +1,20 @@
+21,22c21,24
+< import org.codehaus.plexus.util.xml.Xpp3Dom;
+< import org.codehaus.plexus.util.xml.XmlDomBuilder; // Added import for XmlDomBuilder
+---
+> import org.apache.maven.plugin.logging.Log; // Updated import for logging
+> import org.apache.maven.plugin.descriptor.PluginDescriptor; // Updated import for PluginDescriptor
+> import org.apache.maven.plugins.annotations.Parameter; // Updated import for Parameter
+> import org.codehaus.plexus.util.xml.XmlDomBuilder; // Removed import for Xpp3Dom, not needed
+71,72c73,74
+<         if (config instanceof Xpp3Dom) {
+<             return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
+---
+>         if (config instanceof org.codehaus.plexus.util.xml.Xpp3Dom) { // Updated to use the correct class
+>             return stream(((org.codehaus.plexus.util.xml.Xpp3Dom) config).getChildren("annotationProcessorPaths"))
+100,101c102,103
+<     private static String extractChildValue(Xpp3Dom node, String name) {
+<         final Xpp3Dom child = node.getChild(name);
+---
+>     private static String extractChildValue(org.codehaus.plexus.util.xml.Xpp3Dom node, String name) { // Updated to use the correct class
+>         final org.codehaus.plexus.util.xml.Xpp3Dom child = node.getChild(name); // Updated to use the correct class

@@ -1,0 +1,62 @@
+6,13d5
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.UriRef;
+< import javax.mvc.binding.BindingResult;
+< import javax.mvc.binding.MvcBinding;
+< import javax.mvc.binding.ParamError;
+< import javax.mvc.security.CsrfProtected;
+< import javax.validation.constraints.NotBlank;
+17a10,13
+> import javax.validation.constraints.NotBlank;
+> import javax.ws.rs.core.Response;
+> import javax.ws.rs.core.Context;
+> import javax.ws.rs.core.UriInfo;
+19,22d14
+< /**
+<  *
+<  * @author hantsy
+<  */
+24d15
+< @Controller
+29,37d19
+<     BindingResult bindingResult;
+< 
+<     @Inject
+<     Models models;
+< 
+<     @Inject
+<     AlertMessage flashMessage;
+< 
+<     @Inject
+39a22,24
+>     @Context
+>     private UriInfo uriInfo;
+> 
+46,47c31
+<     @UriRef("greeting-post")
+<     public String post(
+---
+>     public Response post(
+49d32
+<             @MvcBinding
+51,62d33
+<         if (bindingResult.isFailed()) {
+<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
+<             bindingResult.getAllErrors()
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+<                         alert.addError(t.getParamName(), "", t.getMessage());
+<                     });
+<             models.put("errors", alert);
+<             log.info("mvc binding failed.");
+<             return "greeting.xhtml";
+<         }
+< 
+64,65c35
+<         flashMessage.notify(AlertMessage.Type.success, "Message:" + greeting);
+<         return "redirect:greeting";
+---
+>         return Response.seeOther(uriInfo.getAbsolutePathBuilder().path("greeting").build()).build();
+67d36
+< 

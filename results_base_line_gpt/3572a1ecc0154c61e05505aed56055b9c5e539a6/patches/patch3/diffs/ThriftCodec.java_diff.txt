@@ -1,0 +1,42 @@
+96,100c96
+<     } catch (InstantiationException e) {
+<       throw new RuntimeException(e);
+<     } catch (IllegalAccessException e) {
+<       throw new RuntimeException(e);
+<     } catch (TTransportException e) {
+---
+>     } catch (InstantiationException | IllegalAccessException | TTransportException e) {
+105d100
+< 
+112c107,112
+<     byte[] bytes = encoder.get().serialize(obj);
+---
+>     byte[] bytes;
+>     try {
+>       bytes = encoder.get().serialize(obj);
+>     } catch (TTransportException e) {
+>       throw new RuntimeException(e);
+>     }
+124c124,129
+<     byte[] bytes = prefixedEncoder.get().serialize(obj);
+---
+>     byte[] bytes;
+>     try {
+>       bytes = prefixedEncoder.get().serialize(obj);
+>     } catch (TTransportException e) {
+>       throw new RuntimeException(e);
+>     }
+138,140c143
+<     } catch (UnsupportedEncodingException e) {
+<       throw new TException(e);
+<     } catch (TTransportException e) {
+---
+>     } catch (UnsupportedEncodingException | TTransportException e) {
+171a175
+>     try {
+172a177,179
+>     } catch (TTransportException e) {
+>       throw new RuntimeException(e);
+>     }
+174d180
+< 

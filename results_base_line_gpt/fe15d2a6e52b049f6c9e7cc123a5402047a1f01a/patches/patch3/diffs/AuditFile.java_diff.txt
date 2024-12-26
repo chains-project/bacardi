@@ -1,0 +1,58 @@
+18d17
+< import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
+176d174
+<     @Override
+178c176,194
+<         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+---
+>         final ToStringStrategy2 strategy = new ToStringStrategy2() {
+>             @Override
+>             public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+>                 return buffer.append(object.getClass().getSimpleName());
+>             }
+> 
+>             @Override
+>             public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+>                 return buffer;
+>             }
+> 
+>             @Override
+>             public StringBuilder appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean present) {
+>                 if (present) {
+>                     buffer.append(fieldName).append("=").append(value).append(", ");
+>                 }
+>                 return buffer;
+>             }
+>         };
+184d199
+<     @Override
+192d206
+<     @Override
+403d416
+<         @Override
+405c418,436
+<             final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+---
+>             final ToStringStrategy2 strategy = new ToStringStrategy2() {
+>                 @Override
+>                 public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+>                     return buffer.append(object.getClass().getSimpleName());
+>                 }
+> 
+>                 @Override
+>                 public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+>                     return buffer;
+>                 }
+> 
+>                 @Override
+>                 public StringBuilder appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean present) {
+>                     if (present) {
+>                         buffer.append(fieldName).append("=").append(value).append(", ");
+>                     }
+>                     return buffer;
+>                 }
+>             };
+411d441
+<         @Override
+419d448
+<         @Override

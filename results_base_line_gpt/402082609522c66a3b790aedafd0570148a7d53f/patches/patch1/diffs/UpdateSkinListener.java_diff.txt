@@ -1,0 +1,22 @@
+14c14
+< import org.spongepowered.api.command.CommandSource;
+---
+> import org.spongepowered.api.command.CommandSender; // Updated import
+16,17c16
+< import org.spongepowered.api.network.ChannelBuf;
+< import org.spongepowered.api.network.RawDataListener;
+---
+> import org.spongepowered.api.network.MessageChannel; // Updated import
+21c20
+< public class UpdateSkinListener implements RawDataListener {
+---
+> public class UpdateSkinListener { // Removed RawDataListener interface
+26,27c25
+<     @Override
+<     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+---
+>     public void handlePayload(MessageChannel data, RemoteConnection connection, Type side) { // Updated parameter type
+35c33
+<             Runnable skinUpdater = new SkinApplier(plugin, (CommandSource) connection, receiver.get(), null, false);
+---
+>             Runnable skinUpdater = new SkinApplier(plugin, (CommandSender) connection, receiver.get(), null, false); // Updated cast

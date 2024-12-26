@@ -1,0 +1,112 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+package org.jfrog.hudson.pipeline.common.executors;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import hudson.FilePath;
+import hudson.model.Run;
+import hudson.model.TaskListener;
+import hudson.remoting.VirtualChannel;
+import jenkins.MasterToSlaveFileCallable;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.jfrog.build.extractor.clientConfiguration.DistributionManagerBuilder;
+import org.jfrog.build.extractor.clientConfiguration.client.distribution.DistributionManager;
+import org.jfrog.build.extractor.clientConfiguration.client.distribution.request.DeleteReleaseBundleRequest;
+import org.jfrog.hudson.pipeline.common.Utils;
+import org.jfrog.hudson.pipeline.common.types.DistributionServer;
+import org.jfrog.hudson.util.JenkinsBuildInfoLog;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+import static org.jfrog.hudson.util.SerializationUtils.createMapper;
+
+public class ReleaseBundleDeleteExecutor implements Executor {
+    private final DistributionManagerBuilder distributionManagerBuilder;
+    private final DeleteReleaseBundleRequest request;
+    private final transient FilePath ws;
+    private final String version;
+    private final boolean sync;
+    private final String name;
+
+    public ReleaseBundleDeleteExecutor(DistributionServer server, String name, String version, boolean dryRun, boolean sync,
+                                       boolean deleteFromDist, String distRules, List<String> countryCodes, String siteName,
+                                       String cityName, TaskListener listener, Run<?, ?> build, FilePath ws) throws IOException {
+        this.distributionManagerBuilder = server.createDistributionManagerBuilder(new JenkinsBuildInfoLog(listener), build.getParent());
+        this.request = createRequest(distRules, countryCodes, siteName, cityName, dryRun, deleteFromDist);
+        this.ws = ws;
+        this.name = name;
+        this.version = version;
+        this.sync = sync;
+    }
+
+    public void execute() throws IOException, InterruptedException {
+        ws.act(new ReleaseBundleDeleteCallable(distributionManagerBuilder, request, name, version, sync));
+    }
+
+    private DeleteReleaseBundleRequest createRequest(String distRules, List<String> countryCodes, String siteName,
+                                                     String cityName, boolean dryRun, boolean deleteFromDist) throws IOException {
+        DeleteReleaseBundleRequest request;
+        if (StringUtils.isNotBlank(distRules)) {
+            if (!CollectionUtils.isEmpty(countryCodes) || !StringUtils.isAllBlank(siteName, cityName)) {
+                throw new IOException("The distRules input can't be used with site, city or country codes");
+            }
+            ObjectMapper mapper = createMapper();
+            request = mapper.readValue(distRules, DeleteReleaseBundleRequest.class);
+        } else {
+            request = new DeleteReleaseBundleRequest();
+            request.setDistributionRules(Utils.createDistributionRules(countryCodes, siteName, cityName));
+        }
+        request.setDryRun(dryRun);
+        request.setOnSuccess(deleteFromDist ?
+                DeleteReleaseBundleRequest.OnSuccess.delete : DeleteReleaseBundleRequest.OnSuccess.keep);
+        return request;
+    }
+
+    private static class ReleaseBundleDeleteCallable extends MasterToSlaveFileCallable<Void> {
+        private final DistributionManagerBuilder distributionManagerBuilder;
+        private final DeleteReleaseBundleRequest request;
+        private final String version;
+        private final boolean sync;
+        private final String name;
+
+        public ReleaseBundleDeleteCallable(DistributionManagerBuilder distributionManagerBuilder, DeleteReleaseBundleRequest request, String name, String version, boolean sync) {
+            this.distributionManagerBuilder = distributionManagerBuilder;
+            this.request = request;
+            this.name = name;
+            this.version = version;
+            this.sync = sync;
+        }
+
+        @Override
+        public Void invoke(File file, VirtualChannel channel) throws IOException, InterruptedException {
+            try (DistributionManager distributionManager = distributionManagerBuilder.build()) {
+                distributionManager.deleteReleaseBundle(name, version, sync, request);
+            }
+            return null;
+        }
+    }
+}
+
+
+ with the following error information:
+[ERROR] /artifactory-plugin/src/main/java/org/jfrog/hudson/pipeline/common/executors/ReleaseBundleDeleteExecutor.java:[51,71] cannot find symbol
+  symbol:   method isAllBlank(java.lang.String,java.lang.String)
+  location: class org.apache.commons.lang3.StringUtils
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error.
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

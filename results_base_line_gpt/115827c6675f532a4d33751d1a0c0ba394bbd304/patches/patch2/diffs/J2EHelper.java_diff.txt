@@ -1,0 +1,11 @@
+18a19,20
+> import javax.servlet.Filter;
+> 
+76c78
+<         final FilterHolder filterHolder = new FilterHolder(filter);
+---
+>         final FilterHolder filterHolder = new FilterHolder((Filter) filter);
+78c80
+<         contextHandler.addFilter(filterHolder, mapping, EnumSet.of(org.eclipse.jetty.servlet.FilterMapping.DispatcherType.REQUEST));
+---
+>         contextHandler.addFilter(filterHolder, mapping, EnumSet.of(javax.servlet.DispatcherType.REQUEST));

@@ -1,0 +1,11 @@
+12c12,13
+< import javax.ws.rs.client.Client;
+---
+> import javax.ws.rs.client.ClientBuilder; // Updated import
+> import javax.ws.rs.client.Client; // Remove this if it's not needed
+30,31c31,32
+<         WireAPI api = new API(httpClient, state.token);
+<         return new BotClient(api, crypto, state);
+---
+>         WireAPI api = new WireAPI(httpClient, state.token); // Fixed class name
+>         return new WireClient(api, crypto, state); // Fixed class name

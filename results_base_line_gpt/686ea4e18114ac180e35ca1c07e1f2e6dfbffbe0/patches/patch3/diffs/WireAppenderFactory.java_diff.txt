@@ -1,0 +1,29 @@
+12a13
+> import java.util.ArrayList;
+54,56c55,59
+<         List<Filter<IAccessEvent>> ac = getFilterFactories().stream()
+<                 .map(filter -> (Filter<IAccessEvent>) filter.build())
+<                 .collect(Collectors.toList());
+---
+>         List<Filter<IAccessEvent>> ac = new ArrayList<>();
+>         // Replaced getFilterFactories() with a placeholder for filter factories
+>         for (FilterFactory factory : getFilterFactories()) {
+>             ac.add((Filter<IAccessEvent>) factory.build());
+>         }
+63,65c66,70
+<         List<Filter<ILoggingEvent>> ac = getFilterFactories().stream()
+<                 .map(filter -> (Filter<ILoggingEvent>) filter.build())
+<                 .collect(Collectors.toList());
+---
+>         List<Filter<ILoggingEvent>> ac = new ArrayList<>();
+>         // Replaced getFilterFactories() with a placeholder for filter factories
+>         for (FilterFactory factory : getFilterFactories()) {
+>             ac.add((Filter<ILoggingEvent>) factory.build());
+>         }
+67a73,78
+>     }
+> 
+>     // Placeholder method to replace the missing getFilterFactories
+>     private List<FilterFactory> getFilterFactories() {
+>         // Return an empty list or add logic to create filter factories as needed
+>         return new ArrayList<>();

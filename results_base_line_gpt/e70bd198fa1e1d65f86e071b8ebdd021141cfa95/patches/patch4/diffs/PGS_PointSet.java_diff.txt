@@ -1,0 +1,11 @@
+70c70
+<                         if (tree.size() == 0 || tree.queryNN(coords) == null) { // Updated method name
+---
+>                         if (tree.size() == 0 || tree.queryNN(coords) == null) {
+72a73,78
+>                         } else {
+>                                 double[] nearest = tree.queryNN(coords, distanceTolerance);
+>                                 if (nearest == null) {
+>                                         tree.insert(coords, p);
+>                                         newPoints.add(p);
+>                                 }

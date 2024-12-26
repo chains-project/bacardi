@@ -1,0 +1,73 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+package com.github.games647.changeskin.sponge.task;
+
+import com.github.games647.changeskin.core.model.skin.SkinModel;
+import com.github.games647.changeskin.core.shared.task.SharedDownloader;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import java.util.UUID;
+
+import org.spongepowered.api.command.CommandSource; // Updated import based on dependency changes
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.command.CommandSourceStack; // Updated import based on dependency changes
+
+public class SkinDownloader extends SharedDownloader {
+
+    private final ChangeSkinSponge plugin;
+    private final CommandSource invoker; // Updated type based on dependency changes
+    private final Player receiver;
+
+    public SkinDownloader(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, UUID targetUUID
+            , boolean keepSkin) { // Updated parameter type
+        super(plugin.getCore(), keepSkin, targetUUID, receiver.getUniqueId());
+
+        this.plugin = plugin;
+        this.invoker = invoker;
+        this.receiver = receiver;
+    }
+
+    @Override
+    protected void scheduleApplyTask(SkinModel skinData) {
+        Runnable skinUpdater = new SkinApplier(plugin, invoker, receiver, skinData, keepSkin);
+        Task.builder().execute(skinUpdater).submit(plugin);
+    }
+
+    @Override
+    public void sendMessageInvoker(String id) {
+        plugin.sendMessage(invoker, id);
+    }
+}
+
+ with the following error information:
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinDownloader.java:[12,37] cannot find symbol
+  symbol:   class CommandSourceStack
+  location: package org.spongepowered.api.command
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinDownloader.java:[17,19] cannot find symbol
+  symbol:   class CommandSource
+  location: class com.github.games647.changeskin.sponge.task.SkinDownloader
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinDownloader.java:[20,52] cannot find symbol
+  symbol:   class CommandSource
+  location: class com.github.games647.changeskin.sponge.task.SkinDownloader
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinDownloader.java:[9,37] cannot find symbol
+  symbol:   class CommandSource
+  location: package org.spongepowered.api.command
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error.
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

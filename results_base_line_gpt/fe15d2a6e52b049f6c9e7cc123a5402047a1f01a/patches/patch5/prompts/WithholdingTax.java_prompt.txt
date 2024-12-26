@@ -1,0 +1,111 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_02_01.schema;
+
+import java.math.BigDecimal;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
+import org.jvnet.jaxb2_commons.lang.ToString2;
+import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
+import org.jvnet.jaxb2_commons.locator.ObjectLocator;
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "WithholdingTax", propOrder = {
+    "withholdingTaxType",
+    "withholdingTaxDescription",
+    "withholdingTaxAmount"
+})
+public class WithholdingTax implements ToString2
+{
+
+    @XmlElement(name = "WithholdingTaxType")
+    protected String withholdingTaxType;
+    @XmlElement(name = "WithholdingTaxDescription")
+    protected String withholdingTaxDescription;
+    @XmlElement(name = "WithholdingTaxAmount", required = true)
+    protected BigDecimal withholdingTaxAmount;
+
+    public String getWithholdingTaxType() {
+        return withholdingTaxType;
+    }
+
+    public void setWithholdingTaxType(String value) {
+        this.withholdingTaxType = value;
+    }
+
+    public String getWithholdingTaxDescription() {
+        return withholdingTaxDescription;
+    }
+
+    public void setWithholdingTaxDescription(String value) {
+        this.withholdingTaxDescription = value;
+    }
+
+    public BigDecimal getWithholdingTaxAmount() {
+        return withholdingTaxAmount;
+    }
+
+    public void setWithholdingTaxAmount(BigDecimal value) {
+        this.withholdingTaxAmount = value;
+    }
+
+    @Override
+    public String toString() {
+        final ToStringStrategy2 strategy = JAXBToStringStrategy.DEFAULT; // Updated to use DEFAULT
+        final StringBuilder buffer = new StringBuilder();
+        append(null, buffer, strategy);
+        return buffer.toString();
+    }
+
+    @Override
+    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+        strategy.appendStart(locator, this, buffer);
+        appendFields(locator, buffer, strategy);
+        strategy.appendEnd(locator, this, buffer);
+        return buffer;
+    }
+
+    @Override
+    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+        {
+            String theWithholdingTaxType;
+            theWithholdingTaxType = this.getWithholdingTaxType();
+            strategy.appendField(locator, this, "withholdingTaxType", buffer, theWithholdingTaxType, (this.withholdingTaxType!= null));
+        }
+        {
+            String theWithholdingTaxDescription;
+            theWithholdingTaxDescription = this.getWithholdingTaxDescription();
+            strategy.appendField(locator, this, "withholdingTaxDescription", buffer, theWithholdingTaxDescription, (this.withholdingTaxDescription!= null));
+        }
+        {
+            BigDecimal theWithholdingTaxAmount;
+            theWithholdingTaxAmount = this.getWithholdingTaxAmount();
+            strategy.appendField(locator, this, "withholdingTaxAmount", buffer, theWithholdingTaxAmount, (this.withholdingTaxAmount!= null));
+        }
+        return buffer;
+    }
+
+}
+
+ with the following error information:
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/services/export/saftpt/v1_02_01/schema/WithholdingTax.java:[133,64] cannot find symbol
+  symbol:   method getInstance()
+  location: class org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error.
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

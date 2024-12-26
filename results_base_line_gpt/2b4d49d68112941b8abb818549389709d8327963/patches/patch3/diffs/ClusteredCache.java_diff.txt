@@ -1,0 +1,78 @@
+21d20
+< import com.hazelcast.core.MapEvent;
+22a22
+> import com.hazelcast.map.listener.MapEvent;
+58c58
+<     final com.hazelcast.map.IMap<K, V> map; // Updated the IMap reference
+---
+>     final IMap<K, V> map; // Updated the IMap reference
+74c74
+<     protected ClusteredCache(final String name, final com.hazelcast.map.IMap<K, V> cache) { // Updated the IMap reference
+---
+>     protected ClusteredCache(final String name, final IMap<K, V> cache) { // Updated the IMap reference
+84d83
+<     @Override
+107c106
+<             public void entryUpdated(EntryEvent event) {
+---
+>             public void entryUpdated(EntryEvent<K, V> event) {
+116c115
+<             public void entryRemoved(EntryEvent event) {
+---
+>             public void entryRemoved(EntryEvent<K, V> event) {
+125c124
+<             public void entryEvicted(EntryEvent event) {
+---
+>             public void entryEvicted(EntryEvent<K, V> event) {
+134c133
+<             public void entryAdded(EntryEvent event) {
+---
+>             public void entryAdded(EntryEvent<K, V> event) {
+149d147
+<     @Override
+156d153
+<     @Override
+161d157
+<     @Override
+166d161
+<     @Override
+174d168
+<     @Override
+180d173
+<     @Override
+185d177
+<     @Override
+190d181
+<     @Override
+196d186
+<     @Override
+201d190
+<     @Override
+206d194
+<     @Override
+211d198
+<     @Override
+216d202
+<     @Override
+221d206
+<     @Override
+234d218
+<     @Override
+239d222
+<     @Override
+244d226
+<     @Override
+250d231
+<     @Override
+255d235
+<     @Override
+261d240
+<     @Override
+266d244
+<     @Override
+271d248
+<     @Override
+276d252
+<     @Override
+281d256
+<     @Override

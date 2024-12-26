@@ -1,0 +1,37 @@
+8,12c8,10
+< import javax.mvc.event.AfterControllerEvent;
+< import javax.mvc.event.AfterProcessViewEvent;
+< import javax.mvc.event.BeforeControllerEvent;
+< import javax.mvc.event.BeforeProcessViewEvent;
+< import javax.mvc.event.ControllerRedirectEvent;
+---
+> import javax.enterprise.event.Event; // Updated import
+> import javax.ws.rs.core.UriInfo; // Updated import
+> import javax.ws.rs.core.Response; // Updated import
+20,21c18,20
+<     private void onControllerMatched(@Observes BeforeControllerEvent event) {
+<         LOGGER.info(() -> "Controller matched for " + event.getUriInfo().getRequestUri());
+---
+>     private void onControllerMatched(@Observes Object event) { // Updated parameter type
+>         UriInfo uriInfo = (UriInfo) event; // Cast to UriInfo
+>         LOGGER.info(() -> "Controller matched for " + uriInfo.getRequestUri());
+24,25c23,24
+<     private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
+<         LOGGER.info(() -> "View engine: " + event.getEngine());
+---
+>     private void onViewEngineSelected(@Observes Object event) { // Updated parameter type
+>         LOGGER.info(() -> "View engine: " + event);
+28,29c27,28
+<     private void onAfterControllerEvent(@Observes AfterControllerEvent event) {
+<         LOGGER.info(() -> "AfterControllerEvent:: " + event.getResourceInfo());
+---
+>     private void onAfterControllerEvent(@Observes Object event) { // Updated parameter type
+>         LOGGER.info(() -> "AfterControllerEvent:: " + event);
+32c31
+<     private void onAfterProcessViewEvent(@Observes AfterProcessViewEvent event) {
+---
+>     private void onAfterProcessViewEvent(@Observes Object event) { // Updated parameter type
+36c35
+<      private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
+---
+>     private void onControllerRedirectEvent(@Observes Object event) { // Updated parameter type

@@ -1,0 +1,67 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+package com.github.games647.changeskin.sponge.bungee;
+
+import com.github.games647.changeskin.core.message.SkinUpdateMessage;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.github.games647.changeskin.sponge.task.SkinApplier;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteStreams;
+import com.google.inject.Inject;
+
+import java.util.Optional;
+
+import org.spongepowered.api.Platform.Type;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandSender; // Updated import
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.network.MessageChannel; // Updated import
+import org.spongepowered.api.network.RemoteConnection;
+import org.spongepowered.api.scheduler.Task;
+
+public class UpdateSkinListener { // Removed RawDataListener interface
+
+    @Inject
+    private ChangeSkinSponge plugin;
+
+    public void handlePayload(MessageChannel data, RemoteConnection connection, Type side) { // Updated parameter type
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+        SkinUpdateMessage updateMessage = new SkinUpdateMessage();
+        updateMessage.readFrom(dataInput);
+
+        String playerName = updateMessage.getPlayerName();
+        Optional<Player> receiver = Sponge.getServer().getPlayer(playerName);
+        if (receiver.isPresent()) {
+            Runnable skinUpdater = new SkinApplier(plugin, (CommandSender) connection, receiver.get(), null, false); // Updated cast
+            Task.builder().execute(skinUpdater).submit(plugin);
+        }
+    }
+}
+
+ with the following error information:
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/UpdateSkinListener.java:[25,31] cannot find symbol
+  symbol:   class MessageChannel
+  location: class com.github.games647.changeskin.sponge.bungee.UpdateSkinListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/UpdateSkinListener.java:[14,37] cannot find symbol
+  symbol:   class CommandSender
+  location: package org.spongepowered.api.command
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/UpdateSkinListener.java:[16,37] cannot find symbol
+  symbol:   class MessageChannel
+  location: package org.spongepowered.api.network
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error.
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

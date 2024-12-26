@@ -1,0 +1,10 @@
+27,28c27,28
+<             LayoutFactory<T> layoutFactory,
+<             LevelFilterFactory<T> levelFilterFactory) { // Removed AsyncAppenderFactory as it was not needed
+---
+>             Layout<T> layoutFactory, // Changed type to Layout<T>
+>             Filter<T> levelFilterFactory) { // Changed type to Filter<T>
+34c34
+<         final Filter<T> levelFilter = levelFilterFactory.build(threshold);
+---
+>         final Filter<T> levelFilter = levelFilterFactory; // Directly using the provided levelFilterFactory

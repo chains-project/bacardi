@@ -1,0 +1,13 @@
+28d27
+< import org.apache.commons.io.input.BoundedInputStream;
+204,205c203,204
+<                         BoundedInputStream bis = new BoundedInputStream( in, remainingSpace + 1 );
+<                         CountingInputStream cis = new CountingInputStream( bis );
+---
+>                         CountingInputStream cis = new CountingInputStream( in );
+>                         long bytesRead = 0;
+211c210,211
+<                         remainingSpace -= cis.getByteCount();
+---
+>                         bytesRead += cis.getCount();
+>                         remainingSpace -= bytesRead;

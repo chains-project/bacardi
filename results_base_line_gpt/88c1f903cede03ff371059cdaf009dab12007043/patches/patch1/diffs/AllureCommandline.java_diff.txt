@@ -1,0 +1,23 @@
+18,19d17
+< import net.lingala.zip4j.core.ZipFile;
+< import net.lingala.zip4j.exception.ZipException;
+48a47,48
+> import java.util.zip.ZipEntry;
+> import java.util.zip.ZipInputStream;
+217,220c217,227
+<         try {
+<             final ZipFile zipFile = new ZipFile(file);
+<             zipFile.extractAll(getInstallationDirectory().toAbsolutePath().toString());
+<         } catch (ZipException e) {
+---
+>         try (ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(file.toPath()))) {
+>             ZipEntry entry;
+>             while ((entry = zipInputStream.getNextEntry()) != null) {
+>                 Path outputPath = getInstallationDirectory().resolve(entry.getName());
+>                 if (entry.isDirectory()) {
+>                     Files.createDirectories(outputPath);
+>                 } else {
+>                     Files.copy(zipInputStream, outputPath, StandardCopyOption.REPLACE_EXISTING);
+>                 }
+>             }
+>         } catch (IOException e) {

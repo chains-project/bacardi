@@ -1,0 +1,10 @@
+6a7,8
+> import net.kyori.adventure.text.Component; // Updated import for text handling
+> import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer; // Updated import for text serialization
+8,9d9
+< import org.spongepowered.api.text.Text;
+< import org.spongepowered.api.text.serializer.TextSerializers;
+22c22
+<         Text message = TextSerializers.FORMATTING_CODE.deserialize(localeMessage);
+---
+>         Component message = GsonComponentSerializer.gson().deserialize(localeMessage); // Updated to use new text library

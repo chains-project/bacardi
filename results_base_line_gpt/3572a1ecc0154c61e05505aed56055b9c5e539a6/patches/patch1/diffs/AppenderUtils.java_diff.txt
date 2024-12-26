@@ -1,0 +1,38 @@
+30d29
+< import org.apache.thrift.transport.TFastFramedTransport;
+57d55
+<     @Override
+60,65c58,68
+<       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
+<       // log.
+<       final int bufferCapacity = 10;
+<       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
+<           bufferCapacity);
+<       protocol = new TBinaryProtocol(framedTransport);
+---
+>       // Use a compatible transport for the updated dependency
+>       framedTransport = new TTransport() {
+>         @Override
+>         public void open() throws TException {}
+> 
+>         @Override
+>         public void close() throws TException {}
+> 
+>         @Override
+>         public boolean isOpen() {
+>           return true;
+68a72,83
+>         public void write(byte[] buf, int off, int len) throws TException {
+>           os.write(buf, off, len);
+>         }
+> 
+>         @Override
+>         public int read(byte[] buf, int off, int len) throws TException {
+>           return 0; // Not used in this context
+>         }
+>       };
+>       protocol = new TBinaryProtocol(framedTransport);
+>     }
+> 
+78d92
+<     @Override
