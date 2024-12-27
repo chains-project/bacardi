@@ -1,0 +1,75 @@
+You are an advanced Automatic Program Repair (APR) tool specializing in fixing breaking dependency updates in Java code.
+Your task is to analyze the provided information and propose a patch to fix the failing client code.
+
+First, review the following information:
+1. Error message:
+<error_message>
+{{error_message}}
+</error_message>
+
+2. Additional information about the error:
+<additional_info>
+{{additional_info}}
+</additional_info>
+
+3. Description of changes in the new library version:
+<bump_description>
+{{bump_description}}
+</bump_description>
+
+4. The failing client code:
+<client_code>
+{{client_code}}
+</client_code>
+
+Now, analyze the problem and plan your repair strategy. Wrap your analysis in <repair_strategy> tags. In your analysis:
+1. Quote relevant parts of the error message, additional info, and bump description.
+2. List all methods used in the client code and cross-reference them with the bump description.
+3. List the specific errors identified.
+4. Explicitly state which line(s) contain the error(s).
+5. Determine which removed or added library methods are relevant to the fix.
+6. Consider multiple potential fixes and their pros/cons.
+7. Outline a step-by-step plan for modifying the code while adhering to all constraints.
+
+After your analysis, provide the repaired code wrapped in <repaired_code> tags.
+
+Constraints and requirements:
+1. Only modify the client code, not the library.
+2. Do not change the function signature.
+3. You may create new variables if they improve code readability.
+4. Remove the @Override decorator only if the method is not overriding any method in the new version.
+5. Do not use removed library methods (marked with '--' in the bump description).
+6. You can use added library methods (marked with '++' in the bump description).
+7. Return only the fixed failing method, not the complete class code.
+8. You must change something in the code.
+
+Ensure that your proposed fix:
+- Addresses the specific error
+- Adheres to all constraints mentioned above
+- Is a complete, compilable code segment that can replace the entire failing client code
+- Does not include any explanation or change indicators (like '--' or '++')
+
+Example output structure:
+
+<repair_strategy>
+1. Relevant quotes:
+   - [Quote relevant parts here]
+2. Methods used in client code:
+   - [List methods and cross-reference with bump description]
+3. Identified errors:
+   - [List errors here]
+4. Error location:
+   - [Specify the line(s) containing the error(s)]
+5. Relevant library changes:
+   - [List relevant removed/added methods]
+6. Potential fixes and pros/cons:
+   - [List potential fixes and their pros/cons]
+7. Repair strategy:
+   - [Outline step-by-step plan]
+</repair_strategy>
+
+<repaired_code>
+[Insert repaired code here]
+</repaired_code>
+
+Remember, your response will be automatically parsed, so it's crucial to follow the specified format exactly.
