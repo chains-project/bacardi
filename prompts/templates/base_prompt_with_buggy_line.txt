@@ -1,0 +1,25 @@
+Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+
+the following client code fails:
+```java
+  {{ client_code }}
+```
+
+the error is triggered in this specific line in the previous code:
+```java
+  {{ buggy_line }}
+```
+
+with the following error message:
+{{ error_message }}
+
+
+propose a patch that can be applied to the code to fix the issue.
+Return only a complete and compilable class in a fenced code block.
+You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+Avoid removing any existing code unless it directly causes a compilation or functionality error.
+Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
