@@ -17,18 +17,17 @@ import java.nio.file.Path;
 import java.util.*;
 
 import static se.kth.Util.BreakingUpdateProvider.*;
-import static se.kth.Util.Constants.BENCHMARK_PATH;
-import static se.kth.Util.Constants.JAVA_VERSION_INCOMPATIBILITY_FILE;
+import static se.kth.Util.Constants.*;
 
 public class Bump {
 
     private static final Logger log = LoggerFactory.getLogger(Bump.class);
 
-    private final static String CLIENT_PATH = "/home/kth/Documents/projects";
+    private final static String CLIENT_PATH = PROJECTS_PATH;
 
     static Set<Result> resultsList = new HashSet<>();
     static Map<String, Result> resultsMap = new HashMap<>();
-    private final static String JSON_PATH = "result_repair_gpt.json";
+    private final static String JSON_PATH = "result_repair_gpt_test.json";
 
 
     public static void main(String[] args) {
@@ -55,11 +54,10 @@ public class Bump {
 
         breaking
                 .stream()
-                .filter(e -> e.breakingCommit.equals("43b3a858b77ec27fc8946aba292001c3de465012")) // filter by breaking commit
+                .filter(e -> e.breakingCommit.equals("0abf7148300f40a1da0538ab060552bca4a2f1d8")) // filter by breaking commit
 //                .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
                 .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure category
                 .forEach(e -> {
-
 
 
                     try {
