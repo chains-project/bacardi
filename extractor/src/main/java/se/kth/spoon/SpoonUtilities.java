@@ -112,6 +112,8 @@ public class SpoonUtilities {
             element.accept(scanner);
         }
 
+        tmp.forEach(SpoonFullyQualifiedNameExtractor::getFullyQualifiedName);
+
         Set<ApiChange> apiChangesMatch = scanner.getMatchedApiChanges();
 
         apiChangesMatch.forEach(matchedApiChange -> {
