@@ -192,8 +192,10 @@ public class BacardiCore {
                         String absolutePathToBuggyClass = getAbsolutePath(setupPipeline, key);
                         String fileName = key.substring(key.lastIndexOf("/") + 1);
                         // create all structure for save information
-                        GeneratePrompt generatePrompt = new GeneratePrompt(PromptPipeline.BASELINE, new PromptModel(absolutePathToBuggyClass, value));
+                        GeneratePrompt generatePrompt = new GeneratePrompt(PromptPipeline.BASELINE_ANTHROPIC, new PromptModel(absolutePathToBuggyClass, value));
                         String prompt = generatePrompt.generatePrompt();
+                        log.info("Waiting for response...");
+
                         // save the prompt to a file for each file with errors
                         try {
                            Path promptPath =  storeInfo.copyContentToFile("prompts/%s_prompt.txt".formatted(fileName), prompt);
