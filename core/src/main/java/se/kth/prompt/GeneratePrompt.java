@@ -44,6 +44,10 @@ public class GeneratePrompt {
                 promptTemplate = new BasePromptTemplate();
                 promptTemplate.setPromptModel(promptModel);
                 break;
+            case BASELINE_ANTHROPIC:
+                promptTemplate = new BasePromptAnthropicTemplate();
+                promptTemplate.setPromptModel(promptModel);
+                break;
             case ADVANCED:
                 log.info("Advanced pipeline not implemented yet");
                 break;
