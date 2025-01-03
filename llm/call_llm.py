@@ -29,8 +29,8 @@ def get_llm_response(prompt, api_key, organization):
     return response_text
 
 if __name__ == "__main__":
-    api_key = "sk-None-APHBjbapVsZJI436GiokT3BlbkFJjhWT9WJcegltDZt56m3p"
-    organization = "org-8vaaikANoGLw18qMPf7FeuJm"
+    api_key = "API-KEY"
+    organization = "ORGANIZATION-ID"
     parser = argparse.ArgumentParser(description="Get LLM response based on a prompt.")
     parser.add_argument("prompt", type=str, help="The prompt to send to the LLM.")
 

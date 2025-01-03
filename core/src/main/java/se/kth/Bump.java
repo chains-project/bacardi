@@ -14,7 +14,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ForkJoinPool;
 
 import static se.kth.Util.BreakingUpdateProvider.*;
 import static se.kth.Util.Constants.*;
@@ -22,12 +26,13 @@ import static se.kth.Util.Constants.*;
 public class Bump {
 
     private static final Logger log = LoggerFactory.getLogger(Bump.class);
-
+    int availableProcessors = Runtime.getRuntime().availableProcessors();
     private final static String CLIENT_PATH = PROJECTS_PATH;
 
-    static Set<Result> resultsList = new HashSet<>();
-    static Map<String, Result> resultsMap = new HashMap<>();
+    static Map<String, Result> resultsMap = new ConcurrentHashMap<>();
     private final static String JSON_PATH = "result_repair_gpt_test.json";
+
+    ForkJoinPool customThreadPool = new ForkJoinPool(availableProcessors);
 
 
     public static void main(String[] args) {
@@ -52,43 +57,44 @@ public class Bump {
         DockerBuild dockerBuild = new DockerBuild(true);
         // identify breaking updates and download image and copy the project
 
-        breaking
-                .stream()
-                .filter(e -> e.breakingCommit.equals("0abf7148300f40a1da0538ab060552bca4a2f1d8")) // filter by breaking commit
-//                .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
-                .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure category
-                .forEach(e -> {
+        ForkJoinPool customThreadPool = new ForkJoinPool(4); //
 
+        customThreadPool.submit(() ->
+                breaking
+                        .parallelStream()
+                        .filter(e -> e.breakingCommit.equals("165381d26b2c3d2278fde88c16f95807506451fe")) // filter by breaking commitAllChanges
+//                        .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
+                        .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure category
+                        .forEach(e -> {
+                            try {
+                                //starting processing breaking update
+                                LogUtils.logWithBox(log, "Processing breaking update: %s".formatted(e.breakingCommit));
+                                //Full path Folder/breaking-commit/project
+                                Path clientFolder = settingClientFolderAndM2Folder(e, dockerBuild);
 
-                    try {
-                        //starting processing breaking update
+                                SetupPipeline setupPipeline = new SetupPipeline();
+                                //adding breaking update to the pipeline
+                                setupPipeline.setBreakingUpdate(e);
+                                //adding docker build to the pipeline
+                                setupPipeline.setDockerBuild(dockerBuild);
+                                //adding client folder to the pipeline
+                                setupPipeline.setClientFolder(clientFolder.resolve(e.project));
+                                //adding log file path to the pipeline
+                                setupPipeline.setLogFilePath(Path.of("%s/%s.log".formatted(clientFolder.resolve(e.project), e.breakingCommit)));
+                                //adding m2 folder path to the pipeline
+                                setupPipeline.setM2FolderPath(Path.of("%s/%s/m2/".formatted(CLIENT_PATH, e.breakingCommit)));
+                                //adding docker image to the pipeline
+                                setupPipeline.setDockerImage(e.breakingUpdateReproductionCommand.replace("docker run ", ""));
+                                //adding output patch folder to the pipeline
+                                setupPipeline.setOutPutPatchFolder(Path.of("results"));
+                                //start repair process
+                                repair(setupPipeline);
+                            } catch (Exception ee) {
+                                log.error("Error processing breaking update: %s".formatted(e.breakingCommit), ee);
+                            }
 
-                        LogUtils.logWithBox(log, "Processing breaking update: %s".formatted(e.breakingCommit));
-                        //Full path Folder/breaking-commit/project
-                        Path clientFolder = settingClientFolderAndM2Folder(e, dockerBuild);
-
-                        SetupPipeline setupPipeline = new SetupPipeline();
-                        //adding breaking update to the pipeline
-                        setupPipeline.setBreakingUpdate(e);
-                        //adding docker build to the pipeline
-                        setupPipeline.setDockerBuild(dockerBuild);
-                        //adding client folder to the pipeline
-                        setupPipeline.setClientFolder(clientFolder.resolve(e.project));
-                        //adding log file path to the pipeline
-                        setupPipeline.setLogFilePath(Path.of("%s/%s.log".formatted(clientFolder.resolve(e.project), e.breakingCommit)));
-                        //adding m2 folder path to the pipeline
-                        setupPipeline.setM2FolderPath(Path.of("%s/%s/m2/".formatted(CLIENT_PATH, e.breakingCommit)));
-                        //adding docker image to the pipeline
-                        setupPipeline.setDockerImage(e.breakingUpdateReproductionCommand.replace("docker run ", ""));
-                        //adding output patch folder to the pipeline
-                        setupPipeline.setOutPutPatchFolder(Path.of("results"));
-                        //start repair process
-                        repair(setupPipeline);
-                    } catch (Exception ee) {
-                        log.error("Error processing breaking update: %s".formatted(e.breakingCommit), ee);
-                    }
-
-                });
+                        })).join();
+        customThreadPool.shutdown();
     }
 
     private static Path settingClientFolderAndM2Folder(BreakingUpdate e, DockerBuild dockerBuild) {
