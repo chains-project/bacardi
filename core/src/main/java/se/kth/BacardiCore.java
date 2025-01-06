@@ -176,174 +176,90 @@ public class BacardiCore {
 
 //        try {
 //            Map<String, Set<DetectedFileWithErrors>> listOfFilesWithErrors = repairDirectFailures.extractConstructsFromDirectFailures();
-        Map<String, Set<DetectedFileWithErrors>> listOfFilesWithErrors = repairDirectFailures.basePipeLine();
+            Map<String, Set<DetectedFileWithErrors>> listOfFilesWithErrors = repairDirectFailures.basePipeLine();
 
-        if (listOfFilesWithErrors.isEmpty()) {
-            log.info("No constructs found in the direct compilation failure.");
-            //try to get failures from indirect dependencies or conflicts between dependencies
-            return FailureCategory.NOT_REPAIRED;
+            if (listOfFilesWithErrors.isEmpty()) {
+                log.info("No constructs found in the direct compilation failure.");
+                //try to get failures from indirect dependencies or conflicts between dependencies
+                return FailureCategory.NOT_REPAIRED;
 
-        } else {
-            log.info("Constructs found in the direct compilation failure: {}", listOfFilesWithErrors.size());
-            //generate prompt for the construct to repair
+            } else {
+                log.info("Constructs found in the direct compilation failure: {}", listOfFilesWithErrors.size());
+                //generate prompt for the construct to repair
 
-            StoreInfo storeInfo = new StoreInfo(setupPipeline);
+                StoreInfo storeInfo = new StoreInfo(setupPipeline);
 
             ExecutorService executorService = Executors.newFixedThreadPool(listOfFilesWithErrors.size());
             List<CompletableFuture<Void>> futures = new ArrayList<>();
 
-            // Paralelizar la reparación de cada archivo con errores
-            listOfFilesWithErrors.forEach((key, value) -> {
-                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                    processFileWithErrors(key, value, storeInfo, gitManager);
-                }, executorService);
-                futures.add(future);
-            });
+                listOfFilesWithErrors.forEach((key, value) -> {
+                    log.info("File: {}", key);
 
-            // Esperar a que todas las tareas se completen
-            try {
-                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-            } catch (Exception e) {
-                log.error("Error waiting for parallel file processing", e);
-            }
+                    if (value.isEmpty()) {
+                        log.info("No errors found for: {}", key);
+                    } else {
+                        // if there are errors, generate a prompt for the file and execute the repair
+                        String absolutePathToBuggyClass = getAbsolutePath(setupPipeline, key);
+                        String fileName = key.substring(key.lastIndexOf("/") + 1);
+                        // create all structure for save information
+                        GeneratePrompt generatePrompt = new GeneratePrompt(PromptPipeline.BASELINE_ANTHROPIC, new PromptModel(absolutePathToBuggyClass, value));
+                        String prompt = generatePrompt.generatePrompt();
+                        log.info("Waiting for response...");
 
-//            listOfFilesWithErrors.forEach((key, value) -> {
-//                log.info("File: {}", key);
-//
-//                if (value.isEmpty()) {
-//                    log.info("No errors found for: {}", key);
-//                } else {
-//                    // if there are errors, generate a prompt for the file and execute the repair
-//                    String absolutePathToBuggyClass = getAbsolutePath(setupPipeline, key);
-//                    String fileName = key.substring(key.lastIndexOf("/") + 1);
-//                    // create all structure for save information
-//                    GeneratePrompt generatePrompt = new GeneratePrompt(PromptPipeline.BASELINE_ANTHROPIC, new PromptModel(absolutePathToBuggyClass, value));
-//                    String prompt = generatePrompt.generatePrompt();
-//                    log.info("Waiting for response...");
-//
-//                    // save the prompt to a file for each file with errors
-//                    try {
-//                        Path promptPath = storeInfo.copyContentToFile("prompts/%s_prompt.txt".formatted(fileName), prompt);
-//
-//                        String model_response = generatePrompt.callPythonScript(PYTHON_SCRIPT, promptPath);
-//                        // save model model_response to a file
-//                        storeInfo.copyContentToFile("responses/%s_model_response.txt".formatted(fileName), model_response);
-//                        String onlyCodeResponse = generatePrompt.extractContentFromModelResponse(model_response);
-//                        storeInfo.copyContentToFile("responses/%s_response.txt".formatted(fileName), onlyCodeResponse);
-//                        // save the updated file
-//                        Path updatedFile = storeInfo.copyContentToFile("updated/%s".formatted(fileName), onlyCodeResponse);
-//                        Path target = Path.of(absolutePathToBuggyClass);
-//                        Path originalFile = storeInfo.copyContentToFile("original/%s".formatted(fileName), Files.readString(target));
-//                        // execute the diff command
-//                        boolean isDiff = storeInfo.executeDiffCommand(originalFile.toAbsolutePath().toString(), updatedFile.toAbsolutePath().toString(), storeInfo.getPatchFolder().resolve("diffs/%s_diff.txt".formatted(fileName)));
-//                        isDifferent.add(isDiff);
-//                        //replace original file with updated file
-//                        if (isDiff) {
-//                            Files.copy(updatedFile, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-//                        }
-//                    } catch (IOException e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                }
-//
-//            });
+                        // save the prompt to a file for each file with errors
+                        try {
+                           Path promptPath =  storeInfo.copyContentToFile("prompts/%s_prompt.txt".formatted(fileName), prompt);
 
-            try {
-                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-            } catch (Exception e) {
-                log.error("Error waiting for parallel file processing", e);
-            }
+                            String model_response = generatePrompt.callPythonScript(PYTHON_SCRIPT, promptPath);
+                            // save model model_response to a file
+                            storeInfo.copyContentToFile("responses/%s_model_response.txt".formatted(fileName), model_response);
+                            String onlyCodeResponse = generatePrompt.extractContentFromModelResponse(model_response);
+                            storeInfo.copyContentToFile("responses/%s_response.txt".formatted(fileName), onlyCodeResponse);
+                            // save the updated file
+                            Path updatedFile = storeInfo.copyContentToFile("updated/%s".formatted(fileName), onlyCodeResponse);
+                            Path target = Path.of(absolutePathToBuggyClass);
+                            Path originalFile = storeInfo.copyContentToFile("original/%s".formatted(fileName), Files.readString(target));
+                            // execute the diff command
+                            boolean isDiff = storeInfo.executeDiffCommand(originalFile.toAbsolutePath().toString(), updatedFile.toAbsolutePath().toString(), storeInfo.getPatchFolder().resolve("diffs/%s_diff.txt".formatted(fileName)));
+                            isDifferent.add(isDiff);
+                            //replace original file with updated file
+                            if (isDiff) {
+                                Files.copy(updatedFile, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                            }
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
 
-            // Después de procesar todos los archivos, comprobar si hubo algún cambio
-            if (futures.stream().anyMatch(future -> future.isCompletedExceptionally())) {
-                gitManager.commitAllChanges("Direct compilation failure repair attempt %s".formatted(result.getAttempts().size()));
-                // Copiar los archivos al docker image
-                try {
-                    dockerBuild.copyFolderToDockerImage(setupPipeline.getDockerImage(), setupPipeline.getClientFolder().toString());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                });
+
+                if (isDifferent.contains(true)) {
+                    gitManager.commitAllChanges("Direct compilation failure repair attempt %s".formatted(result.getAttempts().size()));
+                    //copy the file to docker image
+                    try {
+                        dockerBuild.copyFolderToDockerImage(setupPipeline.getDockerImage(), setupPipeline.getClientFolder().toString());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    //reproduce the build
+                    Path logFilePath = storeInfo.getPatchFolder().resolve("output.log");
+                    dockerBuild.reproduce(setupPipeline.getDockerImage(), FailureCategory.WERROR_FAILURE, setupPipeline.getClientFolder(), logFilePath);
+                    setupPipeline.setLogFilePath(logFilePath);
+                } else {
+                    //no changes were made
+                    return FailureCategory.NOT_REPAIRED;
                 }
-                // Reproducir el build
-                Path logFilePath = storeInfo.getPatchFolder().resolve("output.log");
-                dockerBuild.reproduce(setupPipeline.getDockerImage(), FailureCategory.WERROR_FAILURE, setupPipeline.getClientFolder(), logFilePath);
-                setupPipeline.setLogFilePath(logFilePath);
-            } else {
-                return FailureCategory.NOT_REPAIRED;
+                // Check and try dependency resolution conflicts
+                category = failureCategoryExtract.getFailureCategory(setupPipeline.getLogFilePath().toFile());
+
+                return category;
             }
 
-            // Check and try dependency resolution conflicts
-            category = failureCategoryExtract.getFailureCategory(setupPipeline.getLogFilePath().toFile());
-            return category;
-        }
-
-//            if (isDifferent.contains(true)) {
-//                gitManager.commitAllChanges("Direct compilation failure repair attempt %s".formatted(result.getAttempts().size()));
-//                //copy the file to docker image
-//                try {
-//                    dockerBuild.copyFolderToDockerImage(setupPipeline.getDockerImage(), setupPipeline.getClientFolder().toString());
-//                } catch (IOException e) {
-//                    throw new RuntimeException(e);
-//                }
-//                //reproduce the build
-//                Path logFilePath = storeInfo.getPatchFolder().resolve("output.log");
-//                dockerBuild.reproduce(setupPipeline.getDockerImage(), FailureCategory.WERROR_FAILURE, setupPipeline.getClientFolder(), logFilePath);
-//                setupPipeline.setLogFilePath(logFilePath);
-//            } else {
-//                //no changes were made
-//                return FailureCategory.NOT_REPAIRED;
-//            }
-//            // Check and try dependency resolution conflicts
-//            category = failureCategoryExtract.getFailureCategory(setupPipeline.getLogFilePath().toFile());
-//
-//            return category;
+//        } catch (IOException e) {
+//            log.error("Error repairing direct compilation failure.", e);
+//            throw new RuntimeException(e);
 //        }
-//
-////        } catch (IOException e) {
-////            log.error("Error repairing direct compilation failure.", e);
-////            throw new RuntimeException(e);
-////        }
 
-    }
-
-    private void processFileWithErrors(String key, Set<DetectedFileWithErrors> value, StoreInfo storeInfo, GitManager gitManager) {
-        log.info("Processing file: {}", key);
-
-        if (value.isEmpty()) {
-            log.info("No errors found for: {}", key);
-        } else {
-            // if there are errors, generate a prompt for the file and execute the repair
-            String absolutePathToBuggyClass = getAbsolutePath(setupPipeline, key);
-            String fileName = key.substring(key.lastIndexOf("/") + 1);
-
-            GeneratePrompt generatePrompt = new GeneratePrompt(PromptPipeline.BASELINE_ANTHROPIC, new PromptModel(absolutePathToBuggyClass, value));
-            String prompt = generatePrompt.generatePrompt();
-            log.info("Waiting for response...");
-
-            try {
-                // Save the prompt to a file for each file with errors
-                Path promptPath = storeInfo.copyContentToFile("prompts/%s_prompt.txt".formatted(fileName), prompt);
-                String modelResponse = generatePrompt.callPythonScript(PYTHON_SCRIPT, promptPath);
-
-                // Save model model_response to a file
-                storeInfo.copyContentToFile("responses/%s_model_response.txt".formatted(fileName), modelResponse);
-                String onlyCodeResponse = generatePrompt.extractContentFromModelResponse(modelResponse);
-
-                // Save the updated file
-                Path updatedFile = storeInfo.copyContentToFile("updated/%s".formatted(fileName), onlyCodeResponse);
-                Path target = Path.of(absolutePathToBuggyClass);
-                Path originalFile = storeInfo.copyContentToFile("original/%s".formatted(fileName), Files.readString(target));
-
-                // Execute the diff command
-                boolean isDiff = storeInfo.executeDiffCommand(originalFile.toAbsolutePath().toString(), updatedFile.toAbsolutePath().toString(), storeInfo.getPatchFolder().resolve("diffs/%s_diff.txt".formatted(fileName)));
-
-                // Replace original file with updated file if diff exists
-                if (isDiff) {
-                    Files.copy(updatedFile, target, StandardCopyOption.REPLACE_EXISTING);
-                }
-            } catch (IOException e) {
-                log.error("Error processing file with errors: {}", key, e);
-            }
-        }
     }
 
 
