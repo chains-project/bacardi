@@ -1,4 +1,6 @@
 import argparse
+import os
+from dotenv import load_dotenv
 from openai import OpenAI
 
 
@@ -29,8 +31,9 @@ def get_llm_response(prompt, api_key, organization):
     return response_text
 
 if __name__ == "__main__":
-    api_key = "sk-None-APHBjbapVsZJI436GiokT3BlbkFJjhWT9WJcegltDZt56m3p"
-    organization = "org-8vaaikANoGLw18qMPf7FeuJm"
+    load_dotenv()
+    api_key = os.getenv("API_KEY")
+    organization = os.getenv("API_KEY_ORGANIZATION")
     parser = argparse.ArgumentParser(description="Get LLM response based on a prompt.")
     parser.add_argument("prompt", type=str, help="The prompt to send to the LLM.")
 

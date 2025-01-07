@@ -17,7 +17,11 @@ import se.kth.wError.RepairWError;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static se.kth.Util.Constants.PYTHON_SCRIPT;
 import static se.kth.Util.FileUtils.getAbsolutePath;
@@ -128,6 +132,10 @@ public class BacardiCore {
 //            DockerBuild.deleteImage(actualImage);
             log.info("Build success in attempt: {}", attempts);
         }
+        if (failureCategory == FailureCategory.NOT_REPAIRED) {
+            log.info("Not repaired in attempt: {}", attempts);
+            return result;
+        }
 
         return result;
     }
@@ -143,7 +151,7 @@ public class BacardiCore {
         // checking if the previous failure category is different from the current failure category and create a new branch
         if (previousFailureCategory != failureCategory) {
             previousFailureCategory = failureCategory;
-            gitManager.newBranch(Constants.BRANCH_DIRECT_COMPILATION_FAILURE);
+            gitManager.newBranch(Constants.BRANCH_DIRECT_COMPILATION_FAILURE + "_%s".formatted(result.getAttempts().size()));
         }
         DockerBuild dockerBuild = setupPipeline.getDockerBuild();
 
@@ -181,6 +189,8 @@ public class BacardiCore {
 
                 StoreInfo storeInfo = new StoreInfo(setupPipeline);
 
+            ExecutorService executorService = Executors.newFixedThreadPool(listOfFilesWithErrors.size());
+            List<CompletableFuture<Void>> futures = new ArrayList<>();
 
                 listOfFilesWithErrors.forEach((key, value) -> {
                     log.info("File: {}", key);
