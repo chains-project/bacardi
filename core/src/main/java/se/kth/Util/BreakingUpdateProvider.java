@@ -22,40 +22,42 @@ import java.util.Map;
 
 import static se.kth.Util.FileUtils.getFilesInDirectory;
 
-
 public class BreakingUpdateProvider {
-
 
     static Logger log = LoggerFactory.getLogger(DockerBuild.class);
 
     /**
-     * Retrieves a list of BreakingUpdate objects from the specified directory, filtered by the given category.
+     * Retrieves a list of BreakingUpdate objects from the specified directory,
+     * filtered by the given category.
      *
      * @param directory the directory to search for files
      * @param category  the category to filter the BreakingUpdate objects
      * @return a list of BreakingUpdate objects that match the specified category
      */
     public static List<BreakingUpdate> getBreakingUpdatesFromResourcesByCategory(String directory,
-                                                                                 FailureCategory category) {
+            FailureCategory category) {
         List<File> files = getFilesInDirectory(directory);
         return files.stream()
+                .filter(file -> file.getName().endsWith(".json"))
                 .map(File::toPath)
                 .map(e -> JsonUtils.readFromFile(e, BreakingUpdate.class))
                 .filter(breakingUpdate -> breakingUpdate.failureCategory == category)
                 .toList();
     }
 
-
     /**
-     * Retrieves a list of BreakingUpdate objects from the specified directory, filtered by the given category and additional filter.
+     * Retrieves a list of BreakingUpdate objects from the specified directory,
+     * filtered by the given category and additional filter.
      *
      * @param directory the directory to search for files
      * @param category  the category to filter the BreakingUpdate objects
-     * @param filter    an additional filter to apply to the results, such as a list of breaking commits from Bump
-     * @return a list of BreakingUpdate objects that match the specified category and filter
+     * @param filter    an additional filter to apply to the results, such as a list
+     *                  of breaking commits from Bump
+     * @return a list of BreakingUpdate objects that match the specified category
+     *         and filter
      */
     public static List<BreakingUpdate> getBreakingUpdatesFromResourcesByCategory(String directory,
-                                                                                 FailureCategory category, ArrayList<String> filter) {
+            FailureCategory category, ArrayList<String> filter) {
         List<File> files = getFilesInDirectory(directory);
         return files.stream()
                 .map(File::toPath)
@@ -64,7 +66,6 @@ public class BreakingUpdateProvider {
                 .filter(breakingUpdate -> filter.contains(breakingUpdate.breakingCommit))
                 .toList();
     }
-
 
     public static ArrayList<String> readLinesFromFile(String filePath) {
         ArrayList<String> lines = new ArrayList<>();
@@ -92,9 +93,8 @@ public class BreakingUpdateProvider {
         return lines;
     }
 
-
     public static ArrayList<String> readJavaVersionIncompatibilities(String filePath) {
-        //enable filter for only specific breaking update category
+        // enable filter for only specific breaking update category
         return readLinesFromFile(filePath);
     }
 
@@ -103,10 +103,11 @@ public class BreakingUpdateProvider {
         MapType jsonType = JsonUtils.getTypeFactory().constructMapType(Map.class, String.class, Result.class);
         Map<String, Result> resultsMap = new HashMap<>();
 
-
         if (!Files.exists(path)) {
             try {
-                //create empty file
+                if (!Files.exists(path.getParent()))
+                    Files.createDirectories(path.getParent());
+                // create empty file
                 Files.createFile(path);
                 JsonUtils.writeToFile(path, resultsMap);
             } catch (IOException e) {
@@ -119,18 +120,20 @@ public class BreakingUpdateProvider {
 
     }
 
-    public static String getProjectData(String imageId, DockerBuild dockerBuild, Path toLocal, Path m2InContainer, Path projectInContainer, Path jar) {
+    public static String getProjectData(String imageId, DockerBuild dockerBuild, Path toLocal, Path m2InContainer,
+            Path projectInContainer, Path jar) {
 
         try {
 
-            String[] entrypoint = new String[]{"/bin/sh","sleep","1000000"};
+            String[] entrypoint = new String[] { "/bin/sh", "sleep", "1000000" };
 
-            //pull image
+            // pull image
             dockerBuild.ensureBaseMavenImageExists(imageId);
             CreateContainerResponse container = dockerBuild.startContainerEntryPoint(imageId, entrypoint);
             // Copy m2 folder to local path in the breaking commit folder and project folder
             if (m2InContainer != null) {
-//                dockerBuild.copyM2FolderToLocalPath(container.getId(), m2InContainer, toLocal.resolve("m2"));
+                // dockerBuild.copyM2FolderToLocalPath(container.getId(), m2InContainer,
+                // toLocal.resolve("m2"));
                 dockerBuild.copyM2FolderToLocalPath(container.getId(), projectInContainer, toLocal);
             }
             if (jar != null) {

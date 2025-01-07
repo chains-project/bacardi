@@ -14,10 +14,10 @@ def get_llm_response(prompt, api_key, organization):
         promptFromFile = f.read()
 
     stream = client.chat.completions.create(
-        model="gpt-4o-mini",
-        temperature=0.7,
-        max_tokens=16000,
-        timeout=400,
+        model=os.getenv("LLM"),
+        temperature=float(os.getenv("LLM_TEMP")),
+        max_tokens=int(os.getenv("MAX_TOKEN")),
+        timeout=int(os.getenv("TIMEOUT")),
         messages=[
             {"role": "user", "content": promptFromFile}],
         stream=True,
