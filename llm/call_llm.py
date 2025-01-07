@@ -1,4 +1,6 @@
 import argparse
+import os
+from dotenv import load_dotenv
 from openai import OpenAI
 
 
@@ -12,10 +14,10 @@ def get_llm_response(prompt, api_key, organization):
         promptFromFile = f.read()
 
     stream = client.chat.completions.create(
-        model="gpt-4o-mini",
-        temperature=0.7,
-        max_tokens=16000,
-        timeout=400,
+        model=os.getenv("LLM"),
+        temperature=float(os.getenv("LLM_TEMP")),
+        max_tokens=int(os.getenv("MAX_TOKEN")),
+        timeout=int(os.getenv("TIMEOUT")),
         messages=[
             {"role": "user", "content": promptFromFile}],
         stream=True,
@@ -29,8 +31,9 @@ def get_llm_response(prompt, api_key, organization):
     return response_text
 
 if __name__ == "__main__":
-    api_key = "sk-None-APHBjbapVsZJI436GiokT3BlbkFJjhWT9WJcegltDZt56m3p"
-    organization = "org-8vaaikANoGLw18qMPf7FeuJm"
+    load_dotenv()
+    api_key = os.getenv("API_KEY")
+    organization = os.getenv("API_KEY_ORGANIZATION")
     parser = argparse.ArgumentParser(description="Get LLM response based on a prompt.")
     parser.add_argument("prompt", type=str, help="The prompt to send to the LLM.")
 

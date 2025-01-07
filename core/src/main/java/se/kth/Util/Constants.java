@@ -11,11 +11,19 @@ public class Constants {
 
     public static final String BENCHMARK_PATH = dotenv.get("BENCHMARK_PATH", "benchmark");
 
-    public static final String JAVA_VERSION_INCOMPATIBILITY_FILE = dotenv.get("JAVA_VERSION_INCOMPATIBILITY_FILE", "/default/path/to/java_incompatibility.txt");
+    public static final String JAVA_VERSION_INCOMPATIBILITY_FILE = dotenv.get("JAVA_VERSION_INCOMPATIBILITY_FILE",
+            System.getProperty("user.dir") + "/java_incompatibility.txt");
 
-    public static final String PYTHON_SCRIPT = dotenv.get("PYTHON_SCRIPT", "/default/path/to/python_script.py");
+    public static final String PYTHON_SCRIPT = dotenv.get("PYTHON_SCRIPT",
+            System.getProperty("user.dir") + "python_script.py");
 
-    public static final String PROJECTS_PATH = dotenv.get("PROJECTS_PATH");
+    public static final String PROJECTS_PATH = dotenv.get("PROJECTS_PATH",
+            System.getProperty("user.dir") + "/projects");;
 
+    public static final String PIPELINE = dotenv.get("PIPELINE", "BASELINE");
+
+    public static final String OUTPUT_PATH = dotenv.get("OUTPUT_PATH", System.getProperty("user.dir") + "/output");
+
+    public static final String LLM = dotenv.get("LLM", "gtp4o-mini");
 }
 
