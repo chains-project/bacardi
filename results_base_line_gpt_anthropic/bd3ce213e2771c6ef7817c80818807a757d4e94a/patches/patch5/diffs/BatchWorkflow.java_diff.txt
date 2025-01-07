@@ -1,0 +1,42 @@
+37,43d36
+< /**
+<  * Defines batch workflows.
+<  *
+<  * author Herbert Baier
+<  * version 1.0
+<  * since 1.8
+<  */
+45c38,42
+<     // Existing code...
+---
+>     private List<ProcessWorker> processWorkers = new ArrayList<>(); // Added initialization
+>     private boolean isCanceled; // Added initialization
+>     private File projectFolder; // Added initialization
+>     private ProjectConfiguration configuration; // Added initialization
+>     private ProcessStateCollector processStateCollector; // Added initialization
+65,69d61
+<                         /*
+<                          * (non-Javadoc)
+<                          *
+<                          * @see de.uniwue.batch.BatchWorkflow.ProcessWrapper#getHandler()
+<                          */
+72c64
+<                             return helper.getProcessHandler();
+---
+>                             return helper.getProcessHandler(); // Ensure this method exists in the updated RecognitionHelper
+75,79d66
+<                         /*
+<                          * (non-Javadoc)
+<                          *
+<                          * @see de.uniwue.batch.BatchWorkflow.ProcessWrapper#getProgress()
+<                          */
+83c70
+<                                 int progress = helper.getProgress();
+---
+>                                 int progress = helper.getProgress(); // Ensure this method exists in the updated RecognitionHelper
+90,94d76
+<                         /*
+<                          * (non-Javadoc)
+<                          *
+<                          * @see de.uniwue.batch.BatchWorkflow.ProcessWrapper#cancelProcess()
+<                          */

@@ -1,0 +1,15 @@
+2c2,3
+<  * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
+---
+>  * The MIT License (MIT)
+>  * Copyright (c) 2020-2021 artipie.com
+15,17c16
+< import org.cactoos.io.BytesOf;
+< import org.cactoos.text.HexOf; // Corrected import to HexOf for digest conversion
+< import org.cactoos.io.OutputStreamOf; // Ensure OutputStreamOf is imported as needed
+---
+> import org.cactoos.io.BytesOf; // Ensure BytesOf is imported correctly
+59c58
+<                 new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString()) // Changed Hex to HexOf
+---
+>                 new Digest.Sha256(new Hex(new BytesOf(sha.digest())).asString()) // Corrected to use Hex

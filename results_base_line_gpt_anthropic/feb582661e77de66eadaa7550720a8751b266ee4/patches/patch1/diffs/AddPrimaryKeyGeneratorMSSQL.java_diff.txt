@@ -1,0 +1,10 @@
+12c12,14
+< import liquibase.util.StringUtils;
+---
+> 
+> // Fix the import for StringUtils as it seems to be missing in the updated dependency
+> import liquibase.util.StringUtil; // Updated import to match the new dependency structure
+67c69
+<     if (StringUtils.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
+---
+>     if (StringUtil.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {

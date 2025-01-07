@@ -1,0 +1,18 @@
+8c8
+< import io.dropwizard.logging.filter.FilterFactory;
+---
+> import io.dropwizard.logging.filter.FilterFactory; // Ensure this import is correct for the updated dependency
+12,15c12
+< public class StatusCheckFilter implements Filter<IAccessEvent> {
+<     @Override
+<     public Filter<IAccessEvent> build() {
+<         return new Filter<>() {
+---
+> public class StatusCheckFilter extends Filter<IAccessEvent> {
+29c26,29
+<         };
+---
+> 
+>     @Override
+>     public Filter<IAccessEvent> build() {
+>         return this; // Returns the current instance as the filter

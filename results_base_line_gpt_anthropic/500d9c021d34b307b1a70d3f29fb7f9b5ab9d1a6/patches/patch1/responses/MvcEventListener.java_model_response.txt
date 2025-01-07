@@ -1,0 +1,53 @@
+```java
+package com.example;
+
+import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+import org.glassfish.jersey.server.mvc.Viewable; // Update to correct package
+import jakarta.mvc.event.AfterControllerEvent; // Update to use jakarta package
+import jakarta.mvc.event.AfterProcessViewEvent; // Update to use jakarta package
+import jakarta.mvc.event.BeforeControllerEvent; // Update to use jakarta package
+import jakarta.mvc.event.BeforeProcessViewEvent; // Update to use jakarta package
+import jakarta.mvc.event.ControllerRedirectEvent; // Update to use jakarta package
+
+@ApplicationScoped
+public class MvcEventListener {
+
+    @Inject
+    Logger LOGGER;
+
+    private void onControllerMatched(@Observes BeforeControllerEvent event) {
+        LOGGER.info(() -> "Controller matched for " + event.getUriInfo().getRequestUri());
+    }
+
+    private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
+        LOGGER.info(() -> "View engine: " + event.getEngine());
+    }
+
+    private void onAfterControllerEvent(@Observes AfterControllerEvent event) {
+        LOGGER.info(() -> "AfterControllerEvent:: " + event.getResourceInfo());
+    }
+
+    private void onAfterProcessViewEvent(@Observes AfterProcessViewEvent event) {
+        LOGGER.info(() -> "AfterProcessViewEvent:: " + event);
+    }
+    
+    private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
+        LOGGER.info(() -> "ControllerRedirectEvent:: " + event);
+    }
+
+    @PostConstruct
+    private void init() {
+        LOGGER.config(() -> this.getClass().getSimpleName() + " created");
+    }
+}
+``` 
+
+### Summary of Changes:
+1. Updated the import statements to use the `jakarta` package instead of `javax`, which is required due to the dependency update.
+2. Ensured that all relevant event classes are correctly imported from the `jakarta.mvc.event` package. 
+
+These changes should resolve the compilation errors caused by the breaking dependency update while maintaining the functionality of the class.

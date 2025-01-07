@@ -1,0 +1,66 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the `MvcContext` class cannot be found.
+   - The specific issue occurs on line 23, where `MvcContext` is being used.
+   - This suggests that there might have been a breaking change in the updated dependency that either removed or renamed the `MvcContext` class.
+
+2. Review the client code:
+   - The `MvcContext` is injected into the `Messages` class, but it is not recognized by the compiler.
+   - This could be due to an updated version of the Jakarta MVC API, which may have altered the package structure or renamed the class.
+
+3. Consider potential fixes:
+   - Investigate the new package structure or class names in the updated dependency for Jakarta MVC.
+   - Ensure that the `MvcContext` is included from the correct package or has not been replaced by another class with similar functionality.
+
+4. Plan the necessary changes:
+   - Determine the new import statement for `MvcContext` if it has been moved.
+   - Update the import section of the class to reference the correct package for the `MvcContext`, if it exists in a new location.
+   - If `MvcContext` has been removed, we need to look for an alternative that provides similar functionality for retrieving the locale.
+</code_analysis>
+
+Here is the proposed patch to fix the issue:
+
+```java
+import java.util.ResourceBundle;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
+import jakarta.mvc.MvcContext; // Updated import statement
+
+/**
+ * Provides I18n messages for the UI per request. To get the correct locale, the method {@link MvcContext#getLocale()}
+ * is used. This method uses the built-in {@link javax.mvc.locale.LocaleResolver} of the used MVC Implementation.
+ *
+ * @author Tobias Erdle
+ * @see MvcContext#getLocale()
+ * @see javax.mvc.locale.LocaleResolver
+ */
+@RequestScoped
+@Named("msg")
+public class Messages {
+
+    private static final String BASE_NAME = "messages";
+
+    @Inject
+    private MvcContext mvcContext;
+
+    /**
+     * Get the assigned message to some key based on the {@link java.util.Locale} of the current request.
+     *
+     * @param key the message key to use
+     * @return the correct translation assigned to the key for the request locale, a fallback translation or a
+     * placeholder for unknown keys.
+     */
+    public final String get(final String key) {
+        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
+
+        return bundle.containsKey(key) ? bundle.getString(key) : formatUnknownKey(key);
+    }
+
+    private static String formatUnknownKey(final String key) {
+        return String.format("???%s???", key);
+    }
+}
+```
+
+In this patch, the import statement for `MvcContext` has been updated to use the correct package in accordance with the latest Jakarta specifications, resolving the compilation error.

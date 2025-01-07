@@ -1,0 +1,22 @@
+3d2
+< import static micycle.pgs.PGS_Conversion.fromPShape;
+7d5
+< import java.util.Arrays;
+9d6
+< import java.util.HashMap;
+11d7
+< import java.util.Map;
+41,42c37,38
+<                 Geometry shapeA = fromPShape(a);
+<                 Geometry result = OverlayNG.overlay(shapeA, fromPShape(b), OverlayNG.INTERSECTION);
+---
+>                 Geometry shapeA = PGS_Conversion.fromPShape(a); // Ensure PGS_Conversion is updated
+>                 Geometry result = OverlayNG.overlay(shapeA, PGS_Conversion.fromPShape(b), OverlayNG.INTERSECTION);
+51c47
+<                 shapes.forEach(s -> polygons.add(fromPShape(s))); // Ensure fromPShape is correctly invoked
+---
+>                 shapes.forEach(s -> polygons.add(PGS_Conversion.fromPShape(s))); // Ensure fromPShape is correctly invoked
+75c71
+<                 final Geometry g = fromPShape(area);
+---
+>                 final Geometry g = PGS_Conversion.fromPShape(area);

@@ -1,0 +1,18 @@
+3a4
+> import org.flywaydb.core.api.configuration.Configuration; // Updated import for new Flyway configuration
+108,113c109,116
+<                 final org.flywaydb.core.Flyway flyway = new Flyway();
+<                 flyway.setDataSource(this.dataSource());
+<                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+<                 flyway.setLocations(prop.getProperty("flyway.locations"));
+<                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+<                 return flyway;
+---
+>                 // Create a new Flyway configuration object instead of using the deprecated methods
+>                 Configuration configuration = Flyway.configure()
+>                         .dataSource(this.dataSource())
+>                         .locations(prop.getProperty("flyway.locations"))
+>                         .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 
+>                 // Return a new Flyway instance created with the configuration
+>                 return new Flyway(configuration);

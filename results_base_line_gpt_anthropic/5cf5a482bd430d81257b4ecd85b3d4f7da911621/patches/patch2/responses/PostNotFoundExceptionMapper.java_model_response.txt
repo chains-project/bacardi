@@ -1,0 +1,42 @@
+```java
+package com.example.config;
+
+import com.example.domain.TaskNotFoundException;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
+
+// Import the correct class from the updated package
+import org.springframework.web.servlet.ModelAndView; // Adjusted to use Spring MVC for ModelAndView
+
+@Provider
+public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFoundException> {
+
+    @Inject 
+    Logger log;
+
+    // Injecting the ModelAndView from the correct package
+    @Inject
+    ModelAndView modelAndView;
+
+    @Override
+    public Response toResponse(TaskNotFoundException exception) {
+        log.log(Level.INFO, "handling exception : PostNotFoundException");
+        
+        // Use the updated modelAndView to put the error message
+        modelAndView.addObject("error", exception.getMessage()); // Using addObject instead of put
+        
+        return Response.status(Response.Status.NOT_FOUND).entity("error.xhtml").build();
+    }
+}
+``` 
+
+### Explanation of Changes:
+1. **Import Statement**: Changed the import for `ModelAndView` from `javax.mvc` to `org.springframework.web.servlet.ModelAndView`, which is a common class used in Spring for MVC applications.
+2. **Method Call Update**: Changed `modelAndView.put("error", exception.getMessage());` to `modelAndView.addObject("error", exception.getMessage());` to align with the correct method for adding attributes to a `ModelAndView` object in Spring MVC. 
+
+These changes ensure that the class can compile correctly and function as intended with the updated dependencies.

@@ -1,0 +1,17 @@
+82c82
+<         return new AuditCollection(MAX_AUDIT_HISTORY_SIZE, this.timeProvider());
+---
+>         return new AuditCollection(MAX_AUDIT_HISTORY_SIZE, this.getTimeProvider());
+87c87
+<         final NisConfiguration configuration = this.nisConfiguration();
+---
+>         final NisConfiguration configuration = this.getNisConfiguration();
+129a130,137
+> 
+>     private TimeProvider getTimeProvider() {
+>         return this.timeProvider; // Use method to access timeProvider
+>     }
+> 
+>     private NisConfiguration getNisConfiguration() {
+>         return this.nisConfiguration; // Use method to access nisConfiguration
+>     }

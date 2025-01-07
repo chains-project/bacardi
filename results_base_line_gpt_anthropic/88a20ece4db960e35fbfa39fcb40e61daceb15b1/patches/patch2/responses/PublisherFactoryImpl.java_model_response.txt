@@ -1,0 +1,67 @@
+```java
+/*
+ * Copyright 2020 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * you may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.google.pubsublite.kafka.sink;
+
+import com.google.cloud.pubsublite.CloudZone;
+import com.google.cloud.pubsublite.ProjectPath;
+import com.google.cloud.pubsublite.TopicName;
+import com.google.cloud.pubsublite.TopicPath;
+import com.google.cloud.pubsublite.internal.Publisher;
+import com.google.cloud.pubsublite.internal.wire.PubsubContext;
+import com.google.cloud.pubsublite.internal.wire.PubsubContext.Framework;
+import com.google.cloud.pubsublite.internal.wire.RoutingPublisherBuilder;
+import com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisherBuilder;
+import com.google.cloud.pubsublite.internal.wire.PartitionPublisherFactory; // Ensure this import is correct
+import java.util.Map;
+import org.apache.kafka.common.config.ConfigValue;
+
+// Changed the class to use a different metadata class, if necessary
+import com.google.cloud.pubsublite.PublishMetadata; // Ensure this class exists in the updated version
+
+class PublisherFactoryImpl implements PublisherFactory {
+
+  private static final Framework FRAMEWORK = Framework.of("KAFKA_CONNECT");
+
+  @Override
+  public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
+    Map<String, ConfigValue> config = ConfigDefs.config().validateAll(params);
+    RoutingPublisherBuilder.Builder builder = RoutingPublisherBuilder.newBuilder();
+    TopicPath topic =
+        TopicPath.newBuilder()
+            .setProject(
+                ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
+                    .project())
+            .setLocation(CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
+            .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
+            .build();
+    builder.setTopic(topic);
+    builder.setPublisherFactory(
+        (partition) -> // Removed the cast to PartitionPublisherFactory
+            SinglePartitionPublisherBuilder.newBuilder()
+                .setTopic(topic)
+                .setPartition(partition)
+                .setContext(PubsubContext.of(FRAMEWORK))
+                .build());
+    return builder.build();
+  }
+}
+``` 
+
+### Changes Made:
+1. **Removed the cast to `PartitionPublisherFactory`**: Since the error indicated that `PartitionPublisherFactory` is not a functional interface and has multiple abstract methods, I eliminated the cast and used a lambda expression directly for the `setPublisherFactory` method.
+2. **Ensured the import of `PublishMetadata`**: Retained the import statement for `PublishMetadata`, assuming it exists in the updated dependency. If it does not exist, further investigation into the updated library may be required to identify the correct metadata class.
+3. **Kept all existing functionality intact**: The method signatures and overall structure of the code remain unchanged, adhering to the guidelines provided.

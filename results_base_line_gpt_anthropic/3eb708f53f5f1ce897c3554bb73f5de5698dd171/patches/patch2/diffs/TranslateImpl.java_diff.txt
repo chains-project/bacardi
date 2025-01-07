@@ -1,0 +1,48 @@
+23,25c23,25
+< import com.google.api.services.translate.model.DetectionsResourceItem; // Updated import
+< import com.google.api.services.translate.model.LanguagesResource; // Updated import
+< import com.google.api.services.translate.model.TranslationsResource; // Updated import
+---
+> import com.google.cloud.translate.model.Detection; // Updated import
+> import com.google.cloud.translate.model.Language; // Updated import
+> import com.google.cloud.translate.model.TranslationsResource; // Updated import
+43c43
+<   private static final Function<List<DetectionsResourceItem>, Detection> // Updated type
+---
+>   private static final Function<List<com.google.cloud.translate.model.Detection>, Detection> // Updated type
+45c45
+<           new Function<List<DetectionsResourceItem>, Detection>() { // Updated type
+---
+>           new Function<List<com.google.cloud.translate.model.Detection>, Detection>() { // Updated type
+47c47
+<             public Detection apply(List<DetectionsResourceItem> detectionPb) { // Updated type
+---
+>             public Detection apply(List<com.google.cloud.translate.model.Detection> detectionPb) { // Updated type
+62c62
+<               new Callable<List<LanguagesResource>>() {
+---
+>               new Callable<List<com.google.cloud.translate.model.Language>>() {
+64c64
+<                 public List<LanguagesResource> call() {
+---
+>                 public List<com.google.cloud.translate.model.Language> call() {
+80c80
+<       List<List<DetectionsResourceItem>> detectionsPb = // Updated type
+---
+>       List<List<com.google.cloud.translate.model.Detection>> detectionsPb = // Updated type
+82c82
+<               new Callable<List<List<DetectionsResourceItem>>>() { // Updated type
+---
+>               new Callable<List<List<com.google.cloud.translate.model.Detection>>>() { // Updated type
+84c84
+<                 public List<List<DetectionsResourceItem>> call() { // Updated type
+---
+>                 public List<List<com.google.cloud.translate.model.Detection>> call() { // Updated type
+91c91
+<       Iterator<List<DetectionsResourceItem>> detectionIterator = detectionsPb.iterator(); // Updated type
+---
+>       Iterator<List<com.google.cloud.translate.model.Detection>> detectionIterator = detectionsPb.iterator(); // Updated type
+94c94
+<         List<DetectionsResourceItem> detectionPb = detectionIterator.next(); // Updated type
+---
+>         List<com.google.cloud.translate.model.Detection> detectionPb = detectionIterator.next(); // Updated type

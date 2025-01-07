@@ -1,0 +1,8 @@
+33a34
+> import org.apache.maven.project.ProjectDependenciesResolver; // Added import
+186c187,189
+<     this.graph = Optional.ofNullable(graph).orElse(new DefaultDependencyGraphBuilder()); // Changed to DefaultDependencyGraphBuilder
+---
+>     // Updated to use ProjectDependenciesResolver
+>     ProjectDependenciesResolver resolver = new ProjectDependenciesResolver(); // Assuming this is the correct way to instantiate it
+>     this.graph = Optional.ofNullable(graph).orElse(new DefaultDependencyGraphBuilder(resolver));

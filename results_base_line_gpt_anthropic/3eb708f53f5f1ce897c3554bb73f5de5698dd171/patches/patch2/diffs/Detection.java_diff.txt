@@ -1,0 +1,27 @@
+20c20,21
+< import com.google.api.services.translate.v2.model.DetectionsResourceItems; // Corrected import for the new package
+---
+> import com.google.api.services.translate.v2.model.DetectionsResource; // Updated import for the new package
+> import com.google.api.services.translate.v2.model.Detection; // Correct import for the Detection model
+32c33
+< public class Detection implements Serializable {
+---
+> public class DetectionInfo implements Serializable {
+39c40
+<   private Detection(String language, Float confidence) {
+---
+>   private DetectionInfo(String language, Float confidence) {
+81c82
+<     if (obj == null || !obj.getClass().equals(Detection.class)) {
+---
+>     if (obj == null || !obj.getClass().equals(DetectionInfo.class)) {
+84c85
+<     Detection other = (Detection) obj;
+---
+>     DetectionInfo other = (DetectionInfo) obj;
+88,89c89,90
+<   static Detection fromPb(DetectionsResourceItems detectionPb) {
+<     return new Detection(detectionPb.getLanguage(), detectionPb.getConfidence());
+---
+>   static DetectionInfo fromPb(Detection detectionPb) {
+>     return new DetectionInfo(detectionPb.getLanguage(), detectionPb.getConfidence());

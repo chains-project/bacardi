@@ -1,0 +1,27 @@
+32,33c32
+< import org.apache.thrift.transport.TFramedTransport; // Updated import
+< 
+---
+> // Removed TFramedTransport import as it is not available in the updated dependency version
+53c52
+<     private TTransport framedTransport;
+---
+>     private TTransport transport; // Changed to TTransport for compatibility
+60,64c59,61
+<       // Use the TFramedTransport to be compatible with singer_thrift log.
+<       final int bufferCapacity = 10;
+<       framedTransport = new TFramedTransport(new TIOStreamTransport(os), 
+<           bufferCapacity); // Updated to use TFramedTransport
+<       protocol = new TBinaryProtocol(framedTransport);
+---
+>       // Use the TIOStreamTransport directly, as TFramedTransport is not available
+>       transport = new TIOStreamTransport(os); 
+>       protocol = new TBinaryProtocol(transport); // Protocol remains the same
+71c68
+<         framedTransport.flush();
+---
+>         transport.flush(); // Use transport for flushing
+79c76
+<       framedTransport.close();
+---
+>       transport.close(); // Use transport for closing

@@ -1,0 +1,7 @@
+34c34,37
+<         if (StringUtils.isAllBlank(kanikoImageFile, jibImageFile) || StringUtils.isNoneBlank(kanikoImageFile, jibImageFile)) {
+---
+>         if (StringUtils.isBlank(kanikoImageFile) && StringUtils.isBlank(jibImageFile)) {
+>             throw new IllegalStateException("Exactly one of 'kanikoImageFile' or 'jibImageFile' must be configured");
+>         }
+>         if (!StringUtils.isBlank(kanikoImageFile) && !StringUtils.isBlank(jibImageFile)) {

@@ -29,7 +29,6 @@ public class GeneratePrompt {
         this.promptModel = promptModel;
     }
 
-
     public void savePrompt(String prompt) {
         // Save the prompt to a file
     }
@@ -52,6 +51,10 @@ public class GeneratePrompt {
             case BASELINE_API_DIFF:
                 log.info("Baseline API diff pipeline not implemented yet");
                 break;
+            case FIX_YOU:
+                promptTemplate = new FixYouPromptTemplate();
+                promptTemplate.setPromptModel(promptModel);
+                break;
             case ADVANCED:
                 log.info("Advanced pipeline not implemented yet");
                 break;
@@ -65,9 +68,7 @@ public class GeneratePrompt {
         return prompt;
     }
 
-
     public String callPythonScript(String scriptPath, Path prompt) {
-
 
         StringBuilder output = new StringBuilder();
         try {
@@ -99,7 +100,6 @@ public class GeneratePrompt {
         return output.toString();
     }
 
-
     public String extractContentFromModelResponse(String input) {
         String pattern = "```java(.*?)```";
         Pattern regex = Pattern.compile(pattern, Pattern.DOTALL);
@@ -112,7 +112,6 @@ public class GeneratePrompt {
             return null;
         }
     }
-
 
     /**
      * replace the all content of one file with the response from the model
@@ -131,6 +130,5 @@ public class GeneratePrompt {
             throw new RuntimeException(e);
         }
     }
-
 
 }

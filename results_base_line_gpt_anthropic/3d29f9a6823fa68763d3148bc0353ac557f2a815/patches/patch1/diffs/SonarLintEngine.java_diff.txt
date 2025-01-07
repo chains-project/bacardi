@@ -1,0 +1,38 @@
+46d45
+< import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader.Configuration;
+56,57d54
+<     // The order of these initialisations is important as each field is dependent upon the previous
+<     // one.
+67d63
+<     // The only instance of this singleton class
+70d65
+<     // We need to reinitialise it before starting analysis of any source files on any rules.
+101d95
+<     /** Store the path to SonarJava plugin and if it is downloaded or fetched from cache. */
+123c117
+<                 .addEnabledLanguage(Language.JAVA)
+---
+>                 .addEnabledLanguages(Language.JAVA)
+129c123
+<                 new Configuration(
+---
+>                 new PluginsLoader.Configuration(
+135,136d128
+<         // Default loaded result stops the loader. The following code prevents that.
+< 
+141d132
+<         // We do not want this loader to close.
+171d161
+<     /** Get or creates the one and only instance of this class. */
+181,184d170
+<     /**
+<      * Recreates the analysis engine as it is stopped after each analysis executed by {@link
+<      * SonarStaticAnalyzer}.
+<      */
+235d220
+<     /** Returns all rule keys available at the provided version of Sonar Java. */
+273,276d257
+<     /**
+<      * Overriding this class to ensure that plugin instance loader never closes throughout the
+<      * lifecycle of JVM.
+<      */

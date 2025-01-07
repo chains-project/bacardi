@@ -1,0 +1,22 @@
+5c5,8
+< import org.apache.commons.codec.digest.DigestUtils; // Ensure this import is available
+---
+> import org.apache.commons.codec.binary.Hex; // Updated import for newer versions
+> import java.nio.charset.StandardCharsets; // Added for encoding to bytes
+> import java.security.MessageDigest; // Added for digest computation
+> import java.security.NoSuchAlgorithmException; // Added for handling exceptions
+49c52
+<             this.usernameMd5 = DigestUtils.md5Hex(username); // Ensure DigestUtils is still accessible
+---
+>             this.usernameMd5 = computeMD5(username); // Use custom method to compute MD5
+50a54,63
+>         }
+> 
+>         private String computeMD5(String input) {
+>             try {
+>                 MessageDigest md = MessageDigest.getInstance("MD5");
+>                 byte[] digest = md.digest(input.getBytes(StandardCharsets.UTF_8));
+>                 return Hex.encodeHexString(digest); // Convert byte array to hex string
+>             } catch (NoSuchAlgorithmException e) {
+>                 throw new RuntimeException(e); // Handle the exception appropriately
+>             }

@@ -1,0 +1,18 @@
+22d21
+< import com.hazelcast.config.MaxSizeConfig;
+30c29
+< import com.hazelcast.core.MemberInfo; // Changed from Member to MemberInfo
+---
+> import com.hazelcast.core.Member; // Changed back to Member from MemberInfo
+102,104c101,103
+<         final Set<MemberInfo> members = new HashSet<>(); // Changed from Member to MemberInfo
+<         final MemberInfo current = cluster.getLocalMember(); // Changed from Member to MemberInfo
+<         for (final MemberInfo member : cluster.getMembers()) { // Changed from Member to MemberInfo
+---
+>         final Set<Member> members = new HashSet<>(); // Changed back to Member from MemberInfo
+>         final Member current = cluster.getLocalMember(); // Changed back to Member from MemberInfo
+>         for (final Member member : cluster.getMembers()) { // Changed back to Member from MemberInfo
+115c114
+<                 final Map<MemberInfo, ? extends Future<T>> futures = hazelcast.getExecutorService(HAZELCAST_EXECUTOR_SERVICE_NAME.getValue()).submitToMembers(new CallableTask<>(task), members);
+---
+>                 final Map<Member, ? extends Future<T>> futures = hazelcast.getExecutorService(HAZELCAST_EXECUTOR_SERVICE_NAME.getValue()).submitToMembers(new CallableTask<>(task), members);

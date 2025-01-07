@@ -1,0 +1,12 @@
+66c66
+<                 final Envelope e = fromPShape(shape).getEnvelopeInternal();
+---
+>                 final Envelope e = PGS_Conversion.getEnvelopeFromPShape(shape); // Updated method call
+68c68
+<                 final List<PVector> poissonPoints = PGS_PointSet.poisson(e.getMinX(), e.getMinY(), e.getMinX() + e.getWidth(),
+---
+>                 final List<PVector> poissonPoints = PGS_PointSet.poissonPoints(e.getMinX(), e.getMinY(), e.getMinX() + e.getWidth(),
+71c71
+<                 final IIncrementalTin tin = delaunayTriangulationMesh(shape, poissonPoints, true, 0, false);
+---
+>                 final IIncrementalTin tin = delaunayTriangulationMesh(shape, poissonPoints, true, 0, false); // Ensure method exists in updated version

@@ -1,0 +1,5 @@
+105c105,106
+<                 PShape s = PGS_ShapeBoolean.subtract(PGS.createRect(0, 0, width, height), PGS_Conversion.flatten(blobs));
+---
+>                 PShape flattenedBlobs = PGS_Conversion.flatten(blobs); // Ensure flatten method is called correctly, might need to implement
+>                 PShape s = PGS_ShapeBoolean.subtract(PGS.createRect(0, 0, width, height), flattenedBlobs);

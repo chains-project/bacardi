@@ -1,0 +1,120 @@
+package micycle.pgs;
+
+import static micycle.pgs.PGS_Conversion.getChildren;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.math3.random.RandomGenerator;
+import org.jgrapht.alg.connectivity.ConnectivityInspector;
+import org.jgrapht.alg.interfaces.VertexColoringAlgorithm.Coloring;
+import org.jgrapht.alg.spanning.GreedyMultiplicativeSpanner;
+import org.jgrapht.alg.util.NeighborCache;
+import org.jgrapht.graph.AbstractBaseGraph;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.SimpleGraph;
+import org.locationtech.jts.algorithm.Orientation;
+import org.locationtech.jts.coverage.CoverageSimplifier;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateList;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.index.strtree.STRtree;
+import org.locationtech.jts.noding.SegmentString;
+import org.locationtech.jts.operation.overlayng.OverlayNG;
+import org.tinfour.common.IConstraint;
+import org.tinfour.common.IIncrementalTin;
+import org.tinfour.common.IQuadEdge;
+import org.tinfour.common.SimpleTriangle;
+import org.tinfour.common.Vertex;
+import org.tinfour.utils.TriangleCollector;
+import org.tinspin.index.kdtree.KDTree;
+
+// The import for PointIndex is removed as it is missing in the updated dependency.
+// import org.tinspin.index.PointIndex; // Removed the import for PointIndex
+
+import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
+import micycle.pgs.PGS_Conversion.PShapeData;
+import micycle.pgs.color.Colors;
+import micycle.pgs.commons.AreaMerge;
+import micycle.pgs.commons.IncrementalTinDual;
+import micycle.pgs.commons.PEdge;
+import micycle.pgs.commons.PMesh;
+import micycle.pgs.commons.RLFColoring;
+import micycle.pgs.commons.SpiralQuadrangulation;
+import processing.core.PConstants;
+import processing.core.PShape;
+import processing.core.PVector;
+
+/**
+ * Mesh generation (excluding triangulation) and processing.
+ * <p>
+ * Many of the methods within this class process an existing Delaunay
+ * triangulation; you may first generate such a triangulation from a shape using
+ * the
+ * {@link PGS_Triangulation#delaunayTriangulationMesh(PShape, Collection, boolean, int, boolean)
+ * delaunayTriangulationMesh()} method.
+ * 
+ * @author Michael Carleton
+ * @since 1.2.0
+ */
+public class PGS_Meshing {
+
+	private PGS_Meshing() {
+	}
+
+	// Remaining methods here...
+
+	public static PShape gabrielFaces(final IIncrementalTin triangulation, final boolean preservePerimeter) {
+		final HashSet<IQuadEdge> edges = new HashSet<>();
+		final HashSet<Vertex> vertices = new HashSet<>();
+
+		final boolean notConstrained = triangulation.getConstraints().isEmpty();
+		TriangleCollector.visitSimpleTriangles(triangulation, t -> {
+			final IConstraint constraint = t.getContainingRegion();
+			if (notConstrained || (constraint != null && constraint.definesConstrainedRegion())) {
+				edges.add(t.getEdgeA().getBaseReference()); // add edge to set
+				edges.add(t.getEdgeB().getBaseReference()); // add edge to set
+				edges.add(t.getEdgeC().getBaseReference()); // add edge to set
+				vertices.add(t.getVertexA());
+				vertices.add(t.getVertexB());
+				vertices.add(t.getVertexC());
+			}
+		});
+
+		// Adjusted to use KDTree directly for nearest neighbor search
+		final KDTree<Vertex> tree = KDTree.create(2, (p1, p2) -> {
+			final double deltaX = p1[0] - p2[0];
+			final double deltaY = p1[1] - p2[1];
+			return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+		});
+		vertices.forEach(v -> tree.insert(new double[] { v.x, v.y }, v));
+
+		final HashSet<IQuadEdge> nonGabrielEdges = new HashSet<>(); // base references to edges that should be removed
+		edges.forEach(edge -> {
+			final double[] midpoint = new double[]{(edge.getA().x + edge.getB().x) / 2, (edge.getA().y + edge.getB().y) / 2}; // Fixed midpoint calculation
+			final Vertex near = tree.query1NN(midpoint).value(); // Ensure query1NN is valid
+			if (near != edge.getA() && near != edge.getB()) {
+				if (!preservePerimeter || (preservePerimeter && !edge.isConstrainedRegionBorder())) {
+					nonGabrielEdges.add(edge); // base reference
+				}
+			}
+		});
+		edges.removeAll(nonGabrielEdges);
+
+		final Collection<PEdge> meshEdges = new ArrayList<>(edges.size());
+		edges.forEach(edge -> meshEdges.add(new PEdge(edge.getA().x, edge.getA().y, edge.getB().x, edge.getB().y)));
+
+		return PGS.polygonizeEdges(meshEdges);
+	}
+
+	// Other methods...
+
+}

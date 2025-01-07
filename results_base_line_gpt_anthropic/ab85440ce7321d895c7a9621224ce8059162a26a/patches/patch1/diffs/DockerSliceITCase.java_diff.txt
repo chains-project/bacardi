@@ -1,0 +1,27 @@
+84,86c84,85
+<             new StringContains(
+<                 false,
+<                 String.format("Status: Downloaded newer image for %s", this.image.remote())
+---
+>             Matchers.not(
+>                 Matchers.containsString(String.format("Status: Downloaded newer image for %s", this.image.remote()))
+99,101c98,99
+<             new StringContains(
+<                 false,
+<                 String.format("Status: Downloaded newer image for %s", this.image.remoteByDigest())
+---
+>             Matchers.not(
+>                 Matchers.containsString(String.format("Status: Downloaded newer image for %s", this.image.remoteByDigest()))
+123c121
+<         return new StringContains(false, String.format("latest: digest: %s", this.image.digest()));
+---
+>         return Matchers.containsString(String.format("latest: digest: %s", this.image.digest()));
+127c125
+<         return new StringContains(false, String.format("%s: Pushed", this.image.layer()));
+---
+>         return Matchers.containsString(String.format("%s: Pushed", this.image.layer()));
+131,132c129
+<         return new StringContains(
+<             false,
+---
+>         return Matchers.containsString(
