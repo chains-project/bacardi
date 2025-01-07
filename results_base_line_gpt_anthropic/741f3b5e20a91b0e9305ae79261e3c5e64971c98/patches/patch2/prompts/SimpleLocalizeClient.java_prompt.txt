@@ -1,0 +1,220 @@
+ You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates.
+Your task is to analyze the provided code and error message, then propose a patch that can be applied to the client code to resolve the issue.
+
+ Here is the client code that is failing:
+<client_code>
+package io.simplelocalize.cli.client;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.Option;
+import io.simplelocalize.cli.client.dto.DownloadRequest;
+import io.simplelocalize.cli.client.dto.DownloadableFile;
+import io.simplelocalize.cli.client.dto.ExportResponse;
+import io.simplelocalize.cli.client.dto.UploadRequest;
+import io.simplelocalize.cli.exception.ApiRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.time.Duration;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import static io.simplelocalize.cli.TemplateKeys.LANGUAGE_TEMPLATE_KEY;
+import static io.simplelocalize.cli.TemplateKeys.NAMESPACE_TEMPLATE_KEY;
+
+public class SimpleLocalizeClient
+{
+
+  private static final String ERROR_MESSAGE_PATH = "$.msg";
+  private final HttpClient httpClient;
+  private final SimpleLocalizeHttpRequestFactory httpRequestFactory;
+  private final SimpleLocalizeUriFactory uriFactory;
+
+  private final Logger log = LoggerFactory.getLogger(SimpleLocalizeClient.class);
+  private final ObjectMapper objectMapper;
+
+  public SimpleLocalizeClient(String baseUrl, String apiKey)
+  {
+    Objects.requireNonNull(baseUrl);
+    Objects.requireNonNull(apiKey);
+    this.uriFactory = new SimpleLocalizeUriFactory(baseUrl);
+    this.httpRequestFactory = new SimpleLocalizeHttpRequestFactory(apiKey);
+    this.objectMapper = new ObjectMapper();
+    this.httpClient = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofMinutes(5))
+            .build();
+  }
+
+  public static SimpleLocalizeClient create(String baseUrl, String apiKey)
+  {
+    return new SimpleLocalizeClient(baseUrl, apiKey);
+  }
+
+  public void uploadKeys(Collection<String> keys) throws IOException, InterruptedException
+  {
+    URI uri = uriFactory.buildSendKeysURI();
+    HttpRequest httpRequest = httpRequestFactory.createSendKeysRequest(uri, keys);
+    HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+    throwOnError(httpResponse);
+    int keysProcessed = JsonPath.read(httpResponse.body(), "$.data.uniqueKeysProcessed");
+    log.info("Successfully uploaded {} keys", keysProcessed);
+  }
+
+  public void uploadFile(UploadRequest uploadRequest) throws IOException, InterruptedException
+  {
+    Path uploadPath = uploadRequest.getPath();
+    log.info("Uploading {}", uploadPath);
+    URI uri = uriFactory.buildUploadUri(uploadRequest);
+    HttpRequest httpRequest = httpRequestFactory.createUploadFileRequest(uri, uploadRequest);
+    HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+    throwOnError(httpResponse);
+  }
+
+  public List<DownloadableFile> fetchDownloadableFiles(DownloadRequest downloadRequest) throws IOException, InterruptedException
+  {
+    log.info("Preparing files to download");
+    URI downloadUri = uriFactory.buildDownloadUri(downloadRequest);
+    HttpRequest httpRequest = httpRequestFactory.createGetRequest(downloadUri).build();
+    HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+    throwOnError(httpResponse);
+    String body = httpResponse.body();
+    ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
+    return exportResponse.getFiles();
+  }
+
+  public void downloadFile(DownloadableFile downloadableFile, String downloadPathTemplate)
+  {
+    Optional<DownloadableFile> optionalDownloadableFile = Optional.of(downloadableFile);
+    String downloadPath = downloadPathTemplate
+            .replace(NAMESPACE_TEMPLATE_KEY, optionalDownloadableFile.map(DownloadableFile::getNamespace).orElse(""))
+            .replace(LANGUAGE_TEMPLATE_KEY, optionalDownloadableFile.map(DownloadableFile::getLanguage).orElse(""));
+    String url = downloadableFile.getUrl();
+    HttpRequest httpRequest = httpRequestFactory.createGetRequest(URI.create(url)).build();
+    Path savePath = Path.of(downloadPath);
+    try
+    {
+      Path parentDirectory = savePath.getParent();
+      if (parentDirectory != null)
+      {
+        Files.createDirectories(parentDirectory);
+      }
+      log.info("Downloading {}", savePath);
+      httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofFile(savePath, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING));
+    } catch (IOException e)
+    {
+      log.error("Download failed: {}", savePath, e);
+    } catch (InterruptedException e)
+    {
+      log.error("Download interrupted: {}", savePath, e);
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  public int validateGate() throws IOException, InterruptedException
+  {
+    URI validateUri = uriFactory.buildValidateGateUri();
+    HttpRequest httpRequest = httpRequestFactory.createGetRequest(validateUri).build();
+    HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+    throwOnError(httpResponse);
+    String json = httpResponse.body();
+    Boolean passed = JsonPath.read(json, "$.data.passed");
+    String message = JsonPath.read(json, "$.data.message");
+    int status = JsonPath.read(json, "$.data.status");
+    log.info("Gate result: {} (status: {}, message: {})", passed, status, message);
+    return status;
+  }
+
+  private void throwOnError(HttpResponse<?> httpResponse)
+  {
+    if (httpResponse.statusCode() != 200)
+    {
+      com.jayway.jsonpath.Configuration parseContext = com.jayway.jsonpath.Configuration
+              .defaultConfiguration()
+              .addOptions(Option.SUPPRESS_EXCEPTIONS);
+
+      Object responseBody = httpResponse.body();
+      String stringBody = safeCastHttpBodyToString(responseBody);
+      String message = JsonPath.using(parseContext).parse(stringBody).read(ERROR_MESSAGE_PATH);
+      if (message == null)
+      {
+        message = "Unknown error, HTTP Status: " + httpResponse.statusCode();
+      }
+      log.error("Request failed: {}", message);
+      throw new ApiRequestException(message, httpResponse);
+    }
+  }
+
+  private String safeCastHttpBodyToString(Object responseBody)
+  {
+    if (responseBody instanceof byte[])
+    {
+      return new String((byte[]) responseBody);
+    } else if (responseBody instanceof String)
+    {
+      return (String) responseBody;
+    }
+    return "";
+  }
+}
+</client_code>
+
+ And here is the error message:
+<error_message>
+[ERROR] /simplelocalize-cli/src/main/java/io/simplelocalize/cli/client/SimpleLocalizeClient.java:[87,49] cannot access com.fasterxml.jackson.core.exc.StreamReadException
+  class file for com.fasterxml.jackson.core.exc.StreamReadException not found
+
+
+</error_message>
+
+ Before proposing a fix, please analyze the error message and client code. Wrap your analysis inside <code_analysis> tags:
+
+<code_analysis>
+1. Examine the error message:
+   - Identify the specific issue related to the dependency update.
+   - Note the line number or method where the error occurs.
+   - Determine which dependency and version is causing the issue.
+
+2. Review the client code:
+   - Locate the problematic areas mentioned in the error message.
+   - Identify any related code that might be affected by the changes.
+
+3. Consider potential fixes that adhere to the following constraints:
+   - Do not change any function signatures.
+   - Only remove the @Override annotation if the method no longer overrides a method in the updated dependency version.
+   - Ensure correct imports are used, considering the newer dependency version.
+   - Avoid removing existing code unless it directly causes a compilation or functionality error.
+
+4. Plan the necessary changes to fix the issue:
+   - List the specific modifications required.
+   - Consider potential side effects of the proposed changes.
+   - Ensure the fix addresses the root cause of the error.
+</code_analysis>
+
+Based on your analysis, propose a patch to fix the issue. Your response should be a complete and compilable Java class in a fenced code block. Adhere to these guidelines:
+
+1. Do not change any function signatures.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Avoid removing any existing code unless it directly causes a compilation or functionality error.
+6. Ensure the entire class is included and that it will compile correctly.
+
+Please provide your fixed class in the following format:
+
+```java
+// Your complete, fixed Java class here
+```
+
+Remember to focus specifically on issues related to the dependency update when proposing your fix.
+ 

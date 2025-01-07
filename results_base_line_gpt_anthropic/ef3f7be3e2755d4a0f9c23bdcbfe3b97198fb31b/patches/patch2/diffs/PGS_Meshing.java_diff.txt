@@ -1,0 +1,29 @@
+4d3
+< import java.util.Arrays;
+6d4
+< import java.util.HashMap;
+9d6
+< import java.util.Map;
+11,12d7
+< import java.util.stream.Collectors;
+< 
+37c32
+< import org.tinspin.index.kdtree.PointIndex; // Updated import for PointIndex
+---
+> import org.tinspin.index.kdtree.PointIndex2D; // Updated import for PointIndex2D
+86c81
+<                 final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {
+---
+>                 final PointIndex2D<Vertex> tree = KDTree.create(2, (p1, p2) -> {
+95c90
+<                         final double[] midpoint = midpoint(edge);
+---
+>                         final double[] midpoint = midpoint(edge); // Ensure midpoint method is defined
+108a104,110
+>         }
+> 
+>         // Method to calculate the midpoint of the edge
+>         private static double[] midpoint(IQuadEdge edge) {
+>                 double midX = (edge.getA().x + edge.getB().x) / 2.0;
+>                 double midY = (edge.getA().y + edge.getB().y) / 2.0;
+>                 return new double[] { midX, midY };

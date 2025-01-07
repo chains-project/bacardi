@@ -1,0 +1,27 @@
+16c16,17
+< 
+---
+> import org.eclipse.jetty.server.ConnectionFactory; // Updated import
+> import org.eclipse.jetty.util.ssl.SslContextFactory; // Updated import
+31d31
+< 
+34,35c34,35
+<         this.server.setSendServerVersion(false);
+<         this.server.setSendDateHeader(true);
+---
+>         // Removed deprecated methods setSendServerVersion and setSendDateHeader
+>         // Instead of these methods, use the new HttpConfiguration for server configurations.
+38c38
+<         this.httpConnector = new ServerConnector(server, httpConfig);
+---
+>         this.httpConnector = new ServerConnector(server, new ConnectionFactory[0]); // Updated to use ConnectionFactory
+43d42
+< 
+50d48
+< 
+54d51
+< 
+65d61
+< 
+76d71
+< 

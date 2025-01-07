@@ -1,0 +1,19 @@
+20c20,21
+< import com.google.api.services.translate.Translate.Languages.ListLanguage; // New class name based on updated dependency
+---
+> import com.google.api.services.translate.Translate.Languages.List; // Update this import based on the new dependency
+> import com.google.api.services.translate.Translate.Languages.ListResponse; // Add import for ListResponse if needed
+37,38c38,39
+<   static final Function<ListLanguage, Language> FROM_PB_FUNCTION = // Updated function type to match new dependency
+<       new Function<ListLanguage, Language>() {
+---
+>   static final Function<ListResponse, Language> FROM_PB_FUNCTION = // Updated function type to match new dependency
+>       new Function<ListResponse, Language>() {
+40c41
+<         public Language apply(ListLanguage languagePb) {
+---
+>         public Language apply(ListResponse languagePb) {
+85c86
+<   static Language fromPb(ListLanguage languagePb) { // Adjusted parameter type to match new dependency
+---
+>   static Language fromPb(ListResponse languagePb) { // Adjusted parameter type to match new dependency

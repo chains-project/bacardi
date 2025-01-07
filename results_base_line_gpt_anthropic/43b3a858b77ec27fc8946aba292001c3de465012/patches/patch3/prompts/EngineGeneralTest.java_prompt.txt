@@ -1,0 +1,170 @@
+ You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates.
+Your task is to analyze the provided code and error message, then propose a patch that can be applied to the client code to resolve the issue.
+
+ Here is the client code that is failing:
+<client_code>
+/*
+ * Copyright 2014 Feedzai
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * you may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.feedzai.commons.sql.abstraction.engine.impl.abs;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import com.feedzai.commons.sql.abstraction.ddl.DbEntity;
+import com.feedzai.commons.sql.abstraction.engine.DatabaseEngine;
+import com.feedzai.commons.sql.abstraction.engine.DatabaseEngineException;
+import com.feedzai.commons.sql.abstraction.engine.DatabaseFactory;
+import com.feedzai.commons.sql.abstraction.engine.DatabaseFactoryException;
+import com.feedzai.commons.sql.abstraction.engine.testconfig.DatabaseConfiguration;
+import com.feedzai.commons.sql.abstraction.engine.testconfig.DatabaseTestUtil;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.Properties;
+
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.BOOLEAN;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.DOUBLE;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.INT;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.LONG;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.STRING;
+import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.ENGINE;
+import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.JDBC;
+import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.PASSWORD;
+import static com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties.USERNAME;
+
+import java.util.Properties;
+
+/**
+ * @author Rui Vilao (rui.vilao@feedzai.com)
+ * @since 2.0.0
+ */
+@RunWith(Parameterized.class)
+public class EngineGeneralTest {
+
+    protected DatabaseEngine engine;
+    protected Properties properties;
+
+    @Parameterized.Parameters
+    public static Collection<DatabaseConfiguration> data() throws Exception {
+        return DatabaseTestUtil.loadConfigurations();
+    }
+
+    @Parameterized.Parameter
+    public DatabaseConfiguration config;
+
+    @BeforeClass
+    public static void initStatic() {
+        ((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.TRACE);
+    }
+
+    @Before
+    public void init() throws DatabaseFactoryException {
+        properties = new Properties() {
+            {
+                setProperty(JDBC, config.jdbc);
+                setProperty(USERNAME, config.username);
+                setProperty(PASSWORD, config.password);
+                setProperty(ENGINE, config.engine);
+            }
+        };
+
+        engine = DatabaseFactory.getConnection(properties);
+    }
+
+    @After
+    public void cleanup() {
+        engine.close();
+    }
+
+    @Test
+    public void createEntityTest() throws DatabaseEngineException {
+        DbEntity entity = dbEntity()
+                .name("TEST")
+                .addColumn("COL1", INT)
+                .addColumn("COL2", BOOLEAN)
+                .addColumn("COL3", DOUBLE)
+                .addColumn("COL4", LONG)
+                .addColumn("COL5", STRING)
+                .pkFields("COL1")
+                .build();
+
+        engine.addEntity(entity);
+    }
+
+    // ... (remaining test cases unchanged) ...
+
+}
+</client_code>
+
+ And here is the error message:
+<error_message>
+[ERROR] /pdb/src/test/java/com/feedzai/commons/sql/abstraction/engine/impl/abs/EngineGeneralTest.java:[95,27] cannot find symbol
+  symbol:   method dbEntity()
+  location: class com.feedzai.commons.sql.abstraction.engine.impl.abs.EngineGeneralTest
+
+[ERROR] /pdb/src/test/java/com/feedzai/commons/sql/abstraction/engine/impl/abs/EngineGeneralTest.java:[71,49] cannot access org.slf4j.spi.LoggingEventAware
+  class file for org.slf4j.spi.LoggingEventAware not found
+
+
+</error_message>
+
+ Before proposing a fix, please analyze the error message and client code. Wrap your analysis inside <code_analysis> tags:
+
+<code_analysis>
+1. Examine the error message:
+   - Identify the specific issue related to the dependency update.
+   - Note the line number or method where the error occurs.
+   - Determine which dependency and version is causing the issue.
+
+2. Review the client code:
+   - Locate the problematic areas mentioned in the error message.
+   - Identify any related code that might be affected by the changes.
+
+3. Consider potential fixes that adhere to the following constraints:
+   - Do not change any function signatures.
+   - Only remove the @Override annotation if the method no longer overrides a method in the updated dependency version.
+   - Ensure correct imports are used, considering the newer dependency version.
+   - Avoid removing existing code unless it directly causes a compilation or functionality error.
+
+4. Plan the necessary changes to fix the issue:
+   - List the specific modifications required.
+   - Consider potential side effects of the proposed changes.
+   - Ensure the fix addresses the root cause of the error.
+</code_analysis>
+
+Based on your analysis, propose a patch to fix the issue. Your response should be a complete and compilable Java class in a fenced code block. Adhere to these guidelines:
+
+1. Do not change any function signatures.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Avoid removing any existing code unless it directly causes a compilation or functionality error.
+6. Ensure the entire class is included and that it will compile correctly.
+
+Please provide your fixed class in the following format:
+
+```java
+// Your complete, fixed Java class here
+```
+
+Remember to focus specifically on issues related to the dependency update when proposing your fix.
+ 

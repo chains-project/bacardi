@@ -1,0 +1,8 @@
+21c21
+< import com.mysql.jdbc.exceptions.MySQLTimeoutException;
+---
+> import com.mysql.cj.jdbc.exceptions.CommunicationsException; // Updated import for newer MySQL Connector/J
+40c40
+<         return exception instanceof MySQLTimeoutException || super.isTimeoutException(exception);
+---
+>         return exception instanceof CommunicationsException || super.isTimeoutException(exception); // Updated exception check

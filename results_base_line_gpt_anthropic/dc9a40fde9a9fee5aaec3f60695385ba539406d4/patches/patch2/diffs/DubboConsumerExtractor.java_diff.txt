@@ -1,0 +1,6 @@
+52c52,54
+<             RpcContext.getContext().setFuture(asyncRpcResult);
+---
+>             // Adjusted to ensure using CompletableFuture instead of AsyncRpcResult
+>             CompletableFuture<Object> future = asyncRpcResult.toCompletableFuture();
+>             RpcContext.getContext().setFuture(future);

@@ -1,0 +1,46 @@
+```java
+package com.github.games647.changeskin.sponge.task;
+
+import com.github.games647.changeskin.core.model.skin.SkinModel;
+import com.github.games647.changeskin.core.shared.task.SharedDownloader;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import java.util.UUID;
+
+import org.spongepowered.api.command.CommandSource; // Correct import for CommandSource
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
+
+// The CommandSource class might have moved to a different package or been renamed.
+// Adjust the import statement based on the new dependency structure.
+import org.spongepowered.api.command.source.CommandSource; // Updated import for CommandSource
+
+public class SkinDownloader extends SharedDownloader {
+
+    private final ChangeSkinSponge plugin;
+    private final CommandSource invoker;
+    private final Player receiver;
+
+    public SkinDownloader(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, UUID targetUUID
+            , boolean keepSkin) {
+        super(plugin.getCore(), keepSkin, targetUUID, receiver.getUniqueId());
+
+        this.plugin = plugin;
+        this.invoker = invoker;
+        this.receiver = receiver;
+    }
+
+    @Override
+    protected void scheduleApplyTask(SkinModel skinData) {
+        Runnable skinUpdater = new SkinApplier(plugin, invoker, receiver, skinData, keepSkin);
+        Task.builder().execute(skinUpdater).submit(plugin);
+    }
+
+    @Override
+    public void sendMessageInvoker(String id) {
+        plugin.sendMessage(invoker, id);
+    }
+}
+``` 
+
+In this patch, I updated the import statement for `CommandSource` to ensure that it aligns with the new structure of the Sponge API dependency. This change is necessary to resolve the compilation errors related to the missing `CommandSource` class. The rest of the class remains unchanged, adhering to the requirement of not modifying function signatures or removing existing code unnecessarily.

@@ -1,0 +1,30 @@
+10d9
+< import org.eclipse.jetty.server.Connector;
+12c11
+< import org.eclipse.jetty.server.nio.SelectChannelConnector;
+---
+> import org.eclipse.jetty.server.ServerConnector;  // Updated import
+16d14
+< 
+24c22
+<     private final Connector httpConnector;
+---
+>     private final ServerConnector httpConnector;  // Changed to ServerConnector
+30d27
+< 
+36c33
+<         this.httpConnector = new SelectChannelConnector();
+---
+>         this.httpConnector = new ServerConnector(server);  // Updated to use ServerConnector
+41d37
+< 
+52d47
+< 
+63d57
+< 
+74d67
+< 
+80c73
+<         return httpConnector.getLocalPort();
+---
+>         return httpConnector.getLocalPort();  // This method is available in ServerConnector

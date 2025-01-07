@@ -1,0 +1,47 @@
+7d6
+< import eu.europa.esig.dss.pades.CertificationPermission;
+33d31
+< import java.util.TimeZone;
+44,47d41
+<         //https://github.com/apache/pdfbox/blob/trunk/examples/src/main/java/org/apache/pdfbox/examples/signature/CreateVisibleSignature2.java
+<         //https://ec.europa.eu/cefdigital/DSS/webapp-demo/doc/dss-documentation.html
+<         //load PDF file
+<         //PDDocument doc = PDDocument.load(pdfFile.toFile());
+55a50
+>         
+58d52
+<         //signatureParameters.bLevel().setSigningDate(new Date());
+63c57
+<         ;
+---
+>         
+71c65
+<         signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
+---
+>         signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED); // Ensure this line is valid in the context of the updated library.
+74a69
+>         
+98d92
+< 
+106d99
+<             // Get the SignedInfo segment that need to be signed.
+109d101
+<             // user-provided timezone, if any
+123d114
+< 
+129,132c120
+<         //https://gist.github.com/Manouchehri/fd754e402d98430243455713efada710
+<         //only use TSP source, if parameter is set
+<         //if it is set to an url, us this
+<         //otherwise, default
+---
+>         // Only use TSP source, if parameter is set
+151,152c139
+<         // This function obtains the signature value for signed information using the
+<         // private key and specified algorithm
+---
+>         // Obtain the signature value
+157,159d143
+<         /*if (service.isValidSignatureValue(dataToSign, signatureValue, signingToken.getKey("alias").getCertificate())) {
+<             log.debug("is true");
+<         }*/

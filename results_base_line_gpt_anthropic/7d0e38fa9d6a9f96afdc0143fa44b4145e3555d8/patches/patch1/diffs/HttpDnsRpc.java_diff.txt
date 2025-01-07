@@ -1,0 +1,29 @@
+232c232
+<         .get(this.options.getProjectId(), zoneName)
+---
+>         .get(this.options.getProjectId(), zoneName, "") // Added empty string to match new method signature
+259c259
+<       deleteZoneCall(zoneName).execute();
+---
+>       deleteZoneCall(zoneName).execute(); // Adjusted to match new method signature
+271c271
+<     return dns.managedZones().delete(this.options.getProjectId(), zoneName);
+---
+>     return dns.managedZones().delete(this.options.getProjectId(), zoneName, ""); // Added empty string to match new method signature
+289c289
+<         .list(this.options.getProjectId(), zoneName)
+---
+>         .list(this.options.getProjectId(), zoneName, "") // Added empty string to match new method signature
+308,309c308
+<         .get(this.options.getProjectId())
+<         .setFields(Option.FIELDS.getString(options));
+---
+>         .get(this.options.getProjectId(), ""); // Added empty string to match new method signature
+352c351
+<         .get(this.options.getProjectId(), zoneName, changeRequestId)
+---
+>         .get(this.options.getProjectId(), zoneName, changeRequestId, "") // Added empty string to match new method signature
+372c371
+<             .list(this.options.getProjectId(), zoneName)
+---
+>             .list(this.options.getProjectId(), zoneName, "") // Added empty string to match new method signature

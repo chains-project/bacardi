@@ -1,0 +1,13 @@
+16,19c16,18
+< import org.cactoos.text.HexOf;
+< // Updated imports to reflect the new dependency structure
+< import org.cactoos.io.OutputStreamOf; // Example of a new import that might be needed
+< import org.cactoos.text.Hex; // Correcting the import for Hex to match the new dependency
+---
+> import org.cactoos.text.HexOf; // Corrected import to HexOf for digest conversion
+> import org.cactoos.io.OutputStreamOf; // Ensure OutputStreamOf is imported as needed
+> import org.cactoos.text.Hex; // Ensure Hex is imported correctly
+60c59
+<                 new Digest.Sha256(new Hex(new BytesOf(sha.digest())).asString()) // Updated to use Hex
+---
+>                 new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString()) // Changed Hex to HexOf

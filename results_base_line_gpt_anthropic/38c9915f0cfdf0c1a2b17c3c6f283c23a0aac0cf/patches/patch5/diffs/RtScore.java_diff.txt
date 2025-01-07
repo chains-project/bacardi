@@ -1,0 +1,8 @@
+28a29
+> import org.cactoos.iterable.Sized; // Added import for Sized
+53,54c54,55
+<         return new LengthOf(other.suffixes()).intValue()
+<             - new LengthOf(this.sfxs).intValue();
+---
+>         return new LengthOf(new Sized(other.suffixes())).intValue() // Updated to use Sized
+>             - new LengthOf(new Sized(this.sfxs)).intValue(); // Updated to use Sized

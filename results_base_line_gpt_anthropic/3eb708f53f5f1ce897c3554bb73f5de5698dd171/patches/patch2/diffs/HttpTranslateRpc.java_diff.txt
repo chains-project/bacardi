@@ -1,0 +1,35 @@
+24c24
+< import com.google.api.client.json.JsonFactory; // Updated import for JsonFactory
+---
+> import com.google.api.client.json.JsonFactory;
+26,31c26
+< import com.google.cloud.translate.Translate; // Updated to correct package
+< import com.google.cloud.translate.model.DetectionsResourceItems; // Updated to correct package
+< import com.google.cloud.translate.model.LanguagesResource; // Updated to correct package
+< import com.google.cloud.translate.model.TranslationsResource; // Updated to correct package
+< import com.google.cloud.http.HttpTransportOptions;
+< import com.google.cloud.translate.TranslateException;
+---
+> import com.google.cloud.translate.Translate;
+32a28,32
+> import com.google.cloud.translate.TranslateException;
+> import com.google.cloud.translate.DetectionsResource;
+> import com.google.cloud.translate.LanguagesResource;
+> import com.google.cloud.translate.TranslationsResource;
+> import com.google.cloud.http.HttpTransportOptions;
+51c51
+<         new Translate.Builder(transport, JacksonFactory.getDefaultInstance(), initializer) // Updated constructor
+---
+>         new Translate.Builder(transport, JacksonFactory.getDefaultInstance(), initializer)
+70c70
+<   public List<List<DetectionsResourceItems>> detect(List<String> texts) {
+---
+>   public List<List<DetectionsResource>> detect(List<String> texts) {
+72c72
+<       List<List<DetectionsResourceItems>> detections =
+---
+>       List<List<DetectionsResource>> detections =
+74c74
+<       return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
+---
+>       return detections != null ? detections : ImmutableList.<List<DetectionsResource>>of();

@@ -1,0 +1,16 @@
+25d24
+< import org.apache.thrift.transport.TFramedTransport; // Ensure this import is added
+26a26
+> import org.apache.thrift.transport.TTransportFramed; // Changed import for the updated library
+64,65c64,65
+<   // The framed framedTransport.
+<   private final TFramedTransport framedTransport;
+---
+>   // The framed transport.
+>   private final TTransportFramed framedTransport; // Updated type
+81,82c81,82
+<     this.framedTransport = new TFramedTransport(new TIOStreamTransport(this
+<         .byteOffsetInputStream), maxMessageSize);
+---
+>     this.framedTransport = new TTransportFramed(new TIOStreamTransport(this
+>         .byteOffsetInputStream), maxMessageSize); // Updated instantiation

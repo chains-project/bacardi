@@ -27,7 +27,7 @@ public class Bump {
 
     static Set<Result> resultsList = new HashSet<>();
     static Map<String, Result> resultsMap = new HashMap<>();
-    private final static String JSON_PATH = "result_repair_gpt_test.json";
+    private final static String JSON_PATH = "result_repair_gpt_baseline_anthropic.json";
 
 
     public static void main(String[] args) {
@@ -54,8 +54,8 @@ public class Bump {
 
         breaking
                 .stream()
-                .filter(e -> e.breakingCommit.equals("0abf7148300f40a1da0538ab060552bca4a2f1d8")) // filter by breaking commit
-//                .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
+//                .filter(e -> e.breakingCommit.equals("0abf7148300f40a1da0538ab060552bca4a2f1d8")) // filter by breaking commit
+                .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
                 .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure category
                 .forEach(e -> {
 
@@ -81,7 +81,7 @@ public class Bump {
                         //adding docker image to the pipeline
                         setupPipeline.setDockerImage(e.breakingUpdateReproductionCommand.replace("docker run ", ""));
                         //adding output patch folder to the pipeline
-                        setupPipeline.setOutPutPatchFolder(Path.of("results"));
+                        setupPipeline.setOutPutPatchFolder(Path.of("results_base_line_gpt_anthropic"));
                         //start repair process
                         repair(setupPipeline);
                     } catch (Exception ee) {

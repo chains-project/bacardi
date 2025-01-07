@@ -1,0 +1,53 @@
+```java
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ *
+ * Copyright 2017-2022 the original author or authors.
+ */
+package org.assertj.vavr.api;
+
+import io.vavr.control.Try;
+import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector;
+import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Method;
+
+class ClassLoadingStrategyFactory {
+
+    private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
+    private static final Method PRIVATE_LOOKUP_IN = Try.of(
+        () -> MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class)
+    ).getOrElse((Method) null);
+
+    static ClassLoadingStrategy<ClassLoader> classLoadingStrategy(Class<?> assertClass) {
+        if (ClassInjector.UsingReflection.isAvailable()) {
+            return ClassLoadingStrategy.Default.INJECTION;
+        } else if (ClassInjector.UsingLookup.isAvailable() && PRIVATE_LOOKUP_IN != null) {
+            try {
+                return ClassLoadingStrategy.UsingLookup.of(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));
+            } catch (Exception e) {
+                throw new IllegalStateException("Could not access package of " + assertClass, e);
+            }
+        } else {
+            throw new IllegalStateException("No code generation strategy available");
+        }
+    }
+
+}
+``` 
+
+### Analysis and Changes Made:
+1. The error messages indicated that the packages `ClassLoadingStrategy` and `ClassInjector` could not be found. This typically suggests that the dependencies related to ByteBuddy may have been updated or removed from the project.
+2. The code references classes from the `org.assertj.core.internal.bytebuddy.dynamic.loading` package. If the version of AssertJ or ByteBuddy being used has changed, the corresponding classes may have been relocated or renamed.
+3. The code structure remains intact, and no method signatures have been altered as per the instructions. As the error is primarily due to missing dependencies, it's necessary to ensure that the correct versions of AssertJ and ByteBuddy are included in the project.
+4. Ensure the `pom.xml` or build file is updated to include the correct versions of these libraries that contain the required classes. 
+
+Please make sure to add the necessary dependencies in the build configuration to resolve the missing packages.

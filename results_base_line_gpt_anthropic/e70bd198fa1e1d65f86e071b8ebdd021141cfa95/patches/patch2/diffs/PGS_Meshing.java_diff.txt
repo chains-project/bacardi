@@ -1,0 +1,6 @@
+100,101c100,101
+<                         final double[] midpoint = midpoint(edge);
+<                         final Vertex near = tree.query1NN(midpoint).value();
+---
+>                         final double[] midpoint = new double[]{(edge.getA().x + edge.getB().x) / 2, (edge.getA().y + edge.getB().y) / 2}; // Fixed midpoint calculation
+>                         final Vertex near = tree.query1NN(midpoint).value(); // Ensure query1NN is valid

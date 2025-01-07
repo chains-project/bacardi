@@ -1,0 +1,8 @@
+6d5
+< import java.io.FileInputStream;
+39c38,40
+<         getContainer().getLoggerManager().setThreshold( Logger.LEVEL_DEBUG );
+---
+>         ConsoleLoggerManager loggerManager = new ConsoleLoggerManager(); // Create an instance of ConsoleLoggerManager
+>         loggerManager.setThreshold(Logger.LEVEL_DEBUG);
+>         getContainer().setLoggerManager(loggerManager); // Set the logger manager

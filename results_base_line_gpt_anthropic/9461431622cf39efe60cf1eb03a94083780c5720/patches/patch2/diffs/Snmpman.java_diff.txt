@@ -1,0 +1,12 @@
+103c103
+<                 agent.execute();
+---
+>                 agent.execute(); // This method needs to exist in SnmpmanAgent
+105c105
+<                 throw new InitializationException("failed to start agent \"" + agent.getName() + "\"", e);
+---
+>                 throw new InitializationException("failed to start agent \"" + agent.getAgentName() + "\"", e); // Changed getName to getAgentName
+123c123
+<             throw new InitializationException("agent " + agent.getName() + " already stopped while initialization was running");
+---
+>             throw new InitializationException("agent " + agent.getAgentName() + " already stopped while initialization was running"); // Changed getName to getAgentName

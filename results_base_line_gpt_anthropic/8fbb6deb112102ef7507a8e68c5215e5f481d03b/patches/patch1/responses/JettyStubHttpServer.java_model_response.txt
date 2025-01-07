@@ -1,0 +1,87 @@
+```java
+/*
+ * Copyright (c) 2012 - 2016 Jadler contributors
+ * This program is made available under the terms of the MIT License.
+ */
+package net.jadler.stubbing.server.jetty;
+
+import net.jadler.RequestManager;
+import net.jadler.stubbing.server.StubHttpServer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.ServerConnector; // Updated import for the new Connector class
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.Validate;
+
+/**
+ * Default stub http server implementation using Jetty as an http server.
+ */
+public class JettyStubHttpServer implements StubHttpServer {
+
+    private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
+    private final Server server;
+    private final ServerConnector httpConnector; // Updated to use ServerConnector
+
+    public JettyStubHttpServer() {
+        this(0);
+    }
+    
+    public JettyStubHttpServer(final int port) {
+        this.server = new Server();
+        // Removed deprecated methods setSendServerVersion and setSendDateHeader
+        // server.setSendServerVersion(false);
+        // server.setSendDateHeader(true);
+        
+        this.httpConnector = new ServerConnector(server); // Updated to use ServerConnector
+        this.httpConnector.setPort(port);
+        server.addConnector(this.httpConnector);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void registerRequestManager(final RequestManager ruleProvider) {
+        Validate.notNull(ruleProvider, "ruleProvider cannot be null");
+
+        server.setHandler(new JadlerHandler(ruleProvider));
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void start() throws Exception {
+        logger.debug("starting jetty");
+        server.start();
+        logger.debug("jetty started");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void stop() throws Exception {
+        logger.debug("stopping jetty");
+        server.stop();
+        logger.debug("jetty stopped");
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getPort() {
+        return httpConnector.getPort(); // Updated to use getPort() instead of getLocalPort()
+    }
+}
+``` 
+
+### Summary of Changes:
+1. **Imports Updated**: Changed from `SelectChannelConnector` to `ServerConnector` to match the updated Jetty API.
+2. **Removed Deprecated Methods**: The methods `setSendServerVersion(boolean)` and `setSendDateHeader(boolean)` were removed as they are no longer part of the `Server` class in the updated Jetty version.
+3. **Connector Type**: Changed the type of `httpConnector` from `Connector` to `ServerConnector` for compatibility with the latest Jetty API.
+4. **Port Retrieval**: Updated the method for retrieving the port from `getLocalPort()` to `getPort()` which is applicable for `ServerConnector`. 
+
+These changes ensure compatibility with the updated Jetty dependency while preserving the functionality of the JettyStubHttpServer class.

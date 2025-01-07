@@ -1,0 +1,16 @@
+76c76
+<                                        .map(config -> new SnmpmanAgent(config)) // Updated to use the correct constructor
+---
+>                                        .map(config -> new SnmpmanAgent(config.getName(), config.getDevice(), config.getWalk(), config.getIp(), config.getPort())) // Updated to use the correct constructor
+105c105
+<                 agent.execute(); // Make sure the execute method exists in SnmpmanAgent
+---
+>                 agent.execute(); // Ensure the execute method exists in SnmpmanAgent
+107c107
+<                 throw new InitializationException("failed to start agent \"" + agent.getAgentName() + "\"", e); // Updated to use getAgentName()
+---
+>                 throw new InitializationException("failed to start agent \"" + agent.getName() + "\"", e); // Updated to use getName()
+125c125
+<             throw new InitializationException("agent " + agent.getAgentName() + " already stopped while initialization was running"); // Updated to use getAgentName()
+---
+>             throw new InitializationException("agent " + agent.getName() + " already stopped while initialization was running"); // Updated to use getName()

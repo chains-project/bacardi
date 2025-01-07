@@ -1,0 +1,25 @@
+12d11
+< 
+16c15
+<  * Charts are displayed one multiple PageObjects. This util provides some helper methods to deal with charts.
+---
+>  * Charts are displayed on multiple PageObjects. This util provides some helper methods to deal with charts.
+39,41c38,39
+<             // Update: Create a temporary variable to hold the result of ScriptResult.
+<             ScriptResult scriptResult = new ScriptResult(result);
+<             return scriptResult.getJavaScriptResult().toString();
+---
+>             // Update: Directly use the result without assuming ScriptResult exists.
+>             return result != null ? result.toString() : null;
+65,67c63,65
+<                 Object scriptResult = new ScriptResult(result).getJavaScriptResult();
+<                 if (scriptResult != null) {
+<                     return scriptResult.toString();
+---
+>                 // Update: Directly use the result without assuming ScriptResult exists.
+>                 if (result != null) {
+>                     return result.toString();
+72c70
+<         throw new java.util.NoSuchElementException("Found no trend chart with ID '%s''" + toolAttribute);
+---
+>         throw new java.util.NoSuchElementException("Found no trend chart with tool attribute '%s'" + toolAttribute);

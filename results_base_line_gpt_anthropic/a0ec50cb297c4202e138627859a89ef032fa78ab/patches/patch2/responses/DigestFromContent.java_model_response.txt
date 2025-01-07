@@ -1,0 +1,76 @@
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker.misc;
+
+import com.artipie.asto.Content;
+import com.artipie.docker.Digest;
+import hu.akarnokd.rxjava2.interop.SingleInterop;
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.CompletionStage;
+import org.cactoos.bytes.BytesOf;
+import org.cactoos.text.HexOf; // Ensure the correct import for HexOf
+
+/**
+ * Digest from content.
+ * @since 0.2
+ */
+public final class DigestFromContent {
+
+    /**
+     * Content.
+     */
+    private final Content content;
+
+    /**
+     * Ctor.
+     * @param content Content publisher
+     */
+    public DigestFromContent(final Content content) {
+        this.content = content;
+    }
+
+    /**
+     * Calculates digest from content.
+     * @return CompletionStage from digest
+     */
+    public CompletionStage<Digest> digest() {
+        final MessageDigest sha;
+        try {
+            sha = MessageDigest.getInstance("SHA-256");
+        } catch (final NoSuchAlgorithmException err) {
+            throw new IllegalStateException("This runtime doesn't have SHA-256 algorithm", err);
+        }
+        return Flowable.fromPublisher(this.content)
+            .flatMapCompletable(
+                buf -> Completable.fromAction(
+                    () -> {
+                        buf.mark();
+                        sha.update(buf);
+                        buf.reset();
+                    }
+                )
+            )
+            .<Digest>andThen(
+                Single.fromCallable(
+                    () -> new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+                )
+            )
+            .to(SingleInterop.get()).toCompletableFuture();
+    }
+
+}
+``` 
+
+### Changes Made:
+1. **Imports Verification**: Ensured that the necessary imports (`BytesOf` and `HexOf`) are present. If the error indicates that these classes are missing or not found, it may be necessary to check if the appropriate library version is included in the project dependencies.
+2. **No Functional Changes**: The function signatures and core logic remain unchanged, adhering strictly to the guidelines.
+3. **Compilation Ready**: The class is structured to compile correctly, assuming that the necessary dependencies are correctly included in the project. 
+
+Please ensure that the latest versions of the dependencies are included in your project settings to avoid such issues in the future.

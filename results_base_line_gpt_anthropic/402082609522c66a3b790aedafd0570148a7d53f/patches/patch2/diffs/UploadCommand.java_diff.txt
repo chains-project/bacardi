@@ -1,0 +1,15 @@
+14c14
+< import org.spongepowered.api.command.args.Arguments;
+---
+> import org.spongepowered.api.command.args.GenericArguments; // Fixed import
+18,20c18,19
+< 
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import org.spongepowered.api.command.args.CommandContext; // Fixed import
+> import org.spongepowered.api.text.Text; // Fixed import
+56c55
+<                 .arguments(string(of("url")))
+---
+>                 .arguments(GenericArguments.string(Text.of("url"))) // Fixed usage of GenericArguments and Text

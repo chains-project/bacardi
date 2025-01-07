@@ -1,0 +1,14 @@
+13a14,15
+> import hudson.model.Item; // New import added
+> import hudson.model.ItemGroup; // New import added
+39c41,43
+<         ConnectionHelper connection = new ConnectionHelper(credentials, buildListener);
+---
+>         // Create an ItemGroup or Item as needed for the new constructor
+>         Item item = (Item) build.getProject(); // Assuming build.getProject() returns an Item
+>         ConnectionHelper connection = new ConnectionHelper(item, credentials, buildListener);
+44c48,49
+<                 ClientHelper perforceClient = new ClientHelper(credentials, buildListener, clientString, StandardCharsets.UTF_8.toString());
+---
+>                 // Create the ClientHelper with the new constructor parameters
+>                 ClientHelper perforceClient = new ClientHelper(item, credentials, buildListener, null);

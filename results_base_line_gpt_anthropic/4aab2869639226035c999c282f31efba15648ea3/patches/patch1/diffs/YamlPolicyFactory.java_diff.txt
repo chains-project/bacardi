@@ -1,0 +1,19 @@
+9c9,10
+< import com.artipie.asto.factory.Storages;
+---
+> import com.artipie.asto.factory.Storage;
+> import com.artipie.asto.factory.Storages; // Ensure this import is correct for the updated version
+41,46c42,45
+<             return new YamlPolicy(
+<                 new BlockingStorage(
+<                     new Storages().newStorage(
+<                         sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
+<                     )
+<                 )
+---
+>             // Update usage of newStorage to match the new API if necessary
+>             Storage storage = new Storages().newStorage(
+>                 sub.string("type"),
+>                 Yaml.createYamlInput(sub.toString()).readYamlMapping()
+47a47
+>             return new YamlPolicy(new BlockingStorage(storage));
