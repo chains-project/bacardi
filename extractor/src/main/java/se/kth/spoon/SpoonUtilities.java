@@ -112,8 +112,6 @@ public class SpoonUtilities {
             element.accept(scanner);
         }
 
-        tmp.forEach(SpoonFullyQualifiedNameExtractor::getFullyQualifiedName);
-
         Set<ApiChange> apiChangesMatch = scanner.getMatchedApiChanges();
 
         apiChangesMatch.forEach(matchedApiChange -> {
@@ -182,7 +180,7 @@ public class SpoonUtilities {
                 fault.setClientLineNumber(element.getPosition().getLine());
                 fault.setClientEndLineNumber(element.getPosition().getEndLine());
                 fault.setClassPath(element.getPosition().getFile().getAbsolutePath());
-                }
+            }
         });
         return fault;
     }

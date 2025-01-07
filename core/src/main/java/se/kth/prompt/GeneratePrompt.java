@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,6 +34,8 @@ public class GeneratePrompt {
     }
 
     public String generatePrompt() {
+        log.info("Generating prompt for pipeline: {}", pipeline);
+
         // Generate the prompt
         AbstractPromptTemplate promptTemplate = null;
 
@@ -46,6 +47,9 @@ public class GeneratePrompt {
             case BASELINE_ANTHROPIC:
                 promptTemplate = new BasePromptAnthropicTemplate();
                 promptTemplate.setPromptModel(promptModel);
+                break;
+            case BASELINE_API_DIFF:
+                log.info("Baseline API diff pipeline not implemented yet");
                 break;
             case FIX_YOU:
                 promptTemplate = new FixYouPromptTemplate();

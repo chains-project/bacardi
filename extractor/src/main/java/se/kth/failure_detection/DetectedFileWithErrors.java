@@ -40,6 +40,8 @@ public class DetectedFileWithErrors {
      */
     private String classPath;
 
+    private CtElement codeElement;
+
     /**
      * Information about the fault detected in the file.
      */

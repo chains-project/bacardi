@@ -1,11 +1,13 @@
 package se.kth;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.Util.BreakingUpdateProvider;
 import se.kth.Util.JsonUtils;
 import se.kth.Util.LogUtils;
 import se.kth.model.BreakingUpdate;
+import se.kth.model.PromptPipeline;
 import se.kth.model.SetupPipeline;
 import se.kth.models.FailureCategory;
 
@@ -45,11 +47,8 @@ public class Bump {
                 JAVA_VERSION_INCOMPATIBILITY_FILE);
 
         // List of breaking updates
-        // List<BreakingUpdate> breaking =
-        // BreakingUpdateProvider.getBreakingUpdatesFromResourcesByCategory(BENCHMARK_PATH,
-        // FailureCategory.COMPILATION_FAILURE, listOfJavaVersionIncompatibilities);
-        List<BreakingUpdate> breaking = BreakingUpdateProvider.getBreakingUpdatesFromResourcesByCategory(BENCHMARK_PATH,
-                FailureCategory.COMPILATION_FAILURE);
+//        List<BreakingUpdate> breaking = BreakingUpdateProvider.getBreakingUpdatesFromResourcesByCategory(BENCHMARK_PATH, FailureCategory.COMPILATION_FAILURE, listOfJavaVersionIncompatibilities);
+        List<BreakingUpdate> breaking = BreakingUpdateProvider.getBreakingUpdatesFromResourcesByCategory(BENCHMARK_PATH, FailureCategory.COMPILATION_FAILURE);
 
         // read Json file with attempts information
         resultsMap.putAll(getPreviousResults(JSON_PATH));
@@ -141,12 +140,13 @@ public class Bump {
 
                 String breakingImage = e.breakingUpdateReproductionCommand.replace("docker run ", "");
 
-                // get jar from container for previous version
-                // getProjectData(preBreakingImage, dockerBuild, clientFolder, null, null,
-                // prevoiusJarInContainerPath);
-                // get jar from container for new version and m2 folder and project
-                getProjectData(breakingImage, dockerBuild, clientFolder, fromContainerM2, fromContainerProject,
-                        newJarInContainerPath);
+            //get jar from container for previous version
+            if (PIPELINE.equals(PromptPipeline.BASELINE_API_DIFF)) {
+                getProjectData(preBreakingImage, dockerBuild, clientFolder, null, null, prevoiusJarInContainerPath);
+            }
+            //get jar from container for new version and m2 folder and project
+            getProjectData(breakingImage, dockerBuild, clientFolder, fromContainerM2, fromContainerProject, newJarInContainerPath);
+
 
                 // copy project from container
                 // delete Image
@@ -161,6 +161,7 @@ public class Bump {
         return clientFolder;
     }
 
+
     /**
      * Repair the breaking update
      *
@@ -168,10 +169,10 @@ public class Bump {
      */
     public static void repair(SetupPipeline setupPipeline) {
 
-        /*
-         * Read the log file and extract the failure category
-         * If the failure category is BUILD_SUCCESS, no need to analyze further
-         */
+    /*
+      Read the log file and extract the failure category
+      If the failure category is BUILD_SUCCESS, no need to analyze further
+     */
         File logFile = setupPipeline.getLogFilePath().toFile();
 
         FailureCategoryExtract failureCategoryExtract = new FailureCategoryExtract(logFile);
@@ -191,5 +192,6 @@ public class Bump {
         JsonUtils.writeToFile(Path.of(JSON_PATH), resultsMap);
 
     }
+
 
 }

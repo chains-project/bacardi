@@ -1,6 +1,7 @@
 package se.kth.Util;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import se.kth.model.PromptPipeline;
 
 public class Constants {
 
@@ -20,10 +21,11 @@ public class Constants {
     public static final String PROJECTS_PATH = dotenv.get("PROJECTS_PATH",
             System.getProperty("user.dir") + "/projects");;
 
-    public static final String PIPELINE = dotenv.get("PIPELINE", "BASELINE");
-
-    public static final String OUTPUT_PATH = dotenv.get("OUTPUT_PATH", System.getProperty("user.dir") + "/output");
+   public static final String OUTPUT_PATH = dotenv.get("OUTPUT_PATH", System.getProperty("user.dir") + "/output");
 
     public static final String LLM = dotenv.get("LLM", "gtp4o-mini");
+
+    public static final PromptPipeline PIPELINE = PromptPipeline.fromString(dotenv.get("PIPELINE", PromptPipeline.BASELINE.toString()));
+
 }
 
