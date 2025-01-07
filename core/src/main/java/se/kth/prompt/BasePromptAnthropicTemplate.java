@@ -68,8 +68,6 @@ public class BasePromptAnthropicTemplate extends AbstractPromptTemplate {
     @Override
     public String generatePrompt() {
 
-        log.info("Generating prompt for baseline pipeline");
-
         return """
                  %s
                  %s

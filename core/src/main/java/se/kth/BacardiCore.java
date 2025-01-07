@@ -17,12 +17,10 @@ import se.kth.wError.RepairWError;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
+import static se.kth.Util.Constants.PIPELINE;
 import static se.kth.Util.Constants.PYTHON_SCRIPT;
 import static se.kth.Util.FileUtils.getAbsolutePath;
 
@@ -174,9 +172,8 @@ public class BacardiCore {
         ArrayList<Boolean> isDifferent = new ArrayList<>();
         FailureCategory category;
 
-//        try {
-//            Map<String, Set<DetectedFileWithErrors>> listOfFilesWithErrors = repairDirectFailures.extractConstructsFromDirectFailures();
-            Map<String, Set<DetectedFileWithErrors>> listOfFilesWithErrors = repairDirectFailures.basePipeLine();
+        try {
+            Map<String, Set<DetectedFileWithErrors>> listOfFilesWithErrors = getListOfFilesWithErrors(repairDirectFailures);
 
             if (listOfFilesWithErrors.isEmpty()) {
                 log.info("No constructs found in the direct compilation failure.");
@@ -185,12 +182,10 @@ public class BacardiCore {
 
             } else {
                 log.info("Constructs found in the direct compilation failure: {}", listOfFilesWithErrors.size());
-                //generate prompt for the construct to repair
 
                 StoreInfo storeInfo = new StoreInfo(setupPipeline);
 
-            ExecutorService executorService = Executors.newFixedThreadPool(listOfFilesWithErrors.size());
-            List<CompletableFuture<Void>> futures = new ArrayList<>();
+                List<CompletableFuture<Void>> futures = new ArrayList<>();
 
                 listOfFilesWithErrors.forEach((key, value) -> {
                     log.info("File: {}", key);
@@ -202,13 +197,13 @@ public class BacardiCore {
                         String absolutePathToBuggyClass = getAbsolutePath(setupPipeline, key);
                         String fileName = key.substring(key.lastIndexOf("/") + 1);
                         // create all structure for save information
-                        GeneratePrompt generatePrompt = new GeneratePrompt(PromptPipeline.BASELINE_ANTHROPIC, new PromptModel(absolutePathToBuggyClass, value));
+                        GeneratePrompt generatePrompt = new GeneratePrompt(PIPELINE, new PromptModel(absolutePathToBuggyClass, value));
                         String prompt = generatePrompt.generatePrompt();
                         log.info("Waiting for response...");
 
                         // save the prompt to a file for each file with errors
                         try {
-                           Path promptPath =  storeInfo.copyContentToFile("prompts/%s_prompt.txt".formatted(fileName), prompt);
+                            Path promptPath = storeInfo.copyContentToFile("prompts/%s_prompt.txt".formatted(fileName), prompt);
 
                             String model_response = generatePrompt.callPythonScript(PYTHON_SCRIPT, promptPath);
                             // save model model_response to a file
@@ -255,11 +250,22 @@ public class BacardiCore {
                 return category;
             }
 
-//        } catch (IOException e) {
-//            log.error("Error repairing direct compilation failure.", e);
-//            throw new RuntimeException(e);
-//        }
+        } catch (IOException e) {
+            log.error("Error repairing direct compilation failure.", e);
+            throw new RuntimeException(e);
+        }
 
+    }
+
+    public Map<String, Set<DetectedFileWithErrors>> getListOfFilesWithErrors(RepairDirectFailures repairDirectFailures) throws IOException {
+
+        PromptPipeline promptPipeLine = PIPELINE;
+
+        return switch (promptPipeLine) {
+            case BASELINE, BASELINE_ANTHROPIC -> repairDirectFailures.basePipeLine();
+            case BASELINE_API_DIFF -> repairDirectFailures.extractConstructsFromDirectFailures();
+            default -> throw new IllegalStateException("Unexpected value: " + promptPipeLine);
+        };
     }
 
 

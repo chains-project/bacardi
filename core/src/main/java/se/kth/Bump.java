@@ -7,6 +7,7 @@ import se.kth.Util.BreakingUpdateProvider;
 import se.kth.Util.JsonUtils;
 import se.kth.Util.LogUtils;
 import se.kth.model.BreakingUpdate;
+import se.kth.model.PromptPipeline;
 import se.kth.model.SetupPipeline;
 import se.kth.models.FailureCategory;
 
@@ -136,7 +137,9 @@ public class Bump {
             String breakingImage = e.breakingUpdateReproductionCommand.replace("docker run ", "");
 
             //get jar from container for previous version
-//            getProjectData(preBreakingImage, dockerBuild, clientFolder, null, null, prevoiusJarInContainerPath);
+            if (PIPELINE.equals(PromptPipeline.BASELINE_API_DIFF)) {
+                getProjectData(preBreakingImage, dockerBuild, clientFolder, null, null, prevoiusJarInContainerPath);
+            }
             //get jar from container for new version and m2 folder and project
             getProjectData(breakingImage, dockerBuild, clientFolder, fromContainerM2, fromContainerProject, newJarInContainerPath);
 

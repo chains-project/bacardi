@@ -1,6 +1,7 @@
 package se.kth.Util;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import se.kth.model.PromptPipeline;
 
 public class Constants {
 
@@ -16,6 +17,8 @@ public class Constants {
     public static final String PYTHON_SCRIPT = dotenv.get("PYTHON_SCRIPT", "/default/path/to/python_script.py");
 
     public static final String PROJECTS_PATH = "/Users/frank/Documents/Work/PHD/bacardi/projects";
+
+    public static final PromptPipeline PIPELINE = PromptPipeline.fromString(dotenv.get("PIPELINE", PromptPipeline.BASELINE.toString()));
 
 }
 

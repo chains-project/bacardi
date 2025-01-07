@@ -10,7 +10,9 @@ import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.CtScanner;
 
 import java.lang.annotation.Annotation;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -19,6 +21,7 @@ public class DirectFailuresScan extends CtScanner {
     private final Set<CtElement> executedElements;
     private final Set<ApiChange> apiChanges;
     private final Set<ApiChange> matchedApiChanges = new HashSet<>();
+    private final Map<CtElement, Set<ApiChange>> matchedApiChangesMap = new HashMap<>();
 
     public DirectFailuresScan(Set<ApiChange> apiChanges) {
         this.executedElements = new HashSet<>();
@@ -27,6 +30,7 @@ public class DirectFailuresScan extends CtScanner {
 
     public void collectExecutedElements(CtElement ctElement) {
         if (ctElement == null || this.executedElements.contains(ctElement)) {
+
             return;
         }
         this.executedElements.add(ctElement);

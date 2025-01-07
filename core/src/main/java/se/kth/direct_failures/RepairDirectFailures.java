@@ -32,7 +32,7 @@ public class RepairDirectFailures {
 
     private static Logger log = LoggerFactory.getLogger(RepairDirectFailures.class);
     private final DockerBuild dockerBuild;
-    private SetupPipeline setupPipeline;
+    private final SetupPipeline setupPipeline;
 
 
     public RepairDirectFailures(DockerBuild dockerBuild, SetupPipeline setupPipeline) {
