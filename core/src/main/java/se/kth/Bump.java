@@ -1,6 +1,5 @@
 package se.kth;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.Util.BreakingUpdateProvider;
@@ -64,7 +63,7 @@ public class Bump {
 //                .filter(e -> e.breakingCommit.equals("0abf7148300f40a1da0538ab060552bca4a2f1d8")) // filter by breaking
                 // commitAllChanges
                  .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
-                 .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure
+//                 .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure
                 // category
                 .forEach(e -> {
                     try {
@@ -163,7 +162,6 @@ public class Bump {
         return clientFolder;
     }
 
-
     /**
      * Repair the breaking update
      *
@@ -171,10 +169,10 @@ public class Bump {
      */
     public static void repair(SetupPipeline setupPipeline) {
 
-    /*
-      Read the log file and extract the failure category
-      If the failure category is BUILD_SUCCESS, no need to analyze further
-     */
+        /*
+         * Read the log file and extract the failure category
+         * If the failure category is BUILD_SUCCESS, no need to analyze further
+         */
         File logFile = setupPipeline.getLogFilePath().toFile();
 
         FailureCategoryExtract failureCategoryExtract = new FailureCategoryExtract(logFile);
@@ -194,6 +192,5 @@ public class Bump {
         JsonUtils.writeToFile(Path.of(JSON_PATH), resultsMap);
 
     }
-
 
 }
