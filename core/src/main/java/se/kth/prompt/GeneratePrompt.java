@@ -48,6 +48,10 @@ public class GeneratePrompt {
                 promptTemplate = new BasePromptAnthropicTemplate();
                 promptTemplate.setPromptModel(promptModel);
                 break;
+            case BASELINE_BUGGY_LINE:
+                promptTemplate = new BasePromptBuggyLineTemplate();
+                promptTemplate.setPromptModel(promptModel);
+                break;
             case BASELINE_API_DIFF:
                 log.info("Baseline API diff pipeline not implemented yet");
                 break;

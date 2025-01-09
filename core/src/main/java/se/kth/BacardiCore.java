@@ -59,6 +59,9 @@ public class BacardiCore {
             case BASELINE:
                 promptPipeline = PromptPipeline.BASELINE;
                 break;
+            case BASELINE_BUGGY_LINE:
+                promptPipeline = PromptPipeline.BASELINE_BUGGY_LINE;
+                break;
             case BASELINE_ANTHROPIC:
                 promptPipeline = PromptPipeline.BASELINE_ANTHROPIC;
                 break;
@@ -158,7 +161,8 @@ public class BacardiCore {
      * @return the new failure category after attempting the repair
      */
     private FailureCategory repairDirectCompilationFailure(GitManager gitManager) {
-        // checking if the previous failure category is different from the current failure category and create a new branch
+        // checking if the previous failure category is different from the current
+        // failure category and create a new branch
         if (previousFailureCategory != failureCategory) {
             previousFailureCategory = failureCategory;
             gitManager.newBranch(
@@ -177,8 +181,7 @@ public class BacardiCore {
         Path project = setupPipeline.getClientFolder();
         Path logFile = setupPipeline.getLogFilePath();
 
-
-        //Repair with llm
+        // Repair with llm
         RepairDirectFailures repairDirectFailures = new RepairDirectFailures(setupPipeline.getDockerBuild(),
                 setupPipeline);
 
@@ -288,8 +291,8 @@ public class BacardiCore {
         PromptPipeline promptPipeLine = PIPELINE;
 
         return switch (promptPipeLine) {
-            case BASELINE, BASELINE_ANTHROPIC,FIX_YOU -> repairDirectFailures.basePipeLine();
-            case BASELINE_API_DIFF -> repairDirectFailures.extractConstructsFromDirectFailures();
+            case BASELINE, BASELINE_ANTHROPIC, FIX_YOU -> repairDirectFailures.basePipeLine();
+            case BASELINE_API_DIFF, BASELINE_BUGGY_LINE -> repairDirectFailures.extractConstructsFromDirectFailures();
             default -> throw new IllegalStateException("Unexpected value: " + promptPipeLine);
         };
     }
@@ -332,15 +335,15 @@ public class BacardiCore {
     }
 
     private FailureCategory repairWErrorIncompatibility(GitManager gitManager) {
-        //Create a branch for the werror repair
+        // Create a branch for the werror repair
         if (previousFailureCategory != failureCategory) {
             gitManager.newBranch(Constants.BRANCH_WERROR);
         }
 
-        //get Docker image in case of bump
+        // get Docker image in case of bump
         /*
-        modify the version to get the docker image from bump and not from the project
-        */
+         * modify the version to get the docker image from bump and not from the project
+         */
 
         try {
             setupPipeline.getDockerBuild().ensureBaseMavenImageExists(setupPipeline.getDockerImage());
@@ -380,6 +383,5 @@ public class BacardiCore {
         return failureCategoryExtract.getFailureCategory(logFile.toFile());
 
     }
-
 
 }

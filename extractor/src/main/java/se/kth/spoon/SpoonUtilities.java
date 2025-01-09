@@ -27,6 +27,7 @@ public class SpoonUtilities {
      */
     private final CtModel model;
     private final Client client;
+    private String pipeline;
 
     public SpoonUtilities(Client client) {
         this.client = client;
@@ -102,22 +103,47 @@ public class SpoonUtilities {
         return rootElement;
     }
 
-    public DetectedFileWithErrors filterElements(Set<CtElement> elements, List<String> changedClassnames, Set<ApiChange> apiChanges) {
+    public Set<DetectedFileWithErrors> filterElements(Set<CtElement> elements, List<String> changedClassnames, Set<ApiChange> apiChanges) {
         List<CtElement> tmp = elements.stream()
                 .filter(element -> checkIfAnyConstructIsCalledFromLibrary(element, changedClassnames))
                 .toList();
+
+        Optional<CtElement> optional =   tmp.stream()
+                .filter(ctElement -> !elements.contains(ctElement.getParent()))
+                .findFirst();
+
+        System.out.println("Optional: " + optional);
+
         //create relation between the elements and the api changes
         DirectFailuresScan scanner = new DirectFailuresScan(apiChanges);
         for (CtElement element : tmp) {
             element.accept(scanner);
         }
 
-        Set<ApiChange> apiChangesMatch = scanner.getMatchedApiChanges();
+        Map<CtElement, Set<ApiChange>> matchedApiChangesMap = scanner.getMatchedApiChangesMap();
 
-        apiChangesMatch.forEach(matchedApiChange -> {
-            apiChangesMatch.addAll(apiChanges.stream().filter(apiChange -> apiChange.getName().equals(matchedApiChange.getName())).toList());
+        Set<DetectedFileWithErrors> detectedFileWithErrors = new HashSet<>();
+
+        matchedApiChangesMap.forEach((k, v) -> {
+
+            v.forEach(apC->{
+                v.addAll(apiChanges.stream().filter(apiChange -> apiChange.getName().equals(apC.getName())).toList());
+            });
+
+            DetectedFileWithErrors ctElement = new DetectedFileWithErrors(v, k);
+
+            detectedFileWithErrors.add(ctElement);
+
+            String a = SpoonFullyQualifiedNameExtractor.getFullyQualifiedName(k);
+            System.out.println("FULL: " + a);
+            System.out.println("K:  " + k);
+            v.forEach(apiChange -> {
+                System.out.println(apiChange.getLongName());
+            });
         });
-        return new DetectedFileWithErrors(apiChangesMatch, scanner.getExecutedElements());
+
+
+        return detectedFileWithErrors;
     }
 
     public boolean checkIfAnyConstructIsCalledFromLibrary(CtElement element, List<String> changedClassnames) {
