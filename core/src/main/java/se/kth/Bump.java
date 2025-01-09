@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -60,10 +61,10 @@ public class Bump {
 
         customThreadPool.submit(() -> breaking
                 .parallelStream()
-                .filter(e -> e.breakingCommit.equals("0abf7148300f40a1da0538ab060552bca4a2f1d8")) // filter by breaking
-                                                                                                  // commitAllChanges
-                // .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
-                // .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure
+//                .filter(e -> e.breakingCommit.equals("0abf7148300f40a1da0538ab060552bca4a2f1d8")) // filter by breaking
+                // commitAllChanges
+                 .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
+                 .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure
                 // category
                 .forEach(e -> {
                     try {
@@ -140,12 +141,13 @@ public class Bump {
 
                 String breakingImage = e.breakingUpdateReproductionCommand.replace("docker run ", "");
 
-            //get jar from container for previous version
-            if (PIPELINE.equals(PromptPipeline.BASELINE_API_DIFF)) {
-                getProjectData(preBreakingImage, dockerBuild, clientFolder, null, null, prevoiusJarInContainerPath);
-            }
-            //get jar from container for new version and m2 folder and project
-            getProjectData(breakingImage, dockerBuild, clientFolder, fromContainerM2, fromContainerProject, newJarInContainerPath);
+                //get jar from container for previous version
+                PromptPipeline[] pipeline = {PromptPipeline.BASELINE_API_DIFF, PromptPipeline.BASELINE_BUGGY_LINE};
+                if (Arrays.asList(pipeline).contains(PIPELINE)) {
+                    getProjectData(preBreakingImage, dockerBuild, clientFolder, null, null, prevoiusJarInContainerPath);
+                }
+                //get jar from container for new version and m2 folder and project
+                getProjectData(breakingImage, dockerBuild, clientFolder, fromContainerM2, fromContainerProject, newJarInContainerPath);
 
 
                 // copy project from container

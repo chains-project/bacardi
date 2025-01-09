@@ -9,6 +9,7 @@ import se.kth.japicmp_analyzer.JApiCmpAnalyze;
 import se.kth.models.ErrorInfo;
 import se.kth.models.MavenErrorLog;
 import se.kth.spoon.SpoonUtilities;
+import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtElement;
 
 import java.util.*;
@@ -21,12 +22,14 @@ public class SpoonConstructExtractor {
     private final MavenErrorLog mavenErrorLog;
     private final JApiCmpAnalyze japicmpAnalyzer;
     private final SpoonUtilities spoonUtilities;
+    private final String pipeline;
 
 
-    public SpoonConstructExtractor(MavenErrorLog mavenErrorLog, JApiCmpAnalyze japicmpAnalyzer, SpoonUtilities spoonUtilities) {
+    public SpoonConstructExtractor(MavenErrorLog mavenErrorLog, JApiCmpAnalyze japicmpAnalyzer, SpoonUtilities spoonUtilities, String pipeline) {
         this.mavenErrorLog = mavenErrorLog;
         this.japicmpAnalyzer = japicmpAnalyzer;
         this.spoonUtilities = spoonUtilities;
+        this.pipeline = pipeline;
     }
 
 
@@ -58,25 +61,46 @@ public class SpoonConstructExtractor {
             value.forEach(errorInfo -> {
                 // all elements from the buggy line in the client application code
                 Set<CtElement> elements = spoonUtilities.localizeErrorInfoElements(errorInfo);
-                DetectedFileWithErrors detectedFault = spoonUtilities.filterElements(elements, classNamesJapicmp, apiChanges);
-                detectedFault.setErrorInfo(errorInfo);
 
+                /*identify the buggy line here for the moment only for the BUGGY_LINE pipeline
+                @TODO move this into the filter
+                */
 
-                CtElement element = detectedFault.getExecutedElements().isEmpty() ? null : detectedFault.getExecutedElements().stream().toList().getFirst();
-                if (element != null) {
-                    detectedFault = spoonUtilities.getMethodAndClassInformationForElement(element, detectedFault, errorInfo);
-                    if (detectedFiles.containsKey(key)) {
-                        detectedFiles.get(key).add(detectedFault);
-                    } else {
-                        detectedFiles.put(key, new HashSet<>(Set.of(detectedFault)));
-                    }
+                String buggyLine = getBuggyLine(elements);
+                DetectedFileWithErrors detectedFault = new DetectedFileWithErrors(errorInfo, buggyLine);
+
+                if (detectedFiles.containsKey(key)) {
+                    detectedFiles.get(key).add(detectedFault);
                 } else {
-                    if (detectedFiles.containsKey(key)) {
-                        detectedFiles.get(key).add(detectedFault);
-                    } else {
-                        detectedFiles.put(key, new HashSet<>(Set.of(detectedFault)));
-                    }
+                    detectedFiles.put(key, new HashSet<>(Set.of(detectedFault)));
                 }
+
+//                Set<DetectedFileWithErrors> detectedFault = spoonUtilities.filterElements(elements, classNamesJapicmp, apiChanges);
+//
+//                detectedFault.forEach(d -> {
+//                    d.setErrorInfo(errorInfo);
+//                });
+
+//                CtElement element = detectedFault.getExecutedElements().isEmpty() ? null : detectedFault.getExecutedElements().stream().toList().getFirst();
+//
+//                detectedFault.forEach(detectedFileWithErrors -> {
+//
+//                });
+//
+//                if (element != null) {
+//                    detectedFault = spoonUtilities.getMethodAndClassInformationForElement(element, detectedFault, errorInfo);
+//                    if (detectedFiles.containsKey(key)) {
+//                        detectedFiles.get(key).add(detectedFault);
+//                    } else {
+//                        detectedFiles.put(key, new HashSet<>(Set.of(detectedFault)));
+//                    }
+//                } else {
+//                    if (detectedFiles.containsKey(key)) {
+//                        detectedFiles.get(key).add(detectedFault);
+//                    } else {
+//                        detectedFiles.put(key, new HashSet<>(Set.of(detectedFault)));
+//                    }
+//                }
 
 
             });
@@ -84,5 +108,15 @@ public class SpoonConstructExtractor {
         return detectedFiles;
     }
 
+    public String getBuggyLine(Set<CtElement> elements) {
 
+        CtElement elementLine = elements.stream()
+                .filter(ctElement -> !elements.contains(ctElement.getParent()))
+                .findFirst().get();
+
+        if (elementLine instanceof CtAnnotation<?>) {
+            return ((CtAnnotation<?>) elementLine).getAnnotatedElement().getOriginalSourceFragment().getSourceCode();
+        }
+        return elementLine.getOriginalSourceFragment().getSourceCode();
+    }
 }

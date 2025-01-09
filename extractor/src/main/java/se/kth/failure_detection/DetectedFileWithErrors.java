@@ -35,6 +35,8 @@ public class DetectedFileWithErrors {
      */
     private ErrorInfo errorInfo;
 
+    private String lineInCode;
+
     /*
      * Path to the class file.
      */
@@ -58,18 +60,31 @@ public class DetectedFileWithErrors {
     /**
      * Constructs a new DetectedFileWithErrors instance with the specified API changes and executed elements.
      *
-     * @param apiChanges       the set of API changes detected in the file
-     * @param executedElements the set of executed elements in the file
+     * @param apiChanges the set of API changes detected in the file
+     * @param element    the set of executed elements in the file
      */
-    public DetectedFileWithErrors(Set<ApiChange> apiChanges, Set<CtElement> executedElements) {
+    public DetectedFileWithErrors(Set<ApiChange> apiChanges, Set<CtElement> element) {
         this.apiChanges = apiChanges;
-        this.executedElements = executedElements;
+        this.executedElements = element;
+    }
+
+    public DetectedFileWithErrors(Set<ApiChange> apiChanges, CtElement element) {
+        this.apiChanges = apiChanges;
+        this.codeElement = element;
     }
 
     public DetectedFileWithErrors(ErrorInfo errorInfo) {
         this.apiChanges = new HashSet<>();
-        this.executedElements = new HashSet<>();
         this.errorInfo = errorInfo;
+        this.executedElements = null;
         this.classPath = null;
+    }
+
+    public DetectedFileWithErrors(ErrorInfo errorInfo, String lineInCode) {
+        this.apiChanges = new HashSet<>();
+        this.errorInfo = errorInfo;
+        this.executedElements = null;
+        this.classPath = null;
+        this.lineInCode = lineInCode;
     }
 }
