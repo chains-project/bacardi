@@ -60,9 +60,9 @@ public class Bump {
 
         customThreadPool.submit(() -> breaking
                 .parallelStream()
-//                .filter(e -> e.breakingCommit.equals("0abf7148300f40a1da0538ab060552bca4a2f1d8")) // filter by breaking
+                .filter(e -> e.breakingCommit.equals("500d9c021d34b307b1a70d3f29fb7f9b5ab9d1a6")) // filter by breaking
                 // commitAllChanges
-                 .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
+//                 .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
 //                 .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure
                 // category
                 .forEach(e -> {

@@ -35,7 +35,7 @@ public class BreakingUpdateProvider {
      * @return a list of BreakingUpdate objects that match the specified category
      */
     public static List<BreakingUpdate> getBreakingUpdatesFromResourcesByCategory(String directory,
-            FailureCategory category) {
+                                                                                 FailureCategory category) {
         List<File> files = getFilesInDirectory(directory);
         return files.stream()
                 .filter(file -> file.getName().endsWith(".json"))
@@ -54,10 +54,10 @@ public class BreakingUpdateProvider {
      * @param filter    an additional filter to apply to the results, such as a list
      *                  of breaking commits from Bump
      * @return a list of BreakingUpdate objects that match the specified category
-     *         and filter
+     * and filter
      */
     public static List<BreakingUpdate> getBreakingUpdatesFromResourcesByCategory(String directory,
-            FailureCategory category, ArrayList<String> filter) {
+                                                                                 FailureCategory category, ArrayList<String> filter) {
         List<File> files = getFilesInDirectory(directory);
         return files.stream()
                 .map(File::toPath)
@@ -121,11 +121,11 @@ public class BreakingUpdateProvider {
     }
 
     public static String getProjectData(String imageId, DockerBuild dockerBuild, Path toLocal, Path m2InContainer,
-            Path projectInContainer, Path jar) {
+                                        Path projectInContainer, Path jar) {
 
         try {
 
-            String[] entrypoint = new String[] { "/bin/sh", "sleep", "1000000" };
+            String[] entrypoint = new String[]{"/bin/sh", "sleep", "1000000"};
 
             // pull image
             dockerBuild.ensureBaseMavenImageExists(imageId);
@@ -138,7 +138,8 @@ public class BreakingUpdateProvider {
             }
             if (jar != null) {
                 // Copy the jar file to the local path
-                dockerBuild.copyFromContainer(container.getId(), jar.toString(), toLocal.resolve(jar.getFileName()));
+                String path = extractDependencyJarPath(imageId, jar.getFileName().toString(), dockerBuild);
+                dockerBuild.copyFromContainer(container.getId(), path, toLocal.resolve(jar.getFileName()));
             }
             // Copy the jar file to the local path
 
@@ -149,5 +150,27 @@ public class BreakingUpdateProvider {
             throw new RuntimeException(e);
         }
     }
+
+    private static String extractDependencyJarPath(String imageId, String jarName, DockerBuild dockerBuild) {
+        try {
+            dockerBuild.ensureBaseMavenImageExists(imageId);
+            String containerId = dockerBuild.startSpinningContainer(imageId);
+
+            String[] command = new String[]{"find", "/root/.m2/", "-type", "f", "-name", jarName};
+            String output = dockerBuild.executeInContainer(containerId, command);
+            String[] outputLines = output.split("\n");
+            String dependencyPath = outputLines[0];
+            if (outputLines.length != 1) {
+                log.warn("More than one path found for dependency {} at: \n{}", jarName, output);
+            }
+            dockerBuild.removeContainer(containerId);
+            return Path.of(dependencyPath).toString();
+
+        } catch (InterruptedException e) {
+            log.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
 
 }
