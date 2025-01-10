@@ -66,7 +66,7 @@ public class GitManager {
                 if (branchName.equals(Constants.BRANCH_ORIGINAL_STATUS)) {
                     git.checkout().setName(branchName).call();
                     git.branchList().call().forEach(ref -> {
-                        if (!ref.getName().equals("refs/heads/" + "original_status")) {
+                        if (!ref.getName().equals("refs/heads/" + "original_status") && !ref.getName().equals("refs/heads/" + "main")) {
                             try {
                                 git.branchDelete().setBranchNames(ref.getName()).setForce(true).call();
                             } catch (GitAPIException e) {

@@ -107,7 +107,7 @@ public class DockerBuild {
     }
 
 
-    public void copyFolderToDockerImage(String dockerImage, String folderPath) throws IOException {
+    public String copyFolderToDockerImage(String dockerImage, String folderPath) throws IOException {
         DockerClient dockerClient = DockerClientBuilder.getInstance().build();
 
         try {
@@ -152,10 +152,13 @@ public class DockerBuild {
             } catch (Exception e) {
                 log.error("Could not remove container {} ", e.getMessage());
             }
+            return newImageId;
 
         } catch (DockerException e) {
             log.error("Could not copy folder to Docker image {} ", e.getMessage());
         }
+        return dockerImage;
+
     }
 
     public String copyProjectToContainer(String dockerImage, Path client, FailureCategory failureCategory) {
@@ -553,6 +556,7 @@ public class DockerBuild {
     public static void deleteImage(String imageId) {
         try {
             dockerClient.removeImageCmd(imageId).withForce(true).exec();
+            log.info("Image {} deleted successfully", imageId);
         } catch (Exception e) {
             log.error("Could not delete image {}", imageId, e);
         }

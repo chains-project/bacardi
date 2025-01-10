@@ -9,6 +9,7 @@ import se.kth.japicmp_analyzer.JApiCmpAnalyze;
 import se.kth.models.ErrorInfo;
 import se.kth.models.MavenErrorLog;
 import se.kth.spoon.SpoonUtilities;
+import spoon.reflect.cu.SourcePosition;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtElement;
 
@@ -117,6 +118,30 @@ public class SpoonConstructExtractor {
         if (elementLine instanceof CtAnnotation<?>) {
             return ((CtAnnotation<?>) elementLine).getAnnotatedElement().getOriginalSourceFragment().getSourceCode();
         }
-        return elementLine.getOriginalSourceFragment().getSourceCode();
+
+        SourcePosition position = elementLine.getPosition();
+        if (position != null && position.isValidPosition()) {
+            return getCodeLine(position);
+        } else {
+            return "";
+        }
+
+        // return elementLine.getOriginalSourceFragment().getSourceCode();
+    }
+
+    // Method to get the code line from a given position
+    private static String getCodeLine(SourcePosition position) {
+        try {
+            // get the source code of the compilation unit
+            String sourceCode = position.getCompilationUnit().getOriginalSourceCode();
+            int line = position.getLine();
+
+            // Split the source code by lines
+            String[] lines = sourceCode.split("\\r?\\n");
+            return lines[line - 1]; // Reset the line number to 0-based index
+        } catch (Exception e) {
+            log.error("Error getting code line: " + e.getMessage());
+            return "";
+        }
     }
 }

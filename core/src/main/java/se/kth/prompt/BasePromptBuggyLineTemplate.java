@@ -75,7 +75,7 @@ public class BasePromptBuggyLineTemplate extends AbstractPromptTemplate {
                     %s
                     """.formatted(errorMessage);
             if (additionalInfo != null && !additionalInfo.isEmpty()) {
-                errorLogsForPrompt = errorLogsForPrompt.concat("\n");
+                errorLogsForPrompt = errorLogsForPrompt.concat("\n%s".formatted(additionalInfo));
             }
             errorInformation = errorInformation.concat(errorLogsForPrompt);
         }

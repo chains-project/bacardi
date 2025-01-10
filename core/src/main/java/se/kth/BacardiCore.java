@@ -259,8 +259,9 @@ public class BacardiCore {
                             "Direct compilation failure repair attempt %s".formatted(result.getAttempts().size()));
                     // copy the file to docker image
                     try {
-                        dockerBuild.copyFolderToDockerImage(setupPipeline.getDockerImage(),
+                        String dockerImage= dockerBuild.copyFolderToDockerImage(setupPipeline.getDockerImage(),
                                 setupPipeline.getClientFolder().toString());
+                        setupPipeline.setDockerImage(dockerImage);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
