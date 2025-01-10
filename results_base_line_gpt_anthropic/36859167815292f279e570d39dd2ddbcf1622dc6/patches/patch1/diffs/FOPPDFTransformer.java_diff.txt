@@ -1,0 +1,9 @@
+57a58
+> import org.apache.fop.apps.FopFactoryBuilder; // Updated import for new FopFactory
+114,115c115,117
+<         // create an instance of fop factory
+<         FopFactory fopFactory = FopFactory.newInstance();
+---
+>         // create an instance of fop factory using FopFactoryBuilder
+>         FopFactoryBuilder fopFactoryBuilder = new FopFactoryBuilder(new File(".").toURI()); // Adjust as necessary
+>         FopFactory fopFactory = fopFactoryBuilder.build();

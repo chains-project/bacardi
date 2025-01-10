@@ -1,0 +1,9 @@
+7a8,9
+> // Check if the method getInstance() has been renamed or removed in the updated version.
+> // Change the call to ExecutorService.getInstance() according to the new API.
+18c20,22
+<         ExecutorService.getInstance().getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+---
+>         // Updated to use the correct method to get the executor instance.
+>         ExecutorService executorService = ExecutorService.getInstance().getExecutor(this);
+>         executorService.execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));

@@ -1,0 +1,28 @@
+121a122
+>         // Updated to reflect changes in RecognitionHelper
+123,124c124,125
+<             return recognitionHelper.getProcessHandler().getConsoleErr();
+<         return recognitionHelper.getProcessHandler().getConsoleOut();
+---
+>             return recognitionHelper.getErrorOutput(); // Changed from getProcessHandler().getConsoleErr()
+>         return recognitionHelper.getOutput(); // Changed from getProcessHandler().getConsoleOut()
+139c140
+<         recognitionHelper.cancelProcess();
+---
+>         recognitionHelper.cancel(); // Changed from cancelProcess() to cancel()
+156c157
+<             return recognitionHelper.getProgress();
+---
+>             return recognitionHelper.getCurrentProgress(); // Changed from getProgress() to getCurrentProgress()
+178c179
+<             return recognitionHelper.getValidPageIds();
+---
+>             return recognitionHelper.fetchValidPageIds(); // Changed from getValidPageIds() to fetchValidPageIds()
+203c204
+<         return recognitionHelper.doOldFilesExist(pageIds);
+---
+>         return recognitionHelper.checkOldFilesExist(pageIds); // Changed from doOldFilesExist() to checkOldFilesExist()
+215c216
+<             return RecognitionHelper.listModels();
+---
+>             return RecognitionHelper.fetchModels(); // Changed from listModels() to fetchModels()

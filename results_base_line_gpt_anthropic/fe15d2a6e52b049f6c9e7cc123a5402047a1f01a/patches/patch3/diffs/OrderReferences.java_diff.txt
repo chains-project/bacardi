@@ -1,0 +1,27 @@
+8d7
+< 
+20c19
+< 
+---
+> import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy; // Added correct import for JAXBToStringStrategy
+106,123c105
+<         final ToStringStrategy2 strategy = new ToStringStrategy2() {
+<             @Override
+<             public void appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+<                 buffer.append(object.getClass().getSimpleName()).append("[");
+<             }
+< 
+<             @Override
+<             public void appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+<                 buffer.append("]");
+<             }
+< 
+<             @Override
+<             public void appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean isSet) {
+<                 if (isSet) {
+<                     buffer.append(fieldName).append("=").append(value).append(", ");
+<                 }
+<             }
+<         };
+---
+>         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance(); // Updated to use the correct method from the new dependency

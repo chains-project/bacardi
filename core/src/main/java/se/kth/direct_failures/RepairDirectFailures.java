@@ -28,11 +28,13 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 
+import static se.kth.Util.Constants.PIPELINE;
+
 public class RepairDirectFailures {
 
     private static Logger log = LoggerFactory.getLogger(RepairDirectFailures.class);
     private final DockerBuild dockerBuild;
-    private SetupPipeline setupPipeline;
+    private final SetupPipeline setupPipeline;
 
 
     public RepairDirectFailures(DockerBuild dockerBuild, SetupPipeline setupPipeline) {
@@ -89,7 +91,7 @@ public class RepairDirectFailures {
                 client
         );
         //Extracting the constructs that caused the failure
-        SpoonConstructExtractor causingConstructExtractor = new SpoonConstructExtractor(errorLog, japicmpAnalyzer, spoonResults);
+        SpoonConstructExtractor causingConstructExtractor = new SpoonConstructExtractor(errorLog, japicmpAnalyzer, spoonResults,PIPELINE.toString());
         //Extracting the files with errors
         return causingConstructExtractor.extractCausingConstructs();
     }

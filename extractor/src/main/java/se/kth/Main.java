@@ -71,7 +71,7 @@ public class Main {
                     client
             );
 
-            SpoonConstructExtractor causingConstructExtractor = new SpoonConstructExtractor(errorLog, japicmpAnalyzer, spoonResults);
+            SpoonConstructExtractor causingConstructExtractor = new SpoonConstructExtractor(errorLog, japicmpAnalyzer, spoonResults,"pipeline");
 
             Map<String, Set<DetectedFileWithErrors>> fileWithErrorsMap = causingConstructExtractor.extractCausingConstructs();
 

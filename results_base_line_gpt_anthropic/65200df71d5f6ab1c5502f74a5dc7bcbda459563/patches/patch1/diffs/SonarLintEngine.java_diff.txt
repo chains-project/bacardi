@@ -1,0 +1,33 @@
+56,57d55
+<     // The order of these initialisations is important as each field is dependent upon the previous
+<     // one.
+67d64
+<     // The only instance of this singleton class
+70d66
+<     // We need to reinitialise it before starting analysis of any source files on any rules.
+101d96
+<     /** Store the path to SonarJava plugin and if it is downloaded or fetched from cache. */
+135d129
+<         // Default loaded result stops the loader. The following code prevents that.
+141d134
+<         // We do not want this loader to close.
+161a155
+>         // Updated to use `addEnabledLanguages` as a method that accepts a varargs of Language
+163c157
+<                 .addEnabledLanguages(globalConfig.getEnabledLanguages())
+---
+>                 .addEnabledLanguages(globalConfig.getEnabledLanguages().toArray(new Language[0]))
+171d164
+<     /** Get or creates the one and only instance of this class. */
+181,184d173
+<     /**
+<      * Recreates the analysis engine as it is stopped after each analysis executed by {@link
+<      * SonarStaticAnalyzer}.
+<      */
+235d223
+<     /** Returns all rule keys available at the provided version of Sonar Java. */
+273,276d260
+<     /**
+<      * Overriding this class to ensure that plugin instance loader never closes throughout the
+<      * lifecycle of JVM.
+<      */

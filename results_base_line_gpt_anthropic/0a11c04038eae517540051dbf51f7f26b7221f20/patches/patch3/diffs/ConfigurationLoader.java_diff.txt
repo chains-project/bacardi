@@ -1,0 +1,10 @@
+39,40c39,40
+<         // Create an instance of Representer to comply with the updated version
+<         Representer representer = new Representer(); 
+---
+>         // Create an instance of Representer with DumperOptions to comply with the updated version
+>         Representer representer = new Representer(new DumperOptions()); 
+42c42
+<         Yaml yaml = new Yaml(representer, loaderOptions); // Pass Representer and LoaderOptions to Yaml constructor
+---
+>         Yaml yaml = new Yaml(yamlTargetClass, representer, loaderOptions); // Pass Constructor, Representer, and LoaderOptions to Yaml constructor

@@ -1,0 +1,13 @@
+8a9
+> import org.yaml.snakeyaml.representer.Representer; // New import for Representer
+38c39,40
+<         // Create an instance of LoaderOptions to comply with the updated version
+---
+>         // Create an instance of Representer to comply with the updated version
+>         Representer representer = new Representer(); 
+40c42
+<         Yaml yaml = new Yaml(yamlTargetClass, loaderOptions); // Pass LoaderOptions to Yaml constructor
+---
+>         Yaml yaml = new Yaml(representer, loaderOptions); // Pass Representer and LoaderOptions to Yaml constructor
+57d58
+< 

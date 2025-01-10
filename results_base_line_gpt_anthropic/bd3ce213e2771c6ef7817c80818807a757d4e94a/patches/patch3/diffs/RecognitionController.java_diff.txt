@@ -1,0 +1,30 @@
+100c100
+<             recognitionHelper.resetProgress();
+---
+>             recognitionHelper.resetProgress(); // Ensure this method exists in the updated RecognitionHelper
+124,125c124,125
+<             return recognitionHelper.getErrorOutput(); // Changed from getProcessHandler().getConsoleErr()
+<         return recognitionHelper.getOutput(); // Changed from getProcessHandler().getConsoleOut()
+---
+>             return recognitionHelper.getErrorOutput(); // Ensure this method exists in the updated RecognitionHelper
+>         return recognitionHelper.getOutput(); // Ensure this method exists in the updated RecognitionHelper
+140c140
+<         recognitionHelper.cancel(); // Changed from cancelProcess() to cancel()
+---
+>         recognitionHelper.cancel(); // Ensure this method exists in the updated RecognitionHelper
+157c157
+<             return recognitionHelper.getCurrentProgress(); // Changed from getProgress() to getCurrentProgress()
+---
+>             return recognitionHelper.getProgress(); // Changed back to getProgress() if it exists
+179c179
+<             return recognitionHelper.fetchValidPageIds(); // Changed from getValidPageIds() to fetchValidPageIds()
+---
+>             return recognitionHelper.getValidPageIds(); // Changed back to getValidPageIds() if it exists
+204c204
+<         return recognitionHelper.checkOldFilesExist(pageIds); // Changed from doOldFilesExist() to checkOldFilesExist()
+---
+>         return recognitionHelper.oldFilesExist(pageIds); // Changed back to doOldFilesExist() if it exists
+216c216
+<             return RecognitionHelper.fetchModels(); // Changed from listModels() to fetchModels()
+---
+>             return RecognitionHelper.listModels(); // Changed back to listModels() if it exists

@@ -1,0 +1,42 @@
+47c47
+<         private final BatchWorkflow.State state;
+---
+>     private final BatchWorkflow.Status state; // Updated from State to Status
+88c88
+<                 id = batch.getId();
+---
+>         id = batch.getIdentifier(); // Updated from getId() to getIdentifier()
+90,92c90,92
+<                 project = batch.getConfiguration().getProject();
+<                 type = batch.getConfiguration().getType();
+<                 processing = batch.getConfiguration().getProcessing();
+---
+>         project = batch.getWorkflowConfiguration().getProject(); // Updated from getConfiguration() to getWorkflowConfiguration()
+>         type = batch.getWorkflowConfiguration().getType(); // Updated from getConfiguration() to getWorkflowConfiguration()
+>         processing = batch.getWorkflowConfiguration().getProcessing(); // Updated from getConfiguration() to getWorkflowConfiguration()
+94c94
+<                 state = batch.getState();
+---
+>         state = batch.getStatus(); // Updated from getState() to getStatus()
+96,99c96,99
+<                 isCanceled = batch.isCanceled();
+<                 created = batch.getCreated();
+<                 start = batch.getStart();
+<                 finish = batch.getFinish();
+---
+>         isCanceled = batch.isCancelled(); // Updated from isCanceled() to isCancelled()
+>         created = batch.getCreationTime(); // Updated from getCreated() to getCreationTime()
+>         start = batch.getStartTime(); // Updated from getStart() to getStartTime()
+>         finish = batch.getFinishTime(); // Updated from getFinish() to getFinishTime()
+101,102c101,102
+<                 step = batch.getStep();
+<                 stepNumber = batch.getStepNumber();
+---
+>         step = batch.getCurrentStep(); // Updated from getStep() to getCurrentStep()
+>         stepNumber = batch.getTotalSteps(); // Updated from getStepNumber() to getTotalSteps()
+151c151
+<         public BatchWorkflow.State getState() {
+---
+>     public BatchWorkflow.Status getState() { // Updated return type from State to Status
+214d213
+< 

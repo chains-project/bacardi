@@ -1,0 +1,10 @@
+15c15
+< // Removed imports for PNMembershipResult, PNSpaceResult, PNUserResult as they are no longer available
+---
+> import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult; // Added import for new method
+92a93,97
+>                 }
+> 
+>                 @Override
+>                 public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) { // Added method for compatibility
+>                   LOG.debug("PubNub file event: {}", pnFileEventResult.toString());

@@ -1,0 +1,27 @@
+8c8
+< import org.jenkinsci.test.acceptance.po.ScriptResult; // Updated import statement to use correct package
+---
+> import org.jenkinsci.test.acceptance.po.ScriptResult; // Ensure this import is correct
+34c34,35
+<             ScriptResult scriptResult = new ScriptResult(result); // Using the correct ScriptResult class
+---
+>             // Assuming ScriptResult is still part of the dependency, this should work.
+>             ScriptResult scriptResult = new ScriptResult(result);
+59c60
+<                 Object scriptResult = new ScriptResult(result).getJavaScriptResult(); // Using the correct ScriptResult class
+---
+>                 Object scriptResult = new ScriptResult(result).getJavaScriptResult();
+66c67
+<         throw new java.util.NoSuchElementException("Found no trend chart with ID '%s''" + toolAttribute);
+---
+>         throw new NoSuchElementException(String.format("Found no trend chart with tool attribute '%s'", toolAttribute));
+83,84c84
+<         }
+<         catch (NoSuchElementException exception) {
+---
+>         } catch (NoSuchElementException exception) {
+103,104c103
+<         }
+<         catch (NoSuchElementException exception) {
+---
+>         } catch (NoSuchElementException exception) {

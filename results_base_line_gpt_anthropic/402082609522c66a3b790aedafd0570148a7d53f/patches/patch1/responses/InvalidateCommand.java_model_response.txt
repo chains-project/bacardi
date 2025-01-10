@@ -1,0 +1,58 @@
+```java
+package com.github.games647.changeskin.sponge.command;
+
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.github.games647.changeskin.sponge.PomData;
+import com.github.games647.changeskin.sponge.task.SkinInvalidator;
+import com.google.inject.Inject;
+
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.spec.CommandExecutor;
+import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
+
+// Updated import statements to reflect the new package structure in the dependency
+import org.spongepowered.api.command.args.GenericArguments;
+import org.spongepowered.api.command.args.CommandElement;
+
+public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
+
+    private final ChangeSkinSponge plugin;
+
+    @Inject
+    InvalidateCommand(ChangeSkinSponge plugin) {
+        this.plugin = plugin;
+    }
+
+    @Override
+    public CommandResult execute(CommandSource src, CommandContext args) {
+        if (!(src instanceof Player)) {
+            plugin.sendMessage(src, "no-console");
+            return CommandResult.empty();
+        }
+
+        Player receiver = (Player) src;
+        Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
+        return CommandResult.success();
+    }
+
+    @Override
+    public CommandSpec buildSpec() {
+        return CommandSpec.builder()
+                .executor(this)
+                .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base")
+                .arguments(GenericArguments.none()) // Assuming no arguments are needed for this command
+                .build();
+    }
+}
+``` 
+
+### Explanation of Changes:
+1. **Updated Imports**: The imports for `CommandArgs` and `CommandSpec` were updated to reflect the new package structure in the Sponge API. 
+2. **Arguments in CommandSpec**: Added `GenericArguments.none()` in the `buildSpec()` method to ensure that the command can be executed without requiring any additional arguments.
+3. **Preserved Functionality**: All existing functionality has been preserved, and the method signatures remain unchanged as required. 
+
+These changes should resolve the compilation errors related to missing packages and ensure the code complies with the updated Sponge API version.

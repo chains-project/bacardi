@@ -1,0 +1,24 @@
+20,22c20,22
+< import com.hazelcast.core.IMap;
+< import com.hazelcast.core.MapEvent;
+< import com.hazelcast.map.listener.MapListener;
+---
+> import com.hazelcast.map.IMap; // Updated import for IMap
+> import com.hazelcast.map.listener.MapListener; // Updated import for MapListener
+> import com.hazelcast.map.listener.MapEvent; // Updated import for MapEvent
+107c107
+<             public void entryUpdated(EntryEvent event) {
+---
+>             public void entryUpdated(EntryEvent<K, V> event) { // Updated to specify generic types
+116c116
+<             public void entryRemoved(EntryEvent event) {
+---
+>             public void entryRemoved(EntryEvent<K, V> event) { // Updated to specify generic types
+125c125
+<             public void entryEvicted(EntryEvent event) {
+---
+>             public void entryEvicted(EntryEvent<K, V> event) { // Updated to specify generic types
+134c134
+<             public void entryAdded(EntryEvent event) {
+---
+>             public void entryAdded(EntryEvent<K, V> event) { // Updated to specify generic types

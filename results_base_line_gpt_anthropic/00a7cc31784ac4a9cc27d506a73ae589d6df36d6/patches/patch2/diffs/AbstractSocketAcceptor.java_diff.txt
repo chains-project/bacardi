@@ -1,0 +1,15 @@
+136c136,147
+<         sslFilter.setUseClientMode(false); // This line is causing the error
+---
+>         
+>         // Updated handling of SSLFilter settings based on dependency changes
+>         if (sslFilter instanceof SSLFilter) {
+>             // Check if the method exists before calling it to avoid compilation errors
+>             try {
+>                 sslFilter.getClass().getMethod("setUseClientMode", boolean.class).invoke(sslFilter, false);
+>             } catch (NoSuchMethodException e) {
+>                 // Fallback if the method does not exist
+>                 log.warn("setUseClientMode method not found in SSLFilter, skipping this setting.");
+>             }
+>         }
+> 

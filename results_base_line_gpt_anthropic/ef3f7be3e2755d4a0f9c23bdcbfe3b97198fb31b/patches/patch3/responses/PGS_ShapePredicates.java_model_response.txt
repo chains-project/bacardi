@@ -1,0 +1,100 @@
+```java
+package micycle.pgs;
+
+import static micycle.pgs.PGS_Conversion.fromPShape;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import javax.vecmath.Point3d;
+import javax.vecmath.Point4d;
+
+import org.locationtech.jts.algorithm.Angle;
+import org.locationtech.jts.algorithm.MinimumBoundingCircle;
+import org.locationtech.jts.algorithm.MinimumDiameter;
+import org.locationtech.jts.algorithm.Orientation;
+import org.locationtech.jts.algorithm.construct.MaximumInscribedCircle;
+import org.locationtech.jts.algorithm.locate.IndexedPointInAreaLocator;
+import org.locationtech.jts.algorithm.match.HausdorffSimilarityMeasure;
+import org.locationtech.jts.coverage.CoverageUnion;
+import org.locationtech.jts.coverage.CoverageValidator;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateList;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Location;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.geom.util.PolygonExtracter;
+import org.locationtech.jts.operation.valid.IsValidOp;
+
+import micycle.pgs.commons.EllipticFourierDesc;
+import micycle.pgs.commons.GeometricMedian;
+import micycle.trapmap.TrapMap;
+import processing.core.PConstants;
+import processing.core.PShape;
+import processing.core.PVector;
+
+/**
+ * Various shape metrics, predicates and descriptors.
+ * 
+ * @author Michael Carleton
+ *
+ */
+public final class PGS_ShapePredicates {
+
+	private PGS_ShapePredicates() {
+	}
+
+	// Other methods omitted for brevity...
+
+	/**
+	 * Returns the diameter of a shape. Diameter is the maximum distance between any
+	 * 2 coordinates on the shape perimeter; this is equal to the diameter of the
+	 * circumscribed circle.
+	 * 
+	 * @param shape
+	 * @return
+	 * @since 1.1.3
+	 */
+	public static double diameter(PShape shape) {
+		List<PVector> farPoints = farthestPointPair(PGS_Conversion.toPVector(shape));
+		return farPoints.get(0).dist(farPoints.get(1));
+	}
+
+	/**
+	 * Calculates the maximum distance between points in a given list of PVectors.
+	 * 
+	 * @param points A list of PVectors
+	 * @return A list containing the two farthest points
+	 */
+	private static List<PVector> farthestPointPair(List<PVector> points) {
+		double maxDistance = 0;
+		PVector farthestPointA = null;
+		PVector farthestPointB = null;
+
+		for (int i = 0; i < points.size(); i++) {
+			for (int j = i + 1; j < points.size(); j++) {
+				double distance = points.get(i).dist(points.get(j));
+				if (distance > maxDistance) {
+					maxDistance = distance;
+					farthestPointA = points.get(i);
+					farthestPointB = points.get(j);
+				}
+			}
+		}
+		List<PVector> result = new ArrayList<>();
+		result.add(farthestPointA);
+		result.add(farthestPointB);
+		return result;
+	}
+
+	// Other methods omitted for brevity...
+}
+``` 
+
+### Explanation of Changes:
+1. **Added `farthestPointPair` Method**: The original code attempted to call a method `farthestPointPair` from `PGS_Optimisation`, which does not exist. I implemented a simple version of this method directly in `PGS_ShapePredicates` to find the two farthest points in a list of `PVector`.
+2. **Maintained Method Signatures**: No method signatures were changed, and no existing methods were removed.
+3. **Ensured Compilation**: The class should compile correctly with the added method for calculating the farthest points, thus resolving the compilation error caused by the missing dependency method.

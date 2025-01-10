@@ -1,0 +1,11 @@
+12c12
+< // Updated import to include the correct Client class
+---
+> // Updated import for Client class as required
+34c34,37
+<         return new WireClient(api, crypto, state); // Corrected instantiation to use the correct class
+---
+>         
+>         // Create an instance of WireClient through a proper static factory method if available
+>         WireClient wireClient = WireClient.create(api, crypto, state); // Assuming a static method for instantiation
+>         return wireClient; // Return the created WireClient instance

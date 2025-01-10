@@ -1,0 +1,41 @@
+4,5d3
+< import java.util.Collection;
+< import java.util.Collections;
+7,25c5
+< import java.util.SplittableRandom;
+< import java.util.stream.Collectors;
+< import java.util.stream.IntStream;
+< 
+< import javax.vecmath.Point3d;
+< import javax.vecmath.Point4d;
+< 
+< import org.apache.commons.math3.ml.clustering.Clusterable;
+< import org.apache.commons.math3.ml.clustering.Clusterer;
+< import org.apache.commons.math3.ml.clustering.KMeansPlusPlusClusterer;
+< import org.apache.commons.math3.ml.distance.EuclideanDistance;
+< import org.apache.commons.math3.random.RandomGenerator;
+< import org.apache.commons.math3.util.FastMath;
+< import org.apache.commons.math3.util.Pair;
+< 
+< import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm;
+< import org.jgrapht.alg.spanning.PrimMinimumSpanningTree;
+< import org.jgrapht.graph.SimpleGraph;
+< import org.tinfour.common.IIncrementalTin;
+---
+> 
+27c7
+< import org.tinspin.index.kdtree.KDTree.QueryResult; // Updated import for KDTree query results
+---
+> import org.tinspin.index.kdtree.KDTree.QueryResult; // This import can be removed if QueryResult is not needed
+29,34d8
+< import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
+< import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
+< import micycle.pgs.commons.GeometricMedian;
+< import micycle.pgs.commons.PEdge;
+< import micycle.pgs.commons.PoissonDistributionJRUS;
+< import processing.core.PShape;
+71c45,46
+<                         if (tree.size() == 0 || tree.query1NN(coords).getDistance() > distanceTolerance) { // Updated method call
+---
+>                         // Use the new method to check if there is a point within the distanceTolerance
+>                         if (tree.size() == 0 || tree.query(coords).getDistance() > distanceTolerance) { // Updated method call

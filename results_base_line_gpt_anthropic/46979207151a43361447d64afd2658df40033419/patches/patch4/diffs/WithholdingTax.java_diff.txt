@@ -1,0 +1,19 @@
+131,146c131
+<         final ToStringStrategy2 strategy = new ToStringStrategy2() {
+<             @Override
+<             public void appendStart(ObjectLocator locator, Object value, StringBuilder buffer) {
+<                 buffer.append(value.getClass().getSimpleName()).append(" [");
+<             }
+<             @Override
+<             public void appendEnd(ObjectLocator locator, Object value, StringBuilder buffer) {
+<                 buffer.append("]");
+<             }
+<             @Override
+<             public void appendField(ObjectLocator locator, Object value, String fieldName, StringBuilder buffer, Object fieldValue, boolean isSet) {
+<                 if (isSet) {
+<                     buffer.append(fieldName).append("=").append(fieldValue).append(", ");
+<                 }
+<             }
+<         };
+---
+>         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();

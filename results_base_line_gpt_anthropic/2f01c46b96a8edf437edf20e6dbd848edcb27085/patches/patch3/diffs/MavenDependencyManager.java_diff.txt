@@ -1,0 +1,16 @@
+27c27,29
+< import org.codehaus.plexus.util.xml.Xpp3Dom; // Updated import to the correct class for Xpp3Dom
+---
+> // Updated import to the correct class for Xpp3Dom based on newer dependencies
+> import org.apache.maven.plugin.logging.Log;
+> import org.codehaus.plexus.util.xml.XmlDom; // Changed from Xpp3Dom to XmlDom
+162c164
+<         .map(exec -> (Xpp3Dom) exec.getConfiguration())
+---
+>         .map(exec -> (XmlDom) exec.getConfiguration()) // Updated to use XmlDom
+164,165c166,167
+<         .map(Xpp3Dom::getChildren)
+<         .map(arr -> Arrays.stream(arr).map(Xpp3Dom::getValue).collect(Collectors.toSet()))
+---
+>         .map(XmlDom::getChildren)
+>         .map(arr -> Arrays.stream(arr).map(XmlDom::getValue).collect(Collectors.toSet()))

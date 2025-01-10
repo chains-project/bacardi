@@ -1,0 +1,173 @@
+ You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates.
+Your task is to analyze the provided code and error message, then propose a patch that can be applied to the client code to resolve the issue.
+
+ Here is the client code that is failing:
+<client_code>
+package com.example.web;
+
+import java.util.logging.Logger;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import jakarta.mvc.UriRef;
+import jakarta.mvc.binding.BindingResult;
+import jakarta.mvc.binding.MvcBinding;
+import jakarta.mvc.binding.ParamError;
+import jakarta.mvc.security.CsrfProtected;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+
+/**
+ *
+ * @author hantsy
+ */
+@Path("csrf")
+@Controller
+@RequestScoped
+public class CsrfController {
+
+    @Inject
+    BindingResult bindingResult;
+
+    @Inject
+    Models models;
+
+    @Inject
+    AlertMessage flashMessage;
+
+    @Inject
+    Logger log;
+
+    @GET
+    public String get() {
+        return "csrf.xhtml";
+    }
+
+    @POST
+    @CsrfProtected
+    public String post(
+            @FormParam("greeting")
+            @MvcBinding
+            @NotBlank String greeting) {
+        if (bindingResult.isFailed()) {
+            AlertMessage alert = AlertMessage.danger("Validation violations!");
+            bindingResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
+            models.put("errors", alert);
+            log.info("mvc binding failed.");
+            return "csrf.xhtml";
+        }
+
+        log.info("redirect to greeting page.");
+        flashMessage.notify(AlertMessage.Type.success, "Message:" + greeting);
+        return "redirect:csrf";
+    }
+
+}
+</client_code>
+
+ And here is the error message:
+<error_message>
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/CsrfController.java:[31,6] cannot find symbol
+  symbol:   class Inject
+  location: class com.example.web.CsrfController
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/CsrfController.java:[48,14] cannot find symbol
+  symbol:   class FormParam
+  location: class com.example.web.CsrfController
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/CsrfController.java:[25,2] cannot find symbol
+  symbol: class RequestScoped
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/CsrfController.java:[50,14] cannot find symbol
+  symbol:   class NotBlank
+  location: class com.example.web.CsrfController
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/CsrfController.java:[37,6] cannot find symbol
+  symbol:   class Inject
+  location: class com.example.web.CsrfController
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/CsrfController.java:[13,38] package jakarta.validation.constraints does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/CsrfController.java:[4,34] package jakarta.enterprise.context does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/CsrfController.java:[28,6] cannot find symbol
+  symbol:   class Inject
+  location: class com.example.web.CsrfController
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/CsrfController.java:[16,21] package jakarta.ws.rs does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/CsrfController.java:[5,22] package jakarta.inject does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/CsrfController.java:[23,2] cannot find symbol
+  symbol: class Path
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/CsrfController.java:[15,21] package jakarta.ws.rs does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/CsrfController.java:[14,21] package jakarta.ws.rs does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/CsrfController.java:[34,6] cannot find symbol
+  symbol:   class Inject
+  location: class com.example.web.CsrfController
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/CsrfController.java:[17,21] package jakarta.ws.rs does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/CsrfController.java:[40,6] cannot find symbol
+  symbol:   class GET
+  location: class com.example.web.CsrfController
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/CsrfController.java:[45,6] cannot find symbol
+  symbol:   class POST
+  location: class com.example.web.CsrfController
+
+
+</error_message>
+
+ Before proposing a fix, please analyze the error message and client code. Wrap your analysis inside <code_analysis> tags:
+
+<code_analysis>
+1. Examine the error message:
+   - Identify the specific issue related to the dependency update.
+   - Note the line number or method where the error occurs.
+   - Determine which dependency and version is causing the issue.
+
+2. Review the client code:
+   - Locate the problematic areas mentioned in the error message.
+   - Identify any related code that might be affected by the changes.
+
+3. Consider potential fixes that adhere to the following constraints:
+   - Do not change any function signatures.
+   - Only remove the @Override annotation if the method no longer overrides a method in the updated dependency version.
+   - Ensure correct imports are used, considering the newer dependency version.
+   - Avoid removing existing code unless it directly causes a compilation or functionality error.
+
+4. Plan the necessary changes to fix the issue:
+   - List the specific modifications required.
+   - Consider potential side effects of the proposed changes.
+   - Ensure the fix addresses the root cause of the error.
+</code_analysis>
+
+Based on your analysis, propose a patch to fix the issue. Your response should be a complete and compilable Java class in a fenced code block. Adhere to these guidelines:
+
+1. Do not change any function signatures.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Avoid removing any existing code unless it directly causes a compilation or functionality error.
+6. Ensure the entire class is included and that it will compile correctly.
+
+Please provide your fixed class in the following format:
+
+```java
+// Your complete, fixed Java class here
+```
+
+Remember to focus specifically on issues related to the dependency update when proposing your fix.
+ 

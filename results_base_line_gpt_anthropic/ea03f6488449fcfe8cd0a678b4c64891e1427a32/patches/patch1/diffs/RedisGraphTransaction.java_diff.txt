@@ -1,0 +1,25 @@
+4,11c4,8
+< import redis.clients.jedis.commands.BasicRedisPipeline;
+< import redis.clients.jedis.commands.BinaryRedisPipeline;
+< import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
+< import redis.clients.jedis.commands.ClusterPipeline;
+< import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;
+< import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
+< import redis.clients.jedis.commands.RedisPipeline;
+< import redis.clients.jedis.commands.ScriptingCommandsPipeline;
+---
+> import redis.clients.jedis.commands.RedisPipeline; // Update import
+> import redis.clients.jedis.commands.BasicCommands; // Update import for BasicRedisPipeline
+> import redis.clients.jedis.commands.ClusterCommands; // Update import for ClusterPipeline
+> import redis.clients.jedis.commands.MultiKeyCommands; // Update import for MultiKeyCommandsPipeline
+> import redis.clients.jedis.commands.ScriptingCommands; // Update import for ScriptingCommandsPipeline
+21,24c18,19
+<         MultiKeyBinaryRedisPipeline,
+<         MultiKeyCommandsPipeline, ClusterPipeline,
+<         BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
+<         BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
+---
+>         MultiKeyCommands, ClusterCommands,
+>         ScriptingCommands, BasicCommands, RedisPipeline, Closeable {
+143d137
+< 

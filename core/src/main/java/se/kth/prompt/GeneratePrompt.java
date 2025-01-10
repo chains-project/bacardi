@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,12 +29,13 @@ public class GeneratePrompt {
         this.promptModel = promptModel;
     }
 
-
     public void savePrompt(String prompt) {
         // Save the prompt to a file
     }
 
     public String generatePrompt() {
+        log.info("Generating prompt for pipeline: {}", pipeline);
+
         // Generate the prompt
         AbstractPromptTemplate promptTemplate = null;
 
@@ -46,6 +46,17 @@ public class GeneratePrompt {
                 break;
             case BASELINE_ANTHROPIC:
                 promptTemplate = new BasePromptAnthropicTemplate();
+                promptTemplate.setPromptModel(promptModel);
+                break;
+            case BASELINE_BUGGY_LINE:
+                promptTemplate = new BasePromptBuggyLineTemplate();
+                promptTemplate.setPromptModel(promptModel);
+                break;
+            case BASELINE_API_DIFF:
+                log.info("Baseline API diff pipeline not implemented yet");
+                break;
+            case FIX_YOU:
+                promptTemplate = new FixYouPromptTemplate();
                 promptTemplate.setPromptModel(promptModel);
                 break;
             case ADVANCED:
@@ -61,9 +72,7 @@ public class GeneratePrompt {
         return prompt;
     }
 
-
     public String callPythonScript(String scriptPath, Path prompt) {
-
 
         StringBuilder output = new StringBuilder();
         try {
@@ -95,7 +104,6 @@ public class GeneratePrompt {
         return output.toString();
     }
 
-
     public String extractContentFromModelResponse(String input) {
         String pattern = "```java(.*?)```";
         Pattern regex = Pattern.compile(pattern, Pattern.DOTALL);
@@ -108,7 +116,6 @@ public class GeneratePrompt {
             return null;
         }
     }
-
 
     /**
      * replace the all content of one file with the response from the model
@@ -127,6 +134,5 @@ public class GeneratePrompt {
             throw new RuntimeException(e);
         }
     }
-
 
 }

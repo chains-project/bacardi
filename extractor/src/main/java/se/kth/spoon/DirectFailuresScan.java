@@ -10,8 +10,11 @@ import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.CtScanner;
 
 import java.lang.annotation.Annotation;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
 public class DirectFailuresScan extends CtScanner {
@@ -19,6 +22,7 @@ public class DirectFailuresScan extends CtScanner {
     private final Set<CtElement> executedElements;
     private final Set<ApiChange> apiChanges;
     private final Set<ApiChange> matchedApiChanges = new HashSet<>();
+    private final Map<CtElement, Set<ApiChange>> matchedApiChangesMap = new ConcurrentHashMap<>();
 
     public DirectFailuresScan(Set<ApiChange> apiChanges) {
         this.executedElements = new HashSet<>();
@@ -30,8 +34,17 @@ public class DirectFailuresScan extends CtScanner {
             return;
         }
         this.executedElements.add(ctElement);
-
         ctElement.accept(this);
+    }
+
+    public void addCtElementToApiChangeMap(CtElement ctElement, ApiChange apiChange) {
+        if (matchedApiChangesMap.containsKey(ctElement)) {
+            matchedApiChangesMap.get(ctElement).add(apiChange);
+        } else {
+            Set<ApiChange> apiChanges = new HashSet<>();
+            apiChanges.add(apiChange);
+            matchedApiChangesMap.put(ctElement, apiChanges);
+        }
     }
 
     @Override
@@ -40,9 +53,8 @@ public class DirectFailuresScan extends CtScanner {
         apiChanges.stream().filter(apiChange -> apiChange.getLongName().equals(fullyQualifiedName)).forEach(apiChange -> {
             matchedApiChanges.add(apiChange);
             this.collectExecutedElements(invocation.getExecutable());
+            addCtElementToApiChangeMap(invocation.getExecutable(), apiChange);
         });
-        super.visitCtInvocation(invocation);
-
         super.visitCtInvocation(invocation);
     }
 
@@ -52,6 +64,7 @@ public class DirectFailuresScan extends CtScanner {
         apiChanges.stream().filter(apiChange -> apiChange.getLongName().equals(fullyQualifiedName)).forEach(apiChange -> {
             matchedApiChanges.add(apiChange);
             this.collectExecutedElements(constructorCall.getExecutable());
+            addCtElementToApiChangeMap(constructorCall, apiChange);
         });
         super.visitCtConstructorCall(constructorCall);
     }
@@ -87,7 +100,7 @@ public class DirectFailuresScan extends CtScanner {
                 forEach(apiChange -> {
                     matchedApiChanges.add(apiChange);
                     this.collectExecutedElements(method);
-
+                    addCtElementToApiChangeMap(method, apiChange);
 
                 });
         super.visitCtMethod(method);
@@ -99,6 +112,7 @@ public class DirectFailuresScan extends CtScanner {
         apiChanges.stream().filter(apiChange -> apiChange.getLongName().equals(fullyQualifiedName)).forEach(apiChange -> {
             matchedApiChanges.add(apiChange);
             this.collectExecutedElements(reference.getDeclaration());
+            addCtElementToApiChangeMap(reference, apiChange);
         });
         super.visitCtExecutableReference(reference);
     }
