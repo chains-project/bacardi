@@ -47,23 +47,26 @@ public class Bump {
                 JAVA_VERSION_INCOMPATIBILITY_FILE);
 
         // List of breaking updates
-//        List<BreakingUpdate> breaking = BreakingUpdateProvider.getBreakingUpdatesFromResourcesByCategory(BENCHMARK_PATH, FailureCategory.COMPILATION_FAILURE, listOfJavaVersionIncompatibilities);
-        List<BreakingUpdate> breaking = BreakingUpdateProvider.getBreakingUpdatesFromResourcesByCategory(BENCHMARK_PATH, FailureCategory.COMPILATION_FAILURE);
+        // List<BreakingUpdate> breaking =
+        // BreakingUpdateProvider.getBreakingUpdatesFromResourcesByCategory(BENCHMARK_PATH,
+        // FailureCategory.COMPILATION_FAILURE, listOfJavaVersionIncompatibilities);
+        List<BreakingUpdate> breaking = BreakingUpdateProvider.getBreakingUpdatesFromResourcesByCategory(BENCHMARK_PATH,
+                FailureCategory.COMPILATION_FAILURE);
 
         // read Json file with attempts information
         resultsMap.putAll(getPreviousResults(JSON_PATH));
 
-        DockerBuild dockerBuild = new DockerBuild(true);
+        DockerBuild dockerBuild = new DockerBuild(true, MAX_ATTEMPTS);
         // identify breaking updates and download image and copy the project
 
         ForkJoinPool customThreadPool = new ForkJoinPool(4); //
 
         customThreadPool.submit(() -> breaking
                 .parallelStream()
-//                .filter(e -> e.breakingCommit.equals("0abf7148300f40a1da0538ab060552bca4a2f1d8")) // filter by breaking
+                .filter(e -> e.breakingCommit.equals("0abf7148300f40a1da0538ab060552bca4a2f1d8")) // filter by breaking
                 // commitAllChanges
-                 .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
-                 .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure
+                .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
+                .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure
                 // category
                 .forEach(e -> {
                     try {
@@ -140,14 +143,14 @@ public class Bump {
 
                 String breakingImage = e.breakingUpdateReproductionCommand.replace("docker run ", "");
 
-                //get jar from container for previous version
-                PromptPipeline[] pipeline = {PromptPipeline.BASELINE_API_DIFF, PromptPipeline.BASELINE_BUGGY_LINE};
+                // get jar from container for previous version
+                PromptPipeline[] pipeline = { PromptPipeline.BASELINE_API_DIFF, PromptPipeline.BASELINE_BUGGY_LINE };
                 if (Arrays.asList(pipeline).contains(PIPELINE)) {
                     getProjectData(preBreakingImage, dockerBuild, clientFolder, null, null, prevoiusJarInContainerPath);
                 }
-                //get jar from container for new version and m2 folder and project
-                getProjectData(breakingImage, dockerBuild, clientFolder, fromContainerM2, fromContainerProject, newJarInContainerPath);
-
+                // get jar from container for new version and m2 folder and project
+                getProjectData(breakingImage, dockerBuild, clientFolder, fromContainerM2, fromContainerProject,
+                        newJarInContainerPath);
 
                 // copy project from container
                 // delete Image
@@ -190,8 +193,10 @@ public class Bump {
 
         resultsMap.put(setupPipeline.getBreakingUpdate().breakingCommit, results);
         JsonUtils.writeToFile(Path.of(JSON_PATH), resultsMap);
-        DockerBuild.deleteImage(setupPipeline.getBreakingUpdate().breakingUpdateReproductionCommand.replace("docker run ", ""));
-        DockerBuild.deleteImage(setupPipeline.getBreakingUpdate().preCommitReproductionCommand.replace("docker run ", ""));
+        DockerBuild.deleteImage(
+                setupPipeline.getBreakingUpdate().breakingUpdateReproductionCommand.replace("docker run ", ""));
+        DockerBuild
+                .deleteImage(setupPipeline.getBreakingUpdate().preCommitReproductionCommand.replace("docker run ", ""));
     }
 
 }
