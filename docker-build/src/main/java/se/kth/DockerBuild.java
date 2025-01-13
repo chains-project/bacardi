@@ -35,7 +35,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 public class DockerBuild {
 
     static Logger log = LoggerFactory.getLogger(DockerBuild.class);
@@ -45,14 +44,14 @@ public class DockerBuild {
     public static final String BASE_IMAGE = "ghcr.io/chains-project/breaking-updates:base-image";
 
     private Boolean isBump = false;
+    private int max_attempts = 3;
 
-
-    public DockerBuild(Boolean isBump) {
+    public DockerBuild(Boolean isBump, int max_attempts) {
         this.isBump = isBump;
         createDockerClient();
+        this.max_attempts = max_attempts;
 
     }
-
 
     /**
      * Method to remove Docker container
@@ -77,7 +76,8 @@ public class DockerBuild {
      * @param containerId the ID of the Docker container
      * @param project     the name of the project to copy
      * @param dir         the directory to copy the project to
-     * @return the path to the directory where the project was copied, or null if the copy failed
+     * @return the path to the directory where the project was copied, or null if
+     *         the copy failed
      */
     public Path copyProjectFromContainer(String containerId, String project, Path dir) {
         containers.add(containerId);
@@ -106,7 +106,6 @@ public class DockerBuild {
         }
     }
 
-
     public String copyFolderToDockerImage(String dockerImage, String folderPath) throws IOException {
         DockerClient dockerClient = DockerClientBuilder.getInstance().build();
 
@@ -130,7 +129,7 @@ public class DockerBuild {
 
             dockerClient.copyArchiveToContainerCmd(containerId)
                     .withHostResource(folderPath) // Path to folder on host
-                    .withRemotePath("/")       // Destination in container
+                    .withRemotePath("/") // Destination in container
                     .exec();
             log.info("Copied folder to container");
 
@@ -179,7 +178,7 @@ public class DockerBuild {
 
             dockerClient.copyArchiveToContainerCmd(containerId)
                     .withHostResource(localFolder.toAbsolutePath().toString()) // local path
-                    .withRemotePath("/")//  container path      // Destination in container
+                    .withRemotePath("/")// container path // Destination in container
                     .exec();
 
             System.out.println("Copied folder to container");
@@ -210,7 +209,6 @@ public class DockerBuild {
         // get client name
         Path clientName = client.toAbsolutePath().getFileName();
 
-
         if (javaVersion.equals("Java 17")) {
             baseImage = "%s-java-17".formatted(BASE_IMAGE);
             imageName = "%s:breaking-update-java-17".formatted(clientName);
@@ -239,7 +237,7 @@ public class DockerBuild {
             // copy project to container
             CopyArchiveToContainerCmd copyProjectToContainer = dockerClient.copyArchiveToContainerCmd(container.getId())
                     .withHostResource(localFolder.toAbsolutePath().toString()) // local path
-                    .withRemotePath("/"); //  container path
+                    .withRemotePath("/"); // container path
             copyProjectToContainer.exec();
 
             // copy M2 folder to container
@@ -247,7 +245,7 @@ public class DockerBuild {
             log.info("Copying M2 folder to container");
             CopyArchiveToContainerCmd copyM2ToContainer = dockerClient.copyArchiveToContainerCmd(container.getId())
                     .withHostResource(m2.toAbsolutePath().toString()) // local path
-                    .withRemotePath("/root/"); //  container path
+                    .withRemotePath("/root/"); // container path
             copyM2ToContainer.exec();
 
             // execute command to create new image and wait for completion
@@ -265,82 +263,85 @@ public class DockerBuild {
             dockerClient.removeContainerCmd(container.getId()).exec();
             return imageName;
 
-
         } catch (InterruptedException e) {
             log.error("Could not pull base image {} ", e.getMessage());
             throw new RuntimeException(e);
         }
     }
 
-//    public String createBaseImageForBreakingUpdate(Path client, String javaVersion, String dockerImage) throws IOException {
-//
-//        String baseImage;
-//        String imageName = "";
-//        Path clientName = client.toAbsolutePath().getFileName();
-//
-//        if (dockerImage == null) {
-//            if (javaVersion.equals("Java 17")) {
-//                baseImage = "%s-java-17".formatted(BASE_IMAGE);
-//                imageName = "%s:base-17".formatted(clientName);
-//            } else {
-//                baseImage = BASE_IMAGE;
-//                imageName = "%s:base".formatted(clientName);
-//            }
-//        } else {
-//            baseImage = dockerImage;
-//        }
-//
-//
-//        try {
-//            ensureBaseMavenImageExists(baseImage);
-//        } catch (InterruptedException e) {
-//            log.error("Could not pull base image", e);
-//            throw new RuntimeException(e);
-//        }
-//
-//        log.info("Creating docker image for breaking update {}", clientName);
-//
-//        CreateContainerResponse container = dockerClient.createContainerCmd(baseImage)
-//                .withWorkingDir("/%s".formatted(clientName))
-//                .withCmd("sh")
-////                .withCmd("mkdir", "-p", "/%s".formatted(clientName))
-//                .exec();
-//
-//        dockerClient.startContainerCmd(container.getId()).exec();
-//        Path localFolder = Paths.get("%s".formatted(client));
-//        Path tar = Paths.get("%s.tar".formatted(clientName));
-//
-//        String containerPath = "/%s".formatted(clientName);
-//
-//        CopyArchiveToContainerCmd copyProjectToContainer = dockerClient.copyArchiveToContainerCmd(container.getId())
-//                .withHostResource(localFolder.toAbsolutePath().toString()) // local path
-//                .withRemotePath("/"); //  container path
-//
-//        copyProjectToContainer.exec();
-//
-//        if (isBump) {
-//            Path m2 = localFolder.resolveSibling("m2/.m2").normalize();
-//            log.info("Copying M2 folder to container ++++++++++++++++++++++++");
-//            CopyArchiveToContainerCmd copyCmd = dockerClient.copyArchiveToContainerCmd(container.getId())
-//                    .withHostResource(m2.toAbsolutePath().toString()) // local path
-//                    .withRemotePath("/root/"); //  container path
-//            copyCmd.exec();
-//        }
-//
-//        WaitContainerResultCallback waitResult = dockerClient.waitContainerCmd(container.getId())
-//                .exec(new WaitContainerResultCallback());
-//        if (waitResult.awaitStatusCode() != EXIT_CODE_OK) {
-//            log.warn("Could not create docker image for {}", clientName);
-//            throw new RuntimeException(waitResult.toString());
-//        }
-//        dockerClient.commitCmd(container.getId())
-//                .withRepository(clientName.toString().toLowerCase())
-//                .withTag("base-17").exec();
-//        log.warn("Created docker image for  {}", clientName);
-//        dockerClient.removeContainerCmd(container.getId()).exec();
-//        return imageName;
-//    }
-
+    // public String createBaseImageForBreakingUpdate(Path client, String
+    // javaVersion, String dockerImage) throws IOException {
+    //
+    // String baseImage;
+    // String imageName = "";
+    // Path clientName = client.toAbsolutePath().getFileName();
+    //
+    // if (dockerImage == null) {
+    // if (javaVersion.equals("Java 17")) {
+    // baseImage = "%s-java-17".formatted(BASE_IMAGE);
+    // imageName = "%s:base-17".formatted(clientName);
+    // } else {
+    // baseImage = BASE_IMAGE;
+    // imageName = "%s:base".formatted(clientName);
+    // }
+    // } else {
+    // baseImage = dockerImage;
+    // }
+    //
+    //
+    // try {
+    // ensureBaseMavenImageExists(baseImage);
+    // } catch (InterruptedException e) {
+    // log.error("Could not pull base image", e);
+    // throw new RuntimeException(e);
+    // }
+    //
+    // log.info("Creating docker image for breaking update {}", clientName);
+    //
+    // CreateContainerResponse container =
+    // dockerClient.createContainerCmd(baseImage)
+    // .withWorkingDir("/%s".formatted(clientName))
+    // .withCmd("sh")
+    //// .withCmd("mkdir", "-p", "/%s".formatted(clientName))
+    // .exec();
+    //
+    // dockerClient.startContainerCmd(container.getId()).exec();
+    // Path localFolder = Paths.get("%s".formatted(client));
+    // Path tar = Paths.get("%s.tar".formatted(clientName));
+    //
+    // String containerPath = "/%s".formatted(clientName);
+    //
+    // CopyArchiveToContainerCmd copyProjectToContainer =
+    // dockerClient.copyArchiveToContainerCmd(container.getId())
+    // .withHostResource(localFolder.toAbsolutePath().toString()) // local path
+    // .withRemotePath("/"); // container path
+    //
+    // copyProjectToContainer.exec();
+    //
+    // if (isBump) {
+    // Path m2 = localFolder.resolveSibling("m2/.m2").normalize();
+    // log.info("Copying M2 folder to container ++++++++++++++++++++++++");
+    // CopyArchiveToContainerCmd copyCmd =
+    // dockerClient.copyArchiveToContainerCmd(container.getId())
+    // .withHostResource(m2.toAbsolutePath().toString()) // local path
+    // .withRemotePath("/root/"); // container path
+    // copyCmd.exec();
+    // }
+    //
+    // WaitContainerResultCallback waitResult =
+    // dockerClient.waitContainerCmd(container.getId())
+    // .exec(new WaitContainerResultCallback());
+    // if (waitResult.awaitStatusCode() != EXIT_CODE_OK) {
+    // log.warn("Could not create docker image for {}", clientName);
+    // throw new RuntimeException(waitResult.toString());
+    // }
+    // dockerClient.commitCmd(container.getId())
+    // .withRepository(clientName.toString().toLowerCase())
+    // .withTag("base-17").exec();
+    // log.warn("Created docker image for {}", clientName);
+    // dockerClient.removeContainerCmd(container.getId()).exec();
+    // return imageName;
+    // }
 
     private void createDockerClient() {
         DockerClientConfig clientConfig = DefaultDockerClientConfig.createDefaultConfigBuilder()
@@ -380,7 +381,8 @@ public class DockerBuild {
     }
 
     /**
-     * Reproduces a breaking update using a specified Docker image and failure category.
+     * Reproduces a breaking update using a specified Docker image and failure
+     * category.
      *
      * @param image           the Docker image to use for the reproduction
      * @param failureCategory the category of failure to reproduce
@@ -395,9 +397,10 @@ public class DockerBuild {
         Map<String, String> startedContainers = new HashMap<>();
         int attemptCount;
 
-        for (attemptCount = 3; attemptCount < 4; attemptCount++) {
+        for (attemptCount = 1; attemptCount <= max_attempts; attemptCount++) {
 
-            startedContainers.put("postContainer%s".formatted(attemptCount), startContainer(getPostCmd(), image, client));
+            startedContainers.put("postContainer%s".formatted(attemptCount),
+                    startContainer(getPostCmd(), image, client));
 
             WaitContainerResultCallback result = dockerClient.waitContainerCmd(startedContainers.get("postContainer%s"
                     .formatted(attemptCount))).exec(new WaitContainerResultCallback());
@@ -407,12 +410,14 @@ public class DockerBuild {
                 storeLogFile(startedContainers.get("postContainer%s".formatted(attemptCount)), client, logFile);
                 // stop the process and store the log file
                 log.info("Breaking commit failed in the {} attempt.", attemptCount);
-                breakingUpdateReproductionResult.getAttempts().add(new Attempt(attemptCount, FailureCategory.UNKNOWN_FAILURE, false));
+                breakingUpdateReproductionResult.getAttempts()
+                        .add(new Attempt(attemptCount, FailureCategory.UNKNOWN_FAILURE, false));
 
             } else {
                 log.info("Breaking commit did not fail in the {} attempt.", attemptCount);
                 if (attemptCount == 3) {
-                    breakingUpdateReproductionResult.getAttempts().add(new Attempt(attemptCount, FailureCategory.BUILD_SUCCESS, false));
+                    breakingUpdateReproductionResult.getAttempts()
+                            .add(new Attempt(attemptCount, FailureCategory.BUILD_SUCCESS, false));
                     storeLogFile(startedContainers.get("postContainer%s".formatted(attemptCount)), client, logFile);
                 }
             }
@@ -445,12 +450,14 @@ public class DockerBuild {
                 storeLogFile(startedContainers.get("postContainer%s".formatted(attemptCount)), client, logFile);
                 // stop the process and store the log file
                 log.info("Breaking commit failed in the {} attempt.", attemptCount);
-                breakingUpdateReproductionResult.getAttempts().add(new Attempt(attemptCount, FailureCategory.UNKNOWN_FAILURE, false));
+                breakingUpdateReproductionResult.getAttempts()
+                        .add(new Attempt(attemptCount, FailureCategory.UNKNOWN_FAILURE, false));
 
             } else {
                 log.info("Breaking commit did not fail in the {} attempt.", attemptCount);
                 if (attemptCount == 3) {
-                    breakingUpdateReproductionResult.getAttempts().add(new Attempt(attemptCount, FailureCategory.BUILD_SUCCESS, false));
+                    breakingUpdateReproductionResult.getAttempts()
+                            .add(new Attempt(attemptCount, FailureCategory.BUILD_SUCCESS, false));
                     storeLogFile(startedContainers.get("postContainer%s".formatted(attemptCount)), client, logFile);
                 }
             }
@@ -460,7 +467,6 @@ public class DockerBuild {
         startedContainers.forEach((key, value) -> removeContainer(value));
         return breakingUpdateReproductionResult;
     }
-
 
     /**
      * Command to compile and test the breaking update
@@ -552,9 +558,14 @@ public class DockerBuild {
         }
     }
 
-
     public static void deleteImage(String imageId) {
         try {
+            try {
+                dockerClient.inspectImageCmd(imageId).exec();
+            } catch (NotFoundException e) {
+                log.warn("Image {} not found, skipping deletion", imageId);
+                return;
+            }
             dockerClient.removeImageCmd(imageId).withForce(true).exec();
             log.info("Image {} deleted successfully", imageId);
         } catch (Exception e) {
@@ -563,7 +574,8 @@ public class DockerBuild {
     }
 
     /**
-     * Starts a container which just spins infinitely long, meant to keep the container alive and execute multiple
+     * Starts a container which just spins infinitely long, meant to keep the
+     * container alive and execute multiple
      * commands later on. The container must be killed manually!
      *
      * @param imageId    the docker image to use
@@ -583,7 +595,8 @@ public class DockerBuild {
     }
 
     /**
-     * Starts a container which just spins infinitely long, meant to keep the container alive and execute multiple
+     * Starts a container which just spins infinitely long, meant to keep the
+     * container alive and execute multiple
      * commands later on. The container must be killed manually!
      *
      * @param imageId the docker image to use
@@ -601,7 +614,8 @@ public class DockerBuild {
     }
 
     /**
-     * Executes the given command inside an already running container and returns the output.
+     * Executes the given command inside an already running container and returns
+     * the output.
      *
      * @param containerId the ID of the container to execute the command in
      * @param command     the command to execute
