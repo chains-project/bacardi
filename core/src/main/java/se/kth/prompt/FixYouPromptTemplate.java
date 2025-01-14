@@ -11,7 +11,7 @@ import java.util.List;
 
 public class FixYouPromptTemplate extends AbstractPromptTemplate {
 
-    private static final Logger log = LoggerFactory.getLogger(BasePromptAnthropicTemplate.class);
+    private static final Logger log = LoggerFactory.getLogger(FixYouPromptTemplate.class);
 
     public FixYouPromptTemplate() {
         super();

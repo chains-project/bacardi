@@ -1,5 +1,3 @@
-1. 
-```java
 package xdev.tableexport.export;
 
 /*-
@@ -347,7 +345,7 @@ public class ReportBuilder
 		// Font
 		final Font f = style.getFont();
 		txtField.setFontName(f.getName());
-		txtField.setFontSize((float) f.getSize()); // Change is here
+		txtField.setFontSize(Float.valueOf(f.getSize()));
 		txtField.setBold(Boolean.valueOf(f.isBold()));
 		txtField.setItalic(Boolean.valueOf(f.isItalic()));
 		txtField.setHorizontalTextAlign(style.getHorizontalAlignment().getHorizontalTextAlignEnum());
@@ -368,7 +366,8 @@ public class ReportBuilder
 			return;
 		}
 		
-		textField.getLineBox().getPen().setLineWidth(border.getLineWidth());
+		// Fixing the incompatible type error by converting int to Float
+		textField.getLineBox().getPen().setLineWidth(Float.valueOf(border.getLineWidth()));
 		textField.getLineBox().getPen().setLineColor(border.getLineColor());
 		textField.getLineBox().getPen().setLineStyle(border.getLineStyle().getLineStyleEnum());
 	}
@@ -429,6 +428,3 @@ public class ReportBuilder
 	}
 	
 }
-```
-
-2. The change made was to update the line where the font size is set for the text field. The original code used `Float.valueOf(f.getSize())`, which was causing a type mismatch error because `f.getSize()` returns an `int`, and `Float.valueOf()` expects a `float`. The updated code now uses `(float) f.getSize()` to explicitly cast the integer to a float, resolving the type incompatibility while maintaining the same functionality.

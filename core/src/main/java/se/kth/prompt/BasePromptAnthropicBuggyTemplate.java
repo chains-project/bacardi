@@ -9,11 +9,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-public class BasePromptAnthropicTemplate extends AbstractPromptTemplate {
+public class BasePromptAnthropicBuggyTemplate extends AbstractPromptTemplate {
 
     private static final Logger log = LoggerFactory.getLogger(BasePromptAnthropicTemplate.class);
 
-    public BasePromptAnthropicTemplate() {
+    public BasePromptAnthropicBuggyTemplate() {
         super();
     }
 
@@ -31,14 +31,36 @@ public class BasePromptAnthropicTemplate extends AbstractPromptTemplate {
             String classCode = Files.readString(Path.of(promptModel.getClassInfo()));
             return """
                     Here is the client code that is failing:
-                    <client_code>
+                    ```java
                     %s
-                    </client_code>
+                    ```
                     """.formatted(classCode);
         } catch (IOException e) {
             log.error("Error reading the class file", e);
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public String errorLog() {
+
+        String errorInformation = """
+                """;
+
+        List<DetectedFileWithErrors> detected = promptModel.getDetectedFileWithErrors().stream().toList();
+        for (DetectedFileWithErrors detectedFileWithErrors : detected) {
+            String errorMessage = detectedFileWithErrors.getErrorInfo().getErrorMessage();
+            String additionalInfo = detectedFileWithErrors.getErrorInfo().getAdditionalInfo();
+            String errorLogsForPrompt = """
+                    %s
+                    %s
+                    """.formatted(errorMessage, additionalInfo);
+            errorInformation = errorInformation.concat(errorLogsForPrompt);
+        }
+        return """
+                And here is the error message:
+                %s
+                """.formatted(errorInformation);
     }
 
     public String buggyLine() {
@@ -62,30 +84,6 @@ public class BasePromptAnthropicTemplate extends AbstractPromptTemplate {
 
                 %s
                 """.formatted(buggyLine);
-    }
-
-    @Override
-    public String errorLog() {
-
-        String errorInformation = """
-                """;
-
-        List<DetectedFileWithErrors> detected = promptModel.getDetectedFileWithErrors().stream().toList();
-        for (DetectedFileWithErrors detectedFileWithErrors : detected) {
-            String errorMessage = detectedFileWithErrors.getErrorInfo().getErrorMessage();
-            String additionalInfo = detectedFileWithErrors.getErrorInfo().getAdditionalInfo();
-            String errorLogsForPrompt = """
-                    %s
-                    %s
-                    """.formatted(errorMessage, additionalInfo);
-            errorInformation = errorInformation.concat(errorLogsForPrompt);
-        }
-        return """
-                And here is the error message:
-                <error_message>
-                %s
-                </error_message>
-                """.formatted(errorInformation);
     }
 
     @Override
