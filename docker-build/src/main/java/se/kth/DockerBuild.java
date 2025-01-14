@@ -415,11 +415,11 @@ public class DockerBuild {
 
             } else {
                 log.info("Breaking commit did not fail in the {} attempt.", attemptCount);
-                if (attemptCount == 3) {
-                    breakingUpdateReproductionResult.getAttempts()
-                            .add(new Attempt(attemptCount, FailureCategory.BUILD_SUCCESS, false));
-                    storeLogFile(startedContainers.get("postContainer%s".formatted(attemptCount)), client, logFile);
-                }
+                // if (attemptCount == 3) {
+                breakingUpdateReproductionResult.getAttempts()
+                        .add(new Attempt(attemptCount, FailureCategory.BUILD_SUCCESS, false));
+                storeLogFile(startedContainers.get("postContainer%s".formatted(attemptCount)), client, logFile);
+                // }
             }
         }
 

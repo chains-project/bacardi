@@ -1,22 +1,3 @@
-Due to an update of Library net.sf.jasperreports from version 6.18.1 to version 6.19.1, the code in file ReportBuilder.java below is causing errors.
-
-Here is the error message:
-[ERROR] /biapi/src/main/java/xdev/tableexport/export/ReportBuilder.java:[369,81] incompatible types: int cannot be converted to java.lang.Float
-
-
-
-Update the provided code to fix this error.
-
-Focus only on updates that do not change the code's functionality and are related to the version update of the library.
-
-You must reply in the following exact numbered format.
-
-1. `The full updated code in a fenced code block` do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
-2. Explanation of the changes you made.
-
-Provided code:
-
-```
 package xdev.tableexport.export;
 
 /*-
@@ -385,7 +366,8 @@ public class ReportBuilder
 			return;
 		}
 		
-		textField.getLineBox().getPen().setLineWidth(border.getLineWidth());
+		// Fixing the incompatible type error by converting int to Float
+		textField.getLineBox().getPen().setLineWidth(Float.valueOf(border.getLineWidth()));
 		textField.getLineBox().getPen().setLineColor(border.getLineColor());
 		textField.getLineBox().getPen().setLineStyle(border.getLineStyle().getLineStyleEnum());
 	}
@@ -446,8 +428,3 @@ public class ReportBuilder
 	}
 	
 }
-
-
-```
-
-Your Response:

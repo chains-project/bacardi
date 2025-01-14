@@ -66,6 +66,9 @@ public class BacardiCore {
             case BASELINE_ANTHROPIC:
                 promptPipeline = PromptPipeline.BASELINE_ANTHROPIC;
                 break;
+            case BASELINE_ANTHROPIC_BUGGY:
+                promptPipeline = PromptPipeline.BASELINE_ANTHROPIC_BUGGY;
+                break;
             case FIX_YOU:
                 promptPipeline = PromptPipeline.FIX_YOU;
                 break;
@@ -271,7 +274,7 @@ public class BacardiCore {
                     }
                     // reproduce the build
                     Path logFilePath = storeInfo.getPatchFolder().resolve("output.log");
-                    dockerBuild.reproduce(setupPipeline.getDockerImage(), FailureCategory.WERROR_FAILURE,
+                    dockerBuild.reproduce(setupPipeline.getDockerImage(), FailureCategory.COMPILATION_FAILURE,
                             setupPipeline.getClientFolder(), logFilePath);
                     setupPipeline.setLogFilePath(logFilePath);
                 } else {
@@ -298,7 +301,8 @@ public class BacardiCore {
 
         return switch (promptPipeLine) {
             case BASELINE, BASELINE_ANTHROPIC, FIX_YOU -> repairDirectFailures.basePipeLine();
-            case BASELINE_API_DIFF, BASELINE_BUGGY_LINE -> repairDirectFailures.extractConstructsFromDirectFailures();
+            case BASELINE_API_DIFF, BASELINE_ANTHROPIC_BUGGY, BASELINE_BUGGY_LINE ->
+                repairDirectFailures.extractConstructsFromDirectFailures();
             default -> throw new IllegalStateException("Unexpected value: " + promptPipeLine);
         };
     }

@@ -31,9 +31,9 @@ public class BasePromptAnthropicBuggyTemplate extends AbstractPromptTemplate {
             String classCode = Files.readString(Path.of(promptModel.getClassInfo()));
             return """
                     Here is the client code that is failing:
-                    <client_code>
+                    ```java
                     %s
-                    </client_code>
+                    ```
                     """.formatted(classCode);
         } catch (IOException e) {
             log.error("Error reading the class file", e);
@@ -59,16 +59,38 @@ public class BasePromptAnthropicBuggyTemplate extends AbstractPromptTemplate {
         }
         return """
                 And here is the error message:
-                <error_message>
                 %s
-                </error_message>
                 """.formatted(errorInformation);
+    }
+
+    public String buggyLine() {
+
+        String buggyLine = """
+                """;
+
+        for (DetectedFileWithErrors detectedFileWithErrors : promptModel.getDetectedFileWithErrors()) {
+            String lineInCode = detectedFileWithErrors.getLineInCode();
+            String line = """
+                    ```java
+                    %s
+                    ```
+                    """.formatted(lineInCode);
+
+            buggyLine = buggyLine.concat(line);
+        }
+
+        return """
+                the error is triggered in the following specific lines in the previous code:
+
+                %s
+                """.formatted(buggyLine);
     }
 
     @Override
     public String generatePrompt() {
 
         return """
+                 %s
                  %s
                  %s
                  %s
@@ -113,6 +135,6 @@ public class BasePromptAnthropicBuggyTemplate extends AbstractPromptTemplate {
 
                 Remember to focus specifically on issues related to the dependency update when proposing your fix.
                 \s"""
-                .formatted(header(), classCode(), errorLog());
+                .formatted(header(), classCode(), buggyLine(), errorLog());
     }
 }

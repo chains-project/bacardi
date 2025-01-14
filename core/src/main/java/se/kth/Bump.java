@@ -57,8 +57,18 @@ public class Bump {
         resultsMap.putAll(getPreviousResults(JSON_PATH));
 
         DockerBuild dockerBuild = new DockerBuild(true, MAX_ATTEMPTS);
-        // identify breaking updates and download image and copy the project
 
+        // Make sure project folder exits
+        if (!Files.exists(Path.of(PROJECTS_PATH))) {
+            try {
+                Files.createDirectories(Path.of(PROJECTS_PATH));
+            } catch (IOException e) {
+                log.error("Error creating project folder", e);
+                e.printStackTrace();
+            }
+        }
+
+        // identify breaking updates and download image and copy the project
         ForkJoinPool customThreadPool = new ForkJoinPool(4); //
 
         customThreadPool.submit(() -> breaking
@@ -102,6 +112,7 @@ public class Bump {
 
                 })).join();
         customThreadPool.shutdown();
+        customThreadPool.close();
     }
 
     private static Path settingClientFolderAndM2Folder(BreakingUpdate e, DockerBuild dockerBuild) {
@@ -144,7 +155,8 @@ public class Bump {
                 String breakingImage = e.breakingUpdateReproductionCommand.replace("docker run ", "");
 
                 // get jar from container for previous version
-                PromptPipeline[] pipeline = { PromptPipeline.BASELINE_API_DIFF, PromptPipeline.BASELINE_BUGGY_LINE };
+                PromptPipeline[] pipeline = { PromptPipeline.BASELINE_API_DIFF, PromptPipeline.BASELINE_BUGGY_LINE,
+                        PromptPipeline.BASELINE_ANTHROPIC_BUGGY };
                 if (Arrays.asList(pipeline).contains(PIPELINE)) {
                     getProjectData(preBreakingImage, dockerBuild, clientFolder, null, null, prevoiusJarInContainerPath);
                 }
