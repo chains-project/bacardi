@@ -147,10 +147,10 @@ public class BacardiCore {
 
         if (failureCategory == FailureCategory.BUILD_SUCCESS) {
             // DockerBuild.deleteImage(actualImage);
-            log.info("Build success in attempt: {}", attempts);
+            log.info("Build success in attempt: {}", attempts - 1);
         }
         if (failureCategory == FailureCategory.NOT_REPAIRED) {
-            log.info("Not repaired in attempt: {}", attempts);
+            log.info("Not repaired in attempt: {}", attempts - 1);
             return result;
         }
 
