@@ -11,6 +11,7 @@ import se.kth.failure_detection.DetectedFileWithErrors;
 import se.kth.japicmp_analyzer.JApiCmpAnalyze;
 import se.kth.model.DependencyTree;
 import se.kth.model.SetupPipeline;
+import se.kth.models.ErrorInfo;
 import se.kth.models.FailureCategory;
 import se.kth.models.MavenErrorLog;
 import se.kth.parse.ParseMavenDependencyTree;
@@ -20,7 +21,10 @@ import se.kth.spoon.Client;
 import se.kth.spoon.SpoonUtilities;
 
 import javax.xml.stream.XMLStreamException;
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -29,6 +33,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 import static se.kth.Util.Constants.PIPELINE;
+import static se.kth.Util.FileUtils.readFromBinary;
 
 public class RepairDirectFailures {
 
@@ -36,21 +41,21 @@ public class RepairDirectFailures {
     private final DockerBuild dockerBuild;
     private final SetupPipeline setupPipeline;
 
-
     public RepairDirectFailures(DockerBuild dockerBuild, SetupPipeline setupPipeline) {
         this.dockerBuild = dockerBuild;
         this.setupPipeline = setupPipeline;
     }
 
-
     public Map<String, Set<DetectedFileWithErrors>> basePipeLine() {
 
-        MavenErrorInformation mavenErrorInformation = new MavenErrorInformation(setupPipeline.getLogFilePath().toFile());
-        //Extracting the line numbers with paths
+        MavenErrorInformation mavenErrorInformation = new MavenErrorInformation(
+                setupPipeline.getLogFilePath().toFile());
+        // Extracting the line numbers with paths
         Map<String, Set<DetectedFileWithErrors>> detectedFiles = new HashMap<>();
 
         try {
-            MavenErrorLog errorLog = mavenErrorInformation.extractLineNumbersWithPaths(setupPipeline.getLogFilePath().toString());
+            MavenErrorLog errorLog = mavenErrorInformation
+                    .extractLineNumbersWithPaths(setupPipeline.getLogFilePath().toString());
 
             errorLog.getErrorInfo().forEach((key, value) -> {
                 Set<DetectedFileWithErrors> detectedFileWithErrors = new HashSet<>();
@@ -67,38 +72,44 @@ public class RepairDirectFailures {
 
     }
 
-
     public Map<String, Set<DetectedFileWithErrors>> extractConstructsFromDirectFailures() throws IOException {
         // Maven error information
-        MavenErrorInformation mavenErrorInformation = new MavenErrorInformation(setupPipeline.getLogFilePath().toFile());
-        //Extracting the line numbers with paths
-        MavenErrorLog errorLog = mavenErrorInformation.extractLineNumbersWithPaths(setupPipeline.getLogFilePath().toString());
+        MavenErrorInformation mavenErrorInformation = new MavenErrorInformation(
+                setupPipeline.getLogFilePath().toFile());
+        // Extracting the line numbers with paths
+        MavenErrorLog errorLog = mavenErrorInformation
+                .extractLineNumbersWithPaths(setupPipeline.getLogFilePath().toString());
 
-        //Setting the path of the new and old jar files
-        Path newJarPath = setupPipeline.getClientFolder().getParent().resolve("%s-%s.jar".formatted(setupPipeline.getBreakingUpdate().updatedDependency.dependencyArtifactID, setupPipeline.getBreakingUpdate().updatedDependency.newVersion));
-        Path oldJarPath = setupPipeline.getClientFolder().getParent().resolve("%s-%s.jar".formatted(setupPipeline.getBreakingUpdate().updatedDependency.dependencyArtifactID, setupPipeline.getBreakingUpdate().updatedDependency.previousVersion));
-        //Setting the new and old jar files with Metadata
+        // Setting the path of the new and old jar files
+        Path newJarPath = setupPipeline.getClientFolder().getParent()
+                .resolve("%s-%s.jar".formatted(setupPipeline.getBreakingUpdate().updatedDependency.dependencyArtifactID,
+                        setupPipeline.getBreakingUpdate().updatedDependency.newVersion));
+        Path oldJarPath = setupPipeline.getClientFolder().getParent()
+                .resolve("%s-%s.jar".formatted(setupPipeline.getBreakingUpdate().updatedDependency.dependencyArtifactID,
+                        setupPipeline.getBreakingUpdate().updatedDependency.previousVersion));
+        // Setting the new and old jar files with Metadata
         ApiMetadata newApi = new ApiMetadata(newJarPath.getFileName().toString(), newJarPath);
         ApiMetadata oldApi = new ApiMetadata(oldJarPath.getFileName().toString(), oldJarPath);
-        //Analyzing the API changes
+        // Analyzing the API changes
         JApiCmpAnalyze japicmpAnalyzer = new JApiCmpAnalyze(oldApi, newApi);
-        //Setting the client folder
+        // Setting the client folder
         Client client = new Client(setupPipeline.getClientFolder());
-        //Setting the classpath
+        // Setting the classpath
         client.setClasspath(List.of(oldJarPath));
-        //Extracting the results from the client folder
+        // Extracting the results from the client folder
         SpoonUtilities spoonResults = new SpoonUtilities(
-                client
-        );
-        //Extracting the constructs that caused the failure
-        SpoonConstructExtractor causingConstructExtractor = new SpoonConstructExtractor(errorLog, japicmpAnalyzer, spoonResults,PIPELINE.toString());
-        //Extracting the files with errors
+                client);
+        // Extracting the constructs that caused the failure
+        SpoonConstructExtractor causingConstructExtractor = new SpoonConstructExtractor(errorLog, japicmpAnalyzer,
+                spoonResults, PIPELINE.toString());
+        // Extracting the files with errors
         return causingConstructExtractor.extractCausingConstructs();
     }
 
     public Path generateDependencyTree(Path treeFile, String dockerImage, String projectPath) {
 
-        String[] command = {"/bin/sh", "-c", "mvn dependency:3.7.0:tree -DoutputType=json -Dverbose=true -DoutputFile=tree.json"};
+        String[] command = { "/bin/sh", "-c",
+                "mvn dependency:3.7.0:tree -DoutputType=json -Dverbose=true -DoutputFile=tree.json" };
 
         String containerId = dockerBuild.startSpinningContainer(dockerImage);
 
@@ -122,15 +133,16 @@ public class RepairDirectFailures {
         return dependencyTrees;
     }
 
-
     public String reproduce() {
 
         try {
-            dockerBuild.copyFolderToDockerImage(setupPipeline.getDockerImage(), setupPipeline.getClientFolder().toString());
+            dockerBuild.copyFolderToDockerImage(setupPipeline.getDockerImage(),
+                    setupPipeline.getClientFolder().toString());
 
             Path logFilePath = setupPipeline.getLogFilePath().getParent().resolve("output.log");
 
-            dockerBuild.reproduce(setupPipeline.getDockerImage(), FailureCategory.COMPILATION_FAILURE, setupPipeline.getClientFolder(), logFilePath);
+            dockerBuild.reproduce(setupPipeline.getDockerImage(), FailureCategory.COMPILATION_FAILURE,
+                    setupPipeline.getClientFolder(), logFilePath);
 
             setupPipeline.setLogFilePath(logFilePath);
 
@@ -151,7 +163,7 @@ public class RepairDirectFailures {
         try {
             Model newModel = pomModel.modifyDependency(dependencyTree);
 
-            //create new pom file
+            // create new pom file
             OutputStream outputStream = Files.newOutputStream(pomFile);
             MavenStaxWriter writer = new MavenStaxWriter();
             writer.write(outputStream, newModel);
@@ -160,7 +172,6 @@ public class RepairDirectFailures {
             throw new RuntimeException(e);
         }
     }
-
 
     public List<DependencyTree> checkDependencyResolutionConflict(String dependencyTreePath) {
 
@@ -171,4 +182,56 @@ public class RepairDirectFailures {
                 this.setupPipeline.getBreakingUpdate().updatedDependency.dependencyArtifactID);
         return parseMavenDependencyTree.hasSameOrLowerLevelDependencies(dependencies, children);
     }
+
+    public Map<String, Set<DetectedFileWithErrors>> buggyLinePipeLine() {
+        MavenErrorInformation mavenErrorInformation = new MavenErrorInformation(
+                setupPipeline.getLogFilePath().toFile());
+        // Extracting the line numbers with paths
+        Map<String, Set<DetectedFileWithErrors>> detectedFiles = new HashMap<>();
+
+        try {
+            MavenErrorLog errorLog = mavenErrorInformation
+                    .extractLineNumbersWithPaths(setupPipeline.getLogFilePath().toString());
+
+            errorLog.getErrorInfo().forEach((key, value) -> {
+                Set<DetectedFileWithErrors> detectedFileWithErrors = new HashSet<>();
+                value.forEach(errorInfo -> {
+                    String buggyLine = getBuggyLine(errorInfo, setupPipeline.getClientFolder().getParent().toString());
+                    if (buggyLine.isEmpty()) {
+                        log.error("Buggy line not found for error: {}", errorInfo.toString());
+                    }
+                    detectedFileWithErrors.add(new DetectedFileWithErrors(errorInfo, buggyLine));
+                });
+                detectedFiles.put(key, detectedFileWithErrors);
+            });
+
+            return detectedFiles;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String getBuggyLine(ErrorInfo errorInfo, String clientFolder) {
+        Path filePath = Path.of(clientFolder, errorInfo.getClientFilePath());
+        if (!Files.exists(filePath)) {
+            log.error("File does not exist: {}", filePath);
+            return "";
+        }
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath.toFile()))) {
+            String currentLine;
+            int currentLineNumber = 0;
+
+            // Iterate through lines
+            while ((currentLine = reader.readLine()) != null) {
+                currentLineNumber++;
+                if (currentLineNumber == Integer.parseInt(errorInfo.getClientLinePosition())) {
+                    return currentLine.strip();
+                }
+            }
+        } catch (IOException e) {
+            log.error("Error reading the file: {}", e.getMessage(), e);
+        }
+        return "";
+    }
+
 }

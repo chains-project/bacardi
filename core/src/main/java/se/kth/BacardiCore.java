@@ -301,7 +301,8 @@ public class BacardiCore {
 
         return switch (promptPipeLine) {
             case BASELINE, BASELINE_ANTHROPIC, FIX_YOU -> repairDirectFailures.basePipeLine();
-            case BASELINE_API_DIFF, BASELINE_ANTHROPIC_BUGGY, BASELINE_BUGGY_LINE ->
+            case BASELINE_BUGGY_LINE, BASELINE_ANTHROPIC_BUGGY -> repairDirectFailures.buggyLinePipeLine();
+            case BASELINE_API_DIFF ->
                 repairDirectFailures.extractConstructsFromDirectFailures();
             default -> throw new IllegalStateException("Unexpected value: " + promptPipeLine);
         };
