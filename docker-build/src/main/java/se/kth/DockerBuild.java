@@ -53,6 +53,11 @@ public class DockerBuild {
 
     }
 
+    public DockerBuild(Boolean isBump) {
+        this.isBump = isBump;
+        createDockerClient();
+    }
+
     /**
      * Method to remove Docker container
      *
@@ -397,6 +402,7 @@ public class DockerBuild {
         Map<String, String> startedContainers = new HashMap<>();
         int attemptCount;
 
+        // TODO: Why do reattempts here, do we not do it in the main loop in BacardiCore
         for (attemptCount = 1; attemptCount <= max_attempts; attemptCount++) {
 
             startedContainers.put("postContainer%s".formatted(attemptCount),
@@ -406,18 +412,25 @@ public class DockerBuild {
                     .formatted(attemptCount))).exec(new WaitContainerResultCallback());
 
             if (result.awaitStatusCode().intValue() != EXIT_CODE_OK) {
+                // Get list of files and errors and store
+
                 // if fail store the log file
                 storeLogFile(startedContainers.get("postContainer%s".formatted(attemptCount)), client, logFile);
                 // stop the process and store the log file
                 log.info("Breaking commit failed in the {} attempt.", attemptCount);
+                // TODO: you are storing attempts here, why then recreate an attempt in the main
+                // BacardiCore loop
+                // why not return the result or the attempt
                 breakingUpdateReproductionResult.getAttempts()
-                        .add(new Attempt(attemptCount, FailureCategory.UNKNOWN_FAILURE, false));
+                        .add(new Attempt(attemptCount, FailureCategory.UNKNOWN_FAILURE, logFile.getParent().toString(),
+                                false));
 
             } else {
                 log.info("Breaking commit did not fail in the {} attempt.", attemptCount);
                 // if (attemptCount == 3) {
                 breakingUpdateReproductionResult.getAttempts()
-                        .add(new Attempt(attemptCount, FailureCategory.BUILD_SUCCESS, false));
+                        .add(new Attempt(attemptCount, FailureCategory.BUILD_SUCCESS, logFile.getParent().toString(),
+                                false));
                 storeLogFile(startedContainers.get("postContainer%s".formatted(attemptCount)), client, logFile);
                 // }
             }
@@ -451,13 +464,15 @@ public class DockerBuild {
                 // stop the process and store the log file
                 log.info("Breaking commit failed in the {} attempt.", attemptCount);
                 breakingUpdateReproductionResult.getAttempts()
-                        .add(new Attempt(attemptCount, FailureCategory.UNKNOWN_FAILURE, false));
+                        .add(new Attempt(attemptCount, FailureCategory.UNKNOWN_FAILURE, logFile.getParent().toString(),
+                                false));
 
             } else {
                 log.info("Breaking commit did not fail in the {} attempt.", attemptCount);
                 if (attemptCount == 3) {
                     breakingUpdateReproductionResult.getAttempts()
-                            .add(new Attempt(attemptCount, FailureCategory.BUILD_SUCCESS, false));
+                            .add(new Attempt(attemptCount, FailureCategory.BUILD_SUCCESS,
+                                    logFile.getParent().toString(), false));
                     storeLogFile(startedContainers.get("postContainer%s".formatted(attemptCount)), client, logFile);
                 }
             }

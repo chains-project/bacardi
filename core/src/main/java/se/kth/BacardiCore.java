@@ -132,13 +132,15 @@ public class BacardiCore {
                     break;
                 case NOT_REPAIRED:
                     log.info("Not repaired.");
-                    attempts = 3;
+                    attempts = MAX_ATTEMPTS + 1;
                     break;
                 default:
                     log.info("Unknown failure category.");
             }
-
-            Attempt attempt = new Attempt(attempts, failureCategory, failureCategory == FailureCategory.BUILD_SUCCESS);
+            // TODO: Why not return the result from the dockerbuild.reproduce method? how to
+            // get the patch number folder here
+            Attempt attempt = new Attempt(attempts, failureCategory, setupPipeline.getOutPutPatchFolder().toString(),
+                    failureCategory == FailureCategory.BUILD_SUCCESS);
             log.info("Attempt: {}", attempt);
             result.getAttempts().add(attempt);
             // number of attempts to repair the failure
@@ -191,7 +193,6 @@ public class BacardiCore {
 
         ArrayList<Boolean> isDifferent = new ArrayList<>();
         FailureCategory category;
-
         try {
             Map<String, Set<DetectedFileWithErrors>> listOfFilesWithErrors = getListOfFilesWithErrors(
                     repairDirectFailures);
@@ -205,9 +206,11 @@ public class BacardiCore {
             } else {
                 log.info("Constructs found in the direct compilation failure: {}", listOfFilesWithErrors.size());
 
-                StoreInfo storeInfo = new StoreInfo(setupPipeline);
+                StoreInfo storeInfo = new StoreInfo(setupPipeline, true);
 
                 List<CompletableFuture<Void>> futures = new ArrayList<>();
+
+                storeInfo.storePrefixErrorFiles(listOfFilesWithErrors);
 
                 listOfFilesWithErrors.forEach((key, value) -> {
                     log.info("File: {}", key);

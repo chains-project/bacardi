@@ -29,4 +29,8 @@ public class Constants {
                         .fromString(dotenv.get("PIPELINE", PromptPipeline.BASELINE.toString()));
 
         public static final int MAX_ATTEMPTS = Integer.parseInt(dotenv.get("MAX_ATTEMPT", "3"));
+
+        public static final boolean RESTART = Boolean.parseBoolean(dotenv.get("RESTART", "true"));
+
+        public static final String SPECIFIC_FILE = dotenv.get("SPECIFIC_FILE", "");
 }

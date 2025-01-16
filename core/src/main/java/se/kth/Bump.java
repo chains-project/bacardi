@@ -37,6 +37,12 @@ public class Bump {
 
     public static void main(String[] args) {
 
+        if (RESTART) {
+
+            deleteDirectoryContent(Path.of(PROJECTS_PATH));
+            deleteDirectoryContent(Path.of(OUTPUT_PATH));
+
+        }
         LogUtils.logWithBox(log, "Bump analysis started");
 
         // filtering breaking dependency updates
@@ -71,48 +77,84 @@ public class Bump {
         // identify breaking updates and download image and copy the project
         ForkJoinPool customThreadPool = new ForkJoinPool(4); //
 
-        customThreadPool.submit(() -> breaking
-                .parallelStream()
-                .filter(e -> e.breakingCommit.equals("0abf7148300f40a1da0538ab060552bca4a2f1d8")) // filter by breaking
-                // commitAllChanges
-                .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
-                .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure
-                // category
-                .forEach(e -> {
-                    try {
-                        // starting processing breaking update
-                        LogUtils.logWithBox(log, "Processing breaking update: %s".formatted(e.breakingCommit));
-                        // Full path Folder/breaking-commit/project
-                        Path clientFolder = settingClientFolderAndM2Folder(e, dockerBuild);
+        if (!SPECIFIC_FILE.isEmpty()) {
+            customThreadPool.submit(() -> breaking
+                    .parallelStream()
+                    .filter(e -> e.breakingCommit.equals(SPECIFIC_FILE)) // filter by breaking
+                    // commitAllChanges
+                    .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
+                    .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure
+                    // category
+                    .forEach(e -> {
+                        threadrun(dockerBuild, e);
+                    })).join();
+            customThreadPool.shutdown();
+            customThreadPool.close();
 
-                        SetupPipeline setupPipeline = new SetupPipeline();
-                        // adding breaking update to the pipeline
-                        setupPipeline.setBreakingUpdate(e);
-                        // adding docker build to the pipeline
-                        setupPipeline.setDockerBuild(dockerBuild);
-                        // adding client folder to the pipeline
-                        setupPipeline.setClientFolder(clientFolder.resolve(e.project));
-                        // adding log file path to the pipeline
-                        setupPipeline.setLogFilePath(
-                                Path.of("%s/%s.log".formatted(clientFolder.resolve(e.project), e.breakingCommit)));
-                        // adding m2 folder path to the pipeline
-                        setupPipeline.setM2FolderPath(Path.of("%s/%s/m2/".formatted(CLIENT_PATH, e.breakingCommit)));
-                        // adding docker image to the pipeline
-                        setupPipeline.setDockerImage(e.breakingUpdateReproductionCommand.replace("docker run ", ""));
-                        // adding output patch folder to the pipeline
-                        setupPipeline.setOutPutPatchFolder(Path.of(OUTPUT_PATH));
-                        setupPipeline.setLibraryName(e.updatedDependency.dependencyGroupID);
-                        setupPipeline.setBaseVersion(e.updatedDependency.previousVersion);
-                        setupPipeline.setNewVersion(e.updatedDependency.newVersion);
-                        // start repair process
-                        repair(setupPipeline);
-                    } catch (Exception ee) {
-                        log.error("Error processing breaking update: %s".formatted(e.breakingCommit), ee);
-                    }
+        } else {
+            customThreadPool.submit(() -> breaking
+                    .parallelStream()
+                    // commitAllChanges
+                    .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
+                    .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure
+                    // category
+                    .forEach(e -> {
+                        threadrun(dockerBuild, e);
+                    })).join();
+            customThreadPool.shutdown();
+            customThreadPool.close();
+        }
+    }
 
-                })).join();
-        customThreadPool.shutdown();
-        customThreadPool.close();
+    private static void deleteDirectoryContent(Path of) {
+        try {
+            Files.walk(of)
+                    .sorted((path1, path2) -> path2.compareTo(path1)) // sort in reverse order to delete files before
+                                                                      // directories
+                    .forEach(path -> {
+                        try {
+                            Files.delete(path);
+                        } catch (IOException e) {
+                            log.error("Failed to delete " + path, e);
+                        }
+                    });
+        } catch (IOException e) {
+            log.error("Error deleting directory content", e);
+        }
+    }
+
+    private static void threadrun(DockerBuild dockerBuild, BreakingUpdate e) {
+
+        try {
+            // starting processing breaking update
+            LogUtils.logWithBox(log, "Processing breaking update: %s".formatted(e.breakingCommit));
+            // Full path Folder/breaking-commit/project
+            Path clientFolder = settingClientFolderAndM2Folder(e, dockerBuild);
+
+            SetupPipeline setupPipeline = new SetupPipeline();
+            // adding breaking update to the pipeline
+            setupPipeline.setBreakingUpdate(e);
+            // adding docker build to the pipeline
+            setupPipeline.setDockerBuild(dockerBuild);
+            // adding client folder to the pipeline
+            setupPipeline.setClientFolder(clientFolder.resolve(e.project));
+            // adding log file path to the pipeline
+            setupPipeline.setLogFilePath(
+                    Path.of("%s/%s.log".formatted(clientFolder.resolve(e.project), e.breakingCommit)));
+            // adding m2 folder path to the pipeline
+            setupPipeline.setM2FolderPath(Path.of("%s/%s/m2/".formatted(CLIENT_PATH, e.breakingCommit)));
+            // adding docker image to the pipeline
+            setupPipeline.setDockerImage(e.breakingUpdateReproductionCommand.replace("docker run ", ""));
+            // adding output patch folder to the pipeline
+            setupPipeline.setOutPutPatchFolder(Path.of(OUTPUT_PATH));
+            setupPipeline.setLibraryName(e.updatedDependency.dependencyGroupID);
+            setupPipeline.setBaseVersion(e.updatedDependency.previousVersion);
+            setupPipeline.setNewVersion(e.updatedDependency.newVersion);
+            // start repair process
+            repair(setupPipeline);
+        } catch (Exception ee) {
+            log.error("Error processing breaking update: %s".formatted(e.breakingCommit), ee);
+        }
     }
 
     private static Path settingClientFolderAndM2Folder(BreakingUpdate e, DockerBuild dockerBuild) {
