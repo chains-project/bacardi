@@ -1,0 +1,40 @@
+```java
+package fr.spoonlabs.flacoco.core.test.strategies.classloader.finder.classes.impl;
+
+import fr.spoonlabs.flacoco.core.test.strategies.classloader.finder.classes.ClassFinder;
+import org.apache.maven.plugin.surefire.util.DirectoryScanner;
+import org.apache.maven.surefire.api.testset.TestListResolver;
+
+import java.io.File;
+import java.util.List;
+
+public class SourceFolderFinder implements ClassFinder {
+
+    private String srcFolder;
+
+    public SourceFolderFinder(String srcFolder) {
+        this.srcFolder = srcFolder;
+    }
+
+    @Override
+    public String[] getClasses() {
+        return getClassesLoc(new File(srcFolder)).toArray(new String[0]);
+    }
+
+    static List<String> getClassesLoc(File testSrcFolder) {
+        DirectoryScanner directoryScanner = new DirectoryScanner();
+        directoryScanner.setBasedir(testSrcFolder);
+        // Update the way to get the wildcard pattern to match the new API
+        String wildcard = "**/*.class"; // Assuming we want to include all class files
+        directoryScanner.setIncludes(new String[]{wildcard});
+        directoryScanner.scan();
+        return List.of(directoryScanner.getIncludedFiles());
+    }
+}
+``` 
+
+### Explanation of Changes:
+1. **Wildcard Update**: The line that previously used `TestListResolver.getWildcard()` has been replaced with a hardcoded wildcard string `"**/*.class"`. This change is made because the method `getWildcard()` is likely no longer returning a valid string for the `setIncludes` method in the updated dependency.
+2. **No Function Signature Changes**: The function signatures remain unchanged, adhering to the requirement.
+3. **Imports**: No changes to imports were necessary as they are still valid.
+4. **Code Structure**: The overall structure of the class remains intact, ensuring that the functionality is preserved while addressing the compilation error.

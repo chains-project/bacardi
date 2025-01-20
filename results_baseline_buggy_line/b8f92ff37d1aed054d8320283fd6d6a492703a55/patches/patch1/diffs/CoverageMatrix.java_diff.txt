@@ -1,0 +1,14 @@
+199,200c199,201
+<             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), TestListResolver.getWildcard());
+<             if (directoryScanner.scan().getClasses().contains(className)) {
+---
+>             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir));
+>             directoryScanner.scan(); // Perform the scan
+>             if (Arrays.asList(directoryScanner.getIncludedClasses()).contains(className)) {
+205,206c206,208
+<             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), TestListResolver.getWildcard());
+<             if (directoryScanner.scan().getClasses().contains(className)) {
+---
+>             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir));
+>             directoryScanner.scan(); // Perform the scan
+>             if (Arrays.asList(directoryScanner.getIncludedClasses()).contains(className)) {

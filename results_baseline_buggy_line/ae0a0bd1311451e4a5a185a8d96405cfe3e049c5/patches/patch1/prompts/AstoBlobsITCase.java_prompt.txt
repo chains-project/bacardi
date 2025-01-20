@@ -1,0 +1,204 @@
+ You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates.
+Your task is to analyze the provided code and error message, then propose a patch that can be applied to the client code to resolve the issue.
+
+ Here is the client code that is failing:
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker.asto;
+
+import com.artipie.asto.Content;
+import com.artipie.asto.Key;
+import com.artipie.asto.SubStorage;
+import com.artipie.asto.blocking.BlockingStorage;
+import com.artipie.asto.memory.InMemoryStorage;
+import com.artipie.docker.Digest;
+import com.artipie.docker.RepoName;
+import com.artipie.docker.error.InvalidDigestException;
+import com.google.common.base.Throwables;
+import io.reactivex.Flowable;
+import java.util.concurrent.CompletableFuture;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
+import org.hamcrest.core.IsEqual;
+import org.hamcrest.core.IsInstanceOf;
+import org.hamcrest.core.IsNot;
+import org.hamcrest.core.IsNull;
+import org.hamcrest.core.StringContains;
+import org.junit.jupiter.api.Test;
+
+/**
+ * Integration test for {@link AstoBlobs}.
+ * @since 0.1
+ * @checkstyle ClassDataAbstractionCouplingCheck (500 lines)
+ */
+final class AstoBlobsITCase {
+    @Test
+    void saveBlobDataAtCorrectPath() throws Exception {
+        final InMemoryStorage storage = new InMemoryStorage();
+        final AstoBlobs blobs = new AstoBlobs(
+            new SubStorage(RegistryRoot.V2, storage),
+            new DefaultLayout(),
+            new RepoName.Simple("does not matter")
+        );
+        final byte[] bytes = new byte[]{0x00, 0x01, 0x02, 0x03};
+        final Digest digest = blobs.put(new TrustedBlobSource(bytes))
+            .toCompletableFuture().get().digest();
+        MatcherAssert.assertThat(
+            "Digest alg is not correct",
+            digest.alg(), Matchers.equalTo("sha256")
+        );
+        final String hash = "054edec1d0211f624fed0cbca9d4f9400b0e491c43742af2c5b0abebf0c990d8";
+        MatcherAssert.assertThat(
+            "Digest sum is not correct",
+            digest.hex(),
+            Matchers.equalTo(hash)
+        );
+        MatcherAssert.assertThat(
+            "File content is not correct",
+            new BlockingStorage(storage).value(
+                new Key.From(String.format("docker/registry/v2/blobs/sha256/05/%s/data", hash))
+            ),
+            Matchers.equalTo(bytes)
+        );
+    }
+
+    @Test
+    void failsOnDigestMismatch() {
+        final InMemoryStorage storage = new InMemoryStorage();
+        final AstoBlobs blobs = new AstoBlobs(
+            storage, new DefaultLayout(), new RepoName.Simple("any")
+        );
+        final String digest = "123";
+        blobs.put(
+            new CheckedBlobSource(new Content.From("data".getBytes()), new Digest.Sha256(digest))
+        ).toCompletableFuture().handle(
+            (blob, throwable) -> {
+                MatcherAssert.assertThat(
+                    "Exception thrown",
+                    throwable,
+                    new IsNot<>(new IsNull<>())
+                );
+                MatcherAssert.assertThat(
+                    "Exception is InvalidDigestException",
+                    Throwables.getRootCause(throwable),
+                    new IsInstanceOf(InvalidDigestException.class)
+                );
+                MatcherAssert.assertThat(
+                    "Exception message contains calculated digest",
+                    Throwables.getRootCause(throwable).getMessage(),
+                    new StringContains(
+                        true,
+                        "3a6eb0790f39ac87c94f3856b2dd2c5d110e6811602261a9a923d3bb23adc8b7"
+                    )
+                );
+                MatcherAssert.assertThat(
+                    "Exception message contains expected digest",
+                    Throwables.getRootCause(throwable).getMessage(),
+                    new StringContains(true, digest)
+                );
+                return CompletableFuture.allOf();
+            }
+        ).join();
+    }
+
+    @Test
+    void writeAndReadBlob() throws Exception {
+        final AstoBlobs blobs = new AstoBlobs(
+            new InMemoryStorage(), new DefaultLayout(), new RepoName.Simple("test")
+        );
+        final byte[] bytes = {0x05, 0x06, 0x07, 0x08};
+        final Digest digest = blobs.put(new TrustedBlobSource(bytes))
+            .toCompletableFuture().get().digest();
+        final byte[] read = Flowable.fromPublisher(
+            blobs.blob(digest)
+                .toCompletableFuture().get()
+                .get().content()
+                .toCompletableFuture().get()
+        ).toList().blockingGet().get(0).array();
+        MatcherAssert.assertThat(read, Matchers.equalTo(bytes));
+    }
+
+    @Test
+    void readAbsentBlob() throws Exception {
+        final AstoBlobs blobs = new AstoBlobs(
+            new InMemoryStorage(), new DefaultLayout(), new RepoName.Simple("whatever")
+        );
+        final Digest digest = new Digest.Sha256(
+            "0123456789012345678901234567890123456789012345678901234567890123"
+        );
+        MatcherAssert.assertThat(
+            blobs.blob(digest).toCompletableFuture().get().isPresent(),
+            new IsEqual<>(false)
+        );
+    }
+}
+
+```
+
+ the error is triggered in the following specific lines in the previous code:
+
+```java
+new StringContains(
+```
+```java
+new StringContains(true, digest)
+```
+
+
+ And here is the error message:
+[ERROR] /docker-adapter/src/test/java/com/artipie/docker/asto/AstoBlobsITCase.java:[87,21] constructor StringContains in class org.hamcrest.core.StringContains cannot be applied to given types;
+  required: java.lang.String
+  found: boolean,java.lang.String
+  reason: actual and formal argument lists differ in length
+
+[ERROR] /docker-adapter/src/test/java/com/artipie/docker/asto/AstoBlobsITCase.java:[95,21] constructor StringContains in class org.hamcrest.core.StringContains cannot be applied to given types;
+  required: java.lang.String
+  found: boolean,java.lang.String
+  reason: actual and formal argument lists differ in length
+
+
+
+ Before proposing a fix, please analyze the error message and client code. Wrap your analysis inside <code_analysis> tags:
+
+<code_analysis>
+1. Examine the error message:
+   - Identify the specific issue related to the dependency update.
+   - Note the line number or method where the error occurs.
+   - Determine which dependency and version is causing the issue.
+
+2. Review the client code:
+   - Locate the problematic areas mentioned in the error message.
+   - Identify any related code that might be affected by the changes.
+
+3. Consider potential fixes that adhere to the following constraints:
+   - Do not change any function signatures.
+   - Only remove the @Override annotation if the method no longer overrides a method in the updated dependency version.
+   - Ensure correct imports are used, considering the newer dependency version.
+   - Avoid removing existing code unless it directly causes a compilation or functionality error.
+
+4. Plan the necessary changes to fix the issue:
+   - List the specific modifications required.
+   - Consider potential side effects of the proposed changes.
+   - Ensure the fix addresses the root cause of the error.
+</code_analysis>
+
+Based on your analysis, propose a patch to fix the issue. Your response should be a complete and compilable Java class in a fenced code block. Adhere to these guidelines:
+
+1. Do not change any function signatures.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Avoid removing any existing code unless it directly causes a compilation or functionality error.
+6. Ensure the entire class is included and that it will compile correctly.
+
+Please provide your fixed class in the following format:
+
+```java
+// Your complete, fixed Java class here
+```
+
+Remember to focus specifically on issues related to the dependency update when proposing your fix.
+ 

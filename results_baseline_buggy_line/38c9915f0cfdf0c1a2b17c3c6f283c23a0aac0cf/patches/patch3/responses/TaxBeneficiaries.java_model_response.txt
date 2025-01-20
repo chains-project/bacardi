@@ -1,0 +1,57 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates a syntax issue at line 31, column 35, specifically stating that a ';' is expected. This suggests that there is a missing semicolon or a syntax error in the code.
+   - The error is likely related to the use of the `Filtered` and `Sorted` classes from the `org.cactoos.iterable` package, which may have undergone changes in the updated version.
+
+2. Review the client code:
+   - The problematic area is in the constructor of the `TaxBeneficiaries` class, particularly in the instantiation of the `Sorted` and `Filtered` classes.
+   - The use of `new Filtered<>(...)` and `new Sorted<>(...)` needs to be checked against the updated API to ensure that the constructors and their parameters are still valid.
+
+3. Consider potential fixes that adhere to the following constraints:
+   - The function signatures will remain unchanged.
+   - The `@Override` annotation is not present in the provided code, so it does not need to be removed.
+   - Ensure that the imports are correct and that the classes are being used as intended in the updated version.
+
+4. Plan the necessary changes to fix the issue:
+   - Check if the `Filtered` and `Sorted` classes require different parameters or if their constructors have changed.
+   - Ensure that the lambda expressions used in the `Filtered` class are still valid and correctly implemented.
+   - If necessary, create intermediate variables to simplify the code and improve readability.
+
+Based on the analysis, it appears that the issue may stem from the way the `Filtered` and `Sorted` classes are being instantiated. The following patch addresses the potential issues by ensuring that the correct constructors and parameters are used.
+
+</code_analysis>
+
+```java
+package io.zold.api;
+
+import java.util.Comparator;
+import org.cactoos.iterable.Filtered;
+import org.cactoos.iterable.IterableEnvelope;
+import org.cactoos.iterable.LengthOf;
+import org.cactoos.iterable.Sorted;
+
+/**
+ * {@link Remote} nodes that should receive taxes.
+ *
+ * @since 1.0
+ */
+public final class TaxBeneficiaries extends IterableEnvelope<Remote> {
+
+    /**
+     * Ctor.
+     *
+     * @param nodes Remote nodes to select from.
+     */
+    public TaxBeneficiaries(final Iterable<Remote> nodes) {
+        super(() -> new Sorted<>(
+            Comparator.comparing(Remote::score),
+            new Filtered<>(
+                n -> new LengthOf(n.score().suffixes()).intValue() >= 16,
+                nodes
+            )
+        ));
+    }
+}
+```
+
+In this case, the original code appears to be correct syntactically, and the error may have been caused by an issue in the dependency update. If the error persists, further investigation into the specific versions of the `cactoos` library being used may be necessary to ensure compatibility.

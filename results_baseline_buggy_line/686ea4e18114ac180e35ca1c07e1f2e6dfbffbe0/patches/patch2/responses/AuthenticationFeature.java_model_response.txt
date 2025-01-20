@@ -1,0 +1,24 @@
+```java
+package com.wire.lithium.server.filters;
+
+import jakarta.ws.rs.container.DynamicFeature; // Updated import
+import jakarta.ws.rs.container.ResourceInfo; // Updated import
+import jakarta.ws.rs.core.FeatureContext; // Updated import
+import jakarta.ws.rs.ext.Provider; // Updated import
+import io.swagger.annotations.Authorization;
+
+@Provider
+public class AuthenticationFeature implements DynamicFeature {
+    @Override
+    public void configure(ResourceInfo resourceInfo, FeatureContext context) {
+        if (resourceInfo.getResourceMethod().getAnnotation(Authorization.class) != null) {
+            context.register(AuthenticationFilter.class);
+        }
+    }
+}
+``` 
+
+### Explanation of Changes:
+1. **Updated Imports**: The imports for `DynamicFeature`, `ResourceInfo`, `FeatureContext`, and `Provider` have been changed from `javax.ws.rs` to `jakarta.ws.rs`. This change reflects the transition from the `javax` namespace to the `jakarta` namespace in newer versions of the JAX-RS API.
+2. **No Changes to Function Signatures**: The method signatures and class structure remain unchanged, adhering to the requirement of not altering any function signatures.
+3. **Retained Existing Code**: The existing logic and structure of the class are preserved, ensuring that the functionality remains intact while addressing the compilation errors.

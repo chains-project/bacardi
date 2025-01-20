@@ -1,0 +1,11 @@
+8,9c8,9
+< import org.bouncycastle.crypto.tls.AlertDescription;
+< import org.bouncycastle.crypto.tls.TlsFatalAlert;
+---
+> import org.bouncycastle.crypto.tls.AlertDescription; // This import is likely to be removed
+> import org.bouncycastle.crypto.tls.TlsFatalAlert; // This import is likely to be removed
+31c31,32
+<       throw new TlsFatalAlert(AlertDescription.bad_record_mac);
+---
+>       // Replace TlsFatalAlert with a custom exception or a different handling mechanism
+>       throw new IOException("Bad record MAC"); // Adjusted to use IOException instead

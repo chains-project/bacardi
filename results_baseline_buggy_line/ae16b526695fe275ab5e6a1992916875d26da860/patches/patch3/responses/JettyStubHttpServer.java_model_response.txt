@@ -1,0 +1,86 @@
+```java
+/*
+ * Copyright (c) 2012 - 2016 Jadler contributors
+ * This program is made available under the terms of the MIT License.
+ */
+package net.jadler.stubbing.server.jetty;
+
+import net.jadler.RequestManager;
+import net.jadler.stubbing.server.StubHttpServer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.ServerConnector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.eclipse.jetty.server.handler.AbstractHandler; // Added import for AbstractHandler
+import org.apache.commons.lang3.Validate; // Updated import for Validate
+
+/**
+ * Default stub http server implementation using Jetty as an http server.
+ */
+public class JettyStubHttpServer implements StubHttpServer {
+
+    private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
+    private final Server server;
+    private final ServerConnector httpConnector;
+
+    public JettyStubHttpServer() {
+        this(0);
+    }
+    
+    public JettyStubHttpServer(final int port) {
+        this.server = new Server();
+        this.server.setSendServerVersion(false);
+        this.server.setSendDateHeader(true);
+        
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        this.httpConnector = new ServerConnector(server, httpConfig);
+        this.httpConnector.setPort(port);
+        server.addConnector(this.httpConnector);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void registerRequestManager(final RequestManager ruleProvider) {
+        Validate.notNull(ruleProvider, "ruleProvider cannot be null");
+
+        server.setHandler(new JadlerHandler(ruleProvider));
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void start() throws Exception {
+        logger.debug("starting jetty");
+        server.start();
+        logger.debug("jetty started");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void stop() throws Exception {
+        logger.debug("stopping jetty");
+        server.stop();
+        logger.debug("jetty stopped");
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getPort() {
+        return httpConnector.getLocalPort();
+    }
+}
+``` 
+
+### Changes Made:
+1. **Updated Import for Validate**: Changed the import statement for `Validate` from `org.apache.commons.lang` to `org.apache.commons.lang3` to reflect the updated version of the Apache Commons Lang library.
+2. **Added Import for AbstractHandler**: Included the import for `org.eclipse.jetty.server.handler.AbstractHandler` to ensure that the `JadlerHandler` class can be recognized if it extends `AbstractHandler` or any other Jetty handler class. 
+
+These changes should resolve the compilation errors related to the missing symbols in the updated dependencies.

@@ -1,0 +1,89 @@
+```java
+/*
+ * Copyright (c) 2012 - 2016 Jadler contributors
+ * This program is made available under the terms of the MIT License.
+ */
+package net.jadler.stubbing.server.jetty;
+
+import net.jadler.RequestManager;
+import net.jadler.stubbing.server.StubHttpServer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.ConnectionFactory;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.Validate;
+
+/**
+ * Default stub http server implementation using Jetty as an http server.
+ */
+public class JettyStubHttpServer implements StubHttpServer {
+
+    private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
+    private final Server server;
+    private final ServerConnector httpConnector;
+
+    public JettyStubHttpServer() {
+        this(0);
+    }
+    
+    public JettyStubHttpServer(final int port) {
+        this.server = new Server();
+        this.server.setHandler(new JadlerHandler(null)); // Placeholder for handler initialization
+
+        // Create HttpConfiguration and ServerConnector for the updated Jetty version
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        // Create a new HttpConnectionFactory using the HttpConfiguration
+        HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory(httpConfig);
+        this.httpConnector = new ServerConnector(server, httpConnectionFactory);
+        this.httpConnector.setPort(port);
+        server.addConnector(this.httpConnector);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void registerRequestManager(final RequestManager ruleProvider) {
+        Validate.notNull(ruleProvider, "ruleProvider cannot be null");
+
+        server.setHandler(new JadlerHandler(ruleProvider));
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void start() throws Exception {
+        logger.debug("starting jetty");
+        server.start();
+        logger.debug("jetty started");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void stop() throws Exception {
+        logger.debug("stopping jetty");
+        server.stop();
+        logger.debug("jetty stopped");
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getPort() {
+        return httpConnector.getLocalPort();
+    }
+}
+``` 
+
+### Explanation of Changes:
+1. **ServerConnector Constructor**: The original code attempted to use `HttpConfiguration` directly in the `ServerConnector` constructor, which is not valid in the updated Jetty version. Instead, I created an `HttpConnectionFactory` using the `HttpConfiguration` and passed that to the `ServerConnector`.
+2. **Imports**: Added the necessary import for `HttpConnectionFactory` to ensure the code compiles correctly with the updated Jetty version.
+3. **No Function Signature Changes**: The function signatures remain unchanged, adhering to the requirements.
+4. **Maintained Existing Code**: The existing code structure and logic were preserved, with only the necessary modifications made to resolve the compilation errors.

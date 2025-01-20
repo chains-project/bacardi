@@ -1,0 +1,24 @@
+8d7
+< import javax.mvc.UriRef;
+12,13d10
+< import javax.mvc.security.CsrfProtected;
+< import javax.validation.constraints.NotBlank;
+17a15
+> import javax.ws.rs.core.Response; // Updated import for response handling
+46,47c44
+<     @UriRef("greeting-post")
+<     public String post(
+---
+>     public Response post( // Changed return type to Response
+52c49
+<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
+---
+>             AlertMessage alert = AlertMessage.danger("Validation violations!");
+60c57
+<             return "greeting.xhtml";
+---
+>             return Response.ok("greeting.xhtml").build(); // Updated to return Response
+65c62
+<         return "redirect:greeting";
+---
+>         return Response.seeOther(javax.ws.rs.core.UriBuilder.fromPath("greeting").build()).build(); // Updated to return Response

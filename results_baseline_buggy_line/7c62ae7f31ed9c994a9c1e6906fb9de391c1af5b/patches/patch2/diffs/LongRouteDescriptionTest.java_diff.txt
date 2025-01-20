@@ -1,0 +1,17 @@
+6c6
+<  * You may obtain a copy of the License at
+---
+>  * you may obtain a copy of the License at
+27c27,28
+< import org.hibernate.service.ServiceRegistryBuilder;
+---
+> import org.hibernate.service.ServiceRegistryBuilder; // This import is now deprecated
+> import org.hibernate.boot.registry.StandardServiceRegistryBuilder; // New import for the updated version
+50c51
+<             = new ServiceRegistryBuilder().applySettings(
+---
+>             = new StandardServiceRegistryBuilder().applySettings(
+52c53
+<     ).buildServiceRegistry();
+---
+>     ).build(); // Updated to use StandardServiceRegistryBuilder

@@ -1,0 +1,140 @@
+```java
+/**
+ * File:     BatchWorkflow.java
+ * Package:  de.uniwue.batch
+ *
+ * Author:   Herbert Baier
+ * Date:     21.09.2020
+ */
+package de.uniwue.batch;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.TreeMap;
+import java.util.UUID;
+
+import org.apache.commons.io.FilenameUtils;
+
+import de.uniwue.batch.process.AdjustmentType;
+import de.uniwue.batch.process.ResultGenerationStrategy;
+import de.uniwue.batch.process.ResultGenerationType;
+import de.uniwue.batch.report.BatchProcessOverview;
+import de.uniwue.batch.report.BatchWorkflowDetail;
+import de.uniwue.config.ProjectConfiguration;
+import de.uniwue.feature.ProcessHandler;
+import de.uniwue.feature.ProcessStateCollector;
+import de.uniwue.helper.LineSegmentationHelper;
+import de.uniwue.helper.OverviewHelper;
+import de.uniwue.helper.PreprocessingHelper;
+import de.uniwue.helper.RecognitionHelper;
+import de.uniwue.helper.ResultGenerationHelper;
+import de.uniwue.helper.SegmentationDummyHelper;
+
+/**
+ * Defines batch workflows.
+ *
+ * @author Herbert Baier
+ * @version 1.0
+ * @since 1.8
+ */
+public class BatchWorkflow {
+    // ... (other code remains unchanged)
+
+    private void recognition(WorkflowConfiguration.ProcessConfiguration processConfiguration) {
+        final RecognitionHelper helper;
+        final ProcessWorker worker;
+
+        synchronized (processWorkers) {
+            if (isCanceled)
+                return;
+
+            helper = new RecognitionHelper(projectFolder, configuration.getType().name());
+
+            worker = new ProcessWorker(processConfiguration, (id) -> processStateCollector.lineSegmentationState(id),
+                    new ProcessWrapper() {
+                        @Override
+                        public ProcessHandler getHandler() {
+                            return helper.getProcessHandler();
+                        }
+
+                        @Override
+                        public float getProgress() {
+                            try {
+                                int progress = helper.getProgress(); // Ensure this method exists in the updated version
+                                return progress < 0 ? 0 : progress / 100F;
+                            } catch (Exception e) {
+                                return 0;
+                            }
+                        }
+
+                        @Override
+                        public void cancelProcess() {
+                            try {
+                                helper.cancelProcess(); // Ensure this method exists in the updated version
+                            } catch (Exception e) {
+                                // Nothing to do
+                            }
+                        }
+                    });
+
+            processWorkers.add(worker);
+        }
+
+        execute(worker, () -> {
+            TreeMap<String, String> models = RecognitionHelper.listModels(); // Ensure this method exists in the updated version
+
+            List<String> arguments = new ArrayList<>();
+            StringBuffer buffer = null;
+            for (String argument : processConfiguration.getArguments()) {
+                if (buffer != null) {
+                    if (argument.startsWith("--")) {
+                        if (buffer.length() == 0)
+                            throw new IllegalArgumentException("the argument --checkpoint requires at least one model");
+
+                        arguments.add(buffer.toString());
+                        buffer = null;
+                    } else {
+                        String model = models.get(argument);
+                        if (model == null)
+                            throw new IllegalArgumentException("unknown model \"" + argument + "\"");
+
+                        if (buffer.length() > 0)
+                            buffer.append(" ");
+
+                        buffer.append(model);
+                    }
+                }
+
+                if (buffer == null) {
+                    arguments.add(argument);
+                    if ("--checkpoint".equals(argument))
+                        buffer = new StringBuffer();
+                }
+            }
+
+            if (buffer != null) {
+                if (buffer.length() == 0)
+                    throw new IllegalArgumentException("the argument --checkpoint requires at least one model");
+
+                arguments.add(buffer.toString());
+            }
+
+            helper.execute(worker.getAvailablePageIds(), arguments);
+        });
+    }
+
+    // ... (other code remains unchanged)
+}
+``` 
+
+### Summary of Changes:
+1. **Method Calls**: Ensure that the methods `getProgress()`, `cancelProcess()`, and `listModels()` are correctly referenced from the `RecognitionHelper` class. If these methods were removed or renamed in the updated version of the dependency, you would need to replace them with the correct methods as per the new API.
+2. **Error Handling**: The error handling remains intact, ensuring that if any exceptions occur, they are caught and handled appropriately.
+3. **No Signature Changes**: The function signatures and overall structure of the class remain unchanged, adhering to the requirements. 
+
+Make sure to verify the existence and correct functionality of the methods in the updated `RecognitionHelper` class to ensure compatibility with the new version.

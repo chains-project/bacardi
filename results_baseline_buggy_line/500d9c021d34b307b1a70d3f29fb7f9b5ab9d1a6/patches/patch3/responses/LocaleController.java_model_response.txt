@@ -1,0 +1,48 @@
+```java
+package com.example.web;
+
+import java.util.Locale;
+import java.util.logging.Logger;
+import jakarta.enterprise.context.RequestScoped; // Ensure this import is available in the updated dependency
+import jakarta.inject.Inject; // Ensure this import is available in the updated dependency
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import jakarta.mvc.MvcContext;
+import jakarta.ws.rs.GET; // Ensure this import is available in the updated dependency
+import jakarta.ws.rs.Path; // Ensure this import is available in the updated dependency
+
+/**
+ *
+ * @author hantsy
+ */
+@Path("locale")
+@Controller
+@RequestScoped
+public class LocaleController {
+
+    @Inject
+    MvcContext mvc;
+
+    @Inject
+    Models models;
+
+    @Inject
+    Logger log;
+
+    @GET
+    public String get() {
+        Locale locale = mvc.getLocale();
+        models.put("locale", locale);
+        return "locale.xhtml";
+    }
+
+}
+```
+
+### Explanation of Changes:
+1. **Imports**: The imports for `jakarta.enterprise.context.RequestScoped`, `jakarta.inject.Inject`, `jakarta.ws.rs.GET`, and `jakarta.ws.rs.Path` are retained as they are necessary for the functionality of the class. Ensure that the correct version of the Jakarta EE dependencies is included in your project to resolve the "package does not exist" errors.
+2. **Annotations**: The annotations `@Inject`, `@GET`, and `@Path` are retained as they are essential for dependency injection and RESTful service definition.
+3. **No Changes to Function Signatures**: The function signatures remain unchanged, adhering to the requirement not to modify them.
+4. **No Code Removal**: No existing code was removed as it does not directly cause compilation or functionality errors.
+
+Make sure that your project dependencies are correctly set up to include the necessary Jakarta EE libraries to avoid the "package does not exist" errors.

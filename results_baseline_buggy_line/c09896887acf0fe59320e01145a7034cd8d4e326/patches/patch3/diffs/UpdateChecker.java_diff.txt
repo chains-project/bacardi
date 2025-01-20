@@ -1,0 +1,6 @@
+216c216,218
+<             GHCompare.Status status = repository.getCompare(branch, ghc.hash).status;
+---
+>             // Updated method call to use the correct method for comparing branches
+>             GHCompare compare = repository.compare(branch, ghc.hash);
+>             GHCompare.Status status = compare.getStatus();

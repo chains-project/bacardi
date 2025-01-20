@@ -1,0 +1,9 @@
+11a12,13
+> import org.eclipse.jetty.server.ConnectionFactory;
+> import org.eclipse.jetty.server.HttpConnectionFactory;
+35c37,39
+<         this.httpConnector = new ServerConnector(server, httpConfig);
+---
+>         // Create a new HttpConnectionFactory using the HttpConfiguration
+>         HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory(httpConfig);
+>         this.httpConnector = new ServerConnector(server, httpConnectionFactory);

@@ -1,0 +1,149 @@
+ You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates.
+Your task is to analyze the provided code and error message, then propose a patch that can be applied to the client code to resolve the issue.
+
+ Here is the client code that is failing:
+```java
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package org.apache.myfaces.tobago.maven.plugin;
+
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.DirectoryScanner;
+
+import java.io.File;
+
+public abstract class AbstractThemeMojo extends AbstractMojo {
+
+  /**
+   * The Maven project.
+   */
+  @Parameter(defaultValue = "${project}", readonly = true, required = true)
+  private MavenProject project;
+
+  private static final String[] INCLUDES = new String[]{
+    "**"
+  };
+  private static final String[] EXCLUDES = new String[]{
+    "META-INF/**/*",
+    "**/*.properties",
+    "**/*.xml",
+    "**/*.class"
+  };
+
+  public MavenProject getProject() {
+    return project;
+  }
+
+  protected String[] getThemeFiles(final File sourceDir) {
+    final DirectoryScanner scanner = new DirectoryScanner();
+    scanner.setBasedir(sourceDir);
+    scanner.setIncludes(INCLUDES);
+    scanner.setExcludes(EXCLUDES);
+    scanner.scan();
+    return scanner.getIncludedFiles();
+  }
+
+  public String[] getIncludes() {
+    return INCLUDES;
+  }
+
+  public String[] getExcludes() {
+    return EXCLUDES;
+  }
+
+
+}
+
+```
+
+ the error is triggered in the following specific lines in the previous code:
+
+```java
+import org.codehaus.plexus.util.DirectoryScanner;
+```
+```java
+import org.apache.maven.project.MavenProject;
+```
+```java
+
+```
+```java
+return project;
+```
+
+
+ And here is the error message:
+[ERROR] /myfaces-tobago/tobago-tool/tobago-theme-plugin/src/main/java/org/apache/myfaces/tobago/maven/plugin/AbstractThemeMojo.java:[25,32] package org.apache.maven.project does not exist
+
+[ERROR] /myfaces-tobago/tobago-tool/tobago-theme-plugin/src/main/java/org/apache/myfaces/tobago/maven/plugin/AbstractThemeMojo.java:[24,32] package org.apache.maven.project does not exist
+
+[ERROR] /myfaces-tobago/tobago-tool/tobago-theme-plugin/src/main/java/org/apache/myfaces/tobago/maven/plugin/AbstractThemeMojo.java:[36,11] cannot find symbol
+  symbol:   class MavenProject
+  location: class org.apache.myfaces.tobago.maven.plugin.AbstractThemeMojo
+
+[ERROR] /myfaces-tobago/tobago-tool/tobago-theme-plugin/src/main/java/org/apache/myfaces/tobago/maven/plugin/AbstractThemeMojo.java:[48,10] cannot find symbol
+  symbol:   class MavenProject
+  location: class org.apache.myfaces.tobago.maven.plugin.AbstractThemeMojo
+
+
+
+ Before proposing a fix, please analyze the error message and client code. Wrap your analysis inside <code_analysis> tags:
+
+<code_analysis>
+1. Examine the error message:
+   - Identify the specific issue related to the dependency update.
+   - Note the line number or method where the error occurs.
+   - Determine which dependency and version is causing the issue.
+
+2. Review the client code:
+   - Locate the problematic areas mentioned in the error message.
+   - Identify any related code that might be affected by the changes.
+
+3. Consider potential fixes that adhere to the following constraints:
+   - Do not change any function signatures.
+   - Only remove the @Override annotation if the method no longer overrides a method in the updated dependency version.
+   - Ensure correct imports are used, considering the newer dependency version.
+   - Avoid removing existing code unless it directly causes a compilation or functionality error.
+
+4. Plan the necessary changes to fix the issue:
+   - List the specific modifications required.
+   - Consider potential side effects of the proposed changes.
+   - Ensure the fix addresses the root cause of the error.
+</code_analysis>
+
+Based on your analysis, propose a patch to fix the issue. Your response should be a complete and compilable Java class in a fenced code block. Adhere to these guidelines:
+
+1. Do not change any function signatures.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Avoid removing any existing code unless it directly causes a compilation or functionality error.
+6. Ensure the entire class is included and that it will compile correctly.
+
+Please provide your fixed class in the following format:
+
+```java
+// Your complete, fixed Java class here
+```
+
+Remember to focus specifically on issues related to the dependency update when proposing your fix.
+ 

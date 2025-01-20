@@ -1,0 +1,9 @@
+29c29,30
+< import org.apache.commons.io.input.ClosedInputStream;
+---
+> import org.apache.commons.io.IOUtils; // Updated import
+> import org.apache.commons.io.input.CloseShieldInputStream; // Updated import
+401c402
+<             return new ClosedInputStream();
+---
+>             return new CloseShieldInputStream(new ByteArrayInputStream(EMPTY_BYTE_ARRAY)); // Updated to use CloseShieldInputStream

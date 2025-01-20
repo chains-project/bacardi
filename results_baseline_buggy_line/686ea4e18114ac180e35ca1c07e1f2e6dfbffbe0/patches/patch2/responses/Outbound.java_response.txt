@@ -1,0 +1,38 @@
+package com.wire.lithium.healthchecks;
+
+import com.codahale.metrics.health.HealthCheck;
+import com.wire.lithium.API;
+import com.wire.lithium.server.monitoring.MDCUtils;
+import com.wire.xenon.tools.Logger;
+
+// Updated import for the Client class based on the new dependency version
+import jakarta.ws.rs.client.Client; // Changed from javax to jakarta
+import jakarta.ws.rs.core.Response; // Changed from javax to jakarta
+
+public class Outbound extends HealthCheck {
+    private final Client client;
+
+    public Outbound(Client client) {
+        this.client = client;
+    }
+
+    @Override
+    protected Result check() {
+        MDCUtils.put("healthCheck", "Outbound"); // tag the logs with health check
+        Logger.debug("Starting Outbound healthcheck");
+        API api = new API(client, null);
+
+        try {
+            Response response = api.status();
+            String s = response.readEntity(String.class);
+            int status = response.getStatus();
+            return status == 200 ? Result.healthy() : Result.unhealthy(String.format("%s. status: %d", s, status));
+        } catch (Exception e) {
+            final String message = String.format("Unable to reach: %s, error: %s", api.getWireHost(), e.getMessage());
+            Logger.exception(message, e);
+            return Result.unhealthy(message);
+        } finally {
+            Logger.debug("Finished Outbound healthcheck");
+        }
+    }
+}

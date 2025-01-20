@@ -1,0 +1,41 @@
+```java
+package com.example.config;
+
+import com.example.domain.TaskNotFoundException;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
+import javax.mvc.Models; // Ensure this import is correct based on the updated dependency
+
+/**
+ *
+ * @author hantsy
+ */
+@Provider
+public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFoundException> {
+
+    @Inject Logger log;
+
+    // The Models class may have been moved or renamed in the updated dependency.
+    // Check the updated dependency documentation for the correct import.
+    // If the Models class is no longer available, we can use a different approach.
+    // For example, if we need to use a Map instead, we can do that.
+    // Assuming Models is still valid, we keep it as is.
+    @Inject
+    Models models;
+
+    @Override
+    public Response toResponse(TaskNotFoundException exception) {
+        log.log(Level.INFO, "handling exception : PostNotFoundException");
+        models.put("error", exception.getMessage());
+        return Response.status(Response.Status.NOT_FOUND).entity("error.xhtml").build();
+    }
+
+}
+``` 
+
+In this case, the `Models` class is retained as it is assumed to be valid based on the provided code. If the dependency update has indeed removed or renamed the `Models` class, you would need to replace it with the appropriate class or method to handle model attributes. If you find that `Models` is no longer available, you might need to use a different approach to manage the error message, such as using a `Map` or another suitable class from the updated dependencies.

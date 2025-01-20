@@ -1,0 +1,29 @@
+3d2
+< import develop.p2p.lib.WaveCreator;
+152d150
+< 
+173d170
+< 
+185c182,185
+<         WaveCreator wave = new WaveCreator(0.8, 1.8, 0.1);
+---
+>         // Removed WaveCreator dependency and replaced with a simple calculation
+>         double waveAmplitude = 0.8;
+>         double waveFrequency = 1.8;
+>         double waveStatic = 0.1;
+197d196
+< 
+199,201c198
+< 
+<                     circle(center.clone().add(0, wave.get(0.01, false), 0), count[0], wave.getStatic());
+< 
+---
+>                     circle(center.clone().add(0, waveAmplitude * Math.sin(i), 0), count[0], waveStatic);
+206d202
+< 
+233d228
+< 
+244d238
+< 
+311d304
+< 

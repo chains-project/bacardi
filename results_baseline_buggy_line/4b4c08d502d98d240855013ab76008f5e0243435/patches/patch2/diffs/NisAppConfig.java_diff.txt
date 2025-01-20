@@ -1,0 +1,12 @@
+108,112c108,112
+<                 final org.flywaydb.core.Flyway flyway = new Flyway();
+<                 flyway.setDataSource(this.dataSource());
+<                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+<                 flyway.setLocations(prop.getProperty("flyway.locations"));
+<                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+---
+>                 final Flyway flyway = Flyway.configure() // Updated to use the new configuration method
+>                                 .dataSource(this.dataSource())
+>                                 .locations(prop.getProperty("flyway.locations"))
+>                                 .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
+>                                 .load();

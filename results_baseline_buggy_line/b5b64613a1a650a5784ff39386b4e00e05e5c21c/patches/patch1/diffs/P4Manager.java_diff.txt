@@ -1,0 +1,15 @@
+13a14,16
+> import hudson.model.ItemGroup; // Added import for ItemGroup
+> import hudson.model.Item; // Added import for Item
+> import org.jenkinsci.plugins.p4.workspace.Workspace; // Added import for Workspace
+27a31,32
+>     private ItemGroup itemGroup; // Added variable to hold ItemGroup
+>     private Item item; // Added variable to hold Item
+30a36,37
+>         this.itemGroup = build.getProject().getParent(); // Initialize itemGroup
+>         this.item = build.getProject(); // Initialize item
+44c51,52
+<                 ClientHelper perforceClient = new ClientHelper(credentials, buildListener, clientString, StandardCharsets.UTF_8.toString());
+---
+>                 Workspace workspace = new Workspace(itemGroup, clientString); // Create Workspace instance
+>                 ClientHelper perforceClient = new ClientHelper(item, credentials, buildListener, workspace); // Updated constructor call

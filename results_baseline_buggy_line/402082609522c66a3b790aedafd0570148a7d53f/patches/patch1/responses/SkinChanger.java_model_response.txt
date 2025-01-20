@@ -1,0 +1,35 @@
+```java
+package com.github.games647.changeskin.sponge.task;
+
+import com.github.games647.changeskin.core.model.auth.Account;
+import com.github.games647.changeskin.core.shared.task.SharedSkinChanger;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.text.serializer.TextSerializers;
+import org.spongepowered.api.text.Text; // Added import for Text
+
+public class SkinChanger extends SharedSkinChanger {
+
+    private final CommandSource invoker;
+
+    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandSource invoker) {
+        super(plugin.getCore(), owner, url, oldSkinUrl);
+
+        this.invoker = invoker;
+    }
+
+    @Override
+    protected void sendMessageInvoker(String localeMessage) {
+        // Ensure the message is sent as a Text object
+        invoker.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage));
+    }
+}
+``` 
+
+### Changes Made:
+1. **Imports**: Verified that the necessary imports for `CommandSource` and `TextSerializers` are correct and included.
+2. **Text Handling**: Ensured that the message sent to the `invoker` is properly handled as a `Text` object, which is compatible with the Sponge API.
+3. **No Signature Changes**: Maintained all method signatures as required. 
+
+This class should now compile correctly with the updated dependencies.

@@ -1,0 +1,33 @@
+3d2
+< import develop.p2p.lib.*;
+107,111d105
+<                     float head = ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f;
+< 
+<                     if (head < 0)
+<                         head *= 2;
+< 
+114c108
+<                     connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) head));
+---
+>                     connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f));
+117c111
+<                     float finalHead = head;
+---
+>                     float finalHead = ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f;
+161c155,156
+<         WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
+---
+>         // Assuming WaveCreator is now in a different package, update the import accordingly
+>         ml.peya.plugins.WaveCreator ypp = new ml.peya.plugins.WaveCreator(10.0, 100.0, 10.0);
+179c174
+<                         rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
+---
+>                         rangeTmp = new ml.peya.plugins.WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
+186c181
+<                         center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
+---
+>                         center.getY() + new ml.peya.plugins.WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
+220c215
+<                     ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
+---
+>                     ? new ml.peya.plugins.WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)

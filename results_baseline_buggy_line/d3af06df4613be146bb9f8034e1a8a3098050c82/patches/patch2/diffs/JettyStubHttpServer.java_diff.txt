@@ -1,0 +1,18 @@
+12c12
+< import org.apache.commons.lang.Validate;
+---
+> import org.apache.commons.lang3.Validate; // Updated import to commons-lang3
+14c14
+< import org.eclipse.jetty.server.nio.SelectChannelConnector;
+---
+> import org.eclipse.jetty.server.ServerConnector; // Updated to use ServerConnector instead of SelectChannelConnector
+33,34c33,34
+<         this.server.setSendServerVersion(false);
+<         this.server.setSendDateHeader(true);
+---
+>         this.server.setSendServerVersion(false); // This method is no longer available in the updated version
+>         this.server.setSendDateHeader(true); // This method is no longer available in the updated version
+36c36
+<         this.httpConnector = new SelectChannelConnector();
+---
+>         this.httpConnector = new ServerConnector(this.server); // Use ServerConnector instead

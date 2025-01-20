@@ -1,0 +1,30 @@
+15,17c15
+< import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
+< import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
+< import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
+---
+> import com.pubnub.api.models.consumer.objects_api.channel.PNChannelMetadataResult; // Updated import
+59c57
+<                     //              e.onComplete();
+---
+>                     e.onComplete();
+61c59
+<                     //              e.onError(pnStatus.getErrorData().getThrowable());
+---
+>                     e.onError(pnStatus.getErrorData().getThrowable());
+94,105c92,93
+<                 public void user(PubNub pubnub, PNUserResult pnUserResult) {
+<                   LOG.debug("PubNub user: {}", pnUserResult.toString());
+<                 }
+< 
+<                 @Override
+<                 public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
+<                   LOG.debug("PubNub space: {}", pnSpaceResult.toString());
+<                 }
+< 
+<                 @Override
+<                 public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
+<                   LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
+---
+>                 public void channel(PubNub pubnub, PNChannelMetadataResult pnChannelMetadataResult) { // Added method to satisfy interface
+>                   LOG.debug("PubNub channel: {}", pnChannelMetadataResult.toString());

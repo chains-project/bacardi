@@ -1,0 +1,50 @@
+```java
+package com.example;
+
+import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+import jakarta.mvc.event.AfterControllerEvent; // Updated import
+import jakarta.mvc.event.AfterProcessViewEvent; // Updated import
+import jakarta.mvc.event.BeforeControllerEvent; // Updated import
+import jakarta.mvc.event.BeforeProcessViewEvent; // Updated import
+import jakarta.mvc.event.ControllerRedirectEvent; // Updated import
+
+@ApplicationScoped
+public class MvcEventListener {
+
+    @Inject
+    Logger LOGGER;
+
+    private void onControllerMatched(@Observes BeforeControllerEvent event) {
+        LOGGER.info(() -> "Controller matched for " + event.getUriInfo().getRequestUri());
+    }
+
+    private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
+        LOGGER.info(() -> "View engine: " + event.getEngine());
+    }
+
+    private void onAfterControllerEvent(@Observes AfterControllerEvent event) {
+        LOGGER.info(() -> "AfterControllerEvent:: " + event.getResourceInfo());
+    }
+
+    private void onAfterProcessViewEvent(@Observes AfterProcessViewEvent event) {
+        LOGGER.info(() -> "AfterProcessViewEvent:: " + event);
+    }
+    
+    private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
+        LOGGER.info(() -> "ControllerRedirectEvent:: " + event);
+    }
+
+    @PostConstruct
+    private void init() {
+        LOGGER.config(() -> this.getClass().getSimpleName() + " created");
+    }
+}
+``` 
+
+### Summary of Changes:
+1. Updated the import statements to use the `jakarta.mvc.event` package instead of `javax.mvc.event`, reflecting the changes in the dependency version.
+2. No changes were made to method signatures or existing code logic, ensuring the functionality remains intact while resolving the compilation errors.

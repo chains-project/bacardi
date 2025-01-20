@@ -1,0 +1,21 @@
+17a18
+> import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult; // Added import for PNFileEventResult
+40,41c41
+<     PNConfiguration pnConfiguration = new PNConfiguration();
+<     pnConfiguration.setSubscribeKey(publicKey);
+---
+>     PNConfiguration pnConfiguration = new PNConfiguration(publicKey); // Updated constructor
+59c59
+<                     //              e.onComplete();
+---
+>                     e.onComplete(); // Uncommented to signal completion
+61c61
+<                     //              e.onError(pnStatus.getErrorData().getThrowable());
+---
+>                     e.onError(pnStatus.getErrorData().getThrowable()); // Uncommented to signal error
+112a113,117
+> 
+>                 @Override
+>                 public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) { // Added method to implement the new abstract method
+>                   LOG.debug("PubNub file: {}", pnFileEventResult.toString());
+>                 }

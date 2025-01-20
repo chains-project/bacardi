@@ -1,0 +1,11 @@
+12c12,13
+< import javax.ws.rs.client.Client;
+---
+> import javax.ws.rs.client.Client; // Ensure this import is correct
+> import javax.ws.rs.client.ClientBuilder; // Add this import for creating a Client instance
+30,31c31,32
+<         WireAPI api = new API(httpClient, state.token);
+<         return new BotClient(api, crypto, state);
+---
+>         WireAPI api = new WireAPI(httpClient, state.token); // Ensure WireAPI is correctly instantiated
+>         return new WireClient(api, crypto, state); // Ensure WireClient is correctly instantiated

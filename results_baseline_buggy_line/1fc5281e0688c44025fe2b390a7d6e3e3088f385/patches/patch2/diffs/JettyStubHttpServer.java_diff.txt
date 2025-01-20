@@ -1,0 +1,14 @@
+12c12
+< import org.eclipse.jetty.server.nio.SelectChannelConnector;
+---
+> import org.eclipse.jetty.server.ServerConnector; // Updated import
+33,34c33,34
+<         this.server.setSendServerVersion(false);
+<         this.server.setSendDateHeader(true);
+---
+>         this.server.setAttribute("org.eclipse.jetty.server.Server.sendServerVersion", false); // Updated method
+>         this.server.setAttribute("org.eclipse.jetty.server.Server.sendDateHeader", true); // Updated method
+36c36
+<         this.httpConnector = new SelectChannelConnector();
+---
+>         this.httpConnector = new ServerConnector(server); // Updated to use ServerConnector

@@ -1,0 +1,67 @@
+```java
+package ml.peya.plugins.Learn;
+
+import java.util.ArrayList;
+
+// Update the import statement to the correct package for the sigmoid function
+import ml.peya.plugins.math.LearnMath; // Corrected import statement
+
+/**
+ * 重みを突っ込む器。
+ */
+public class Neuron
+{
+    /**
+     * 加算したWeight。
+     */
+    private double sum;
+
+    /**
+     * 入力用値。
+     */
+    private double value = 0.0;
+
+    /**
+     * ゲッター。
+     *
+     * @return value参照。
+     */
+    public double getValue()
+    {
+        return value;
+    }
+
+    /**
+     * セッター。
+     *
+     * @param value value参照。
+     */
+    public void setValue(double value)
+    {
+        this.value = value;
+    }
+
+    /**
+     * ReLU関数で値を強めて出力系に入れる。
+     *
+     * @param inputData InputクラスのArrayListデータ。
+     */
+    public void input(ArrayList<Input> inputData)
+    {
+        inputData.parallelStream().forEachOrdered(input -> input(input.getWeightingValue()));
+        setValue(LearnMath.sigmoid(sum)); // Updated to use the correct method reference
+    }
+
+    /**
+     * input(ArrayList)のオーバーロード。
+     *
+     * @param value sumに加算する値。
+     */
+    public void input(double value)
+    {
+        sum += value;
+    }
+}
+``` 
+
+In this patch, I corrected the import statement to import the `LearnMath` class instead of trying to import the `sigmoid` method directly. This allows us to call `LearnMath.sigmoid(sum)` in the `input` method, resolving the compilation errors related to the missing package and method.

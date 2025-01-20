@@ -1,0 +1,125 @@
+1,7d0
+< /**
+<  * Copyright (c) 2012 to original author or authors
+<  * All rights reserved. This program and the accompanying materials
+<  * are made available under the terms of the Eclipse Public License v1.0
+<  * which accompanies this distribution, and is available at
+<  * http://www.eclipse.org/legal/epl-v10.html
+<  */
+29,35d21
+< /**
+<  * YAML model representer.
+<  *
+<  * @author jvanzyl
+<  * @author bentmann
+<  * @since 0.7
+<  */
+37a24
+>     super(); // Explicitly call the super constructor
+47,73c34,47
+<   protected NodeTuple representJavaBeanProperty(Object javaBean, Property property,
+<                                                 Object propertyValue, Tag customTag) {
+<     if (property != null && property.getName().equals("pomFile")) {
+<       // "pomFile" is not a part of POM http://maven.apache.org/xsd/maven-4.0.0.xsd
+<       return null;
+<     }
+< 
+<     if (propertyValue == null) return null;
+<     if (propertyValue instanceof Map) {
+<       Map map = (Map) propertyValue;
+<       if (map.isEmpty()) return null;
+<     }
+<     if (propertyValue instanceof List) {
+<       List map = (List) propertyValue;
+<       if (map.isEmpty()) return null;
+<     }
+<     if (javaBean instanceof Dependency) {
+<       //skip optional if it is false
+<       if (skipBoolean(property, "optional", propertyValue, false)) return null;
+<       //skip type if it is jar
+<       if (skipString(property, "type", propertyValue, "jar")) return null;
+<     }
+<     if (javaBean instanceof Plugin) {
+<       //skip extensions if it is false
+<       if (skipBoolean(property, "extensions", propertyValue, false)) return null;
+<       //skip inherited if it is true
+<       if (skipBoolean(property, "inherited", propertyValue, true)) return null;
+---
+>   protected Set<Property> getProperties(Class<? extends Object> type)
+>           throws IntrospectionException {
+>     if (type.isAssignableFrom(Model.class)) {
+>       return sortTypeWithOrder(type, ORDER_MODEL);
+>     } else if (type.isAssignableFrom(Developer.class)) {
+>       return sortTypeWithOrder(type, ORDER_DEVELOPER);
+>     } else if (type.isAssignableFrom(Contributor.class)) {
+>       return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
+>     } else if (type.isAssignableFrom(Dependency.class)) {
+>       return sortTypeWithOrder(type, ORDER_DEPENDENCY);
+>     } else if (type.isAssignableFrom(Plugin.class)) {
+>       return sortTypeWithOrder(type, ORDER_PLUGIN);
+>     } else {
+>       return super.getProperties(type);
+75d48
+<     return super.representJavaBeanProperty(javaBean, property, propertyValue, customTag);
+94d66
+< 
+168,170c140
+<   // Model elements order {
+<   //TODO move to polyglot-common, or to org.apache.maven:maven-model
+<   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
+---
+>   private static List<String> ORDER_MODEL = new ArrayList<>(Arrays.asList(
+178d147
+< 
+191d159
+< 
+198,199d165
+<           //"repositories",
+<           //"pluginRepositories",
+204c170
+<   private static List<String> ORDER_DEVELOPER = new ArrayList<String>(Arrays.asList(
+---
+>   private static List<String> ORDER_DEVELOPER = new ArrayList<>(Arrays.asList(
+206c172
+<   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<String>(Arrays.asList(
+---
+>   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<>(Arrays.asList(
+208c174
+<   private static List<String> ORDER_DEPENDENCY = new ArrayList<String>(Arrays.asList(
+---
+>   private static List<String> ORDER_DEPENDENCY = new ArrayList<>(Arrays.asList(
+210c176
+<   private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
+---
+>   private static List<String> ORDER_PLUGIN = new ArrayList<>(Arrays.asList(
+212,233d177
+<   //}
+< 
+<   /*
+<    * Change the default order. Important data goes first.
+<    */
+<   @Override
+<   protected Set<Property> getProperties(Class<? extends Object> type)
+<           throws IntrospectionException {
+<     if (type.isAssignableFrom(Model.class)) {
+<       return sortTypeWithOrder(type, ORDER_MODEL);
+<     } else if (type.isAssignableFrom(Developer.class)) {
+<       return sortTypeWithOrder(type, ORDER_DEVELOPER);
+<     } else if (type.isAssignableFrom(Contributor.class)) {
+<       return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
+<     }  else if (type.isAssignableFrom(Dependency.class)) {
+<       return sortTypeWithOrder(type, ORDER_DEPENDENCY);
+<     }  else if (type.isAssignableFrom(Plugin.class)) {
+<       return sortTypeWithOrder(type, ORDER_PLUGIN);
+<     } else {
+<       return super.getProperties(type);
+<     }
+<   }
+238c182
+<       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
+---
+>     Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));
+251d194
+<       // important go first
+258d200
+<       // all the rest

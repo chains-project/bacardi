@@ -1,0 +1,32 @@
+107c107
+<             public void entryUpdated(EntryEvent event) {
+---
+>             public void entryUpdated(EntryEvent<K, V> event) {
+111c111
+<                     clusteredCacheEntryListener.entryUpdated((K) event.getKey(), (V) event.getOldValue(), (V) event.getValue(), eventNodeId);
+---
+>                     clusteredCacheEntryListener.entryUpdated(event.getKey(), event.getOldValue(), event.getValue(), eventNodeId);
+116c116
+<             public void entryRemoved(EntryEvent event) {
+---
+>             public void entryRemoved(EntryEvent<K, V> event) {
+120c120
+<                     clusteredCacheEntryListener.entryRemoved((K) event.getKey(), (V) event.getOldValue(), eventNodeId);
+---
+>                     clusteredCacheEntryListener.entryRemoved(event.getKey(), event.getOldValue(), eventNodeId);
+125c125
+<             public void entryEvicted(EntryEvent event) {
+---
+>             public void entryEvicted(EntryEvent<K, V> event) {
+129c129
+<                     clusteredCacheEntryListener.entryEvicted((K) event.getKey(), (V) event.getOldValue(), eventNodeId);
+---
+>                     clusteredCacheEntryListener.entryEvicted(event.getKey(), event.getOldValue(), eventNodeId);
+134c134
+<             public void entryAdded(EntryEvent event) {
+---
+>             public void entryAdded(EntryEvent<K, V> event) {
+138c138
+<                     clusteredCacheEntryListener.entryAdded((K) event.getKey(), (V) event.getValue(), eventNodeId);
+---
+>                     clusteredCacheEntryListener.entryAdded(event.getKey(), event.getValue(), eventNodeId);

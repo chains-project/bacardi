@@ -1,0 +1,9 @@
+140c140,145
+<                 final CoverTree<PVector> tree = CoverTree.create(3, 2, circleDistanceMetric);
+---
+>                 final CoverTree<PVector> tree = CoverTree.create(3, 2, new PointDistanceFunction<PVector>() {
+>                         @Override
+>                         public double distance(PVector a, PVector b) {
+>                                 return PVector.dist(a, b);
+>                         }
+>                 });

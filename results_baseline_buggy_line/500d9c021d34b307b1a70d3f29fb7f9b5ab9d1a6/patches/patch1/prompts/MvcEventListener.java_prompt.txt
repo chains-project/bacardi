@@ -1,0 +1,160 @@
+ You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates.
+Your task is to analyze the provided code and error message, then propose a patch that can be applied to the client code to resolve the issue.
+
+ Here is the client code that is failing:
+```java
+package com.example;
+
+import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+import javax.mvc.event.AfterControllerEvent;
+import javax.mvc.event.AfterProcessViewEvent;
+import javax.mvc.event.BeforeControllerEvent;
+import javax.mvc.event.BeforeProcessViewEvent;
+import javax.mvc.event.ControllerRedirectEvent;
+
+@ApplicationScoped
+public class MvcEventListener {
+
+    @Inject
+    Logger LOGGER;
+
+    private void onControllerMatched(@Observes BeforeControllerEvent event) {
+        LOGGER.info(() -> "Controller matched for " + event.getUriInfo().getRequestUri());
+    }
+
+    private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
+        LOGGER.info(() -> "View engine: " + event.getEngine());
+    }
+
+    private void onAfterControllerEvent(@Observes AfterControllerEvent event) {
+        LOGGER.info(() -> "AfterControllerEvent:: " + event.getResourceInfo());
+    }
+
+    private void onAfterProcessViewEvent(@Observes AfterProcessViewEvent event) {
+        LOGGER.info(() -> "AfterProcessViewEvent:: " + event);
+    }
+    
+     private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
+        LOGGER.info(() -> "ControllerRedirectEvent:: " + event);
+    }
+
+    @PostConstruct
+    private void init() {
+        LOGGER.config(() -> this.getClass().getSimpleName() + " created");
+    }
+}
+
+```
+
+ the error is triggered in the following specific lines in the previous code:
+
+```java
+private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
+```
+```java
+private void onAfterControllerEvent(@Observes AfterControllerEvent event) {
+```
+```java
+private void onControllerMatched(@Observes BeforeControllerEvent event) {
+```
+```java
+private void onAfterProcessViewEvent(@Observes AfterProcessViewEvent event) {
+```
+```java
+import javax.mvc.event.AfterProcessViewEvent;
+```
+```java
+import javax.mvc.event.BeforeControllerEvent;
+```
+```java
+import javax.mvc.event.ControllerRedirectEvent;
+```
+```java
+import javax.mvc.event.BeforeProcessViewEvent;
+```
+```java
+import javax.mvc.event.AfterControllerEvent;
+```
+```java
+private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
+```
+
+
+ And here is the error message:
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[36,55] cannot find symbol
+  symbol:   class ControllerRedirectEvent
+  location: class com.example.MvcEventListener
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[28,51] cannot find symbol
+  symbol:   class AfterControllerEvent
+  location: class com.example.MvcEventListener
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[20,48] cannot find symbol
+  symbol:   class BeforeControllerEvent
+  location: class com.example.MvcEventListener
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[32,52] cannot find symbol
+  symbol:   class AfterProcessViewEvent
+  location: class com.example.MvcEventListener
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[9,23] package javax.mvc.event does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[10,23] package javax.mvc.event does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[12,23] package javax.mvc.event does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[11,23] package javax.mvc.event does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[8,23] package javax.mvc.event does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[24,49] cannot find symbol
+  symbol:   class BeforeProcessViewEvent
+  location: class com.example.MvcEventListener
+
+
+
+ Before proposing a fix, please analyze the error message and client code. Wrap your analysis inside <code_analysis> tags:
+
+<code_analysis>
+1. Examine the error message:
+   - Identify the specific issue related to the dependency update.
+   - Note the line number or method where the error occurs.
+   - Determine which dependency and version is causing the issue.
+
+2. Review the client code:
+   - Locate the problematic areas mentioned in the error message.
+   - Identify any related code that might be affected by the changes.
+
+3. Consider potential fixes that adhere to the following constraints:
+   - Do not change any function signatures.
+   - Only remove the @Override annotation if the method no longer overrides a method in the updated dependency version.
+   - Ensure correct imports are used, considering the newer dependency version.
+   - Avoid removing existing code unless it directly causes a compilation or functionality error.
+
+4. Plan the necessary changes to fix the issue:
+   - List the specific modifications required.
+   - Consider potential side effects of the proposed changes.
+   - Ensure the fix addresses the root cause of the error.
+</code_analysis>
+
+Based on your analysis, propose a patch to fix the issue. Your response should be a complete and compilable Java class in a fenced code block. Adhere to these guidelines:
+
+1. Do not change any function signatures.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Avoid removing any existing code unless it directly causes a compilation or functionality error.
+6. Ensure the entire class is included and that it will compile correctly.
+
+Please provide your fixed class in the following format:
+
+```java
+// Your complete, fixed Java class here
+```
+
+Remember to focus specifically on issues related to the dependency update when proposing your fix.
+ 

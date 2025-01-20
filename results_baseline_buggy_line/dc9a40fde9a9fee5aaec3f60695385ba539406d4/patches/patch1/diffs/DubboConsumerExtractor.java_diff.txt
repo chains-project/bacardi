@@ -1,0 +1,16 @@
+20a21
+> 
+24a26
+> 
+43c45,49
+<             RpcContext.getContext().setFuture(asyncRpcResult);
+---
+>             // Convert AsyncRpcResult to CompletableFuture if necessary
+>             CompletableFuture<Object> future = asyncRpcResult.getValue() instanceof Throwable
+>                     ? CompletableFuture.failedFuture((Throwable) asyncRpcResult.getValue())
+>                     : CompletableFuture.completedFuture(asyncRpcResult.getValue());
+>             RpcContext.getContext().setFuture(future);
+45c51
+<             FutureContext.getContext().setCompatibleFuture(asyncRpcResult);
+---
+>             FutureContext.getContext().setCompatibleFuture(future);

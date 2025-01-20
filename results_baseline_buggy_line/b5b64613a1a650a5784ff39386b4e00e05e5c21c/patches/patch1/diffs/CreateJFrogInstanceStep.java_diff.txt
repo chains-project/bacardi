@@ -1,0 +1,13 @@
+21d20
+< import static org.apache.commons.lang3.StringUtils.isAllBlank;
+199a199,208
+> 
+>         // Custom implementation of isAllBlank since it is no longer available
+>         private boolean isAllBlank(String... values) {
+>             for (String value : values) {
+>                 if (isNotBlank(value)) {
+>                     return false;
+>                 }
+>             }
+>             return true;
+>         }

@@ -1,0 +1,8 @@
+32,33c32,35
+<                 Configuration configuration = Flyway.configure().dataSource(this.dataSource()).locations("db/h2");
+<                 return new Flyway(configuration);
+---
+>                 Configuration configuration = Flyway.configure()
+>                         .dataSource(this.dataSource())
+>                         .locations("db/h2");
+>                 return Flyway.configure().configuration(configuration).load();

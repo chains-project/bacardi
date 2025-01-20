@@ -1,0 +1,19 @@
+27a28
+> import com.google.cloud.pubsublite.internal.wire.PartitionPublisherFactory; // Added import for PartitionPublisherFactory
+49,50c50,53
+<         partition ->
+<             SinglePartitionPublisherBuilder.newBuilder()
+---
+>         partition -> {
+>             // Ensure the partition is of the correct type
+>             int partitionId = (int) partition; // Cast to int if necessary
+>             return SinglePartitionPublisherBuilder.newBuilder()
+52c55
+<                 .setPartition(partition)
+---
+>                 .setPartition(partitionId) // Use the correct type for partition
+54c57,58
+<                 .build());
+---
+>                 .build();
+>         });

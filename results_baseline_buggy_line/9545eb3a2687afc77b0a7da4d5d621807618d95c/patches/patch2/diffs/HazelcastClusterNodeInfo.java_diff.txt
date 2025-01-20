@@ -1,0 +1,11 @@
+24c24
+< import com.hazelcast.core.Member;
+---
+> import com.hazelcast.core.Member; // Ensure this import is correct based on the updated dependency
+42c42,45
+<         this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";
+---
+>         // Ensure that the member object is correctly used based on the updated Hazelcast API
+>         String hostNameAttribute = member.getStringAttribute(HOST_NAME_ATTRIBUTE);
+>         String socketAddressHost = member.getSocketAddress().getHostString();
+>         this.hostname = hostNameAttribute + " (" + socketAddressHost + ")";

@@ -1,0 +1,8 @@
+4a5
+> import org.eclipse.jetty.servlet.FilterHolder; // Updated import for Jetty FilterHolder
+5a7
+> import javax.servlet.Filter; // Added import for javax.servlet.Filter
+77c79
+<                 .servlets().addFilter(filter.getClass().getName(), filter);
+---
+>                 .servlets().addFilter(filter.getClass().getName(), (Filter) filter); // Cast to Filter
