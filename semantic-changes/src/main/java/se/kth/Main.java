@@ -1,54 +1,70 @@
 package se.kth;
 
-import se.kth.instrumentation.Instrumenter;
-import se.kth.instrumentation.ModelBuilder;
+import com.github.dockerjava.api.model.HostConfig;
+import com.github.dockerjava.api.model.Mount;
+import com.github.dockerjava.api.model.MountType;
+import picocli.CommandLine;
 import se.kth.instrumentation.ProjectExtractor;
-import se.kth.instrumentation.model.TargetMethod;
 import se.kth.util.Config;
-import spoon.reflect.CtModel;
-import spoon.reflect.cu.CompilationUnit;
-import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtMethod;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-public class Main {
+public class Main implements Runnable {
+
+    @CommandLine.Option(
+            names = {"-o", "--oldVersion"},
+            description = "Name of the docker image of the old version",
+            required = true)
+    static String oldVersionImage = "ghcr.io/chains-project/breaking-updates:jsoup-1.7.1";
+
+    @CommandLine.Option(
+            names = {"-n", "--newVersion"},
+            description = "Name of the docker image of the new version",
+            required = true)
+    static String newVersionImage = "ghcr.io/chains-project/breaking-updates:jsoup-1.7.3";
+
+    @CommandLine.Option(
+            names = {"-a", "--agentPath"},
+            description = "Path to the jar of the semantic agent",
+            required = true)
+    static Path semanticAgentPath = Path.of("/home", "leonard", "code", "java", "semantic-agent", "target", "semantic" +
+            "-agent-1.0-SNAPSHOT.jar");
+
+    @CommandLine.Option(
+            names = {"-m", "--methodName"},
+            description = "Fully qualified name (\"fqn.your.TargetClass#targetMethod\") of the method to instrument",
+            required = true)
+    static String methodName = "org.jsoup.nodes.Element#select";
+
+    @CommandLine.Option(
+            names = {"--outputPath"},
+            description = "Path to the directory where the output should be stored",
+            required = false)
+    static Path outputPath = Path.of("");
+
+
     public static void main(String[] args) {
-        List<String> images = List.of("ghcr.io/chains-project/breaking-updates:jsoup-1.7.1");
-
         DockerBuild dockerBuild = new DockerBuild(false);
-        Path extractedProjectsOutputDir = Config.getTmpDirPath().resolve("instrumentation-sources");
-        ProjectExtractor projectExtractor = new ProjectExtractor(dockerBuild, extractedProjectsOutputDir);
-        for (String image : images) {
-            Path sourcesPath = projectExtractor.extract(image).resolve("project");
+        Path extractedProjectsOutputDir = Config.getTmpDirPath().resolve("instrumentation-output");
+        HostConfig hostConfig = HostConfig.newHostConfig()
+                .withMounts(List.of(new Mount()
+                        .withSource(semanticAgentPath.toString())
+                        .withTarget("/instrumentation/semantic-agent-1.0-SNAPSHOT.jar")
+                        .withType(MountType.BIND)));
+        ProjectExtractor projectExtractor = new ProjectExtractor(dockerBuild, extractedProjectsOutputDir, hostConfig);
 
-            ModelBuilder modelBuilder = new ModelBuilder(sourcesPath);
-            CtModel model = modelBuilder.buildModel();
+        String[] entryPoint = String.format("mvn test -DargLine=\"-javaagent:/instrumentation/semantic-agent-1" +
+                ".0-SNAPSHOT.jar=%s\"", methodName).split(" ");
+        Path preOutputPath = projectExtractor.extract(oldVersionImage, entryPoint);
+        Path postOutputPath = projectExtractor.extract(newVersionImage, entryPoint);
+        System.out.println("Saved to path: " + preOutputPath);
+        System.out.println("Saved to path: " + postOutputPath);
+    }
 
-            Instrumenter instrumenter = new Instrumenter(model);
 
-            TargetMethod targetMethod = new TargetMethod("org.jsoup.nodes.Element", "prepend", List.of("java.lang" +
-                    ".String"));
-            CtMethod instrumentedMethod = instrumenter.instrumentForMethod(targetMethod);
-            CtClass methodClass = instrumentedMethod.getParent(CtClass.class);
+    @Override
+    public void run() {
 
-//            modelBuilder.saveModel(methodClass);
-            CompilationUnit compilationUnit = instrumentedMethod.getPosition().getCompilationUnit();
-            File outputFile = compilationUnit.getFile();
-            String output =
-                    modelBuilder.getLauncher().getEnvironment().createPrettyPrinter().printCompilationUnit(compilationUnit);
-            try (FileWriter writer = new FileWriter(outputFile)) {
-                writer.write(output);
-                System.out.println("File written to: " + outputFile.getAbsolutePath());
-            } catch (IOException e) {
-                System.err.println("Failed to write the modified file: " + e.getMessage());
-            }
-
-            System.out.println("done");
-        }
     }
 }
