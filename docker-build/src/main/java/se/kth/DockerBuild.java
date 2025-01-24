@@ -44,7 +44,7 @@ public class DockerBuild {
     public static final String BASE_IMAGE = "ghcr.io/chains-project/breaking-updates:base-image";
 
     private Boolean isBump = false;
-    private int max_attempts = 3;
+    private int max_attempts = 1;
 
     public DockerBuild(Boolean isBump, int max_attempts) {
         this.isBump = isBump;
@@ -402,7 +402,6 @@ public class DockerBuild {
         Map<String, String> startedContainers = new HashMap<>();
         int attemptCount;
 
-        // TODO: Why do reattempts here, do we not do it in the main loop in BacardiCore
         for (attemptCount = 1; attemptCount <= max_attempts; attemptCount++) {
 
             startedContainers.put("postContainer%s".formatted(attemptCount),
@@ -418,9 +417,7 @@ public class DockerBuild {
                 storeLogFile(startedContainers.get("postContainer%s".formatted(attemptCount)), client, logFile);
                 // stop the process and store the log file
                 log.info("Breaking commit failed in the {} attempt.", attemptCount);
-                // TODO: you are storing attempts here, why then recreate an attempt in the main
-                // BacardiCore loop
-                // why not return the result or the attempt
+                // TODO why faliure category is unknown failure
                 breakingUpdateReproductionResult.getAttempts()
                         .add(new Attempt(attemptCount, FailureCategory.UNKNOWN_FAILURE, logFile.getParent().toString(),
                                 false));
@@ -428,6 +425,7 @@ public class DockerBuild {
             } else {
                 log.info("Breaking commit did not fail in the {} attempt.", attemptCount);
                 // if (attemptCount == 3) {
+                // TODO:why successful is set to false not true
                 breakingUpdateReproductionResult.getAttempts()
                         .add(new Attempt(attemptCount, FailureCategory.BUILD_SUCCESS, logFile.getParent().toString(),
                                 false));

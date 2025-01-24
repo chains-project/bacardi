@@ -95,6 +95,7 @@ public class BacardiCore {
         result = new Result(failureCategory);
 
         int attempts = 1;
+        StoreInfo storeInfo = new StoreInfo(setupPipeline, true);
 
         while (failureCategory != FailureCategory.BUILD_SUCCESS && attempts <= MAX_ATTEMPTS) {
 
@@ -119,7 +120,7 @@ public class BacardiCore {
                     break;
                 case COMPILATION_FAILURE:
                     log.info("Compilation failure detected.");
-                    failureCategory = repairDirectCompilationFailure(gitManager);
+                    failureCategory = repairDirectCompilationFailure(gitManager, storeInfo);
                     break;
                 case DEPENDENCY_LOCK_FAILURE:
                     log.info("Dependency lock failure detected.");
@@ -137,10 +138,10 @@ public class BacardiCore {
                 default:
                     log.info("Unknown failure category.");
             }
-            // TODO: Why not return the result from the dockerbuild.reproduce method? how to
-            // get the patch number folder here
-            Attempt attempt = new Attempt(attempts, failureCategory, setupPipeline.getOutPutPatchFolder().toString(),
+
+            Attempt attempt = new Attempt(attempts, failureCategory, storeInfo.getPatchFolder().toString(),
                     failureCategory == FailureCategory.BUILD_SUCCESS);
+
             log.info("Attempt: {}", attempt);
             result.getAttempts().add(attempt);
             // number of attempts to repair the failure
@@ -165,7 +166,7 @@ public class BacardiCore {
      * @param gitManager the Git manager to handle repository operations
      * @return the new failure category after attempting the repair
      */
-    private FailureCategory repairDirectCompilationFailure(GitManager gitManager) {
+    private FailureCategory repairDirectCompilationFailure(GitManager gitManager, StoreInfo storeInfo) {
         // checking if the previous failure category is different from the current
         // failure category and create a new branch
         if (previousFailureCategory != failureCategory) {
@@ -206,11 +207,9 @@ public class BacardiCore {
             } else {
                 log.info("Constructs found in the direct compilation failure: {}", listOfFilesWithErrors.size());
 
-                StoreInfo storeInfo = new StoreInfo(setupPipeline, true);
-
                 List<CompletableFuture<Void>> futures = new ArrayList<>();
 
-                storeInfo.storePrefixErrorFiles(listOfFilesWithErrors);
+                storeInfo.storeFilesErrors("prefix", listOfFilesWithErrors);
 
                 listOfFilesWithErrors.forEach((key, value) -> {
                     log.info("File: {}", key);
@@ -280,6 +279,14 @@ public class BacardiCore {
                     dockerBuild.reproduce(setupPipeline.getDockerImage(), FailureCategory.COMPILATION_FAILURE,
                             setupPipeline.getClientFolder(), logFilePath);
                     setupPipeline.setLogFilePath(logFilePath);
+                    RepairDirectFailures rebuildDirectFailures = new RepairDirectFailures(
+                            setupPipeline.getDockerBuild(),
+                            setupPipeline);
+                    Map<String, Set<DetectedFileWithErrors>> listOfPostFixFilesWithErrors = getListOfFilesWithErrors(
+                            rebuildDirectFailures);
+                    StoreInfo postFixstoreInfo = new StoreInfo(setupPipeline, storeInfo.getPatchFolder());
+                    postFixstoreInfo.storeFilesErrors("postfix", listOfPostFixFilesWithErrors);
+
                 } else {
                     // no changes were made
                     return FailureCategory.NOT_REPAIRED;

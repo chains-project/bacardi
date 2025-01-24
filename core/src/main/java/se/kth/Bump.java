@@ -197,8 +197,7 @@ public class Bump {
                 String breakingImage = e.breakingUpdateReproductionCommand.replace("docker run ", "");
 
                 // get jar from container for previous version
-                PromptPipeline[] pipeline = { PromptPipeline.BASELINE_API_DIFF, PromptPipeline.BASELINE_BUGGY_LINE,
-                        PromptPipeline.BASELINE_ANTHROPIC_BUGGY };
+                PromptPipeline[] pipeline = { PromptPipeline.BASELINE_API_DIFF };
                 if (Arrays.asList(pipeline).contains(PIPELINE)) {
                     getProjectData(preBreakingImage, dockerBuild, clientFolder, null, null, prevoiusJarInContainerPath);
                 }
@@ -249,6 +248,8 @@ public class Bump {
         JsonUtils.writeToFile(Path.of(JSON_PATH), resultsMap);
         DockerBuild.deleteImage(
                 setupPipeline.getBreakingUpdate().breakingUpdateReproductionCommand.replace("docker run ", ""));
+        // TODO: isn't this image created in specific pipeline, shouldn't we add an
+        // if-statement
         DockerBuild
                 .deleteImage(setupPipeline.getBreakingUpdate().preCommitReproductionCommand.replace("docker run ", ""));
     }

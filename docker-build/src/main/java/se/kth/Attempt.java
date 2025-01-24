@@ -1,5 +1,15 @@
 package se.kth;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -16,10 +26,9 @@ public record Attempt(@Getter int index, @Getter FailureCategory failureCategory
             @JsonProperty("failureCategory") FailureCategory failureCategory,
             @JsonProperty("outputFolder") String outputFolder,
             @JsonProperty("successful") boolean successful) {
-        this(index, failureCategory, processPrefixFiles(outputFolder), processPostfixFiles(outputFolder),
-                processFixedFiles(outputFolder), processUnfixedFiles(outputFolder), processNewFiles(outputFolder),
-                processPrefixErrors(outputFolder), processPostfixErrors(outputFolder), processFixedErrors(outputFolder),
-                processUnfixedErrors(outputFolder), processNewErrors(outputFolder), outputFolder, successful);
+
+        this(index, failureCategory, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, outputFolder, successful);
+
     }
 
     public Attempt(int index, FailureCategory failureCategory, int prefixFiles, int postfixFiles, int fixedFiles,
@@ -27,77 +36,208 @@ public record Attempt(@Getter int index, @Getter FailureCategory failureCategory
             int newErrors, String outputFolder, boolean successful) {
         this.index = index;
         this.failureCategory = failureCategory;
-        this.prefixFiles = prefixFiles;
-        this.postfixFiles = postfixFiles;
-        this.fixedFiles = fixedFiles;
-        this.unfixedFiles = unfixedFiles;
-        this.newFiles = newFiles;
-        this.prefixErrors = prefixErrors;
-        this.postfixErrors = postfixErrors;
-        this.fixedErrors = fixedErrors;
-        this.unfixedErrors = unfixedErrors;
-        this.newErrors = newErrors;
+        ArrayList<String> prefixFilesList = new ArrayList<String>();
+        ArrayList<String> postfixFilesList = new ArrayList<String>();
         this.outputFolder = outputFolder;
         this.successful = successful;
+        this.prefixFiles = processFiles("prefix", prefixFilesList);
+        this.postfixFiles = processFiles("postfix", postfixFilesList);
+        this.fixedFiles = processFixedFiles(prefixFilesList, postfixFilesList);
+        this.unfixedFiles = processUnfixedFiles(prefixFilesList, postfixFilesList);
+        this.newFiles = processNewFiles(prefixFilesList, postfixFilesList);
+        Map<String, ArrayList<String>> prefixErrorsMap = new HashMap<String, ArrayList<String>>();
+        Map<String, ArrayList<String>> postfixErrorsMap = new HashMap<String, ArrayList<String>>();
+        this.prefixErrors = processErrors("prefix", prefixErrorsMap);
+        this.postfixErrors = processErrors("postfix", postfixErrorsMap);
+        this.fixedErrors = processFixedErrors(prefixErrorsMap, postfixErrorsMap);
+        this.unfixedErrors = processUnfixedErrors(prefixErrorsMap, postfixErrorsMap);
+        this.newErrors = processNewErrors(prefixErrorsMap, postfixErrorsMap);
+
     }
 
-    private static int processPrefixFiles(String outputFile) {
-        // Implement the logic to process the output folder and return the value for
-        // prefixFiles
-        return 0; // Replace with actual logic
+    public int processFiles(String stage, ArrayList<String> filesList) {
+        int count = 0;
+        Path fileFolder = Path.of(outputFolder, "files");
+        if (fileFolder.toFile().exists()) {
+            Path stagefixFilePath = Path.of(outputFolder, "files", stage + "_Files.txt");
+            if (stagefixFilePath.toFile().exists()) {
+
+                try (BufferedReader br = Files.newBufferedReader(stagefixFilePath)) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        filesList.add(line);
+                        count++;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return count;
     }
 
-    private static int processPostfixFiles(String outputFile) {
-        // Implement the logic to process the output folder and return the value for
-        // postfixFiles
-        return 0; // Replace with actual logic
+    public int processFixedFiles(ArrayList<String> prefixFilesList, ArrayList<String> postfixFilesList) {
+        int fixedFilesCount = 0;
+        for (String file : prefixFilesList) {
+            if (!postfixFilesList.contains(file)) {
+                fixedFilesCount++;
+            }
+        }
+        return fixedFilesCount;
     }
 
-    private static int processFixedFiles(String outputFile) {
-        // Implement the logic to process the output folder and return the value for
-        // fixedFiles
-        return 0; // Replace with actual logic
+    public int processUnfixedFiles(ArrayList<String> prefixFilesList, ArrayList<String> postfixFilesList) {
+        int unfixedFilesCount = 0;
+        for (String file : prefixFilesList) {
+            if (postfixFilesList.contains(file)) {
+                unfixedFilesCount++;
+            }
+        }
+        return unfixedFilesCount;
     }
 
-    private static int processUnfixedFiles(String outputFile) {
-        // Implement the logic to process the output folder and return the value for
-        // unfixedFiles
-        return 0; // Replace with actual logic
+    public int processNewFiles(ArrayList<String> prefixFilesList, ArrayList<String> postfixFilesList) {
+        int newFilesCount = 0;
+        for (String file : postfixFilesList) {
+            if (!prefixFilesList.contains(file)) {
+                newFilesCount++;
+            }
+        }
+        return newFilesCount;
     }
 
-    private static int processNewFiles(String outputFile) {
-        // Implement the logic to process the output folder and return the value for
-        // newFiles
-        return 0; // Replace with actual logic
+    public int processErrors(String stage, Map<String, ArrayList<String>> errorsMap) {
+        int count = 0;
+        Path errorFolder = Path.of(outputFolder, "errors", stage);
+        if (Files.exists(errorFolder)) {
+            try {
+                for (Path file : Files.newDirectoryStream(errorFolder)) {
+                    ArrayList<String> errorsList = new ArrayList<>();
+                    try (BufferedReader br = Files.newBufferedReader(file)) {
+                        String line;
+                        while ((line = br.readLine()) != null) {
+                            errorsList.add(line);
+                            count++;
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    errorsMap.put(file.getFileName().toString(), errorsList);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return count;
+
     }
 
-    private static int processPrefixErrors(String outputFile) {
-        // Implement the logic to process the output folder and return the value for
-        // prefixErrors
-        return 0; // Replace with actual logic
+    public int processFixedErrors(Map<String, ArrayList<String>> prefixErrorsMap,
+            Map<String, ArrayList<String>> postfixErrorsMap) {
+        int fixedErrorsCount = 0;
+
+        for (Map.Entry<String, ArrayList<String>> entry : prefixErrorsMap.entrySet()) {
+            String fileName = entry.getKey();
+            ArrayList<String> prefixErrors = entry.getValue();
+            ArrayList<String> postfixErrors = postfixErrorsMap.getOrDefault(fileName, new ArrayList<>());
+
+            for (String prefixError : prefixErrors) {
+                String[] prefixParts = prefixError.split(":", 2);
+                int prefixLine = Integer.parseInt(prefixParts[0]);
+                String prefixMessage = prefixParts[1];
+
+                boolean isFixed = true;
+                for (String postfixError : postfixErrors) {
+                    String[] postfixParts = postfixError.split(":", 2);
+                    int postfixLine = Integer.parseInt(postfixParts[0]);
+                    String postfixMessage = postfixParts[1];
+
+                    if (Math.abs(prefixLine - postfixLine) <= 3 && prefixMessage.equals(postfixMessage)) {
+                        isFixed = false;
+                        break;
+                    }
+                }
+
+                if (isFixed) {
+                    fixedErrorsCount++;
+                }
+            }
+        }
+        return fixedErrorsCount;
+
     }
 
-    private static int processPostfixErrors(String outputFile) {
-        // Implement the logic to process the output folder and return the value for
-        // postfixErrors
-        return 0; // Replace with actual logic
+    public int processUnfixedErrors(Map<String, ArrayList<String>> prefixErrorsMap,
+            Map<String, ArrayList<String>> postfixErrorsMap) {
+        int unfixedErrorsCount = 0;
+
+        for (Map.Entry<String, ArrayList<String>> entry : prefixErrorsMap.entrySet()) {
+            String fileName = entry.getKey();
+            ArrayList<String> prefixErrors = entry.getValue();
+            ArrayList<String> postfixErrors = postfixErrorsMap.getOrDefault(fileName, new ArrayList<>());
+
+            for (String prefixError : prefixErrors) {
+                String[] prefixParts = prefixError.split(":", 2);
+                int prefixLine = Integer.parseInt(prefixParts[0]);
+                String prefixMessage = prefixParts[1];
+
+                boolean isFixed = true;
+                for (String postfixError : postfixErrors) {
+                    String[] postfixParts = postfixError.split(":", 2);
+                    int postfixLine = Integer.parseInt(postfixParts[0]);
+                    String postfixMessage = postfixParts[1];
+
+                    if (Math.abs(prefixLine - postfixLine) <= 3 && prefixMessage.equals(postfixMessage)) {
+                        isFixed = false;
+                        break;
+                    }
+                }
+
+                if (!isFixed) {
+                    unfixedErrorsCount++;
+                }
+            }
+        }
+        return unfixedErrorsCount;
     }
 
-    private static int processFixedErrors(String outputFile) {
-        // Implement the logic to process the output folder and return the value for
-        // fixedErrors
-        return 0; // Replace with actual logic
-    }
+    public int processNewErrors(Map<String, ArrayList<String>> prefixErrorsMap,
+            Map<String, ArrayList<String>> postfixErrorsMap) {
+        int newErrorsCount = 0;
 
-    private static int processUnfixedErrors(String outputFile) {
-        // Implement the logic to process the output folder and return the value for
-        // unfixedErrors
-        return 0; // Replace with actual logic
-    }
+        for (Map.Entry<String, ArrayList<String>> entry : postfixErrorsMap.entrySet()) {
+            String fileName = entry.getKey();
+            ArrayList<String> postfixErrors = entry.getValue();
+            ArrayList<String> prefixErrors = prefixErrorsMap.getOrDefault(fileName, new ArrayList<>());
 
-    private static int processNewErrors(String outputFile) {
-        // Implement the logic to process the output folder and return the value for
-        // newErrors
-        return 0; // Replace with actual logic
+            for (String postfixError : postfixErrors) {
+                String[] postfixParts = postfixError.split(":", 2);
+                int postfixLine = Integer.parseInt(postfixParts[0]);
+                String postfixMessage = postfixParts[1];
+
+                boolean isNew = true;
+                for (String prefixError : prefixErrors) {
+                    String[] prefixParts = prefixError.split(":", 2);
+                    int prefixLine = Integer.parseInt(prefixParts[0]);
+                    String prefixMessage = prefixParts[1];
+
+                    if (Math.abs(prefixLine - postfixLine) <= 3 && postfixMessage.equals(prefixMessage)) {
+                        isNew = false;
+                        break;
+                    }
+                }
+
+                if (isNew) {
+                    newErrorsCount++;
+                }
+            }
+
+            if (prefixErrors.isEmpty()) {
+                newErrorsCount += postfixErrors.size();
+            }
+        }
+
+        return newErrorsCount;
+
     }
 }

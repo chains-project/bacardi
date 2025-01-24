@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,6 +25,17 @@ public class StoreInfo {
     private final SetupPipeline setupPipeline;
     private String patchNumber;
     Path patchFolder;
+
+    public StoreInfo(SetupPipeline setupPipeline, Path patchFolder) {
+        this.setupPipeline = setupPipeline;
+        this.patchFolder = patchFolder;
+        try {
+            long patchCount = Files.list(patchFolder.getParent()).count() - 1;
+            patchNumber = String.valueOf(patchCount);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public StoreInfo(SetupPipeline setupPipeline, boolean setup) {
         this.setupPipeline = setupPipeline;
@@ -117,16 +130,43 @@ public class StoreInfo {
         }
     }
 
-    public void storePrefixErrorFiles(Map<String, Set<DetectedFileWithErrors>> listOfFilesWithErrors) {
+    public void storeFilesErrors(String stage, Map<String, Set<DetectedFileWithErrors>> listOfFilesWithErrors) {
 
-        Path prefixErrorFolder = Path.of(this.patchFolder.toString(), "prefixErrors.txt");
+        Path filesFolder = Path.of(this.patchFolder.toString(), "files");
+        if (!Files.exists(filesFolder)) {
+            try {
+                Files.createDirectories(filesFolder);
+            } catch (IOException e) {
+                log.error("Error creating files folder", e);
+                throw new RuntimeException(e);
+            }
+        }
+
+        Path processErrorFilesFolder = Path.of(filesFolder.toString(), stage + "_Files.txt");
         try {
-            Files.write(prefixErrorFolder,
+            Files.write(processErrorFilesFolder,
                     listOfFilesWithErrors.keySet().stream()
                             .map(Object::toString)
                             .collect(Collectors.toList()));
+
+            Path errorFolder = this.patchFolder.resolve("errors", stage);
+            if (!Files.exists(errorFolder)) {
+                Files.createDirectories(errorFolder);
+            }
+            for (Map.Entry<String, Set<DetectedFileWithErrors>> entry : listOfFilesWithErrors.entrySet()) {
+                for (DetectedFileWithErrors errorFile : entry.getValue()) {
+                    Path errorFilePath = errorFolder.resolve(Path.of(entry.getKey()).getFileName() + ".txt");
+
+                    String errormessage = errorFile.getErrorInfo().getErrorMessage();
+                    errormessage = errormessage.replaceAll("\\[ERROR\\] .*:\\[\\d+,\\d+\\] ", "");
+                    errormessage = errormessage + errorFile.getErrorInfo().getAdditionalInfo().replace("\n", " ");
+                    Files.writeString(errorFilePath,
+                            errorFile.getErrorInfo().getClientLinePosition() + ":" + errormessage + "\n",
+                            StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                }
+            }
         } catch (IOException e) {
-            log.error("Error writing prefix error files", e);
+            log.error("Error writing" + stage + "error files", e);
             throw new RuntimeException(e);
         }
     }

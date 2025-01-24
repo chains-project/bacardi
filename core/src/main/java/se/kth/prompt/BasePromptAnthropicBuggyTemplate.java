@@ -125,7 +125,7 @@ public class BasePromptAnthropicBuggyTemplate extends AbstractPromptTemplate {
                 3. Remove the @Override annotation only if the method no longer overrides a method in the updated dependency version.
                 4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
                 5. Avoid removing any existing code unless it directly causes a compilation or functionality error.
-                6. Ensure the entire class is included and that it will compile correctly.
+                6. Ensure the entire class is included and that it will compile correctly. Don't use the comment "// ... (rest of the class remains unchanged)".
 
                 Please provide your fixed class in the following format:
 
