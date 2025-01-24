@@ -125,7 +125,6 @@ public class SpoonConstructExtractor {
         } else {
             return "";
         }
-
         // return elementLine.getOriginalSourceFragment().getSourceCode();
     }
 

@@ -56,6 +56,7 @@ public class RepairDirectFailures {
                 Set<DetectedFileWithErrors> detectedFileWithErrors = new HashSet<>();
                 value.forEach(errorInfo -> {
                     detectedFileWithErrors.add(new DetectedFileWithErrors(errorInfo));
+
                 });
                 detectedFiles.put(key, detectedFileWithErrors);
             });

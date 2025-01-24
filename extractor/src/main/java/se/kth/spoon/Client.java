@@ -28,7 +28,7 @@ public class Client {
 
         // Analyze the source folders if it is a Maven project
         if (Files.exists(sourcePath.resolve("pom.xml"))) {
-            launcher = new MavenLauncher(sourcePath.toString(), MavenLauncher.SOURCE_TYPE.ALL_SOURCE, new String[0]);
+            launcher = new MavenLauncher(sourcePath.toString(), MavenLauncher.SOURCE_TYPE.APP_SOURCE, new String[0]);
         } else {
             launcher = new Launcher();
             launcher.getEnvironment().setComplianceLevel(11);
