@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 @Getter
-public class BenchmarkCase {
+public class SemBUpdate {
 
     private final int id;
     private final String preVersionImageName;
@@ -13,10 +13,10 @@ public class BenchmarkCase {
     private final boolean semB;
     private final boolean groundTruth;
 
-    public BenchmarkCase(@JsonProperty("id") int id, @JsonProperty("preVersionImageName") String preVersionImageName,
-                         @JsonProperty("postVersionImageName") String postVersionImageName, @JsonProperty(
+    public SemBUpdate(@JsonProperty("id") int id, @JsonProperty("preVersionImageName") String preVersionImageName,
+                      @JsonProperty("postVersionImageName") String postVersionImageName, @JsonProperty(
             "targetMethod") String targetMethod, @JsonProperty("semB") boolean semB,
-                         @JsonProperty("groundTruth") boolean groundTruth) {
+                      @JsonProperty("groundTruth") boolean groundTruth) {
         this.id = id;
         this.preVersionImageName = preVersionImageName;
         this.postVersionImageName = postVersionImageName;

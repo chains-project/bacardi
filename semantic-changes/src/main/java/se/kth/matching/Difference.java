@@ -8,4 +8,8 @@ public class Difference {
         this.path = path;
         this.message = message;
     }
+
+    public String toString() {
+        return String.format("%s: %s", path, message);
+    }
 }

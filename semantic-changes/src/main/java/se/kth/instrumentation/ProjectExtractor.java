@@ -15,15 +15,20 @@ public class ProjectExtractor {
     private final DockerBuild dockerBuild;
     private final Path outputBasePath;
     private final HostConfig hostConfig;
+    private final String targetMethod;
 
-    public ProjectExtractor(DockerBuild dockerBuild, Path outputDir, HostConfig hostConfig) {
+    public ProjectExtractor(DockerBuild dockerBuild, Path outputDir, HostConfig hostConfig, String targetMethod) {
         this.dockerBuild = dockerBuild;
         this.outputBasePath = outputDir;
         this.hostConfig = hostConfig;
+        this.targetMethod = targetMethod;
         FileUtils.ensureDirectoryExists(outputDir);
     }
 
-    public Path extract(String imageName, String[] entryPoint) {
+    public Path extract(String imageName) {
+        String[] entryPoint = String.format("mvn test -DargLine=\"-javaagent:/instrumentation/semantic-agent-1" +
+                ".0-SNAPSHOT.jar=%s\"", targetMethod).split(" ");
+
         String containerId = dockerBuild.startSpinningContainer(imageName, hostConfig);
         dockerBuild.executeInContainer(containerId, entryPoint);
         String outputDir = imageName.split("/")[2];

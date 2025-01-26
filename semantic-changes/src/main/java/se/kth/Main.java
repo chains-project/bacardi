@@ -2,11 +2,10 @@ package se.kth;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dockerjava.api.model.HostConfig;
-import com.github.dockerjava.api.model.Mount;
-import com.github.dockerjava.api.model.MountType;
 import org.apache.commons.lang3.tuple.Pair;
 import picocli.CommandLine;
 import se.kth.comparison.ValueComparator;
+import se.kth.instrumentation.HostConfigBuilder;
 import se.kth.instrumentation.ProjectExtractor;
 import se.kth.matching.Difference;
 import se.kth.matching.Matcher;
@@ -58,17 +57,13 @@ public class Main {
     public static void run(String preImageName, String postImageName, String targetMethod) {
         DockerBuild dockerBuild = new DockerBuild(false);
         Path extractedProjectsOutputDir = Config.getTmpDirPath().resolve("instrumentation-output");
-        HostConfig hostConfig = HostConfig.newHostConfig()
-                .withMounts(List.of(new Mount()
-                        .withSource(semanticAgentPath.toString())
-                        .withTarget("/instrumentation/semantic-agent-1.0-SNAPSHOT.jar")
-                        .withType(MountType.BIND)));
-        ProjectExtractor projectExtractor = new ProjectExtractor(dockerBuild, extractedProjectsOutputDir, hostConfig);
+        HostConfigBuilder configBuilder = new HostConfigBuilder(semanticAgentPath.toString());
+        HostConfig hostConfig = configBuilder.build();
+        ProjectExtractor projectExtractor = new ProjectExtractor(dockerBuild, extractedProjectsOutputDir, hostConfig,
+                targetMethod);
 
-        String[] entryPoint = String.format("mvn test -DargLine=\"-javaagent:/instrumentation/semantic-agent-1" +
-                ".0-SNAPSHOT.jar=%s\"", targetMethod).split(" ");
-        Path preOutputPath = projectExtractor.extract(preImageName, entryPoint);
-        Path postOutputPath = projectExtractor.extract(postImageName, entryPoint);
+        Path preOutputPath = projectExtractor.extract(preImageName);
+        Path postOutputPath = projectExtractor.extract(postImageName);
 
         List<Pair<MethodInvocation, MethodInvocation>> pairs = new Matcher().readAndMatch(preOutputPath,
                 postOutputPath);
