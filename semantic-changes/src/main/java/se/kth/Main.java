@@ -1,16 +1,22 @@
 package se.kth;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Mount;
 import com.github.dockerjava.api.model.MountType;
+import org.apache.commons.lang3.tuple.Pair;
 import picocli.CommandLine;
+import se.kth.comparison.ValueComparator;
 import se.kth.instrumentation.ProjectExtractor;
+import se.kth.matching.Difference;
+import se.kth.matching.Matcher;
+import se.kth.model.MethodInvocation;
 import se.kth.util.Config;
 
 import java.nio.file.Path;
 import java.util.List;
 
-public class Main implements Runnable {
+public class Main {
 
     @CommandLine.Option(
             names = {"-o", "--oldVersion"},
@@ -45,6 +51,11 @@ public class Main implements Runnable {
 
 
     public static void main(String[] args) {
+        run(oldVersionImage, newVersionImage, methodName);
+    }
+
+
+    public static void run(String preImageName, String postImageName, String targetMethod) {
         DockerBuild dockerBuild = new DockerBuild(false);
         Path extractedProjectsOutputDir = Config.getTmpDirPath().resolve("instrumentation-output");
         HostConfig hostConfig = HostConfig.newHostConfig()
@@ -55,16 +66,17 @@ public class Main implements Runnable {
         ProjectExtractor projectExtractor = new ProjectExtractor(dockerBuild, extractedProjectsOutputDir, hostConfig);
 
         String[] entryPoint = String.format("mvn test -DargLine=\"-javaagent:/instrumentation/semantic-agent-1" +
-                ".0-SNAPSHOT.jar=%s\"", methodName).split(" ");
-        Path preOutputPath = projectExtractor.extract(oldVersionImage, entryPoint);
-        Path postOutputPath = projectExtractor.extract(newVersionImage, entryPoint);
-        System.out.println("Saved to path: " + preOutputPath);
-        System.out.println("Saved to path: " + postOutputPath);
-    }
+                ".0-SNAPSHOT.jar=%s\"", targetMethod).split(" ");
+        Path preOutputPath = projectExtractor.extract(preImageName, entryPoint);
+        Path postOutputPath = projectExtractor.extract(postImageName, entryPoint);
 
+        List<Pair<MethodInvocation, MethodInvocation>> pairs = new Matcher().readAndMatch(preOutputPath,
+                postOutputPath);
 
-    @Override
-    public void run() {
-
+        try {
+            List<List<Difference>> differences = ValueComparator.compareAll(pairs);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
