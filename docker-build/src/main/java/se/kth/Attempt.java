@@ -8,13 +8,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.Getter;
 import se.kth.models.FailureCategory;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record Attempt(@Getter int index, @Getter FailureCategory failureCategory, @Getter int prefixFiles,
         @Getter int postfixFiles, @Getter int fixedFiles, @Getter int unfixedFiles, @Getter int newFiles,
         @Getter int prefixErrors, @Getter int postfixErrors, @Getter int fixedErrors, @Getter int unfixedErrors,
@@ -26,11 +32,10 @@ public record Attempt(@Getter int index, @Getter FailureCategory failureCategory
             @JsonProperty("failureCategory") FailureCategory failureCategory,
             @JsonProperty("outputFolder") String outputFolder,
             @JsonProperty("successful") boolean successful) {
-
         this(index, failureCategory, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, outputFolder, successful);
-
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public Attempt(int index, FailureCategory failureCategory, int prefixFiles, int postfixFiles, int fixedFiles,
             int unfixedFiles, int newFiles, int prefixErrors, int postfixErrors, int fixedErrors, int unfixedErrors,
             int newErrors, String outputFolder, boolean successful) {
@@ -52,6 +57,8 @@ public record Attempt(@Getter int index, @Getter FailureCategory failureCategory
         this.fixedErrors = processFixedErrors(prefixErrorsMap, postfixErrorsMap);
         this.unfixedErrors = processUnfixedErrors(prefixErrorsMap, postfixErrorsMap);
         this.newErrors = processNewErrors(prefixErrorsMap, postfixErrorsMap);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     }
 
