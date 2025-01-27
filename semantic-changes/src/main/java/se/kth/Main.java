@@ -69,8 +69,16 @@ public class Main {
                 postOutputPath);
 
         try {
-            List<List<Difference>> differences = ValueComparator.compareAll(pairs);
+            List<List<Difference>> differences = ValueComparator.compareAllReturnValues(pairs);
+            if (differences.stream()
+                    .anyMatch(differences1 -> !differences1.isEmpty())) {
+                System.out.println("Differences found:");
+                differences.forEach(differences1 -> differences1.forEach(System.out::println));
+            } else {
+                System.out.println("No Differences found");
+            }
         } catch (JsonProcessingException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }

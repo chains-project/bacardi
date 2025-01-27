@@ -33,7 +33,7 @@ public class ValueComparator {
         }
     }
 
-    public static List<List<Difference>> compareAll(List<Pair<MethodInvocation, MethodInvocation>> pairs) throws JsonProcessingException {
+    public static List<List<Difference>> compareAllReturnValues(List<Pair<MethodInvocation, MethodInvocation>> pairs) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         List<List<Difference>> differences = new ArrayList<>();
         for (Pair<MethodInvocation, MethodInvocation> pair : pairs) {
@@ -43,6 +43,15 @@ public class ValueComparator {
             JsonNode rightReturnValue = mapper.readTree(right.getReturnValue());
             differences.add(compare(leftReturnValue, rightReturnValue));
         }
+        return differences;
+    }
+
+    public static List<List<Difference>> compareAllArguments(MethodInvocation preArguments, MethodInvocation postArguments) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        List<List<Difference>> differences = new ArrayList<>();
+        JsonNode preArgumentsNode = mapper.readTree(preArguments.getArguments());
+        JsonNode postArgumentsNode = mapper.readTree(postArguments.getArguments());
+        differences.add(compare(preArgumentsNode, postArgumentsNode));
         return differences;
     }
 
