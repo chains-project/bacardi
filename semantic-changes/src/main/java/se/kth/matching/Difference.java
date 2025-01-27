@@ -1,7 +1,11 @@
 package se.kth.matching;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 public class Difference {
+    @JsonSerialize
     private final String path;
+    @JsonSerialize
     private final String message;
 
     public Difference(String path, String message) {

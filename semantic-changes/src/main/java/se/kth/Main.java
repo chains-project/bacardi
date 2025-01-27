@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.dockerjava.api.model.HostConfig;
 import org.apache.commons.lang3.tuple.Pair;
 import picocli.CommandLine;
+import se.kth.Util.FileUtils;
 import se.kth.comparison.ValueComparator;
 import se.kth.instrumentation.HostConfigBuilder;
 import se.kth.instrumentation.ProjectExtractor;
@@ -11,6 +12,7 @@ import se.kth.matching.Difference;
 import se.kth.matching.Matcher;
 import se.kth.model.MethodInvocation;
 import se.kth.util.Config;
+import se.kth.util.ResultsWriter;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -46,17 +48,18 @@ public class Main {
             names = {"--outputPath"},
             description = "Path to the directory where the output should be stored",
             required = false)
-    static Path outputPath = Path.of("");
+    static Path outputPath = Config.getTmpDirPath().resolve("differences");
 
 
     public static void main(String[] args) {
-        run(oldVersionImage, newVersionImage, methodName);
+        run("1", oldVersionImage, newVersionImage, methodName);
     }
 
 
-    public static void run(String preImageName, String postImageName, String targetMethod) {
+    public static boolean run(String id, String preImageName, String postImageName, String targetMethod) {
         DockerBuild dockerBuild = new DockerBuild(false);
-        Path extractedProjectsOutputDir = Config.getTmpDirPath().resolve("instrumentation-output");
+        Path extractedProjectsOutputDir = Config.getTmpDirPath().resolve("instrumentation-output").resolve(id);
+        FileUtils.ensureDirectoryExists(extractedProjectsOutputDir.getParent());
         HostConfigBuilder configBuilder = new HostConfigBuilder(semanticAgentPath.toString());
         HostConfig hostConfig = configBuilder.build();
         ProjectExtractor projectExtractor = new ProjectExtractor(dockerBuild, extractedProjectsOutputDir, hostConfig,
@@ -74,8 +77,11 @@ public class Main {
                     .anyMatch(differences1 -> !differences1.isEmpty())) {
                 System.out.println("Differences found:");
                 differences.forEach(differences1 -> differences1.forEach(System.out::println));
+                ResultsWriter.saveDifferences(differences, outputPath.resolve(id + ".json"));
+                return true;
             } else {
                 System.out.println("No Differences found");
+                return false;
             }
         } catch (JsonProcessingException e) {
             e.printStackTrace();
