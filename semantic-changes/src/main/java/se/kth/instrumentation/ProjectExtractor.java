@@ -26,9 +26,15 @@ public class ProjectExtractor {
     }
 
     public Path extract(String imageName) {
-        String[] entryPoint = String.format("mvn test -DargLine=\"-javaagent:/instrumentation/semantic-agent-1" +
+        String[] entryPoint = String.format("mvn test -l output.log -DargLine=\"-javaagent:/instrumentation/semantic-agent-1" +
                 ".0-SNAPSHOT.jar=%s\"", targetMethod).split(" ");
 
+        try {
+            dockerBuild.ensureBaseMavenImageExists(imageName);
+        } catch (InterruptedException e) {
+            logger.warn(e.getMessage());
+            throw new RuntimeException(e);
+        }
         String containerId = dockerBuild.startSpinningContainer(imageName, hostConfig);
         dockerBuild.executeInContainer(containerId, entryPoint);
         String outputDir = imageName.split("/")[2];

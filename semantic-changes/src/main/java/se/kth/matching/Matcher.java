@@ -51,7 +51,8 @@ public class Matcher {
         try {
             return Files.readAllLines(path);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            logger.error("No file found containing the return values");
+            return new ArrayList<>();
         }
     }
 

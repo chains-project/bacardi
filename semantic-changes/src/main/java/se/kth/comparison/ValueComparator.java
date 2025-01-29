@@ -39,9 +39,13 @@ public class ValueComparator {
         for (Pair<MethodInvocation, MethodInvocation> pair : pairs) {
             MethodInvocation left = pair.getLeft();
             MethodInvocation right = pair.getRight();
-            JsonNode leftReturnValue = mapper.readTree(left.getReturnValue());
-            JsonNode rightReturnValue = mapper.readTree(right.getReturnValue());
-            differences.add(compare(leftReturnValue, rightReturnValue));
+            try {
+                JsonNode leftReturnValue = mapper.readTree(left.getReturnValue());
+                JsonNode rightReturnValue = mapper.readTree(right.getReturnValue());
+                differences.add(compare(leftReturnValue, rightReturnValue));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return differences;
     }
