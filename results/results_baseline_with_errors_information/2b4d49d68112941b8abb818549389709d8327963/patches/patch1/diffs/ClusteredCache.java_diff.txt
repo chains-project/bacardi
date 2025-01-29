@@ -1,0 +1,56 @@
+1,15d0
+< /*
+<  * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+58c43
+<     final IMap<K, V> map;
+---
+>     final com.hazelcast.map.IMap<K, V> map; // Updated to use the correct package
+74c59
+<     protected ClusteredCache(final String name, final IMap<K, V> cache) {
+---
+>     protected ClusteredCache(final String name, final com.hazelcast.map.IMap<K, V> cache) { // Updated to use the correct package
+107c92
+<             public void entryUpdated(EntryEvent event) {
+---
+>             public void entryUpdated(EntryEvent<K, V> event) { // Updated to use generic types
+111c96
+<                     clusteredCacheEntryListener.entryUpdated((K) event.getKey(), (V) event.getOldValue(), (V) event.getValue(), eventNodeId);
+---
+>                     clusteredCacheEntryListener.entryUpdated(event.getKey(), event.getOldValue(), event.getValue(), eventNodeId);
+116c101
+<             public void entryRemoved(EntryEvent event) {
+---
+>             public void entryRemoved(EntryEvent<K, V> event) { // Updated to use generic types
+120c105
+<                     clusteredCacheEntryListener.entryRemoved((K) event.getKey(), (V) event.getOldValue(), eventNodeId);
+---
+>                     clusteredCacheEntryListener.entryRemoved(event.getKey(), event.getOldValue(), eventNodeId);
+125c110
+<             public void entryEvicted(EntryEvent event) {
+---
+>             public void entryEvicted(EntryEvent<K, V> event) { // Updated to use generic types
+129c114
+<                     clusteredCacheEntryListener.entryEvicted((K) event.getKey(), (V) event.getOldValue(), eventNodeId);
+---
+>                     clusteredCacheEntryListener.entryEvicted(event.getKey(), event.getOldValue(), eventNodeId);
+134c119
+<             public void entryAdded(EntryEvent event) {
+---
+>             public void entryAdded(EntryEvent<K, V> event) { // Updated to use generic types
+138c123
+<                     clusteredCacheEntryListener.entryAdded((K) event.getKey(), (V) event.getValue(), eventNodeId);
+---
+>                     clusteredCacheEntryListener.entryAdded(event.getKey(), event.getValue(), eventNodeId);

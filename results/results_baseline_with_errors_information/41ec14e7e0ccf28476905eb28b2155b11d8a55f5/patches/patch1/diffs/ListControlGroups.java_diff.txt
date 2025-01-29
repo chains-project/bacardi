@@ -1,0 +1,15 @@
+57a58,66
+> import jakarta.validation.Validation; // Updated import
+> import jakarta.validation.ValidatorFactory; // Updated import
+> import jakarta.validation.constraints.NotBlank; // Updated import
+> import jakarta.validation.constraints.NotEmpty; // Updated import
+> import jakarta.validation.constraints.NotNull; // Updated import
+> import jakarta.validation.metadata.BeanDescriptor; // Updated import
+> import jakarta.validation.metadata.ConstraintDescriptor; // Updated import
+> import jakarta.validation.metadata.ElementDescriptor; // Updated import
+> 
+123c132,133
+<                 Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
+---
+>                 ValidatorFactory factory = Validation.buildDefaultValidatorFactory(); // Updated
+>                 Validator validator = factory.getValidator(); // Updated

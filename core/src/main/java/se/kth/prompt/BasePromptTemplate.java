@@ -27,7 +27,10 @@ public class BasePromptTemplate extends AbstractPromptTemplate {
             String classCode = Files.readString(Path.of(promptModel.getClassInfo()));
             return """
                     the following client code fails:
+                    
+                    ```java
                     %s
+                    ```
                     """.formatted(classCode);
         } catch (IOException e) {
             log.error("Error reading the class file", e);

@@ -149,7 +149,7 @@ public class StoreInfo {
                             .map(Object::toString)
                             .collect(Collectors.toList()));
 
-            Path errorFolder = this.patchFolder.resolve("errors", stage);
+            Path errorFolder = this.patchFolder.resolve("errors/"+ stage);
             if (!Files.exists(errorFolder)) {
                 Files.createDirectories(errorFolder);
             }

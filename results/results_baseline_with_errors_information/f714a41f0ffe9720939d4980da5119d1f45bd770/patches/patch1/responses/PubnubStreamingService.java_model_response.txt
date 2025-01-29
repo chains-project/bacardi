@@ -1,0 +1,37 @@
+```java
+package info.bitrich.xchangestream.service.pubnub;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pubnub.api.PNConfiguration;
+import com.pubnub.api.PubNub;
+import com.pubnub.api.callbacks.SubscribeCallback;
+import com.pubnub.api.enums.PNStatusCategory;
+import com.pubnub.api.models.consumer.PNStatus;
+import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
+import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
+import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
+import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
+import io.reactivex.Completable;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/** Created by Lukas Zaoralek on 14.11.17. */
+public class PubnubStreamingService {
+  private static final Logger LOG = LoggerFactory.getLogger(PubnubStreamingService.class);
+
+  private final PubNub pubnub;
+  private PNStatusCategory pnStatusCategory;
+  private final Map<String, ObservableEmitter<JsonNode>> subscriptions = new ConcurrentHashMap<>();
+  private final ObjectMapper mapper;
+
+  public PubnubStreamingService(String publicKey) {
+    mapper = new ObjectMapper();
+    mapper.configure(DeserializationFeature.FAIL_ON

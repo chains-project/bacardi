@@ -1,0 +1,29 @@
+6c6,7
+<  * You may obtain a copy of the License at
+---
+>  * you may not use this file except in compliance with the License.
+>  * you may obtain a copy of the License at
+19,21d19
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.common.base.Function;
+< import com.google.common.base.MoreObjects;
+36,42d33
+<   static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
+<       new Function<LanguagesResource, Language>() {
+<         @Override
+<         public Language apply(LanguagesResource languagePb) {
+<           return Language.fromPb(languagePb);
+<         }
+<       };
+64c55
+<     return MoreObjects.toStringHelper(this).add("code", code).add("name", name).toString();
+---
+>     return com.google.common.base.MoreObjects.toStringHelper(this).add("code", code).add("name", name).toString();
+84,85c75,78
+<   static Language fromPb(LanguagesResource languagePb) {
+<     return new Language(languagePb.getLanguage(), languagePb.getName());
+---
+>   static Language fromPb(Object languagePb) {
+>     String langCode = (String) languagePb.getClass().getMethod("getLanguage").invoke(languagePb);
+>     String langName = (String) languagePb.getClass().getMethod("getName").invoke(languagePb);
+>     return new Language(langCode, langName);

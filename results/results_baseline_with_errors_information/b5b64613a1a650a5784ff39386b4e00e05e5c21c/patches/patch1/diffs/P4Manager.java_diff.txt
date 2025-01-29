@@ -1,0 +1,11 @@
+7a8,9
+> import hudson.model.Item;
+> import hudson.model.ItemGroup;
+27a30
+>     private ItemGroup<?> itemGroup;
+30a34
+>         this.itemGroup = build.getProject().getParent(); // Assuming the parent is the ItemGroup
+44c48
+<                 ClientHelper perforceClient = new ClientHelper(credentials, buildListener, clientString, StandardCharsets.UTF_8.toString());
+---
+>                 ClientHelper perforceClient = new ClientHelper(itemGroup, credentials, buildListener, null);

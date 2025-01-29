@@ -1,0 +1,40 @@
+17,20c17
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelBuf;
+< import org.spongepowered.api.network.ChannelRegistrar;
+< import org.spongepowered.api.network.RawDataListener;
+---
+> import org.spongepowered.api.network.ChannelBinding;
+26c23
+< public class CheckPermissionListener implements RawDataListener {
+---
+> public class CheckPermissionListener {
+29c26
+<     private final RawDataChannel permissionsResultChannel;
+---
+>     private final ChannelBinding.RawDataChannel permissionsResultChannel;
+32c29
+<     CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+---
+>     CheckPermissionListener(ChangeSkinSponge plugin, ChannelBinding.RawDataChannel permissionsResultChannel) {
+34,36c31
+< 
+<         String combinedName = new NamespaceKey(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL).getCombinedName();
+<         permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
+---
+>         this.permissionsResultChannel = permissionsResultChannel;
+39,40c34
+<     @Override
+<     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+---
+>     public void handlePayload(ByteArrayDataInput data, RemoteConnection connection, Type side) {
+42d35
+<         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+44c37
+<         checkMessage.readFrom(dataInput);
+---
+>         checkMessage.readFrom(data);
+47c40
+<         message.readFrom(dataInput);
+---
+>         message.readFrom(data);

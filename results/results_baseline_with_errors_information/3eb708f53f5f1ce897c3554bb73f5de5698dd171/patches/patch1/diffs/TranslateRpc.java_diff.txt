@@ -1,0 +1,25 @@
+6c6
+<  * You may obtain a copy of the License at
+---
+>  * you may obtain a copy of the License at
+19,22c19,21
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.api.services.translate.model.TranslationsResource;
+< import com.google.cloud.ServiceRpc;
+---
+> import com.google.cloud.translate.Translate;
+> import com.google.cloud.translate.Translate.TranslateOption;
+> import com.google.cloud.translate.Translation;
+59c58
+<   List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap);
+---
+>   List<String> listSupportedLanguages(Map<Option, ?> optionMap);
+67c66
+<   List<List<DetectionsResourceItems>> detect(List<String> texts);
+---
+>   List<List<String>> detect(List<String> texts);
+77c76
+<   List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap);
+---
+>   List<Translation> translate(List<String> texts, Map<Option, ?> optionMap);

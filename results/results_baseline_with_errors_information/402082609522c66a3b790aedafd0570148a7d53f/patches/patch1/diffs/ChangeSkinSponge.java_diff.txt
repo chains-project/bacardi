@@ -1,0 +1,29 @@
+27,29c27,29
+< import org.spongepowered.api.event.game.state.GameInitializationEvent;
+< import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+< import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+---
+> import org.spongepowered.api.event.game.state.GameInitializedEvent;
+> import org.spongepowered.api.event.game.state.GamePreInitializedEvent;
+> import org.spongepowered.api.event.game.state.GameStoppingEvent;
+53d52
+<     //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
+62,63c61
+<     public void onPreInit(GamePreInitializationEvent preInitEvent) {
+<         //load config and database
+---
+>     public void onPreInit(GamePreInitializedEvent preInitEvent) {
+73c71
+<     public void onInit(GameInitializationEvent initEvent) {
+---
+>     public void onInit(GameInitializedEvent initEvent) {
+79d76
+<         //command and event register
+89d85
+<         //incoming channel
+100c96
+<     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
+---
+>     public void onShutdown(GameStoppingEvent stoppingServerEvent) {
+114d109
+<         //disallow - not whitelisted or blacklisted

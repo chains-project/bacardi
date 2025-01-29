@@ -11,7 +11,7 @@ import java.util.List;
 
 public class BasePromptAnthropicBuggyTemplate extends AbstractPromptTemplate {
 
-    private static final Logger log = LoggerFactory.getLogger(BasePromptAnthropicTemplate.class);
+    private static final Logger log = LoggerFactory.getLogger(BasePromptAnthropicBuggyTemplate.class);
 
     public BasePromptAnthropicBuggyTemplate() {
         super();

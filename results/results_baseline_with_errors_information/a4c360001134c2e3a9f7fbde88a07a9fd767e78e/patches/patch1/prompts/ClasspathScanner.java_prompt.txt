@@ -1,0 +1,105 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+
+```java
+/*----------------------------------------------------------------
+ *  Copyright (c) ThoughtWorks, Inc.
+ *  Licensed under the Apache License, Version 2.0
+ *  See LICENSE.txt in the project root for license information.
+ *----------------------------------------------------------------*/
+package com.thoughtworks.gauge.scan;
+
+import com.thoughtworks.gauge.ClasspathHelper;
+import org.reflections.Configuration;
+import org.reflections.Reflections;
+import org.reflections.scanners.MethodAnnotationsScanner;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.util.ConfigurationBuilder;
+import org.reflections.util.FilterBuilder;
+import org.reflections.vfs.SystemDir;
+import org.reflections.vfs.Vfs;
+import org.reflections.vfs.ZipDir;
+
+import java.io.File;
+import java.net.URL;
+import java.util.jar.JarFile;
+
+import static com.thoughtworks.gauge.GaugeConstant.PACKAGE_TO_SCAN;
+
+/**
+ * Scans the current Classpath and passes to all the scanners passed.
+ */
+public class ClasspathScanner {
+
+    private Reflections reflections;
+
+    public void scan(IScanner... scanners) {
+        reflections = createReflections();
+        for (IScanner scanner : scanners) {
+            scanner.scan(reflections);
+        }
+    }
+
+    private Reflections createReflections() {
+        Vfs.addDefaultURLTypes(new Vfs.UrlType() {
+            @Override
+            public boolean matches(URL url) {
+                return "file".equals(url.getProtocol());
+            }
+
+            @Override
+            public Vfs.Dir createDir(URL url) throws Exception {
+                File file = Vfs.getFile(url);
+                return file.isDirectory() ? new SystemDir(file) : new ZipDir(new JarFile(Vfs.getFile(url)));
+            }
+        });
+
+        Configuration config = new ConfigurationBuilder()
+                .setScanners(new MethodAnnotationsScanner(), new SubTypesScanner())
+                .addUrls(ClasspathHelper.getUrls())
+                .filterInputsBy(this::shouldScan);
+
+        return new Reflections(config);
+    }
+
+    private boolean shouldScan(String s) {
+        final String packagesToScan = System.getenv(PACKAGE_TO_SCAN);
+        if (packagesToScan == null || packagesToScan.isEmpty()) {
+            return new FilterBuilder().include(".+\\.class").apply(s);
+        }
+        final String[] packages = packagesToScan.split(",");
+        for (String packageToScan : packages) {
+            String regex = String.format(".?\\.??%s\\..+\\.class", packageToScan);
+            if (new FilterBuilder().include(regex).apply(s)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+```
+
+ with the following error information:
+[ERROR] /gauge-java/src/main/java/com/thoughtworks/gauge/scan/ClasspathScanner.java:[69,51] cannot find symbol
+  symbol:   method apply(java.lang.String)
+  location: class org.reflections.util.FilterBuilder
+
+[ERROR] /gauge-java/src/main/java/com/thoughtworks/gauge/scan/ClasspathScanner.java:[64,61] cannot find symbol
+  symbol:   method apply(java.lang.String)
+  location: class org.reflections.util.FilterBuilder
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

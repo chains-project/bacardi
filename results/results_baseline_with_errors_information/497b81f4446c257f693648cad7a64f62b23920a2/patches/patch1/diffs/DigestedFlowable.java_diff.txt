@@ -1,0 +1,11 @@
+15,16c15
+< import org.cactoos.io.BytesOf;
+< import org.cactoos.text.HexOf;
+---
+> import java.util.Base64;
+47d45
+<     @Override
+57c55
+<                 new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+---
+>                 new Digest.Sha256(Base64.getEncoder().encodeToString(sha.digest()))
