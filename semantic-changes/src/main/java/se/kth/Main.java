@@ -42,7 +42,7 @@ public class Main {
             names = {"-m", "--methodName"},
             description = "Fully qualified name (\"fqn.your.TargetClass#targetMethod\") of the method to instrument",
             required = true)
-    static String methodName = "org.jsoup.nodes.Element#select";
+    static String methodName = "org.jsoup.nodes.Element#prepend(java.lang.String)";
 
     @CommandLine.Option(
             names = {"--outputPath"},
