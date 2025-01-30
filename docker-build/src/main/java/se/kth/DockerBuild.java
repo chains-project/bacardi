@@ -88,25 +88,28 @@ public class DockerBuild {
     }
 
     public Optional<String> createImageForRepositoryAtVersion(String baseImage, URL gitUrl, String versionTag,
-                                                              String imageName) {
+                                                              String imageName, Path outputPath) {
         String projectDirectoryName = "project";
 
         log.info("Creating container for {} with version {} in {}", gitUrl, versionTag, baseImage);
         CreateContainerResponse container = dockerClient.createContainerCmd(baseImage)
                 .withCmd("/bin/sh", "-c",
-                        "git clone --branch %s %s %s && cd %s && mvn test -B".formatted(versionTag, gitUrl,
-                                projectDirectoryName, projectDirectoryName))
+                        ("git clone --branch %s %s %s && cd %s && mvn test -B -l output.log -DtestFailureIgnore=true " +
+                                "-Dmaven.test.failure.ignore=true").formatted(versionTag,
+                                gitUrl, projectDirectoryName, projectDirectoryName))
                 .exec();
         dockerClient.startContainerCmd(container.getId()).exec();
         WaitContainerResultCallback waitResult = dockerClient.waitContainerCmd(container.getId())
                 .exec(new WaitContainerResultCallback());
         if (waitResult.awaitStatusCode() != EXIT_CODE_OK) {
             log.warn("Could not create docker image for project {} at version {} in {}", gitUrl, versionTag, baseImage);
+            this.copyM2FolderToLocalPath(container.getId(), Paths.get("/project/output.log"), outputPath);
             dockerClient.removeContainerCmd(container.getId()).exec();
             return Optional.empty();
         } else {
             log.info("Successfully created docker image for project {} at version {} in {}", gitUrl, versionTag,
                     baseImage);
+            this.copyM2FolderToLocalPath(container.getId(), Paths.get("/project/output.log"), outputPath);
             dockerClient.commitCmd(container.getId())
                     .withWorkingDir("/project")
                     .withRepository("ghcr.io/chains-project/breaking-updates")
