@@ -1,0 +1,169 @@
+ You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates.
+Your task is to analyze the provided code and error message, then propose a patch that can be applied to the client code to resolve the issue.
+
+ Here is the client code that is failing:
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+
+package com.artipie.docker.ref;
+
+import com.artipie.docker.Digest;
+import com.artipie.docker.Tag;
+import java.util.Arrays;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
+import org.hamcrest.core.AllOf;
+import org.hamcrest.core.StringContains;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
+/**
+ * Test case for {@link ManifestRef}.
+ * @since 0.1
+ */
+public final class ManifestRefTest {
+
+    @Test
+    void resolvesDigestString() {
+        MatcherAssert.assertThat(
+            new ManifestRef.FromString("sha256:1234").link().string(),
+            Matchers.equalTo("revisions/sha256/1234/link")
+        );
+    }
+
+    @Test
+    void resolvesTagString() {
+        MatcherAssert.assertThat(
+            new ManifestRef.FromString("1.0").link().string(),
+            Matchers.equalTo("tags/1.0/current/link")
+        );
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "",
+        "a:b:c",
+        ".123"
+    })
+    void failsToResolveInvalid(final String string) {
+        final Throwable throwable = Assertions.assertThrows(
+            IllegalStateException.class,
+            () -> new ManifestRef.FromString(string).link().string()
+        );
+        MatcherAssert.assertThat(
+            throwable.getMessage(),
+            new AllOf<>(
+                Arrays.asList(
+                    new StringContains(true, "Unsupported reference"),
+                    new StringContains(false, string)
+                )
+            )
+        );
+    }
+
+    @Test
+    void resolvesDigestLink() {
+        MatcherAssert.assertThat(
+            new ManifestRef.FromDigest(new Digest.Sha256("0000")).link().string(),
+            Matchers.equalTo("revisions/sha256/0000/link")
+        );
+    }
+
+    @Test
+    void resolvesTagLink() {
+        MatcherAssert.assertThat(
+            new ManifestRef.FromTag(new Tag.Valid("latest")).link().string(),
+            Matchers.equalTo("tags/latest/current/link")
+        );
+    }
+
+    @Test
+    void stringFromDigestRef() {
+        MatcherAssert.assertThat(
+            new ManifestRef.FromDigest(new Digest.Sha256("0123")).string(),
+            Matchers.equalTo("sha256:0123")
+        );
+    }
+
+    @Test
+    void stringFromTagRef() {
+        final String tag = "0.2";
+        MatcherAssert.assertThat(
+            new ManifestRef.FromTag(new Tag.Valid(tag)).string(),
+            Matchers.equalTo(tag)
+        );
+    }
+
+    @Test
+    void stringFromStringRef() {
+        final String value = "whatever";
+        MatcherAssert.assertThat(
+            new ManifestRef.FromString(value).string(),
+            Matchers.equalTo(value)
+        );
+    }
+}
+
+```
+
+ And here is the error message:
+<error_message>
+[ERROR] /docker-adapter/src/test/java/com/artipie/docker/ref/ManifestRefTest.java:[58,21] constructor StringContains in class org.hamcrest.core.StringContains cannot be applied to given types;
+  required: java.lang.String
+  found: boolean,java.lang.String
+  reason: actual and formal argument lists differ in length
+
+[ERROR] /docker-adapter/src/test/java/com/artipie/docker/ref/ManifestRefTest.java:[57,21] constructor StringContains in class org.hamcrest.core.StringContains cannot be applied to given types;
+  required: java.lang.String
+  found: boolean,java.lang.String
+  reason: actual and formal argument lists differ in length
+
+
+</error_message>
+
+ Before proposing a fix, please analyze the error message and client code. Wrap your analysis inside <code_analysis> tags:
+
+<code_analysis>
+1. Examine the error message:
+   - Identify the specific issue related to the dependency update.
+   - Note the line number or method where the error occurs.
+   - Determine which dependency and version is causing the issue.
+
+2. Review the client code:
+   - Locate the problematic areas mentioned in the error message.
+   - Identify any related code that might be affected by the changes.
+
+3. Consider potential fixes that adhere to the following constraints:
+   - Do not change any function signatures.
+   - Only remove the @Override annotation if the method no longer overrides a method in the updated dependency version.
+   - Ensure correct imports are used, considering the newer dependency version.
+   - Avoid removing existing code unless it directly causes a compilation or functionality error.
+
+4. Plan the necessary changes to fix the issue:
+   - List the specific modifications required.
+   - Consider potential side effects of the proposed changes.
+   - Ensure the fix addresses the root cause of the error.
+</code_analysis>
+
+Based on your analysis, propose a patch to fix the issue. Your response should be a complete and compilable Java class in a fenced code block. Adhere to these guidelines:
+
+1. Do not change any function signatures.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Avoid removing any existing code unless it directly causes a compilation or functionality error.
+6. Ensure the entire class is included and that it will compile correctly. Don't use the comment "// ... (rest of the class remains unchanged)".
+
+Please provide your fixed class in the following format:
+
+```java
+// Your complete, fixed Java class here
+```
+
+Remember to focus specifically on issues related to the dependency update when proposing your fix.
+ 
