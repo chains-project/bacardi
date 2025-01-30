@@ -1,8 +1,0 @@
-3a4
-> import org.flywaydb.core.api.configuration.Configuration;
-31,32c32,33
-<                 final Flyway flyway = new Flyway();
-<                 flyway.setDataSource(this.dataSource());
----
->                 Configuration configuration = Flyway.configure().dataSource(this.dataSource());
->                 Flyway flyway = new Flyway(configuration);

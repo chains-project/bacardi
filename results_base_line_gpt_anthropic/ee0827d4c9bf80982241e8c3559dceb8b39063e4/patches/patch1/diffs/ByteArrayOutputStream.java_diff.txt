@@ -1,8 +1,0 @@
-29c29
-< import org.apache.commons.io.input.ClosedInputStream;
----
-> import org.apache.commons.io.IOUtils; // Updated import to avoid ClosedInputStream issue
-401c401
-<             return new ClosedInputStream();
----
->             return IOUtils.toInputStream("", Charset.defaultCharset()); // Use IOUtils for an empty stream
