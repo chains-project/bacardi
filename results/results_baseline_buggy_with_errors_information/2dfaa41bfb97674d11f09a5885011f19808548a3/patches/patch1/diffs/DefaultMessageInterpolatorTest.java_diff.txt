@@ -1,0 +1,10 @@
+242,246d241
+<         // not so much a test as an illustration that the specified EL implementations are seemingly confused by leading
+<         // backslashes and treats the whole expression as literal. We could skip any literal text before the first
+<         // non-escaped $, but that would only expose us to inconsistency for composite expressions containing more
+<         // than one component EL expression
+< 
+318c313
+<             .thenAnswer(invocation -> invocation.getArgumentAt(0, Class.class).cast(result));
+---
+>             .thenAnswer(invocation -> invocation.getArgument(0, Class.class).cast(result));

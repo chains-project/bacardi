@@ -1,0 +1,15 @@
+7c7,8
+< import javax.servlet.http.HttpServletResponse;
+---
+> import org.springframework.http.HttpStatus; // Updated import
+> import javax.servlet.http.HttpServletRequest; // Updated import
+22d22
+<     @Override
+45,47c45,47
+<         final HttpServletResponse response = event.getResponse();
+<         if (response != null) {
+<             jsonMap.put("responseStatus", response.getStatus());
+---
+>         final HttpServletRequest request = event.getRequest(); // Updated to use HttpServletRequest
+>         if (request != null) {
+>             jsonMap.put("responseStatus", HttpStatus.valueOf(request.getStatus()).value()); // Updated to use HttpStatus

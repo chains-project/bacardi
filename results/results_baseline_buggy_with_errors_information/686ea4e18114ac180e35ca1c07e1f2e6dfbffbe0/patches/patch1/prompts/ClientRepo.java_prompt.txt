@@ -1,0 +1,101 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+```java
+package com.wire.lithium;
+
+import com.wire.bots.cryptobox.CryptoException;
+import com.wire.xenon.WireAPI;
+import com.wire.xenon.WireClient;
+import com.wire.xenon.backend.models.NewBot;
+import com.wire.xenon.crypto.Crypto;
+import com.wire.xenon.factories.CryptoFactory;
+import com.wire.xenon.factories.StorageFactory;
+import com.wire.xenon.state.State;
+
+import javax.ws.rs.client.Client;
+import java.io.IOException;
+import java.util.UUID;
+
+public class ClientRepo {
+    protected final Client httpClient;
+    protected final CryptoFactory cf;
+    protected final StorageFactory sf;
+
+    public ClientRepo(Client httpClient, CryptoFactory cf, StorageFactory sf) {
+        this.httpClient = httpClient;
+        this.cf = cf;
+        this.sf = sf;
+    }
+
+    public WireClient getClient(UUID botId) throws IOException, CryptoException {
+        NewBot state = sf.create(botId).getState();
+        Crypto crypto = cf.create(botId);
+        WireAPI api = new API(httpClient, state.token);
+        return new BotClient(api, crypto, state);
+    }
+
+    public void purgeBot(UUID botId) throws IOException {
+        State state = sf.create(botId);
+        if (state == null)
+            return;
+
+        boolean purged = state.removeState();
+        if (!purged)
+            throw new IOException("Failed to purge Bot: " + botId);
+    }
+
+    public Client getHttpClient() {
+        return httpClient;
+    }
+
+    public CryptoFactory getCf() {
+        return cf;
+    }
+
+    public StorageFactory getSf() {
+        return sf;
+    }
+}
+
+```
+the error is triggered in the following specific lines in the previous code:
+
+```java
+protected final Client httpClient;
+```
+```java
+public Client getHttpClient() {
+```
+```java
+public ClientRepo(Client httpClient, CryptoFactory cf, StorageFactory sf) {
+```
+
+
+
+ with the following error information:
+[ERROR] /lithium/src/main/java/com/wire/lithium/ClientRepo.java:[17,21] cannot find symbol
+
+  symbol:   class Client
+  location: class com.wire.lithium.ClientRepo
+[ERROR] /lithium/src/main/java/com/wire/lithium/ClientRepo.java:[44,12] cannot find symbol
+
+  symbol:   class Client
+  location: class com.wire.lithium.ClientRepo
+[ERROR] /lithium/src/main/java/com/wire/lithium/ClientRepo.java:[21,23] cannot find symbol
+
+  symbol:   class Client
+  location: class com.wire.lithium.ClientRepo
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

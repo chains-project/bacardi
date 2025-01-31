@@ -1,0 +1,201 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker.http;
+
+import com.artipie.asto.memory.InMemoryStorage;
+import com.artipie.docker.asto.AstoDocker;
+import com.artipie.docker.junit.DockerClient;
+import com.artipie.docker.junit.DockerClientSupport;
+import com.artipie.docker.junit.DockerRepository;
+import org.hamcrest.Matcher;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
+import org.hamcrest.core.StringContains;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+/**
+ * Integration test for {@link DockerSlice}.
+ *
+ * @since 0.2
+ */
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
+@DockerClientSupport
+final class DockerSliceITCase {
+    /**
+     * Example docker image to use in tests.
+     */
+    private Image image;
+
+    /**
+     * Docker client.
+     */
+    private DockerClient client;
+
+    /**
+     * Docker repository.
+     */
+    private DockerRepository repository;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        this.repository = new DockerRepository(
+            new AstoDocker(new InMemoryStorage())
+        );
+        this.repository.start();
+        this.image = this.prepareImage();
+    }
+
+    @AfterEach
+    void tearDown() {
+        this.repository.stop();
+    }
+
+    @Test
+    void shouldPush() throws Exception {
+        final String output = this.client.run("push", this.image.remote());
+        MatcherAssert.assertThat(
+            output,
+            Matchers.allOf(this.layersPushed(), this.manifestPushed())
+        );
+    }
+
+    @Test
+    void shouldPushExisting() throws Exception {
+        this.client.run("push", this.image.remote());
+        final String output = this.client.run("push", this.image.remote());
+        MatcherAssert.assertThat(
+            output,
+            Matchers.allOf(this.layersAlreadyExist(), this.manifestPushed())
+        );
+    }
+
+    @Test
+    void shouldPullPushedByTag() throws Exception {
+        this.client.run("push", this.image.remote());
+        this.client.run("image", "rm", this.image.name());
+        this.client.run("image", "rm", this.image.remote());
+        final String output = this.client.run("pull", this.image.remote());
+        MatcherAssert.assertThat(
+            output,
+            new StringContains(
+                false,
+                String.format("Status: Downloaded newer image for %s", this.image.remote())
+            )
+        );
+    }
+
+    @Test
+    void shouldPullPushedByDigest() throws Exception {
+        this.client.run("push", this.image.remote());
+        this.client.run("image", "rm", this.image.name());
+        this.client.run("image", "rm", this.image.remote());
+        final String output = this.client.run("pull", this.image.remoteByDigest());
+        MatcherAssert.assertThat(
+            output,
+            new StringContains(
+                false,
+                String.format("Status: Downloaded newer image for %s", this.image.remoteByDigest())
+            )
+        );
+    }
+
+    private Image prepareImage() throws Exception {
+        final Image tmpimg = new Image.ForOs();
+        final String original = tmpimg.remoteByDigest();
+        this.client.run("pull", original);
+        final String local = "my-test";
+        this.client.run("tag", original, String.format("%s:latest", local));
+        final Image img = new Image.From(
+            this.repository.url(),
+            local,
+            tmpimg.digest(),
+            tmpimg.layer()
+        );
+        this.client.run("tag", original, img.remote());
+        return img;
+    }
+
+    private Matcher<String> manifestPushed() {
+        return new StringContains(false, String.format("latest: digest: %s", this.image.digest()));
+    }
+
+    private Matcher<String> layersPushed() {
+        return new StringContains(false, String.format("%s: Pushed", this.image.layer()));
+    }
+
+    private Matcher<String> layersAlreadyExist() {
+        return new StringContains(
+            false,
+            String.format("%s: Layer already exists", this.image.layer())
+        );
+    }
+}
+
+```
+the error is triggered in the following specific lines in the previous code:
+
+```java
+return new StringContains(false, String.format("latest: digest: %s", this.image.digest()));
+```
+```java
+new StringContains(
+```
+```java
+new StringContains(
+```
+```java
+return new StringContains(false, String.format("%s: Pushed", this.image.layer()));
+```
+```java
+return new StringContains(
+```
+
+
+
+ with the following error information:
+[ERROR] /docker-adapter/src/test/java/com/artipie/docker/http/DockerSliceITCase.java:[123,16] constructor StringContains in class org.hamcrest.core.StringContains cannot be applied to given types;
+
+  required: java.lang.String
+  found: boolean,java.lang.String
+  reason: actual and formal argument lists differ in length
+[ERROR] /docker-adapter/src/test/java/com/artipie/docker/http/DockerSliceITCase.java:[84,13] constructor StringContains in class org.hamcrest.core.StringContains cannot be applied to given types;
+
+  required: java.lang.String
+  found: boolean,java.lang.String
+  reason: actual and formal argument lists differ in length
+[ERROR] /docker-adapter/src/test/java/com/artipie/docker/http/DockerSliceITCase.java:[99,13] constructor StringContains in class org.hamcrest.core.StringContains cannot be applied to given types;
+
+  required: java.lang.String
+  found: boolean,java.lang.String
+  reason: actual and formal argument lists differ in length
+[ERROR] /docker-adapter/src/test/java/com/artipie/docker/http/DockerSliceITCase.java:[127,16] constructor StringContains in class org.hamcrest.core.StringContains cannot be applied to given types;
+
+  required: java.lang.String
+  found: boolean,java.lang.String
+  reason: actual and formal argument lists differ in length
+[ERROR] /docker-adapter/src/test/java/com/artipie/docker/http/DockerSliceITCase.java:[131,16] constructor StringContains in class org.hamcrest.core.StringContains cannot be applied to given types;
+
+  required: java.lang.String
+  found: boolean,java.lang.String
+  reason: actual and formal argument lists differ in length
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

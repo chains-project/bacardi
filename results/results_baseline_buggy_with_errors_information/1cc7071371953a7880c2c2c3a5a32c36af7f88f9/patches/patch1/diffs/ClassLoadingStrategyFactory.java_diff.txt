@@ -1,0 +1,28 @@
+16,18d15
+< import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector;
+< import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+< 
+29,32c26
+<     static ClassLoadingStrategy<ClassLoader> classLoadingStrategy(Class<?> assertClass) {
+<         if (ClassInjector.UsingReflection.isAvailable()) {
+<             return ClassLoadingStrategy.Default.INJECTION;
+<         } else if (ClassInjector.UsingLookup.isAvailable() && PRIVATE_LOOKUP_IN != null) {
+---
+>     static ClassLoadingStrategy<?> classLoadingStrategy(Class<?> assertClass) {
+34,37c28,34
+<                 return ClassLoadingStrategy.UsingLookup.of(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));
+<             } catch (Exception e) {
+<                 throw new IllegalStateException("Could not access package of " + assertClass, e);
+<             }
+---
+>             Class<?> classInjector = Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector");
+>             Class<?> classLoadingStrategy = Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy");
+> 
+>             if ((boolean) classInjector.getMethod("isAvailable").invoke(null)) {
+>                 return (ClassLoadingStrategy<?>) classLoadingStrategy.getField("Default").get(null).getField("INJECTION").get(null);
+>             } else if ((boolean) classInjector.getMethod("isAvailable").invoke(null) && PRIVATE_LOOKUP_IN != null) {
+>                 return (ClassLoadingStrategy<?>) classLoadingStrategy.getMethod("UsingLookup", Method.class).invoke(null, PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));
+40a38,40
+>         } catch (Exception e) {
+>             throw new IllegalStateException("Could not access package of " + assertClass, e);
+>         }

@@ -1,0 +1,48 @@
+12,19d11
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.View;
+< import javax.mvc.binding.BindingResult;
+< import javax.mvc.binding.ParamError;
+< import javax.mvc.security.CsrfProtected;
+< import javax.validation.Valid;
+< import javax.validation.constraints.NotNull;
+30a23,27
+> import javax.mvc.Models;
+> import javax.mvc.Controller;
+> import javax.mvc.View;
+> import javax.validation.Valid;
+> import javax.validation.constraints.NotNull;
+44,46d40
+<     private BindingResult validationResult;
+< 
+<     @Inject
+89,90d82
+<     @CsrfProtected
+<     //@ValidateOnExecution(type = ExecutableType.NONE)
+94,100c86,87
+<         if (validationResult.isFailed()) {
+<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
+<             validationResult.getAllErrors()
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+<                         alert.addError(t.getParamName(), "", t.getMessage());
+<                     });
+---
+>         if (form.getName() == null || form.getDescription() == null) {
+>             AlertMessage alert = AlertMessage.danger("Validation violations!");
+134d120
+<     @CsrfProtected
+138,144c124,125
+<         if (validationResult.isFailed()) {
+<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
+<             validationResult.getAllErrors()
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+<                         alert.addError(t.getParamName(), "", t.getMessage());
+<                     });
+---
+>         if (form.getName() == null || form.getDescription() == null) {
+>             AlertMessage alert = AlertMessage.danger("Validation violations!");
+164d144
+<     //@CsrfProtected

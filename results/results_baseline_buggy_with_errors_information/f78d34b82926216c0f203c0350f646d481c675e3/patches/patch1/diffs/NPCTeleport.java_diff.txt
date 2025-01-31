@@ -1,0 +1,50 @@
+3d2
+< import develop.p2p.lib.*;
+72d70
+<             @Override
+107,111d104
+<                     float head = ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f;
+< 
+<                     if (head < 0)
+<                         head *= 2;
+< 
+114c107
+<                     connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) head));
+---
+>                     connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) 0));
+117d109
+<                     float finalHead = head;
+120d111
+<                         @Override
+129c120
+<                                         .sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) finalHead));
+---
+>                                         .sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) 0));
+161,162d151
+<         WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
+< 
+179,180c168
+<                         rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
+<                             .get(0.01, true);
+---
+>                         rangeTmp = radius - 0.1; // Adjusted to remove WaveCreator dependency
+186c174
+<                         center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
+---
+>                         center.getY() + 1.0, // Adjusted to remove WaveCreator dependency
+188,189c176,177
+<                         (float) ypp.getStatic(),
+<                         (float) ypp.get(4.5, false)
+---
+>                         0,
+>                         0
+199d186
+<                         @Override
+219,221c206
+<                 time[0] += config.getDouble("npc.time") + (config.getBoolean("npc.speed.wave")
+<                     ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
+<                     : 0.0);
+---
+>                 time[0] += config.getDouble("npc.time");
+228d212
+<             @Override
