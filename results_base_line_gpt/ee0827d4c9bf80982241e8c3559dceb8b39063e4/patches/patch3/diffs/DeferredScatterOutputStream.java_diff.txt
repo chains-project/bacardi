@@ -1,8 +1,0 @@
-44,45c44,47
-<         // Assuming the new method signature is write(byte[], int, int)
-<         dfos.write(data, offset, length); // Updated method call to match new signature
----
->         // Assuming the new method signature is write(byte[])
->         byte[] dataToWrite = new byte[length];
->         System.arraycopy(data, offset, dataToWrite, 0, length);
->         dfos.write(dataToWrite); // Updated method call to match new signature

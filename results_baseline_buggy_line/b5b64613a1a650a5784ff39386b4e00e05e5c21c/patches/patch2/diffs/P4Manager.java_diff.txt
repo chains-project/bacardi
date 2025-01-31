@@ -1,8 +1,0 @@
-13a14
-> import org.jenkinsci.plugins.p4.workspace.Workspace; // Importing the correct class
-47c48,50
-<                     this.perforce = new PerforceClient(server, client);
----
->                     // Using the correct constructor for Workspace instead of instantiating it directly
->                     Workspace workspace = new Workspace(clientString, server); // Assuming a constructor exists
->                     this.perforce = new PerforceClient(server, client, workspace);

@@ -1,7 +1,0 @@
-159,160c159,161
-<         // Fix: Use correct method to build the dependency graph
-<         dependencies.addAll(getGraph().buildDependencyGraph(project, getFilter()).getChildren());
----
->         // Updated to use the correct method to build the dependency graph
->         DependencyNode rootNode = getGraph().buildDependencyGraph(project, getFilter());
->         dependencies.addAll(rootNode.getChildren());
