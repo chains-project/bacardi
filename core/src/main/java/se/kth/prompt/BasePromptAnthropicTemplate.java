@@ -1,13 +1,14 @@
 package se.kth.prompt;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import se.kth.failure_detection.DetectedFileWithErrors;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import se.kth.failure_detection.DetectedFileWithErrors;
 
 public class BasePromptAnthropicTemplate extends AbstractPromptTemplate {
 
@@ -31,9 +32,9 @@ public class BasePromptAnthropicTemplate extends AbstractPromptTemplate {
             String classCode = Files.readString(Path.of(promptModel.getClassInfo()));
             return """
                     Here is the client code that is failing:
-                    <client_code>
+                    ```java
                     %s
-                    </client_code>
+                    ```
                     """.formatted(classCode);
         } catch (IOException e) {
             log.error("Error reading the class file", e);
@@ -95,7 +96,6 @@ public class BasePromptAnthropicTemplate extends AbstractPromptTemplate {
                  %s
                  %s
                  %s
-                 %s
                  Before proposing a fix, please analyze the error message and client code. Wrap your analysis inside <code_analysis> tags:
 
                 <code_analysis>
@@ -137,6 +137,6 @@ public class BasePromptAnthropicTemplate extends AbstractPromptTemplate {
 
                 Remember to focus specifically on issues related to the dependency update when proposing your fix.
                 \s"""
-                .formatted(header(), classCode(), buggyLine(), errorLog());
+                .formatted(header(), classCode(), errorLog());
     }
 }
