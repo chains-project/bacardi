@@ -1,0 +1,10 @@
+11a12
+> // Importing the correct Client class from javax.ws.rs.client
+12a14
+> 
+30,31c32,33
+<         WireAPI api = new API(httpClient, state.token);
+<         return new BotClient(api, crypto, state);
+---
+>         WireAPI api = new WireAPI(httpClient, state.token); // Corrected to use WireAPI constructor
+>         return new WireClient(api, crypto, state); // Corrected to use WireClient constructor

@@ -1,0 +1,197 @@
+ You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates.
+Your task is to analyze the provided code and error message, then propose a patch that can be applied to the client code to resolve the issue.
+
+ Here is the client code that is failing:
+```java
+package com.github.games647.changeskin.sponge.task;
+
+import com.flowpowered.math.vector.Vector3d;
+import com.github.games647.changeskin.core.model.UserPreference;
+import com.github.games647.changeskin.core.model.skin.SkinModel;
+import com.github.games647.changeskin.core.shared.task.SharedApplier;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import java.util.UUID;
+
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.tab.TabListEntry;
+import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
+
+public class SkinApplier extends SharedApplier {
+
+    private final ChangeSkinSponge plugin;
+    private final CommandSource invoker;
+    private final Player receiver;
+
+    public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
+            , boolean keepSkin) {
+        super(plugin.getCore(), targetSkin, keepSkin);
+
+        this.plugin = plugin;
+        this.invoker = invoker;
+        this.receiver = receiver;
+    }
+
+    @Override
+    public void run() {
+        if (!isConnected()) {
+            return;
+        }
+
+        //uuid was successful resolved, we could now make a cooldown check
+        if (invoker instanceof Player) {
+            UUID uniqueId = ((Player) invoker).getUniqueId();
+            core.getCooldownService().trackPlayer(uniqueId);
+        }
+
+        if (core.getStorage() != null) {
+            UserPreference preferences = core.getStorage().getPreferences(receiver.getUniqueId());
+            save(preferences);
+        }
+
+        applySkin();
+    }
+
+    @Override
+    protected boolean isConnected() {
+        return receiver.isOnline();
+    }
+
+    @Override
+    protected void applyInstantUpdate() {
+        plugin.getApi().applySkin(receiver, targetSkin);
+
+        sendUpdate();
+        plugin.sendMessage(invoker, "skin-changed");
+    }
+
+    @Override
+    protected void sendMessage(String key) {
+        plugin.sendMessage(invoker, key);
+    }
+
+    @Override
+    protected void runAsync(Runnable runnable) {
+        Task.builder().async()
+                .execute(runnable)
+                .submit(plugin);
+    }
+
+    private void sendUpdate() {
+        sendUpdateSelf();
+
+        //triggers an update for others player to see the new skin
+        receiver.offer(Keys.VANISH, true);
+        receiver.offer(Keys.VANISH, false);
+    }
+
+    private void sendUpdateSelf() {
+        receiver.getTabList().removeEntry(receiver.getUniqueId());
+        receiver.getTabList().addEntry(TabListEntry.builder()
+                .displayName(receiver.getDisplayNameData().displayName().get())
+                .latency(receiver.getConnection().getLatency())
+                .list(receiver.getTabList())
+                .gameMode(receiver.getGameModeData().type().get())
+                .profile(receiver.getProfile())
+                .build());
+
+        Location<World> oldLocation = receiver.getLocation();
+        Vector3d rotation = receiver.getRotation();
+        World receiverWorld = receiver.getWorld();
+        Sponge.getServer().getWorlds()
+                .stream()
+                .filter(world -> !world.equals(receiverWorld))
+                .findFirst()
+                .ifPresent(world -> {
+                    receiver.setLocation(world.getSpawnLocation());
+                    receiver.setLocationAndRotation(oldLocation, rotation);
+                });
+    }
+}
+
+```
+
+ the error is triggered in the following specific lines in the previous code:
+
+```java
+import org.spongepowered.api.data.key.Keys;
+```
+```java
+import org.spongepowered.api.command.CommandSource;
+```
+```java
+private final CommandSource invoker;
+```
+```java
+public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
+```
+```java
+import com.flowpowered.math.vector.Vector3d;
+```
+
+
+ And here is the error message:
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinApplier.java:[13,38] package org.spongepowered.api.data.key does not exist
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinApplier.java:[12,37] cannot find symbol
+  symbol:   class CommandSource
+  location: package org.spongepowered.api.command
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinApplier.java:[23,19] cannot find symbol
+  symbol:   class CommandSource
+  location: class com.github.games647.changeskin.sponge.task.SkinApplier
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinApplier.java:[26,49] cannot find symbol
+  symbol:   class CommandSource
+  location: class com.github.games647.changeskin.sponge.task.SkinApplier
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinApplier.java:[3,35] package com.flowpowered.math.vector does not exist
+
+
+
+ Before proposing a fix, please analyze the error message and client code. Wrap your analysis inside <code_analysis> tags:
+
+<code_analysis>
+1. Examine the error message:
+   - Identify the specific issue related to the dependency update.
+   - Note the line number or method where the error occurs.
+   - Determine which dependency and version is causing the issue.
+
+2. Review the client code:
+   - Locate the problematic areas mentioned in the error message.
+   - Identify any related code that might be affected by the changes.
+
+3. Consider potential fixes that adhere to the following constraints:
+   - Do not change any function signatures.
+   - Only remove the @Override annotation if the method no longer overrides a method in the updated dependency version.
+   - Ensure correct imports are used, considering the newer dependency version.
+   - Avoid removing existing code unless it directly causes a compilation or functionality error.
+
+4. Plan the necessary changes to fix the issue:
+   - List the specific modifications required.
+   - Consider potential side effects of the proposed changes.
+   - Ensure the fix addresses the root cause of the error.
+</code_analysis>
+
+Based on your analysis, propose a patch to fix the issue. Your response should be a complete and compilable Java class in a fenced code block. Adhere to these guidelines:
+
+1. Do not change any function signatures.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Avoid removing any existing code unless it directly causes a compilation or functionality error.
+6. Ensure the entire class is included and that it will compile correctly. Don't use the comment "// ... (rest of the class remains unchanged)".
+
+Please provide your fixed class in the following format:
+
+```java
+// Your complete, fixed Java class here
+```
+
+Remember to focus specifically on issues related to the dependency update when proposing your fix.
+ 
