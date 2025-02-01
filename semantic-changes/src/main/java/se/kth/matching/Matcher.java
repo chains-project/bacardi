@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.kth.comparison.ValueComparator;
 import se.kth.model.MethodInvocation;
 import spoon.support.reflect.declaration.CtMethodImpl;
 
@@ -13,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class Matcher {
@@ -44,6 +46,7 @@ public class Matcher {
                         return null;
                     }
                 })
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
@@ -123,8 +126,34 @@ public class Matcher {
             }
             return pairs;
         } else {
-            logger.error("Pre and post versions do not have the same number of invocations");
-            return new ArrayList<>();
+            try {
+                List<Pair<MethodInvocation, MethodInvocation>> matchedInvocations = new ArrayList<>();
+
+                for (MethodInvocation preInvocation : preVersion) {
+                    boolean matched = false;
+                    for (int i = 0; i < postVersion.size(); i++) {
+                        MethodInvocation postInvocation = postVersion.get(i);
+                        List<Difference> breakingChanges = ValueComparator.compareArguments(preInvocation, postInvocation)
+                                .stream()
+                                .flatMap(List::stream)
+                                .filter(difference -> difference.getType().equals(DifferenceType.VALUE_CHANGED) || difference.getType().equals(DifferenceType.TYPE_CHANGED))
+                                .toList();
+                        if (breakingChanges.isEmpty()) {
+                            matchedInvocations.add(Pair.of(preInvocation, postInvocation));
+                            postVersion.remove(i);
+                            matched = true;
+                            break;
+                        }
+                    }
+                    if (!matched) {
+                        matchedInvocations.add(Pair.of(preInvocation, null));
+                    }
+                }
+
+                return matchedInvocations;
+            } catch (Exception e) {
+                return new ArrayList<>();
+            }
         }
     }
 }

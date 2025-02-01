@@ -1,6 +1,6 @@
 package se.kth.extractor;
 
-import spoon.Launcher;
+import spoon.MavenLauncher;
 import spoon.reflect.CtModel;
 import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtElement;
@@ -21,8 +21,7 @@ public class SpoonLocalizer {
     private final CtModel model;
 
     public SpoonLocalizer(Path projectPath) {
-        Launcher launcher = new Launcher();
-        launcher.addInputResource(projectPath.toString());
+        MavenLauncher launcher = new MavenLauncher(projectPath.toString(), MavenLauncher.SOURCE_TYPE.ALL_SOURCE);
         launcher.buildModel();
         this.model = launcher.getModel();
     }

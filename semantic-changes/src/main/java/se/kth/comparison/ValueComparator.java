@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.tuple.Pair;
 import se.kth.matching.Difference;
+import se.kth.matching.DifferenceType;
 import se.kth.model.MethodInvocation;
 
 import java.nio.file.Files;
@@ -43,6 +44,9 @@ public class ValueComparator {
                 JsonNode leftReturnValue = mapper.readTree(left.getReturnValue());
                 JsonNode rightReturnValue = mapper.readTree(right.getReturnValue());
                 differences.add(compare(leftReturnValue, rightReturnValue));
+                JsonNode beforeObject = mapper.readTree(left.getThiz());
+                JsonNode afterObject = mapper.readTree(right.getThiz());
+                differences.add(compare(beforeObject, afterObject));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -50,7 +54,7 @@ public class ValueComparator {
         return differences;
     }
 
-    public static List<List<Difference>> compareAllArguments(MethodInvocation preArguments, MethodInvocation postArguments) throws JsonProcessingException {
+    public static List<List<Difference>> compareArguments(MethodInvocation preArguments, MethodInvocation postArguments) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         List<List<Difference>> differences = new ArrayList<>();
         JsonNode preArgumentsNode = mapper.readTree(preArguments.getArguments());
@@ -99,13 +103,13 @@ public class ValueComparator {
         if (node1 == null && node2 == null) {
             return differences;
         } else if (node1 == null || node2 == null) {
-            differences.add(new Difference(path, "One of the nodes is null"));
+            differences.add(new Difference(path, "One of the nodes is null", DifferenceType.OTHER));
             return differences;
         }
 
         if (!node1.getNodeType().equals(node2.getNodeType())) {
             differences.add(new Difference(path,
-                    "Node types differ (" + node1.getNodeType() + " vs " + node2.getNodeType() + ")"));
+                    "Node types differ (" + node1.getNodeType() + " vs " + node2.getNodeType() + ")", DifferenceType.TYPE_CHANGED));
             return differences;
         }
 
@@ -154,13 +158,13 @@ public class ValueComparator {
             while (fieldNames2.hasNext()) {
                 String fieldName = fieldNames2.next();
                 if (!fieldName.equals("hash") && !node1.has(fieldName)) {
-                    differences.add(new Difference(path, fieldName + ": Field is missing in the first object"));
+                    differences.add(new Difference(path, fieldName + ": Field is missing in the first object", DifferenceType.FIELD_ADDED));
                 }
             }
         } else if (node1.isArray()) {
             if (node1.size() != node2.size()) {
                 differences.add(new Difference(path, "Array sizes differ (" + node1.size() + " vs " + node2.size() +
-                        ")"));
+                        ")", DifferenceType.VALUE_CHANGED));
             } else {
                 for (int i = 0; i < node1.size(); i++) {
                     differences.addAll(compareJson(node1.get(i), node2.get(i), path + "[" + i + "]", referenceMap1,
@@ -168,7 +172,7 @@ public class ValueComparator {
                 }
             }
         } else if (!node1.asText().equals(node2.asText())) {
-            differences.add(new Difference(path, "Values differ (" + node1.asText() + " vs " + node2.asText() + ")"));
+            differences.add(new Difference(path, "Values differ (" + node1.asText() + " vs " + node2.asText() + ")", DifferenceType.VALUE_CHANGED));
         }
 
         return differences;
