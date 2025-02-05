@@ -17,12 +17,12 @@ import se.kth.wError.RepairWError;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import static se.kth.Util.Constants.MAX_ATTEMPTS;
-import static se.kth.Util.Constants.PIPELINE;
-import static se.kth.Util.Constants.PYTHON_SCRIPT;
+import static se.kth.Util.Constants.*;
 import static se.kth.Util.FileUtils.getAbsolutePath;
 
 public class BacardiCore {
@@ -175,6 +175,7 @@ public class BacardiCore {
                     Constants.BRANCH_DIRECT_COMPILATION_FAILURE + "_%s".formatted(result.getAttempts().size()));
         }
         DockerBuild dockerBuild = setupPipeline.getDockerBuild();
+        AtomicBoolean errorModelResponse = new AtomicBoolean(false);
 
         // Ensure the base Maven image exists
         try {
@@ -211,7 +212,9 @@ public class BacardiCore {
 
                 storeInfo.storeFilesErrors("prefix", listOfFilesWithErrors);
 
-                listOfFilesWithErrors.forEach((key, value) -> {
+                for (Map.Entry<String, Set<DetectedFileWithErrors>> entry : listOfFilesWithErrors.entrySet()) {
+                    String key = entry.getKey();
+                    Set<DetectedFileWithErrors> value = entry.getValue();
                     log.info("File: {}", key);
 
                     if (value.isEmpty()) {
@@ -239,6 +242,7 @@ public class BacardiCore {
                             storeInfo.copyContentToFile("responses/%s_model_response.txt".formatted(fileName),
                                     model_response);
                             String onlyCodeResponse = generatePrompt.extractContentFromModelResponse(model_response);
+
                             storeInfo.copyContentToFile("responses/%s_response.txt".formatted(fileName),
                                     onlyCodeResponse);
                             // save the updated file
@@ -254,14 +258,16 @@ public class BacardiCore {
                             isDifferent.add(isDiff);
                             // replace original file with updated file
                             if (isDiff) {
-                                Files.copy(updatedFile, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                                Files.copy(updatedFile, target, StandardCopyOption.REPLACE_EXISTING);
                             }
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
+                        } catch (Exception e) {
+                            errorModelResponse.set(true);
+                            log.error("Error saving prompt to file. {}", e.getMessage());
+                            return FailureCategory.ERROR_MODEL_RESPONSE;
                         }
                     }
 
-                });
+                }
 
                 if (isDifferent.contains(true)) {
                     gitManager.commitAllChanges(
@@ -312,8 +318,7 @@ public class BacardiCore {
         return switch (promptPipeLine) {
             case BASELINE, BASELINE_ANTHROPIC, FIX_YOU -> repairDirectFailures.basePipeLine();
             case BASELINE_BUGGY_LINE, BASELINE_ANTHROPIC_BUGGY -> repairDirectFailures.buggyLinePipeLine();
-            case BASELINE_API_DIFF ->
-                repairDirectFailures.extractConstructsFromDirectFailures();
+            case BASELINE_API_DIFF -> repairDirectFailures.extractConstructsFromDirectFailures();
             default -> throw new IllegalStateException("Unexpected value: " + promptPipeLine);
         };
     }
