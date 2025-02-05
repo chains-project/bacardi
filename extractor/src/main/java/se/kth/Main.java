@@ -23,7 +23,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        String benchmark = "/Users/frank/Documents/Work/PHD/BUMP/bump/data/benchmark/%s.json".formatted("0abf7148300f40a1da0538ab060552bca4a2f1d8");
+        String benchmark = "/Users/frank/Documents/Work/PHD/BUMP/bump/data/benchmark/%s.json".formatted("3eb708f53f5f1ce897c3554bb73f5de5698dd171");
 
         File jsonFile = new File(benchmark);
 

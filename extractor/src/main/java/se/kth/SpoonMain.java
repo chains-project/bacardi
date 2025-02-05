@@ -5,10 +5,12 @@ import japicmp.cmp.JarArchiveComparator;
 import japicmp.cmp.JarArchiveComparatorOptions;
 import japicmp.config.Options;
 import japicmp.model.JApiClass;
-import se.kth.spoon.SpoonFullyQualifiedNameExtractor;
+import se.kth.japicmp_analyzer.ApiChange;
+import se.kth.spoon.DirectFailuresScan;
 import spoon.MavenLauncher;
 import spoon.reflect.CtModel;
 import spoon.reflect.declaration.CtElement;
+import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.io.File;
@@ -23,6 +25,7 @@ public class SpoonMain {
 
     public static void main(String[] args) throws IOException {
 
+        SpoonMain a = new SpoonMain();
 
         Options defaultOptions = Options.newDefault();
         defaultOptions.setOutputOnlyBinaryIncompatibleModifications(true);
@@ -73,25 +76,47 @@ public class SpoonMain {
 
         Set<CtElement> ee = getAllChildren(Collections.singletonList(elementlist.get()));
 
+        Set<CtElement> executedElements = new HashSet<>();
+        Set<ApiChange> api = new HashSet<>();
+        DirectFailuresScan scan = new DirectFailuresScan(api);
 
-        ee.forEach(e1->{
-            final String fullyQualifiedName;
-            try {
-                fullyQualifiedName = SpoonFullyQualifiedNameExtractor.getFullyQualifiedName(e1.getClass().newInstance());
-            } catch (InstantiationException ex) {
-                throw new RuntimeException(ex);
-            } catch (IllegalAccessException ex) {
-                throw new RuntimeException(ex);
+        for (CtElement element : ee) {
+            element.accept(scan);
+        }
+
+        System.out.println("ELELELELELE");
+
+//
+//        List<CtElement> involvedElements = a.checkChangedInvolved(ee.stream().toList(), classNames);
+//        List<CtElement> result = a.removeParents(involvedElements);
+//
+//        result.forEach(f -> {
+//            System.out.println("dsdfsdfdsf");
+//            System.out.println(f.getReferencedTypes().stream().toList());
+//        });
+
+    }
+
+    private static boolean referencesChangedType(CtElement element, List<String> changedClassnames) {
+        List<String> referencedElementsTypes = element.getReferencedTypes().stream()
+                .map(CtTypeReference::getQualifiedName)
+                .toList();
+        return containsAny(changedClassnames, referencedElementsTypes);
+    }
+
+    private static boolean containsAny(List<String> first, List<String> second) {
+        for (String s : second) {
+            if (first.contains(s)) {
+                return true;
             }
-            System.out.println(fullyQualifiedName);
-        });
+        }
+        return false;
+    }
 
-
-        System.out.println(elementlist.get().toString());
-
-
-
-
+    private List<CtElement> checkChangedInvolved(List<CtElement> elements, List<String> changedClassnames) {
+        return removeParents(elements).stream()
+                .filter(ctElement -> referencesChangedType(ctElement, changedClassnames))
+                .toList();
     }
 
     private List<CtElement> removeParents(List<CtElement> elements) {
