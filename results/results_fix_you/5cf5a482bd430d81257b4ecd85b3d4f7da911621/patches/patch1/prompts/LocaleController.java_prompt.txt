@@ -1,0 +1,73 @@
+Due to an update of Library jakarta.mvc from version 1.1.0 to version 2.0.1, the code in file LocaleController.java below is causing errors.
+
+Here is the error message:
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/LocaleController.java:[9,17] package javax.mvc does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/LocaleController.java:[18,2] cannot find symbol
+  symbol: class Controller
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/LocaleController.java:[23,5] cannot find symbol
+  symbol:   class MvcContext
+  location: class com.example.web.LocaleController
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/LocaleController.java:[26,5] cannot find symbol
+  symbol:   class Models
+  location: class com.example.web.LocaleController
+
+
+
+Update the provided code to fix this error.
+
+Focus only on updates that do not change the code's functionality and are related to the version update of the library.
+
+You must reply in the following exact numbered format.
+
+1. `The full updated code in a fenced code block` do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+2. Explanation of the changes you made.
+
+Provided code:
+
+```
+package com.example.web;
+
+import java.util.Locale;
+import java.util.logging.Logger;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.mvc.Controller;
+import javax.mvc.Models;
+import javax.mvc.MvcContext;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+
+/**
+ *
+ * @author hantsy
+ */
+@Path("locale")
+@Controller
+@RequestScoped
+public class LocaleController {
+
+    @Inject
+    MvcContext mvc;
+
+    @Inject
+    Models models;
+
+    @Inject
+    Logger log;
+
+    @GET
+    public String get() {
+        Locale locale = mvc.getLocale();
+        models.put("locale", locale);
+        return "locale.xhtml";
+    }
+
+}
+
+
+```
+
+Your Response:

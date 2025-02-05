@@ -1,0 +1,43 @@
+1. 
+```java
+package com.example.web;
+
+import java.util.Locale;
+import java.util.logging.Logger;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import jakarta.mvc.MvcContext;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+
+/**
+ *
+ * @author hantsy
+ */
+@Path("locale")
+@Controller
+@RequestScoped
+public class LocaleController {
+
+    @Inject
+    MvcContext mvc;
+
+    @Inject
+    Models models;
+
+    @Inject
+    Logger log;
+
+    @GET
+    public String get() {
+        Locale locale = mvc.getLocale();
+        models.put("locale", locale);
+        return "locale.xhtml";
+    }
+
+}
+```
+
+2. The changes made to the code involve updating the import statements from `javax` to `jakarta`. This change reflects the transition from the `javax` namespace to the `jakarta` namespace that occurred with the update of the Jakarta MVC library from version 1.1.0 to version 2.0.1. All instances of `javax` in the import statements were replaced with `jakarta` to ensure compatibility with the new version of the library. The functionality of the code remains unchanged.

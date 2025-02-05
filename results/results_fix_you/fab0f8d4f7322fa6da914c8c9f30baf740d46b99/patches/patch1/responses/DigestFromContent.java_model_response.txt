@@ -1,0 +1,77 @@
+1. 
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker.misc;
+
+import com.artipie.asto.Content;
+import com.artipie.docker.Digest;
+import hu.akarnokd.rxjava2.interop.SingleInterop;
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.CompletionStage;
+import org.cactoos.io.InputOf;
+import org.cactoos.text.HexOf;
+
+/**
+ * Digest from content.
+ * @since 0.2
+ */
+public final class DigestFromContent {
+
+    /**
+     * Content.
+     */
+    private final Content content;
+
+    /**
+     * Ctor.
+     * @param content Content publisher
+     */
+    public DigestFromContent(final Content content) {
+        this.content = content;
+    }
+
+    /**
+     * Calculates digest from content.
+     * @return CompletionStage from digest
+     */
+    public CompletionStage<Digest> digest() {
+        final MessageDigest sha;
+        try {
+            sha = MessageDigest.getInstance("SHA-256");
+        } catch (final NoSuchAlgorithmException err) {
+            throw new IllegalStateException("This runtime doesn't have SHA-256 algorithm", err);
+        }
+        return Flowable.fromPublisher(this.content)
+            .flatMapCompletable(
+                buf -> Completable.fromAction(
+                    () -> {
+                        buf.mark();
+                        sha.update(new InputOf(buf).asBytes());
+                        buf.reset();
+                    }
+                )
+            )
+            .<Digest>andThen(
+                Single.fromCallable(
+                    () -> new Digest.Sha256(new HexOf(sha.digest()).asString())
+                )
+            )
+            .to(SingleInterop.get()).toCompletableFuture();
+    }
+
+}
+```
+
+2. The changes made to the code are as follows:
+   - Replaced the import of `org.cactoos.io.BytesOf` with `org.cactoos.io.InputOf` since `BytesOf` is no longer available in the updated version of the library.
+   - Updated the usage of `BytesOf` to `InputOf` in the `sha.update()` method to ensure that the byte array is correctly obtained from the buffer.
+   - Removed the `new BytesOf(sha.digest())` and directly used `sha.digest()` in the `HexOf` constructor, as `sha.digest()` returns a byte array which is compatible with `HexOf`. 
+
+These changes ensure that the code remains functional while adhering to the updated library's structure.
