@@ -17,6 +17,8 @@
 
 package com.google.cloud.translate;
 
+import com.google.common.base.Function;
+import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -31,6 +33,12 @@ import java.util.Objects;
 public class Language implements Serializable {
 
   private static final long serialVersionUID = 5205240279371907020L;
+  static final Function<com.google.api.services.translate.model.LanguagesResource, Language> FROM_PB_FUNCTION =
+      new Function<com.google.api.services.translate.model.LanguagesResource, Language>() {
+        public Language apply(com.google.api.services.translate.model.LanguagesResource languagePb) {
+          return Language.fromPb(languagePb);
+        }
+      };
 
   private final String code;
   private final String name;
@@ -52,7 +60,7 @@ public class Language implements Serializable {
 
   @Override
   public String toString() {
-    return com.google.common.base.MoreObjects.toStringHelper(this).add("code", code).add("name", name).toString();
+    return MoreObjects.toStringHelper(this).add("code", code).add("name", name).toString();
   }
 
   @Override
@@ -72,9 +80,7 @@ public class Language implements Serializable {
     return Objects.equals(code, other.code) && Objects.equals(name, other.name);
   }
 
-  static Language fromPb(Object languagePb) {
-    String langCode = (String) languagePb.getClass().getMethod("getLanguage").invoke(languagePb);
-    String langName = (String) languagePb.getClass().getMethod("getName").invoke(languagePb);
-    return new Language(langCode, langName);
+  static Language fromPb(com.google.api.services.translate.model.LanguagesResource languagePb) {
+    return new Language(languagePb.getLanguage(), languagePb.getName());
   }
 }

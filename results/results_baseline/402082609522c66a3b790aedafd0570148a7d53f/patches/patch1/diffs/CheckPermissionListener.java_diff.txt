@@ -5,36 +5,19 @@
 < import org.spongepowered.api.network.RawDataListener;
 ---
 > import org.spongepowered.api.network.ChannelBinding;
-26c23
-< public class CheckPermissionListener implements RawDataListener {
----
-> public class CheckPermissionListener {
-29c26
+21a19,20
+> import org.spongepowered.api.network.listener.RawDataListener;
+> import org.spongepowered.api.network.ChannelBuffer;
+29c28
 <     private final RawDataChannel permissionsResultChannel;
 ---
 >     private final ChannelBinding.RawDataChannel permissionsResultChannel;
-32c29
+32c31
 <     CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
 ---
->     CheckPermissionListener(ChangeSkinSponge plugin, ChannelBinding.RawDataChannel permissionsResultChannel) {
-34,36c31
-< 
-<         String combinedName = new NamespaceKey(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL).getCombinedName();
-<         permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
----
->         this.permissionsResultChannel = permissionsResultChannel;
-39,40c34
+>     CheckPermissionListener(ChangeSkinSponge plugin, ChannelBinding channelRegistrar) {
+39,40c38
 <     @Override
 <     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
 ---
->     public void handlePayload(ByteArrayDataInput data, RemoteConnection connection, Type side) {
-42d35
-<         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
-44c37
-<         checkMessage.readFrom(dataInput);
----
->         checkMessage.readFrom(data);
-47c40
-<         message.readFrom(dataInput);
----
->         message.readFrom(data);
+>     public void handlePayload(ChannelBuffer data, RemoteConnection connection, Type side) {

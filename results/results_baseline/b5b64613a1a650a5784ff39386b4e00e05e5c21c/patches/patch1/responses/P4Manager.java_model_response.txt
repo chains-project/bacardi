@@ -6,7 +6,6 @@ import com.perforce.p4java.server.IOptionsServer;
 import hudson.EnvVars;
 import hudson.model.AbstractBuild;
 import hudson.model.TaskListener;
-import hudson.model.Item;
 import hudson.model.ItemGroup;
 import org.apache.commons.lang3.StringUtils;
 import org.jenkinsci.plugins.p4.PerforceScm;
@@ -28,11 +27,9 @@ import java.util.logging.Logger;
 public class P4Manager extends AbstractPerforceManager<PerforceScm> {
 
     private static final Logger logger = Logger.getLogger(P4Manager.class.getName());
-    private ItemGroup<?> itemGroup;
 
     public P4Manager(AbstractBuild<?, ?> build, TaskListener buildListener) {
         super(build, buildListener);
-        this.itemGroup = build.getProject().getParent(); // Assuming the parent is the ItemGroup
     }
 
     @Override
@@ -46,7 +43,8 @@ public class P4Manager extends AbstractPerforceManager<PerforceScm> {
         try {
             String clientString = getClientString();
             if (connection.isClient(clientString)) {
-                ClientHelper perforceClient = new ClientHelper(itemGroup, credentials, buildListener, null);
+                ItemGroup<?> itemGroup = build.getParent(); // Added to get the ItemGroup
+                ClientHelper perforceClient = new ClientHelper(itemGroup, credentials, buildListener, null); // Updated constructor
                 IClient client = perforceClient.getClient();
                 try {
                     this.perforce = new PerforceClient(server, client);

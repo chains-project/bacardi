@@ -7,23 +7,26 @@
 < import javax.mvc.binding.ParamError;
 < import javax.mvc.security.CsrfProtected;
 < import javax.validation.constraints.NotBlank;
-24d15
+17a10
+> import javax.validation.constraints.NotBlank;
+24d16
 < @Controller
-29,37d19
+29,32c21
 <     BindingResult bindingResult;
 < 
 <     @Inject
 <     Models models;
-< 
+---
+>     Logger log;
+37,39d25
 <     @Inject
-<     AlertMessage flashMessage;
+<     Logger log;
 < 
-<     @Inject
-46d27
+46d31
 <     @UriRef("greeting-post")
-49,59c30,32
+49d33
 <             @MvcBinding
-<             @NotBlank String greeting) {
+51,62c35
 <         if (bindingResult.isFailed()) {
 <             AlertMessage alert = AlertMessage.danger("Validation voilations!");
 <             bindingResult.getAllErrors()
@@ -33,9 +36,8 @@
 <                     });
 <             models.put("errors", alert);
 <             log.info("mvc binding failed.");
+<             return "greeting.xhtml";
+<         }
+< 
 ---
->             String greeting) {
->         if (greeting == null || greeting.isBlank()) {
->             log.info("Validation violations!");
-64d36
-<         flashMessage.notify(AlertMessage.Type.success, "Message:" + greeting);
+>         AlertMessage alert = AlertMessage.danger("Validation violations!");

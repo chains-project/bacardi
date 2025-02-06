@@ -8,9 +8,9 @@
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 <                 return flyway;
 ---
->                 final Configuration configuration = Flyway.configure()
+>                 Configuration configuration = Flyway.configure()
 >                                 .dataSource(this.dataSource())
 >                                 .locations(prop.getProperty("flyway.locations"))
 >                                 .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
->                 
+> 
 >                 return new Flyway(configuration);

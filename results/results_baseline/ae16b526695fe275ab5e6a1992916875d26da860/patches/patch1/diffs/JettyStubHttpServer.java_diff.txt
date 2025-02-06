@@ -6,7 +6,11 @@
 < import org.eclipse.jetty.server.nio.SelectChannelConnector;
 ---
 > import org.eclipse.jetty.server.ServerConnector; // Updated import
+24c24
+<     private final Connector httpConnector;
+---
+>     private final ServerConnector httpConnector; // Updated type
 36c36
 <         this.httpConnector = new SelectChannelConnector();
 ---
->         this.httpConnector = new ServerConnector(server); // Updated to ServerConnector
+>         this.httpConnector = new ServerConnector(server); // Updated instantiation

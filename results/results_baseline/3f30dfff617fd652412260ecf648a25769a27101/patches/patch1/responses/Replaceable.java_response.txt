@@ -2,9 +2,7 @@ package de.hilling.junit.cdi.scope;
 
 import org.immutables.value.Value;
 
-// Importing the correct package for InterceptorBinding
-import jakarta.interceptor.InterceptorBinding; // Updated import
-
+import javax.enterprise.util.AnnotationLiteral;
 import java.lang.annotation.*;
 
 /**
@@ -12,7 +10,6 @@ import java.lang.annotation.*;
  * mark classes that can be mocked or replaced by other test beans.
  */
 @Inherited
-@InterceptorBinding
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Value.Immutable

@@ -5,7 +5,6 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.TranslateOptions;
@@ -32,7 +31,7 @@ public class HttpTranslateRpc implements TranslateRpc {
     HttpRequestInitializer initializer = transportOptions.getHttpRequestInitializer(options);
     this.options = options;
     translate =
-        new Translate.Builder(transport, JacksonFactory.getDefaultInstance(), initializer)
+        new Translate.Builder(transport, new JacksonFactory(), initializer)
             .setRootUrl(options.getHost())
             .setApplicationName(options.getApplicationName())
             .build();

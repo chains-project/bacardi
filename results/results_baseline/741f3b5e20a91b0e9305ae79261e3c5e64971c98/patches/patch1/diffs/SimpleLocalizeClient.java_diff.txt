@@ -1,2 +1,11 @@
 3a4
 > import com.fasterxml.jackson.databind.JsonMappingException;
+144c145,150
+<       String message = JsonPath.using(parseContext).parse(stringBody).read(ERROR_MESSAGE_PATH);
+---
+>       String message = null;
+>       try {
+>         message = JsonPath.using(parseContext).parse(stringBody).read(ERROR_MESSAGE_PATH);
+>       } catch (JsonMappingException e) {
+>         message = "Error parsing response: " + e.getMessage();
+>       }

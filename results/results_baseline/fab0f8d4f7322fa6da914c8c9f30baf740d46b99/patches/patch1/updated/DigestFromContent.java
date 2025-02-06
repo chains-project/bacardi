@@ -13,7 +13,7 @@ import io.reactivex.Single;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.CompletionStage;
-import org.apache.commons.codec.binary.Hex;
+import java.util.Formatter;
 
 /**
  * Digest from content.
@@ -57,10 +57,20 @@ public final class DigestFromContent {
             )
             .<Digest>andThen(
                 Single.fromCallable(
-                    () -> new Digest.Sha256(Hex.encodeHexString(sha.digest()))
+                    () -> new Digest.Sha256(toHexString(sha.digest()))
                 )
             )
             .to(SingleInterop.get()).toCompletableFuture();
+    }
+
+    private String toHexString(byte[] bytes) {
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : bytes) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 
 }

@@ -60,18 +60,6 @@ public class MockHttpSession implements HttpSession {
     return 0;
   }
 
-  @Deprecated
-  @Override
-  public Object getValue(final String s) {
-    return null;
-  }
-
-  @Deprecated
-  @Override
-  public String[] getValueNames() {
-    return new String[0];
-  }
-
   @Override
   public void invalidate() {
   }
@@ -81,18 +69,9 @@ public class MockHttpSession implements HttpSession {
     return false;
   }
 
-  @Deprecated
-  @Override
-  public void putValue(final String s, final Object o) {
-  }
-
   @Override
   public void removeAttribute(final String s) {
     attributes.remove(s);
-  }
-
-  @Override
-  public void removeValue(final String s) {
   }
 
   @Override

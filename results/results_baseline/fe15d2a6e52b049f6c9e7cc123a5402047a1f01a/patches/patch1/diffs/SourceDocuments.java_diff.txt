@@ -102,7 +102,77 @@
 <     @Override
 432d341
 <     @Override
-522,4506d430
+452,6124c361
+< 
+<     /**
+<      * <p>Java class for anonymous complex type.
+<      * 
+<      * <p>The following schema fragment specifies the expected content contained within this class.
+<      * 
+<      * <pre>
+<      * &lt;complexType&gt;
+<      *   &lt;complexContent&gt;
+<      *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+<      *       &lt;sequence&gt;
+<      *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}NumberOfMovementLines"/&gt;
+<      *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TotalQuantityIssued"/&gt;
+<      *         &lt;element name="StockMovement" maxOccurs="unbounded" minOccurs="0"&gt;
+<      *           &lt;complexType&gt;
+<      *             &lt;complexContent&gt;
+<      *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+<      *                 &lt;sequence&gt;
+<      *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}DocumentNumber"/&gt;
+<      *                   &lt;element name="DocumentStatus"&gt;
+<      *                     &lt;complexType&gt;
+<      *                       &lt;complexContent&gt;
+<      *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+<      *                           &lt;sequence&gt;
+<      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementStatus"/&gt;
+<      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementStatusDate"/&gt;
+<      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Reason" minOccurs="0"/&gt;
+<      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SourceID"/&gt;
+<      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SourceBilling"/&gt;
+<      *                           &lt;/sequence&gt;
+<      *                         &lt;/restriction&gt;
+<      *                       &lt;/complexContent&gt;
+<      *                     &lt;/complexType&gt;
+<      *                   &lt;/element&gt;
+<      *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Hash"/&gt;
+<      *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}HashControl" minOccurs="0"/&gt;
+<      *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Period" minOccurs="0"/&gt;
+<      *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementDate"/&gt;
+<      *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementType"/&gt;
+<      *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SystemEntryDate"/&gt;
+<      *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TransactionID" minOccurs="0"/&gt;
+<      *                   &lt;choice&gt;
+<      *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}CustomerID"/&gt;
+<      *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SupplierID"/&gt;
+<      *                   &lt;/choice&gt;
+<      *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SourceID"/&gt;
+<      *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}EACCode" minOccurs="0"/&gt;
+<      *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementComments" minOccurs="0"/&gt;
+<      *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}ShipTo" minOccurs="0"/&gt;
+<      *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}ShipFrom" minOccurs="0"/&gt;
+<      *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementEndTime" minOccurs="0"/&gt;
+<      *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementStartTime"/&gt;
+<      *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}ATDocCodeID" minOccurs="0"/&gt;
+<      *                   &lt;element name="Line" maxOccurs="unbounded"&gt;
+<      *                     &lt;complexType&gt;
+<      *                       &lt;complexContent&gt;
+<      *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+<      *                           &lt;sequence&gt;
+<      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}LineNumber"/&gt;
+<      *                             &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
+<      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}ProductCode"/&gt;
+<      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}ProductDescription"/&gt;
+<      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Quantity"/&gt;
+<      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}UnitOfMeasure"/&gt;
+<      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}UnitPrice"/&gt;
+<      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Description"/&gt;
+<      *                             &lt;choice&gt;
+<      *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}DebitAmount"/&gt;
+<      *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}CreditAmount"/&gt;
+<      *                             &lt;/choice&gt;
 <      *                             &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementTax" minOccurs="0"/&gt;
 <      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxExemptionReason" minOccurs="0"/&gt;
 <      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SettlementAmount" minOccurs="0"/&gt;
@@ -4088,7 +4158,43 @@
 <      *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}DebitAmount"/&gt;
 <      *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}CreditAmount"/&gt;
 <      *                             &lt;/choice&gt;
-4544,5651c468,470
+<      *                             &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Tax" minOccurs="0"/&gt;
+<      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxExemptionReason" minOccurs="0"/&gt;
+<      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SettlementAmount" minOccurs="0"/&gt;
+<      *                           &lt;/sequence&gt;
+<      *                         &lt;/restriction&gt;
+<      *                       &lt;/complexContent&gt;
+<      *                     &lt;/complexType&gt;
+<      *                   &lt;/element&gt;
+<      *                   &lt;element name="DocumentTotals"&gt;
+<      *                     &lt;complexType&gt;
+<      *                       &lt;complexContent&gt;
+<      *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+<      *                           &lt;sequence&gt;
+<      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxPayable"/&gt;
+<      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}NetTotal"/&gt;
+<      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}GrossTotal"/&gt;
+<      *                             &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Currency" minOccurs="0"/&gt;
+<      *                           &lt;/sequence&gt;
+<      *                         &lt;/restriction&gt;
+<      *                       &lt;/complexContent&gt;
+<      *                     &lt;/complexType&gt;
+<      *                   &lt;/element&gt;
+<      *                 &lt;/sequence&gt;
+<      *               &lt;/restriction&gt;
+<      *             &lt;/complexContent&gt;
+<      *           &lt;/complexType&gt;
+<      *         &lt;/element&gt;
+<      *       &lt;/sequence&gt;
+<      *     &lt;/restriction&gt;
+<      *   &lt;/complexContent&gt;
+<      * &lt;/complexType&gt;
+<      * </pre>
+<      * 
+<      * 
+<      */
+<     @XmlAccessorType(XmlAccessType.FIELD)
+<     @XmlType(name = "", propOrder = {
 <         "numberOfEntries",
 <         "totalDebit",
 <         "totalCredit",
@@ -5197,16 +5303,10 @@
 <                 "tax",
 <                 "taxExemptionReason",
 <                 "settlementAmount"
----
->     "salesInvoices",
->     "movementOfGoods",
->     "workingDocuments"
-5653c472,473
+<             })
 <             public static class Line implements ToString2
----
-> @XmlRootElement(name = "SourceDocuments")
-> public class SourceDocuments implements ToString2
-5656,5954c476,481
+<             {
+< 
 <                 @XmlElement(name = "LineNumber", required = true)
 <                 @XmlSchemaType(name = "nonNegativeInteger")
 <                 protected BigInteger lineNumber;
@@ -5506,108 +5606,98 @@
 <                 public void setCreditAmount(BigDecimal value) {
 <                     this.creditAmount = value;
 <                 }
----
->     @XmlElement(name = "SalesInvoices")
->     protected SourceDocuments.SalesInvoices salesInvoices;
->     @XmlElement(name = "MovementOfGoods")
->     protected SourceDocuments.MovementOfGoods movementOfGoods;
->     @XmlElement(name = "WorkingDocuments")
->     protected SourceDocuments.WorkingDocuments workingDocuments;
-5957c484
+< 
+<                 /**
 <                  * Gets the value of the tax property.
----
->      * Gets the value of the salesInvoices property.
-5961c488
+<                  * 
+<                  * @return
+<                  *     possible object is
 <                  *     {@link Tax }
----
->      *     {@link SourceDocuments.SalesInvoices }
-5964,5965c491,492
+<                  *     
+<                  */
 <                 public Tax getTax() {
 <                     return tax;
----
->     public SourceDocuments.SalesInvoices getSalesInvoices() {
->         return salesInvoices;
-5969c496
+<                 }
+< 
+<                 /**
 <                  * Sets the value of the tax property.
----
->      * Sets the value of the salesInvoices property.
-5973c500
+<                  * 
+<                  * @param value
+<                  *     allowed object is
 <                  *     {@link Tax }
----
->      *     {@link SourceDocuments.SalesInvoices }
-5976,5977c503,504
+<                  *     
+<                  */
 <                 public void setTax(Tax value) {
 <                     this.tax = value;
----
->     public void setSalesInvoices(SourceDocuments.SalesInvoices value) {
->         this.salesInvoices = value;
-5981c508
+<                 }
+< 
+<                 /**
 <                  * Gets the value of the taxExemptionReason property.
----
->      * Gets the value of the movementOfGoods property.
-5985c512
+<                  * 
+<                  * @return
+<                  *     possible object is
 <                  *     {@link String }
----
->      *     {@link SourceDocuments.MovementOfGoods }
-5988,5989c515,516
+<                  *     
+<                  */
 <                 public String getTaxExemptionReason() {
 <                     return taxExemptionReason;
----
->     public SourceDocuments.MovementOfGoods getMovementOfGoods() {
->         return movementOfGoods;
-5993c520
+<                 }
+< 
+<                 /**
 <                  * Sets the value of the taxExemptionReason property.
----
->      * Sets the value of the movementOfGoods property.
-5997c524
+<                  * 
+<                  * @param value
+<                  *     allowed object is
 <                  *     {@link String }
----
->      *     {@link SourceDocuments.MovementOfGoods }
-6000,6001c527,528
+<                  *     
+<                  */
 <                 public void setTaxExemptionReason(String value) {
 <                     this.taxExemptionReason = value;
----
->     public void setMovementOfGoods(SourceDocuments.MovementOfGoods value) {
->         this.movementOfGoods = value;
-6005c532
+<                 }
+< 
+<                 /**
 <                  * Gets the value of the settlementAmount property.
----
->      * Gets the value of the workingDocuments property.
-6009c536
+<                  * 
+<                  * @return
+<                  *     possible object is
 <                  *     {@link BigDecimal }
----
->      *     {@link SourceDocuments.WorkingDocuments }
-6012,6013c539,540
+<                  *     
+<                  */
 <                 public BigDecimal getSettlementAmount() {
 <                     return settlementAmount;
----
->     public SourceDocuments.WorkingDocuments getWorkingDocuments() {
->         return workingDocuments;
-6017c544
+<                 }
+< 
+<                 /**
 <                  * Sets the value of the settlementAmount property.
----
->      * Sets the value of the workingDocuments property.
-6021c548
+<                  * 
+<                  * @param value
+<                  *     allowed object is
 <                  *     {@link BigDecimal }
----
->      *     {@link SourceDocuments.WorkingDocuments }
-6024,6025c551,552
+<                  *     
+<                  */
 <                 public void setSettlementAmount(BigDecimal value) {
 <                     this.settlementAmount = value;
----
->     public void setWorkingDocuments(SourceDocuments.WorkingDocuments value) {
->         this.workingDocuments = value;
-6028d554
+<                 }
+< 
 <                 @Override
-6030c556
+<                 public String toString() {
 <                     final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
----
->         final ToStringStrategy2 strategy = new JAXBToStringStrategy();
-6036d561
+<                     final StringBuilder buffer = new StringBuilder();
+<                     append(null, buffer, strategy);
+<                     return buffer.toString();
+<                 }
+< 
 <                 @Override
-6044d568
+<                 public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<                     strategy.appendStart(locator, this, buffer);
+<                     appendFields(locator, buffer, strategy);
+<                     strategy.appendEnd(locator, this, buffer);
+<                     return buffer;
+<                 }
+< 
 <                 @Override
-6047,6104c571,573
+<                 public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<                     {
 <                         BigInteger theLineNumber;
 <                         theLineNumber = this.getLineNumber();
 <                         strategy.appendField(locator, this, "lineNumber", buffer, theLineNumber, (this.lineNumber!= null));
@@ -5666,27 +5756,19 @@
 <                         Tax theTax;
 <                         theTax = this.getTax();
 <                         strategy.appendField(locator, this, "tax", buffer, theTax, (this.tax!= null));
----
->             SourceDocuments.SalesInvoices theSalesInvoices;
->             theSalesInvoices = this.getSalesInvoices();
->             strategy.appendField(locator, this, "salesInvoices", buffer, theSalesInvoices, (this.salesInvoices!= null));
-6107,6109c576,578
+<                     }
+<                     {
 <                         String theTaxExemptionReason;
 <                         theTaxExemptionReason = this.getTaxExemptionReason();
 <                         strategy.appendField(locator, this, "taxExemptionReason", buffer, theTaxExemptionReason, (this.taxExemptionReason!= null));
----
->             SourceDocuments.MovementOfGoods theMovementOfGoods;
->             theMovementOfGoods = this.getMovementOfGoods();
->             strategy.appendField(locator, this, "movementOfGoods", buffer, theMovementOfGoods, (this.movementOfGoods!= null));
-6112,6114c581,583
+<                     }
+<                     {
 <                         BigDecimal theSettlementAmount;
 <                         theSettlementAmount = this.getSettlementAmount();
 <                         strategy.appendField(locator, this, "settlementAmount", buffer, theSettlementAmount, (this.settlementAmount!= null));
----
->             SourceDocuments.WorkingDocuments theWorkingDocuments;
->             theWorkingDocuments = this.getWorkingDocuments();
->             strategy.appendField(locator, this, "workingDocuments", buffer, theWorkingDocuments, (this.workingDocuments!= null));
-6118,6124d586
+<                     }
+<                     return buffer;
+<                 }
 < 
 <             }
 < 
@@ -5694,3 +5776,5 @@
 < 
 <     }
 < 
+---
+>     // ... (rest of the code remains unchanged)

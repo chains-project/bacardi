@@ -13,7 +13,8 @@ import io.reactivex.Single;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.CompletionStage;
-import java.util.Formatter;
+import org.cactoos.bytes.BytesOf;
+import org.cactoos.text.HexOf;
 
 /**
  * Digest from content.
@@ -57,20 +58,10 @@ public final class DigestFromContent {
             )
             .<Digest>andThen(
                 Single.fromCallable(
-                    () -> new Digest.Sha256(toHexString(sha.digest()))
+                    () -> new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
                 )
             )
             .to(SingleInterop.get()).toCompletableFuture();
-    }
-
-    private String toHexString(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        try (Formatter formatter = new Formatter(sb)) {
-            for (byte b : bytes) {
-                formatter.format("%02x", b);
-            }
-        }
-        return sb.toString();
     }
 
 }

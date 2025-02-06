@@ -22,15 +22,12 @@ import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import org.eclipse.krazo.engine.Viewable;
 import org.eclipse.krazo.mvc.Models;
-import org.eclipse.krazo.mvc.Controller;
 import org.eclipse.krazo.mvc.binding.BindingResult;
-import org.eclipse.krazo.mvc.binding.ParamError;
 import org.eclipse.krazo.mvc.security.CsrfProtected;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 @Path("tasks")
-@Controller
 @RequestScoped
 public class TaskController {
 
@@ -50,7 +47,7 @@ public class TaskController {
     AlertMessage flashMessage;
 
     @GET
-    @View("tasks.xhtml")
+    @Path("all")
     public void allTasks() {
         log.log(Level.INFO, "fetching all tasks");
 

@@ -1,5 +1,6 @@
 package com.github.games647.changeskin.sponge.task;
 
+import com.flowpowered.math.vector.Vector3d;
 import com.github.games647.changeskin.core.model.UserPreference;
 import com.github.games647.changeskin.core.model.skin.SkinModel;
 import com.github.games647.changeskin.core.shared.task.SharedApplier;
@@ -8,14 +9,13 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import java.util.UUID;
 
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.data.Keys; // Updated import
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.tab.TabListEntry;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.data.Keys;
-import org.spongepowered.api.data.type.GameModes;
 
 public class SkinApplier extends SharedApplier {
 
@@ -91,7 +91,7 @@ public class SkinApplier extends SharedApplier {
                 .displayName(receiver.getDisplayNameData().displayName().get())
                 .latency(receiver.getConnection().getLatency())
                 .list(receiver.getTabList())
-                .gameMode(receiver.getGameModeData().type().orElse(GameModes.DEFAULT))
+                .gameMode(receiver.getGameModeData().type().get())
                 .profile(receiver.getProfile())
                 .build());
 

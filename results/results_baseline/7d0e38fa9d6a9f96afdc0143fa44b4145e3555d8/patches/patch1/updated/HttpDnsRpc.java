@@ -192,7 +192,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.ManagedZones.Create createZoneCall(ManagedZone zone, Map<Option, ?> options)
       throws IOException {
     return dns.managedZones()
-        .create(this.options.getProjectId(), zone)
+        .create(this.options.getProjectId(), zone.getDnsName(), zone)
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -289,7 +289,8 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.Projects.Get getProjectCall(Map<Option, ?> options) throws IOException {
     return dns.projects()
-        .get(this.options.getProjectId(), ""); // Added empty string for the missing parameter
+        .get(this.options.getProjectId(), this.options.getProjectId())
+        .setFields(Option.FIELDS.getString(options));
   }
 
   @Override
@@ -332,7 +333,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.Changes.Get getChangeRequestCall(
       String zoneName, String changeRequestId, Map<Option, ?> options) throws IOException {
     return dns.changes()
-        .get(this.options.getProjectId(), zoneName, changeRequestId, "") // Added empty string for the missing parameter
+        .get(this.options.getProjectId(), zoneName, changeRequestId)
         .setFields(Option.FIELDS.getString(options));
   }
 

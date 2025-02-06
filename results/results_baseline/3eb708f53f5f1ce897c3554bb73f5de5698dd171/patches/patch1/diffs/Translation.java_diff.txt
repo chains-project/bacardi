@@ -15,26 +15,26 @@
 <  * limitations under the License.
 <  */
 < 
-19,21c3
+19c3
 < import com.google.api.services.translate.model.TranslationsResource;
-< import com.google.common.base.Function;
-< import com.google.common.base.MoreObjects;
 ---
-> import com.google.cloud.translate.Translate.TranslateOption;
-37,43d18
+> import com.google.api.services.translate.model.Translations;
+37,40c21,23
 <   static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =
 <       new Function<TranslationsResource, Translation>() {
 <         @Override
 <         public Translation apply(TranslationsResource translationPb) {
-<           return Translation.fromPb(translationPb);
-<         }
-<       };
-106,110c81,82
-<   static Translation fromPb(TranslationsResource translationPb) {
-<     return new Translation(
-<         translationPb.getTranslatedText(),
-<         translationPb.getDetectedSourceLanguage(),
-<         translationPb.getModel());
 ---
->   static Translation fromPb(String translatedText, String detectedSourceLanguage, String model) {
->     return new Translation(translatedText, detectedSourceLanguage, model);
+>   static final Function<Translations, Translation> FROM_PB_FUNCTION =
+>       new Function<Translations, Translation>() {
+>         public Translation apply(Translations translationPb) {
+80d62
+<   @Override
+88d69
+<   @Override
+93d73
+<   @Override
+106c86
+<   static Translation fromPb(TranslationsResource translationPb) {
+---
+>   static Translation fromPb(Translations translationPb) {

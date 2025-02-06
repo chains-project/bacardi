@@ -21,7 +21,7 @@ package org.apache.myfaces.tobago.maven.plugin;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugin.MojoExecutionException;
+// Updated import statement
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.DirectoryScanner;
@@ -66,5 +66,6 @@ public abstract class AbstractThemeMojo extends AbstractMojo {
   public String[] getExcludes() {
     return EXCLUDES;
   }
+
 
 }

@@ -15,10 +15,10 @@
  */
 package org.jivesoftware.openfire.plugin.util.cache;
 
-import com.hazelcast.core.Cluster;
+import com.hazelcast.cluster.Cluster;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.LifecycleEvent;
-import com.hazelcast.core.LifecycleListener;
+import com.hazelcast.core.LifecycleEvent.LifecycleState;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
@@ -256,9 +256,9 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
     }
 
     public void stateChanged(final LifecycleEvent event) {
-        if (event.getState().equals(LifecycleEvent.LifecycleState.SHUTDOWN)) {
+        if (event.getState().equals(LifecycleState.SHUTDOWN)) {
             leaveCluster();
-        } else if (event.getState().equals(LifecycleEvent.LifecycleState.STARTED)) {
+        } else if (event.getState().equals(LifecycleState.STARTED)) {
             joinCluster();
         }
     }

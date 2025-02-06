@@ -7,13 +7,11 @@
 <     private final Connector httpConnector;
 ---
 >     private final ServerConnector httpConnector;
-33,34c32,33
+33,36c32,33
 <         this.server.setSendServerVersion(false);
 <         this.server.setSendDateHeader(true);
----
->         this.server.setAttribute("org.eclipse.jetty.server.Server.sendServerVersion", false);
->         this.server.setAttribute("org.eclipse.jetty.server.Server.sendDateHeader", true);
-36c35
+<         
 <         this.httpConnector = new SelectChannelConnector();
 ---
+>         this.server.setHandler(new JadlerHandler(null)); // Placeholder for ruleProvider
 >         this.httpConnector = new ServerConnector(server);

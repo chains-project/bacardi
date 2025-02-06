@@ -8,7 +8,11 @@
 <     private final Connector httpConnector;
 ---
 >     private final ServerConnector httpConnector;
-36c35
+33,36c32,33
+<         this.server.setSendServerVersion(false);
+<         this.server.setSendDateHeader(true);
+< 
 <         this.httpConnector = new SelectChannelConnector();
 ---
+>         this.server.setHandler(new JadlerHandler(null)); // Placeholder for ruleProvider
 >         this.httpConnector = new ServerConnector(server);

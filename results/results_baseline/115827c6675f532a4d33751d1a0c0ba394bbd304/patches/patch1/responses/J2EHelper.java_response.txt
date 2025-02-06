@@ -2,8 +2,8 @@ package org.pac4j.dropwizard;
 
 import java.util.EnumSet;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.FilterRegistration;
+import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.servlet.ServletContextHandler;
 
 import org.pac4j.core.config.Config;
 import org.pac4j.dropwizard.Pac4jFactory.ServletCallbackFilterConfiguration;
@@ -15,7 +15,6 @@ import org.pac4j.jee.filter.AbstractConfigFilter;
 import org.pac4j.jee.filter.CallbackFilter;
 import org.pac4j.jee.filter.LogoutFilter;
 import org.pac4j.jee.filter.SecurityFilter;
-import javax.servlet.Filter;
 
 /**
  *
@@ -74,10 +73,8 @@ public final class J2EHelper {
 
         filter.setConfigOnly(config);
 
-        final FilterRegistration.Dynamic filterRegistration = environment
-                .servlets().addFilter(filter.getClass().getName(), (Filter) filter);
-
-        filterRegistration.addMappingForUrlPatterns(
-                EnumSet.of(DispatcherType.REQUEST), true, mapping);
+        final ServletContextHandler context = environment.getApplicationContext();
+        final FilterHolder filterHolder = new FilterHolder(filter);
+        context.addFilter(filterHolder, mapping, EnumSet.of(org.eclipse.jetty.servlet.ServletMapping.REQUEST));
     }
 }

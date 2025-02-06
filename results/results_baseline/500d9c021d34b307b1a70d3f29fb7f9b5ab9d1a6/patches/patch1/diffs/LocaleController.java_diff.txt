@@ -3,6 +3,28 @@
 < import javax.mvc.Models;
 < import javax.mvc.MvcContext;
 11a9,11
-> import jakarta.mvc.Controller;
-> import jakarta.mvc.Models;
-> import jakarta.mvc.MvcContext;
+> import javax.ws.rs.core.Context;
+> import javax.ws.rs.core.HttpHeaders;
+> import javax.ws.rs.core.Response;
+18d17
+< @Controller
+23,28d21
+<     MvcContext mvc;
+< 
+<     @Inject
+<     Models models;
+< 
+<     @Inject
+30a24,26
+>     @Context
+>     HttpHeaders headers;
+> 
+32,35c28,30
+<     public String get() {
+<         Locale locale = mvc.getLocale();
+<         models.put("locale", locale);
+<         return "locale.xhtml";
+---
+>     public Response get() {
+>         Locale locale = headers.getLanguage() != null ? Locale.forLanguageTag(headers.getLanguage()) : Locale.getDefault();
+>         return Response.ok("locale.xhtml").build();

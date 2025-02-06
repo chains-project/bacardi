@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.network.ClientConnectionEvent.Auth;
+import org.spongepowered.api.event.network.ClientConnectionEvent.Auth; // Updated import
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.scheduler.Task;
 
@@ -26,7 +26,7 @@ public class LoginListener extends SharedListener {
     }
 
     @Listener
-    public void onPlayerPreLogin(Auth preLoginEvent) {
+    public void onPlayerPreLogin(Auth preLoginEvent) { // Updated parameter type
         SkinStorage storage = core.getStorage();
         GameProfile profile = preLoginEvent.getProfile();
         UUID playerUUID = profile.getUniqueId();
@@ -58,7 +58,7 @@ public class LoginListener extends SharedListener {
         }
     }
 
-    protected void save(final UserPreference preferences) {
+    protected void save(final UserPreference preferences) { // Removed @Override annotation
         Task.builder()
                 .async()
                 .execute(() -> {

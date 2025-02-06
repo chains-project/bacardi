@@ -30,7 +30,7 @@ import java.util.Base64;
 import org.acegisecurity.providers.encoding.PasswordEncoder;
 import org.jasypt.encryption.pbe.StandardPBEByteEncryptor;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
-import org.jasypt.springsecurity.pbe.PBEPasswordEncoder; // Updated import
+import org.jasypt.springsecurity3.password.PBEPasswordEncoder; // Updated import
 
 /**
  * Password Encoder using symmetric encryption

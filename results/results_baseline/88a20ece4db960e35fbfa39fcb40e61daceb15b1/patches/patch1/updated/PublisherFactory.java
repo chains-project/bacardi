@@ -3,8 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * you may obtain a copy of the License at
  *
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -16,11 +15,11 @@
  */
 package com.google.pubsublite.kafka.sink;
 
-import com.google.cloud.pubsublite.PublishMetadata;
+import com.google.cloud.pubsublite.PublishMetadataLite; // Updated import
 import com.google.cloud.pubsublite.internal.Publisher;
 import java.util.Map;
 
 interface PublisherFactory {
 
-  Publisher<com.google.cloud.pubsublite.PublishMetadata> newPublisher(Map<String, String> params);
+  Publisher<PublishMetadataLite> newPublisher(Map<String, String> params); // Updated type
 }

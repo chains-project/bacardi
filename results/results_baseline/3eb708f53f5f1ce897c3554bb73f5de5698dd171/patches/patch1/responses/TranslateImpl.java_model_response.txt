@@ -25,6 +25,7 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   private static final Function<List<com.google.cloud.translate.Detection>, Detection>
       DETECTION_FROM_PB_FUNCTION =
           new Function<List<com.google.cloud.translate.Detection>, Detection>() {
+            @Override
             public Detection apply(List<com.google.cloud.translate.Detection> detectionPb) {
               return Detection.fromPb(detectionPb.get(0));
             }

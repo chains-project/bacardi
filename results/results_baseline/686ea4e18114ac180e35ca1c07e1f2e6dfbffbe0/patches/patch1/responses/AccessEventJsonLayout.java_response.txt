@@ -44,7 +44,7 @@ public class AccessEventJsonLayout extends AbstractJsonLayout<IAccessEvent> {
         // we check for null, even though there shouldn't be null, better be safe then sorry
         final HttpServletResponse response = event.getResponse();
         if (response != null) {
-            jsonMap.put("responseStatus", HttpStatus.valueOf(response.getStatus()).value()); // Updated to use HttpStatus
+            jsonMap.put("responseStatus", response.getStatus());
         }
         return finalizeLog(jsonMap);
     }

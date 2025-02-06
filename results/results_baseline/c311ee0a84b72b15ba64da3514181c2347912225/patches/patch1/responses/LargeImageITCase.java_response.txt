@@ -66,7 +66,9 @@ public final class LargeImageITCase {
             final String output = this.client.run("pull", this.remote());
             MatcherAssert.assertThat(
                 output,
-                new StringContains(String.format("Status: Downloaded newer image for %s", this.remote()))
+                new StringContains(
+                    String.format("Status: Downloaded newer image for %s", this.remote())
+                )
             );
         } finally {
             this.client.run("rmi", this.remote());

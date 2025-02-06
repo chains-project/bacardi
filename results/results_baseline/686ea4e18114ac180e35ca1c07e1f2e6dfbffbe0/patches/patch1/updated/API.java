@@ -42,14 +42,14 @@ public class API implements WireAPI {
     private final WebTarget conversation;
     private final WebTarget bot;
 
-    private final javax.ws.rs.client.Client httpClient; // Updated import
+    private final Client httpClient;
     private final String token;
 
-    public API(javax.ws.rs.client.Client httpClient, String token) { // Updated import
+    public API(Client httpClient, String token) {
         this(httpClient, token, deriveHost());
     }
 
-    public API(javax.ws.rs.client.Client httpClient, String token, String wireHost) { // Updated import
+    public API(Client httpClient, String token, String wireHost) {
         this.httpClient = httpClient;
         this.token = token;
 

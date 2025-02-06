@@ -49,8 +49,7 @@ public class Struts2FactoryTest extends TestCase {
       return Guice.createInjector(
           new Struts2GuicePluginModule(),
           new ServletModule() {
-            @Override
-            protected void configureServlets() {
+            protected void configureServlets() { // Removed @Override annotation
               // Struts 2 setup
               bind(StrutsPrepareAndExecuteFilter.class)
                   .in(com.google.inject.Singleton.class);

@@ -16,7 +16,7 @@ import org.codehaus.plexus.PlexusTestCase;
 import org.codehaus.plexus.archiver.tar.TarArchiver;
 import org.codehaus.plexus.archiver.tar.TarLongFileMode;
 import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.logging.LoggerManager;
+import org.codehaus.plexus.logging.console.ConsoleLogger;
 import org.codehaus.plexus.util.FileUtils;
 
 /**
@@ -36,8 +36,8 @@ public class DuplicateFilesTest
         throws Exception
     {
         super.setUp();
-        LoggerManager loggerManager = getContainer().getLoggerManager();
-        loggerManager.setThreshold( Logger.LEVEL_DEBUG );
+        Logger logger = new ConsoleLogger(Logger.LEVEL_DEBUG, "test");
+        getContainer().getLoggerManager().setLogger(logger);
     }
 
     public void testZipArchiver()
@@ -123,4 +123,38 @@ public class DuplicateFilesTest
 
         archiver.setDestFile( archive );
         archiver.createArchive();
-        return archive
+        return archive;
+    }
+
+    private void testArchive( File archive, String role )
+        throws Exception
+    {
+        // Check the content of the archive by extracting it
+
+        UnArchiver unArchiver = (UnArchiver) lookup( UnArchiver.ROLE, role );
+        unArchiver.setSourceFile( archive );
+
+        unArchiver.setDestDirectory( getTestFile( "target/output/" ) );
+        unArchiver.extract();
+
+        assertTrue( destination.exists() );
+        assertTrue( destination.isDirectory() );
+        testFinalFile( "target/output/duplicateFiles/foo.txt" );
+    }
+
+    private void testFinalFile( String path )
+        throws Exception
+    {
+        File outputFile = getTestFile( path );
+        assertTrue( outputFile.exists() );
+        BufferedReader reader = Files.newBufferedReader( outputFile.toPath(), StandardCharsets.UTF_8 );
+        String firstLine = reader.readLine();
+        reader.close();
+        reader = Files.newBufferedReader( file2.toPath(), StandardCharsets.UTF_8 );
+        String expectedFirstLine = reader.readLine();
+        reader.close();
+        assertEquals( expectedFirstLine, firstLine );
+    }
+
+}
+```

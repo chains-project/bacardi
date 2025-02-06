@@ -6,6 +6,8 @@ import java.util.logging.Logger;
 import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.mvc.locale.LocaleResolver;
+import javax.mvc.locale.LocaleResolverContext;
 import javax.ws.rs.core.UriInfo;
 
 /**
@@ -29,15 +31,17 @@ import javax.ws.rs.core.UriInfo;
  */
 @Priority(1)
 @ApplicationScoped
-public class QueryParamLocaleResolver { // Removed LocaleResolver interface implementation
+public class QueryParamLocaleResolver implements LocaleResolver {
     
     @Inject
     Logger log;
     
-    public Locale resolveLocale(final UriInfo uriInfo) { // Changed parameter type
-        final String queryLang = uriInfo.getQueryParameters()
+    @Override
+    public Locale resolveLocale(final LocaleResolverContext context) {
+        final String queryLang = context.getUriInfo()
+                .getQueryParameters()
                 .getFirst("lang");
         log.log(Level.INFO, "QueryParamLocaleResolver::resolveLocale:lang:{0}", queryLang);
-        return queryLang != null ? Locale.forLanguageTag(queryLang) : null;
+        return queryLang != null ? Locale.forLanguageTag(queryLang) : Locale.getDefault();
     }
 }

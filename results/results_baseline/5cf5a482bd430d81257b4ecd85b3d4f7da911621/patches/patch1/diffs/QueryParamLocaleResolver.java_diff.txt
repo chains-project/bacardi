@@ -1,17 +1,6 @@
 2d1
 < // https://www.mvc-spec.org/learn/cookbook/custom_localeresolver_en.html
-10,11d8
-< import javax.mvc.locale.LocaleResolver;
-< import javax.mvc.locale.LocaleResolverContext;
-35c32
-< public class QueryParamLocaleResolver implements LocaleResolver {
+46c45
+<         return queryLang != null ? Locale.forLanguageTag(queryLang) : null;
 ---
-> public class QueryParamLocaleResolver { // Removed LocaleResolver interface implementation
-40,43c37,38
-<     @Override
-<     public Locale resolveLocale(final LocaleResolverContext context) {
-<         final String queryLang = context.getUriInfo()
-<                 .getQueryParameters()
----
->     public Locale resolveLocale(final UriInfo uriInfo) { // Changed parameter type
->         final String queryLang = uriInfo.getQueryParameters()
+>         return queryLang != null ? Locale.forLanguageTag(queryLang) : Locale.getDefault();

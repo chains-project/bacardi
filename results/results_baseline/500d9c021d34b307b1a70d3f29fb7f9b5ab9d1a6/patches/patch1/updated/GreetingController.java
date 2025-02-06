@@ -7,6 +7,7 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.validation.constraints.NotBlank;
 
 /**
  *
@@ -19,6 +20,9 @@ public class GreetingController {
     @Inject
     Logger log;
 
+    @Inject
+    AlertMessage flashMessage;
+
     @GET
     public String get() {
         return "greeting.xhtml";
@@ -27,13 +31,10 @@ public class GreetingController {
     @POST
     public String post(
             @FormParam("greeting")
-            String greeting) {
-        if (greeting == null || greeting.isBlank()) {
-            log.info("Validation violations!");
-            return "greeting.xhtml";
-        }
-
+            @NotBlank String greeting) {
+        AlertMessage alert = AlertMessage.danger("Validation violations!");
         log.info("redirect to greeting page.");
+        flashMessage.notify(AlertMessage.Type.success, "Message:" + greeting);
         return "redirect:greeting";
     }
 

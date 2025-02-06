@@ -7,29 +7,24 @@
 < import javax.mvc.binding.ParamError;
 < import javax.mvc.security.CsrfProtected;
 < import javax.validation.constraints.NotBlank;
-17a10,11
-> import javax.validation.constraints.NotBlank;
-> import javax.ws.rs.core.Response;
-24d17
+24d15
 < @Controller
-29,37d21
+29,32c20
 <     BindingResult bindingResult;
 < 
 <     @Inject
 <     Models models;
-< 
-<     @Inject
-<     AlertMessage flashMessage;
-< 
-<     @Inject
-46,47c30
-<     @CsrfProtected
-<     public String post(
 ---
->     public Response post(
-49d31
+>     Logger log;
+37,39d24
+<     @Inject
+<     Logger log;
+< 
+46d30
+<     @CsrfProtected
+49,58c33,35
 <             @MvcBinding
-51,62d32
+<             @NotBlank String greeting) {
 <         if (bindingResult.isFailed()) {
 <             AlertMessage alert = AlertMessage.danger("Validation voilations!");
 <             bindingResult.getAllErrors()
@@ -38,12 +33,7 @@
 <                         alert.addError(t.getParamName(), "", t.getMessage());
 <                     });
 <             models.put("errors", alert);
-<             log.info("mvc binding failed.");
-<             return "csrf.xhtml";
-<         }
-< 
-64,65c34
-<         flashMessage.notify(AlertMessage.Type.success, "Message:" + greeting);
-<         return "redirect:csrf";
 ---
->         return Response.ok("Message: " + greeting).build();
+>             String greeting) {
+>         if (greeting == null || greeting.isBlank()) {
+>             AlertMessage alert = AlertMessage.danger("Validation violations!");

@@ -21,7 +21,7 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
     private final Server server;
-    private final Connector httpConnector;
+    private final ServerConnector httpConnector; // Updated type
 
     public JettyStubHttpServer() {
         this(0);
@@ -33,7 +33,7 @@ public class JettyStubHttpServer implements StubHttpServer {
         this.server.setSendServerVersion(false);
         this.server.setSendDateHeader(true);
         
-        this.httpConnector = new ServerConnector(server); // Updated to ServerConnector
+        this.httpConnector = new ServerConnector(server); // Updated instantiation
         this.httpConnector.setPort(port);
         server.addConnector(this.httpConnector);
     }

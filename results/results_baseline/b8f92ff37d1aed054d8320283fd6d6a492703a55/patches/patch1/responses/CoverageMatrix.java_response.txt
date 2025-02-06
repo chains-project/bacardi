@@ -196,16 +196,14 @@ public class CoverageMatrix {
 
         // True if it is present in the available binaries
         for (String dir : config.getBinJavaDir()) {
-            DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir));
-            directoryScanner.scan();
-            if (Arrays.asList(directoryScanner.getIncludedClasses()).contains(className)) {
+            DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), new String[] {"**/*.class"});
+            if (directoryScanner.scan().getClasses().contains(className)) {
                 return true;
             }
         }
         for (String dir : config.getBinTestDir()) {
-            DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir));
-            directoryScanner.scan();
-            if (Arrays.asList(directoryScanner.getIncludedClasses()).contains(className)) {
+            DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), new String[] {"**/*.class"});
+            if (directoryScanner.scan().getClasses().contains(className)) {
                 return true;
             }
         }

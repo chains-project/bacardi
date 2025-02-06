@@ -22,13 +22,13 @@ import static java.net.HttpURLConnection.HTTP_OK;
 
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.cloudresourcemanager.model.Binding;
-import com.google.api.services.cloudresourcemanager.model.Operation;
-import com.google.api.services.cloudresourcemanager.model.Policy;
-import com.google.api.services.cloudresourcemanager.model.Project;
-import com.google.api.services.cloudresourcemanager.model.SetIamPolicyRequest;
-import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsRequest;
-import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsResponse;
+import com.google.api.services.cloudresourcemanager.v1.model.Binding;
+import com.google.api.services.cloudresourcemanager.v1.model.Operation;
+import com.google.api.services.cloudresourcemanager.v1.model.Policy;
+import com.google.api.services.cloudresourcemanager.v1.model.Project;
+import com.google.api.services.cloudresourcemanager.v1.model.SetIamPolicyRequest;
+import com.google.api.services.cloudresourcemanager.v1.model.TestIamPermissionsRequest;
+import com.google.api.services.cloudresourcemanager.v1.model.TestIamPermissionsResponse;
 import com.google.cloud.NoCredentials;
 import com.google.cloud.resourcemanager.ResourceManagerOptions;
 import com.google.common.base.Joiner;
@@ -124,7 +124,7 @@ public class LocalResourceManagerHelper {
 
   private final HttpServer server;
   private final ConcurrentSkipListMap<String, Project> projects = new ConcurrentSkipListMap<>();
-  private final Map<String, com.google.api.services.cloudresourcemanager.model.Policy> policies = new HashMap<>();
+  private final Map<String, Policy> policies = new HashMap<>();
   private final int port;
 
   private static class Response {
@@ -189,7 +189,6 @@ public class LocalResourceManagerHelper {
   }
 
   private class RequestHandler implements HttpHandler {
-    @Override
     public void handle(HttpExchange exchange) {
       // see https://cloud.google.com/resource-manager/reference/rest/
       Response response;
@@ -260,7 +259,6 @@ public class LocalResourceManagerHelper {
   }
 
   private class OperationRequestHandler implements HttpHandler {
-    @Override
     public void handle(HttpExchange exchange) {
       // see https://cloud.google.com/resource-manager/reference/rest/
       String projectId;
@@ -456,8 +454,8 @@ public class LocalResourceManagerHelper {
         return Error.ALREADY_EXISTS.response(
             "A project with the same project ID (" + project.getProjectId() + ") already exists.");
       }
-      com.google.api.services.cloudresourcemanager.model.Policy emptyPolicy =
-          new com.google.api.services.cloudresourcemanager.model.Policy()
+      Policy emptyPolicy =
+          new Policy()
               .setBindings(Collections.<Binding>emptyList())
               .setEtag(UUID.randomUUID().toString())
               .setVersion(0);
@@ -681,7 +679,7 @@ public class LocalResourceManagerHelper {
   }
 
   synchronized Response getPolicy(String projectId) {
-    com.google.api.services.cloudresourcemanager.model.Policy policy = policies.get(projectId);
+    Policy policy = policies.get(projectId);
     if (policy == null) {
       return Error.PERMISSION_DENIED.response("Project " + projectId + " not found.");
     }
@@ -693,8 +691,8 @@ public class LocalResourceManagerHelper {
     }
   }
 
-  synchronized Response replacePolicy(String projectId, com.google.api.services.cloudresourcemanager.model.Policy policy) {
-    com.google.api.services.cloudresourcemanager.model.Policy originalPolicy = policies.get(projectId);
+  synchronized Response replacePolicy(String projectId, Policy policy) {
+    Policy originalPolicy = policies.get(projectId);
     if (originalPolicy == null) {
       return Error.PERMISSION_DENIED.response(
           "Error when replacing the policy for "

@@ -20,12 +20,12 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GameInitializedEvent;
-import org.spongepowered.api.event.game.state.GamePreInitializedEvent;
+import org.spongepowered.api.event.game.state.GameInitializationEvent;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStoppingEvent;
 import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
 import org.spongepowered.api.network.ChannelRegistrar;
@@ -58,7 +58,7 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
     }
 
     @Listener
-    public void onPreInit(GamePreInitializedEvent preInitEvent) {
+    public void onPreInit(GamePreInitializationEvent preInitEvent) {
         try {
             core.load(true);
             initialized = true;
@@ -68,7 +68,7 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
     }
 
     @Listener
-    public void onInit(GameInitializedEvent initEvent) {
+    public void onInit(GameInitializationEvent initEvent) {
         if (!initialized)
             return;
 

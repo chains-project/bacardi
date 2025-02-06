@@ -16,10 +16,10 @@
 
 package com.google.cloud.resourcemanager.spi.v1beta1;
 
-import com.google.api.services.cloudresourcemanager.model.Constraint;
-import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
-import com.google.api.services.cloudresourcemanager.model.Policy;
-import com.google.api.services.cloudresourcemanager.model.Project;
+import com.google.api.services.cloudresourcemanager.v1.model.Constraint;
+import com.google.api.services.cloudresourcemanager.v1.model.OrgPolicy;
+import com.google.api.services.cloudresourcemanager.v1.model.Policy;
+import com.google.api.services.cloudresourcemanager.v1.model.Project;
 import com.google.cloud.ServiceRpc;
 import com.google.cloud.Tuple;
 import com.google.cloud.resourcemanager.ResourceManagerException;

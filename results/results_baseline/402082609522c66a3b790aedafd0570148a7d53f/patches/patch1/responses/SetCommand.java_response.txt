@@ -72,7 +72,6 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
         return CommandResult.success();
     }
 
-    @Override
     public CommandSpec buildSpec() {
         return CommandSpec.builder()
                 .executor(this)

@@ -29,8 +29,8 @@ import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
 import net.bytebuddy.implementation.bind.annotation.This;
 import net.bytebuddy.matcher.ElementMatchers;
-import net.bytebuddy.pool.TypeCache;
-import net.bytebuddy.pool.TypeCache.SimpleKey;
+import net.bytebuddy.dynamic.scaffold.TypeCache;
+import net.bytebuddy.dynamic.scaffold.TypeCache.SimpleKey;
 import org.assertj.core.util.CheckReturnValue;
 
 import java.lang.reflect.Constructor;

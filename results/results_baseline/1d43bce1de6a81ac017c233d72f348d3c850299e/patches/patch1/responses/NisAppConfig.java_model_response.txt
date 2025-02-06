@@ -424,4 +424,22 @@ public class NisAppConfig {
 			observerOptions.add(ObserverOption.NoHistoricalDataPruning);
 		}
 
-		final BlockChainConfiguration blockChainConfiguration = this.n
+		final BlockChainConfiguration blockChainConfiguration = this.nisConfiguration().getBlockChainConfiguration();
+		if (blockChainConfiguration.isBlockChainFeatureSupported(BlockChainFeature.PROOF_OF_STAKE)) {
+			observerOptions.add(ObserverOption.NoOutlinkObserver);
+		}
+
+		return observerOptions;
+	}
+
+	@Bean
+	public Function<Address, Collection<Address>> cosignatoryLookup() {
+		return a -> this.accountStateCache().findStateByAddress(a).getMultisigLinks().getCosignatories();
+	}
+
+	@Bean
+	public MosaicIdCache mosaicIdCache() {
+		return new SynchronizedMosaicIdCache(new DefaultMosaicIdCache());
+	}
+}
+```

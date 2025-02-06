@@ -24,6 +24,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.wicket.IGenericComponent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -36,8 +37,6 @@ import org.apache.wicket.model.StringResourceModel;
 import com.premiumminds.wicket.crudifier.IObjectRenderer;
 import com.premiumminds.wicket.crudifier.LabelProperty;
 import com.premiumminds.wicket.crudifier.form.CrudifierEntitySettings;
-
-import org.apache.commons.beanutils.PropertyUtilsBean;
 
 public class CrudifierView<T> extends Panel implements IGenericComponent<T, CrudifierView<T>> {
 	private static final long serialVersionUID = -151637566983702881L;
@@ -97,13 +96,12 @@ public class CrudifierView<T> extends Panel implements IGenericComponent<T, Crud
 
 	private Set<String> getPropertiesByOrder(Class<?> modelClass) {
 		Set<String> properties = new LinkedHashSet<String>();
-		PropertyUtilsBean propertyUtils = new PropertyUtilsBean();
 
 		for(String property : entitySettings.getOrderOfFields()){
 			if(!entitySettings.getHiddenFields().contains(property))
 				properties.add(property);
 		}
-		for(PropertyDescriptor descriptor : propertyUtils.getPropertyDescriptors(modelClass)){
+		for(PropertyDescriptor descriptor : BeanUtils.getPropertyDescriptors(modelClass)){
 			if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
 					!properties.contains(descriptor.getName()) &&
 					!descriptor.getName().equals("class"))

@@ -95,7 +95,7 @@ public abstract class FOPPDFTransformer {
         StreamSource transformSource = new StreamSource(templateStream);
 
         // create an instance of fop factory
-        FopFactoryBuilder fopFactoryBuilder = new FopFactoryBuilder(new URI(""), new File(".").toURI());
+        FopFactoryBuilder fopFactoryBuilder = new FopFactoryBuilder(new URI("."));
         FopFactory fopFactory = fopFactoryBuilder.build();
         // a user agent is needed for transformation
         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();

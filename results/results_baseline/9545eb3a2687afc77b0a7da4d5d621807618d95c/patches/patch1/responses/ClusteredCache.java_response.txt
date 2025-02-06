@@ -18,7 +18,6 @@ package org.jivesoftware.openfire.plugin.util.cache;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.MapEvent;
 import com.hazelcast.map.listener.MapListener;
 import com.hazelcast.monitor.LocalMapStats;
 import org.jivesoftware.openfire.XMPPServer;
@@ -41,6 +40,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import com.hazelcast.map.listener.MapEvent; // Added import for MapEvent
 
 /**
  * Clustered implementation of the Cache interface using Hazelcast.
@@ -55,7 +55,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
     /**
      * The map is used for distributed operations such as get, put, etc.
      */
-    final com.hazelcast.map.IMap<K, V> map; // Updated to use the correct IMap import
+    final IMap<K, V> map;
     private String name;
     private long numberOfGets = 0;
 
@@ -71,7 +71,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
      * @param name a name for the cache, which should be unique per vm.
      * @param cache the cache implementation
      */
-    protected ClusteredCache(final String name, final com.hazelcast.map.IMap<K, V> cache) { // Updated to use the correct IMap import
+    protected ClusteredCache(final String name, final IMap<K, V> cache) {
         this.map = cache;
         this.name = name;
         logger = LoggerFactory.getLogger(ClusteredCache.class.getName() + "[cache: "+name+"]");
@@ -81,7 +81,6 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
         listeners.add(map.addEntryListener(listener, false));
     }
 
-    @Override
     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode)
     {
         final EntryListener<K, V> listener = new EntryListener<K, V>() {
@@ -104,7 +103,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
             }
 
             @Override
-            public void entryUpdated(EntryEvent<K, V> event) { // Updated to use the correct EntryEvent type
+            public void entryUpdated(EntryEvent event) {
                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
                     logger.trace("Processing entry update event of node '{}' for key '{}'", eventNodeId, event.getKey());
@@ -113,7 +112,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
             }
 
             @Override
-            public void entryRemoved(EntryEvent<K, V> event) { // Updated to use the correct EntryEvent type
+            public void entryRemoved(EntryEvent event) {
                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
                     logger.trace("Processing entry removed event of node '{}' for key '{}'", eventNodeId, event.getKey());
@@ -122,7 +121,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
             }
 
             @Override
-            public void entryEvicted(EntryEvent<K, V> event) { // Updated to use the correct EntryEvent type
+            public void entryEvicted(EntryEvent event) {
                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
                     logger.trace("Processing entry evicted event of node '{}' for key '{}'", eventNodeId, event.getKey());
@@ -131,7 +130,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
             }
 
             @Override
-            public void entryAdded(EntryEvent<K, V> event) { // Updated to use the correct EntryEvent type
+            public void entryAdded(EntryEvent event) {
                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
                     logger.trace("Processing entry added event of node '{}' for key '{}'", eventNodeId, event.getKey());
@@ -146,24 +145,20 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
         return listenerId;
     }
 
-    @Override
     public void removeClusteredCacheEntryListener(@Nonnull final String listenerId) {
         logger.debug("Removing clustered cache entry listener: '{}'", listenerId);
         map.removeEntryListener(listenerId);
         listeners.remove(listenerId);
     }
 
-    @Override
     public String getName() {
         return name;
     }
 
-    @Override
     public void setName(final String name) {
         this.name = name;
     }
 
-    @Override
     public V put(final K key, final V object) {
         if (object == null) { return null; }
         checkForPluginClassLoader(key);
@@ -171,54 +166,44 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
         return map.put(key, object);
     }
 
-    @Override
     public V get(final Object key) {
         numberOfGets++;
         return map.get(key);
     }
 
-    @Override
     public V remove(final Object key) {
         return map.remove(key);
     }
 
-    @Override
     public void clear() {
         map.clear();
     }
 
-    @Override
     public int size() {
         final LocalMapStats stats = map.getLocalMapStats();
         return (int) (stats.getOwnedEntryCount() + stats.getBackupEntryCount());
     }
 
-    @Override
     public boolean containsKey(final Object key) {
         return map.containsKey(key);
     }
 
-    @Override
     public boolean containsValue(final Object value) {
         return map.containsValue(value);
     }
 
-    @Override
     public Set<Map.Entry<K, V>> entrySet() {
         return map.entrySet();
     }
 
-    @Override
     public boolean isEmpty() {
         return map.isEmpty();
     }
 
-    @Override
     public Set<K> keySet() {
         return map.keySet();
     }
 
-    @Override
     public void putAll(final Map<? extends K, ? extends V> entries) {
         map.putAll(entries);
 
@@ -231,54 +216,44 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
         );
     }
 
-    @Override
     public Collection<V> values() {
         return map.values();
     }
 
-    @Override
     public long getCacheHits() {
         return map.getLocalMapStats().getHits();
     }
 
-    @Override
     public long getCacheMisses() {
         final long hits = map.getLocalMapStats().getHits();
         return numberOfGets > hits ? numberOfGets - hits : 0;
     }
 
-    @Override
     public int getCacheSize() {
         return (int) getLongCacheSize();
     }
 
-    @Override
     public long getLongCacheSize() {
         final LocalMapStats stats = map.getLocalMapStats();
         return stats.getOwnedEntryMemoryCost() + stats.getBackupEntryMemoryCost();
     }
 
-    @Override
     public long getMaxCacheSize() {
         return CacheFactory.getMaxCacheSize(getName());
     }
 
-    @Override
     public void setMaxCacheSize(int i) {
         setMaxCacheSize((long) i);
     }
 
-    @Override
     public void setMaxCacheSize(final long maxSize) {
         CacheFactory.setMaxSizeProperty(getName(), maxSize);
     }
 
-    @Override
     public long getMaxLifetime() {
         return CacheFactory.getMaxCacheLifetime(getName());
     }
 
-    @Override
     public void setMaxLifetime(final long maxLifetime) {
         CacheFactory.setMaxLifetimeProperty(getName(), maxLifetime);
     }

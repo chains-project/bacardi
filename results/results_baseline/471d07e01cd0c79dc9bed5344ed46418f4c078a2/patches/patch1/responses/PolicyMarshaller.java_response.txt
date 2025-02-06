@@ -4,8 +4,8 @@ import com.google.cloud.Identity;
 import com.google.cloud.Policy;
 import com.google.cloud.Policy.Marshaller;
 import com.google.cloud.Role;
-import com.google.api.services.cloudresourcemanager.v1.model.Binding; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.Policy as PolicyPb; // Updated import
+import com.google.api.services.cloudresourcemanager.model.Binding;
+import com.google.api.services.cloudresourcemanager.model.Policy as CloudPolicy; // Updated import
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -19,7 +19,7 @@ import java.util.Set;
 /** @deprecated v3 GAPIC client of ResourceManager is now available */
 @Deprecated
 final class PolicyMarshaller
-    extends Marshaller<PolicyPb> { // Updated type parameter
+    extends Marshaller<CloudPolicy> { // Updated type parameter
 
   static final PolicyMarshaller INSTANCE = new PolicyMarshaller();
 
@@ -37,7 +37,7 @@ final class PolicyMarshaller
   }
 
   @Override
-  protected Policy fromPb(PolicyPb policyPb) { // Updated parameter type
+  protected Policy fromPb(CloudPolicy policyPb) { // Updated parameter type
     Map<Role, Set<Identity>> bindings = new HashMap<>();
     if (policyPb.getBindings() != null) {
       for (Binding bindingPb : policyPb.getBindings()) {
@@ -58,9 +58,8 @@ final class PolicyMarshaller
   }
 
   @Override
-  protected PolicyPb toPb(Policy policy) { // Updated return type
-    PolicyPb policyPb =
-        new PolicyPb(); // Updated instantiation
+  protected CloudPolicy toPb(Policy policy) { // Updated return type
+    CloudPolicy policyPb = new CloudPolicy(); // Updated instantiation
     List<Binding> bindingPbList = new LinkedList<>();
     for (Map.Entry<Role, Set<Identity>> binding : policy.getBindings().entrySet()) {
       Binding bindingPb = new Binding();

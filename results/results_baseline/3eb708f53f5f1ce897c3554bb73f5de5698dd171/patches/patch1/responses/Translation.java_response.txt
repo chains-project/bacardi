@@ -1,6 +1,8 @@
 package com.google.cloud.translate;
 
-import com.google.cloud.translate.Translate.TranslateOption;
+import com.google.api.services.translate.model.Translations;
+import com.google.common.base.Function;
+import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
@@ -16,6 +18,12 @@ import java.util.Objects;
 public class Translation implements Serializable {
 
   private static final long serialVersionUID = 2556017420486245581L;
+  static final Function<Translations, Translation> FROM_PB_FUNCTION =
+      new Function<Translations, Translation>() {
+        public Translation apply(Translations translationPb) {
+          return Translation.fromPb(translationPb);
+        }
+      };
 
   private final String translatedText;
   private final String sourceLanguage;
@@ -52,7 +60,6 @@ public class Translation implements Serializable {
     return model;
   }
 
-  @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
         .add("translatedText", translatedText)
@@ -60,12 +67,10 @@ public class Translation implements Serializable {
         .toString();
   }
 
-  @Override
   public final int hashCode() {
     return Objects.hash(translatedText, sourceLanguage);
   }
 
-  @Override
   public final boolean equals(Object obj) {
     if (obj == this) {
       return true;
@@ -78,7 +83,10 @@ public class Translation implements Serializable {
         && Objects.equals(sourceLanguage, other.sourceLanguage);
   }
 
-  static Translation fromPb(String translatedText, String detectedSourceLanguage, String model) {
-    return new Translation(translatedText, detectedSourceLanguage, model);
+  static Translation fromPb(Translations translationPb) {
+    return new Translation(
+        translationPb.getTranslatedText(),
+        translationPb.getDetectedSourceLanguage(),
+        translationPb.getModel());
   }
 }

@@ -56,7 +56,7 @@ import org.hamcrest.core.IsEqual;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.hamcrest.core.IsEqual;
-import org.hamcrest.core.IsNot;
+import org.hamcrest.collection.IsMapContaining;
 
 /**
  * Tests for {@link FileProxySlice}.
@@ -134,9 +134,8 @@ final class FileProxySliceTest {
                 Matchers.allOf(
                     new RsHasBody(body),
                     new RsHasHeaders(
-                        new IsEqual<>("header", "value"),
-                        new IsEqual<>("Content-Length", "4"),
-                        new IsEqual<>("Content-Length", "4")
+                        IsMapContaining.hasEntry("header", "value"),
+                        IsMapContaining.hasEntry("Content-Length", "4")
                     )
                 ),
                 new RequestLine(RqMethod.GET, String.format("/%s", key))
@@ -164,7 +163,7 @@ final class FileProxySliceTest {
                 Matchers.allOf(
                     new RsHasStatus(RsStatus.OK), new RsHasBody(body),
                     new RsHasHeaders(
-                        new IsEqual<>("Content-Length", String.valueOf(body.length))
+                        IsMapContaining.hasEntry("Content-Length", String.valueOf(body.length))
                     )
                 ),
                 new RequestLine(RqMethod.GET, String.format("/%s", key))

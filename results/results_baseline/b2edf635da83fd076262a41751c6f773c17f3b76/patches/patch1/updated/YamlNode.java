@@ -1,3 +1,19 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jclouds.byon.domain;
 
 import java.io.IOException;
@@ -23,6 +39,33 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.io.ByteSource;
 
+/**
+ * Serializes to the following
+ * 
+ * <pre>
+ *       id: cluster-1
+ *       name: cluster-1
+ *       description: xyz
+ *       hostname: cluster-1.mydomain.com
+ *       location_id: virginia
+ *       os_arch: x86
+ *       os_family: linux
+ *       os_description: redhat
+ *       os_version: 5.3
+ *       os_64bit: 5.3
+ *       login_port: 2022
+ *       group: hadoop
+ *       tags:
+ *           - vanilla
+ *       metadata:
+ *           key1: val1
+ *       username: kelvin
+ *       credential: password_or_rsa
+ *         or
+ *       credential_url: password_or_rsa_file ex. resource:///id_rsa will get the classpath /id_rsa; file://path/to/id_rsa
+ *       sudo_password: password
+ * </pre>
+ */
 public class YamlNode {
    public String id;
    public String name;
@@ -44,6 +87,7 @@ public class YamlNode {
    public String sudo_password;
 
    public static final Function<YamlNode, Node> toNode = new Function<YamlNode, Node>() {
+      @Override
       public Node apply(YamlNode arg0) {
          if (arg0 == null)
             return null;
@@ -61,6 +105,7 @@ public class YamlNode {
    }
 
    public static final Function<ByteSource, YamlNode> byteSourceToYamlNode = new Function<ByteSource, YamlNode>() {
+      @Override
       public YamlNode apply(ByteSource byteSource) {
          if (byteSource == null)
             return null;
@@ -82,6 +127,7 @@ public class YamlNode {
    }
 
    public static final Function<YamlNode, ByteSource> yamlNodeToByteSource = new Function<YamlNode, ByteSource>() {
+      @Override
       public ByteSource apply(YamlNode in) {
          if (in == null)
             return null;
@@ -137,6 +183,7 @@ public class YamlNode {
    }
 
    public static final Function<Node, YamlNode> nodeToYamlNode = new Function<Node, YamlNode>() {
+      @Override
       public YamlNode apply(Node arg0) {
          if (arg0 == null)
             return null;

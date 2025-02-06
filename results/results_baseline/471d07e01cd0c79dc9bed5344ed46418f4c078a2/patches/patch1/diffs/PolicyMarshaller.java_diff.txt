@@ -18,21 +18,20 @@
 19d2
 < import com.google.api.services.cloudresourcemanager.model.Binding;
 23a7,8
-> import com.google.api.services.cloudresourcemanager.v1.model.Binding; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.Policy as PolicyPb; // Updated import
+> import com.google.api.services.cloudresourcemanager.model.Binding;
+> import com.google.api.services.cloudresourcemanager.model.Policy as CloudPolicy; // Updated import
 37c22
 <     extends Marshaller<com.google.api.services.cloudresourcemanager.model.Policy> {
 ---
->     extends Marshaller<PolicyPb> { // Updated type parameter
+>     extends Marshaller<CloudPolicy> { // Updated type parameter
 55c40
 <   protected Policy fromPb(com.google.api.services.cloudresourcemanager.model.Policy policyPb) {
 ---
->   protected Policy fromPb(PolicyPb policyPb) { // Updated parameter type
-76,78c61,63
+>   protected Policy fromPb(CloudPolicy policyPb) { // Updated parameter type
+76,78c61,62
 <   protected com.google.api.services.cloudresourcemanager.model.Policy toPb(Policy policy) {
 <     com.google.api.services.cloudresourcemanager.model.Policy policyPb =
 <         new com.google.api.services.cloudresourcemanager.model.Policy();
 ---
->   protected PolicyPb toPb(Policy policy) { // Updated return type
->     PolicyPb policyPb =
->         new PolicyPb(); // Updated instantiation
+>   protected CloudPolicy toPb(Policy policy) { // Updated return type
+>     CloudPolicy policyPb = new CloudPolicy(); // Updated instantiation

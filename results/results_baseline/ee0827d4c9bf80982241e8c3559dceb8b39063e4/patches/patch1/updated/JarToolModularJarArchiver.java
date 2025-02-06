@@ -296,7 +296,7 @@ public class JarToolModularJarArchiver
             // Test the output code validating the --date option.
             String[] args = { "--date", "2099-12-31T23:59:59Z", "--version" };
 
-            PrintStream nullPrintStream = new PrintStream(new java.io.OutputStream() {
+            PrintStream nullPrintStream = new PrintStream(new OutputStream() {
                 public void write(int b) {
                     // No-op
                 }

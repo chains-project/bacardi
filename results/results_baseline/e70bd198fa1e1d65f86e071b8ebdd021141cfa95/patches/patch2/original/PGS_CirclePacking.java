@@ -23,9 +23,9 @@ import org.locationtech.jts.util.GeometricShapeFactory;
 import org.tinfour.common.IIncrementalTin;
 import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
+import org.tinspin.index.PointDistanceFunction;
+import org.tinspin.index.PointEntryDist;
 import org.tinspin.index.covertree.CoverTree;
-import org.tinspin.index.PointEntry; // Updated import
-import org.tinspin.index.PointDistance; // Updated import
 
 import micycle.pgs.commons.FrontChainPacker;
 import micycle.pgs.commons.LargestEmptyCircles;
@@ -223,7 +223,7 @@ public final class PGS_CirclePacking {
 		float largestR = 0; // the radius of the largest circle in the tree
 
 		for (PVector p : steinerPoints) {
-			final PointEntry<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+			final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
 
 			/*
 			 * nn.dist() does not return the radius (since it's a distance metric used to
@@ -642,7 +642,7 @@ public final class PGS_CirclePacking {
 	 * @param p2 3D point representing the second circle (x2, y2, r2)
 	 * @return the distance between the two points based on the custom metric
 	 */
-	private static final PointDistance circleDistanceMetric = (p1, p2) -> {
+	private static final PointDistanceFunction circleDistanceMetric = (p1, p2) -> {
 		// from https://stackoverflow.com/a/21975136/
 		final double dx = p1[0] - p2[0];
 		final double dy = p1[1] - p2[1];

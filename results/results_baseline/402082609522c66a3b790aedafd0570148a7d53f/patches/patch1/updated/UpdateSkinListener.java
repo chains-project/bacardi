@@ -13,17 +13,17 @@ import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.network.MessageChannel;
+import org.spongepowered.api.network.MessageChannel; // Updated import
 import org.spongepowered.api.network.RemoteConnection;
 import org.spongepowered.api.scheduler.Task;
 
-public class UpdateSkinListener {
+public class UpdateSkinListener { // Removed RawDataListener interface
 
     @Inject
     private ChangeSkinSponge plugin;
 
-    public void handlePayload(MessageChannel data, RemoteConnection connection, Type side) {
-        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.getBuffer().array());
+    public void handlePayload(MessageChannel data, RemoteConnection connection, Type side) { // Updated parameter type
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
         SkinUpdateMessage updateMessage = new SkinUpdateMessage();
         updateMessage.readFrom(dataInput);
 

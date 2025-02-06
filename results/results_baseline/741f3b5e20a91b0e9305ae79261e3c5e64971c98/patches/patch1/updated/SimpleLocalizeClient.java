@@ -142,7 +142,12 @@ public class SimpleLocalizeClient
 
       Object responseBody = httpResponse.body();
       String stringBody = safeCastHttpBodyToString(responseBody);
-      String message = JsonPath.using(parseContext).parse(stringBody).read(ERROR_MESSAGE_PATH);
+      String message = null;
+      try {
+        message = JsonPath.using(parseContext).parse(stringBody).read(ERROR_MESSAGE_PATH);
+      } catch (JsonMappingException e) {
+        message = "Error parsing response: " + e.getMessage();
+      }
       if (message == null)
       {
         message = "Unknown error, HTTP Status: " + httpResponse.statusCode();

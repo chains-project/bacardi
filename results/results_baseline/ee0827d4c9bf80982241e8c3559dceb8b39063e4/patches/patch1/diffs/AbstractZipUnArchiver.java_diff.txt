@@ -17,12 +17,28 @@
 <  */
 28d11
 < import org.apache.commons.io.input.BoundedInputStream;
-204,205c187
+56,61d38
+<     /**
+<      * Sets the encoding to assume for file names and comments.
+<      * <p>
+<      * Set to <code>native-encoding</code> if you want your platform's native encoding, defaults to UTF8.
+<      * </p>
+<      */
+71,78d47
+<     /**
+<      * Set maximum allowed size of the produced output.
+<      *
+<      * It may be used as a protection against <a href="https://en.wikipedia.org/wiki/Zip_bomb">zip bombs</a>.
+<      *
+<      * @param maxOutputSize max size of the produced output, in bytes. Must be greater than 0
+<      * @throws IllegalArgumentException if specified output size is less or equal to 0
+<      */
+204,205c173
 <                         BoundedInputStream bis = new BoundedInputStream( in, remainingSpace + 1 );
 <                         CountingInputStream cis = new CountingInputStream( bis );
 ---
 >                         CountingInputStream cis = new CountingInputStream( in );
-211c193
+211c179
 <                         remainingSpace -= cis.getByteCount();
 ---
 >                         remainingSpace -= cis.getCount();

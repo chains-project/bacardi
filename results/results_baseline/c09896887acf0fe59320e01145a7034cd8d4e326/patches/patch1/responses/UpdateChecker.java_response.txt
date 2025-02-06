@@ -15,7 +15,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.kohsuke.github.GHCompare;
 import org.kohsuke.github.GitHub;
-import org.kohsuke.github.GHCompare.Status; // Updated import
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -56,7 +55,7 @@ public final class UpdateChecker {
         /** Sort by version descending. */
         @Override public int compareTo(VersionAndRepo o) {
             assert o.groupId.equals(groupId) && o.artifactId.equals(artifactId);
-            return o.version.compareTo(version);
+            return o.version.compareTo(o.version);
         }
         /** @return for example: {@code https://repo/net/nowhere/lib/1.23/} */
         public String baseURL() {
@@ -205,8 +204,8 @@ public final class UpdateChecker {
      */
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
-            Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).getStatus(); // Updated method call
-            return status == Status.identical || status == Status.behind;
+            GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
+            return compare.getStatus() == GHCompare.Status.identical || compare.getStatus() == GHCompare.Status.behind;
         } catch (FileNotFoundException x) {
             // For example, that branch does not exist in this repository.
             return false;

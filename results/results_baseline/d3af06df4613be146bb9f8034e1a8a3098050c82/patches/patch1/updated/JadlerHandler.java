@@ -18,8 +18,8 @@ import org.apache.commons.lang.Validate;
 
 
 /**
- * Jetty Handler which handles all http communication by returning an http response according to a stub response
- * obtained from a {@link RequestManager} instance.
+ * Jetty Handler which handles all http communication by returning an http response
+ * according to a stub response obtained from a {@link RequestManager} instance.
  */
 class JadlerHandler extends AbstractHandler {
 

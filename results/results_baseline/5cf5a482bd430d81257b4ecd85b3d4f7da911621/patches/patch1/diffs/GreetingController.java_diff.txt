@@ -8,25 +8,25 @@
 < import javax.mvc.security.CsrfProtected;
 < import javax.validation.constraints.NotBlank;
 17a10
-> import javax.validation.constraints.NotBlank;
+> import javax.ws.rs.core.Response;
 24d16
 < @Controller
-29,32c21
+29,37d20
 <     BindingResult bindingResult;
 < 
 <     @Inject
 <     Models models;
----
->     Logger log;
-37,39d25
-<     @Inject
-<     Logger log;
 < 
-46d31
+<     @Inject
+<     AlertMessage flashMessage;
+< 
+<     @Inject
+46,60c29,34
 <     @UriRef("greeting-post")
-49d33
+<     public String post(
+<             @FormParam("greeting")
 <             @MvcBinding
-51,58c35
+<             @NotBlank String greeting) {
 <         if (bindingResult.isFailed()) {
 <             AlertMessage alert = AlertMessage.danger("Validation voilations!");
 <             bindingResult.getAllErrors()
@@ -35,11 +35,17 @@
 <                         alert.addError(t.getParamName(), "", t.getMessage());
 <                     });
 <             models.put("errors", alert);
+<             log.info("mvc binding failed.");
+<             return "greeting.xhtml";
 ---
->         AlertMessage alert = AlertMessage.danger("Validation violations!");
-63,67d39
-<         log.info("redirect to greeting page.");
+>     public Response post(
+>             @FormParam("greeting") String greeting) {
+>         if (greeting == null || greeting.trim().isEmpty()) {
+>             log.info("Validation violations!");
+>             return Response.status(Response.Status.BAD_REQUEST)
+>                     .entity("Validation violations!").build();
+64,65c38
 <         flashMessage.notify(AlertMessage.Type.success, "Message:" + greeting);
 <         return "redirect:greeting";
-<     }
-< 
+---
+>         return Response.seeOther(javax.ws.rs.core.UriBuilder.fromPath("greeting").build()).build();

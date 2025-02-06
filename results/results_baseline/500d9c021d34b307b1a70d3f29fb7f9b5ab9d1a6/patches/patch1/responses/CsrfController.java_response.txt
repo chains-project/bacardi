@@ -7,8 +7,6 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.validation.constraints.NotBlank;
-import javax.ws.rs.core.Response;
 
 /**
  *
@@ -21,17 +19,27 @@ public class CsrfController {
     @Inject
     Logger log;
 
+    @Inject
+    AlertMessage flashMessage;
+
     @GET
     public String get() {
         return "csrf.xhtml";
     }
 
     @POST
-    public Response post(
+    public String post(
             @FormParam("greeting")
-            @NotBlank String greeting) {
+            String greeting) {
+        if (greeting == null || greeting.isBlank()) {
+            AlertMessage alert = AlertMessage.danger("Validation violations!");
+            log.info("mvc binding failed.");
+            return "csrf.xhtml";
+        }
+
         log.info("redirect to greeting page.");
-        return Response.ok("Message: " + greeting).build();
+        flashMessage.notify(AlertMessage.Type.success, "Message:" + greeting);
+        return "redirect:csrf";
     }
 
 }

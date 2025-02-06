@@ -25,6 +25,7 @@ import org.jgrapht.alg.spanning.PrimMinimumSpanningTree;
 import org.jgrapht.graph.SimpleGraph;
 import org.tinfour.common.IIncrementalTin;
 import org.tinspin.index.kdtree.KDTree;
+import org.tinspin.index.kdtree.KDTreeResult;
 
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
@@ -68,7 +69,8 @@ public final class PGS_PointSet {
 		final List<PVector> newPoints = new ArrayList<>();
 		for (PVector p : points) {
 			final double[] coords = new double[] { p.x, p.y };
-			if (tree.size() == 0 || tree.query1NN(coords, 0).dist() > distanceTolerance) {
+			KDTreeResult<PVector> result = tree.query1NN(coords);
+			if (tree.size() == 0 || (result != null && result.dist() > distanceTolerance)) {
 				tree.insert(coords, p);
 				newPoints.add(p);
 			}

@@ -1,20 +1,4 @@
-16,17c16
+16c16
 < import org.cactoos.io.BytesOf;
-< import org.cactoos.text.HexOf;
 ---
-> import java.util.Formatter;
-61c60
-<                     () -> new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
----
->                     () -> new Digest.Sha256(toHexString(sha.digest()))
-66a66,75
->     private String toHexString(byte[] bytes) {
->         StringBuilder sb = new StringBuilder();
->         try (Formatter formatter = new Formatter(sb)) {
->             for (byte b : bytes) {
->                 formatter.format("%02x", b);
->             }
->         }
->         return sb.toString();
->     }
-> 
+> import org.cactoos.bytes.BytesOf;

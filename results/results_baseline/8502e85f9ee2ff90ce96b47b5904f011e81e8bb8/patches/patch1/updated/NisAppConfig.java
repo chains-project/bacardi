@@ -110,7 +110,7 @@ public class NisAppConfig {
 				.dataSource(this.dataSource())
 				.locations(prop.getProperty("flyway.locations"))
 				.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		
+
 		return new Flyway(configuration);
 	}
 

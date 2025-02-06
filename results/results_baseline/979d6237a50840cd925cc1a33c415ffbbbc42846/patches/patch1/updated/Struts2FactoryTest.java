@@ -44,11 +44,11 @@ public class Struts2FactoryTest extends TestCase {
       this.module = module;
     }
 
-    protected Injector getInjector() { // Removed @Override
+    protected Injector getInjector() { // Removed @Override annotation
       return Guice.createInjector(
           new Struts2GuicePluginModule(),
           new ServletModule() {
-            protected void configureServlets() { // Removed @Override
+            protected void configureServlets() { // Removed @Override annotation
               // Struts 2 setup
               bind(StrutsPrepareAndExecuteFilter.class)
                   .in(com.google.inject.Singleton.class);

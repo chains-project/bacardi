@@ -7,6 +7,7 @@ package net.jadler.stubbing.server.jetty;
 import net.jadler.RequestManager;
 import net.jadler.stubbing.server.StubHttpServer;
 import org.apache.commons.lang.Validate;
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.slf4j.Logger;
@@ -29,7 +30,7 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
-        this.server.setHandler(new JadlerHandler(null)); // Placeholder for ruleProvider
+        this.server.setHandler(new JadlerHandler(null)); // Placeholder for handler
         this.httpConnector = new ServerConnector(server);
         this.httpConnector.setPort(port);
         server.addConnector(this.httpConnector);

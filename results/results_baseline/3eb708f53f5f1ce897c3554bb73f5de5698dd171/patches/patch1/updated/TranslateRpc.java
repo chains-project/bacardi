@@ -1,24 +1,5 @@
-/*
- * Copyright 2016 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * you may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.google.cloud.translate.spi.v2;
 
-import com.google.cloud.translate.Translate;
-import com.google.cloud.translate.Translate.TranslateOption;
-import com.google.cloud.translate.Translation;
 import java.util.List;
 import java.util.Map;
 
@@ -73,5 +54,5 @@ public interface TranslateRpc extends ServiceRpc {
    * @return a list of resources containing translation information, in the same order of the
    *     provided texts
    */
-  List<Translation> translate(List<String> texts, Map<Option, ?> optionMap);
+  List<String> translate(List<String> texts, Map<Option, ?> optionMap);
 }

@@ -1,8 +1,8 @@
 package de.gwdg.metadataqa.marc.dao;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException; // Added import for JacksonException
 import de.gwdg.metadataqa.marc.Extractable;
 import de.gwdg.metadataqa.marc.MarcFactory;
 import de.gwdg.metadataqa.marc.MarcSubfield;

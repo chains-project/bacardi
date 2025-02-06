@@ -1,10 +1,13 @@
 13c13
 < import org.spongepowered.api.event.network.ClientConnectionEvent;
 ---
-> import org.spongepowered.api.event.network.ClientConnectionEvent.Auth;
+> import org.spongepowered.api.event.network.ClientConnectionEvent.Auth; // Updated import
 29c29
 <     public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
 ---
->     public void onPlayerPreLogin(Auth preLoginEvent) {
-61d60
+>     public void onPlayerPreLogin(Auth preLoginEvent) { // Updated parameter type
+61,62c61
 <     @Override
+<     protected void save(final UserPreference preferences) {
+---
+>     protected void save(final UserPreference preferences) { // Removed @Override annotation
