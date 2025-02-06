@@ -1,0 +1,8 @@
+33a34
+> import org.apache.thrift.transport.TTransportException; // Added import for TTransportException
+288a290,294
+>       } catch (TTransportException e) { // Catching the new exception
+>         LOG.warn("Transport exception occurred: ", e);
+>         OpenTsdbMetricConverter.incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_TRANSPORT_EXCEPTION, 1,
+>             "host=" + host, "stage=" + stage.toString());
+>         break;

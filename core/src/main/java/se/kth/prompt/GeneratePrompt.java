@@ -20,6 +20,7 @@ public class GeneratePrompt {
 
     private PromptPipeline pipeline = PromptPipeline.BASELINE;
     private PromptModel promptModel;
+    AbstractPromptTemplate promptTemplate = null;
 
     public GeneratePrompt() {
     }
@@ -36,9 +37,6 @@ public class GeneratePrompt {
     public String generatePrompt() {
         log.info("Generating prompt for pipeline: {}", pipeline);
 
-        // Generate the prompt
-        AbstractPromptTemplate promptTemplate = null;
-
         switch (pipeline) {
             case BASELINE:
                 promptTemplate = new BasePromptTemplate();
@@ -50,6 +48,10 @@ public class GeneratePrompt {
                 break;
             case BASELINE_BUGGY_LINE:
                 promptTemplate = new BasePromptBuggyLineTemplate();
+                promptTemplate.setPromptModel(promptModel);
+                break;
+            case BASELINE_ANTHROPIC_BUGGY:
+                promptTemplate = new BasePromptAnthropicBuggyTemplate();
                 promptTemplate.setPromptModel(promptModel);
                 break;
             case BASELINE_API_DIFF:
@@ -105,16 +107,8 @@ public class GeneratePrompt {
     }
 
     public String extractContentFromModelResponse(String input) {
-        String pattern = "```java(.*?)```";
-        Pattern regex = Pattern.compile(pattern, Pattern.DOTALL);
-        Matcher matcher = regex.matcher(input);
 
-        if (matcher.find()) {
-            return matcher.group(1).trim();
-        } else {
-            log.error("Error extracting content from the model response");
-            return null;
-        }
+        return promptTemplate.parseLLMResponce(input);
     }
 
     /**

@@ -1,0 +1,9 @@
+12d11
+< import liquibase.util.StringUtils;
+35d33
+<     // Basically copied from liquibase.sqlgenerator.core.CreateIndexGenerator
+76,77c74
+<     // This block simplified, since we know we have MSSQLDatabase
+<     if (StringUtils.trimToNull(statement.getTablespace()) != null) {
+---
+>     if (statement.getTablespace() != null && !statement.getTablespace().trim().isEmpty()) {

@@ -1,0 +1,65 @@
+1. 
+```java
+package com.wire.lithium;
+
+import com.wire.bots.cryptobox.CryptoException;
+import com.wire.xenon.WireAPI;
+import com.wire.xenon.WireClient;
+import com.wire.xenon.backend.models.NewBot;
+import com.wire.xenon.crypto.Crypto;
+import com.wire.xenon.factories.CryptoFactory;
+import com.wire.xenon.factories.StorageFactory;
+import com.wire.xenon.state.State;
+
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder; // Added import for ClientBuilder
+import java.io.IOException;
+import java.util.UUID;
+
+public class ClientRepo {
+    protected final Client httpClient;
+    protected final CryptoFactory cf;
+    protected final StorageFactory sf;
+
+    public ClientRepo(Client httpClient, CryptoFactory cf, StorageFactory sf) {
+        this.httpClient = httpClient;
+        this.cf = cf;
+        this.sf = sf;
+    }
+
+    public WireClient getClient(UUID botId) throws IOException, CryptoException {
+        NewBot state = sf.create(botId).getState();
+        Crypto crypto = cf.create(botId);
+        WireAPI api = new API(httpClient, state.token);
+        return new BotClient(api, crypto, state);
+    }
+
+    public void purgeBot(UUID botId) throws IOException {
+        State state = sf.create(botId);
+        if (state == null)
+            return;
+
+        boolean purged = state.removeState();
+        if (!purged)
+            throw new IOException("Failed to purge Bot: " + botId);
+    }
+
+    public Client getHttpClient() {
+        return httpClient;
+    }
+
+    public CryptoFactory getCf() {
+        return cf;
+    }
+
+    public StorageFactory getSf() {
+        return sf;
+    }
+}
+```
+
+2. The error messages indicate that the `Client` class cannot be found in the `ClientRepo` class. This is likely due to changes in the `io.dropwizard` library between versions 2.1.5 and 4.0.0. In the updated version, the `Client` class may have been moved or replaced. 
+
+To resolve this, I added an import statement for `javax.ws.rs.client.ClientBuilder`, which is commonly used to create instances of `Client`. However, since the original code does not instantiate `Client` directly, you may need to ensure that the `Client` being used is correctly imported from the appropriate package. 
+
+If the `Client` class is still not found, you may need to check the documentation for `io.dropwizard` version 4.0.0 to see if there are any additional changes regarding the `Client` class or if it has been replaced with another class.

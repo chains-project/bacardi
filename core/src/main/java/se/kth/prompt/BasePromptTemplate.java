@@ -27,7 +27,10 @@ public class BasePromptTemplate extends AbstractPromptTemplate {
             String classCode = Files.readString(Path.of(promptModel.getClassInfo()));
             return """
                     the following client code fails:
+                    
+                    ```java
                     %s
+                    ```
                     """.formatted(classCode);
         } catch (IOException e) {
             log.error("Error reading the class file", e);
@@ -73,8 +76,9 @@ public class BasePromptTemplate extends AbstractPromptTemplate {
                  You CANNOT change the function signature of any method but may create variables if it simplifies the code.
                  You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
                  If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
-                 Avoid removing any existing code unless it directly causes a compilation or functionality error.
+                 Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
                  Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
-                \s""".formatted(header(), classCode(), errorLog());
+                \s"""
+                .formatted(header(), classCode(), errorLog());
     }
 }

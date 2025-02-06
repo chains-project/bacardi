@@ -1,0 +1,54 @@
+18,19c18,26
+< import net.lingala.zip4j.core.ZipFile;
+< import net.lingala.zip4j.exception.ZipException;
+---
+> import java.util.zip.ZipEntry;
+> import java.util.zip.ZipInputStream;
+> import java.io.FileOutputStream;
+> import java.io.InputStream;
+> import java.io.File;
+> import java.io.IOException;
+> import java.nio.file.Files;
+> import java.nio.file.Path;
+> import java.nio.file.StandardCopyOption;
+33,36d39
+< import java.io.File;
+< import java.io.FileNotFoundException;
+< import java.io.IOException;
+< import java.io.InputStream;
+41,43d43
+< import java.nio.file.Files;
+< import java.nio.file.Path;
+< import java.nio.file.StandardCopyOption;
+119c119
+<     private void checkAllureExists() throws FileNotFoundException {
+---
+>     private void checkAllureExists() throws IOException {
+121c121
+<             throw new FileNotFoundException("There is no valid allure installation."
+---
+>             throw new IOException("There is no valid allure installation."
+217,221c217,233
+<         try {
+<             final ZipFile zipFile = new ZipFile(file);
+<             zipFile.extractAll(getInstallationDirectory().toAbsolutePath().toString());
+<         } catch (ZipException e) {
+<             throw new IOException(e);
+---
+>         try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(file.toPath()))) {
+>             ZipEntry zipEntry;
+>             while ((zipEntry = zis.getNextEntry()) != null) {
+>                 File newFile = new File(getInstallationDirectory().toAbsolutePath().toString(), zipEntry.getName());
+>                 if (zipEntry.isDirectory()) {
+>                     newFile.mkdirs();
+>                 } else {
+>                     try (FileOutputStream fos = new FileOutputStream(newFile)) {
+>                         byte[] buffer = new byte[1024];
+>                         int len;
+>                         while ((len = zis.read(buffer)) > 0) {
+>                             fos.write(buffer, 0, len);
+>                         }
+>                     }
+>                 }
+>                 zis.closeEntry();
+>             }

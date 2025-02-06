@@ -1,0 +1,10 @@
+3a4
+> import org.pitest.classinfo.ClassName; // Ensure this import is present
+18a20
+> import java.util.Set;
+103a106
+>     Set<ClassName> mutatedClassSet = Collections.singleton(data.getMutatedClass()); // Create a Set of ClassName
+105c108
+<         data.getMutations(), coverage.getClassInfo(Collections.singleton(data.getMutatedClass())));
+---
+>         data.getMutations(), coverage.getClassInfo(mutatedClassSet)); // Use the Set here

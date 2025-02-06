@@ -2,12 +2,19 @@ package se.kth.Util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import se.kth.failure_detection.DetectedFileWithErrors;
 import se.kth.model.SetupPipeline;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @lombok.Getter
 @lombok.Setter
@@ -19,9 +26,23 @@ public class StoreInfo {
     private String patchNumber;
     Path patchFolder;
 
-    public StoreInfo(SetupPipeline setupPipeline) {
+    public StoreInfo(SetupPipeline setupPipeline, Path patchFolder) {
         this.setupPipeline = setupPipeline;
-        patchFolder = checkPatchFolder();
+        this.patchFolder = patchFolder;
+        try {
+            long patchCount = Files.list(patchFolder.getParent()).count() - 1;
+            patchNumber = String.valueOf(patchCount);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public StoreInfo(SetupPipeline setupPipeline, boolean setup) {
+        this.setupPipeline = setupPipeline;
+        if (setup) {
+            this.patchFolder = checkPatchFolder();
+        } else
+            patchFolder = setupPipeline.getOutPutPatchFolder();
     }
 
     private Path checkPatchFolder() {
@@ -83,8 +104,7 @@ public class StoreInfo {
 
             // Build the diff command
             ProcessBuilder processBuilder = new ProcessBuilder(
-                    "diff", "-w", "-t", originalFile, patchFile
-            );
+                    "diff", "-w", "-t", originalFile, patchFile);
 
             // Redirect the output to the specified file
             processBuilder.redirectOutput(new File(outputFile.toString()));
@@ -103,12 +123,52 @@ public class StoreInfo {
             } else {
                 System.err.println("Error while executing the diff command. Exit code: " + exitCode);
             }
-            //return if the file is empty or not
+            // return if the file is empty or not
             return Files.size(outputFile) > 0;
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
 
+    public void storeFilesErrors(String stage, Map<String, Set<DetectedFileWithErrors>> listOfFilesWithErrors) {
+
+        Path filesFolder = Path.of(this.patchFolder.toString(), "files");
+        if (!Files.exists(filesFolder)) {
+            try {
+                Files.createDirectories(filesFolder);
+            } catch (IOException e) {
+                log.error("Error creating files folder", e);
+                throw new RuntimeException(e);
+            }
+        }
+
+        Path processErrorFilesFolder = Path.of(filesFolder.toString(), stage + "_Files.txt");
+        try {
+            Files.write(processErrorFilesFolder,
+                    listOfFilesWithErrors.keySet().stream()
+                            .map(Object::toString)
+                            .collect(Collectors.toList()));
+
+            Path errorFolder = this.patchFolder.resolve("errors/"+ stage);
+            if (!Files.exists(errorFolder)) {
+                Files.createDirectories(errorFolder);
+            }
+            for (Map.Entry<String, Set<DetectedFileWithErrors>> entry : listOfFilesWithErrors.entrySet()) {
+                for (DetectedFileWithErrors errorFile : entry.getValue()) {
+                    Path errorFilePath = errorFolder.resolve(Path.of(entry.getKey()).getFileName() + ".txt");
+
+                    String errormessage = errorFile.getErrorInfo().getErrorMessage();
+                    errormessage = errormessage.replaceAll("\\[ERROR\\] .*:\\[\\d+,\\d+\\] ", "");
+                    errormessage = errormessage + errorFile.getErrorInfo().getAdditionalInfo().replace("\n", " ");
+                    Files.writeString(errorFilePath,
+                            errorFile.getErrorInfo().getClientLinePosition() + ":" + errormessage + "\n",
+                            StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                }
+            }
+        } catch (IOException e) {
+            log.error("Error writing" + stage + "error files", e);
+            throw new RuntimeException(e);
+        }
+    }
 
 }

@@ -1,0 +1,59 @@
+23,25c23,26
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.api.services.translate.model.TranslationsResource;
+---
+> import com.google.api.services.translate.v3.model.Detection;
+> import com.google.api.services.translate.v3.model.Language;
+> import com.google.api.services.translate.v3.model.TranslationsListResponse;
+> import com.google.api.services.translate.v3.model.DetectionsListResponse;
+43c44
+<   private static final Function<List<DetectionsResourceItems>, Detection>
+---
+>   private static final Function<List<Detection>, Detection>
+45c46
+<           new Function<List<DetectionsResourceItems>, Detection>() {
+---
+>           new Function<List<Detection>, Detection>() {
+47,48c48,49
+<             public Detection apply(List<DetectionsResourceItems> detectionPb) {
+<               return Detection.fromPb(detectionPb.get(0));
+---
+>             public Detection apply(List<Detection> detectionPb) {
+>               return detectionPb.get(0);
+62c63
+<               new Callable<List<LanguagesResource>>() {
+---
+>               new Callable<List<Language>>() {
+64c65
+<                 public List<LanguagesResource> call() {
+---
+>                 public List<Language> call() {
+80c81
+<       List<List<DetectionsResourceItems>> detectionsPb =
+---
+>       List<List<Detection>> detectionsPb =
+82c83
+<               new Callable<List<List<DetectionsResourceItems>>>() {
+---
+>               new Callable<List<List<Detection>>>() {
+84c85
+<                 public List<List<DetectionsResourceItems>> call() {
+---
+>                 public List<List<Detection>> call() {
+91c92
+<       Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
+---
+>       Iterator<List<Detection>> detectionIterator = detectionsPb.iterator();
+94c95
+<         List<DetectionsResourceItems> detectionPb = detectionIterator.next();
+---
+>         List<Detection> detectionPb = detectionIterator.next();
+121c122
+<               new Callable<List<TranslationsResource>>() {
+---
+>               new Callable<List<TranslationsListResponse>>() {
+123c124
+<                 public List<TranslationsResource> call() {
+---
+>                 public List<TranslationsListResponse> call() {

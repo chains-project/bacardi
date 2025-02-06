@@ -1,0 +1,127 @@
+ You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates.
+Your task is to analyze the provided code and error message, then propose a patch that can be applied to the client code to resolve the issue.
+
+ Here is the client code that is failing:
+```java
+package io.github.hapjava.server.impl.crypto;
+
+import java.io.IOException;
+import org.bouncycastle.crypto.engines.ChaChaEngine;
+import org.bouncycastle.crypto.generators.Poly1305KeyGenerator;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.params.ParametersWithIV;
+import org.bouncycastle.crypto.tls.AlertDescription;
+import org.bouncycastle.crypto.tls.TlsFatalAlert;
+import org.bouncycastle.util.Arrays;
+
+public class ChachaDecoder {
+
+  private final ChaChaEngine decryptCipher;
+
+  public ChachaDecoder(byte[] key, byte[] nonce) throws IOException {
+
+    this.decryptCipher = new ChaChaEngine(20);
+
+    this.decryptCipher.init(false, new ParametersWithIV(new KeyParameter(key), nonce));
+  }
+
+  public byte[] decodeCiphertext(byte[] receivedMAC, byte[] additionalData, byte[] ciphertext)
+      throws IOException {
+
+    KeyParameter macKey = initRecordMAC(decryptCipher);
+
+    byte[] calculatedMAC = PolyKeyCreator.create(macKey, additionalData, ciphertext);
+
+    if (!Arrays.constantTimeAreEqual(calculatedMAC, receivedMAC)) {
+      throw new TlsFatalAlert(AlertDescription.bad_record_mac);
+    }
+
+    byte[] output = new byte[ciphertext.length];
+    decryptCipher.processBytes(ciphertext, 0, ciphertext.length, output, 0);
+
+    return output;
+  }
+
+  public byte[] decodeCiphertext(byte[] receivedMAC, byte[] ciphertext) throws IOException {
+    return decodeCiphertext(receivedMAC, null, ciphertext);
+  }
+
+  private KeyParameter initRecordMAC(ChaChaEngine cipher) {
+    byte[] firstBlock = new byte[64];
+    cipher.processBytes(firstBlock, 0, firstBlock.length, firstBlock, 0);
+
+    // NOTE: The BC implementation puts 'r' after 'k'
+    System.arraycopy(firstBlock, 0, firstBlock, 32, 16);
+    KeyParameter macKey = new KeyParameter(firstBlock, 16, 32);
+    Poly1305KeyGenerator.clamp(macKey.getKey());
+    return macKey;
+  }
+}
+
+```
+
+ the error is triggered in the following specific lines in the previous code:
+
+```java
+import org.bouncycastle.crypto.tls.TlsFatalAlert;
+```
+```java
+import org.bouncycastle.crypto.tls.AlertDescription;
+```
+```java
+throw new TlsFatalAlert(AlertDescription.bad_record_mac);
+```
+
+
+ And here is the error message:
+[ERROR] /HAP-Java/src/main/java/io/github/hapjava/server/impl/crypto/ChachaDecoder.java:[9,35] package org.bouncycastle.crypto.tls does not exist
+
+[ERROR] /HAP-Java/src/main/java/io/github/hapjava/server/impl/crypto/ChachaDecoder.java:[8,35] package org.bouncycastle.crypto.tls does not exist
+
+[ERROR] /HAP-Java/src/main/java/io/github/hapjava/server/impl/crypto/ChachaDecoder.java:[31,17] cannot find symbol
+  symbol:   class TlsFatalAlert
+  location: class io.github.hapjava.server.impl.crypto.ChachaDecoder
+
+
+
+ Before proposing a fix, please analyze the error message and client code. Wrap your analysis inside <code_analysis> tags:
+
+<code_analysis>
+1. Examine the error message:
+   - Identify the specific issue related to the dependency update.
+   - Note the line number or method where the error occurs.
+   - Determine which dependency and version is causing the issue.
+
+2. Review the client code:
+   - Locate the problematic areas mentioned in the error message.
+   - Identify any related code that might be affected by the changes.
+
+3. Consider potential fixes that adhere to the following constraints:
+   - Do not change any function signatures.
+   - Only remove the @Override annotation if the method no longer overrides a method in the updated dependency version.
+   - Ensure correct imports are used, considering the newer dependency version.
+   - Avoid removing existing code unless it directly causes a compilation or functionality error.
+
+4. Plan the necessary changes to fix the issue:
+   - List the specific modifications required.
+   - Consider potential side effects of the proposed changes.
+   - Ensure the fix addresses the root cause of the error.
+</code_analysis>
+
+Based on your analysis, propose a patch to fix the issue. Your response should be a complete and compilable Java class in a fenced code block. Adhere to these guidelines:
+
+1. Do not change any function signatures.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Avoid removing any existing code unless it directly causes a compilation or functionality error.
+6. Ensure the entire class is included and that it will compile correctly. Don't use the comment "// ... (rest of the class remains unchanged)".
+
+Please provide your fixed class in the following format:
+
+```java
+// Your complete, fixed Java class here
+```
+
+Remember to focus specifically on issues related to the dependency update when proposing your fix.
+ 

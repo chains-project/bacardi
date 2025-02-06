@@ -1,0 +1,35 @@
+3d2
+< import com.flowpowered.math.vector.Vector3d;
+12,13d10
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.data.key.Keys;
+23d19
+<     private final CommandSource invoker;
+24a21
+>     private final UUID invokerId;
+26c23
+<     public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
+---
+>     public SkinApplier(ChangeSkinSponge plugin, Player invoker, Player receiver, SkinModel targetSkin
+31d27
+<         this.invoker = invoker;
+32a29
+>         this.invokerId = invoker.getUniqueId();
+41,45c38
+<         //uuid was successful resolved, we could now make a cooldown check
+<         if (invoker instanceof Player) {
+<             UUID uniqueId = ((Player) invoker).getUniqueId();
+<             core.getCooldownService().trackPlayer(uniqueId);
+<         }
+---
+>         core.getCooldownService().trackPlayer(invokerId);
+65c58
+<         plugin.sendMessage(invoker, "skin-changed");
+---
+>         plugin.sendMessage(receiver, "skin-changed");
+70c63
+<         plugin.sendMessage(invoker, key);
+---
+>         plugin.sendMessage(receiver, key);
+83d75
+<         //triggers an update for others player to see the new skin

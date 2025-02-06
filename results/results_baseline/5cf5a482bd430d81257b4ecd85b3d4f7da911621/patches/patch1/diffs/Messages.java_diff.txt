@@ -1,0 +1,18 @@
+1d0
+< 
+2a2
+> import java.util.Locale;
+7c7,8
+< //https://www.mvc-spec.org/learn/cookbook/multilang_en.html
+---
+> import javax.mvc.locale.LocaleResolver;
+> 
+23c24
+<     private MvcContext mvcContext;
+---
+>     private LocaleResolver localeResolver;
+33c34,35
+<         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
+---
+>         final Locale locale = localeResolver.resolveLocale();
+>         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, locale);

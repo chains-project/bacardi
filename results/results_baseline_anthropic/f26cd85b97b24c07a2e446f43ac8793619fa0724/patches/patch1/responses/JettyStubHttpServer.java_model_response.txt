@@ -1,0 +1,88 @@
+```java
+/*
+ * Copyright (c) 2012 - 2016 Jadler contributors
+ * This program is made available under the terms of the MIT License.
+ */
+package net.jadler.stubbing.server.jetty;
+
+import net.jadler.RequestManager;
+import net.jadler.stubbing.server.StubHttpServer;
+import org.apache.commons.lang3.Validate; // Updated import for Validate
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector; // Updated import for ServerConnector
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+/**
+ * Default stub http server implementation using Jetty as an http server.
+ */
+public class JettyStubHttpServer implements StubHttpServer {
+
+    private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
+    private final Server server;
+    private final ServerConnector httpConnector; // Changed to ServerConnector
+
+    public JettyStubHttpServer() {
+        this(0);
+    }
+
+
+    public JettyStubHttpServer(final int port) {
+        this.server = new Server();
+        this.server.setAttribute("org.eclipse.jetty.server.Server.sendServerVersion", false); // Updated method
+        this.server.setAttribute("org.eclipse.jetty.server.Server.sendDateHeader", true); // Updated method
+
+        this.httpConnector = new ServerConnector(server); // Updated to use ServerConnector
+        this.httpConnector.setPort(port);
+        server.addConnector(this.httpConnector);
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void registerRequestManager(final RequestManager ruleProvider) {
+        Validate.notNull(ruleProvider, "ruleProvider cannot be null");
+
+        server.setHandler(new JadlerHandler(ruleProvider));
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void start() throws Exception {
+        logger.debug("starting jetty");
+        server.start();
+        logger.debug("jetty started");
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void stop() throws Exception {
+        logger.debug("stopping jetty");
+        server.stop();
+        logger.debug("jetty stopped");
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getPort() {
+        return httpConnector.getLocalPort(); // This method is valid for ServerConnector
+    }
+}
+``` 
+
+### Summary of Changes:
+1. Updated the import for `Validate` to `org.apache.commons.lang3.Validate` to reflect the correct package.
+2. Changed the `SelectChannelConnector` to `ServerConnector`, which is the updated class in newer Jetty versions.
+3. Replaced the deprecated `setSendServerVersion` and `setSendDateHeader` methods with `setAttribute` calls to set the corresponding attributes on the server.

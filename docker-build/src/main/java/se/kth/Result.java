@@ -29,4 +29,5 @@ public class Result {
                 ",\n attempts=" + attempts +
                 '}';
     }
+
 }

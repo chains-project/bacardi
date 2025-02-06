@@ -1,0 +1,42 @@
+1,15d0
+< /**
+<  * Copyright 2019 Pinterest, Inc.
+<  * 
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  * 
+<  *    http://www.apache.org/licenses/LICENSE-2.0
+<  * 
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+30,31d14
+< import org.apache.thrift.transport.TFastFramedTransport;
+< import org.apache.thrift.transport.TIOStreamTransport;
+32a16,17
+> import org.apache.thrift.transport.TIOStreamTransport;
+> import org.apache.thrift.transport.TFramedTransport;
+33a19
+> import java.io.OutputStream;
+36d21
+< import java.io.OutputStream;
+57d41
+<     @Override
+60,61c44
+<       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
+<       // log.
+---
+>       // Use the TFramedTransport to be compatible with singer_thrift log.
+63,64c46
+<       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
+<           bufferCapacity);
+---
+>       framedTransport = new TFramedTransport(new TIOStreamTransport(os));
+68d49
+<     @Override
+78d58
+<     @Override

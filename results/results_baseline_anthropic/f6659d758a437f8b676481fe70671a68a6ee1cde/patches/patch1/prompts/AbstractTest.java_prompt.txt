@@ -1,0 +1,153 @@
+ You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates.
+Your task is to analyze the provided code and error message, then propose a patch that can be applied to the client code to resolve the issue.
+
+ Here is the client code that is failing:
+```java
+/*
+ * Copyright (C) 2017 Premium Minds.
+ *
+ * This file is part of billy core.
+ *
+ * billy core is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * billy core is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with billy core. If not, see <http://www.gnu.org/licenses/>.
+ */
+package com.premiumminds.billy.core.test;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.util.Modules;
+import com.premiumminds.billy.core.CoreDependencyModule;
+import com.premiumminds.billy.core.test.fixtures.JavaLocalDateConstruct;
+import com.premiumminds.billy.core.test.fixtures.JavaZoneIdConstruct;
+import com.premiumminds.billy.core.test.fixtures.MockBaseEntity;
+import java.time.LocalDate;
+import org.junit.jupiter.api.BeforeAll;
+import org.mockito.Mockito;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.TypeDescription;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.inspector.TrustedTagInspector;
+import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.representer.Representer;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.time.ZoneId;
+
+public class AbstractTest {
+
+    private static Injector injector;
+    protected final static String YML_CONFIGS_DIR = "src/test/resources/yml/";
+
+    @BeforeAll
+    public static void setUpClass() {
+        AbstractTest.injector =
+                Guice.createInjector(Modules.override(new CoreDependencyModule()).with(new MockDependencyModule()));
+    }
+
+    public <T> T getInstance(Class<T> clazz) {
+        return AbstractTest.injector.getInstance(clazz);
+    }
+
+    public <T> T getMock(Class<T> clazz) {
+        return Mockito.mock(clazz);
+    }
+
+    public <T extends MockBaseEntity> T createMockEntity(Class<T> clazz, String path) {
+        final LoaderOptions loadingConfig = new LoaderOptions();
+        loadingConfig.setTagInspector(new TrustedTagInspector());
+
+        final Representer representer = new Representer(new DumperOptions());
+        final Tag zoneIdTag = new Tag("!ZoneId");
+        representer.addClassTag(ZoneId.class, zoneIdTag);
+        final Tag localDateTag = new Tag("!LocalDate");
+        representer.addClassTag(LocalDate.class, localDateTag);
+
+        final Constructor constructor = new Constructor(clazz, loadingConfig) {{
+            this.addTypeDescription(new TypeDescription(ZoneId.class, "ZoneId"));
+            this.addTypeDescription(new TypeDescription(LocalDate.class, "LocalDate"));
+
+            this.yamlConstructors.put(zoneIdTag, new JavaZoneIdConstruct());
+            this.yamlConstructors.put(localDateTag, new JavaLocalDateConstruct());
+        }};
+
+        Yaml yaml = new Yaml(constructor, representer);
+
+        try {
+            return yaml.load(new BufferedReader(new FileReader(path)));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+}
+
+```
+
+ And here is the error message:
+<error_message>
+[ERROR] /billy/billy-core/src/test/java/com/premiumminds/billy/core/test/AbstractTest.java:[36,36] cannot find symbol
+  symbol:   class TrustedTagInspector
+  location: package org.yaml.snakeyaml.inspector
+
+[ERROR] /billy/billy-core/src/test/java/com/premiumminds/billy/core/test/AbstractTest.java:[66,43] cannot find symbol
+  symbol:   class TrustedTagInspector
+  location: class com.premiumminds.billy.core.test.AbstractTest
+
+
+</error_message>
+
+ Before proposing a fix, please analyze the error message and client code. Wrap your analysis inside <code_analysis> tags:
+
+<code_analysis>
+1. Examine the error message:
+   - Identify the specific issue related to the dependency update.
+   - Note the line number or method where the error occurs.
+   - Determine which dependency and version is causing the issue.
+
+2. Review the client code:
+   - Locate the problematic areas mentioned in the error message.
+   - Identify any related code that might be affected by the changes.
+
+3. Consider potential fixes that adhere to the following constraints:
+   - Do not change any function signatures.
+   - Only remove the @Override annotation if the method no longer overrides a method in the updated dependency version.
+   - Ensure correct imports are used, considering the newer dependency version.
+   - Avoid removing existing code unless it directly causes a compilation or functionality error.
+
+4. Plan the necessary changes to fix the issue:
+   - List the specific modifications required.
+   - Consider potential side effects of the proposed changes.
+   - Ensure the fix addresses the root cause of the error.
+</code_analysis>
+
+Based on your analysis, propose a patch to fix the issue. Your response should be a complete and compilable Java class in a fenced code block. Adhere to these guidelines:
+
+1. Do not change any function signatures.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Avoid removing any existing code unless it directly causes a compilation or functionality error.
+6. Ensure the entire class is included and that it will compile correctly. Don't use the comment "// ... (rest of the class remains unchanged)".
+
+Please provide your fixed class in the following format:
+
+```java
+// Your complete, fixed Java class here
+```
+
+Remember to focus specifically on issues related to the dependency update when proposing your fix.
+ 

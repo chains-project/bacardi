@@ -1,0 +1,122 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+
+```java
+package com.example.web;
+
+import java.io.Serializable;
+import java.util.Objects;
+import javax.mvc.binding.MvcBinding;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+import javax.ws.rs.FormParam;
+
+public class TaskForm implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @FormParam("id")
+    private Long id;
+
+    @NotBlank
+    @FormParam("name")
+    @MvcBinding
+    private String name;
+
+    @NotBlank
+    @Size(min = 10, max = 2000)
+    @FormParam("description")
+    @MvcBinding
+    private String description;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 61 * hash + Objects.hashCode(this.id);
+        hash = 61 * hash + Objects.hashCode(this.name);
+        hash = 61 * hash + Objects.hashCode(this.description);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final TaskForm other = (TaskForm) obj;
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.description, other.description)) {
+            return false;
+        }
+        if (!Objects.equals(this.id, other.id)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "TaskForm{" + "id=" + id + ", name=" + name + ", description=" + description + '}';
+    }
+  
+}
+
+```
+
+ with the following error information:
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/TaskForm.java:[25,6] cannot find symbol
+  symbol:   class MvcBinding
+  location: class com.example.web.TaskForm
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/TaskForm.java:[19,6] cannot find symbol
+  symbol:   class MvcBinding
+  location: class com.example.web.TaskForm
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/TaskForm.java:[5,25] package javax.mvc.binding does not exist
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

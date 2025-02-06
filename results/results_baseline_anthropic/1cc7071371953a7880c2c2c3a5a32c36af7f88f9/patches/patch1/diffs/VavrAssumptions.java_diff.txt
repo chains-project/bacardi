@@ -1,0 +1,121 @@
+24,33c24,31
+< import org.assertj.core.internal.bytebuddy.ByteBuddy;
+< import org.assertj.core.internal.bytebuddy.TypeCache;
+< import org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey;
+< import org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeValidation;
+< import org.assertj.core.internal.bytebuddy.implementation.Implementation;
+< import org.assertj.core.internal.bytebuddy.implementation.MethodDelegation;
+< import org.assertj.core.internal.bytebuddy.implementation.auxiliary.AuxiliaryType;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.RuntimeType;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This;
+---
+> import net.bytebuddy.ByteBuddy; // Updated import
+> import net.bytebuddy.dynamic.scaffold.TypeValidation; // Updated import
+> import net.bytebuddy.implementation.Implementation; // Updated import
+> import net.bytebuddy.implementation.MethodDelegation; // Updated import
+> import net.bytebuddy.implementation.auxiliary.AuxiliaryType; // Updated import
+> import net.bytebuddy.implementation.bind.annotation.RuntimeType; // Updated import
+> import net.bytebuddy.implementation.bind.annotation.SuperCall; // Updated import
+> import net.bytebuddy.implementation.bind.annotation.This; // Updated import
+40c38
+< import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any;
+---
+> import static net.bytebuddy.matcher.ElementMatchers.any; // Updated import
+46,49d43
+<     /**
+<      * This NamingStrategy takes the original class's name and adds a suffix to distinguish it.
+<      * The default is ByteBuddy but for debugging purposes, it makes sense to add AssertJ as a name.
+<      */
+55c49,50
+<     private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
+---
+>     private static final net.bytebuddy.dynamic.scaffold.TypeCache<net.bytebuddy.dynamic.scaffold.TypeCache.SimpleKey> CACHE = 
+>             new net.bytebuddy.dynamic.scaffold.TypeCache.WithInlineExpunction<>(net.bytebuddy.dynamic.scaffold.TypeCache.Sort.SOFT); // Updated import
+74,81d68
+<     /**
+<      * Creates a new instance of <code>{@link EitherAssert}</code> assumption.
+<      *
+<      * @param <LEFT>  type of the left value contained in the {@link Either}.
+<      * @param <RIGHT> type of the right value contained in the {@link Either}.
+<      * @param actual  the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+88,94d74
+<     /**
+<      * Creates a new instance of <code>{@link LazyAssert}</code> assumption.
+<      *
+<      * @param <VALUE>    type of the value contained in the {@link Lazy}.
+<      * @param actual the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+101,108d80
+<     /**
+<      * Creates a new instance of <code>{@link MapAssert}</code> assumption.
+<      *
+<      * @param <K>    the type of keys in the map.
+<      * @param <V>    the type of values in the map.
+<      * @param actual the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+115,122d86
+<     /**
+<      * Creates a new instance of <code>{@link MultimapAssert}</code> assumption.
+<      *
+<      * @param <K>    the type of keys in the multimap.
+<      * @param <V>    the type of values in the multimap.
+<      * @param actual the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+129,135d92
+<     /**
+<      * Creates a new instance of <code>{@link OptionAssert}</code> assumption.
+<      *
+<      * @param <VALUE> type of the value contained in the {@link Option}.
+<      * @param actual  the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+142,148d98
+<     /**
+<      * Creates a new instance of <code>{@link SetAssert}</code> assumption.
+<      *
+<      * @param <ELEMENT> type of elements contained in the {@link Set}.
+<      * @param actual  the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+155,161d104
+<     /**
+<      * Creates a new instance of <code>{@link SeqAssert}</code> assumption.
+<      *
+<      * @param <ELEMENT> type of elements contained in the {@link Seq}.
+<      * @param actual  the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+168,174d110
+<     /**
+<      * Creates a new instance of <code>{@link TryAssert}</code> assumption.
+<      *
+<      * @param <VALUE> type of the value contained in the {@link io.vavr.control.Try}.
+<      * @param actual    the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+181,188d116
+<     /**
+<      * Creates a new instance of <code>{@link ValidationAssert}</code> assumption.
+<      *
+<      * @param <INVALID> type of the value in the case of the invalid {@link Validation}.
+<      * @param <VALID>   type of the value in the case of the valid {@link Validation}.
+<      * @param actual  the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+215c143
+<         SimpleKey cacheKey = new SimpleKey(assertClass);
+---
+>         net.bytebuddy.dynamic.scaffold.TypeCache.SimpleKey cacheKey = new net.bytebuddy.dynamic.scaffold.TypeCache.SimpleKey(assertClass); // Updated import
+257d184
+<     // for method that change the object under test (e.g. extracting)
+259d185
+<         // @format:off
+268,269d193
+<         // @format:on
+<         // should not arrive here

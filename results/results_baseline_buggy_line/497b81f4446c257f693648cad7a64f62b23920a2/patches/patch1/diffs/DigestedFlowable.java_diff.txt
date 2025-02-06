@@ -1,0 +1,17 @@
+8d7
+< import com.artipie.asto.ext.Digests;
+15,16c14
+< import org.cactoos.io.BytesOf;
+< import org.cactoos.text.HexOf;
+---
+> import java.util.Base64;
+47d44
+<     @Override
+49c46
+<         final MessageDigest sha = Digests.SHA256.get();
+---
+>         final MessageDigest sha = MessageDigest.getInstance("SHA-256");
+57c54
+<                 new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+---
+>                 new Digest.Sha256(Base64.getEncoder().encodeToString(sha.digest()))
