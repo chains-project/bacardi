@@ -1,0 +1,16 @@
+16,18d15
+< import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector;
+< import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+< 
+29c26
+<     static ClassLoadingStrategy<ClassLoader> classLoadingStrategy(Class<?> assertClass) {
+---
+>     static Object classLoadingStrategy(Class<?> assertClass) { // Updated return type
+31c28
+<             return ClassLoadingStrategy.Default.INJECTION;
+---
+>             return ClassLoadingStrategy.Default.INJECTION; // Updated return type
+34c31
+<                 return ClassLoadingStrategy.UsingLookup.of(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));
+---
+>                 return ClassLoadingStrategy.UsingLookup.of(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP)); // Updated return type

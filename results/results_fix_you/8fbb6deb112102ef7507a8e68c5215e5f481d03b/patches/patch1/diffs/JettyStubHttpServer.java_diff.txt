@@ -1,0 +1,14 @@
+14c14,15
+< import org.eclipse.jetty.server.nio.SelectChannelConnector;
+---
+> import org.eclipse.jetty.server.HttpConfiguration;
+> import org.eclipse.jetty.server.ServerConnector;
+24c25
+<     private final Connector httpConnector;
+---
+>     private final ServerConnector httpConnector;
+36c37,38
+<         this.httpConnector = new SelectChannelConnector();
+---
+>         HttpConfiguration httpConfig = new HttpConfiguration();
+>         this.httpConnector = new ServerConnector(server, httpConfig);

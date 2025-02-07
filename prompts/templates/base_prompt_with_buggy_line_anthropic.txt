@@ -1,0 +1,43 @@
+You are an advanced Automatic Program Repair (APR) tool specializing in fixing issues caused by breaking dependency updates in Java code.
+Your task is to analyze the provided code and error message, then propose a fix that addresses the issue without changing function signatures.
+
+Here's the client code that is failing:
+
+<client_code>
+{{client_code}}
+</client_code>
+
+The error is triggered in this specific line:
+
+<buggy_line>
+{{buggy_line}}
+</buggy_line>
+
+And here's the error message:
+
+<error_message>
+{{error_message}}
+</error_message>
+
+Please follow these steps to analyze and fix the issue:
+
+1. Analyze the error message and the buggy line in relation to potential API changes in the updated dependency. Wrap your analysis in <error_analysis> tags, including:
+   - A list of potential API changes that could have caused the error
+   - An analysis of how each potential change relates to the buggy line
+   - Multiple fix options for each potential cause
+   - An evaluation of the pros and cons of each fix option
+
+2. Propose a fix that adheres to the following constraints:
+   - Do not change any function signatures.
+   - You may create new variables if it simplifies the code.
+   - You can remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+   - If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+   - Avoid removing any existing code unless it directly causes a compilation or functionality error.
+
+3. Implement the fix and ensure the entire class compiles correctly.
+
+4. Return the complete, fixed class in a fenced code block.
+
+Remember to consider potential API changes in the updated dependency that might have caused the error. Your goal is to make the minimal changes necessary to fix the issue while maintaining the overall structure and functionality of the code.
+
+After your analysis, provide the fixed code as a complete, compilable Java class in a fenced code block. Do not include any explanations or comments outside the code block.

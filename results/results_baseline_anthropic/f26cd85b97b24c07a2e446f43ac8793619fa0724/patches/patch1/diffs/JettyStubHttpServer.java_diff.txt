@@ -1,0 +1,27 @@
+9,10c9
+< import org.apache.commons.lang.Validate;
+< import org.eclipse.jetty.server.Connector;
+---
+> import org.apache.commons.lang3.Validate; // Updated import for Validate
+12c11
+< import org.eclipse.jetty.server.nio.SelectChannelConnector;
+---
+> import org.eclipse.jetty.server.ServerConnector; // Updated import for ServerConnector
+24c23
+<     private final Connector httpConnector;
+---
+>     private final ServerConnector httpConnector; // Changed to ServerConnector
+33,34c32,33
+<         this.server.setSendServerVersion(false);
+<         this.server.setSendDateHeader(true);
+---
+>         this.server.setAttribute("org.eclipse.jetty.server.Server.sendServerVersion", false); // Updated method
+>         this.server.setAttribute("org.eclipse.jetty.server.Server.sendDateHeader", true); // Updated method
+36c35
+<         this.httpConnector = new SelectChannelConnector();
+---
+>         this.httpConnector = new ServerConnector(server); // Updated to use ServerConnector
+80c79
+<         return httpConnector.getLocalPort();
+---
+>         return httpConnector.getLocalPort(); // This method is valid for ServerConnector

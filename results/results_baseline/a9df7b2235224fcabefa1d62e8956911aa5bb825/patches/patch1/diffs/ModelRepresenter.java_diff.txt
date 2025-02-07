@@ -1,0 +1,62 @@
+1,7d0
+< /**
+<  * Copyright (c) 2012 to original author or authors
+<  * All rights reserved. This program and the accompanying materials
+<  * are made available under the terms of the Eclipse Public License v1.0
+<  * which accompanies this distribution, and is available at
+<  * http://www.eclipse.org/legal/epl-v10.html
+<  */
+29,35d21
+< /**
+<  * YAML model representer.
+<  *
+<  * @author jvanzyl
+<  * @author bentmann
+<  * @since 0.7
+<  */
+50d35
+<       // "pomFile" is not a part of POM http://maven.apache.org/xsd/maven-4.0.0.xsd
+64d48
+<       //skip optional if it is false
+66d49
+<       //skip type if it is jar
+70d52
+<       //skip extensions if it is false
+72d53
+<       //skip inherited if it is true
+94d74
+< 
+123c103
+<           if (isList) { // check for eventual list construction
+---
+>           if (isList) {
+168,169d147
+<   // Model elements order {
+<   //TODO move to polyglot-common, or to org.apache.maven:maven-model
+198,199d175
+<           //"repositories",
+<           //"pluginRepositories",
+212d187
+<   //}
+214,216d188
+<   /*
+<    * Change the default order. Important data goes first.
+<    */
+218,219c190,191
+<   protected Set<Property> getProperties(Class<? extends Object> type)
+<           throws IntrospectionException {
+---
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+>     try {
+232a205,207
+>     } catch (IntrospectionException e) {
+>       throw new RuntimeException(e);
+>     }
+251d225
+<       // important go first
+258d231
+<       // all the rest
+268c241
+<       return 0;// compare further
+---
+>       return 0;

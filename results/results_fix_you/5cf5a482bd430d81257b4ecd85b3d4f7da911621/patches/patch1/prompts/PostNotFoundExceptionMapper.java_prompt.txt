@@ -1,0 +1,64 @@
+Due to an update of Library jakarta.mvc from version 1.1.0 to version 2.0.1, the code in file PostNotFoundExceptionMapper.java below is causing errors.
+
+Here is the error message:
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/config/PostNotFoundExceptionMapper.java:[29,5] cannot find symbol
+  symbol:   class Models
+  location: class com.example.config.PostNotFoundExceptionMapper
+
+
+
+Update the provided code to fix this error.
+
+Focus only on updates that do not change the code's functionality and are related to the version update of the library.
+
+You must reply in the following exact numbered format.
+
+1. `The full updated code in a fenced code block` do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+2. Explanation of the changes you made.
+
+Provided code:
+
+```
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.example.config;
+
+import com.example.domain.TaskNotFoundException;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.inject.Inject;
+import javax.mvc.Models;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
+
+/**
+ *
+ * @author hantsy
+ */
+@Provider
+public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFoundException> {
+
+    @Inject Logger log;
+    //private static Logger log = Logger.getLogger(PostNotFoundExceptionMapper.class.getName());
+
+    @Inject
+    Models models;
+
+    @Override
+    public Response toResponse(TaskNotFoundException exception) {
+        log.log(Level.INFO, "handling exception : PostNotFoundException");
+        models.put("error", exception.getMessage());
+        return Response.status(Response.Status.NOT_FOUND).entity("error.xhtml").build();
+    }
+
+}
+
+
+```
+
+Your Response:

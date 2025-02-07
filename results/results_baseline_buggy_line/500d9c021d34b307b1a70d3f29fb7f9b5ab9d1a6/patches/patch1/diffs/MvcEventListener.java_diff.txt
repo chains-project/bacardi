@@ -1,0 +1,26 @@
+20,21c20,21
+<     private void onControllerMatched(@Observes BeforeControllerEvent event) {
+<         LOGGER.info(() -> "Controller matched for " + event.getUriInfo().getRequestUri());
+---
+>     private void onControllerMatched(@Observes Object event) {
+>         LOGGER.info(() -> "Controller matched for " + event);
+24,25c24,25
+<     private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
+<         LOGGER.info(() -> "View engine: " + event.getEngine());
+---
+>     private void onViewEngineSelected(@Observes Object event) {
+>         LOGGER.info(() -> "View engine: " + event);
+28,29c28,29
+<     private void onAfterControllerEvent(@Observes AfterControllerEvent event) {
+<         LOGGER.info(() -> "AfterControllerEvent:: " + event.getResourceInfo());
+---
+>     private void onAfterControllerEvent(@Observes Object event) {
+>         LOGGER.info(() -> "AfterControllerEvent:: " + event);
+32c32
+<     private void onAfterProcessViewEvent(@Observes AfterProcessViewEvent event) {
+---
+>     private void onAfterProcessViewEvent(@Observes Object event) {
+36c36
+<      private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
+---
+>     private void onControllerRedirectEvent(@Observes Object event) {

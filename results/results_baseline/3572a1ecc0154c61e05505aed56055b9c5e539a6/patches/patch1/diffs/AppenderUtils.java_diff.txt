@@ -1,0 +1,16 @@
+6c6
+<  * You may obtain a copy of the License at
+---
+>  * you may obtain a copy of the License at
+30d29
+< import org.apache.thrift.transport.TFastFramedTransport;
+60,61c59
+<       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
+<       // log.
+---
+>       // Use the TTransport to be compatible with singer_thrift log.
+63,64c61
+<       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
+<           bufferCapacity);
+---
+>       framedTransport = new TTransport(new TIOStreamTransport(os));

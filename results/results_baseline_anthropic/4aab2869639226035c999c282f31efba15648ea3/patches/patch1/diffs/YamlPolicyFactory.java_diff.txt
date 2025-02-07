@@ -1,0 +1,14 @@
+9a10
+> import com.artipie.asto.Storage; // Added import for Storage
+41,47c42,44
+<             return new YamlPolicy(
+<                 new BlockingStorage(
+<                     new Storages().newStorage(
+<                         sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
+<                     )
+<                 )
+<             );
+---
+>             // Create a new Storage instance using the updated method
+>             Storage storage = new Storages().newStorage(sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping());
+>             return new YamlPolicy(new BlockingStorage(storage));

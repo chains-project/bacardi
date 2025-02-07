@@ -1,0 +1,17 @@
+30,31d29
+< import org.apache.thrift.transport.TFastFramedTransport;
+< import org.apache.thrift.transport.TIOStreamTransport;
+32a31
+> import org.apache.thrift.transport.TIOStreamTransport;
+60,61c59
+<       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
+<       // log.
+---
+>       // Use the TTransport to be compatible with singer_thrift log.
+63,64c61
+<       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
+<           bufferCapacity);
+---
+>       framedTransport = new TTransport(new TIOStreamTransport(os));
+65a63
+>       framedTransport.open(); // Ensure the transport is opened

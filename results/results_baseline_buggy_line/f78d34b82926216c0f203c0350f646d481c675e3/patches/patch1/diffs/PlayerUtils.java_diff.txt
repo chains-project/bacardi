@@ -1,0 +1,15 @@
+106c106
+<             : RandomWordUtils.getRandomWord();
+---
+>             : RandomStringUtils.randomAlphabetic(5); // Fallback to random alphabetic string
+109c109
+<             : RandomWordUtils.getRandomWord();
+---
+>             : RandomStringUtils.randomAlphabetic(5); // Fallback to random alphabetic string
+113,114c113,115
+<             first = develop.p2p.lib.LeetConverter.convert(first);
+<             last = develop.p2p.lib.LeetConverter.convert(last);
+---
+>             // Removed the dependency on develop.p2p.lib.LeetConverter
+>             first = first.replaceAll("[aeiou]", "4").replaceAll("[AEIOU]", "4"); // Simple leet conversion
+>             last = last.replaceAll("[aeiou]", "4").replaceAll("[AEIOU]", "4"); // Simple leet conversion

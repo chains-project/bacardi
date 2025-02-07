@@ -1,0 +1,28 @@
+15,17c15,17
+< import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
+< import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
+< import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
+---
+> import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult; // Ensure this is the correct import
+> import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult; // Ensure this is the correct import
+> import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult; // Ensure this is the correct import
+40,41c40
+<     PNConfiguration pnConfiguration = new PNConfiguration();
+<     pnConfiguration.setSubscribeKey(publicKey);
+---
+>     PNConfiguration pnConfiguration = new PNConfiguration(publicKey); // Updated constructor
+59c58
+<                     //              e.onComplete();
+---
+>                     e.onComplete(); // Uncommented to signal completion
+61c60
+<                     //              e.onError(pnStatus.getErrorData().getThrowable());
+---
+>                     e.onError(pnStatus.getErrorData().getThrowable()); // Uncommented to signal error
+112a112,117
+> 
+>                 // Added missing method to satisfy interface
+>                 @Override
+>                 public void file(PubNub pubnub, com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult pnFileEventResult) {
+>                   LOG.debug("PubNub file: {}", pnFileEventResult.toString());
+>                 }

@@ -1,0 +1,42 @@
+import argparse
+import os
+from dotenv import load_dotenv
+from openai import OpenAI
+
+
+def get_llm_response(prompt, api_key, organization):
+    client = OpenAI(
+        organization=organization,
+        api_key=api_key
+    )
+
+    with open(prompt, "r") as f:
+        promptFromFile = f.read()
+
+    stream = client.chat.completions.create(
+        model=os.getenv("LLM"),
+        temperature=float(os.getenv("LLM_TEMP")),
+        max_tokens=int(os.getenv("MAX_TOKEN")),
+        timeout=int(os.getenv("TIMEOUT")),
+        messages=[
+            {"role": "user", "content": promptFromFile}],
+        stream=True,
+    )
+
+    response_text = ""
+    for chunk in stream:
+        if chunk.choices[0].delta.content is not None:
+            response_text += chunk.choices[0].delta.content
+
+    return response_text
+
+if __name__ == "__main__":
+    load_dotenv()
+    api_key = os.getenv("API_KEY")
+    organization = os.getenv("API_KEY_ORGANIZATION")
+    parser = argparse.ArgumentParser(description="Get LLM response based on a prompt.")
+    parser.add_argument("prompt", type=str, help="The prompt to send to the LLM.")
+
+    args = parser.parse_args()
+    response = get_llm_response(args.prompt, api_key, organization)
+    print(response)

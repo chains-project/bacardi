@@ -1,26 +1,36 @@
 package se.kth.Util;
 
+import io.github.cdimascio.dotenv.Dotenv;
+import se.kth.model.PromptPipeline;
+
 public class Constants {
 
-    public static final String MAVEN_LOG_FILE = "maven.log";
+        // Load the .env file
+        private static final Dotenv dotenv = Dotenv.load();
 
-    public static final String BENCHMARK_PATH = "/Users/frank/Documents/Work/PHD/BUMP/bump/data/benchmark";
+        public static final String MAVEN_LOG_FILE = dotenv.get("MAVEN_LOG_FILE", "default.log");
 
-    public static final String JAVA_VERSION_INCOMPATIBILITY_FILE = "/Users/frank/Documents/Work/PHD/BUMP/bump-execution/analysis/client_fail_due_java_version_incompatibility.txt";
+        public static final String BENCHMARK_PATH = dotenv.get("BENCHMARK_PATH", "benchmark");
 
+        public static final String JAVA_VERSION_INCOMPATIBILITY_FILE = dotenv.get("JAVA_VERSION_INCOMPATIBILITY_FILE",
+                        System.getProperty("user.dir") + "/java_incompatibility.txt");
 
-    /**
-     * Path to the projects
-     * for each project, there is a maven.log file and both version of the dependency updated
-     * folder name would be the commit hash
-     * bd3ce213e2771c6ef7817c80818807a757d4e94a
-     * |---maven.log
-     * |---dependency-updated
-     * |---original
-     * |---updated
-     * |-- tar file
-     */
-    public static final String PROJECTS_PATH = "maven.log";
+        public static final String PYTHON_SCRIPT = dotenv.get("PYTHON_SCRIPT",
+                        System.getProperty("user.dir") + "python_script.py");
 
+        public static final String PROJECTS_PATH = dotenv.get("PROJECTS_PATH",
+                        System.getProperty("user.dir") + "/projects");;
 
+        public static final String OUTPUT_PATH = dotenv.get("OUTPUT_PATH", System.getProperty("user.dir") + "/output");
+
+        public static final String LLM = dotenv.get("LLM", "gtp4o-mini");
+
+        public static final PromptPipeline PIPELINE = PromptPipeline
+                        .fromString(dotenv.get("PIPELINE", PromptPipeline.BASELINE.toString()));
+
+        public static final int MAX_ATTEMPTS = Integer.parseInt(dotenv.get("MAX_ATTEMPT", "3"));
+
+        public static final boolean RESTART = Boolean.parseBoolean(dotenv.get("RESTART", "true"));
+
+        public static final String SPECIFIC_FILE = dotenv.get("SPECIFIC_FILE", "");
 }

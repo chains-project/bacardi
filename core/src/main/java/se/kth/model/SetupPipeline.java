@@ -1,6 +1,5 @@
 package se.kth.model;
 
-
 import se.kth.DockerBuild;
 
 import java.nio.file.Path;
@@ -18,12 +17,13 @@ public class SetupPipeline {
     Path m2FolderPath;
     DockerBuild dockerBuild;
     BreakingUpdate breakingUpdate;
-
+    Path outPutPatchFolder;
+    String libraryName;
+    String baseVersion;
+    String newVersion;
 
     public SetupPipeline() {
+
     }
-
-
-
 
 }

@@ -1,0 +1,16 @@
+5,6c5,6
+< import javax.servlet.DispatcherType;
+< import javax.servlet.FilterRegistration;
+---
+> import org.eclipse.jetty.servlet.FilterHolder;
+> import org.eclipse.jetty.servlet.ServletContextHandler;
+76,80c76,78
+<         final FilterRegistration.Dynamic filterRegistration = environment
+<                 .servlets().addFilter(filter.getClass().getName(), filter);
+< 
+<         filterRegistration.addMappingForUrlPatterns(
+<                 EnumSet.of(DispatcherType.REQUEST), true, mapping);
+---
+>         final FilterHolder filterHolder = new FilterHolder(filter);
+>         ServletContextHandler context = environment.getApplicationContext();
+>         context.addFilter(filterHolder, mapping, EnumSet.of(org.eclipse.jetty.servlet.ServletMapping.REQUEST));

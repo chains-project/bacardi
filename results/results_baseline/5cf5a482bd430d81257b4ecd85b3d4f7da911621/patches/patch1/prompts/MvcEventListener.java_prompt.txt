@@ -1,0 +1,96 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+
+```java
+package com.example;
+
+import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+import javax.mvc.event.AfterControllerEvent;
+import javax.mvc.event.AfterProcessViewEvent;
+import javax.mvc.event.BeforeControllerEvent;
+import javax.mvc.event.BeforeProcessViewEvent;
+import javax.mvc.event.ControllerRedirectEvent;
+
+@ApplicationScoped
+public class MvcEventListener {
+
+    @Inject
+    Logger LOGGER;
+
+    private void onControllerMatched(@Observes BeforeControllerEvent event) {
+        LOGGER.info(() -> "Controller matched for " + event.getUriInfo().getRequestUri());
+    }
+
+    private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
+        LOGGER.info(() -> "View engine: " + event.getEngine());
+    }
+
+    private void onAfterControllerEvent(@Observes AfterControllerEvent event) {
+        LOGGER.info(() -> "AfterControllerEvent:: " + event.getResourceInfo());
+    }
+
+    private void onAfterProcessViewEvent(@Observes AfterProcessViewEvent event) {
+        LOGGER.info(() -> "AfterProcessViewEvent:: " + event);
+    }
+    
+     private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
+        LOGGER.info(() -> "ControllerRedirectEvent:: " + event);
+    }
+
+    @PostConstruct
+    private void init() {
+        LOGGER.config(() -> this.getClass().getSimpleName() + " created");
+    }
+}
+
+```
+
+ with the following error information:
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[28,51] cannot find symbol
+  symbol:   class AfterControllerEvent
+  location: class com.example.MvcEventListener
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[24,49] cannot find symbol
+  symbol:   class BeforeProcessViewEvent
+  location: class com.example.MvcEventListener
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[20,48] cannot find symbol
+  symbol:   class BeforeControllerEvent
+  location: class com.example.MvcEventListener
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[9,23] package javax.mvc.event does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[36,55] cannot find symbol
+  symbol:   class ControllerRedirectEvent
+  location: class com.example.MvcEventListener
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[8,23] package javax.mvc.event does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[11,23] package javax.mvc.event does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[32,52] cannot find symbol
+  symbol:   class AfterProcessViewEvent
+  location: class com.example.MvcEventListener
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[10,23] package javax.mvc.event does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[12,23] package javax.mvc.event does not exist
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

@@ -17,6 +17,11 @@ public class ErrorInfo {
     private String clientFilePath;
 
     /**
+     * The file name of the client file where the error occurred.
+     */
+    private String fileName;
+
+    /**
      * The error message describing the issue.
      */
     private String errorMessage;
@@ -45,6 +50,8 @@ public class ErrorInfo {
      * The GitHub link to the error log.
      */
     private String errorLogGithubLink;
+
+
 
 
     public ErrorInfo(String clientLinePosition, String clientFilePath, String errorMessage, int errorLinePositionInFile,String additionalInfo) {

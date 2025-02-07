@@ -1,0 +1,10 @@
+26d25
+< import org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey;
+55c54
+<     private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
+---
+>     private static final TypeCache<Object> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
+215c214
+<         SimpleKey cacheKey = new SimpleKey(assertClass);
+---
+>         Object cacheKey = new TypeCache.SimpleKey(assertClass);

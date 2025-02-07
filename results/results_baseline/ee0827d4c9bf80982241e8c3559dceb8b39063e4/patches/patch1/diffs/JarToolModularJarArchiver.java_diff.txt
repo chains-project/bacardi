@@ -1,0 +1,10 @@
+41d40
+< import org.apache.commons.io.output.NullPrintStream;
+300c299,303
+<             PrintStream nullPrintStream = NullPrintStream.NULL_PRINT_STREAM;
+---
+>             PrintStream nullPrintStream = new PrintStream(new OutputStream() {
+>                 public void write(int b) {
+>                     // No-op
+>                 }
+>             });

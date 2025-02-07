@@ -1,0 +1,22 @@
+5c5
+< import org.apache.commons.codec.digest.DigestUtils;
+---
+> import org.apache.commons.codec.binary.Hex; // Updated import for hashing
+9a10,11
+> import java.nio.charset.StandardCharsets; // Added for character encoding
+> import java.security.MessageDigest; // Added for MessageDigest
+153c155
+<             return DigestUtils.md5Hex(cleanAddress(address));
+---
+>             return md5Hex(cleanAddress(address));
+204a207,216
+>     private String md5Hex(String input) {
+>         try {
+>             MessageDigest md = MessageDigest.getInstance("MD5");
+>             byte[] digest = md.digest(input.getBytes(StandardCharsets.UTF_8));
+>             return Hex.encodeHexString(digest);
+>         } catch (Exception e) {
+>             throw new RuntimeException("MD5 hashing failed", e);
+>         }
+>     }
+> 
