@@ -1,0 +1,39 @@
+23,24c23,24
+< import org.spongepowered.api.command.CommandManager;
+< import org.spongepowered.api.command.CommandSource;
+---
+> import org.spongepowered.api.command.manager.CommandManager;
+> import org.spongepowered.api.command.source.CommandSource;
+27,33c27,34
+< import org.spongepowered.api.event.game.state.GameInitializationEvent;
+< import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+< import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelRegistrar;
+< import org.spongepowered.api.plugin.Plugin;
+< import org.spongepowered.api.text.serializer.TextSerializers;
+---
+> import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
+> import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+> import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
+> import org.spongepowered.api.network.channel.ChannelRegistrar;
+> import org.spongepowered.api.network.channel.raw.RawDataChannel;
+> import org.spongepowered.api.plugin.annotation.Plugin;
+> 
+> import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+62c63
+<     public void onPreInit(GamePreInitializationEvent preInitEvent) {
+---
+>     public void onPreInit(ConstructPluginEvent event) {
+73c74
+<     public void onInit(GameInitializationEvent initEvent) {
+---
+>     public void onInit(RegisterCommandEvent event) {
+100c101
+<     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
+---
+>     public void onShutdown(StoppingEngineEvent event) {
+145c146
+<             receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
+---
+>             receiver.sendMessage(LegacyComponentSerializer.legacySectionChar('§').deserialize(message));

@@ -1,0 +1,17 @@
+218,219c218
+<   protected Set<Property> getProperties(Class<? extends Object> type)
+<           throws IntrospectionException {
+---
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+235,237c234,240
+<   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+<           throws IntrospectionException {
+<       Set<Property> standard = super.getProperties(type);
+---
+>   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+>     Set<Property> standard;
+>     try {
+>       standard = super.getProperties(type);
+>     } catch (IntrospectionException e) {
+>       throw new YAMLException(e);
+>     }

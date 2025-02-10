@@ -1,0 +1,80 @@
+37,38d36
+< import org.cactoos.scalar.IoCheckedScalar;
+< import org.cactoos.scalar.SolidScalar;
+40d37
+< import org.cactoos.text.JoinedText;
+53c50
+<     private final IoCheckedScalar<Path> path;
+---
+>     private final Scalar<Path> path;
+98d94
+<      * @param random Randomizer
+99a96
+>      * @param random Randomizer
+101,105c98,99
+<     public WalletsIn(final Scalar<Path> pth, final String ext,
+<         final Random random) {
+<         this.path = new IoCheckedScalar<>(
+<             new SolidScalar<>(pth)
+<         );
+---
+>     public WalletsIn(final Scalar<Path> pth, final String ext, final Random random) {
+>         this.path = new MemoizedScalar<>(pth);
+118,124c112,114
+<         final Path wpth = this.path.value().resolve(
+<             new JoinedText(
+<                 ".",
+<                 Long.toHexString(this.random.nextLong()),
+<                 this.ext
+<             ).asString()
+<         );
+---
+>         Path base = basePath();
+>         String fileName = Long.toHexString(this.random.nextLong()) + "." + this.ext;
+>         final Path wpth = base.resolve(fileName);
+144,145c134
+<     public Wallet create(final long id, final String pubkey, final String
+<         network) throws IOException {
+---
+>     public Wallet create(final long id, final String pubkey, final String network) throws IOException {
+152a142
+>         final Path base;
+153a144,147
+>             base = basePath();
+>         } catch (final IOException ex) {
+>             throw new IllegalStateException(ex);
+>         }
+156c150
+<                 new Filtered<>(this.filter, new Directory(this.path.value()))
+---
+>             new Filtered<>(this.filter, new Directory(base))
+158,159c152,177
+<         } catch (final IOException ex) {
+<             throw new IllegalStateException(ex);
+---
+>     }
+> 
+>     private Path basePath() throws IOException {
+>         try {
+>             return this.path.value();
+>         } catch (final Exception ex) {
+>             throw new IOException(ex);
+>         }
+>     }
+> 
+>     private static final class MemoizedScalar<T> implements Scalar<T> {
+>         private final Scalar<T> source;
+>         private T value;
+>         private boolean computed;
+> 
+>         public MemoizedScalar(final Scalar<T> source) {
+>             this.source = source;
+>         }
+> 
+>         @Override
+>         public T value() throws Exception {
+>             if (!this.computed) {
+>                 this.value = this.source.value();
+>                 this.computed = true;
+>             }
+>             return this.value;

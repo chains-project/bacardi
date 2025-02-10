@@ -1,0 +1,50 @@
+33a34
+> import java.io.ByteArrayOutputStream;
+57d57
+<     @Override
+60,61c60
+<       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
+<       // log.
+---
+>       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift log.
+63,64c62
+<       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
+<           bufferCapacity);
+---
+>       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity);
+68d65
+<     @Override
+78d74
+<     @Override
+79a76
+>       if (framedTransport != null) {
+83a81,109
+>     // New methods required by the updated Encoder interface
+> 
+>     public byte[] headerBytes() {
+>       return new byte[0];
+>     }
+> 
+>     public byte[] footerBytes() {
+>       return new byte[0];
+>     }
+> 
+>     public OutputStream getOutputStream() {
+>       return os;
+>     }
+> 
+>     public byte[] encode(LogMessage logMessage) throws IOException {
+>       // Instead of using stateful transport, create a temporary transport & protocol
+>       ByteArrayOutputStream baos = new ByteArrayOutputStream();
+>       TTransport tmpTransport = new TFastFramedTransport(new TIOStreamTransport(baos), 10);
+>       TProtocol tmpProtocol = new TBinaryProtocol(tmpTransport);
+>       try {
+>         logMessage.write(tmpProtocol);
+>         tmpTransport.flush();
+>       } catch (TException e) {
+>         throw new IOException(e);
+>       }
+>       return baos.toByteArray();
+>     }
+>   }
+> 

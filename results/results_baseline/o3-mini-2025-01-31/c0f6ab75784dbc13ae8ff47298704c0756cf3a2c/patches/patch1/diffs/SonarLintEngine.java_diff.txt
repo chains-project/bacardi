@@ -1,0 +1,11 @@
+48d47
+< import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInstancesLoader;
+162,163c161,165
+<         return AnalysisEngineConfiguration.builder()
+<                 .addEnabledLanguages(globalConfig.getEnabledLanguages())
+---
+>         AnalysisEngineConfiguration.Builder builder = AnalysisEngineConfiguration.builder();
+>         for (Language language : globalConfig.getEnabledLanguages()) {
+>             builder.addEnabledLanguage(language);
+>         }
+>         return builder

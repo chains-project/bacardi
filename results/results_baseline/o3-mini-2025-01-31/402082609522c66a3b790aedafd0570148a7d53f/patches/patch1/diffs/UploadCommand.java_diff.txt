@@ -1,0 +1,35 @@
+11a12
+> import org.spongepowered.api.command.Command;
+13,16c14,16
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.source.CommandSource;
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+19,20c19
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import static net.kyori.adventure.text.Component.text;
+22c21
+< public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class UploadCommand implements ChangeSkinCommand {
+33d31
+<     @Override
+52,57c50,54
+<     @Override
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+<                 .executor(this)
+<                 .arguments(string(of("url")))
+<                 .permission(PomData.ARTIFACT_ID + ".command.skinupload.base")
+---
+>     public Command buildSpec() {
+>         return Command.builder()
+>                 .executor(this::execute)
+>                 .addParameter(Parameter.string().key("url").build())
+>                 .setPermission(PomData.ARTIFACT_ID + ".command.skinupload.base")

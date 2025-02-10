@@ -1,0 +1,80 @@
+0a1,55
+> package org.codehaus.plexus.archiver.zip;
+> 
+> import java.io.ByteArrayInputStream;
+> import java.io.ByteArrayOutputStream;
+> import java.io.File;
+> import java.io.IOException;
+> import java.io.InputStream;
+> import java.io.OutputStream;
+> import java.io.SequenceInputStream;
+> import java.nio.file.Files;
+> 
+> /**
+>  * Minimal replacement for the missing ThresholdingOutputStream.
+>  */
+> abstract class ThresholdingOutputStream extends OutputStream {
+>     private final int threshold;
+>     private int written;
+>     private boolean thresholdExceeded;
+> 
+>     public ThresholdingOutputStream(int threshold) {
+>         this.threshold = threshold;
+>         this.written = 0;
+>         this.thresholdExceeded = false;
+>     }
+> 
+>     protected abstract OutputStream getStream() throws IOException;
+>     protected abstract void thresholdReached() throws IOException;
+> 
+>     @Override
+>     public void write(int b) throws IOException {
+>         checkThreshold(1);
+>         getStream().write(b);
+>         written++;
+>     }
+> 
+>     @Override
+>     public void write(byte[] b, int off, int len) throws IOException {
+>         checkThreshold(len);
+>         getStream().write(b, off, len);
+>         written += len;
+>     }
+> 
+>     @Override
+>     public void close() throws IOException {
+>         getStream().close();
+>     }
+> 
+>     private void checkThreshold(int count) throws IOException {
+>         if (!thresholdExceeded && written + count > threshold) {
+>             thresholdExceeded = true;
+>             thresholdReached();
+>         }
+>     }
+> }
+> 
+18,31d72
+< package org.codehaus.plexus.archiver.zip;
+< 
+< import java.io.File;
+< import java.io.IOException;
+< import java.io.InputStream;
+< import java.io.OutputStream;
+< import java.io.SequenceInputStream;
+< import java.nio.file.Files;
+< 
+< import org.apache.commons.io.output.ThresholdingOutputStream;
+< 
+< /**
+<  * Offloads to disk when a given memory consumption has been reacehd
+<  */
+38c79
+<      * The output stream to which data will be written prior to the theshold
+---
+>      * The output stream to which data will be written prior to the threshold
+155,156c196
+< 
+<         InputStream memoryAsInput = memoryOutputStream.toInputStream();
+---
+>         InputStream memoryAsInput = new ByteArrayInputStream(memoryOutputStream.toByteArray());

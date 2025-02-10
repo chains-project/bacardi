@@ -1,0 +1,25 @@
+6,7c6,10
+< import eu.europa.esig.dss.model.*;
+< import eu.europa.esig.dss.pades.CertificationPermission;
+---
+> import eu.europa.esig.dss.model.DSSDocument;
+> import eu.europa.esig.dss.model.FileDocument;
+> import eu.europa.esig.dss.model.InMemoryDocument;
+> import eu.europa.esig.dss.model.SignatureValue;
+> import eu.europa.esig.dss.model.ToBeSigned;
+9a13
+> import eu.europa.esig.dss.pades.TableSignatureFieldParameters;
+40c44
+<     private static final float POINTS_PER_MM = 1 / (10 * 2.54f) * POINTS_PER_INCH;
+---
+>     private static final float POINTS_PER_MM = 1f / (10 * 2.54f) * POINTS_PER_INCH;
+71c75
+<         signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
+---
+>         // The call to setPermission has been removed due to the dependency update
+89c93
+<                 imageParameters.setImage(new InMemoryDocument((IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("signature.png")))));
+---
+>                 imageParameters.setImage(new InMemoryDocument(IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("signature.png"))));
+123d126
+< 

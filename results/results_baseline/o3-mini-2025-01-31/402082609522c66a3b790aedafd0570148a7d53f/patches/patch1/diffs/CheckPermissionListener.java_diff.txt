@@ -1,0 +1,30 @@
+13a14
+> import java.util.function.Consumer;
+17,20d17
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelBuf;
+< import org.spongepowered.api.network.ChannelRegistrar;
+< import org.spongepowered.api.network.RawDataListener;
+21a19,21
+> import org.spongepowered.api.network.channel.ChannelBinding;
+> import org.spongepowered.api.network.channel.ChannelRegistrar;
+> import org.spongepowered.api.network.channel.ChannelBuf;
+26c26
+< public class CheckPermissionListener implements RawDataListener {
+---
+> public class CheckPermissionListener {
+29c29
+<     private final RawDataChannel permissionsResultChannel;
+---
+>     private final ChannelBinding.RawData permissionsResultChannel;
+39d38
+<     @Override
+83c82,87
+<         permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+---
+>         permissionsResultChannel.sendTo(receiver, new Consumer<ChannelBuf>() {
+>             @Override
+>             public void accept(ChannelBuf buf) {
+>                 buf.writeByteArray(dataOutput.toByteArray());
+>             }
+>         });

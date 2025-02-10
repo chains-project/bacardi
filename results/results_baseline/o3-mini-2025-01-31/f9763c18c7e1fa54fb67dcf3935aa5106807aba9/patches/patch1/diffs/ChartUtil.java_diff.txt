@@ -1,0 +1,36 @@
+6,8d5
+< 
+< import com.gargoylesoftware.htmlunit.ScriptResult;
+< 
+35,36c32,34
+<             ScriptResult scriptResult = new ScriptResult(result);
+<             return scriptResult.getJavaScriptResult().toString();
+---
+>             if (result != null) {
+>                 return result.toString();
+>             }
+60,62c58,59
+<                 Object scriptResult = new ScriptResult(result).getJavaScriptResult();
+<                 if (scriptResult != null) {
+<                     return scriptResult.toString();
+---
+>                 if (result != null) {
+>                     return result.toString();
+67c64
+<         throw new java.util.NoSuchElementException("Found no trend chart with ID '%s''" + toolAttribute);
+---
+>         throw new java.util.NoSuchElementException("Found no trend chart with ID '%s'" + toolAttribute);
+84,85c81
+<         }
+<         catch (NoSuchElementException exception) {
+---
+>         } catch (NoSuchElementException exception) {
+104,105c100
+<         }
+<         catch (NoSuchElementException exception) {
+---
+>         } catch (NoSuchElementException exception) {
+108d102
+< 
+110d103
+< 

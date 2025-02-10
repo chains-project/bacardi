@@ -1,0 +1,81 @@
+20a21,22
+> import java.beans.IntrospectionException;
+> import java.beans.Introspector;
+38,44c40,46
+< import javax.validation.Validator;
+< import javax.validation.constraints.NotBlank;
+< import javax.validation.constraints.NotEmpty;
+< import javax.validation.constraints.NotNull;
+< import javax.validation.metadata.BeanDescriptor;
+< import javax.validation.metadata.ConstraintDescriptor;
+< import javax.validation.metadata.ElementDescriptor;
+---
+> import jakarta.validation.Validator;
+> import jakarta.validation.constraints.NotBlank;
+> import jakarta.validation.constraints.NotEmpty;
+> import jakarta.validation.constraints.NotNull;
+> import jakarta.validation.metadata.BeanDescriptor;
+> import jakarta.validation.metadata.ConstraintDescriptor;
+> import jakarta.validation.metadata.ElementDescriptor;
+46d47
+< import org.apache.commons.beanutils.PropertyUtils;
+103c104
+<                 for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
+---
+>                 for (PropertyDescriptor descriptor : getPropertyDescriptors(modelClass)) {
+106c107
+<                            !descriptor.getName().equals("class"))
+---
+>                             !"class".equals(descriptor.getName()))
+128c129
+<                                 descriptor = PropertyUtils.getPropertyDescriptor(getModel().getObject(), property);
+---
+>                                 descriptor = getPropertyDescriptor(getModel().getObject(), property);
+157,158c158,161
+<                                                 if(objectProperty.type.isEnum()) typesControlGroup = EnumControlGroup.class;
+<                                                 else typesControlGroup = ObjectChoiceControlGroup.class;
+---
+>                                                 if (objectProperty.type.isEnum())
+>                                                         typesControlGroup = EnumControlGroup.class;
+>                                                 else
+>                                                         typesControlGroup = ObjectChoiceControlGroup.class;
+163c166,167
+<                                         controlGroup = (AbstractControlGroup<?>) constructor.newInstance(view.newChildId(), new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name));
+---
+>                                         controlGroup = (AbstractControlGroup<?>) constructor.newInstance(view.newChildId(),
+>                                                         new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name));
+167d170
+< 
+185,189c188,190
+<                                         controlGroup = controlGroupProviders
+<                                                         .get(objectProperty.type)
+<                                                         .createControlGroup(view.newChildId()
+<                                                                         , new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name)
+<                                                                         , objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
+---
+>                                         controlGroup = controlGroupProviders.get(objectProperty.type)
+>                                                         .createControlGroup(view.newChildId(), new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name),
+>                                                                         objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
+228c229,230
+<                         if(type.isAssignableFrom(mapType)) return typesControlGroups.get(mapType);
+---
+>                         if (type.isAssignableFrom(mapType))
+>                                 return typesControlGroups.get(mapType);
+255a258,274
+> 
+>         private static PropertyDescriptor[] getPropertyDescriptors(Class<?> clazz) {
+>             try {
+>                 return Introspector.getBeanInfo(clazz).getPropertyDescriptors();
+>             } catch (IntrospectionException e) {
+>                 throw new RuntimeException(e);
+>             }
+>         }
+> 
+>         private static PropertyDescriptor getPropertyDescriptor(Object bean, String property) {
+>             for (PropertyDescriptor pd : getPropertyDescriptors(bean.getClass())) {
+>                 if (pd.getName().equals(property)) {
+>                     return pd;
+>                 }
+>             }
+>             throw new RuntimeException("Property " + property + " not found in class " + bean.getClass().getName());
+>         }

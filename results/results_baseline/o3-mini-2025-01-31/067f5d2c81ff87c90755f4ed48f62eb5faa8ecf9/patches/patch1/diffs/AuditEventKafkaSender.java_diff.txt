@@ -1,0 +1,11 @@
+45a46
+> import org.apache.thrift.transport.TTransportException;
+271a273,280
+>           } catch (TTransportException e) {
+>             LOG.debug("[{}] failed to construct ProducerRecord because of serialization exception.",
+>                 Thread.currentThread().getName(), e);
+>             OpenTsdbMetricConverter
+>                 .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_SERIALIZATION_EXCEPTION, 1,
+>                     "host=" + host, "stage=" + stage.toString(),
+>                     "logName=" + event.getLoggingAuditHeaders().getLogName());
+>             eventTriedCount.remove(event.getLoggingAuditHeaders());

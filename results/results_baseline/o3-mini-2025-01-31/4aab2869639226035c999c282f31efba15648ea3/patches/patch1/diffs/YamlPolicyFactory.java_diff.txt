@@ -1,0 +1,51 @@
+7a8,9
+> import com.amihaiemil.eoyaml.YamlMapping;
+> import com.artipie.asto.Storage;
+9c11
+< import com.artipie.asto.factory.Storages;
+---
+> import com.artipie.asto.fs.FileStorage;
+11a14
+> import java.nio.file.Paths;
+13,33d15
+< /**
+<  * Policy factory to create {@link YamlPolicy}. Yaml policy is read from storage, and it's required
+<  * to describe this storage in the configuration. Configuration format is the following:
+<  *
+<  * policy:
+<  *   type: yaml_policy
+<  *   storage:
+<  *     type: fs
+<  *     path: /some/path
+<  *
+<  * The storage itself is expected to have yaml files with permissions in the following structure:
+<  *
+<  * ..
+<  * ├── roles.yaml
+<  * ├── users
+<  * │   ├── david.yaml
+<  * │   ├── jane.yaml
+<  * │   ├── ...
+<  *
+<  * @since 1.2
+<  */
+41,47c23,25
+<             return new YamlPolicy(
+<                 new BlockingStorage(
+<                     new Storages().newStorage(
+<                         sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
+<                     )
+<                 )
+<             );
+---
+>             final YamlMapping mapping = Yaml.createYamlInput(sub.toString()).readYamlMapping();
+>             final Storage storage = newStorage(sub.string("type"), mapping);
+>             return new YamlPolicy(new BlockingStorage(storage));
+51a30,36
+> 
+>     private Storage newStorage(final String type, final YamlMapping mapping) {
+>         if ("fs".equalsIgnoreCase(type)) {
+>             return new FileStorage(Paths.get(mapping.string("path")));
+>         }
+>         throw new IllegalArgumentException("Unsupported storage type: " + type);
+>     }

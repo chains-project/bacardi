@@ -1,0 +1,43 @@
+26,27d25
+< import org.tinspin.index.PointDistanceFunction;
+< import org.tinspin.index.PointEntryDist;
+57,61d54
+<         /*-
+<          * Roadmap (see/implement): 'A LINEARIZED CIRCLE PACKING ALGORITHM'? 
+<          * 'A note on circle packing' Young Joon AHN.
+<          */
+< 
+158c151
+<          *         the center point and .z represents radius.
+---
+>          *         the center point, and .z represents the radius.
+199a193
+>         @SuppressWarnings("unchecked")
+226c220
+<                         final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+---
+>                         final PointEntryDist<PVector> nn = (PointEntryDist<PVector>) tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+663a658,680
+>         // Client-side definitions to replace missing dependency classes.
+>         @FunctionalInterface
+>         public interface PointDistanceFunction {
+>                 double distance(double[] p1, double[] p2);
+>         }
+> 
+>         public static class PointEntryDist<T> {
+>                 private final T value;
+>                 private final double distance;
+> 
+>                 public PointEntryDist(T value, double distance) {
+>                         this.value = value;
+>                         this.distance = distance;
+>                 }
+> 
+>                 public T value() {
+>                         return value;
+>                 }
+> 
+>                 public double dist() {
+>                         return distance;
+>                 }
+>         }

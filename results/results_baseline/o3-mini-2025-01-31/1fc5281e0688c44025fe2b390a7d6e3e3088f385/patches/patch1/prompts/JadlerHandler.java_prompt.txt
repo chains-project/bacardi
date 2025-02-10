@@ -1,0 +1,106 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+
+```java
+/*
+ * Copyright (c) 2012 - 2016 Jadler contributors
+ * This program is made available under the terms of the MIT License.
+ */
+package net.jadler.stubbing.server.jetty;
+
+import net.jadler.KeyValues;
+import net.jadler.RequestManager;
+import net.jadler.stubbing.StubResponse;
+import org.apache.commons.lang.Validate;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.handler.AbstractHandler;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
+
+
+/**
+ * Jetty Handler which handles all http communication by returning an http response according to a stub response
+ * obtained from a {@link RequestManager} instance.
+ */
+class JadlerHandler extends AbstractHandler {
+
+    private final RequestManager requestManager;
+
+
+    /**
+     * @param requestManager request manager instance to retrieve stub responses
+     */
+    JadlerHandler(final RequestManager requestManager) {
+        Validate.notNull(requestManager, "requestManager cannot be null");
+        this.requestManager = requestManager;
+    }
+
+
+    @Override
+    public void handle(final String target, final Request baseRequest, final HttpServletRequest request,
+                       final HttpServletResponse response) throws IOException, ServletException {
+
+        final net.jadler.Request req = RequestUtils.convert(request);
+        final StubResponse stubResponse = this.requestManager.provideStubResponseFor(req);
+
+        response.setStatus(stubResponse.getStatus());
+        this.insertResponseHeaders(stubResponse.getHeaders(), response);
+
+        baseRequest.setHandled(true);
+
+        this.processDelay(stubResponse.getDelay());
+        this.insertResponseBody(stubResponse.getBody(), response);
+    }
+
+
+    private void insertResponseBody(final byte[] body, final HttpServletResponse response) throws IOException {
+        if (body.length > 0) {
+            final OutputStream os = response.getOutputStream();
+            os.write(body);
+        }
+    }
+
+
+    private void insertResponseHeaders(final KeyValues headers, final HttpServletResponse response) {
+        for (final String key : headers.getKeys()) {
+
+            for (final String value : headers.getValues(key)) {
+                response.addHeader(key, value);
+            }
+        }
+    }
+
+
+    private void processDelay(final long delay) {
+        if (delay > 0) {
+            try {
+                Thread.sleep(delay);
+            } catch (final InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+}
+```
+
+ with the following error information:
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JadlerHandler.java:[39,4] error: method does not override or implement a method from a supertype
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

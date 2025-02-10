@@ -1,0 +1,50 @@
+9a10,13
+> import org.eclipse.jetty.server.ServerConnector;
+> import org.eclipse.jetty.server.HttpConfiguration;
+> import org.eclipse.jetty.server.HttpConnectionFactory;
+> import org.eclipse.jetty.server.Connector;
+13,15d16
+< import org.eclipse.jetty.server.Connector;
+< import org.eclipse.jetty.server.nio.SelectChannelConnector;
+< 
+17,19d17
+< /**
+<  * Default stub http server implementation using Jetty as an http server.
+<  */
+30d27
+< 
+33,37c30,35
+<         this.server.setSendServerVersion(false);
+<         this.server.setSendDateHeader(true);
+<         
+<         this.httpConnector = new SelectChannelConnector();
+<         this.httpConnector.setPort(port);
+---
+>         HttpConfiguration httpConfig = new HttpConfiguration();
+>         httpConfig.setSendServerVersion(false);
+>         httpConfig.setSendDateHeader(true);
+>         ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+>         connector.setPort(port);
+>         this.httpConnector = connector;
+41,44d38
+< 
+<     /**
+<      * {@inheritDoc}
+<      */
+48d41
+< 
+52,55d44
+< 
+<     /**
+<      * {@inheritDoc}
+<      */
+63,66d51
+< 
+<     /**
+<      * {@inheritDoc}
+<      */
+74,77d58
+< 
+<     /**
+<      * {@inheritDoc}
+<      */

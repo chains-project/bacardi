@@ -1,0 +1,65 @@
+30c30
+< import org.cactoos.collection.Filtered;
+---
+> import org.cactoos.iterable.Filtered;
+36,38d35
+< import org.cactoos.scalar.CheckedScalar;
+< import org.cactoos.scalar.Or;
+< import org.cactoos.scalar.UncheckedScalar;
+40c37
+< import org.cactoos.text.SplitText;
+---
+> import org.cactoos.text.Split;
+201,213c198,203
+<             return new CheckedScalar<>(
+<                 () -> Long.parseUnsignedLong(
+<                     new ListOf<>(
+<                         new SplitText(
+<                             new TextOf(this.path),
+<                             "\n"
+<                         )
+<                     ).get(2).asString(),
+<                     // @checkstyle MagicNumber (1 line)
+<                     16
+<                 ),
+<                 e -> new IOException(e)
+<             ).value();
+---
+>             try {
+>                 String[] lines = new TextOf(this.path).asString().split("\n");
+>                 return Long.parseUnsignedLong(lines[2], 16);
+>             } catch (Exception e) {
+>                 throw new IOException(e);
+>             }
+248,260c238,250
+<                 incoming -> new Filtered<>(
+<                     origin -> new UncheckedScalar<>(
+<                         new Or(
+<                             () -> incoming.equals(origin),
+<                             () -> incoming.id() == origin.id()
+<                                 && incoming.bnf().equals(origin.bnf()),
+<                             () -> incoming.id() == origin.id()
+<                                 && incoming.amount() < 0L,
+<                             () -> incoming.prefix().equals(origin.prefix())
+<                         )
+<                     ).value(),
+<                     ledger
+<                 ).isEmpty(),
+---
+>                 incoming -> {
+>                     boolean found = false;
+>                     for (Transaction origin : ledger) {
+>                         if (incoming.equals(origin)
+>                             || (incoming.id() == origin.id() && incoming.bnf().equals(origin.bnf()))
+>                             || (incoming.id() == origin.id() && incoming.amount() < 0L)
+>                             || incoming.prefix().equals(origin.prefix())) {
+>                             found = true;
+>                             break;
+>                         }
+>                     }
+>                     return !found;
+>                 },
+275c265
+<                         new SplitText(
+---
+>                         new Split(

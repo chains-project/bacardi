@@ -1,0 +1,14 @@
+5a6
+> import java.util.concurrent.ThreadLocalRandom;
+43d43
+<   @Override
+45c45,51
+<     return new Timestamp(super.between(from, to).getTime());
+---
+>     if (from.after(to)) {
+>       throw new IllegalArgumentException("Invalid date range: 'from' is after 'to'");
+>     }
+>     long startMillis = from.getTime();
+>     long endMillis = to.getTime();
+>     long randomMillis = ThreadLocalRandom.current().nextLong(startMillis, endMillis + 1);
+>     return new Timestamp(randomMillis);

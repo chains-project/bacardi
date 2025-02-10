@@ -1,0 +1,13 @@
+114,115c114,115
+<         // create an instance of fop factory
+<         FopFactory fopFactory = FopFactory.newInstance();
+---
+>         // create an instance of fop factory using a base URI
+>         FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
+191,194c191
+<         MatrixToImageWriter.writeToPath(
+<             bitMatrix,
+<             "png",
+<             file);
+---
+>         MatrixToImageWriter.writeToPath(bitMatrix, "png", file);

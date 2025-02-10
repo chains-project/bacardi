@@ -1,0 +1,32 @@
+3d2
+< import develop.p2p.lib.*;
+89d87
+< 
+235d232
+< 
+260a258,282
+>     
+>     private static class WaveCreator {
+>         private final double min;
+>         private final double max;
+>         private final double offset;
+>         private double phase;
+>         
+>         public WaveCreator(double min, double max, double offset) {
+>             this.min = min;
+>             this.max = max;
+>             this.offset = offset;
+>             this.phase = 0.0;
+>         }
+>         
+>         public double get(double step, boolean increment) {
+>             if (increment) {
+>                 phase += step;
+>             }
+>             return min + (max - min) * ((Math.sin(phase + offset) + 1) / 2.0);
+>         }
+>         
+>         public double getStatic() {
+>             return min + (max - min) * ((Math.sin(phase + offset) + 1) / 2.0);
+>         }
+>     }

@@ -1,0 +1,86 @@
+10a11
+> import java.util.function.ToDoubleBiFunction;
+23,27d23
+< import org.tinfour.common.IIncrementalTin;
+< import org.tinfour.common.SimpleTriangle;
+< import org.tinfour.common.Vertex;
+< import org.tinspin.index.PointDistanceFunction;
+< import org.tinspin.index.PointEntryDist;
+57,61d52
+<         /*-
+<          * Roadmap (see/implement): 'A LINEARIZED CIRCLE PACKING ALGORITHM'? 
+<          * 'A note on circle packing' Young Joon AHN.
+<          */
+< 
+126c117
+<                 final IIncrementalTin tin = PGS_Triangulation.delaunayTriangulationMesh(shape, steinerPoints, true, refinements, true);
+---
+>                 final org.tinfour.common.IIncrementalTin tin = PGS_Triangulation.delaunayTriangulationMesh(shape, steinerPoints, true, refinements, true);
+158c149
+<          *         the center point and .z represents radius.
+---
+>          *         the center point, and .z represents the radius.
+208c199
+<                         final IIncrementalTin tin = PGS_Triangulation.delaunayTriangulationMesh(shape, steinerPoints, true, 1, true);
+---
+>                         final org.tinfour.common.IIncrementalTin tin = PGS_Triangulation.delaunayTriangulationMesh(shape, steinerPoints, true, 1, true);
+226c217
+<                         final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+---
+>                         final PVector nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+229,230c220
+<                          * nn.dist() does not return the radius (since it's a distance metric used to
+<                          * find nearest circle), so calculate maximum radius for candidate circle using
+---
+>                          * nn does not return a wrapper, so calculate maximum radius for candidate circle using
+233,235c223,225
+<                         final float dx = p.x - nn.value().x;
+<                         final float dy = p.y - nn.value().y;
+<                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z);
+---
+>                         final float dx = p.x - nn.x;
+>                         final float dy = p.y - nn.y;
+>                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.z);
+285d274
+< 
+375c364
+<         public static List<PVector> tangencyPack(IIncrementalTin triangulation, double boundaryRadii) {
+---
+>         public static List<PVector> tangencyPack(org.tinfour.common.IIncrementalTin triangulation, double boundaryRadii) {
+400c389
+<         public static List<PVector> tangencyPack(IIncrementalTin triangulation, double[] boundaryRadii) {
+---
+>         public static List<PVector> tangencyPack(org.tinfour.common.IIncrementalTin triangulation, double[] boundaryRadii) {
+598c587
+<         private static PVector inCircle(SimpleTriangle t) {
+---
+>         private static PVector inCircle(org.tinfour.common.SimpleTriangle t) {
+615,618c604,607
+<         private static PVector centroid(SimpleTriangle t) {
+<                 final Vertex a = t.getVertexA();
+<                 final Vertex b = t.getVertexB();
+<                 final Vertex c = t.getVertexC();
+---
+>         private static PVector centroid(org.tinfour.common.SimpleTriangle t) {
+>                 final org.tinfour.common.Vertex a = t.getVertexA();
+>                 final org.tinfour.common.Vertex b = t.getVertexB();
+>                 final org.tinfour.common.Vertex c = t.getVertexC();
+627c616
+<          * Calculate the distance between two points in 3D space, where each point
+---
+>          * Calculates the distance between two points in 3D space, where each point
+645,646c634
+<         private static final PointDistanceFunction circleDistanceMetric = (p1, p2) -> {
+<                 // from https://stackoverflow.com/a/21975136/
+---
+>         private static final ToDoubleBiFunction<double[], double[]> circleDistanceMetric = (p1, p2) -> {
+650d637
+< 
+653c640
+<                 return euclideanDistance + absZDifference; // negative if inside
+---
+>                 return euclideanDistance + absZDifference;
+660c647
+<         private static final Predicate<SimpleTriangle> filterBorderTriangles = t -> t.getContainingRegion() != null
+---
+>         private static final Predicate<org.tinfour.common.SimpleTriangle> filterBorderTriangles = t -> t.getContainingRegion() != null

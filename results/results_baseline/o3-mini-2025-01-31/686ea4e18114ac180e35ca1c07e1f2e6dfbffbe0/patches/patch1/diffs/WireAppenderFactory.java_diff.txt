@@ -1,0 +1,49 @@
+12,15d11
+< import io.dropwizard.logging.AbstractAppenderFactory;
+< import io.dropwizard.logging.async.AsyncAppenderFactory;
+< import io.dropwizard.logging.filter.LevelFilterFactory;
+< import io.dropwizard.logging.layout.LayoutFactory;
+17c13
+< 
+---
+> import java.util.ArrayList;
+25c21,32
+< public class WireAppenderFactory<T extends DeferredProcessingAware> extends AbstractAppenderFactory<T> {
+---
+> public class WireAppenderFactory<T extends DeferredProcessingAware> implements WireAppenderFactory.AppenderFactory<T> {
+> 
+>     private String threshold = "INFO";
+>     private List<FilterFactory<T>> filterFactories = new ArrayList<>();
+> 
+>     public List<FilterFactory<T>> getFilterFactories() {
+>         return filterFactories;
+>     }
+> 
+>     public void setFilterFactories(List<FilterFactory<T>> filterFactories) {
+>         this.filterFactories = filterFactories;
+>     }
+27d33
+<     @Override
+74a81,102
+>     public interface AppenderFactory<T extends DeferredProcessingAware> {
+>         Appender<T> build(
+>                 LoggerContext loggerContext,
+>                 String serviceName,
+>                 LayoutFactory<T> layoutFactory,
+>                 LevelFilterFactory<T> levelFilterFactory,
+>                 AsyncAppenderFactory<T> asyncAppenderFactory);
+>     }
+>     
+>     public interface LayoutFactory<T> {
+>     }
+>     
+>     public interface LevelFilterFactory<T> {
+>         Filter<T> build(String threshold);
+>     }
+>     
+>     public interface AsyncAppenderFactory<T> {
+>     }
+>     
+>     public interface FilterFactory<T> {
+>         Filter<T> build();
+>     }
