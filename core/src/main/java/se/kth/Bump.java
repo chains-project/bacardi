@@ -33,8 +33,6 @@ public class Bump {
     static Map<String, Result> resultsMap = new ConcurrentHashMap<>();
     private final static String JSON_PATH = OUTPUT_PATH + String.format("/result_repair_%s.json", LLM);
 
-    ForkJoinPool customThreadPool = new ForkJoinPool(availableProcessors);
-
     public static void main(String[] args) {
 
         if (RESTART) {
@@ -110,7 +108,7 @@ public class Bump {
         try {
             Files.walk(of)
                     .sorted((path1, path2) -> path2.compareTo(path1)) // sort in reverse order to delete files before
-                                                                      // directories
+                    // directories
                     .forEach(path -> {
                         try {
                             Files.delete(path);
@@ -197,7 +195,7 @@ public class Bump {
                 String breakingImage = e.breakingUpdateReproductionCommand.replace("docker run ", "");
 
                 // get jar from container for previous version
-                PromptPipeline[] pipeline = { PromptPipeline.BASELINE_API_DIFF };
+                PromptPipeline[] pipeline = {PromptPipeline.BASELINE_API_DIFF};
                 if (Arrays.asList(pipeline).contains(PIPELINE)) {
                     getProjectData(preBreakingImage, dockerBuild, clientFolder, null, null, prevoiusJarInContainerPath);
                 }
