@@ -41,7 +41,7 @@ public class Bump {
             deleteDirectoryContent(Path.of(OUTPUT_PATH));
 
         }
-        LogUtils.logWithBox(log, "Bump analysis started");
+        LogUtils.logWithBox(log, "Bump analysis started. PIPELINE: %s MODEL: %s".formatted(PIPELINE, LLM));
 
         // filtering breaking dependency updates
         log.info("Filtering breaking dependency updates");

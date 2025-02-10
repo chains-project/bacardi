@@ -3,10 +3,12 @@ import os
 from enum import Enum
 from dotenv import load_dotenv
 from models.openai import OpenAiModel
+from models.anthropic import AnthropicModel
 
 
 class LLMType(Enum):
     OPENAI = "openai"
+    ANTHROPIC = "anthropic"
 
     def __str__(self):
         return self.value
@@ -21,6 +23,7 @@ class LLMResolver:
     def get_model(for_type: LLMType, prompt):
         definitions = {
             LLMType.OPENAI: init_gpt4,
+            LLMType.ANTHROPIC: init_anthropic
         }
 
         return definitions[for_type](prompt)
@@ -28,6 +31,14 @@ class LLMResolver:
 
 def init_gpt4(prompt):
     model_response = OpenAiModel(
+        os.getenv("LLM"),
+        prompt
+    )
+    return model_response._generate_response()
+
+
+def init_anthropic(prompt):
+    model_response = AnthropicModel(
         os.getenv("LLM"),
         prompt
     )
