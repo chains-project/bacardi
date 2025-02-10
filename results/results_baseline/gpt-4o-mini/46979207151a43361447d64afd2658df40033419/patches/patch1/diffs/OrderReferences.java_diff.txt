@@ -1,0 +1,21 @@
+17d16
+< import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
+107c106,121
+<         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+---
+>         final ToStringStrategy2 strategy = new ToStringStrategy2() {
+>             @Override
+>             public void appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+>                 // Custom implementation
+>             }
+> 
+>             @Override
+>             public void appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+>                 // Custom implementation
+>             }
+> 
+>             @Override
+>             public void appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean isSet) {
+>                 // Custom implementation
+>             }
+>         };

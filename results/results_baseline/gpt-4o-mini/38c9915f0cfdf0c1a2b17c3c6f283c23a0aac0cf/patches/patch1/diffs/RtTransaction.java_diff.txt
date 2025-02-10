@@ -1,0 +1,73 @@
+1,23d0
+< /*
+<  * The MIT License (MIT)
+<  *
+<  * Copyright (c) 2018-2023 Yegor Bugayenko
+<  *
+<  * Permission is hereby granted, free of charge, to any person obtaining a copy
+<  * of this software and associated documentation files (the "Software"), to deal
+<  * in the Software without restriction, including without limitation the rights
+<  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+<  *
+<  * The above copyright notice and this permission notice shall be included
+<  * in all copies or substantial portions of the Software.
+<  *
+<  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+<  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+<  * SOFTWARE.
+<  */
+35d11
+< import org.cactoos.scalar.IoCheckedScalar;
+37d12
+< import org.cactoos.scalar.StickyScalar;
+43d17
+< import org.cactoos.text.UncheckedText;
+88c62
+<     private final IoCheckedScalar<String> transaction;
+---
+>     private final UncheckedScalar<String> transaction;
+95,96c69
+<         this.transaction = new IoCheckedScalar<>(
+<             new StickyScalar<>(
+---
+>         this.transaction = new UncheckedScalar<>(
+123d95
+<             )
+131d102
+<             new IoCheckedScalar<>(
+134d104
+<                 )
+156d125
+<                 new IoCheckedScalar<>(
+159d127
+<                     )
+169d136
+<             new IoCheckedScalar<>(
+172d138
+<                 )
+193d158
+<             new IoCheckedScalar<>(
+197d161
+<                 )
+213d176
+<             new IoCheckedScalar<>(
+217d179
+<                 )
+237d198
+<             new IoCheckedScalar<>(
+241d201
+<                 )
+261d220
+<             new IoCheckedScalar<>(
+265d223
+<                 )
+286c244
+<         return new UncheckedScalar<>(this.transaction).value();
+---
+>         return this.transaction.value();
