@@ -72,6 +72,9 @@ public class BacardiCore {
             case FIX_YOU:
                 promptPipeline = PromptPipeline.FIX_YOU;
                 break;
+            case BASELINE_API_DIFF:
+                promptPipeline = PromptPipeline.BASELINE_API_DIFF;
+                break;
             default:
                 promptPipeline = PromptPipeline.BASELINE;
                 break;

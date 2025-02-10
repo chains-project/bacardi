@@ -9,11 +9,12 @@ import se.kth.japicmp_analyzer.JApiCmpAnalyze;
 import se.kth.models.ErrorInfo;
 import se.kth.models.MavenErrorLog;
 import se.kth.spoon.SpoonUtilities;
-import spoon.reflect.cu.SourcePosition;
-import spoon.reflect.declaration.CtAnnotation;
 import spoon.reflect.declaration.CtElement;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 public class SpoonConstructExtractor {
@@ -63,84 +64,21 @@ public class SpoonConstructExtractor {
                 // all elements from the buggy line in the client application code
                 Set<CtElement> elements = spoonUtilities.localizeErrorInfoElements(errorInfo);
 
-                /*identify the buggy line here for the moment only for the BUGGY_LINE pipeline
-                @TODO move this into the filter
-                */
 
-                String buggyLine = getBuggyLine(elements);
-                DetectedFileWithErrors detectedFault = new DetectedFileWithErrors(errorInfo, buggyLine);
+                Set<DetectedFileWithErrors> detectedElements = spoonUtilities.filterElements(elements, classNamesJapicmp, apiChanges);
+
+                System.out.println("Detected elements: " + detectedElements);
+                detectedElements.forEach(d -> {
+                    d.setErrorInfo(errorInfo);
+                });
 
                 if (detectedFiles.containsKey(key)) {
-                    detectedFiles.get(key).add(detectedFault);
+                    detectedFiles.get(key).addAll(detectedElements);
                 } else {
-                    detectedFiles.put(key, new HashSet<>(Set.of(detectedFault)));
+                    detectedFiles.put(key, detectedElements);
                 }
-
-//                Set<DetectedFileWithErrors> detectedFault = spoonUtilities.filterElements(elements, classNamesJapicmp, apiChanges);
-//
-//                detectedFault.forEach(d -> {
-//                    d.setErrorInfo(errorInfo);
-//                });
-
-//                CtElement element = detectedFault.getExecutedElements().isEmpty() ? null : detectedFault.getExecutedElements().stream().toList().getFirst();
-//
-//                detectedFault.forEach(detectedFileWithErrors -> {
-//
-//                });
-//
-//                if (element != null) {
-//                    detectedFault = spoonUtilities.getMethodAndClassInformationForElement(element, detectedFault, errorInfo);
-//                    if (detectedFiles.containsKey(key)) {
-//                        detectedFiles.get(key).add(detectedFault);
-//                    } else {
-//                        detectedFiles.put(key, new HashSet<>(Set.of(detectedFault)));
-//                    }
-//                } else {
-//                    if (detectedFiles.containsKey(key)) {
-//                        detectedFiles.get(key).add(detectedFault);
-//                    } else {
-//                        detectedFiles.put(key, new HashSet<>(Set.of(detectedFault)));
-//                    }
-//                }
-
-
             });
         });
         return detectedFiles;
-    }
-
-    public String getBuggyLine(Set<CtElement> elements) {
-
-        CtElement elementLine = elements.stream()
-                .filter(ctElement -> !elements.contains(ctElement.getParent()))
-                .findFirst().get();
-
-        if (elementLine instanceof CtAnnotation<?>) {
-            return ((CtAnnotation<?>) elementLine).getAnnotatedElement().getOriginalSourceFragment().getSourceCode();
-        }
-
-        SourcePosition position = elementLine.getPosition();
-        if (position != null && position.isValidPosition()) {
-            return getCodeLine(position);
-        } else {
-            return "";
-        }
-        // return elementLine.getOriginalSourceFragment().getSourceCode();
-    }
-
-    // Method to get the code line from a given position
-    private static String getCodeLine(SourcePosition position) {
-        try {
-            // get the source code of the compilation unit
-            String sourceCode = position.getCompilationUnit().getOriginalSourceCode();
-            int line = position.getLine();
-
-            // Split the source code by lines
-            String[] lines = sourceCode.split("\\r?\\n");
-            return lines[line - 1]; // Reset the line number to 0-based index
-        } catch (Exception e) {
-            log.error("Error getting code line: " + e.getMessage());
-            return "";
-        }
     }
 }

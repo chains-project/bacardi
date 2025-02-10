@@ -10,8 +10,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @lombok.Getter
 @lombok.Setter
@@ -55,7 +53,8 @@ public class GeneratePrompt {
                 promptTemplate.setPromptModel(promptModel);
                 break;
             case BASELINE_API_DIFF:
-                log.info("Baseline API diff pipeline not implemented yet");
+                promptTemplate = new BasePromptApiDiffTemplate();
+                promptTemplate.setPromptModel(promptModel);
                 break;
             case FIX_YOU:
                 promptTemplate = new FixYouPromptTemplate();
@@ -63,10 +62,10 @@ public class GeneratePrompt {
                 break;
             case ADVANCED:
                 log.info("Advanced pipeline not implemented yet");
-                break;
+                throw new RuntimeException("Advanced pipeline not implemented yet");
             default:
                 log.error("Invalid pipeline: {}", pipeline);
-                break;
+                throw new RuntimeException("Invalid pipeline: " + pipeline);
         }
         // Check if the prompt template is not null
         assert promptTemplate != null;
