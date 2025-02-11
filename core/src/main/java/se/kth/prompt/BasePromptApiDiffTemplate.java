@@ -2,6 +2,7 @@ package se.kth.prompt;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.kth.Util.ConstructType;
 import se.kth.failure_detection.DetectedFileWithErrors;
 import se.kth.japicmp_analyzer.ApiChange;
 
@@ -60,11 +61,16 @@ public class BasePromptApiDiffTemplate extends AbstractPromptTemplate {
 
             Set<ApiChange> apiChangeSet = detectedFileWithErrors.getApiChanges();
 
+            System.out.println(ConstructType.getAsCausingConstructs(detectedFileWithErrors.getCodeElement()));
+
+            String constructType = ConstructType.getAsCausingConstructs(detectedFileWithErrors.getCodeElement());
+
             for (ApiChange apiChange : apiChangeSet) {
+
                 String apiChangeInfo = """
-                        %s
-                        """.formatted(apiChange.toString());
-                apiDiff = apiChangeInfo.concat(apiChangeInfo);
+                        %s %s has been %s in the new version of the dependency.
+                        """.formatted(constructType,apiChange.getElement(), apiChange.getAction().toString());
+                apiDiff = apiDiff.concat(apiChangeInfo);
             }
         }
 
@@ -102,4 +108,6 @@ public class BasePromptApiDiffTemplate extends AbstractPromptTemplate {
                 \s"""
                 .formatted(header(), classCode(), errorLog());
     }
+
+
 }

@@ -17,17 +17,13 @@ import se.kth.wError.RepairWError;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static se.kth.Util.Constants.*;
-import static se.kth.Util.FileUtils.getAbsolutePath;
-import java.util.List;
-import java.util.Objects;
-
+import static se.kth.Util.Constants.MAX_ATTEMPTS;
 import static se.kth.Util.Constants.PIPELINE;
+import static se.kth.Util.FileUtils.getAbsolutePath;
 
 public class BacardiCore {
 
@@ -227,6 +223,16 @@ public class BacardiCore {
                     if (value.isEmpty()) {
                         log.info("No errors found for: {}", key);
                     } else {
+
+                        for (DetectedFileWithErrors a : value) {
+                            if (a.getApiChanges().isEmpty()) {
+                                log.info("No API changes found for: {}", key);
+                                return FailureCategory.MISSING_API_DIFF;
+                            } else {
+                                log.info("API changes found for: {}", key);
+                            }
+                        }
+
                         // if there are errors, generate a prompt for the file and execute the repair
                         String absolutePathToBuggyClass = getAbsolutePath(setupPipeline, key);
                         String fileName = key.substring(key.lastIndexOf("/") + 1);
@@ -244,29 +250,29 @@ public class BacardiCore {
                             Path promptPath = storeInfo.copyContentToFile("prompts/%s_prompt.txt".formatted(fileName),
                                     prompt);
 
-                            String model_response = generatePrompt.callPythonScript(PYTHON_SCRIPT, promptPath);
+//                            String model_response = generatePrompt.callPythonScript(PYTHON_SCRIPT, promptPath);
                             // save model model_response to a file
-                            storeInfo.copyContentToFile("responses/%s_model_response.txt".formatted(fileName),
-                                    model_response);
-                            String onlyCodeResponse = generatePrompt.extractContentFromModelResponse(model_response);
-
-                            storeInfo.copyContentToFile("responses/%s_response.txt".formatted(fileName),
-                                    onlyCodeResponse);
+//                            storeInfo.copyContentToFile("responses/%s_model_response.txt".formatted(fileName),
+//                                    model_response);
+//                            String onlyCodeResponse = generatePrompt.extractContentFromModelResponse(model_response);
+//
+//                            storeInfo.copyContentToFile("responses/%s_response.txt".formatted(fileName),
+//                                    onlyCodeResponse);
                             // save the updated file
-                            Path updatedFile = storeInfo.copyContentToFile("updated/%s".formatted(fileName),
-                                    onlyCodeResponse);
-                            Path target = Path.of(absolutePathToBuggyClass);
-                            Path originalFile = storeInfo.copyContentToFile("original/%s".formatted(fileName),
-                                    Files.readString(target));
+//                            Path updatedFile = storeInfo.copyContentToFile("updated/%s".formatted(fileName),
+//                                    onlyCodeResponse);
+//                            Path target = Path.of(absolutePathToBuggyClass);
+//                            Path originalFile = storeInfo.copyContentToFile("original/%s".formatted(fileName),
+//                                    Files.readString(target));
                             // execute the diff command
-                            boolean isDiff = storeInfo.executeDiffCommand(originalFile.toAbsolutePath().toString(),
-                                    updatedFile.toAbsolutePath().toString(),
-                                    storeInfo.getPatchFolder().resolve("diffs/%s_diff.txt".formatted(fileName)));
-                            isDifferent.add(isDiff);
+//                            boolean isDiff = storeInfo.executeDiffCommand(originalFile.toAbsolutePath().toString(),
+//                                    updatedFile.toAbsolutePath().toString(),
+//                                    storeInfo.getPatchFolder().resolve("diffs/%s_diff.txt".formatted(fileName)));
+//                            isDifferent.add(isDiff);
                             // replace original file with updated file
-                            if (isDiff) {
-                                Files.copy(updatedFile, target, StandardCopyOption.REPLACE_EXISTING);
-                            }
+//                            if (isDiff) {
+//                                Files.copy(updatedFile, target, StandardCopyOption.REPLACE_EXISTING);
+//                            }
                         } catch (Exception e) {
                             errorModelResponse.set(true);
                             log.error("Error saving prompt to file. {}", e.getMessage());

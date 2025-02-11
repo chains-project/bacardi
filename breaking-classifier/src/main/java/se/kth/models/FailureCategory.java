@@ -36,7 +36,7 @@ public enum FailureCategory {
     ERROR_MODEL_RESPONSE,
 
 
-    /*
+    MISSING_API_DIFF, /*
      * Only for repair purposes
      */
     BUILD_SUCCESS
