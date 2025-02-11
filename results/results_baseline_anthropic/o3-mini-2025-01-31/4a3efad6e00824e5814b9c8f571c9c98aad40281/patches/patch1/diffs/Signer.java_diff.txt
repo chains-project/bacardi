@@ -1,0 +1,73 @@
+6,7c6,10
+< import eu.europa.esig.dss.model.*;
+< import eu.europa.esig.dss.pades.CertificationPermission;
+---
+> import eu.europa.esig.dss.model.DSSDocument;
+> import eu.europa.esig.dss.model.FileDocument;
+> import eu.europa.esig.dss.model.InMemoryDocument;
+> import eu.europa.esig.dss.model.SignatureValue;
+> import eu.europa.esig.dss.model.ToBeSigned;
+9a13
+> import eu.europa.esig.dss.pades.TableSignatureFieldParameters;
+33d36
+< import java.util.TimeZone;
+46,47d48
+<         //load PDF file
+<         //PDDocument doc = PDDocument.load(pdfFile.toFile());
+49c50
+<         //load PDF file in DSSDocument format
+---
+>         // Load PDF file in DSSDocument format
+52c53
+<         //load certificate and private key
+---
+>         // Load certificate and private key
+63d63
+<         ;
+71c71,72
+<         signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
+---
+>         // Removed the setPermission call for CertificationPermission due to its removal in the updated dependency version.
+>         // signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
+89c90
+<                 imageParameters.setImage(new InMemoryDocument((IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("signature.png")))));
+---
+>                 imageParameters.setImage(new InMemoryDocument(IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("signature.png"))));
+98d98
+< 
+106,107c106
+<             // Get the SignedInfo segment that need to be signed.
+<             // respect local timezone
+---
+>             // Respect local timezone when setting the signature date
+109d107
+<             // user-provided timezone, if any
+123d120
+< 
+129,132c126
+<         //https://gist.github.com/Manouchehri/fd754e402d98430243455713efada710
+<         //only use TSP source, if parameter is set
+<         //if it is set to an url, us this
+<         //otherwise, default
+---
+>         // Configure TSP source if timestamp or TSA URL is provided
+138,144c132,135
+<                 Arrays.stream(Configuration.getInstance().getProperties().getStringArray("tsp_sources")).forEach(source -> {
+<                     tspSources.put(source, new OnlineTSPSource(source));
+<                 });
+<             } else {
+<                 params.getTSA().stream().forEach(source -> {
+<                     tspSources.put(source, new OnlineTSPSource(source));
+<                 });
+---
+>                 Arrays.stream(Configuration.getInstance().getProperties().getStringArray("tsp_sources"))
+>                       .forEach(source -> tspSources.put(source, new OnlineTSPSource(source)));
+>             } else {
+>                 params.getTSA().stream().forEach(source -> tspSources.put(source, new OnlineTSPSource(source)));
+151,152c142
+<         // This function obtains the signature value for signed information using the
+<         // private key and specified algorithm
+---
+>         // Obtain the signature value for the signed information using the private key and specified algorithm
+156a147
+>         // Optionally, validate the signature value

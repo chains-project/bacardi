@@ -1,0 +1,71 @@
+<code_analysis>
+1. Error Message:
+   - The message indicates that the package "com.mysql.jdbc.exceptions" and its class "MySQLTimeoutException" cannot be found.
+   - This suggests that after a dependency update (likely moving from MySQL Connector/J 5.x to 8.x), the location of MySQL-specific exceptions has changed.
+   - The error occurs at the import statement and in the use of "MySQLTimeoutException" in the isTimeoutException method.
+
+2. Client Code Review:
+   - The class MySqlQueryExceptionHandler checks if an SQLException is an instance of MySQLTimeoutException.
+   - The import statement "import com.mysql.jdbc.exceptions.MySQLTimeoutException;" is now outdated according to the dependency update.
+   - The rest of the code relies on this exception check but should compile when the correct package is used.
+
+3. Potential Fixes:
+   - Update the import for MySQLTimeoutException to its new location in the updated dependency. With MySQL Connector/J 8.x, classes were relocated from "com.mysql.jdbc" to "com.mysql.cj.jdbc".
+   - Specifically, change the import to "com.mysql.cj.jdbc.exceptions.MySQLTimeoutException".
+   - This change ensures the instanceof check is still valid and all code compiles without altering any method signatures or functionality.
+
+4. Planned Modifications:
+   - Remove the outdated import of com.mysql.jdbc.exceptions.MySQLTimeoutException.
+   - Add the correct import statement to reference com.mysql.cj.jdbc.exceptions.MySQLTimeoutException.
+   - No changes to method annotations or logic are necessary.
+</code_analysis>
+
+```java
+/*
+ * Copyright 2019 Feedzai
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.feedzai.commons.sql.abstraction.engine.impl.mysql;
+
+import com.feedzai.commons.sql.abstraction.engine.handler.QueryExceptionHandler;
+import com.mysql.cj.jdbc.exceptions.MySQLTimeoutException;  // Updated import for MySQL Connector/J 8.x
+
+import java.sql.SQLException;
+
+/**
+ * A specific implementation of {@link QueryExceptionHandler} for MySQL engine.
+ *
+ * @author José Fidalgo (jose.fidalgo@feedzai.com)
+ * @since 2.5.1
+ */
+public class MySqlQueryExceptionHandler extends QueryExceptionHandler {
+
+    /**
+     * The MySQL error code that indicates a unique constraint violation.
+     */
+    private static final int UNIQUE_CONSTRAINT_VIOLATION_ERROR_CODE = 1062;
+
+    @Override
+    public boolean isTimeoutException(final SQLException exception) {
+        return exception instanceof MySQLTimeoutException || super.isTimeoutException(exception);
+    }
+
+    @Override
+    public boolean isUniqueConstraintViolationException(final SQLException exception) {
+        return UNIQUE_CONSTRAINT_VIOLATION_ERROR_CODE == exception.getErrorCode()
+                || super.isUniqueConstraintViolationException(exception);
+    }
+}
+```

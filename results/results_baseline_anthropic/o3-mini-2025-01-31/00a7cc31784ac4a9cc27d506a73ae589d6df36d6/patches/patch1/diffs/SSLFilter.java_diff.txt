@@ -1,0 +1,19 @@
+25d24
+< 
+27a27
+> import org.apache.mina.core.filterchain.IoFilter.NextFilter;
+41a42,44
+>     // Define the missing constant from the previous dependency version.
+>     private static final String PEER_ADDRESS = "PEER_ADDRESS";
+> 
+43c46,47
+<         super(sslContext, autoStart);
+---
+>         // Updated constructor call to use only SSLContext as required by the new version.
+>         super(sslContext);
+56a61
+>         // Intentionally left blank to disable automatic cipher suite configuration
+76c81
+<                 // activate the SNI support in the JSSE SSLEngine
+---
+>                 // Activate the SNI support in the JSSE SSLEngine

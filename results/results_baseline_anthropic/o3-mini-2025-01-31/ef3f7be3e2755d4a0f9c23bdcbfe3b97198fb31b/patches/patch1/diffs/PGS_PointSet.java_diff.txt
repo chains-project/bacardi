@@ -1,0 +1,6 @@
+70c70,72
+<                         if (tree.size() == 0 || tree.query1NN(coords).dist() > distanceTolerance) {
+---
+>                         // In the updated tinspin KDTree API, use the "nearest" method.
+>                         KDTree.Entry<PVector> nearest = tree.nearest(coords);
+>                         if (nearest == null || nearest.distance > distanceTolerance) {

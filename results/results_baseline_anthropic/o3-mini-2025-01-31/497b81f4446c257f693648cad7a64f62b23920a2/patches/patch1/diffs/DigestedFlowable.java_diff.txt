@@ -1,0 +1,37 @@
+15,16d14
+< import org.cactoos.io.BytesOf;
+< import org.cactoos.text.HexOf;
+50,51c48,49
+<         Flowable.fromPublisher(this.origin).map(
+<             buf -> {
+---
+>         Flowable.fromPublisher(this.origin)
+>             .map(buf -> {
+54,59c52,56
+<             }
+<         ).doOnComplete(
+<             () -> this.dig.set(
+<                 new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+<             )
+<         ).subscribe(subscriber);
+---
+>             })
+>             .doOnComplete(() -> this.dig.set(
+>                 new Digest.Sha256(bytesToHex(sha.digest()))
+>             ))
+>             .subscribe(subscriber);
+69a67,80
+>     
+>     /**
+>      * Converts a byte array to a hexadecimal string.
+>      *
+>      * @param bytes The byte array.
+>      * @return Hexadecimal string representation of the byte array.
+>      */
+>     private static String bytesToHex(final byte[] bytes) {
+>         final StringBuilder hexString = new StringBuilder();
+>         for (final byte b : bytes) {
+>             hexString.append(String.format("%02x", b));
+>         }
+>         return hexString.toString();
+>     }

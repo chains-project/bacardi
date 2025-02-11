@@ -1,0 +1,226 @@
+35,40d34
+< /**
+<  * This is the core class of the {@code Snmpman}. The agent simulates the SNMP-capable devices.
+<  * <br>
+<  * This class can be instantiated via the constructor {@link #SnmpmanAgent(com.oneandone.snmpman.configuration.AgentConfiguration)}, which
+<  * requires an instance of the {@link com.oneandone.snmpman.configuration.AgentConfiguration}.
+<  */
+44,46d37
+<     /**
+<      * The default charset for files being read.
+<      */
+48,51d38
+< 
+<     /**
+<      * The pattern of variable bindings in a walk file.
+<      */
+53,56d39
+< 
+<     /**
+<      * The configuration of this agent.
+<      */
+58,61d40
+< 
+<     /**
+<      * The list of managed object groups.
+<      */
+64,68d42
+<     /**
+<      * Initializes a new instance of an SNMP agent.
+<      *
+<      * @param configuration the configuration for this agent
+<      */
+75,81d48
+<     /**
+<      * Returns the name of {@code this} agent.
+<      * <br>
+<      * See {@code AgentConfiguration.name} for more information on the return value.
+<      *
+<      * @return the name of {@code this} agent.
+<      */
+86,92d52
+<     /**
+<      * Returns the boot-counter file for the specified agent.
+<      * <p>
+<      * This file will be created in the same directory as the {@link com.oneandone.snmpman.configuration.AgentConfiguration#getWalk()} file.
+<      *
+<      * @return the boot-counter file
+<      */
+97,103d56
+<     /**
+<      * Returns the configuration file for the specified agent.
+<      * <p>
+<      * This file will be created in the same directory as the {@link com.oneandone.snmpman.configuration.AgentConfiguration#getWalk()} file.
+<      *
+<      * @return the configuration file
+<      */
+108,113d60
+<     /**
+<      * Translates a string into {@code x-www-form-urlencoded} format. The method uses the <i>UTF-8</i> encoding scheme.
+<      *
+<      * @param string {@code String} to be translated
+<      * @return the translated {@code String}
+<      */
+123,128d69
+<     /**
+<      * Returns the root OIDs of the bindings.
+<      *
+<      * @param bindings the variable bindings
+<      * @return the roots of the specified variable bindings
+<      */
+131d71
+< 
+148d87
+< 
+159d97
+< 
+164,171d101
+<     /**
+<      * Returns a {@link Variable} instance for the specified parameters.
+<      *
+<      * @param type  the type of the variable
+<      * @param value the value of this variable
+<      * @return a a {@link Variable} instance with the specified type and value
+<      * @throws IllegalArgumentException if the type could not be mapped to a {@link Variable} implementation
+<      */
+174d103
+<             // TODO add "BITS" support
+198d126
+<                 // Parse unsigned long
+211,215d138
+<     /**
+<      * Starts this agent instance.
+<      *
+<      * @throws IOException signals that this agent could not be initialized by the {@link #init()} method
+<      */
+222d144
+<         // configure community index contexts
+226d147
+< 
+249d169
+< 
+254d173
+< 
+256d174
+< 
+258d175
+< 
+260d176
+< 
+299d214
+< 
+303,305d217
+<     /**
+<      * Creates the {@link StaticMOGroup} with all information necessary to register it to the server.
+<      */
+309d220
+< 
+324,330d234
+<     /**
+<      * Creates a list of {@link VariableBinding} out of a mapping of {@link OID} and {@link Variable}.
+<      *
+<      * @param variableBindings mapping of {@link OID} and {@link Variable}.
+<      * @param root             root SNMP OID.
+<      * @return list of {@link VariableBinding}.
+<      */
+337,341d240
+<     /**
+<      * Registers a {@link ManagedObject} to the server with an empty {@link OctetString} community context.
+<      *
+<      * @param group {@link ManagedObject} to register.
+<      */
+347,352d245
+<     /**
+<      * Registers a {@link ManagedObject} to the server with a {@link OctetString} community context.
+<      *
+<      * @param group   {@link ManagedObject} to register.
+<      * @param context community context.
+<      */
+362d254
+< 
+378,384d269
+<     /**
+<      * Sets the private registry value of {@link DefaultMOServer} via reflection.
+<      * FIXME
+<      * If there is any possibility to avoid this, then replace!
+<      *
+<      * @param group {@link ManagedObject} to register.
+<      */
+389c274,275
+<             final SortedMap<MOScope, ManagedObject> reg = server.getRegistry();
+---
+>             // Updated to use ManagedObject<?> to be compatible with the new dependency type.
+>             final SortedMap<MOScope, ManagedObject<?>> reg = server.getRegistry();
+398,403d283
+<     /**
+<      * Reads all variable bindings using {@link #VARIABLE_BINDING_PATTERN}.
+<      *
+<      * @param reader the reader to read the bindings from.
+<      * @return the map of oid to variable binding.
+<      */
+411d290
+< 
+419d297
+< 
+432,436d309
+<     /**
+<      * Unregisters all default managed objects in the specified context {@code ctx}.
+<      *
+<      * @param ctx the context from which all default managed objects should be unregistred
+<      */
+446,454d318
+<     /**
+<      * Returns the variable bindings for a device configuration and a list of bindings.
+<      * <p>
+<      * In this step the {@link ModifiedVariable} instances will be created as a wrapper for dynamic variables.
+<      *
+<      * @param device   the device configuration
+<      * @param bindings the bindings as the base
+<      * @return the variable bindings for the specified device configuration
+<      */
+461d324
+< 
+463d325
+< 
+481d342
+< 
+497d357
+<         // do nothing here
+503d362
+<         // do nothing here
+515,516d373
+< 
+<         // configure community index contexts
+522d378
+< 
+527d382
+< 
+531d385
+< 
+536d389
+< 
+546d398
+<         // configure community index contexts
+553,558d404
+<     /**
+<      * Configures an SNMP community for a given SNMP community context.
+<      *
+<      * @param snmpCommunityMIB SNMP community.
+<      * @param context          SNMP community context.
+<      */
+570,576c416,422
+<                 new OctetString(communityString),       // community name
+<                 new OctetString(communityString),       // security name
+<                 getAgent().getContextEngineID(),        // local engine ID
+<                 contextName,                            // default context name
+<                 new OctetString(),                      // transport tag
+<                 new Integer32(StorageType.readOnly),    // storage type
+<                 new Integer32(RowStatus.active)         // row status
+---
+>                 new OctetString(communityString),
+>                 new OctetString(communityString),
+>                 getAgent().getContextEngineID(),
+>                 contextName,
+>                 new OctetString(),
+>                 new Integer32(StorageType.readOnly),
+>                 new Integer32(RowStatus.active)

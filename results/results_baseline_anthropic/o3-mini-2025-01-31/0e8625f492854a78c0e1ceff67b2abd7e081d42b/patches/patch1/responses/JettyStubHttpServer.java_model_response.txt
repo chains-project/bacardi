@@ -1,0 +1,98 @@
+<code_analysis>
+1. The error message indicates that several methods (setSendServerVersion, setSendDateHeader, setPort, and getLocalPort) and the class SelectChannelConnector cannot be found. This is because the Jetty API has changed in the updated dependency version.
+   - The methods setSendServerVersion and setSendDateHeader were removed from Server.
+   - The class SelectChannelConnector (and its methods) has been replaced by ServerConnector along with new configuration through HttpConfiguration and HttpConnectionFactory.
+2. In the client code:
+   - The calls to server.setSendServerVersion(false) and server.setSendDateHeader(true) are now invalid.
+   - The instantiation of the connector using SelectChannelConnector and the methods setPort() and getLocalPort() on Connector no longer compile.
+3. To fix these issues:
+   - Remove the old methods on Server and instead create an HttpConfiguration instance, setting sendServerVersion and sendDateHeader flags on it.
+   - Use ServerConnector (from the package org.eclipse.jetty.server) together with a HttpConnectionFactory to create the connector.
+   - Update getPort() to cast the connector to ServerConnector to access the getLocalPort() method.
+4. These modifications adhere to the constraints (keeping function signatures unchanged, updating imports, and only removing code that causes compilation errors) while ensuring the class compiles correctly with the updated Jetty dependency.
+</code_analysis>
+
+```java
+/*
+ * Copyright (c) 2012 - 2016 Jadler contributors
+ * This program is made available under the terms of the MIT License.
+ */
+package net.jadler.stubbing.server.jetty;
+
+import net.jadler.RequestManager;
+import net.jadler.stubbing.server.StubHttpServer;
+import org.apache.commons.lang.Validate;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Default stub http server implementation using Jetty as an http server.
+ */
+public class JettyStubHttpServer implements StubHttpServer {
+
+    private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
+    private final Server server;
+    private final Connector httpConnector;
+
+    public JettyStubHttpServer() {
+        this(0);
+    }
+
+    public JettyStubHttpServer(final int port) {
+        this.server = new Server();
+        // Configure HTTP settings to not send server version and to send date headers.
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        httpConfig.setSendServerVersion(false);
+        httpConfig.setSendDateHeader(true);
+        
+        // Use the new ServerConnector with the HttpConfiguration and HttpConnectionFactory.
+        ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+        connector.setPort(port);
+        this.httpConnector = connector;
+        server.addConnector(this.httpConnector);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void registerRequestManager(final RequestManager ruleProvider) {
+        Validate.notNull(ruleProvider, "ruleProvider cannot be null");
+        server.setHandler(new JadlerHandler(ruleProvider));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void start() throws Exception {
+        logger.debug("starting jetty");
+        server.start();
+        logger.debug("jetty started");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void stop() throws Exception {
+        logger.debug("stopping jetty");
+        server.stop();
+        logger.debug("jetty stopped");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getPort() {
+        // Cast connector to ServerConnector to use getLocalPort which is not available on Connector interface.
+        return ((ServerConnector) this.httpConnector).getLocalPort();
+    }
+}
+```

@@ -1,0 +1,14 @@
+16,17d15
+< import org.cactoos.io.BytesOf;
+< import org.cactoos.text.HexOf;
+61c59,66
+<                     () -> new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+---
+>                     () -> {
+>                         final byte[] hash = sha.digest();
+>                         final StringBuilder hex = new StringBuilder(2 * hash.length);
+>                         for (byte b : hash) {
+>                             hex.append(String.format("%02x", b));
+>                         }
+>                         return new Digest.Sha256(hex.toString());
+>                     }

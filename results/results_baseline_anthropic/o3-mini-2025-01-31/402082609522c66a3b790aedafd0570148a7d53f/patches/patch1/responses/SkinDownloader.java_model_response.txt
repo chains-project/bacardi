@@ -1,0 +1,59 @@
+<code_analysis>
+1. Error Message Analysis:
+   - The error indicates that the class CommandSource cannot be found in the package org.spongepowered.api.command.
+   - This suggests that the dependency update has moved CommandSource to a different package.
+   
+2. Client Code Review:
+   - The client code imports CommandSource from org.spongepowered.api.command, which is no longer valid.
+   - The CommandSource type is used in the field declarations, constructor, and a method call.
+   
+3. Proposed Fix:
+   - Update the import statement for CommandSource to match its new package location. In the newer dependency version, CommandSource is located in org.spongepowered.api.command.source.
+   - No function signatures or other code should be changed.
+   
+4. Modifications:
+   - Change the import from:
+       import org.spongepowered.api.command.CommandSource;
+     to:
+       import org.spongepowered.api.command.source.CommandSource;
+   - This resolves the compilation error without altering any functionality.
+</code_analysis>
+
+```java
+package com.github.games647.changeskin.sponge.task;
+
+import com.github.games647.changeskin.core.model.skin.SkinModel;
+import com.github.games647.changeskin.core.shared.task.SharedDownloader;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import java.util.UUID;
+
+import org.spongepowered.api.command.source.CommandSource;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
+
+public class SkinDownloader extends SharedDownloader {
+
+    private final ChangeSkinSponge plugin;
+    private final CommandSource invoker;
+    private final Player receiver;
+
+    public SkinDownloader(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, UUID targetUUID, boolean keepSkin) {
+        super(plugin.getCore(), keepSkin, targetUUID, receiver.getUniqueId());
+        this.plugin = plugin;
+        this.invoker = invoker;
+        this.receiver = receiver;
+    }
+
+    @Override
+    protected void scheduleApplyTask(SkinModel skinData) {
+        Runnable skinUpdater = new SkinApplier(plugin, invoker, receiver, skinData, keepSkin);
+        Task.builder().execute(skinUpdater).submit(plugin);
+    }
+
+    @Override
+    public void sendMessageInvoker(String id) {
+        plugin.sendMessage(invoker, id);
+    }
+}
+```

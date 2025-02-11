@@ -1,0 +1,178 @@
+<code_analysis>
+1. Error Message Analysis:
+   - The compiler cannot locate the classes IoCheckedScalar, SolidScalar, and JoinedText from the org.cactoos library.
+   - The errors occur when wrapping the Scalar parameter (in the constructor) and when using text joining in the create() method.
+   - It appears that the newer version of the dependency has refactored or renamed these classes.
+
+2. Client Code Review:
+   - The field “path” is defined as IoCheckedScalar<Path> and constructed with new SolidScalar<>(pth). Both classes are no longer available, and should be replaced.
+   - The utility used to join texts, “JoinedText”, is also missing.
+   - The rest of the code (including IoCheckedFunc and Directory) appears unaffected.
+
+3. Potential Fixes:
+   - Replace IoCheckedScalar and SolidScalar with the newer cactoos equivalent. In recent versions, SolidScalar has been replaced with Sticky. Thus, use new Sticky<>(pth) and change the field type from IoCheckedScalar<Path> to Scalar<Path>.
+   - Since Sticky’s value() method now declares “throws Exception”, add a private helper method (base()) that calls value() and wraps any Exception in an IOException.
+   - Replace JoinedText with the newly named Joined text class.
+   - Ensure that the modifications are confined to the internals only; all function signatures remain unchanged.
+
+4. Required Modifications:
+   - Change the import statements: remove imports for org.cactoos.scalar.IoCheckedScalar, org.cactoos.scalar.SolidScalar, and org.cactoos.text.JoinedText, and instead import org.cactoos.scalar.Sticky and org.cactoos.text.Joined.
+   - Update the “path” field type to Scalar<Path> and initialize it via new Sticky<>(pth).
+   - Add a private helper method to safely obtain the base path.
+   - Replace new JoinedText(…) with new Joined(…) in create() method.
+</code_analysis>
+
+Below is the complete, fixed Java class:
+
+```java
+package io.zold.api;
+
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Iterator;
+import java.util.Random;
+import org.cactoos.Scalar;
+import org.cactoos.func.IoCheckedFunc;
+import org.cactoos.io.Directory;
+import org.cactoos.iterable.Filtered;
+import org.cactoos.iterable.Mapped;
+import org.cactoos.scalar.Sticky;
+import org.cactoos.text.FormattedText;
+import org.cactoos.text.Joined;
+import org.cactoos.text.UncheckedText;
+
+/**
+ * Wallets in path.
+ * @since 0.1
+ * @checkstyle ClassDataAbstractionCoupling (2 lines)
+ */
+public final class WalletsIn implements Wallets {
+
+    /**
+     * Path containing wallets.
+     */
+    private final Scalar<Path> path;
+
+    /**
+     * Filter for matching file extensions.
+     */
+    private final IoCheckedFunc<Path, Boolean> filter;
+
+    /**
+     * Wallets file extension.
+     */
+    private final String ext;
+
+    /**
+     * Randomizer.
+     */
+    private final Random random;
+
+    /**
+     * Ctor.
+     * @param pth Path with wallets
+     */
+    public WalletsIn(final Path pth) {
+        this(
+            () -> pth,
+            "z",
+            new Random()
+        );
+    }
+
+    /**
+     * Ctor.
+     * @param pth Path with wallets
+     * @param random Randomizer
+     */
+    public WalletsIn(final Path pth, final Random random) {
+        this(
+            () -> pth,
+            "z",
+            random
+        );
+    }
+
+    /**
+     * Ctor.
+     * @param pth Path with wallets
+     * @param random Randomizer
+     * @param ext Wallets file extension
+     */
+    public WalletsIn(final Scalar<Path> pth, final String ext,
+        final Random random) {
+        this.path = new Sticky<>(pth);
+        this.filter = new IoCheckedFunc<Path, Boolean>(
+            (file) -> file.toFile().isFile()
+                && FileSystems.getDefault()
+                .getPathMatcher(String.format("glob:**.%s", ext))
+                .matches(file)
+        );
+        this.ext = ext;
+        this.random = random;
+    }
+
+    @Override
+    public Wallet create() throws IOException {
+        final Path base = this.base();
+        final Path wpth = base.resolve(
+            new Joined(
+                ".",
+                Long.toHexString(this.random.nextLong()),
+                this.ext
+            ).asString()
+        );
+        if (wpth.toFile().exists()) {
+            throw new IOException(
+                new UncheckedText(
+                    new FormattedText(
+                        "Wallet in path %s already exists",
+                        wpth.toUri().getPath()
+                    )
+                ).asString()
+            );
+        }
+        Files.createFile(wpth);
+        return new Wallet.File(wpth);
+    }
+
+    @Override
+    // @todo #65:30min Create the new wallet in the path with all wallets.
+    //  It should contain the correct content according to the
+    //  white paper (network, protocol version, id and public RSA key). After
+    //  this remove exception expect for tests on WalletsInTest.
+    public Wallet create(final long id, final String pubkey, final String
+        network) throws IOException {
+        throw new UnsupportedOperationException(
+            "WalletsIn.create(String, String, String) not supported"
+        );
+    }
+
+    @Override
+    public Iterator<Wallet> iterator() {
+        try {
+            return new Mapped<Path, Wallet>(
+                (pth) -> new Wallet.File(pth),
+                new Filtered<>(this.filter, new Directory(this.base()))
+            ).iterator();
+        } catch (final IOException ex) {
+            throw new IllegalStateException(ex);
+        }
+    }
+    
+    /**
+     * Returns the base path from the scalar, wrapping any exception into an IOException.
+     * @return Base path.
+     * @throws IOException if obtaining the path fails.
+     */
+    private Path base() throws IOException {
+        try {
+            return this.path.value();
+        } catch (final Exception ex) {
+            throw new IOException(ex);
+        }
+    }
+}
+```

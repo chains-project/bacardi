@@ -1,0 +1,38 @@
+3d2
+< import develop.p2p.lib.WaveCreator;
+41c40
+<                 if (sec[0] > (seconds))
+---
+>                 if (sec[0] > seconds)
+152d150
+< 
+173d170
+< 
+233d229
+< 
+244d239
+< 
+311a307,329
+>     // Replacement implementation for the removed WaveCreator dependency.
+>     private static class WaveCreator {
+>         private final double amplitude;
+>         private final double staticValue;
+>         private final double phase;
+>         private double time;
+> 
+>         public WaveCreator(double amplitude, double staticValue, double phase) {
+>             this.amplitude = amplitude;
+>             this.staticValue = staticValue;
+>             this.phase = phase;
+>             this.time = 0.0;
+>         }
+> 
+>         public double get(double step, boolean flag) {
+>             this.time += step;
+>             return amplitude * Math.sin(time + phase);
+>         }
+> 
+>         public double getStatic() {
+>             return staticValue;
+>         }
+>     }

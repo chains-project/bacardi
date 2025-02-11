@@ -1,0 +1,8 @@
+12d11
+< import liquibase.util.StringUtils;
+76,77c75,76
+<     // This block simplified, since we know we have MSSQLDatabase
+<     if (StringUtils.trimToNull(statement.getTablespace()) != null) {
+---
+>     // Replace StringUtils.trimToNull with a manual non-null & non-empty check.
+>     if (statement.getTablespace() != null && !statement.getTablespace().trim().isEmpty()) {

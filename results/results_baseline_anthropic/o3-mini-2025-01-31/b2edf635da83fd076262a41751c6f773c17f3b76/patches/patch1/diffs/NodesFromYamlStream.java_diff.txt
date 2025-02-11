@@ -1,0 +1,32 @@
+34a35,37
+> import org.yaml.snakeyaml.LoaderOptions;
+> import org.yaml.snakeyaml.DumperOptions;
+> import org.yaml.snakeyaml.representer.Representer;
+74d76
+<     * 
+83c85,89
+<       Constructor constructor = new Constructor(Config.class);
+---
+>       // Create a LoaderOptions instance required in the new SnakeYAML API.
+>       LoaderOptions loaderOptions = new LoaderOptions();
+>       
+>       // Update the Constructor to pass in LoaderOptions.
+>       Constructor constructor = new Constructor(Config.class, loaderOptions);
+84a91
+>       // Configure the type descriptions as before.
+92c99,106
+<       Yaml yaml = new Yaml(constructor);
+---
+>       
+>       // Create default DumperOptions and Representer required for the new Yaml constructor.
+>       DumperOptions dumperOptions = new DumperOptions();
+>       Representer representer = new Representer();
+>       
+>       // Instantiate Yaml using the new 4-argument constructor.
+>       Yaml yaml = new Yaml(constructor, representer, dumperOptions, loaderOptions);
+>       
+106c120,121
+<       Map<String, Node> backingMap = Maps.uniqueIndex(Iterables.transform(config.nodes, YamlNode.toNode),
+---
+>       Map<String, Node> backingMap = Maps.uniqueIndex(
+>             Iterables.transform(config.nodes, YamlNode.toNode),

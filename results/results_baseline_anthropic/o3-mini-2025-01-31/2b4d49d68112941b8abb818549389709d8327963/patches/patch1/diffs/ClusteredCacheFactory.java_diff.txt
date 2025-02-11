@@ -1,0 +1,43 @@
+21,22c21,22
+< import com.hazelcast.config.MapConfig;
+< import com.hazelcast.config.MaxSizeConfig;
+---
+> import com.hazelcast.config.EvictionConfig;
+> import com.hazelcast.config.MaxSizePolicy;
+27c27,28
+< import com.hazelcast.core.Cluster;
+---
+> import com.hazelcast.cluster.Cluster;
+> import com.hazelcast.cluster.Member;
+30d30
+< import com.hazelcast.core.Member;
+44c44
+< import org.jivesoftware.util.cache.CacheFactory;
+---
+> import org.jivesoftware.openfire.plugin.util.cache.CacheFactory;
+284c284
+<         final MapConfig staticConfig = hazelcast.getConfig().getMapConfigOrNull(name);
+---
+>         final com.hazelcast.config.MapConfig staticConfig = hazelcast.getConfig().getMapConfigOrNull(name);
+286c286
+<             final MapConfig dynamicConfig = new MapConfig(name);
+---
+>             final com.hazelcast.config.MapConfig dynamicConfig = new com.hazelcast.config.MapConfig(name);
+288c288,292
+<             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+---
+>             // Use EvictionConfig in place of the removed MaxSizeConfig.
+>             EvictionConfig evictionConfig = new EvictionConfig();
+>             evictionConfig.setSize(hazelcastMaxCacheSizeInMegaBytes);
+>             evictionConfig.setMaximumSizePolicy(MaxSizePolicy.USED_HEAP_SIZE);
+>             dynamicConfig.setEvictionConfig(evictionConfig);
+656c660,662
+<         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
+---
+>         Object attr = member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE);
+>         String nodeIdStr = (attr != null) ? attr.toString() : "";
+>         return NodeID.getInstance(nodeIdStr.getBytes(StandardCharsets.UTF_8));
+701,703d706
+< 
+< 
+< 

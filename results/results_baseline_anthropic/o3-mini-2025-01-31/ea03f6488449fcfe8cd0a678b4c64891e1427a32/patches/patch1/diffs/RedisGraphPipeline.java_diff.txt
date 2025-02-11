@@ -1,0 +1,114 @@
+4,12d3
+< import redis.clients.jedis.commands.BasicRedisPipeline;
+< import redis.clients.jedis.commands.BinaryRedisPipeline;
+< import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
+< import redis.clients.jedis.commands.ClusterPipeline;
+< import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;
+< import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
+< import redis.clients.jedis.commands.RedisPipeline;
+< import redis.clients.jedis.commands.ScriptingCommandsPipeline;
+< 
+18c9
+<  * An interface which aligned to Jedis Pipeline interface
+---
+>  * An interface which aligns to the Jedis Pipeline interface for executing RedisGraph commands.
+20,24c11
+< public interface RedisGraphPipeline extends
+<         MultiKeyBinaryRedisPipeline,
+<         MultiKeyCommandsPipeline, ClusterPipeline,
+<         BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
+<         BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
+---
+> public interface RedisGraphPipeline extends Closeable {
+46c33
+<      * @param timeout
+---
+>      * @param timeout the timeout value in milliseconds
+55c42
+<      * @param timeout
+---
+>      * @param timeout the timeout value in milliseconds
+83c70
+<      * @param timeout
+---
+>      * @param timeout timeout value in milliseconds.
+93c80
+<      * @param timeout
+---
+>      * @param timeout timeout value in milliseconds.
+99,102c86,89
+<      * Invokes stored procedures without arguments
+<      * @param graphId a graph to perform the query on
+<      * @param procedure procedure name to invoke
+<      * @return a response which builds result set with the procedure data
+---
+>      * Invokes stored procedures without arguments.
+>      * @param graphId a graph to perform the query on.
+>      * @param procedure procedure name to invoke.
+>      * @return a response which builds result set with the procedure data.
+107,111c94,98
+<      * Invokes stored procedure with arguments
+<      * @param graphId a graph to perform the query on
+<      * @param procedure procedure name to invoke
+<      * @param args procedure arguments
+<      * @return a response which builds result set with the procedure data
+---
+>      * Invokes stored procedure with arguments.
+>      * @param graphId a graph to perform the query on.
+>      * @param procedure procedure name to invoke.
+>      * @param args procedure arguments.
+>      * @return a response which builds result set with the procedure data.
+116,121c103,108
+<      * Invoke a stored procedure
+<      * @param graphId a graph to perform the query on
+<      * @param procedure - procedure to execute
+<      * @param args - procedure arguments
+<      * @param kwargs - procedure output arguments
+<      * @return a response which builds result set with the procedure data
+---
+>      * Invokes a stored procedure with keyword arguments.
+>      * @param graphId a graph to perform the query on.
+>      * @param procedure procedure to execute.
+>      * @param args procedure arguments.
+>      * @param kwargs procedure output arguments.
+>      * @return a response which builds result set with the procedure data.
+126,128c113,115
+<      * Deletes the entire graph
+<      * @param graphId graph to delete
+<      * @return a response which builds the delete running time statistics
+---
+>      * Deletes the entire graph.
+>      * @param graphId graph to delete.
+>      * @return a response which builds the delete running time statistics.
+132d118
+<     
+134c120
+<      * Synchronize pipeline by reading all responses. This operation close the pipeline. Whenever
+---
+>      * Synchronize pipeline by reading all responses. This operation closes the pipeline. Whenever
+142,143c128,129
+<      * Synchronize pipeline by reading all responses. This operation close the pipeline. In order to
+<      * get return values from pipelined commands, capture the different Response&lt;?&gt; of the
+---
+>      * Synchronize pipeline by reading all responses. This operation closes the pipeline. In order to
+>      * get return values from pipelined commands, capture the different Response<?> of the
+146,147c132
+<     public void sync();
+<     
+---
+>     void sync();
+153,155c138,139
+<      * @param replicas successfully transferred and acknowledged by at least the specified number of
+<      *          replicas
+<      * @param timeout the time to block in milliseconds, a timeout of 0 means to block forever
+---
+>      * @param replicas the number of replicas that must acknowledge the writes.
+>      * @param timeout  the time to block in milliseconds (0 means to block forever).
+157c141
+<      *         current connection
+---
+>      *         current connection.
+159c143
+<     public Response<Long> waitReplicas(int replicas, long timeout);
+---
+>     Response<Long> waitReplicas(int replicas, long timeout);

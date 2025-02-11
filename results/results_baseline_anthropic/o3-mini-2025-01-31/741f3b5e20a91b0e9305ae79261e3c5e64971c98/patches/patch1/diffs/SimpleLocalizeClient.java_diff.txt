@@ -1,0 +1,10 @@
+44d43
+< 
+88c87,88
+<     ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
+---
+>     // Patch: Use ObjectReader to avoid declaring the new exception type from the updated dependency.
+>     ExportResponse exportResponse = objectMapper.readerFor(ExportResponse.class).readValue(body);
+165,166d164
+< 
+< 

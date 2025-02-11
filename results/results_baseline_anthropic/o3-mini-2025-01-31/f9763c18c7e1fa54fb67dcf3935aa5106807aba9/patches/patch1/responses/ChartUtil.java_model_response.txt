@@ -1,0 +1,129 @@
+<code_analysis>
+1. Error Message Analysis:
+   - The compilation errors indicate that the class ScriptResult, imported from com.gargoylesoftware.htmlunit.ScriptResult, no longer exists in the updated dependency.
+   - Specifically, errors occur in getChartDataById (line 35) and getDataOfOnlyChartOnPageWithGivenToolAttribute (line 60) where ScriptResult is used.
+   - The dependency update removed or relocated the ScriptResult class, leading to the "cannot find symbol" errors.
+
+2. Client Code Review:
+   - The problematic areas are:
+     • In getChartDataById, ScriptResult is instantiated with the result of executeScript.
+     • In getDataOfOnlyChartOnPageWithGivenToolAttribute, ScriptResult is used to retrieve the JavaScript execution result.
+   - The original intent is to obtain the JavaScript result as a String. 
+
+3. Potential Fix:
+   - Instead of using ScriptResult from htmlunit (which is no longer available), we can use the returned Object from pageObject.executeScript directly.
+   - We replace the creation and usage of ScriptResult with a null-check and conversion of the result object to a String.
+   - This does not require changes to function signatures or removal of unnecessary annotations.
+
+4. Planned Modifications:
+   - Remove the import for com.gargoylesoftware.htmlunit.ScriptResult.
+   - In getChartDataById: Remove the ScriptResult instantiation and return result.toString() after a null-check.
+   - In getDataOfOnlyChartOnPageWithGivenToolAttribute: Remove the ScriptResult instantiation in the loop, perform a null-check on result, and return result.toString() if non-null.
+   - Ensure that these changes directly resolve the dependency errors without affecting the overall functionality.
+</code_analysis>
+
+```java
+package io.jenkins.plugins.coverage.util;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.WebElement;
+
+import org.jenkinsci.test.acceptance.po.PageObject;
+
+/**
+ * Charts are displayed on multiple PageObjects. This util provides some helper methods to deal with charts.
+ */
+// TODO: Move this code to ATH so we can reuse it from other plugins
+@SuppressWarnings("hideutilityclassconstructor")
+public class ChartUtil {
+    private static final int MAX_ATTEMPTS = 5;
+
+    /**
+     * Returns a chart's data by its id.
+     *
+     * @param pageObject
+     *         which contains chart
+     * @param elementId
+     *         of chart
+     *
+     * @return data as json
+     */
+    public static String getChartDataById(final PageObject pageObject, final String elementId) {
+        if (isChartDisplayedByElementId(pageObject, elementId)) {
+            Object result = pageObject.executeScript(String.format(
+                    "delete(window.Array.prototype.toJSON) %n"
+                    + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
+                    elementId));
+            return result != null ? result.toString() : null;
+        }
+        return null;
+    }
+
+    /**
+     * Returns data of only chart with given tool attribute value on page.
+     *
+     * @param pageObject
+     *         which contains only one chart with given tool attribute value
+     * @param toolAttribute
+     *         value in div tag of chart
+     *
+     * @return data as json
+     */
+    public static String getDataOfOnlyChartOnPageWithGivenToolAttribute(final PageObject pageObject,
+                                                                         final String toolAttribute) {
+        if (isChartDisplayedByDivToolAttribute(pageObject, toolAttribute)) {
+            for (int i = 0; i < MAX_ATTEMPTS; i++) {
+                Object result = pageObject.executeScript(String.format(
+                        "delete(window.Array.prototype.toJSON) %n"
+                        + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
+                        toolAttribute));
+
+                if (result != null) {
+                    return result.toString();
+                }
+                pageObject.elasticSleep(1000);
+            }
+        }
+        throw new java.util.NoSuchElementException("Found no trend chart with ID '%s''" + toolAttribute);
+    }
+
+    /**
+     * Returns if chart is displayed.
+     *
+     * @param pageObject
+     *         which contains chart
+     * @param elementId
+     *         of chart
+     *
+     * @return if chart is displayed
+     */
+    public static boolean isChartDisplayedByElementId(final PageObject pageObject, final String elementId) {
+        try {
+            WebElement chart = pageObject.find(By.id(elementId));
+            return chart != null && chart.isDisplayed();
+        } catch (NoSuchElementException exception) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns if a chart with given tool attribute in div tag is displayed.
+     *
+     * @param pageObject
+     *         which contains chart
+     * @param toolAttribute
+     *         of div tag of chart
+     *
+     * @return if chart is displayed
+     */
+    public static boolean isChartDisplayedByDivToolAttribute(final PageObject pageObject, final String toolAttribute) {
+        try {
+            WebElement chart = pageObject.find(By.cssSelector("div[tool='" + toolAttribute + "']"));
+            return chart != null && chart.isDisplayed();
+        } catch (NoSuchElementException exception) {
+            return false;
+        }
+    }
+}
+```

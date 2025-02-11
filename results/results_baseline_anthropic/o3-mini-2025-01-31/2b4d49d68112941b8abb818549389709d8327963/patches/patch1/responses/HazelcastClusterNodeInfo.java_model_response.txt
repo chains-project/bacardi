@@ -1,0 +1,92 @@
+<code_analysis>
+1. Issue Identification:
+   - The error message indicates that the symbol "Member" cannot be found in the package "com.hazelcast.core". This suggests that a dependency update (from Hazelcast) has moved or renamed the Member class.
+   - The error is reported on lines where "Member" is used, in the constructor parameter and its usage in the code (e.g., member.getStringAttribute and member.getSocketAddress).
+
+2. Client Code Review:
+   - The import statement "import com.hazelcast.core.Member;" is now invalid due to the update.
+   - In the constructor of HazelcastClusterNodeInfo, the code calls member.getStringAttribute(HOST_NAME_ATTRIBUTE) and member.getSocketAddress().getHostString(). These methods may have been changed in the updated Hazelcast API.
+   - In updated versions of Hazelcast, the Member interface has been moved to "com.hazelcast.cluster.Member". Additionally, methods like getStringAttribute and getSocketAddress() have changed. The new API provides getAttribute(String key) (which returns an Object) and getAddress() (which returns an Address that provides host information).
+
+3. Proposed Fix:
+   - Update the import to "com.hazelcast.cluster.Member".
+   - Replace member.getStringAttribute(HOST_NAME_ATTRIBUTE) with member.getAttribute(HOST_NAME_ATTRIBUTE) cast to a String (with a fallback if null).
+   - Replace member.getSocketAddress().getHostString() with member.getAddress().getHost(), which is assumed to provide equivalent host string information.
+   - All other code remains unchanged.
+
+4. Side Effects:
+   - The patch uses a fallback for the hostname attribute if it is not set.
+   - It assumes the new Hazelcast API’s methods and classes are available and that ClusteredCacheFactory.getNodeID(member) accepts the new Member type.
+</code_analysis>
+
+```java
+/*
+ * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.jivesoftware.openfire.plugin.util.cluster;
+
+import org.jivesoftware.openfire.cluster.ClusterManager;
+import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
+import org.jivesoftware.openfire.cluster.NodeID;
+import org.jivesoftware.openfire.plugin.util.cache.ClusteredCacheFactory;
+
+import com.hazelcast.cluster.Member;
+
+/**
+ * Cluster Node information as provided by Hazelcast.
+ *
+ * @author Tom Evans
+ * @author Gaston Dombiak
+ */
+public class HazelcastClusterNodeInfo implements ClusterNodeInfo {
+
+    public static final String HOST_NAME_ATTRIBUTE = "hostname";
+    public static final String NODE_ID_ATTRIBUTE = "node-id";
+    private final String hostname;
+    private final NodeID nodeID;
+    private final long joinedTime;
+    private final boolean seniorMember;
+
+    public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {
+        // Retrieve the hostname attribute from the member, casting it to a String.
+        String hostNameAttr = (String) member.getAttribute(HOST_NAME_ATTRIBUTE);
+        if (hostNameAttr == null) {
+            hostNameAttr = "unknown";
+        }
+        // Use the new getAddress() method to obtain host information.
+        this.hostname = hostNameAttr + " (" + member.getAddress().getHost() + ")";
+        this.nodeID = ClusteredCacheFactory.getNodeID(member);
+        this.joinedTime = joinedTime;
+        this.seniorMember = ClusterManager.getSeniorClusterMember().equals(nodeID);
+    }
+
+    public String getHostName() {
+        return hostname;
+    }
+
+    public NodeID getNodeID() {
+        return nodeID;
+    }
+
+    public long getJoinedTime() {
+        return joinedTime;
+    }
+
+    public boolean isSeniorMember() {
+        return seniorMember;
+    }
+}
+```

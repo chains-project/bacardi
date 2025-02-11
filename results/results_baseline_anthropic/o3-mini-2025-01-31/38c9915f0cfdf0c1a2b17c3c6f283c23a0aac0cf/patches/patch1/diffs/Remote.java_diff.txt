@@ -1,0 +1,27 @@
+26a27
+> import java.util.UUID;
+28c29
+< import org.cactoos.text.RandomText;
+---
+> import org.cactoos.Text;
+96a98,117
+> 
+>         /**
+>          * Replacement for the removed org.cactoos.text.RandomText.
+>          */
+>         private static final class RandomText implements Text {
+>             @Override
+>             public String asString() throws Exception {
+>                 // Generate a random string using UUID.
+>                 return UUID.randomUUID().toString();
+>             }
+> 
+>             @Override
+>             public String toString() {
+>                 try {
+>                     return this.asString();
+>                 } catch (Exception e) {
+>                     throw new RuntimeException(e);
+>                 }
+>             }
+>         }

@@ -1,0 +1,86 @@
+<code_analysis>
+1. The error message indicates that the class TrustedTagInspector cannot be found. This suggests that a recent update of SnakeYAML removed or renamed TrustedTagInspector.
+2. In the client code, the issue occurs in the creation of LoaderOptions (line with loadingConfig.setTagInspector(new TrustedTagInspector())). The import from org.yaml.snakeyaml.inspector.TrustedTagInspector is also causing the error.
+3. A viable fix is to use the updated inspector class provided by the new version of SnakeYAML. In this case, we can replace TrustedTagInspector with AllowAllTagInspector, which serves a similar purpose.
+4. The changes required are:
+   - Remove the import for TrustedTagInspector and import AllowAllTagInspector from the same package.
+   - Update the instantiation in setTagInspector to new AllowAllTagInspector().
+
+These modifications fix the breaking change while preserving the original functionality.
+</code_analysis>
+
+```java
+package com.premiumminds.billy.core.test;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.util.Modules;
+import com.premiumminds.billy.core.CoreDependencyModule;
+import com.premiumminds.billy.core.test.fixtures.JavaLocalDateConstruct;
+import com.premiumminds.billy.core.test.fixtures.JavaZoneIdConstruct;
+import com.premiumminds.billy.core.test.fixtures.MockBaseEntity;
+import java.time.LocalDate;
+import org.junit.jupiter.api.BeforeAll;
+import org.mockito.Mockito;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.TypeDescription;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.inspector.AllowAllTagInspector;
+import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.representer.Representer;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.time.ZoneId;
+
+public class AbstractTest {
+
+    private static Injector injector;
+    protected final static String YML_CONFIGS_DIR = "src/test/resources/yml/";
+
+    @BeforeAll
+    public static void setUpClass() {
+        AbstractTest.injector =
+                Guice.createInjector(Modules.override(new CoreDependencyModule()).with(new MockDependencyModule()));
+    }
+
+    public <T> T getInstance(Class<T> clazz) {
+        return AbstractTest.injector.getInstance(clazz);
+    }
+
+    public <T> T getMock(Class<T> clazz) {
+        return Mockito.mock(clazz);
+    }
+
+    public <T extends MockBaseEntity> T createMockEntity(Class<T> clazz, String path) {
+        final LoaderOptions loadingConfig = new LoaderOptions();
+        loadingConfig.setTagInspector(new AllowAllTagInspector());
+
+        final Representer representer = new Representer(new DumperOptions());
+        final Tag zoneIdTag = new Tag("!ZoneId");
+        representer.addClassTag(ZoneId.class, zoneIdTag);
+        final Tag localDateTag = new Tag("!LocalDate");
+        representer.addClassTag(LocalDate.class, localDateTag);
+
+        final Constructor constructor = new Constructor(clazz, loadingConfig) {{
+            this.addTypeDescription(new TypeDescription(ZoneId.class, "ZoneId"));
+            this.addTypeDescription(new TypeDescription(LocalDate.class, "LocalDate"));
+
+            this.yamlConstructors.put(zoneIdTag, new JavaZoneIdConstruct());
+            this.yamlConstructors.put(localDateTag, new JavaLocalDateConstruct());
+        }};
+
+        Yaml yaml = new Yaml(constructor, representer);
+
+        try {
+            return yaml.load(new BufferedReader(new FileReader(path)));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+}
+```

@@ -1,0 +1,112 @@
+<code_analysis>
+1. Error Message Analysis:
+   - The error indicates that the class and variable "StringUtils" from the package "liquibase.util" cannot be found. This suggests that in a recent dependency update, the class has been removed or relocated.
+   - The errors occur at the import statement (line 12) and at the usage in the generateMSSQLSql method (around line 77).
+
+2. Client Code Review:
+   - The import "import liquibase.util.StringUtils;" is now invalid.
+   - The usage "StringUtils.trimToNull(statement.getTablespace())" in the generateMSSQLSql method needs to be replaced.
+   - The functionality is to check if the tablespace string is non-null (and non-empty after trimming) before appending it to the SQL command.
+
+3. Proposed Fix:
+   - Remove the import for liquibase.util.StringUtils.
+   - Replace the call to StringUtils.trimToNull with a manual check using the built-in String.trim() method.
+   - Specifically, change:
+     if (StringUtils.trimToNull(statement.getTablespace()) != null) { ... }
+     to:
+     if (statement.getTablespace() != null && !statement.getTablespace().trim().isEmpty()) { ... }
+   - This satisfies the constraints: function signatures remain unchanged, the @Override annotations are maintained where appropriate, and no unnecessary code is removed.
+
+4. Considerations:
+   - The rest of the code remains intact, and the above changes ensure compatibility with the updated dependency version.
+</code_analysis>
+
+```java
+package liquibase.ext.mssql.sqlgenerator;
+
+import liquibase.change.AddColumnConfig;
+import liquibase.database.Database;
+import liquibase.ext.mssql.database.MSSQLDatabase;
+import liquibase.ext.mssql.statement.CreateIndexStatementMSSQL;
+import liquibase.sql.Sql;
+import liquibase.sql.UnparsedSql;
+import liquibase.sqlgenerator.SqlGeneratorChain;
+import liquibase.sqlgenerator.core.CreateIndexGenerator;
+import liquibase.statement.core.CreateIndexStatement;
+
+import java.util.Arrays;
+import java.util.Iterator;
+
+public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
+  @Override
+  public int getPriority() {
+    return 15;
+  }
+
+  @Override
+  public Sql[] generateSql(CreateIndexStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
+    if (statement instanceof CreateIndexStatementMSSQL) {
+      return generateMSSQLSql((CreateIndexStatementMSSQL) statement, database, sqlGeneratorChain);
+    }
+
+    return super.generateSql(statement, database, sqlGeneratorChain);
+  }
+
+  private Sql[] generateMSSQLSql(CreateIndexStatementMSSQL statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
+    StringBuilder builder = new StringBuilder();
+
+    // Basically copied from liquibase.sqlgenerator.core.CreateIndexGenerator
+    builder.append("CREATE ");
+    if (statement.isUnique() != null && statement.isUnique()) {
+      builder.append("UNIQUE ");
+    }
+    
+    if (statement.isClustered() != null) {
+        if (statement.isClustered()) {
+            builder.append("CLUSTERED ");
+        } else {
+            builder.append("NONCLUSTERED ");
+        }
+    }
+    
+    builder.append("INDEX ");
+
+    if (statement.getIndexName() != null) {
+      String indexSchema = statement.getTableSchemaName();
+      builder.append(database.escapeIndexName(statement.getTableCatalogName(), indexSchema, statement.getIndexName())).append(" ");
+    }
+    builder.append("ON ");
+    builder.append(database.escapeTableName(statement.getTableCatalogName(), statement.getTableSchemaName(), statement.getTableName())).append("(");
+    Iterator<AddColumnConfig> iterator = Arrays.asList(statement.getColumns()).iterator();
+    while (iterator.hasNext()) {
+      AddColumnConfig column = iterator.next();
+      builder.append(database.escapeColumnName(statement.getTableCatalogName(), statement.getTableSchemaName(), statement.getTableName(), column.getName()));
+      if (column.getDescending() != null && column.getDescending()) {
+          builder.append(" DESC");
+      }
+      if (iterator.hasNext()) {
+        builder.append(", ");
+      }
+    }
+    if (statement.getIncludedColumns() != null && !statement.getIncludedColumns().isEmpty()) {
+      builder.append(") INCLUDE (");
+      builder.append(database.escapeColumnNameList(statement.getIncludedColumns()));
+    }
+    builder.append(")");
+    if (statement.getFillFactor() != null) {
+      builder.append(" WITH (FILLFACTOR = ").append(statement.getFillFactor()).append(")");
+    }
+    // Replace StringUtils.trimToNull with a manual non-null & non-empty check.
+    if (statement.getTablespace() != null && !statement.getTablespace().trim().isEmpty()) {
+      builder.append(" ON ").append(statement.getTablespace());
+    }
+
+    return new Sql[]{new UnparsedSql(builder.toString(), getAffectedIndex(statement))};
+  }
+
+  @Override
+  public boolean supports(CreateIndexStatement statement, Database database) {
+    return database instanceof MSSQLDatabase;
+  }
+}
+```

@@ -1,0 +1,134 @@
+<code_analysis>
+1. Error details:
+   - The error "cannot find symbol: class CommandSource" at multiple locations indicates that the CommandSource class has been moved in the updated Sponge dependency. Instead of being in "org.spongepowered.api.command", it has been relocated to "org.spongepowered.api.command.source.CommandSource".
+   - The error "package com.flowpowered.math.vector does not exist" shows that the Vector3d class has been moved from FlowPowered’s package to the new package, which is now "org.spongepowered.math.vector.Vector3d" in the new dependency version.
+   - The error "package org.spongepowered.api.data.key does not exist" means that the Keys class has been relocated from "org.spongepowered.api.data.key.Keys" to "org.spongepowered.api.data.Keys".
+   
+2. Client code review:
+   - The constructor and field definitions use CommandSource, which must now use the new package.
+   - The code uses Vector3d via an import from com.flowpowered.math.vector. This needs to be updated to use the new package.
+   - The usage of Keys in the sendUpdate() method triggers the missing package error, requiring an update to the import.
+
+3. Potential fixes:
+   - Update the import for CommandSource from "org.spongepowered.api.command.CommandSource" to "org.spongepowered.api.command.source.CommandSource".
+   - Update the import for Vector3d from "com.flowpowered.math.vector.Vector3d" to "org.spongepowered.math.vector.Vector3d".
+   - Update the import for Keys from "org.spongepowered.api.data.key.Keys" to "org.spongepowered.api.data.Keys".
+
+4. Implementation plan:
+   - Modify the three import statements accordingly without changing any method signatures or business logic.
+   - Keep all @Override annotations intact because the overridden methods are still present in the dependency interfaces/classes.
+   - The rest of the code remains unchanged.
+</code_analysis>
+
+```java
+package com.github.games647.changeskin.sponge.task;
+
+import org.spongepowered.api.command.source.CommandSource; // Updated import for CommandSource
+import org.spongepowered.math.vector.Vector3d;              // Updated import for Vector3d
+
+import com.github.games647.changeskin.core.model.UserPreference;
+import com.github.games647.changeskin.core.model.skin.SkinModel;
+import com.github.games647.changeskin.core.shared.task.SharedApplier;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import java.util.UUID;
+
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.Keys;                   // Updated import for Keys
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.tab.TabListEntry;
+import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
+
+public class SkinApplier extends SharedApplier {
+
+    private final ChangeSkinSponge plugin;
+    private final CommandSource invoker;
+    private final Player receiver;
+
+    public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin, boolean keepSkin) {
+        super(plugin.getCore(), targetSkin, keepSkin);
+
+        this.plugin = plugin;
+        this.invoker = invoker;
+        this.receiver = receiver;
+    }
+
+    @Override
+    public void run() {
+        if (!isConnected()) {
+            return;
+        }
+
+        // UUID was successfully resolved; now perform the cooldown check
+        if (invoker instanceof Player) {
+            UUID uniqueId = ((Player) invoker).getUniqueId();
+            core.getCooldownService().trackPlayer(uniqueId);
+        }
+
+        if (core.getStorage() != null) {
+            UserPreference preferences = core.getStorage().getPreferences(receiver.getUniqueId());
+            save(preferences);
+        }
+
+        applySkin();
+    }
+
+    @Override
+    protected boolean isConnected() {
+        return receiver.isOnline();
+    }
+
+    @Override
+    protected void applyInstantUpdate() {
+        plugin.getApi().applySkin(receiver, targetSkin);
+
+        sendUpdate();
+        plugin.sendMessage(invoker, "skin-changed");
+    }
+
+    @Override
+    protected void sendMessage(String key) {
+        plugin.sendMessage(invoker, key);
+    }
+
+    @Override
+    protected void runAsync(Runnable runnable) {
+        Task.builder().async()
+                .execute(runnable)
+                .submit(plugin);
+    }
+
+    private void sendUpdate() {
+        sendUpdateSelf();
+
+        // Trigger an update so that other players see the new skin
+        receiver.offer(Keys.VANISH, true);
+        receiver.offer(Keys.VANISH, false);
+    }
+
+    private void sendUpdateSelf() {
+        receiver.getTabList().removeEntry(receiver.getUniqueId());
+        receiver.getTabList().addEntry(TabListEntry.builder()
+                .displayName(receiver.getDisplayNameData().displayName().get())
+                .latency(receiver.getConnection().getLatency())
+                .list(receiver.getTabList())
+                .gameMode(receiver.getGameModeData().type().get())
+                .profile(receiver.getProfile())
+                .build());
+
+        Location<World> oldLocation = receiver.getLocation();
+        Vector3d rotation = receiver.getRotation();
+        World receiverWorld = receiver.getWorld();
+        Sponge.getServer().getWorlds()
+                .stream()
+                .filter(world -> !world.equals(receiverWorld))
+                .findFirst()
+                .ifPresent(world -> {
+                    receiver.setLocation(world.getSpawnLocation());
+                    receiver.setLocationAndRotation(oldLocation, rotation);
+                });
+    }
+}
+```
