@@ -1,0 +1,31 @@
+11a12,13
+> import org.spongepowered.api.command.Command;
+> import org.spongepowered.api.command.CommandExecutor;
+14,17c16,17
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.args.GenericArguments;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+21,22d20
+< import static org.spongepowered.api.command.args.GenericArguments.flags;
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+51c49
+<         boolean keepSkin = args.hasAny("keep");
+---
+>         boolean keepSkin = args.<Boolean>getOne("keep").orElse(false);
+76,77c74,75
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command buildSpec() {
+>         return Command.builder()
+79,81c77,78
+<                 .arguments(
+<                         string(of("skin")),
+<                         flags().flag("keep").buildWith(GenericArguments.none()))
+---
+>                 .addParameter(Parameter.string().key("skin").build())
+>                 .addParameter(Parameter.bool().key("keep").optional().build())

@@ -1,0 +1,77 @@
+18,21c18,21
+< import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+< import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+---
+> import com.google.cloud.resourcemanager.v3.OrgPolicy;
+> import com.google.cloud.resourcemanager.v3.OrgPolicy.BooleanPolicy;
+> import com.google.cloud.resourcemanager.v3.OrgPolicy.ListPolicy;
+> import com.google.cloud.resourcemanager.v3.OrgPolicy.RestoreDefault;
+97c97
+<       return new BooleanPolicy().setEnforced(enforce);
+---
+>       return OrgPolicy.BooleanPolicy.newBuilder().setEnforced(enforce).build();
+125c125
+<     private final List<java.lang.String> deniedValues;
+---
+>     private final List<String> deniedValues;
+201,206c201,217
+<       return new ListPolicy()
+<           .setAllValues(allValues)
+<           .setAllowedValues(allowedValues)
+<           .setDeniedValues(deniedValues)
+<           .setInheritFromParent(inheritFromParent)
+<           .setSuggestedValue(suggestedValue);
+---
+>       ListPolicy.Builder builder = ListPolicy.newBuilder();
+>       if (allValues != null) {
+>         builder.setAllValues(allValues);
+>       }
+>       if (allowedValues != null) {
+>         builder.addAllAllowedValues(allowedValues);
+>       }
+>       if (deniedValues != null) {
+>         builder.addAllDeniedValues(deniedValues);
+>       }
+>       if (inheritFromParent != null) {
+>         builder.setInheritFromParent(inheritFromParent);
+>       }
+>       if (suggestedValue != null) {
+>         builder.setSuggestedValue(suggestedValue);
+>       }
+>       return builder.build();
+212,213c223,224
+<           listPolicy.getAllowedValues(),
+<           listPolicy.getDeniedValues(),
+---
+>           listPolicy.getAllowedValuesList(),
+>           listPolicy.getDeniedValuesList(),
+361c372
+<     OrgPolicy orgPolicyProto = new OrgPolicy();
+---
+>     OrgPolicy.Builder orgPolicyBuilder = OrgPolicy.newBuilder();
+363c374
+<       orgPolicyProto.setBooleanPolicy(boolPolicy.toProtobuf());
+---
+>       orgPolicyBuilder.setBooleanPolicy(boolPolicy.toProtobuf());
+365c376
+<     orgPolicyProto.setConstraint(constraint);
+---
+>     orgPolicyBuilder.setConstraint(constraint);
+367c378
+<       orgPolicyProto.setListPolicy(policies.toProtobuf());
+---
+>       orgPolicyBuilder.setListPolicy(policies.toProtobuf());
+369,373c380,384
+<     orgPolicyProto.setRestoreDefault(restoreDefault);
+<     orgPolicyProto.setEtag(etag);
+<     orgPolicyProto.setUpdateTime(updateTime);
+<     orgPolicyProto.setVersion(version);
+<     return orgPolicyProto;
+---
+>     orgPolicyBuilder.setRestoreDefault(restoreDefault);
+>     orgPolicyBuilder.setEtag(etag);
+>     orgPolicyBuilder.setUpdateTime(updateTime);
+>     orgPolicyBuilder.setVersion(version);
+>     return orgPolicyBuilder.build();

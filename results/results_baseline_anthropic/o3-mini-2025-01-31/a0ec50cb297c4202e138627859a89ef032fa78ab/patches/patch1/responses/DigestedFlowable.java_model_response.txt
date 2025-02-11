@@ -1,0 +1,104 @@
+<code_analysis>
+1. Error message analysis:
+   - The error indicates that the classes HexOf, BytesOf, and the packages org.cactoos.text and org.cactoos.io cannot be found. This is due to a breaking dependency update where the cactoos library (or its API) has changed or been removed.
+   - The error points to the usage of these classes in the doOnComplete block (line 57) and in the import statements (lines 15 and 16).
+
+2. Code review:
+   - The original code uses new BytesOf(sha.digest()) and new HexOf(...).asString() to convert the SHA256 digest (a byte array) into its hexadecimal string representation.
+   - With the updated dependency, both BytesOf and HexOf are no longer available, causing the compile error.
+   - The underlying intent of the code remains the same: to compute a hexadecimal string of the digest.
+
+3. Potential fixes:
+   - Remove the cactoos import statements.
+   - Replace the usage of BytesOf and HexOf with a custom implementation that converts a byte array into its hex string – for example, using a helper method that iterates over the byte array and builds a String.
+   - Ensure that no function signatures change and only the problematic code is adapted.
+
+4. Proposed changes:
+   - Remove the imports for org.cactoos.io.BytesOf and org.cactoos.text.HexOf.
+   - In the doOnComplete callback, replace new HexOf(new BytesOf(sha.digest())).asString() with a call to a new helper method (e.g., toHexString) which converts the byte array returned by sha.digest() into a hexadecimal string.
+   - Add a private static helper method to perform this byte-to-hex conversion.
+</code_analysis>
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker.misc;
+
+import com.artipie.asto.Remaining;
+import com.artipie.asto.ext.Digests;
+import com.artipie.docker.Digest;
+import io.reactivex.Flowable;
+import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+
+/**
+ * {@link Flowable} that calculates digest of origin {@link Publisher} bytes when they pass by.
+ *
+ * @since 0.12
+ */
+public final class DigestedFlowable extends Flowable<ByteBuffer> {
+
+    /**
+     * Origin publisher.
+     */
+    private final Publisher<ByteBuffer> origin;
+
+    /**
+     * Calculated digest.
+     */
+    private final AtomicReference<Digest> dig;
+
+    /**
+     * Ctor.
+     *
+     * @param origin Origin publisher.
+     */
+    public DigestedFlowable(final Publisher<ByteBuffer> origin) {
+        this.dig = new AtomicReference<>();
+        this.origin = origin;
+    }
+
+    @Override
+    public void subscribeActual(final Subscriber<? super ByteBuffer> subscriber) {
+        final MessageDigest sha = Digests.SHA256.get();
+        Flowable.fromPublisher(this.origin)
+            .map(buf -> {
+                sha.update(new Remaining(buf, true).bytes());
+                return buf;
+            })
+            .doOnComplete(() -> this.dig.set(
+                new Digest.Sha256(toHexString(sha.digest()))
+            ))
+            .subscribe(subscriber);
+    }
+
+    /**
+     * Calculated digest.
+     *
+     * @return Digest.
+     */
+    public Digest digest() {
+        return Objects.requireNonNull(this.dig.get(), "Digest is not yet calculated.");
+    }
+
+    /**
+     * Converts a byte array to its hexadecimal string representation.
+     *
+     * @param bytes the byte array to convert
+     * @return a hexadecimal string
+     */
+    private static String toHexString(final byte[] bytes) {
+        StringBuilder hex = new StringBuilder();
+        for (byte b : bytes) {
+            hex.append(String.format("%02x", b));
+        }
+        return hex.toString();
+    }
+}
+```

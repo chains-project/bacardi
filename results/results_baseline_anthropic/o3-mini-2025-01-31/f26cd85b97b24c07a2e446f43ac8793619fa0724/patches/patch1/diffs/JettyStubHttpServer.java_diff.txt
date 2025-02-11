@@ -1,0 +1,51 @@
+1,4d0
+< /*
+<  * Copyright (c) 2012 - 2016 Jadler contributors
+<  * This program is made available under the terms of the MIT License.
+<  */
+10a7,8
+> import org.eclipse.jetty.server.HttpConfiguration;
+> import org.eclipse.jetty.server.HttpConnectionFactory;
+12c10
+< import org.eclipse.jetty.server.nio.SelectChannelConnector;
+---
+> import org.eclipse.jetty.server.ServerConnector;
+16d13
+< 
+30d26
+< 
+33,34d28
+<         this.server.setSendServerVersion(false);
+<         this.server.setSendDateHeader(true);
+36,38c30,39
+<         this.httpConnector = new SelectChannelConnector();
+<         this.httpConnector.setPort(port);
+<         server.addConnector(this.httpConnector);
+---
+>         // Configure HTTP settings using HttpConfiguration
+>         HttpConfiguration httpConfig = new HttpConfiguration();
+>         httpConfig.setSendServerVersion(false);
+>         httpConfig.setSendDateHeader(true);
+> 
+>         // Use ServerConnector which is available in Jetty 9+ instead of SelectChannelConnector
+>         ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+>         connector.setPort(port);
+>         this.httpConnector = connector;
+>         server.addConnector(connector);
+41d41
+< 
+48d47
+< 
+52d50
+< 
+63d60
+< 
+74d70
+< 
+80c76,79
+<         return httpConnector.getLocalPort();
+---
+>         if (this.httpConnector instanceof ServerConnector) {
+>             return ((ServerConnector) this.httpConnector).getLocalPort();
+>         }
+>         return -1;

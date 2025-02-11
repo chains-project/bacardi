@@ -1,0 +1,91 @@
+<code_analysis>
+1. Error Message Analysis:
+   - The error arises from attempting to call the constructor StringContains(boolean, String), which no longer exists in the updated Hamcrest dependency. The constructor now only accepts a single String argument.
+   - The errors occur at the two constructor calls in lines 62 and 63, where boolean flags (true and false) were previously used to indicate matching behavior.
+
+2. Client Code Review:
+   - The code uses two StringContains instances within the assertion for the error message: one checking that "Invalid tag" is contained, and one ensuring that the original input string is not contained.
+   - With the dependency update, the intended boolean flag behavior (positive/negative matching) is no longer supported via the constructor.
+
+3. Potential Fix:
+   - To maintain the original intent, replace new StringContains(true, "Invalid tag") with new StringContains("Invalid tag") for the positive match.
+   - Replace new StringContains(false, original) with a negated matcher. Hamcrest’s not() matcher can be used: not(new StringContains(original)).
+   - Add the necessary import for the not() matcher (from org.hamcrest.CoreMatchers).
+
+4. Plan for Changes:
+   - Modify the two StringContains constructor calls to remove the boolean argument.
+   - Wrap the second matcher with not() to ensure the original string is NOT contained.
+   - Add the appropriate import for not() to ensure correct compilation with the new dependency version.
+</code_analysis>
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker;
+
+import com.artipie.docker.error.InvalidTagNameException;
+import java.util.Arrays;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.core.AllOf;
+import org.hamcrest.core.IsEqual;
+import org.hamcrest.core.StringContains;
+import static org.hamcrest.CoreMatchers.not;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
+/**
+ * Tests for {@link Tag.Valid}.
+ *
+ * @since 0.2
+ */
+class TagValidTest {
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "latest",
+        "1.0",
+        "my-tag",
+        "MY_TAG",
+        "My.Tag.1",
+        "_some_tag",
+        //@checkstyle LineLengthCheck (1 line)
+        "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567"
+    })
+    void shouldGetValueWhenValid(final String original) {
+        final Tag.Valid tag = new Tag.Valid(original);
+        MatcherAssert.assertThat(tag.valid(), new IsEqual<>(true));
+        MatcherAssert.assertThat(tag.value(), new IsEqual<>(original));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "",
+        ".0",
+        "*",
+        "\u00ea",
+        "-my-tag",
+        //@checkstyle LineLengthCheck (1 line)
+        "012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678"
+    })
+    void shouldFailToGetValueWhenInvalid(final String original) {
+        final Tag.Valid tag = new Tag.Valid(original);
+        MatcherAssert.assertThat(tag.valid(), new IsEqual<>(false));
+        final Throwable throwable = Assertions.assertThrows(
+            InvalidTagNameException.class,
+            tag::value
+        );
+        MatcherAssert.assertThat(
+            throwable.getMessage(),
+            new AllOf<>(
+                Arrays.asList(
+                    new StringContains("Invalid tag"),
+                    not(new StringContains(original))
+                )
+            )
+        );
+    }
+}
+```

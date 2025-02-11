@@ -1,0 +1,51 @@
+26,27d25
+< import org.tinspin.index.PointDistanceFunction;
+< import org.tinspin.index.PointEntryDist;
+57,61d54
+<         /*-
+<          * Roadmap (see/implement): 'A LINEARIZED CIRCLE PACKING ALGORITHM'? 
+<          * 'A note on circle packing' Young Joon AHN.
+<          */
+< 
+82c75
+<          *         the z component represents the radius of the circle.
+---
+>          *         .z represents the radius of the circle.
+127c120,122
+<                 return StreamSupport.stream(tin.triangles().spliterator(), false).filter(filterBorderTriangles).map(t -> inCircle(t))
+---
+>                 return StreamSupport.stream(tin.triangles().spliterator(), false)
+>                                 .filter(filterBorderTriangles)
+>                                 .map(t -> inCircle(t))
+209,210c204,207
+<                         steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false).filter(filterBorderTriangles)
+<                                         .map(PGS_CirclePacking::centroid).collect(Collectors.toList());
+---
+>                         steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false)
+>                                         .filter(filterBorderTriangles)
+>                                         .map(PGS_CirclePacking::centroid)
+>                                         .collect(Collectors.toList());
+213,214c210
+<                 // Model shape vertices as circles of radius 0, to constrain packed circles
+<                 // within shape edge
+---
+>                 // Model shape vertices as circles of radius 0, to constrain packed circles within shape edge
+285d280
+< 
+646d640
+<                 // from https://stackoverflow.com/a/21975136/
+653c647
+<                 return euclideanDistance + absZDifference; // negative if inside
+---
+>                 return euclideanDistance + absZDifference;
+663a658,667
+>         // --- Internal interface definitions to replace missing dependency types ---
+>         @FunctionalInterface
+>         public static interface PointDistanceFunction {
+>                 double distance(double[] p1, double[] p2);
+>         }
+> 
+>         public static interface PointEntryDist<T> {
+>                 T value();
+>                 double dist();
+>         }

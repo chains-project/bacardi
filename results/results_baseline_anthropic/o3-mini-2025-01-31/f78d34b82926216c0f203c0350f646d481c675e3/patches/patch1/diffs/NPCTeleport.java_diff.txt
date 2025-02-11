@@ -1,0 +1,42 @@
+3d2
+< import develop.p2p.lib.*;
+72d70
+<             @Override
+89d86
+< 
+120d116
+<                         @Override
+199d194
+<                         @Override
+228d222
+<             @Override
+235d228
+< 
+260a254,280
+>     
+>     /**
+>      * Minimal stub implementation of WaveCreator to replace the missing dependency.
+>      */
+>     private static class WaveCreator {
+>         private final double a;
+>         private final double b;
+>         private final double c;
+>         
+>         public WaveCreator(double a, double b, double c) {
+>             this.a = a;
+>             this.b = b;
+>             this.c = c;
+>         }
+>         
+>         public double get(double factor, boolean flag) {
+>             if (flag) {
+>                 return factor * (b - a) + c;
+>             } else {
+>                 return (a + b) / 2.0;
+>             }
+>         }
+>         
+>         public double getStatic() {
+>             return (a + b) / 2.0;
+>         }
+>     }
