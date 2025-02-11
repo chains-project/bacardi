@@ -1,0 +1,55 @@
+1,16d0
+< /*
+<  * Licensed to the Apache Software Foundation (ASF) under one or more
+<  * contributor license agreements.  See the NOTICE file distributed with
+<  * this work for additional information regarding copyright ownership.
+<  * The ASF licenses this file to You under the Apache License, Version 2.0
+<  * (the "License"); you may not use this file except in compliance with
+<  * the License.  You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+29a14
+> import org.yaml.snakeyaml.LoaderOptions;
+93,98c78,97
+<          return Node.builder().id(arg0.id).name(arg0.name).description(arg0.description).locationId(arg0.location_id)
+<                   .hostname(arg0.hostname).osArch(arg0.os_arch).osFamily(arg0.os_family).osDescription(
+<                            arg0.os_description).osVersion(arg0.os_version).os64Bit(arg0.os_64bit).group(arg0.group)
+<                   .loginPort(arg0.login_port).tags(arg0.tags).metadata(arg0.metadata).username(arg0.username).credential(arg0.credential).credentialUrl(
+<                            arg0.credential_url != null ? URI.create(arg0.credential_url) : null).sudoPassword(
+<                            arg0.sudo_password).build();
+---
+>          return Node.builder()
+>                   .id(arg0.id)
+>                   .name(arg0.name)
+>                   .description(arg0.description)
+>                   .locationId(arg0.location_id)
+>                   .hostname(arg0.hostname)
+>                   .osArch(arg0.os_arch)
+>                   .osFamily(arg0.os_family)
+>                   .osDescription(arg0.os_description)
+>                   .osVersion(arg0.os_version)
+>                   .os64Bit(arg0.os_64bit)
+>                   .group(arg0.group)
+>                   .loginPort(arg0.login_port)
+>                   .tags(arg0.tags)
+>                   .metadata(arg0.metadata)
+>                   .username(arg0.username)
+>                   .credential(arg0.credential)
+>                   .credentialUrl(arg0.credential_url != null ? URI.create(arg0.credential_url) : null)
+>                   .sudoPassword(arg0.sudo_password)
+>                   .build();
+114c113,115
+<             return (YamlNode) new Yaml(new Constructor(YamlNode.class)).load(in);
+---
+>             // Use LoaderOptions with the Constructor to match the new API
+>             LoaderOptions loaderOptions = new LoaderOptions();
+>             return (YamlNode) new Yaml(new Constructor(YamlNode.class, loaderOptions)).load(in);
+210d210
+< 

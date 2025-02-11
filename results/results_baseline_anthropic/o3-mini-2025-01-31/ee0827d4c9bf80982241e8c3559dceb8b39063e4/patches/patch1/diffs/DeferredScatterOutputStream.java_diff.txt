@@ -1,0 +1,10 @@
+44c44,48
+<         dfos.write( data, offset, length );
+---
+>         // The dependency update removed the method write(byte[], int, int)
+>         // Use a loop to write each byte individually using write(int)
+>         for (int i = offset; i < offset + length; i++) {
+>             dfos.write(data[i]);
+>         }
+62d65
+< 

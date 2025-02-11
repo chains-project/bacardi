@@ -1,0 +1,33 @@
+14c14
+< import org.spongepowered.api.command.CommandException;
+---
+> import org.spongepowered.api.command.Command;
+16,19c16,19
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.source.CommandSource;
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.parameter.CommandContext;
+22,23c22,24
+< import org.spongepowered.api.text.Text;
+< import org.spongepowered.api.text.serializer.TextSerializers;
+---
+> 
+> import net.kyori.adventure.text.Component;
+> import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+33d33
+< 
+53,54c53,54
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command buildSpec() {
+>         return Command.builder()
+70c70
+<                 Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
+---
+>                 Component text = LegacyComponentSerializer.legacyAmpersand().deserialize(formatted);

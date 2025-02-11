@@ -1,0 +1,36 @@
+23d22
+< import org.apache.thrift.transport.TFramedTransport;
+25a25
+> import org.apache.thrift.transport.layered.TFramedTransport;
+40c40
+<    * Factory that get a TBase instance of the thrift type to be read.
+---
+>    * Factory that gets a TBase instance of the thrift type to be read.
+45d44
+< 
+50c49
+<    * Factory that get a TProtocol instance.
+---
+>    * Factory that gets a TProtocol instance.
+53d51
+< 
+63c61
+<   // The framed framedTransport.
+---
+>   // The framed transport.
+80,81c78,81
+<     this.framedTransport = new TFramedTransport(new TIOStreamTransport(this
+<         .byteOffsetInputStream), maxMessageSize);
+---
+>     // Updated constructor: use the new TFramedTransport from the layered package.
+>     // The new TFramedTransport no longer accepts a maxMessageSize parameter.
+>     this.framedTransport = new TFramedTransport(
+>         new TIOStreamTransport(this.byteOffsetInputStream));
+89c89
+<    * @return next thrift message from the reader. null if no thrift message in the reader.
+---
+>    * @return next thrift message from the reader, or null if no thrift message is present.
+121c121
+<     // If we already at the byte offset, return.
+---
+>     // If we are already at the byte offset, return.

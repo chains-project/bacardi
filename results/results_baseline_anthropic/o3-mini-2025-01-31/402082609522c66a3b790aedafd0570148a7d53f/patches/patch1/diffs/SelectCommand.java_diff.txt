@@ -1,0 +1,47 @@
+7c7,8
+< 
+---
+> import net.kyori.adventure.text.Component;
+> import org.spongepowered.api.command.Command;
+10,12c11,13
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+16,18d16
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+< 
+24c22
+<     SelectCommand(ChangeSkinSponge plugin) {
+---
+>     public SelectCommand(ChangeSkinSponge plugin) {
+29c27,28
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+---
+>     public CommandResult execute(CommandContext context) {
+>         CommandSource src = context.cause().first(CommandSource.class).orElse(null);
+35c34
+<         String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
+---
+>         String skinName = context.requireOne("skinName").toLowerCase().replace("skin-", "");
+40c39,42
+<             Task.builder().async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+---
+>             Task.builder()
+>                     .async()
+>                     .execute(new SkinSelector(plugin, receiver, targetId))
+>                     .submit(plugin);
+49,50c51,52
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command buildSpec() {
+>         return Command.builder()
+52c54
+<                 .arguments(string(of("skinName")))
+---
+>                 .addParameter(Parameter.string().key(Component.text("skinName")).build())

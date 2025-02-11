@@ -1,0 +1,39 @@
+1,5d0
+< /*
+<  * To change this license header, choose License Headers in Project Properties.
+<  * To change this template file, choose Tools | Templates
+<  * and open the template in the editor.
+<  */
+9d3
+< 
+12,16c6,10
+< import javax.inject.Inject;
+< import javax.mvc.Models;
+< import javax.ws.rs.core.Response;
+< import javax.ws.rs.ext.ExceptionMapper;
+< import javax.ws.rs.ext.Provider;
+---
+> import jakarta.inject.Inject;
+> import jakarta.mvc.Models;
+> import jakarta.ws.rs.core.Response;
+> import jakarta.ws.rs.ext.ExceptionMapper;
+> import jakarta.ws.rs.ext.Provider;
+18,21d11
+< /**
+<  *
+<  * @author hantsy
+<  */
+25,26c15,16
+<     @Inject Logger log;
+<     //private static Logger log = Logger.getLogger(PostNotFoundExceptionMapper.class.getName());
+---
+>     @Inject
+>     Logger log;
+35c25,27
+<         return Response.status(Response.Status.NOT_FOUND).entity("error.xhtml").build();
+---
+>         return Response.status(Response.Status.NOT_FOUND)
+>                        .entity("error.xhtml")
+>                        .build();
+37d28
+< 

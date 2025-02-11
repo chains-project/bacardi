@@ -1,0 +1,49 @@
+<code_analysis>
+1. Error Message Analysis:
+   - The error indicates that the package for CommandSource and the text serializer no longer exist in their previous locations.
+   - The errors pinpoint issues with:
+     • The import for CommandSource from org.spongepowered.api.command.
+     • The import for TextSerializers from org.spongepowered.api.text.serializer.
+   - This suggests that after the dependency update (likely moving to SpongeAPI 8), these classes have been relocated.
+
+2. Client Code Review:
+   - The SkinChanger class uses CommandSource and TextSerializers.LEGACY_FORMATTING_CODE.
+   - The errors cover the import of CommandSource and the non-existent package for TextSerializers.
+
+3. Potential Fixes:
+   - For CommandSource: Update the import to its new package. In Sponge 8, CommandSource is located in org.spongepowered.api.command.source.
+   - For the text serializer: In the updated dependency, the legacy text serializer is provided by Kyori Adventure. Replace the import to use net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.
+   - Update the call from TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage) to LegacyComponentSerializer.legacySection().deserialize(localeMessage) (assuming the original behavior is to use section-based legacy formatting).
+
+4. Planned Changes:
+   - Modify the import for CommandSource.
+   - Modify the import for the text serializer.
+   - Change the call inside sendMessageInvoker accordingly.
+   - Ensure that function signatures remain identical and the overall functionality of sending a message remains the same.
+</code_analysis>
+
+```java
+package com.github.games647.changeskin.sponge.task;
+
+import com.github.games647.changeskin.core.model.auth.Account;
+import com.github.games647.changeskin.core.shared.task.SharedSkinChanger;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import org.spongepowered.api.command.source.CommandSource;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+
+public class SkinChanger extends SharedSkinChanger {
+
+    private final CommandSource invoker;
+
+    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandSource invoker) {
+        super(plugin.getCore(), owner, url, oldSkinUrl);
+        this.invoker = invoker;
+    }
+
+    @Override
+    protected void sendMessageInvoker(String localeMessage) {
+        invoker.sendMessage(LegacyComponentSerializer.legacySection().deserialize(localeMessage));
+    }
+}
+```

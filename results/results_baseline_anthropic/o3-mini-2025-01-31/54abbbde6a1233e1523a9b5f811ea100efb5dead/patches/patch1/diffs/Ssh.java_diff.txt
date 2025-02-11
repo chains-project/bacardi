@@ -1,0 +1,72 @@
+18,19c18,19
+<  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+<  * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+---
+>  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+>  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+33d32
+< import com.jcabi.aspects.Tv;
+112,113c111
+<     public Ssh(final String adr, final String user, final URL priv)
+<         throws IOException {
+---
+>     public Ssh(final String adr, final String user, final URL priv) throws IOException {
+125,126c123
+<     public Ssh(final InetAddress adr, final String user, final URL priv)
+<         throws IOException {
+---
+>     public Ssh(final InetAddress adr, final String user, final URL priv) throws IOException {
+138,139c135
+<     public Ssh(final String adr, final String user, final String priv)
+<         throws UnknownHostException {
+---
+>     public Ssh(final String adr, final String user, final String priv) throws UnknownHostException {
+151,152c147
+<     public Ssh(final InetAddress adr, final String user, final String priv)
+<         throws UnknownHostException {
+---
+>     public Ssh(final InetAddress adr, final String user, final String priv) throws UnknownHostException {
+166,167c161
+<     public Ssh(final String adr, final int prt,
+<         final String user, final URL priv) throws IOException {
+---
+>     public Ssh(final String adr, final int prt, final String user, final URL priv) throws IOException {
+181,186c175,176
+<     public Ssh(final InetAddress adr, final int prt,
+<         final String user, final URL priv) throws IOException {
+<         this(
+<             adr.getCanonicalHostName(), prt, user,
+<             new UncheckedText(new TextOf(priv)).asString()
+<         );
+---
+>     public Ssh(final InetAddress adr, final int prt, final String user, final URL priv) throws IOException {
+>         this(adr.getCanonicalHostName(), prt, user, new UncheckedText(new TextOf(priv)).asString());
+198,199c188
+<     public Ssh(final String adr, final int prt,
+<         final String user, final String priv) throws UnknownHostException {
+---
+>     public Ssh(final String adr, final int prt, final String user, final String priv) throws UnknownHostException {
+213,216c202,203
+<     public Ssh(final String adr, final int prt,
+<         final String user, final String priv,
+<         final String passphrs
+<     ) throws UnknownHostException {
+---
+>     public Ssh(final String adr, final int prt, final String user, final String priv,
+>         final String passphrs) throws UnknownHostException {
+233d219
+<     @Override
+235c221
+<         attempts = Tv.SEVEN,
+---
+>         attempts = 7,
+288,290c274
+<         final Session session = sch.getSession(
+<             this.getLogin(), this.getAddr(), this.getPort()
+<         );
+---
+>         final Session session = sch.getSession(this.getLogin(), this.getAddr(), this.getPort());
+294c278
+<         session.setServerAliveCountMax(Tv.MILLION);
+---
+>         session.setServerAliveCountMax(1000000);

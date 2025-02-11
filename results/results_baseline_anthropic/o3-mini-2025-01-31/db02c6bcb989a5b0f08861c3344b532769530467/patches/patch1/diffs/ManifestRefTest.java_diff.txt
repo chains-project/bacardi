@@ -1,0 +1,15 @@
+5d4
+< 
+14d12
+< import org.hamcrest.core.StringContains;
+20,23d17
+< /**
+<  * Test case for {@link ManifestRef}.
+<  * @since 0.1
+<  */
+57,58c51,52
+<                     new StringContains(true, "Unsupported reference"),
+<                     new StringContains(false, string)
+---
+>                     Matchers.containsString("Unsupported reference"),
+>                     Matchers.not(Matchers.containsString(string))

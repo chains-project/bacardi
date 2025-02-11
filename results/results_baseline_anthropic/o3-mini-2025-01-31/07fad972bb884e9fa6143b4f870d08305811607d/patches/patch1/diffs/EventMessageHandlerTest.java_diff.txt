@@ -1,0 +1,63 @@
+6c6
+< import ch.qos.logback.core.Appender;
+---
+> import ch.qos.logback.core.AppenderBase;
+33a34
+> import java.util.ArrayList;
+83,86d83
+<     @Mock
+<     private Appender<ILoggingEvent> mockLogAppender;
+<     @Captor
+<     ArgumentCaptor<ILoggingEvent> loggingEventArgumentCaptor;
+96a94,110
+>     // Replace the mocked appender with a concrete TestAppender to avoid dependency on LoggingEventAware.
+>     private TestAppender testAppender;
+> 
+>     // A simple appender to capture logging events.
+>     private static class TestAppender extends AppenderBase<ILoggingEvent> {
+>         private final List<ILoggingEvent> events = new ArrayList<>();
+> 
+>         @Override
+>         protected void append(ILoggingEvent eventObject) {
+>             events.add(eventObject);
+>         }
+> 
+>         public List<ILoggingEvent> getEvents() {
+>             return events;
+>         }
+>     }
+> 
+113c127,129
+<         logger.addAppender(mockLogAppender);
+---
+>         testAppender = new TestAppender();
+>         testAppender.start();
+>         logger.addAppender(testAppender);
+177,179c193,194
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+< 
+<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+---
+>         List<ILoggingEvent> logStatement = testAppender.getEvents();
+>         assertThat(logStatement.size(), is(2));
+214,216c229,230
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+< 
+<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+---
+>         List<ILoggingEvent> logStatement = testAppender.getEvents();
+>         assertThat(logStatement.size(), is(2));
+251,253c265,266
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+< 
+<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+---
+>         List<ILoggingEvent> logStatement = testAppender.getEvents();
+>         assertThat(logStatement.size(), is(2));
+288,290c301,302
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+< 
+<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+---
+>         List<ILoggingEvent> logStatement = testAppender.getEvents();
+>         assertThat(logStatement.size(), is(2));

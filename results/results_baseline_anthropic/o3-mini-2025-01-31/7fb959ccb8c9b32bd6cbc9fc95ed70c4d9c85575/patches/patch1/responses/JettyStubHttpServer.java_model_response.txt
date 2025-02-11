@@ -1,0 +1,105 @@
+<code_analysis>
+1. Error message analysis:
+   - The error messages indicate that the class SelectChannelConnector (from package org.eclipse.jetty.server.nio) is no longer available, and methods like setSendServerVersion, setSendDateHeader, and getLocalPort on the Connector are missing.
+   - These errors typically occur due to a dependency update in Jetty (e.g. updating from Jetty 8 to Jetty 9+), where connector classes and their APIs have changed.
+
+2. Client code review:
+   - The constructor of JettyStubHttpServer uses new SelectChannelConnector() and calls setPort() on it.
+   - Also, the server has calls to setSendServerVersion(false) and setSendDateHeader(true), which have been removed or moved in newer Jetty versions.
+   - The getPort() method calls getLocalPort() on the Connector, which now should use ServerConnector.
+
+3. Proposed fixes:
+   - Replace the deprecated SelectChannelConnector with ServerConnector from org.eclipse.jetty.server.
+   - Remove the calls to server.setSendServerVersion(false) and server.setSendDateHeader(true) and instead, configure these settings via an HttpConfiguration object.
+   - Create an HttpConfiguration, set the sendServerVersion and sendDateHeader flags on it, and then create a ServerConnector using an HttpConnectionFactory initialized with that HttpConfiguration.
+   - Change the type of the httpConnector field from Connector to ServerConnector so that methods like setPort() and getLocalPort() are available.
+
+4. Modifications summary:
+   - Remove import org.eclipse.jetty.server.nio.SelectChannelConnector and add imports for ServerConnector, HttpConfiguration, and HttpConnectionFactory.
+   - Delete server.setSendServerVersion and server.setSendDateHeader calls, and substitute them with configuration on HttpConfiguration.
+   - Create the connector using the new Jetty 9+ API.
+   - Ensure that all changes preserve the function signatures and the overall behavior.
+</code_analysis>
+
+```java
+/*
+ * Copyright (c) 2012 - 2016 Jadler contributors
+ * This program is made available under the terms of the MIT License.
+ */
+package net.jadler.stubbing.server.jetty;
+
+import net.jadler.RequestManager;
+import net.jadler.stubbing.server.StubHttpServer;
+import org.apache.commons.lang.Validate;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Default stub http server implementation using Jetty as an http server.
+ */
+public class JettyStubHttpServer implements StubHttpServer {
+
+    private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
+    private final Server server;
+    private final ServerConnector httpConnector;
+
+    public JettyStubHttpServer() {
+        this(0);
+    }
+
+    public JettyStubHttpServer(final int port) {
+        this.server = new Server();
+        
+        // Create an HttpConfiguration and set the desired properties.
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        httpConfig.setSendServerVersion(false);
+        httpConfig.setSendDateHeader(true);
+        
+        // Create a new ServerConnector with the HttpConfiguration.
+        this.httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+        this.httpConnector.setPort(port);
+        server.addConnector(this.httpConnector);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void registerRequestManager(final RequestManager ruleProvider) {
+        Validate.notNull(ruleProvider, "ruleProvider cannot be null");
+        server.setHandler(new JadlerHandler(ruleProvider));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void start() throws Exception {
+        logger.debug("starting jetty");
+        server.start();
+        logger.debug("jetty started");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void stop() throws Exception {
+        logger.debug("stopping jetty");
+        server.stop();
+        logger.debug("jetty stopped");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getPort() {
+        return httpConnector.getLocalPort();
+    }
+}
+```
