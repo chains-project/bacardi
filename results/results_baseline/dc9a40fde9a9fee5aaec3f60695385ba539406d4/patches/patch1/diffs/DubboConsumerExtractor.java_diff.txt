@@ -1,9 +1,0 @@
-10a11,12
-> import java.util.concurrent.CompletableFuture;
-> 
-43c45,47
-<             RpcContext.getContext().setFuture(asyncRpcResult);
----
->             CompletableFuture<Object> future = new CompletableFuture<>();
->             future.complete(asyncRpcResult.getValue());
->             RpcContext.getContext().setFuture(future);

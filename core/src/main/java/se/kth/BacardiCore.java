@@ -139,6 +139,7 @@ public class BacardiCore {
                     attempts = MAX_ATTEMPTS + 1;
                     break;
                 default:
+                    attempts = MAX_ATTEMPTS + 1;
                     log.info("Unknown failure category.");
             }
 
@@ -228,8 +229,7 @@ public class BacardiCore {
                             if (a.getApiChanges().isEmpty()) {
                                 log.info("No API changes found for: {}", key);
                                 return FailureCategory.MISSING_API_DIFF;
-                            } else {
-                                log.info("API changes found for: {}", key);
+
                             }
                         }
 
@@ -261,9 +261,9 @@ public class BacardiCore {
                             // save the updated file
 //                            Path updatedFile = storeInfo.copyContentToFile("updated/%s".formatted(fileName),
 //                                    onlyCodeResponse);
-//                            Path target = Path.of(absolutePathToBuggyClass);
-//                            Path originalFile = storeInfo.copyContentToFile("original/%s".formatted(fileName),
-//                                    Files.readString(target));
+                            Path target = Path.of(absolutePathToBuggyClass);
+                            Path originalFile = storeInfo.copyContentToFile("original/%s".formatted(fileName),
+                                    Files.readString(target));
                             // execute the diff command
 //                            boolean isDiff = storeInfo.executeDiffCommand(originalFile.toAbsolutePath().toString(),
 //                                    updatedFile.toAbsolutePath().toString(),
@@ -278,6 +278,8 @@ public class BacardiCore {
                             log.error("Error saving prompt to file. {}", e.getMessage());
                             return FailureCategory.ERROR_MODEL_RESPONSE;
                         }
+                        return FailureCategory.WITH_API_DIFF;
+
                     }
 
                 }
@@ -323,7 +325,8 @@ public class BacardiCore {
 
     }
 
-    public Map<String, Set<DetectedFileWithErrors>> getListOfFilesWithErrors(RepairDirectFailures repairDirectFailures)
+    public Map<String, Set<DetectedFileWithErrors>> getListOfFilesWithErrors(RepairDirectFailures
+                                                                                     repairDirectFailures)
             throws IOException {
 
         PromptPipeline promptPipeLine = PIPELINE;

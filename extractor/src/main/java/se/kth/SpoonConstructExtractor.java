@@ -67,7 +67,6 @@ public class SpoonConstructExtractor {
 
                 Set<DetectedFileWithErrors> detectedElements = spoonUtilities.filterElements(elements, classNamesJapicmp, apiChanges);
 
-                System.out.println("Detected elements: " + detectedElements);
                 detectedElements.forEach(d -> {
                     d.setErrorInfo(errorInfo);
                 });

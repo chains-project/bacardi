@@ -108,11 +108,9 @@ public class SpoonUtilities {
                 .filter(element -> checkIfAnyConstructIsCalledFromLibrary(element, changedClassnames))
                 .toList();
 
-        Optional<CtElement> optional =   tmp.stream()
+        Optional<CtElement> optional = tmp.stream()
                 .filter(ctElement -> !elements.contains(ctElement.getParent()))
                 .findFirst();
-
-        System.out.println("Optional: " + optional);
 
         //create relation between the elements and the api changes
         DirectFailuresScan scanner = new DirectFailuresScan(apiChanges);
@@ -126,7 +124,7 @@ public class SpoonUtilities {
 
         matchedApiChangesMap.forEach((k, v) -> {
 
-            v.forEach(apC->{
+            v.forEach(apC -> {
                 v.addAll(apiChanges.stream().filter(apiChange -> apiChange.getName().equals(apC.getName())).toList());
             });
 
@@ -134,12 +132,6 @@ public class SpoonUtilities {
 
             detectedFileWithErrors.add(ctElement);
 
-            String a = SpoonFullyQualifiedNameExtractor.getFullyQualifiedName(k);
-            System.out.println("FULL: " + a);
-            System.out.println("K:  " + k);
-            v.forEach(apiChange -> {
-                System.out.println(apiChange.getLongName());
-            });
         });
 
 

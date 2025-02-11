@@ -92,7 +92,6 @@ public class StoreInfo {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
         return this.patchFolder.resolve(targetFile);
     }
 
