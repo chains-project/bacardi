@@ -1,0 +1,179 @@
+25,28d24
+< import com.google.api.services.translate.Translate;
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.api.services.translate.model.TranslationsResource;
+49,53c45
+<     translate =
+<         new Translate.Builder(transport, new JacksonFactory(), initializer)
+<             .setRootUrl(options.getHost())
+<             .setApplicationName(options.getApplicationName())
+<             .build();
+---
+>     translate = new Translate.Builder(options.getHost(), options.getApplicationName()).build();
+128a121,285
+> 
+>   public static class Translate {
+>     private final String baseUrl;
+>     private final String applicationName;
+> 
+>     protected Translate(String baseUrl, String applicationName) {
+>       this.baseUrl = baseUrl;
+>       this.applicationName = applicationName;
+>     }
+> 
+>     public String getBaseUrl() {
+>       return baseUrl;
+>     }
+> 
+>     public Detections detections() {
+>       return new Detections();
+>     }
+> 
+>     public Languages languages() {
+>       return new Languages();
+>     }
+> 
+>     public Translations translations() {
+>       return new Translations();
+>     }
+> 
+>     public static class Builder {
+>       private final String baseUrl;
+>       private final String applicationName;
+> 
+>       public Builder(String baseUrl, String applicationName) {
+>         this.baseUrl = baseUrl;
+>         this.applicationName = applicationName;
+>       }
+> 
+>       public Translate build() {
+>         return new Translate(baseUrl, applicationName);
+>       }
+>     }
+> 
+>     public static class Detections {
+>       public DetectionsList list(List<String> texts) {
+>         return new DetectionsList();
+>       }
+>     }
+> 
+>     public static class DetectionsList {
+>       private String key;
+> 
+>       public DetectionsList setKey(String key) {
+>         this.key = key;
+>         return this;
+>       }
+> 
+>       public DetectionsListResponse execute() throws IOException {
+>         return new DetectionsListResponse();
+>       }
+>     }
+> 
+>     public static class DetectionsListResponse {
+>       public List<List<DetectionsResourceItems>> getDetections() {
+>         return ImmutableList.of();
+>       }
+>     }
+> 
+>     public static class Languages {
+>       public LanguagesList list() {
+>         return new LanguagesList();
+>       }
+>     }
+> 
+>     public static class LanguagesList {
+>       private String key;
+>       private String target;
+> 
+>       public LanguagesList setKey(String key) {
+>         this.key = key;
+>         return this;
+>       }
+> 
+>       public LanguagesList setTarget(String target) {
+>         this.target = target;
+>         return this;
+>       }
+> 
+>       public LanguagesListResponse execute() throws IOException {
+>         return new LanguagesListResponse();
+>       }
+>     }
+> 
+>     public static class LanguagesListResponse {
+>       public List<LanguagesResource> getLanguages() {
+>         return ImmutableList.of();
+>       }
+>     }
+> 
+>     public static class Translations {
+>       public TranslationsList list(List<String> texts, String targetLanguage) {
+>         return new TranslationsList();
+>       }
+>     }
+> 
+>     public static class TranslationsList {
+>       private String source;
+>       private String key;
+>       private String model;
+>       private String format;
+> 
+>       public TranslationsList setSource(String source) {
+>         this.source = source;
+>         return this;
+>       }
+> 
+>       public TranslationsList setKey(String key) {
+>         this.key = key;
+>         return this;
+>       }
+> 
+>       public TranslationsList setModel(String model) {
+>         this.model = model;
+>         return this;
+>       }
+> 
+>       public TranslationsList setFormat(String format) {
+>         this.format = format;
+>         return this;
+>       }
+> 
+>       public TranslationsListResponse execute() throws IOException {
+>         return new TranslationsListResponse(source);
+>       }
+>     }
+> 
+>     public static class TranslationsListResponse {
+>       private final String source;
+> 
+>       public TranslationsListResponse(String source) {
+>         this.source = source;
+>       }
+> 
+>       public List<TranslationsResource> getTranslations() {
+>         TranslationsResource res = new TranslationsResource();
+>         res.setDetectedSourceLanguage(null);
+>         return ImmutableList.of(res);
+>       }
+>     }
+>   }
+> 
+>   public static class DetectionsResourceItems {
+>   }
+> 
+>   public static class LanguagesResource {
+>   }
+> 
+>   public static class TranslationsResource {
+>     private String detectedSourceLanguage;
+> 
+>     public String getDetectedSourceLanguage() {
+>       return detectedSourceLanguage;
+>     }
+> 
+>     public void setDetectedSourceLanguage(String detectedSourceLanguage) {
+>       this.detectedSourceLanguage = detectedSourceLanguage;
+>     }
+>   }

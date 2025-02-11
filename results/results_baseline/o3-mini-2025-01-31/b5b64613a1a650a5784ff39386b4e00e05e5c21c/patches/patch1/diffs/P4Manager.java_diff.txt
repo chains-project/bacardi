@@ -1,0 +1,6 @@
+12a13
+> import org.jenkinsci.plugins.p4.workspace.Workspace;
+44c45
+<                 ClientHelper perforceClient = new ClientHelper(credentials, buildListener, clientString, StandardCharsets.UTF_8.toString());
+---
+>                 ClientHelper perforceClient = new ClientHelper(build.getProject(), credentials, buildListener, new Workspace(clientString, StandardCharsets.UTF_8.name()));

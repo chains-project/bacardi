@@ -1,0 +1,26 @@
+9c9
+< 
+---
+> import io.netty.buffer.ByteBuf;
+11d10
+< 
+14c13
+< import org.spongepowered.api.command.CommandSource;
+---
+> import org.spongepowered.api.command.source.CommandSource;
+16,17d14
+< import org.spongepowered.api.network.ChannelBuf;
+< import org.spongepowered.api.network.RawDataListener;
+21c18
+< public class UpdateSkinListener implements RawDataListener {
+---
+> public class UpdateSkinListener {
+26,28c23,26
+<     @Override
+<     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+<         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+---
+>     public void handlePayload(ByteBuf data, RemoteConnection connection, Type side) {
+>         byte[] array = new byte[data.readableBytes()];
+>         data.readBytes(array);
+>         ByteArrayDataInput dataInput = ByteStreams.newDataInput(array);

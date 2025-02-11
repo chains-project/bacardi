@@ -1,0 +1,40 @@
+9a10,12
+> import org.eclipse.jetty.server.ServerConnector;
+> import org.eclipse.jetty.server.Request;
+> import org.eclipse.jetty.server.handler.AbstractHandler;
+12,15c15,19
+< import org.apache.commons.lang.Validate;
+< import org.eclipse.jetty.server.Connector;
+< import org.eclipse.jetty.server.nio.SelectChannelConnector;
+< 
+---
+> import org.apache.commons.lang3.Validate;
+> import javax.servlet.http.HttpServletRequest;
+> import javax.servlet.http.HttpServletResponse;
+> import javax.servlet.ServletException;
+> import java.io.IOException;
+24c28
+<     private final Connector httpConnector;
+---
+>     private final ServerConnector httpConnector;
+36c40
+<         this.httpConnector = new SelectChannelConnector();
+---
+>         this.httpConnector = new ServerConnector(server);
+80a85,100
+>     }
+> 
+>     private static class JadlerHandler extends AbstractHandler {
+>         
+>         private final RequestManager requestManager;
+>         
+>         public JadlerHandler(RequestManager requestManager) {
+>             this.requestManager = requestManager;
+>         }
+>         
+>         @Override
+>         public void handle(String target, Request baseRequest, HttpServletRequest request,
+>                            HttpServletResponse response) throws IOException, ServletException {
+>             // Minimal implementation: mark the request as handled.
+>             baseRequest.setHandled(true);
+>         }

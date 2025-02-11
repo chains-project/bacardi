@@ -53,6 +53,7 @@ public class GeneratePrompt {
                 promptTemplate.setPromptModel(promptModel);
                 break;
             case BASELINE_API_DIFF:
+                log.info("Baseline API diff pipeline not implemented yet");
                 promptTemplate = new BasePromptApiDiffTemplate();
                 promptTemplate.setPromptModel(promptModel);
                 break;

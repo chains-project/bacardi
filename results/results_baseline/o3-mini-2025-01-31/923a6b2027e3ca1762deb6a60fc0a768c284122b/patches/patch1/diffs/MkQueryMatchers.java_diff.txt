@@ -1,0 +1,28 @@
+34c34
+< import org.hamcrest.Matchers;
+---
+> import org.hamcrest.FeatureMatcher;
+84,86c84,90
+<         return new MkQueryUriMatcher(
+<             Matchers.<URI>hasProperty("rawPath", path)
+<         );
+---
+>         Matcher<URI> uriMatcher = new FeatureMatcher<URI, String>(path, "URI with rawPath", "rawPath") {
+>             @Override
+>             protected String featureValueOf(final URI actual) {
+>                 return actual.getRawPath();
+>             }
+>         };
+>         return new MkQueryUriMatcher(uriMatcher);
+96,98c100,106
+<         return new MkQueryUriMatcher(
+<             Matchers.<URI>hasProperty("rawQuery", query)
+<         );
+---
+>         Matcher<URI> uriMatcher = new FeatureMatcher<URI, String>(query, "URI with rawQuery", "rawQuery") {
+>             @Override
+>             protected String featureValueOf(final URI actual) {
+>                 return actual.getRawQuery();
+>             }
+>         };
+>         return new MkQueryUriMatcher(uriMatcher);

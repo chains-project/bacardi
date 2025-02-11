@@ -1,0 +1,11 @@
+24c24
+< import com.hazelcast.core.Member;
+---
+> import com.hazelcast.cluster.Member;
+42c42,45
+<         this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";
+---
+>         // In the updated Hazelcast API, getStringAttribute and getSocketAddress are removed.
+>         // We now use getAddress().getHost() to retrieve the host information.
+>         String host = member.getAddress().getHost();
+>         this.hostname = host + " (" + host + ")";

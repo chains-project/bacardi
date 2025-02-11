@@ -1,0 +1,72 @@
+21a22
+> import java.io.FilterInputStream;
+28,29d28
+< import org.apache.commons.io.input.BoundedInputStream;
+< import org.apache.commons.io.input.CountingInputStream;
+226a226,291
+>     private static class BoundedInputStream extends FilterInputStream {
+>         private final long max;
+>         private long pos = 0;
+> 
+>         public BoundedInputStream(InputStream in, long max) {
+>             super(in);
+>             this.max = max;
+>         }
+> 
+>         @Override
+>         public int read() throws IOException {
+>             if (pos >= max) {
+>                 return -1;
+>             }
+>             int result = in.read();
+>             if (result != -1) {
+>                 pos++;
+>             }
+>             return result;
+>         }
+> 
+>         @Override
+>         public int read(byte[] b, int off, int len) throws IOException {
+>             if (pos >= max) {
+>                 return -1;
+>             }
+>             long maxRemaining = max - pos;
+>             int bytesToRead = (int) Math.min(len, maxRemaining);
+>             int count = in.read(b, off, bytesToRead);
+>             if (count != -1) {
+>                 pos += count;
+>             }
+>             return count;
+>         }
+>     }
+>     
+>     private static class CountingInputStream extends FilterInputStream {
+>         private long count = 0;
+>         
+>         public CountingInputStream(InputStream in) {
+>             super(in);
+>         }
+>         
+>         @Override
+>         public int read() throws IOException {
+>             int result = in.read();
+>             if (result != -1) {
+>                 count++;
+>             }
+>             return result;
+>         }
+>         
+>         @Override
+>         public int read(byte[] b, int off, int len) throws IOException {
+>             int result = in.read(b, off, len);
+>             if (result != -1) {
+>                 count += result;
+>             }
+>             return result;
+>         }
+>         
+>         public long getByteCount() {
+>             return count;
+>         }
+>     }
+> 

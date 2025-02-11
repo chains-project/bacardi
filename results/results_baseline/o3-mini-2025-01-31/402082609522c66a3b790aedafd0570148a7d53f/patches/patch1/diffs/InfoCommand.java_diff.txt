@@ -1,0 +1,64 @@
+9d8
+< 
+12d10
+< 
+14c12
+< import org.spongepowered.api.command.CommandException;
+---
+> import org.spongepowered.api.command.Command;
+16,20c14,15
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+< import org.spongepowered.api.entity.living.player.Player;
+---
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.parameter.CommandContext;
+22,23c17,19
+< import org.spongepowered.api.text.Text;
+< import org.spongepowered.api.text.serializer.TextSerializers;
+---
+> import org.spongepowered.api.entity.living.player.Player;
+> import net.kyori.adventure.text.Component;
+> import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+25c21
+< public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class InfoCommand implements ChangeSkinCommand {
+33,37c29,32
+< 
+<     @Override
+<     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+---
+>     public CommandResult execute(CommandContext args) throws CommandException {
+>         Optional<Player> playerOpt = args.cause().first(Player.class);
+>         if (!playerOpt.isPresent()) {
+>             plugin.sendMessage(args.cause().root(), "no-console");
+41c36
+<         UUID uniqueId = ((Player) src).getUniqueId();
+---
+>         UUID uniqueId = playerOpt.get().getUniqueId();
+45c40,41
+<                     Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).submit(plugin);
+---
+>                     Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences))
+>                             .submit(plugin);
+52,55c48,50
+<     @Override
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+<                 .executor(this)
+---
+>     public Command.Parameterized buildSpec() {
+>         return Command.builder()
+>                 .executor(this::execute)
+69,71c64,65
+< 
+<                 Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
+<                 player.sendMessage(text);
+---
+>                 Component component = LegacyComponentSerializer.legacyAmpersand().deserialize(formatted);
+>                 player.sendMessage(component);

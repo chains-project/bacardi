@@ -1,0 +1,35 @@
+13a14
+> import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
+15,17d15
+< import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
+< import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
+< import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
+28d25
+< /** Created by Lukas Zaoralek on 14.11.17. */
+40,41c37
+<     PNConfiguration pnConfiguration = new PNConfiguration();
+<     pnConfiguration.setSubscribeKey(publicKey);
+---
+>     PNConfiguration pnConfiguration = new PNConfiguration(publicKey);
+94,108d89
+<                 public void user(PubNub pubnub, PNUserResult pnUserResult) {
+<                   LOG.debug("PubNub user: {}", pnUserResult.toString());
+<                 }
+< 
+<                 @Override
+<                 public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
+<                   LOG.debug("PubNub space: {}", pnSpaceResult.toString());
+<                 }
+< 
+<                 @Override
+<                 public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
+<                   LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
+<                 }
+< 
+<                 @Override
+112a94,98
+> 
+>                 @Override
+>                 public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
+>                   LOG.debug("PubNub file: {}", pnFileEventResult.toString());
+>                 }

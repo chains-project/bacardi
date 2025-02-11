@@ -1,0 +1,153 @@
+```java
+package com.github.games647.changeskin.sponge.command;
+
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.github.games647.changeskin.sponge.PomData;
+import com.github.games647.changeskin.sponge.task.SkinSelector;
+import com.google.inject.Inject;
+import org.spongepowered.api.CommandResult;
+import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
+import net.kyori.adventure.text.Component;
+import static net.kyori.adventure.text.Component.text;
+import java.util.Optional;
+import java.util.List;
+import java.util.Set;
+import java.util.Collection;
+import java.util.Collections;
+
+public class SelectCommand implements SelectCommand.CommandExecutor, ChangeSkinCommand {
+
+    private final ChangeSkinSponge plugin;
+
+    @Inject
+    SelectCommand(ChangeSkinSponge plugin) {
+        this.plugin = plugin;
+    }
+
+    @Override
+    public CommandResult execute(CommandSource src, CommandContext args) {
+        if (!(src instanceof Player)) {
+            plugin.sendMessage(src, "no-console");
+            return CommandResult.empty();
+        }
+
+        String skinName = args.getOne("skinName").get().toLowerCase().replace("skin-", "");
+
+        try {
+            int targetId = Integer.parseInt(skinName);
+            Player receiver = (Player) src;
+            Task.builder().async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+        } catch (NumberFormatException numberFormatException) {
+            plugin.sendMessage(src, "invalid-skin-name");
+        }
+
+        return CommandResult.success();
+    }
+
+    @Override
+    public CommandSpec buildSpec() {
+        return CommandSpec.builder()
+                .executor(this)
+                .arguments(Parameter.string(text("skinName")))
+                .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
+                .build();
+    }
+
+    public interface CommandExecutor {
+        CommandResult execute(CommandSource src, CommandContext args);
+    }
+
+    public static class CommandSpec {
+        private final Command<CommandSource> command;
+
+        public CommandSpec(Command<CommandSource> command) {
+            this.command = command;
+        }
+
+        public Command<CommandSource> getCommand() {
+            return command;
+        }
+
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        public static class Builder {
+            private CommandExecutor executor;
+            private Parameter.Value<String> argument;
+            private String permission;
+
+            public Builder executor(CommandExecutor executor) {
+                this.executor = executor;
+                return this;
+            }
+
+            public Builder arguments(Parameter.Value<String> argument) {
+                this.argument = argument;
+                return this;
+            }
+
+            public Builder permission(String permission) {
+                this.permission = permission;
+                return this;
+            }
+
+            public CommandSpec build() {
+                Command<CommandSource> cmd = Command.builder()
+                        .permission(permission)
+                        .executor(ctx -> {
+                            CommandSource src = ctx.cause().first(CommandSource.class)
+                                    .orElseThrow(() -> new IllegalStateException("No command source found"));
+                            OldCommandContext adapter = new OldCommandContext(ctx, argument.key());
+                            return executor.execute(src, adapter);
+                        })
+                        .build();
+                return new CommandSpec(cmd);
+            }
+        }
+    }
+
+    public static class OldCommandContext implements CommandContext {
+        private final CommandContext context;
+        private final CommandContext.Key<String> key;
+
+        public OldCommandContext(CommandContext context, CommandContext.Key<String> key) {
+            this.context = context;
+            this.key = key;
+        }
+
+        @SuppressWarnings("unchecked")
+        public <T> Optional<T> getOne(String name) {
+            if ("skinName".equals(name)) {
+                return (Optional<T>) context.one(key);
+            }
+            return Optional.empty();
+        }
+
+        @Override
+        public <T> Optional<T> one(CommandContext.Key<T> key) {
+            return context.one(key);
+        }
+
+        @Override
+        public <T> List<T> all(CommandContext.Key<T> key) {
+            return context.all(key);
+        }
+
+        @Override
+        public Set<CommandContext.Key<?>> keys() {
+            return context.keys();
+        }
+
+        @Override
+        public Collection<?> arguments() {
+            return context.arguments();
+        }
+    }
+}
+```

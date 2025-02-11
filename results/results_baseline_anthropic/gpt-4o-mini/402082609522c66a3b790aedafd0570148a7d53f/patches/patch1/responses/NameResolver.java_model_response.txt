@@ -1,0 +1,54 @@
+```java
+package com.github.games647.changeskin.sponge.task;
+
+import com.github.games647.changeskin.core.shared.task.SharedNameResolver;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import java.util.UUID;
+
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.living.player.Player;
+
+public class NameResolver extends SharedNameResolver {
+
+    private final ChangeSkinSponge plugin;
+    private final CommandSource invoker;
+    private final Player receiver;
+    private final boolean keepSkin;
+
+    public NameResolver(ChangeSkinSponge plugin, CommandSource invoker, String targetName, Player receiver
+            , boolean keepSkin) {
+        super(plugin.getCore(), targetName, keepSkin);
+
+        this.plugin = plugin;
+        this.invoker = invoker;
+        this.receiver = receiver;
+        this.keepSkin = keepSkin;
+    }
+
+    @Override
+    public void sendMessageInvoker(String id) {
+        plugin.sendMessage(invoker, id);
+    }
+
+    @Override
+    protected boolean hasSkinPermission(UUID uuid) {
+        //todo check skin permissions
+        return true;
+    }
+
+    @Override
+    protected void scheduleDownloader(UUID uuid) {
+        //run this is the same thread
+        new SkinDownloader(plugin, invoker, receiver, uuid, keepSkin).run();
+    }
+}
+``` 
+
+In this case, the error message indicates that the `CommandSource` class cannot be found in the specified package. This suggests that the dependency for the Sponge API may have been updated, and the `CommandSource` class might have been moved or renamed. 
+
+To resolve this issue, ensure that the correct version of the Sponge API is being used, and verify that the `CommandSource` class is still part of the API. If it has been moved to a different package, update the import statement accordingly. 
+
+However, since the provided code already has the correct import for `CommandSource`, it seems that the issue might be related to the dependency not being correctly included in the project. Ensure that the build configuration (like Maven or Gradle) is updated to include the correct version of the Sponge API that contains the `CommandSource` class. 
+
+If the class is indeed missing from the new version, you may need to replace it with an alternative class that serves a similar purpose in the updated API.

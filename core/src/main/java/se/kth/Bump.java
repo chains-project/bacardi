@@ -14,10 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 
@@ -33,8 +30,6 @@ public class Bump {
     static Map<String, Result> resultsMap = new ConcurrentHashMap<>();
     private final static String JSON_PATH = OUTPUT_PATH + String.format("/result_repair_%s.json", LLM);
 
-    ForkJoinPool customThreadPool = new ForkJoinPool(availableProcessors);
-
     public static void main(String[] args) {
 
         if (RESTART) {
@@ -43,7 +38,7 @@ public class Bump {
             deleteDirectoryContent(Path.of(OUTPUT_PATH));
 
         }
-        LogUtils.logWithBox(log, "Bump analysis started, PIPELINE: %s".formatted(PIPELINE));
+        LogUtils.logWithBox(log, "Bump analysis started. PIPELINE: %s MODEL: %s".formatted(PIPELINE, LLM));
 
         // filtering breaking dependency updates
         log.info("Filtering breaking dependency updates");
@@ -110,7 +105,7 @@ public class Bump {
         try {
             Files.walk(of)
                     .sorted((path1, path2) -> path2.compareTo(path1)) // sort in reverse order to delete files before
-                                                                      // directories
+                    // directories
                     .forEach(path -> {
                         try {
                             Files.delete(path);
@@ -197,7 +192,7 @@ public class Bump {
                 String breakingImage = e.breakingUpdateReproductionCommand.replace("docker run ", "");
 
                 // get jar from container for previous version
-                PromptPipeline[] pipeline = { PromptPipeline.BASELINE_API_DIFF };
+                PromptPipeline[] pipeline = {PromptPipeline.BASELINE_API_DIFF};
                 if (Arrays.asList(pipeline).contains(PIPELINE)) {
                     getProjectData(preBreakingImage, dockerBuild, clientFolder, null, null, prevoiusJarInContainerPath);
                 }

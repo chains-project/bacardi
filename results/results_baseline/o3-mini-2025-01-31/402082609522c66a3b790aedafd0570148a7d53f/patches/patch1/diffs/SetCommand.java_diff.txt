@@ -1,0 +1,66 @@
+11a12
+> import org.spongepowered.api.command.Command;
+13,17c14,16
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.args.GenericArguments;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.source.CommandSource;
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+21,22d19
+< import static org.spongepowered.api.command.args.GenericArguments.flags;
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+25c22
+< public class SetCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class SetCommand implements ChangeSkinCommand {
+31c28
+<     SetCommand(ChangeSkinSponge plugin, ChangeSkinCore core) {
+---
+>     public SetCommand(ChangeSkinSponge plugin, ChangeSkinCore core) {
+36,37c33,35
+<     @Override
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+---
+>     public CommandResult execute(CommandContext context) throws Exception {
+>         CommandSource src = context.cause().first(CommandSource.class)
+>                 .orElseThrow(() -> new Exception("No command source"));
+43,48d40
+<         UUID uniqueId = ((Player) src).getUniqueId();
+<         if (core.getCooldownService().isTracked(uniqueId)) {
+<             plugin.sendMessage(src, "cooldown");
+<             return CommandResult.empty();
+<         }
+< 
+50,51c42,43
+<         String targetSkin = args.<String>getOne("skin").get();
+<         boolean keepSkin = args.hasAny("keep");
+---
+>         String targetSkin = context.<String>getOne("skin").get();
+>         boolean keepSkin = context.<Boolean>getOne("keep").orElse(false);
+75,82c67,79
+<     @Override
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+<                 .executor(this)
+<                 .arguments(
+<                         string(of("skin")),
+<                         flags().flag("keep").buildWith(GenericArguments.none()))
+<                 .permission(PomData.ARTIFACT_ID + ".command.setskin.base")
+---
+>     public Command.Parameterized buildSpec() {
+>         return Command.builder()
+>                 .executor(context -> {
+>                     try {
+>                         return execute(context);
+>                     } catch (Exception ex) {
+>                         ex.printStackTrace();
+>                         return CommandResult.empty();
+>                     }
+>                 })
+>                 .addParameter(Parameter.string().key("skin").build())
+>                 .addParameter(Parameter.bool().key("keep").setDefault(false).build())
+>                 .setPermission(PomData.ARTIFACT_ID + ".command.setskin.base")

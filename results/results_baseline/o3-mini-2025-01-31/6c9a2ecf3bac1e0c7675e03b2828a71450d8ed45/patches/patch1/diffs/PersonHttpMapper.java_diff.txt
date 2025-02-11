@@ -1,0 +1,23 @@
+12c12
+< public interface PersonHttpMapper {
+---
+> public abstract class PersonHttpMapper {
+14,16c14
+<     PersonHttpMapper INSTANCE = Mappers.getMapper(PersonHttpMapper.class);
+<     PersonDomain toDomain(PersonRequest request);
+<     PersonRequest toRequest(PersonDomain domain);
+---
+>     public static final PersonHttpMapper INSTANCE = Mappers.getMapper(PersonHttpMapper.class);
+18,19c16,17
+<     PersonDomain toDomain(PersonResponse response);
+<     PersonResponse toResponse(PersonDomain domain);
+---
+>     public abstract PersonDomain toDomain(PersonRequest request);
+>     public abstract PersonRequest toRequest(PersonDomain domain);
+20a19,20
+>     public abstract PersonDomain toDomain(PersonResponse response);
+>     public abstract PersonResponse toResponse(PersonDomain domain);
+22c22
+<     default List<PersonResponse> toListResponse(List<PersonDomain> domains){
+---
+>     public List<PersonResponse> toListResponse(List<PersonDomain> domains) {
