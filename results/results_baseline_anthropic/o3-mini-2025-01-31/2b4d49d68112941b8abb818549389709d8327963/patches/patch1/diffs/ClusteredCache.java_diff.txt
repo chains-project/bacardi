@@ -1,0 +1,34 @@
+18,21c18,20
+< import com.hazelcast.core.EntryEvent;
+< import com.hazelcast.core.EntryListener;
+< import com.hazelcast.core.IMap;
+< import com.hazelcast.core.MapEvent;
+---
+> import com.hazelcast.map.IMap;
+> import com.hazelcast.map.listener.EntryEvent;
+> import com.hazelcast.map.listener.EntryListener;
+23c22
+< import com.hazelcast.monitor.LocalMapStats;
+---
+> import com.hazelcast.map.LocalMapStats;
+88,104c87,88
+<             @Override
+<             public void mapEvicted(MapEvent event) {
+<                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+<                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
+<                     logger.trace("Processing map evicted event of node '{}'", eventNodeId);
+<                     clusteredCacheEntryListener.mapEvicted(eventNodeId);
+<                 }
+<             }
+< 
+<             @Override
+<             public void mapCleared(MapEvent event) {
+<                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+<                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
+<                     logger.trace("Processing map cleared event of node '{}'", eventNodeId);
+<                     clusteredCacheEntryListener.mapCleared(eventNodeId);
+<                 }
+<             }
+---
+>             // The following methods (mapEvicted and mapCleared) have been removed because
+>             // the updated Hazelcast API no longer supports these events.

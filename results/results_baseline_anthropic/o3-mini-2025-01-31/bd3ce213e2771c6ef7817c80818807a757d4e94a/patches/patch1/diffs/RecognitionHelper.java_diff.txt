@@ -1,0 +1,16 @@
+19d18
+< import com.fasterxml.jackson.databind.ObjectWriter;
+42d40
+< 
+193a192
+> 
+237d235
+< 
+241,242c239,240
+<                         ObjectWriter writer = mapper.writer();
+<                         writer.writeValue(segmentListFile, dataList);
+---
+>             // Use ObjectMapper directly to write the JSON content, avoiding the dependency on StreamWriteException.
+>             mapper.writeValue(segmentListFile, dataList);
+251d248
+< 

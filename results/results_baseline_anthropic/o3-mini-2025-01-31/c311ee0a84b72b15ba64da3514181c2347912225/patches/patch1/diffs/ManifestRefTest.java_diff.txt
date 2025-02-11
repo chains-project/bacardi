@@ -1,0 +1,10 @@
+55,59c55,57
+<             new AllOf<>(
+<                 Arrays.asList(
+<                     new StringContains(true, "Unsupported reference"),
+<                     new StringContains(false, string)
+<                 )
+---
+>             Matchers.allOf(
+>                 Matchers.containsString("Unsupported reference"),
+>                 Matchers.not(Matchers.containsString(string))

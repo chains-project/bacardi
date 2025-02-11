@@ -1,0 +1,59 @@
+package io.arex.inst.dubbo.apache.v2;
+
+import io.arex.agent.bootstrap.model.MockResult;
+import io.arex.agent.bootstrap.model.Mocker;
+import io.arex.inst.dubbo.common.DubboExtractor;
+import io.arex.inst.runtime.util.IgnoreUtils;
+import io.arex.inst.runtime.util.MockUtils;
+import org.apache.dubbo.rpc.AsyncRpcResult;
+import org.apache.dubbo.rpc.Invocation;
+import org.apache.dubbo.rpc.RpcContext;
+import org.apache.dubbo.rpc.RpcInvocation;
+import org.apache.dubbo.rpc.support.RpcUtils;
+import org.apache.dubbo.rpc.FutureContext;
+
+import java.util.concurrent.CompletableFuture;
+
+public class DubboConsumerExtractor extends DubboExtractor {
+    private final DubboAdapter adapter;
+
+    public DubboConsumerExtractor(DubboAdapter adapter) {
+        this.adapter = adapter;
+    }
+
+    public void record(Result result) {
+        adapter.execute(result, makeMocker());
+    }
+
+    private Mocker makeMocker() {
+        Mocker mocker = MockUtils.createDubboConsumer(adapter.getServiceOperation());
+        return buildMocker(mocker, adapter, null, null);
+    }
+
+    public MockResult replay() {
+        MockResult mockResult = null;
+        Object result = MockUtils.replayBody(makeMocker());
+        boolean ignoreMockResult = IgnoreUtils.ignoreMockResult(adapter.getPath(), adapter.getOperationName());
+        if (result != null && !ignoreMockResult) {
+            AsyncRpcResult asyncRpcResult;
+            Invocation invocation = adapter.getInvocation();
+            if (result instanceof Throwable) {
+                asyncRpcResult = AsyncRpcResult.newDefaultAsyncResult((Throwable) result, invocation);
+            } else {
+                asyncRpcResult = AsyncRpcResult.newDefaultAsyncResult(result, invocation);
+            }
+            mockResult = MockResult.success(ignoreMockResult, asyncRpcResult);
+            // need to set invoke mode to FUTURE if return type is CompletableFuture
+            if (invocation instanceof RpcInvocation) {
+                RpcInvocation rpcInv = (RpcInvocation) invocation;
+                rpcInv.setInvokeMode(RpcUtils.getInvokeMode(adapter.getUrl(), invocation));
+            }
+            // Convert asyncRpcResult to a CompletableFuture as required by the updated dependency.
+            CompletableFuture<?> completableFuture = asyncRpcResult.getCompletableFuture();
+            RpcContext.getContext().setFuture(completableFuture);
+            // Save for 2.6.x compatibility, for example, TraceFilter in Zipkin uses com.alibaba.xxx.FutureAdapter.
+            FutureContext.getContext().setCompatibleFuture(completableFuture);
+        }
+        return mockResult;
+    }
+}

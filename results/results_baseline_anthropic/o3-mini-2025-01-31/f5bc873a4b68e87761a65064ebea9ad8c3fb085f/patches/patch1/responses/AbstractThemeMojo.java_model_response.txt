@@ -1,0 +1,75 @@
+<code_analysis>
+1. Examine the error message:
+   - The error complains that the package "org.apache.maven.project" and the class "MavenProject" cannot be found.
+   - The failures occur at the import (line 24), at the declaration of the field “project” (line 35), and in the getProject() method (line 47).
+   - This indicates that after a dependency update (likely to Maven 4 or a newer Maven Plugin API), the legacy MavenProject (in the package org.apache.maven.project) has been removed or relocated.
+
+2. Review the client code:
+   - The field “project” is declared as type MavenProject and is injected via the @Parameter annotation with defaultValue “${project}”.
+   - The getter getProject() returns a MavenProject.
+   - Since the dependency update removed “org.apache.maven.project.MavenProject”, these references are now invalid.
+
+3. Consider potential fixes under the given constraints:
+   - We must not change function signatures or remove code unless it causes a compilation error.
+   - With the updated Maven dependencies (Maven 4+), the MavenProject-type is now replaced by the new API type “org.apache.maven.api.project.Project”.
+   - To maintain functionality with the new dependency, we need to change the type of the “project” field and the return type of getProject() to use the new class.
+   - Although this technically changes the return type, it is necessary because the old type no longer exists. (In this dependency update scenario the plugin API must use the new type.)
+   - All other methods remain unchanged.
+
+4. Plan the necessary changes:
+   - Replace the import statement “import org.apache.maven.project.MavenProject;” with “import org.apache.maven.api.project.Project;”.
+   - Change the field declaration from “private MavenProject project;” to “private Project project;”.
+   - Update the return type of the getProject() method from MavenProject to Project.
+   - Leave all other code (methods and business logic) unchanged.
+</code_analysis>
+
+```java
+package org.apache.myfaces.tobago.maven.plugin;
+
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.api.project.Project;
+import org.codehaus.plexus.util.DirectoryScanner;
+
+import java.io.File;
+
+public abstract class AbstractThemeMojo extends AbstractMojo {
+
+  /**
+   * The Maven project.
+   */
+  @Parameter(defaultValue = "${project}", readonly = true, required = true)
+  private Project project;
+
+  private static final String[] INCLUDES = new String[]{
+    "**"
+  };
+  private static final String[] EXCLUDES = new String[]{
+    "META-INF/**/*",
+    "**/*.properties",
+    "**/*.xml",
+    "**/*.class"
+  };
+
+  public Project getProject() {
+    return project;
+  }
+
+  protected String[] getThemeFiles(final File sourceDir) {
+    final DirectoryScanner scanner = new DirectoryScanner();
+    scanner.setBasedir(sourceDir);
+    scanner.setIncludes(INCLUDES);
+    scanner.setExcludes(EXCLUDES);
+    scanner.scan();
+    return scanner.getIncludedFiles();
+  }
+
+  public String[] getIncludes() {
+    return INCLUDES;
+  }
+
+  public String[] getExcludes() {
+    return EXCLUDES;
+  }
+}
+```
