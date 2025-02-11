@@ -1,0 +1,44 @@
+10d9
+< import org.eclipse.jetty.server.Connector;
+12c11,14
+< import org.eclipse.jetty.server.nio.SelectChannelConnector;
+---
+> import org.eclipse.jetty.server.ServerConnector;
+> import org.eclipse.jetty.server.Connector;
+> import org.eclipse.jetty.server.HttpConfiguration;
+> import org.eclipse.jetty.server.HttpConnectionFactory;
+16d17
+< 
+30d30
+< 
+33,37c33,41
+<         this.server.setSendServerVersion(false);
+<         this.server.setSendDateHeader(true);
+< 
+<         this.httpConnector = new SelectChannelConnector();
+<         this.httpConnector.setPort(port);
+---
+>         // Configure HTTP settings to not send server version and to send date headers.
+>         HttpConfiguration httpConfig = new HttpConfiguration();
+>         httpConfig.setSendServerVersion(false);
+>         httpConfig.setSendDateHeader(true);
+>         
+>         // Use the new ServerConnector with the HttpConfiguration and HttpConnectionFactory.
+>         ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+>         connector.setPort(port);
+>         this.httpConnector = connector;
+41d44
+< 
+48d50
+< 
+52d53
+< 
+63d63
+< 
+74d73
+< 
+80c79,80
+<         return httpConnector.getLocalPort();
+---
+>         // Cast connector to ServerConnector to use getLocalPort which is not available on Connector interface.
+>         return ((ServerConnector) this.httpConnector).getLocalPort();

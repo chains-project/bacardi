@@ -1,0 +1,25 @@
+8c8,11
+< import org.apache.dubbo.rpc.*;
+---
+> import org.apache.dubbo.rpc.AsyncRpcResult;
+> import org.apache.dubbo.rpc.Invocation;
+> import org.apache.dubbo.rpc.RpcContext;
+> import org.apache.dubbo.rpc.RpcInvocation;
+9a13,15
+> import org.apache.dubbo.rpc.FutureContext;
+> 
+> import java.util.concurrent.CompletableFuture;
+20a27
+> 
+24a32
+> 
+43,45c51,55
+<             RpcContext.getContext().setFuture(asyncRpcResult);
+<             // save for 2.6.x compatibility, for example, TraceFilter in Zipkin uses com.alibaba.xxx.FutureAdapter
+<             FutureContext.getContext().setCompatibleFuture(asyncRpcResult);
+---
+>             // Convert asyncRpcResult to a CompletableFuture as required by the updated dependency.
+>             CompletableFuture<?> completableFuture = asyncRpcResult.getCompletableFuture();
+>             RpcContext.getContext().setFuture(completableFuture);
+>             // Save for 2.6.x compatibility, for example, TraceFilter in Zipkin uses com.alibaba.xxx.FutureAdapter.
+>             FutureContext.getContext().setCompatibleFuture(completableFuture);

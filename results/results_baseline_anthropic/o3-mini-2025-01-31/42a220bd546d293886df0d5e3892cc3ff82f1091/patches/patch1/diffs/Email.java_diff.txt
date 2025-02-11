@@ -1,0 +1,33 @@
+5d4
+< import org.apache.commons.codec.digest.DigestUtils;
+12a12,14
+> import java.security.MessageDigest;
+> import java.security.NoSuchAlgorithmException;
+> import java.nio.charset.StandardCharsets;
+153c155
+<             return DigestUtils.md5Hex(cleanAddress(address));
+---
+>             return md5Hex(cleanAddress(address));
+211a214,235
+> 
+>     private static String md5Hex(String input) {
+>         try {
+>             MessageDigest md = MessageDigest.getInstance("MD5");
+>             byte[] digest = md.digest(input.getBytes(StandardCharsets.UTF_8));
+>             return bytesToHex(digest);
+>         } catch (NoSuchAlgorithmException e) {
+>             throw new RuntimeException("MD5 algorithm not available", e);
+>         }
+>     }
+> 
+>     private static String bytesToHex(byte[] bytes) {
+>         StringBuilder hexString = new StringBuilder();
+>         for (byte b : bytes) {
+>             String hex = Integer.toHexString(0xff & b);
+>             if (hex.length() == 1) {
+>                 hexString.append('0');
+>             }
+>             hexString.append(hex);
+>         }
+>         return hexString.toString();
+>     }

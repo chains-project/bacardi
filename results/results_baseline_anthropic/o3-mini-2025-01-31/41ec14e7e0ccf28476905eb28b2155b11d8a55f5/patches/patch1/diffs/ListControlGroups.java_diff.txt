@@ -1,0 +1,92 @@
+1,18d0
+< /**
+<  * Copyright (C) 2014 Premium Minds.
+<  *
+<  * This file is part of wicket-crudifier.
+<  *
+<  * wicket-crudifier is free software: you can redistribute it and/or modify it under
+<  * the terms of the GNU Lesser General Public License as published by the Free
+<  * Software Foundation, either version 3 of the License, or (at your option) any
+<  * later version.
+<  *
+<  * wicket-crudifier is distributed in the hope that it will be useful, but WITHOUT ANY
+<  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+<  * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+<  * details.
+<  *
+<  * You should have received a copy of the GNU Lesser General Public License
+<  * along with wicket-crudifier. If not, see <http://www.gnu.org/licenses/>.
+<  */
+20a3,4
+> import java.beans.BeanInfo;
+> import java.beans.Introspector;
+38,44c22,28
+< import javax.validation.Validator;
+< import javax.validation.constraints.NotBlank;
+< import javax.validation.constraints.NotEmpty;
+< import javax.validation.constraints.NotNull;
+< import javax.validation.metadata.BeanDescriptor;
+< import javax.validation.metadata.ConstraintDescriptor;
+< import javax.validation.metadata.ElementDescriptor;
+---
+> import jakarta.validation.Validator;
+> import jakarta.validation.constraints.NotBlank;
+> import jakarta.validation.constraints.NotEmpty;
+> import jakarta.validation.constraints.NotNull;
+> import jakarta.validation.metadata.BeanDescriptor;
+> import jakarta.validation.metadata.ConstraintDescriptor;
+> import jakarta.validation.metadata.ElementDescriptor;
+46d29
+< import org.apache.commons.beanutils.PropertyUtils;
+103c86,88
+<                 for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
+---
+>         try {
+>             BeanInfo beanInfo = Introspector.getBeanInfo(modelClass);
+>             for (PropertyDescriptor descriptor : beanInfo.getPropertyDescriptors()) {
+109c94,96
+< 
+---
+>         } catch (Exception e) {
+>             throw new RuntimeException("Error introspecting class " + modelClass, e);
+>         }
+128c115
+<                                 descriptor = PropertyUtils.getPropertyDescriptor(getModel().getObject(), property);
+---
+>                 descriptor = getPropertyDescriptor(getModel().getObject(), property);
+157,158c144,147
+<                                                 if(objectProperty.type.isEnum()) typesControlGroup = EnumControlGroup.class;
+<                                                 else typesControlGroup = ObjectChoiceControlGroup.class;
+---
+>                         if (objectProperty.type.isEnum()) 
+>                             typesControlGroup = EnumControlGroup.class;
+>                         else 
+>                             typesControlGroup = ObjectChoiceControlGroup.class;
+167d155
+< 
+187,189c175,176
+<                                                         .createControlGroup(view.newChildId()
+<                                                                         , new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name)
+<                                                                         , objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
+---
+>                             .createControlGroup(view.newChildId(), new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name),
+>                                     objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
+192d178
+< 
+228c214,215
+<                         if(type.isAssignableFrom(mapType)) return typesControlGroups.get(mapType);
+---
+>             if (type.isAssignableFrom(mapType))
+>                 return typesControlGroups.get(mapType);
+255a243,253
+>     
+>     // Helper method to mimic PropertyUtils.getPropertyDescriptor functionality using java.beans.Introspector.
+>     private PropertyDescriptor getPropertyDescriptor(Object bean, String propertyName) throws Exception {
+>         BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());
+>         for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
+>             if (pd.getName().equals(propertyName)) {
+>                 return pd;
+>             }
+>         }
+>         throw new Exception("No such property: " + propertyName);
+>     }

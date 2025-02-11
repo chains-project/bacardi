@@ -1,0 +1,116 @@
+<code_analysis>
+1. Error Message Analysis:
+   - The error indicates that the class liquibase.util.StringUtils is no longer available. The error occurs both on the import line and when the code attempts to use StringUtils.trimToNull().
+   - The issue likely arises due to a breaking change in the Liquibase dependency update, where StringUtils has been removed or relocated.
+
+2. Client Code Review:
+   - The problematic import statement "import liquibase.util.StringUtils;" (line 12) and the usage at line 67 (within the if-statement checking the tablespace) are causing the build to fail.
+   - The functionality provided by StringUtils.trimToNull() (trimming the string and returning null if empty) can be replicated using core Java methods.
+
+3. Fix Requirements and Constraints:
+   - Do not change any function signatures.
+   - Remove the dependency on the removed StringUtils by eliminating its import.
+   - Replace the usage of StringUtils.trimToNull() with a direct check using String.trim() and isEmpty().
+   - Retain all existing logic and functionality.
+
+4. Proposed Modifications:
+   - Remove the import statement "import liquibase.util.StringUtils;".
+   - Replace the code:
+       if (StringUtils.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) { ... }
+     with:
+       if (statement.getTablespace() != null && !statement.getTablespace().trim().isEmpty() && database.supportsTablespaces()) { ... }
+   - This patch uses core Java string trimming methods to check validity, thereby resolving the dependency error while preserving the original intent.
+</code_analysis>
+
+```java
+package liquibase.ext.mssql.sqlgenerator;
+
+import liquibase.database.Database;
+import liquibase.ext.mssql.database.MSSQLDatabase;
+import liquibase.ext.mssql.statement.AddPrimaryKeyStatementMSSQL;
+import liquibase.sql.Sql;
+import liquibase.sql.UnparsedSql;
+import liquibase.sqlgenerator.SqlGeneratorChain;
+import liquibase.sqlgenerator.core.AddPrimaryKeyGenerator;
+import liquibase.statement.core.AddPrimaryKeyStatement;
+import liquibase.structure.core.Index;
+
+public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
+  @Override
+  public int getPriority() {
+    return 15;
+  }
+
+  /**
+   * Conditionally executes to extension's custom Primary Key SQL generation process if statement is the
+   * AddPrimaryKeyStatementMSSQL implementation and the custom attribute (fillFactor) is set.
+   *
+   * Otherwise, defers to default liquibase implementation.
+   *
+   * @param statement
+   * @param database
+   * @param sqlGeneratorChain
+   * @return
+   */
+  @Override
+  public Sql[] generateSql(AddPrimaryKeyStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
+    if (statement instanceof AddPrimaryKeyStatementMSSQL && ((AddPrimaryKeyStatementMSSQL) statement).getFillFactor() != null) {
+      return generateMSSQLSql((AddPrimaryKeyStatementMSSQL) statement, database, sqlGeneratorChain);
+    }
+
+    return super.generateSql(statement, database, sqlGeneratorChain);
+  }
+
+  /**
+   * The extension's implementation is essentially a copy/paste of the default implementation, with the following changes:
+   *
+   * 1) Removed other database platform specific logic other than MSSQL (purely to simplify)
+   *
+   * 2) Added support for setting fillFactor
+   *
+   * @param statement
+   * @param database
+   * @param sqlGeneratorChain
+   * @return
+   */
+  private Sql[] generateMSSQLSql(AddPrimaryKeyStatementMSSQL statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
+    String sql;
+    if (statement.getConstraintName() == null) {
+      sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) +
+            " ADD PRIMARY KEY (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
+    } else {
+      sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) +
+            " ADD CONSTRAINT " + database.escapeConstraintName(statement.getConstraintName()) + " PRIMARY KEY";
+      if (!statement.isClustered()) {
+        sql += " NONCLUSTERED";
+      }
+      sql += " (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
+    }
+
+    // the only new feature being added is support for fillFactor
+    sql += " WITH (FILLFACTOR = " + statement.getFillFactor() + ")";
+
+    // Replace StringUtils.trimToNull() with manual trimming check using core Java methods
+    if (statement.getTablespace() != null && !statement.getTablespace().trim().isEmpty() && database.supportsTablespaces()) {
+      sql += " ON " + statement.getTablespace().trim();
+    }
+
+    if (statement.getForIndexName() != null) {
+      sql += " USING INDEX " +
+              database.escapeObjectName(statement.getForIndexCatalogName(),
+                                          statement.getForIndexSchemaName(),
+                                          statement.getForIndexName(),
+                                          Index.class);
+    }
+
+    return new Sql[] {
+        new UnparsedSql(sql, getAffectedPrimaryKey(statement))
+    };
+  }
+
+  @Override
+  public boolean supports(AddPrimaryKeyStatement statement, Database database) {
+    return database instanceof MSSQLDatabase;
+  }
+}
+```

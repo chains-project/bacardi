@@ -1,0 +1,30 @@
+82a83,84
+>     
+>     // Change: Remove generic type parameter to avoid referencing missing LoggingEventAware.
+84c86,87
+<     private Appender<ILoggingEvent> mockLogAppender;
+---
+>     private Appender mockLogAppender;
+>     
+113c116,117
+<         logger.addAppender(mockLogAppender);
+---
+>         // Cast the raw appender to the expected type.
+>         logger.addAppender((Appender<ILoggingEvent>) mockLogAppender);
+177c181,182
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+---
+>         // Cast the raw appender to the expected type when verifying method calls.
+>         verify((Appender<ILoggingEvent>) mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+214c219
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+---
+>         verify((Appender<ILoggingEvent>) mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+251c256
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+---
+>         verify((Appender<ILoggingEvent>) mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+288c293
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+---
+>         verify((Appender<ILoggingEvent>) mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());

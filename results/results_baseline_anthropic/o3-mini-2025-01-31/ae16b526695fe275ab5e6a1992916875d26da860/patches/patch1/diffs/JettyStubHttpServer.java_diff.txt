@@ -1,0 +1,27 @@
+9a10
+> import org.eclipse.jetty.server.ServerConnector;
+12,15c13
+< import org.apache.commons.lang.Validate;
+< import org.eclipse.jetty.server.Connector;
+< import org.eclipse.jetty.server.nio.SelectChannelConnector;
+< 
+---
+> import org.apache.commons.lang3.Validate;
+24c22
+<     private final Connector httpConnector;
+---
+>     private final ServerConnector httpConnector;
+30d27
+< 
+36c33
+<         this.httpConnector = new SelectChannelConnector();
+---
+>         this.httpConnector = new ServerConnector(server);
+41d37
+< 
+52d47
+< 
+63d57
+< 
+74d67
+< 

@@ -1,0 +1,46 @@
+26,27d25
+< import org.tinspin.index.PointDistanceFunction;
+< import org.tinspin.index.PointEntryDist;
+127c125,127
+<                 return StreamSupport.stream(tin.triangles().spliterator(), false).filter(filterBorderTriangles).map(t -> inCircle(t))
+---
+>                 return StreamSupport.stream(tin.triangles().spliterator(), false)
+>                                 .filter(filterBorderTriangles)
+>                                 .map(t -> inCircle(t))
+165d164
+<          * 
+209,210c208,211
+<                         steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false).filter(filterBorderTriangles)
+<                                         .map(PGS_CirclePacking::centroid).collect(Collectors.toList());
+---
+>                         steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false)
+>                                         .filter(filterBorderTriangles)
+>                                         .map(PGS_CirclePacking::centroid)
+>                                         .collect(Collectors.toList());
+226c227
+<                         final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+---
+>                         final CoverTree.Entry<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+229c230
+<                          * nn.dist() does not return the radius (since it's a distance metric used to
+---
+>                          * nn.getDistance() does not return the radius (since it's a distance metric used to
+231c232
+<                          * 2d euclidean distance between center points minus radius of nearest circle.
+---
+>                          * 2d Euclidean distance between center points minus radius of nearest circle.
+332c333
+<          * value to control the accuracy of the LEC algorithm.
+---
+>          * value to control the LEC algorithm's accuracy.
+645,646c646
+<         private static final PointDistanceFunction circleDistanceMetric = (p1, p2) -> {
+<                 // from https://stackoverflow.com/a/21975136/
+---
+>         private static final CoverTree.Distance<double[]> circleDistanceMetric = (p1, p2) -> {
+650d649
+< 
+653c652
+<                 return euclideanDistance + absZDifference; // negative if inside
+---
+>                 return euclideanDistance + absZDifference;
