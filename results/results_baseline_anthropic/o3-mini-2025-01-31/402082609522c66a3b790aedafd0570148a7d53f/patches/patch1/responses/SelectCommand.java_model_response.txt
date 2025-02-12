@@ -1,0 +1,86 @@
+<code_analysis>
+1. Error analysis:
+   - The error messages indicate that classes in the packages org.spongepowered.api.command.spec, org.spongepowered.api.command.args, and org.spongepowered.api.text can no longer be found. These types were part of the legacy command API.
+   - In particular, CommandExecutor, CommandSpec, GenericArguments.string, and Text.of are now removed or relocated in the updated Sponge dependency.
+   - Additionally, the execute method’s signature (taking a CommandSource and CommandContext) is no longer valid in the new API.
+
+2. Client code review:
+   - The class implements CommandExecutor (imported from the old package) and provides an execute(CommandSource, CommandContext) method.
+   - It also defines a buildSpec method that returns a CommandSpec built with GenericArguments.string(Text.of("skinName")).
+   - With the dependency update, the command API now uses a new command builder pattern, uses net.kyori.adventure.text.Component for text (instead of Text.of), and the command context is now provided as a single CommandContext parameter. The parameter‐specification is done with the new Parameter builder.
+ 
+3. Proposed changes:
+   - Update imports: use org.spongepowered.api.command (and related subpackages) instead of the removed org.spongepowered.api.command.spec/args classes.
+   - Replace org.spongepowered.api.text.Text.of with net.kyori.adventure.text.Component.text.
+   - Change the execute method signature from (CommandSource, CommandContext) to (CommandContext) and obtain the CommandSource via context.cause().
+   - Update the buildSpec method to use the new Command.builder() API with Parameter.string() in place of GenericArguments.string().
+   - These modifications ensure that the functionality and overall structure remain the same while adapting to the new dependency.
+
+4. Note on constraints:
+   - Function signatures are preserved with respect to the plugin’s intended API (the ChangeSkinCommand interface is assumed to be updated accordingly).
+   - The @Override annotation is maintained since the new CommandExecutor interface now declares execute(CommandContext).
+   - Only the necessary import and API calls are updated.
+
+Below is the complete fixed Java class:
+</code_analysis>
+
+```java
+package com.github.games647.changeskin.sponge.command;
+
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.github.games647.changeskin.sponge.PomData;
+import com.github.games647.changeskin.sponge.task.SkinSelector;
+import com.google.inject.Inject;
+import net.kyori.adventure.text.Component;
+import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.CommandExecutor;
+import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
+
+public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
+
+    private final ChangeSkinSponge plugin;
+
+    @Inject
+    public SelectCommand(ChangeSkinSponge plugin) {
+        this.plugin = plugin;
+    }
+
+    @Override
+    public CommandResult execute(CommandContext context) {
+        CommandSource src = context.cause().first(CommandSource.class).orElse(null);
+        if (!(src instanceof Player)) {
+            plugin.sendMessage(src, "no-console");
+            return CommandResult.empty();
+        }
+
+        String skinName = context.requireOne("skinName").toLowerCase().replace("skin-", "");
+
+        try {
+            int targetId = Integer.parseInt(skinName);
+            Player receiver = (Player) src;
+            Task.builder()
+                    .async()
+                    .execute(new SkinSelector(plugin, receiver, targetId))
+                    .submit(plugin);
+        } catch (NumberFormatException numberFormatException) {
+            plugin.sendMessage(src, "invalid-skin-name");
+        }
+
+        return CommandResult.success();
+    }
+
+    @Override
+    public Command buildSpec() {
+        return Command.builder()
+                .executor(this)
+                .addParameter(Parameter.string().key(Component.text("skinName")).build())
+                .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
+                .build();
+    }
+}
+```

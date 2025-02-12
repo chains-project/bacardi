@@ -1,0 +1,29 @@
+28c28,29
+< import org.cactoos.text.RandomText;
+---
+> import org.cactoos.text.Text;
+> import java.util.UUID;
+71c72
+<                 new Repeated<>(val, new RandomText())
+---
+>                 new Repeated<>(val, new FakeRandomText())
+96a98,116
+> 
+>         /**
+>          * A replacement for the removed RandomText.
+>          */
+>         private static final class FakeRandomText implements Text {
+>             @Override
+>             public String asString() throws Exception {
+>                 return UUID.randomUUID().toString();
+>             }
+> 
+>             @Override
+>             public String toString() {
+>                 try {
+>                     return this.asString();
+>                 } catch (Exception ex) {
+>                     throw new RuntimeException(ex);
+>                 }
+>             }
+>         }

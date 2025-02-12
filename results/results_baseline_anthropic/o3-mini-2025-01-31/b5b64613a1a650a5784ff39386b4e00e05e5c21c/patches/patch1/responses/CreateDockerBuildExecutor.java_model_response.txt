@@ -1,0 +1,75 @@
+<code_analysis>
+1. Error Message Analysis:
+   - The error occurs due to the method call to StringUtils.isAllBlank(kanikoImageFile, jibImageFile) which cannot be found.
+   - This indicates that the current version of Apache Commons Lang in use does not provide the isAllBlank(String, String) method.
+   - The dependency update has likely removed or renamed that method.
+
+2. Client Code Analysis:
+   - The problematic lines are the ones that check if exactly one of 'kanikoImageFile' or 'jibImageFile' is configured.
+   - The original condition uses StringUtils.isAllBlank(...) and StringUtils.isNoneBlank(...) which are not available in the current dependency version.
+   - The required logic is to throw an exception if both files are blank or both are provided.
+
+3. Proposed Fix:
+   - Replace the call to StringUtils.isAllBlank(kanikoImageFile, jibImageFile) with an equivalent check using StringUtils.isBlank() on each argument.
+   - Similarly, replace StringUtils.isNoneBlank(kanikoImageFile, jibImageFile) with a check that both are not blank using StringUtils.isNotBlank().
+   - Thus, the condition becomes:
+     (StringUtils.isBlank(kanikoImageFile) && StringUtils.isBlank(jibImageFile)) ||
+     (StringUtils.isNotBlank(kanikoImageFile) && StringUtils.isNotBlank(jibImageFile))
+   - This change adheres to all constraints, retaining the function signatures and functionality.
+
+4. Final Code:
+   - The complete Java class is provided below.
+</code_analysis>
+
+```java
+package org.jfrog.hudson.pipeline.common.executors;
+
+import hudson.EnvVars;
+import hudson.FilePath;
+import hudson.Launcher;
+import hudson.model.Run;
+import hudson.model.TaskListener;
+import org.apache.commons.lang3.StringUtils;
+import org.jfrog.hudson.pipeline.common.types.ArtifactoryServer;
+import org.jfrog.hudson.pipeline.common.types.buildInfo.BuildInfo;
+import org.jfrog.hudson.pipeline.common.types.deployers.CommonDeployer;
+import org.jfrog.hudson.util.ExtractorUtils;
+
+public class CreateDockerBuildExecutor extends BuildInfoProcessRunner {
+    private final ArtifactoryServer server;
+    private final String kanikoImageFile;
+    private final String jibImageFile;
+    private final String sourceRepo;
+
+    public CreateDockerBuildExecutor(ArtifactoryServer pipelineServer, BuildInfo buildInfo, Run<?, ?> build,
+                                     String kanikoImageFile, String jibImageFile, String sourceRepo, String javaArgs,
+                                     Launcher launcher, TaskListener listener, FilePath ws, EnvVars envVars) {
+        super(buildInfo, launcher, javaArgs, ws, "", "", envVars, listener, build);
+        this.kanikoImageFile = kanikoImageFile;
+        this.jibImageFile = jibImageFile;
+        this.sourceRepo = sourceRepo;
+        this.server = pipelineServer;
+    }
+
+    public void execute() throws Exception {
+        if (server == null) {
+            throw new IllegalStateException("Artifactory server must be configured");
+        }
+        // Replace calls to isAllBlank and isNoneBlank with equivalent checks using isBlank and isNotBlank.
+        if ((StringUtils.isBlank(kanikoImageFile) && StringUtils.isBlank(jibImageFile)) ||
+            (StringUtils.isNotBlank(kanikoImageFile) && StringUtils.isNotBlank(jibImageFile))) {
+            throw new IllegalStateException("Exactly one of 'kanikoImageFile' or 'jibImageFile' must be configured");
+        }
+        CommonDeployer deployer = new CommonDeployer();
+        deployer.setServer(server);
+        deployer.setRepo(sourceRepo);
+        FilePath tempDir = ExtractorUtils.createAndGetTempDir(ws);
+        EnvExtractor envExtractor = new CreateDockerBuildEnvExtractor(build, buildInfo, deployer, listener, launcher, tempDir, env, kanikoImageFile, jibImageFile);
+        super.execute("Create Docker Build", "org.jfrog.build.extractor.docker.extractor.BuildDockerCreator", envExtractor, tempDir);
+    }
+
+    public BuildInfo getBuildInfo() {
+        return buildInfo;
+    }
+}
+```

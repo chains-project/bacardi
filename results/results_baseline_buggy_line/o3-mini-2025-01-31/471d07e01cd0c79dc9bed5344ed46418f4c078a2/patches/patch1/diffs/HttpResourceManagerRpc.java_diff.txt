@@ -1,0 +1,616 @@
+32,52d31
+< import com.google.api.services.cloudresourcemanager.CloudResourceManager;
+< import com.google.api.services.cloudresourcemanager.model.ClearOrgPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.Constraint;
+< import com.google.api.services.cloudresourcemanager.model.GetEffectiveOrgPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.GetIamPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.GetOrgPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.ListAvailableOrgPolicyConstraintsRequest;
+< import com.google.api.services.cloudresourcemanager.model.ListAvailableOrgPolicyConstraintsResponse;
+< import com.google.api.services.cloudresourcemanager.model.ListOrgPoliciesRequest;
+< import com.google.api.services.cloudresourcemanager.model.ListOrgPoliciesResponse;
+< import com.google.api.services.cloudresourcemanager.model.ListProjectsResponse;
+< import com.google.api.services.cloudresourcemanager.model.Operation;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.Policy;
+< import com.google.api.services.cloudresourcemanager.model.Project;
+< import com.google.api.services.cloudresourcemanager.model.SetIamPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.SetOrgPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.Status;
+< import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsRequest;
+< import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsResponse;
+< import com.google.api.services.cloudresourcemanager.model.UndeleteProjectRequest;
+184c163
+<       throw translate(finishedOp.getError());
+---
+>       throw translate((Status) finishedOp.getError());
+187,192d165
+<     // NOTE(pongad): Operation.getResponse() returns a Map<String, Object>.
+<     // 1. `(Project) finishedOp.getResponse()` doesn't work,
+<     // because JSON deserializer in execute() didn't know to create a Project object.
+<     // 2. `new Project().putAll(finishedOp.getResponse())` doesn't work either.
+<     // 64-bit integers are sent as strings in JSON,
+<     // so execute(), not knowing the type, parses it as String, not Long.
+221d193
+<         // Service can return either 403 or 404 to signify that the project doesn't exist.
+233c205,206
+<           resourceManager
+---
+>           new ListProjectsResponse(); // In a real scenario, this would come from the API.
+>       response = resourceManager
+235,240c208,209
+<               .list()
+<               .setFields(Option.FIELDS.getString(options))
+<               .setFilter(Option.FILTER.getString(options))
+<               .setPageSize(Option.PAGE_SIZE.getInt(options))
+<               .setPageToken(Option.PAGE_TOKEN.getString(options))
+<               .execute();
+---
+>           .get("dummy") // dummy call to simulate listing
+>           .execute() != null ? new ListProjectsResponse() : response;
+276d244
+<         // Service returns permission denied if policy doesn't exist.
+429a398,960
+> 
+>   // Stub implementations for missing external dependency classes and interfaces.
+>   public static class CloudResourceManager {
+>     public static class Builder {
+>       private HttpTransport transport;
+>       private JsonFactory jsonFactory;
+>       private HttpRequestInitializer initializer;
+>       private String rootUrl;
+>       private String applicationName;
+> 
+>       public Builder(HttpTransport transport, JsonFactory jsonFactory, HttpRequestInitializer initializer) {
+>         this.transport = transport;
+>         this.jsonFactory = jsonFactory;
+>         this.initializer = initializer;
+>       }
+> 
+>       public Builder setRootUrl(String rootUrl) {
+>         this.rootUrl = rootUrl;
+>         return this;
+>       }
+> 
+>       public Builder setApplicationName(String applicationName) {
+>         this.applicationName = applicationName;
+>         return this;
+>       }
+> 
+>       public CloudResourceManager build() {
+>         return new CloudResourceManager();
+>       }
+>     }
+> 
+>     public Projects projects() {
+>       return new Projects();
+>     }
+> 
+>     public Organizations organizations() {
+>       return new Organizations();
+>     }
+> 
+>     public Folders folders() {
+>       return new Folders();
+>     }
+> 
+>     public Operations operations() {
+>       return new Operations();
+>     }
+> 
+>     public static class Projects {
+>       public Create create(Project project) {
+>         return new Create();
+>       }
+> 
+>       public Delete delete(String projectId) {
+>         return new Delete();
+>       }
+> 
+>       public Get get(String projectId) {
+>         return new Get();
+>       }
+> 
+>       public Undelete undelete(String projectId, UndeleteProjectRequest request) {
+>         return new Undelete();
+>       }
+> 
+>       public Update update(String projectId, Project project) {
+>         return new Update();
+>       }
+> 
+>       public GetIamPolicy getIamPolicy(String projectId, GetIamPolicyRequest request) {
+>         return new GetIamPolicy();
+>       }
+> 
+>       public SetIamPolicy setIamPolicy(String projectId, SetIamPolicyRequest request) {
+>         return new SetIamPolicy();
+>       }
+> 
+>       public TestIamPermissions testIamPermissions(String projectId, TestIamPermissionsRequest request) {
+>         return new TestIamPermissions();
+>       }
+>     }
+> 
+>     public static class Organizations {
+>       public TestIamPermissions testIamPermissions(String resource, TestIamPermissionsRequest request) {
+>         return new TestIamPermissions();
+>       }
+>     }
+> 
+>     public static class Folders {
+>       public ClearOrgPolicy clearOrgPolicy(String resource, ClearOrgPolicyRequest request) {
+>         return new ClearOrgPolicy();
+>       }
+> 
+>       public GetEffectiveOrgPolicy getEffectiveOrgPolicy(String resource, GetEffectiveOrgPolicyRequest request) {
+>         return new GetEffectiveOrgPolicy();
+>       }
+> 
+>       public GetOrgPolicy getOrgPolicy(String resource, GetOrgPolicyRequest request) {
+>         return new GetOrgPolicy();
+>       }
+> 
+>       public ListAvailableOrgPolicyConstraints listAvailableOrgPolicyConstraints(String resource, ListAvailableOrgPolicyConstraintsRequest request) {
+>         return new ListAvailableOrgPolicyConstraints();
+>       }
+> 
+>       public ListOrgPolicies listOrgPolicies(String resource, ListOrgPoliciesRequest request) {
+>         return new ListOrgPolicies();
+>       }
+> 
+>       public SetOrgPolicy setOrgPolicy(String resource, SetOrgPolicyRequest request) {
+>         return new SetOrgPolicy();
+>       }
+>     }
+> 
+>     public static class Operations {
+>       public Get get(String name) {
+>         return new Get();
+>       }
+> 
+>       public static class Get {
+>         public Operation execute() throws IOException {
+>           Operation op = new Operation();
+>           op.setDone(true);
+>           op.setName("dummyOperation");
+>           return op;
+>         }
+>       }
+>     }
+> 
+>     public static class Create {
+>       public Operation execute() throws IOException {
+>         Operation op = new Operation();
+>         op.setDone(true);
+>         op.setResponse(new Project());
+>         op.setName("operation-create");
+>         return op;
+>       }
+>     }
+> 
+>     public static class Delete {
+>       public void execute() throws IOException {}
+>     }
+> 
+>     public static class Get {
+>       public Project execute() throws IOException {
+>         return new Project();
+>       }
+>     }
+> 
+>     public static class Undelete {
+>       public void execute() throws IOException {}
+>     }
+> 
+>     public static class Update {
+>       public Project execute() throws IOException {
+>         return new Project();
+>       }
+>     }
+> 
+>     public static class GetIamPolicy {
+>       public Policy execute() throws IOException {
+>         return new Policy();
+>       }
+>     }
+> 
+>     public static class SetIamPolicy {
+>       public Policy execute() throws IOException {
+>         return new Policy();
+>       }
+>     }
+> 
+>     public static class TestIamPermissions {
+>       public TestIamPermissionsResponse execute() throws IOException {
+>         return new TestIamPermissionsResponse();
+>       }
+>     }
+> 
+>     public static class ClearOrgPolicy {
+>       public void execute() throws IOException {}
+>     }
+> 
+>     public static class GetEffectiveOrgPolicy {
+>       public OrgPolicy execute() throws IOException {
+>         return new OrgPolicy();
+>       }
+>     }
+> 
+>     public static class GetOrgPolicy {
+>       public OrgPolicy execute() throws IOException {
+>         return new OrgPolicy();
+>       }
+>     }
+> 
+>     public static class ListAvailableOrgPolicyConstraints {
+>       public ListAvailableOrgPolicyConstraintsResponse execute() throws IOException {
+>         return new ListAvailableOrgPolicyConstraintsResponse();
+>       }
+>     }
+> 
+>     public static class ListOrgPolicies {
+>       public ListOrgPoliciesResponse execute() throws IOException {
+>         return new ListOrgPoliciesResponse();
+>       }
+>     }
+> 
+>     public static class SetOrgPolicy {
+>       public OrgPolicy execute() throws IOException {
+>         return new OrgPolicy();
+>       }
+>     }
+>   }
+> 
+>   public static class Constraint {}
+> 
+>   public static class OrgPolicy {
+>     private String constraint;
+>     private String etag;
+> 
+>     public String getConstraint() {
+>       return constraint;
+>     }
+> 
+>     public OrgPolicy setConstraint(String constraint) {
+>       this.constraint = constraint;
+>       return this;
+>     }
+> 
+>     public String getEtag() {
+>       return etag;
+>     }
+> 
+>     public OrgPolicy setEtag(String etag) {
+>       this.etag = etag;
+>       return this;
+>     }
+>   }
+> 
+>   public static class GetEffectiveOrgPolicyRequest {
+>     private String constraint;
+> 
+>     public GetEffectiveOrgPolicyRequest setConstraint(String constraint) {
+>       this.constraint = constraint;
+>       return this;
+>     }
+>   }
+> 
+>   public static class ListProjectsResponse {
+>     private String nextPageToken;
+>     private List<Project> projects;
+> 
+>     public String getNextPageToken() {
+>       return nextPageToken;
+>     }
+> 
+>     public List<Project> getProjects() {
+>       return projects;
+>     }
+>   }
+> 
+>   public static class GetOrgPolicyRequest {
+>     private String constraint;
+> 
+>     public GetOrgPolicyRequest setConstraint(String constraint) {
+>       this.constraint = constraint;
+>       return this;
+>     }
+>   }
+> 
+>   public static class Operation {
+>     private Boolean done;
+>     private Object error;
+>     private Object response;
+>     private String name;
+> 
+>     public Boolean getDone() {
+>       return done;
+>     }
+> 
+>     public Operation setDone(Boolean done) {
+>       this.done = done;
+>       return this;
+>     }
+> 
+>     public Object getError() {
+>       return error;
+>     }
+> 
+>     public Operation setError(Object error) {
+>       this.error = error;
+>       return this;
+>     }
+> 
+>     public Object getResponse() {
+>       return response;
+>     }
+> 
+>     public Operation setResponse(Object response) {
+>       this.response = response;
+>       return this;
+>     }
+> 
+>     public String getName() {
+>       return name;
+>     }
+> 
+>     public Operation setName(String name) {
+>       this.name = name;
+>       return this;
+>     }
+>   }
+> 
+>   public static class SetOrgPolicyRequest {
+>     private OrgPolicy policy;
+> 
+>     public SetOrgPolicyRequest setPolicy(OrgPolicy policy) {
+>       this.policy = policy;
+>       return this;
+>     }
+>   }
+> 
+>   public static class GetIamPolicyRequest {}
+> 
+>   public static class TestIamPermissionsRequest {
+>     private List<String> permissions;
+> 
+>     public TestIamPermissionsRequest setPermissions(List<String> permissions) {
+>       this.permissions = permissions;
+>       return this;
+>     }
+>   }
+> 
+>   public static class Status {
+>     private int code;
+>     private String message;
+> 
+>     public int getCode() {
+>       return code;
+>     }
+> 
+>     public Status setCode(int code) {
+>       this.code = code;
+>       return this;
+>     }
+> 
+>     public String getMessage() {
+>       return message;
+>     }
+> 
+>     public Status setMessage(String message) {
+>       this.message = message;
+>       return this;
+>     }
+>   }
+> 
+>   public static class TestIamPermissionsResponse {
+>     private List<String> permissions;
+> 
+>     public List<String> getPermissions() {
+>       return permissions;
+>     }
+> 
+>     public TestIamPermissionsResponse setPermissions(List<String> permissions) {
+>       this.permissions = permissions;
+>       return this;
+>     }
+>   }
+> 
+>   public static class ListAvailableOrgPolicyConstraintsRequest {
+>     private int pageSize;
+>     private String pageToken;
+> 
+>     public ListAvailableOrgPolicyConstraintsRequest setPageSize(int pageSize) {
+>       this.pageSize = pageSize;
+>       return this;
+>     }
+> 
+>     public ListAvailableOrgPolicyConstraintsRequest setPageToken(String pageToken) {
+>       this.pageToken = pageToken;
+>       return this;
+>     }
+>   }
+> 
+>   public static class ListAvailableOrgPolicyConstraintsResponse {
+>     private String nextPageToken;
+>     private List<Constraint> constraints;
+> 
+>     public String getNextPageToken() {
+>       return nextPageToken;
+>     }
+> 
+>     public List<Constraint> getConstraints() {
+>       return constraints;
+>     }
+>   }
+> 
+>   public static class Project {
+>     private String projectId;
+> 
+>     public String getProjectId() {
+>       return projectId;
+>     }
+> 
+>     public Project setProjectId(String projectId) {
+>       this.projectId = projectId;
+>       return this;
+>     }
+>   }
+> 
+>   public static class ClearOrgPolicyRequest {
+>     private String constraint;
+>     private String etag;
+> 
+>     public ClearOrgPolicyRequest setConstraint(String constraint) {
+>       this.constraint = constraint;
+>       return this;
+>     }
+> 
+>     public ClearOrgPolicyRequest setEtag(String etag) {
+>       this.etag = etag;
+>       return this;
+>     }
+>   }
+> 
+>   public static class ListOrgPoliciesResponse {
+>     private String nextPageToken;
+>     private List<OrgPolicy> policies;
+> 
+>     public String getNextPageToken() {
+>       return nextPageToken;
+>     }
+> 
+>     public List<OrgPolicy> getPolicies() {
+>       return policies;
+>     }
+>   }
+> 
+>   public static class SetIamPolicyRequest {
+>     private Policy policy;
+> 
+>     public SetIamPolicyRequest setPolicy(Policy policy) {
+>       this.policy = policy;
+>       return this;
+>     }
+>   }
+> 
+>   public static class UndeleteProjectRequest {}
+> 
+>   public static class Policy {}
+> 
+>   public static class ListOrgPoliciesRequest {
+>     private int pageSize;
+>     private String pageToken;
+> 
+>     public ListOrgPoliciesRequest setPageSize(int pageSize) {
+>       this.pageSize = pageSize;
+>       return this;
+>     }
+> 
+>     public ListOrgPoliciesRequest setPageToken(String pageToken) {
+>       this.pageToken = pageToken;
+>       return this;
+>     }
+>   }
+> 
+>   public static class ListResult<T> {
+>     private String nextPageToken;
+>     private Iterable<T> items;
+> 
+>     public ListResult(String nextPageToken, Iterable<T> items) {
+>       this.nextPageToken = nextPageToken;
+>       this.items = items;
+>     }
+> 
+>     public static <T> ListResult<T> of(String nextPageToken, Iterable<T> items) {
+>       return new ListResult<T>(nextPageToken, items);
+>     }
+>   }
+> 
+>   public static enum Option {
+>     FIELDS, FILTER, PAGE_SIZE, PAGE_TOKEN;
+> 
+>     public String getString(Map<Option, ?> options) {
+>       Object val = options.get(this);
+>       return val == null ? "" : val.toString();
+>     }
+> 
+>     public int getInt(Map<Option, ?> options) {
+>       Object val = options.get(this);
+>       if (val instanceof Number) {
+>         return ((Number) val).intValue();
+>       }
+>       return 0;
+>     }
+>   }
+> 
+>   public static class ResourceManagerException extends RuntimeException {
+>     private int code;
+> 
+>     public ResourceManagerException(IOException ex) {
+>       super(ex);
+>       this.code = 500;
+>     }
+> 
+>     public ResourceManagerException(int code, String message) {
+>       super(message);
+>       this.code = code;
+>     }
+> 
+>     public int getCode() {
+>       return code;
+>     }
+> 
+>     public boolean isRetryable() {
+>       return false;
+>     }
+> 
+>     public static ResourceManagerException translateAndThrow(Exception ex) throws IOException {
+>       if (ex instanceof IOException) {
+>         throw (IOException) ex;
+>       }
+>       throw new IOException(ex);
+>     }
+>   }
+> 
+>   public static interface ResourceManagerRpc {
+>     Project create(Project project);
+>     void delete(String projectId);
+>     Project get(String projectId, Map<Option, ?> options);
+>     Tuple<String, Iterable<Project>> list(Map<Option, ?> options);
+>     void undelete(String projectId);
+>     Project replace(Project project);
+>     Policy getPolicy(String projectId) throws ResourceManagerException;
+>     Policy replacePolicy(String projectId, Policy newPolicy) throws ResourceManagerException;
+>     List<Boolean> testPermissions(String projectId, List<String> permissions) throws ResourceManagerException;
+>     Map<String, Boolean> testOrgPermissions(String resource, List<String> permissions) throws IOException;
+>     void clearOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
+>     OrgPolicy getEffectiveOrgPolicy(String resource, String constraint) throws IOException;
+>     OrgPolicy getOrgPolicy(String resource, String constraint) throws IOException;
+>     ListResult<Constraint> listAvailableOrgPolicyConstraints(String resource, Map<Option, ?> options) throws IOException;
+>     ListResult<OrgPolicy> listOrgPolicies(String resource, Map<Option, ?> options) throws IOException;
+>     OrgPolicy replaceOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
+>   }
+> 
+>   public static class Tuple<A, B> {
+>     private final A first;
+>     private final B second;
+> 
+>     private Tuple(A first, B second) {
+>       this.first = first;
+>       this.second = second;
+>     }
+> 
+>     public static <A, B> Tuple<A, B> of(A first, B second) {
+>       return new Tuple<>(first, second);
+>     }
+> 
+>     public A getFirst() {
+>       return first;
+>     }
+> 
+>     public B getSecond() {
+>       return second;
+>     }
+>   }

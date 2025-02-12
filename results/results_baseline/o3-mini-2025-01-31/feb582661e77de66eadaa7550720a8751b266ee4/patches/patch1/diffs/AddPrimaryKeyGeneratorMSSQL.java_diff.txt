@@ -1,0 +1,19 @@
+12d11
+< import liquibase.util.StringUtils;
+55c54,55
+<       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) + " ADD PRIMARY KEY (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
+---
+>       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName())
+>           + " ADD PRIMARY KEY (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
+57c57,58
+<       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) + " ADD CONSTRAINT " + database.escapeConstraintName(statement.getConstraintName())+" PRIMARY KEY";
+---
+>       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName())
+>           + " ADD CONSTRAINT " + database.escapeConstraintName(statement.getConstraintName()) + " PRIMARY KEY";
+67,68c68,70
+<     if (StringUtils.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
+<       sql += " ON "+statement.getTablespace();
+---
+>     String tablespace = statement.getTablespace();
+>     if (tablespace != null && !tablespace.trim().isEmpty() && database.supportsTablespaces()) {
+>       sql += " ON " + tablespace;

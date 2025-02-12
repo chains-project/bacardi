@@ -1,0 +1,92 @@
+<code_analysis>
+1. Error Analysis:
+   - The error message indicates that the class "Member" cannot be found in "com.hazelcast.core". This is because in the newer version of Hazelcast, the Member interface has been moved from the com.hazelcast.core package to the com.hazelcast.cluster package.
+   - The error occurs where the Member type is used as a parameter in the constructor and as part of the field declarations.
+
+2. Client Code Review:
+   - The code imports com.hazelcast.core.Member and uses it in the constructor:
+       • member.getStringAttribute(HOST_NAME_ATTRIBUTE)
+       • member.getSocketAddress().getHostString()
+   - In the updated Hazelcast dependency:
+       • The Member interface is now in com.hazelcast.cluster package.
+       • The method getStringAttribute(String) is replaced by the generic getAttribute(String) method.
+       • Instead of getSocketAddress(), the new API provides getAddress(), and the Address object exposes the host via getHost().
+
+3. Fix Plan:
+   - Modify the import to use com.hazelcast.cluster.Member.
+   - Replace member.getStringAttribute(HOST_NAME_ATTRIBUTE) with (String) member.getAttribute(HOST_NAME_ATTRIBUTE).
+   - Replace member.getSocketAddress().getHostString() with member.getAddress().getHost().
+   - These changes preserve the function signatures and logic while adapting to the updated dependency.
+
+4. Side Effects:
+   - This patch assumes that the new Hazelcast Member interface provides getAttribute(String) and getAddress() methods as described.
+   - It preserves the overall functionality of building the hostname string.
+</code_analysis>
+
+Below is the complete, fixed Java class:
+
+```java
+/*
+ * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.jivesoftware.openfire.plugin.util.cluster;
+
+import org.jivesoftware.openfire.cluster.ClusterManager;
+import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
+import org.jivesoftware.openfire.cluster.NodeID;
+import org.jivesoftware.openfire.plugin.util.cache.ClusteredCacheFactory;
+
+import com.hazelcast.cluster.Member;
+
+/**
+ * Cluster Node information as provided by Hazelcast.
+ *
+ * @author Tom Evans
+ * @author Gaston Dombiak
+ */
+public class HazelcastClusterNodeInfo implements ClusterNodeInfo {
+
+    public static final String HOST_NAME_ATTRIBUTE = "hostname";
+    public static final String NODE_ID_ATTRIBUTE = "node-id";
+    private final String hostname;
+    private final NodeID nodeID;
+    private final long joinedTime;
+    private final boolean seniorMember;
+
+    public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {
+        this.hostname = (String) member.getAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getAddress().getHost() + ")";
+        this.nodeID = ClusteredCacheFactory.getNodeID(member);
+        this.joinedTime = joinedTime;
+        this.seniorMember = ClusterManager.getSeniorClusterMember().equals(nodeID);
+    }
+
+    public String getHostName() {
+        return hostname;
+    }
+
+    public NodeID getNodeID() {
+        return nodeID;
+    }
+
+    public long getJoinedTime() {
+        return joinedTime;
+    }
+
+    public boolean isSeniorMember() {
+        return seniorMember;
+    }
+}
+```

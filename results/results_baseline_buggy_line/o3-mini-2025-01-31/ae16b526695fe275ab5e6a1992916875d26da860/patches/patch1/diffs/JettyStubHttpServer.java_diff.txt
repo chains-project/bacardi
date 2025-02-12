@@ -1,0 +1,60 @@
+1,4d0
+< /*
+<  * Copyright (c) 2012 - 2016 Jadler contributors
+<  * This program is made available under the terms of the MIT License.
+<  */
+9a6,8
+> import org.eclipse.jetty.server.ServerConnector;
+> import org.eclipse.jetty.server.HttpConfiguration;
+> import org.eclipse.jetty.server.HttpConnectionFactory;
+13,14d11
+< import org.eclipse.jetty.server.Connector;
+< import org.eclipse.jetty.server.nio.SelectChannelConnector;
+16,19d12
+< 
+< /**
+<  * Default stub http server implementation using Jetty as an http server.
+<  */
+24c17
+<     private final Connector httpConnector;
+---
+>     private final ServerConnector httpConnector;
+30d22
+< 
+33,34d24
+<         this.server.setSendServerVersion(false);
+<         this.server.setSendDateHeader(true);
+36c26,30
+<         this.httpConnector = new SelectChannelConnector();
+---
+>         HttpConfiguration httpConfig = new HttpConfiguration();
+>         httpConfig.setSendServerVersion(false);
+>         httpConfig.setSendDateHeader(true);
+>         
+>         this.httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+38c32
+<         server.addConnector(this.httpConnector);
+---
+>         this.server.addConnector(this.httpConnector);
+41,44d34
+< 
+<     /**
+<      * {@inheritDoc}
+<      */
+48d37
+< 
+52,55d40
+< 
+<     /**
+<      * {@inheritDoc}
+<      */
+63,66d47
+< 
+<     /**
+<      * {@inheritDoc}
+<      */
+74,77d54
+< 
+<     /**
+<      * {@inheritDoc}
+<      */

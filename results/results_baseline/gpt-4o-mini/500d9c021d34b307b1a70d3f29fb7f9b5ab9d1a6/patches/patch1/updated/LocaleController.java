@@ -1,0 +1,33 @@
+package com.example.web;
+
+import java.util.Locale;
+import java.util.logging.Logger;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+
+/**
+ *
+ * @author hantsy
+ */
+@Path("locale")
+@RequestScoped
+public class LocaleController {
+
+    @Inject
+    Logger log;
+
+    @Context
+    HttpHeaders headers;
+
+    @GET
+    public Response get() {
+        Locale locale = headers.getLanguage() != null ? Locale.forLanguageTag(headers.getLanguage()) : Locale.getDefault();
+        return Response.ok("locale.xhtml").build();
+    }
+
+}

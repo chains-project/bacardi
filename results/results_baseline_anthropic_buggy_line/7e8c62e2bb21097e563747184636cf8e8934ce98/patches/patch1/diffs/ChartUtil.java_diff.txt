@@ -1,0 +1,27 @@
+7c7,8
+< import com.gargoylesoftware.htmlunit.ScriptResult;
+---
+> // Removed the import for ScriptResult as it is not available in the updated dependency
+> // import com.gargoylesoftware.htmlunit.ScriptResult;
+35,36c36,37
+<             ScriptResult scriptResult = new ScriptResult(result);
+<             return scriptResult.getJavaScriptResult().toString();
+---
+>             // Removed the usage of ScriptResult and directly returning the result
+>             return result != null ? result.toString() : null;
+60,62c61,63
+<                 Object scriptResult = new ScriptResult(result).getJavaScriptResult();
+<                 if (scriptResult != null) {
+<                     return scriptResult.toString();
+---
+>                 // Removed the usage of ScriptResult and directly checking the result
+>                 if (result != null) {
+>                     return result.toString();
+67c68
+<         throw new java.util.NoSuchElementException("Found no trend chart with ID '%s''" + toolAttribute);
+---
+>         throw new java.util.NoSuchElementException("Found no trend chart with tool attribute '%s'" + toolAttribute);
+108d108
+< 
+110d109
+< 

@@ -1,0 +1,84 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+
+```java
+package io.github.hapjava.server.impl.crypto;
+
+import java.io.IOException;
+import org.bouncycastle.crypto.engines.ChaChaEngine;
+import org.bouncycastle.crypto.generators.Poly1305KeyGenerator;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.params.ParametersWithIV;
+import org.bouncycastle.crypto.tls.AlertDescription;
+import org.bouncycastle.crypto.tls.TlsFatalAlert;
+import org.bouncycastle.util.Arrays;
+
+public class ChachaDecoder {
+
+  private final ChaChaEngine decryptCipher;
+
+  public ChachaDecoder(byte[] key, byte[] nonce) throws IOException {
+
+    this.decryptCipher = new ChaChaEngine(20);
+
+    this.decryptCipher.init(false, new ParametersWithIV(new KeyParameter(key), nonce));
+  }
+
+  public byte[] decodeCiphertext(byte[] receivedMAC, byte[] additionalData, byte[] ciphertext)
+      throws IOException {
+
+    KeyParameter macKey = initRecordMAC(decryptCipher);
+
+    byte[] calculatedMAC = PolyKeyCreator.create(macKey, additionalData, ciphertext);
+
+    if (!Arrays.constantTimeAreEqual(calculatedMAC, receivedMAC)) {
+      throw new TlsFatalAlert(AlertDescription.bad_record_mac);
+    }
+
+    byte[] output = new byte[ciphertext.length];
+    decryptCipher.processBytes(ciphertext, 0, ciphertext.length, output, 0);
+
+    return output;
+  }
+
+  public byte[] decodeCiphertext(byte[] receivedMAC, byte[] ciphertext) throws IOException {
+    return decodeCiphertext(receivedMAC, null, ciphertext);
+  }
+
+  private KeyParameter initRecordMAC(ChaChaEngine cipher) {
+    byte[] firstBlock = new byte[64];
+    cipher.processBytes(firstBlock, 0, firstBlock.length, firstBlock, 0);
+
+    // NOTE: The BC implementation puts 'r' after 'k'
+    System.arraycopy(firstBlock, 0, firstBlock, 32, 16);
+    KeyParameter macKey = new KeyParameter(firstBlock, 16, 32);
+    Poly1305KeyGenerator.clamp(macKey.getKey());
+    return macKey;
+  }
+}
+
+```
+
+ with the following error information:
+[ERROR] /HAP-Java/src/main/java/io/github/hapjava/server/impl/crypto/ChachaDecoder.java:[31,17] cannot find symbol
+  symbol:   class TlsFatalAlert
+  location: class io.github.hapjava.server.impl.crypto.ChachaDecoder
+
+[ERROR] /HAP-Java/src/main/java/io/github/hapjava/server/impl/crypto/ChachaDecoder.java:[9,35] package org.bouncycastle.crypto.tls does not exist
+
+[ERROR] /HAP-Java/src/main/java/io/github/hapjava/server/impl/crypto/ChachaDecoder.java:[8,35] package org.bouncycastle.crypto.tls does not exist
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

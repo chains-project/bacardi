@@ -1,0 +1,29 @@
+7c7
+< 
+---
+> import org.spongepowered.api.command.Command;
+9,12c9,10
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.source.CommandSource;
+> import org.spongepowered.api.command.parameter.CommandContext;
+16c14
+< public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class InvalidateCommand implements ChangeSkinCommand {
+25d22
+<     @Override
+38,40c35,40
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+<                 .executor(this)
+---
+>     public Command buildSpec() {
+>         return Command.builder()
+>                 .executor(ctx -> {
+>                     CommandSource src = ctx.cause().root();
+>                     return execute(src, ctx);
+>                 })

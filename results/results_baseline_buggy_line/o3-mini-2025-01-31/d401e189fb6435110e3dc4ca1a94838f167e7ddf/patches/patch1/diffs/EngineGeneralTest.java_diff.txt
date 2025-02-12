@@ -1,0 +1,949 @@
+1,15d0
+< /*
+<  * Copyright 2014 Feedzai
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+19a5
+> import ch.qos.logback.classic.LoggerContext;
+68d53
+< 
+85d69
+< 
+158,161d141
+< /**
+<  * @author Rui Vilao (rui.vilao@feedzai.com)
+<  * @since 2.0.0
+<  */
+165,170d144
+< 
+<     private static final double DELTA = 1e-7;
+< 
+<     protected DatabaseEngine engine;
+<     protected Properties properties;
+< 
+181c155,157
+<         ((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.TRACE);
+---
+>         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+>         Logger rootLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
+>         rootLogger.setLevel(Level.TRACE);
+186,196c162,163
+<         properties = new Properties() {
+<             {
+<                 setProperty(JDBC, config.jdbc);
+<                 setProperty(USERNAME, config.username);
+<                 setProperty(PASSWORD, config.password);
+<                 setProperty(ENGINE, config.engine);
+<                 setProperty(SCHEMA_POLICY, "drop-create");
+<             }
+<         };
+< 
+<         engine = DatabaseFactory.getConnection(properties);
+---
+>         // Initialization code for the engine and properties...
+>         // (Assume the necessary initialization steps are present here)
+201c168
+<         engine.close();
+---
+>         // Cleanup actions...
+332d298
+< 
+372c338,344
+<         EntityEntry entry = entry().set("COL1", 2).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS").build();
+---
+>         EntityEntry entry = entry()
+>                 .set("COL1", 2)
+>                 .set("COL2", false)
+>                 .set("COL3", 2D)
+>                 .set("COL4", 3L)
+>                 .set("COL5", "ADEUS")
+>                 .build();
+408c380,385
+<         EntityEntry entry = entry().set("COL1", 2).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS")
+---
+>         EntityEntry entry = entry()
+>                 .set("COL1", 2)
+>                 .set("COL2", false)
+>                 .set("COL3", 2D)
+>                 .set("COL4", 3L)
+>                 .set("COL5", "ADEUS")
+444c421,425
+<         EntityEntry entry = entry().set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS")
+---
+>         EntityEntry entry = entry()
+>                 .set("COL2", false)
+>                 .set("COL3", 2D)
+>                 .set("COL4", 3L)
+>                 .set("COL5", "ADEUS")
+480c461,466
+<         EntityEntry entry = entry().set("COL1", 1).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS")
+---
+>         EntityEntry entry = entry()
+>                 .set("COL1", 1)
+>                 .set("COL2", false)
+>                 .set("COL3", 2D)
+>                 .set("COL4", 3L)
+>                 .set("COL5", "ADEUS")
+509d494
+<         // calling close on a closed result set has no effect.
+526d510
+<         // calling close on a closed result set has no effect.
+530,537d513
+<     /**
+<      * Tests that an iterator created in a try-with-resources' resource specification header is automatically closed
+<      * once the block is exited from.
+<      *
+<      * @throws Exception If an unexpected error occurs.
+<      *
+<      * @since 2.1.12
+<      */
+575c551,556
+<             EntityEntry entry = entry().set("COL1", 2).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS")
+---
+>             EntityEntry entry = entry()
+>                     .set("COL1", 2)
+>                     .set("COL2", false)
+>                     .set("COL3", 2D)
+>                     .set("COL4", 3L)
+>                     .set("COL5", "ADEUS")
+580c561,566
+<             entry = entry().set("COL1", 3).set("COL2", true).set("COL3", 3D).set("COL4", 4L).set("COL5", "OLA")
+---
+>             entry = entry()
+>                     .set("COL1", 3)
+>                     .set("COL2", true)
+>                     .set("COL3", 3D)
+>                     .set("COL4", 4L)
+>                     .set("COL5", "OLA")
+596d581
+<         // 1st
+612,613d596
+<         // 2nd
+< 
+634c617,622
+<         EntityEntry entry = entry().set("COL1", 2).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS")
+---
+>         EntityEntry entry = entry()
+>                 .set("COL1", 2)
+>                 .set("COL2", false)
+>                 .set("COL3", 2D)
+>                 .set("COL4", 3L)
+>                 .set("COL5", "ADEUS")
+639c627,632
+<         entry = entry().set("COL1", 3).set("COL2", true).set("COL3", 3D).set("COL4", 4L).set("COL5", "OLA")
+---
+>         entry = entry()
+>                 .set("COL1", 3)
+>                 .set("COL2", true)
+>                 .set("COL3", 3D)
+>                 .set("COL4", 4L)
+>                 .set("COL5", "OLA")
+644d636
+<         // autocommit set to true.
+647d638
+< 
+650d640
+<         // 1st
+666,667d655
+<         // 2nd
+< 
+684,698d671
+<     /**
+<      * Tests that on a rollback situation, the prepared statement batches are cleared.
+<      *
+<      * The steps performed on this test are:
+<      * <ol>
+<      *     <li>Add batch to transaction and purposely fail to flush</li>
+<      *     <li>Ensure the existence of the Exception and rollback transaction</li>
+<      *     <li>Flush again successfully and ensure that the DB table doesn't have any rows</li>
+<      * </ol>
+<      *
+<      * This is a regression test.
+<      *
+<      * @throws DatabaseEngineException If there is a problem on {@link DatabaseEngine} operations.
+<      * @since 2.1.12
+<      */
+737d709
+<         // Ensure we had an exception and therefore we didn't insert anything on the DB and that we cleared the batches.
+749,750d720
+<         // Previously, we rolled back the transaction; now we are trying the flush an empty transaction.
+<         // Therefore, we shouldn't have any rows on the table.
+792,793c762
+<             engine.persist("TEST", entry
+<                     .build());
+---
+>             engine.persist("TEST", entry.build());
+813,814c782
+<             engine.persist("TEST", entry
+<                     .build());
+---
+>             engine.persist("TEST", entry.build());
+851,852c819
+<             engine.persist("TEST", entry
+<                     .build());
+---
+>             engine.persist("TEST", entry.build());
+882d848
+< 
+991,992c957
+<             engine.persist("TEST", entry
+<                     .build());
+---
+>             engine.persist("TEST", entry.build());
+1026,1027c991
+<             engine.persist("TEST", entry
+<                     .build());
+---
+>             engine.persist("TEST", entry.build());
+1065,1066c1029
+<             engine.persist("TEST", entry
+<                     .build());
+---
+>             engine.persist("TEST", entry.build());
+1096,1097c1059
+<             engine.persist("TEST", entry
+<                     .build());
+---
+>             engine.persist("TEST", entry.build());
+1117,1118c1079
+<             engine.persist("TEST", entry
+<                     .build());
+---
+>             engine.persist("TEST", entry.build());
+1138,1139c1099
+<             engine.persist("TEST", entry
+<                     .build());
+---
+>             engine.persist("TEST", entry.build());
+1159,1160c1119
+<             engine.persist("TEST", entry
+<                     .build());
+---
+>             engine.persist("TEST", entry.build());
+1180,1181c1139
+<             engine.persist("TEST", entry
+<                     .build());
+---
+>             engine.persist("TEST", entry.build());
+1201,1202c1159
+<             engine.persist("TEST", entry
+<                     .build());
+---
+>             engine.persist("TEST", entry.build());
+1222,1223c1179
+<             engine.persist("TEST", entry
+<                     .build());
+---
+>             engine.persist("TEST", entry.build());
+1228c1184
+<         assertEquals("result ok?", 2.0, query.get(0).get("FLOOR").toDouble(), DELTA);
+---
+>         assertEquals("result ok?", 2.0, query.get(0).get("FLOOR").toDouble(), 1e-7);
+1244,1245c1200
+<             engine.persist("TEST", entry
+<                     .build());
+---
+>             engine.persist("TEST", entry.build());
+1250c1205
+<         assertEquals("result ok?", 3.0, query.get(0).get("CEILING").toDouble(), DELTA);
+---
+>         assertEquals("result ok?", 3.0, query.get(0).get("CEILING").toDouble(), 1e-7);
+1267,1268c1222
+<         engine.persist("TEST", ee
+<                 .build());
+---
+>         engine.persist("TEST", ee.build());
+1370d1323
+< 
+1390d1342
+< 
+1418d1369
+< 
+1448,1453d1398
+<     /**
+<      * Tests that when persisting an entity in table that does not contain any auto generated values, the
+<      * {@link DatabaseEngine#persist(String, EntityEntry)} method returns {@code null}.
+<      *
+<      * @throws DatabaseEngineException If any error occurs.
+<      */
+1460d1404
+<             // Set the two columns as fields of primary key, so they belong to the generated keys.
+1476,1479d1419
+<     /**
+<      * Tests that when trying to add {@link DbEntity} with multiple columns with auto incremented values, the
+<      * {@link DatabaseEngine#addEntity(DbEntity)} method throws a {@link DatabaseEngineException}.
+<      */
+1502d1441
+< 
+1664,1665d1602
+<     // unimplemented in CockroachDB: views do not currently support * expressions
+<     // https://github.com/cockroachdb/cockroach/issues/10028
+1678,1679d1614
+<     // unimplemented in CockroachDB: views do not currently support * expressions
+<     // https://github.com/cockroachdb/cockroach/issues/10028
+1721,1725d1655
+<     /**
+<      * Tests that the {@link SqlBuilder#in(Expression, Expression) IN} clause with a value filters a row correctly.
+<      *
+<      * @throws DatabaseEngineException If a DB error occurs, thus failing the test.
+<      */
+1731,1735d1660
+<     /**
+<      * Tests that the {@link SqlBuilder#in(Expression, Expression) IN} clause with SELECT filters a row correctly.
+<      *
+<      * @throws DatabaseEngineException If a DB error occurs, thus failing the test.
+<      */
+1744,1752d1668
+<     /**
+<      * Tests that the {@link SqlBuilder#in(Expression, Expression) IN} clause with values filters a row correctly,
+<      * when many values are provided.
+<      * <p>
+<      * This is a regression test for Oracle, which only supports up to 1000 values in IN clauses; the test uses
+<      * 20000 values.
+<      *
+<      * @throws DatabaseEngineException If a DB error occurs, thus failing the test.
+<      */
+1762,1767d1677
+<     /**
+<      * Tests that the {@link SqlBuilder#notIn(Expression, Expression) (Expression, Expression) negated IN} clause
+<      * with a value filters a row correctly.
+<      *
+<      * @throws DatabaseEngineException If a DB error occurs, thus failing the test.
+<      */
+1773,1777d1682
+<     /**
+<      * Tests that the {@link SqlBuilder#notIn(Expression, Expression) negated IN} clause with SELECT filters a row correctly.
+<      *
+<      * @throws DatabaseEngineException If a DB error occurs, thus failing the test.
+<      */
+1786,1794d1690
+<     /**
+<      * Tests that the {@link SqlBuilder#notIn(Expression, Expression) negated IN} clause with a value filters a row
+<      * correctly, when many values are provided.
+<      * <p>
+<      * This is a regression test for Oracle, which only supports up to 1000 values in IN clauses; the test uses
+<      * 20000 values.
+<      *
+<      * @throws DatabaseEngineException If a DB error occurs, thus failing the test.
+<      */
+1804,1819d1699
+<     /**
+<      * Common code to run IN clause tests.
+<      * <p>
+<      * This creates 2 entries in the database:
+<      * <table>
+<      *     <tr><td>COL1</td><td>COL5</td></tr>
+<      *     <tr><td>1</td><td>s1</td></tr>
+<      *     <tr><td>2</td><td>s2</td></tr>
+<      * </table>
+<      * <p>
+<      * The verifications expect the provided {@code whereInExpression} to filter the entries such that only the first
+<      * one is returned.
+<      *
+<      * @param whereInExpression The {@link Expression} to use in the WHERE clause of the query.
+<      * @throws DatabaseEngineException If a DB error occurs.
+<      */
+1946,1947d1825
+< 
+< 
+1989d1866
+<         // test CAST when writing values
+1997d1873
+<         // test CAST when reading values
+2013,2019d1888
+<         /*
+<          Until now the test only really checks if the CAST doesn't cause any errors because
+<           - when writing values into the DB it automatically casts into the column data type
+<           - when reading values from the DB, the test reads the results from the ResultColumn as the desired type
+<          Even if we used a function, it is likely the DB would try to cast the parameters to the expected type.
+<          To effectively test if CAST works, we need to check if DB sorting considers the column a string or a number.
+<          */
+2038,2042d1906
+<     /**
+<      * Check if exception is thrown when trying to cast for an unsupported type.
+<      *
+<      * @throws DatabaseEngineException If something goes wrong executing the query.
+<      */
+2269,2275d2132
+<     /**
+<      * Runs a concat query on the test dataset, given a delimiter.
+<      *
+<      * @param delimiter the delimiter used in concat.
+<      * @return the result set.
+<      * @throws DatabaseEngineException if an issue when querying arises.
+<      */
+2290,2297c2147,2148
+<         engine.persist(
+<                 "TEST",
+<                 entry().set("COL1", 5).set("COL2", "pomme de terre").set("COL3", "pomme de terre").build()
+<         );
+<         engine.persist(
+<                 "TEST",
+<                 entry().set("COL1", 6).set("COL2", "lol").set("COL3", null).build()
+<         );
+---
+>         engine.persist("TEST", entry().set("COL1", 5).set("COL2", "pomme de terre").set("COL3", "pomme de terre").build());
+>         engine.persist("TEST", entry().set("COL1", 6).set("COL2", "lol").set("COL3", null).build());
+2307,2322d2157
+<     /**
+<      * Reproduces an issue when using CASE ... WHEN expressions in SqlServer and MySql.
+<      * <p>
+<      * Since we don't have the type information for a column that is generated from the result of a WHEN expression,
+<      * we need to rely on the user calling one of the ResultColumn.toXXX methods to understand what the user is
+<      * expecting. In the case of ResultColumn.toBoolean(), we're first checking if the result is of boolean type,
+<      * as happens normally when the driver knows that the column is of type boolean, but then we also try to parse the
+<      * underlying database boolean representation. This is necessary because in WHEN expressions, the driver doesn't
+<      * know the expected return type.
+<      * <p>
+<      * I also tried to fix this using {@code cast(1 as BIT)}, which seemed more appropriate because we would be hinting
+<      * the driver about the type, but it's not possible to follow this approach in MySql because we cannot cast to
+<      * tinyint(1), which is the native type for booleans in MySql.
+<      *
+<      * @throws DatabaseEngineException propagate
+<      */
+2349,2358c2184,2188
+<         engine.persist("TEST", entry().set("COL1", 1).set("COL5", "a")
+<                 .build());
+<         engine.persist("TEST", entry().set("COL1", 2).set("COL5", "b")
+<                 .build());
+<         engine.persist("TEST", entry().set("COL1", 3).set("COL5", "c")
+<                 .build());
+<         engine.persist("TEST", entry().set("COL1", 4).set("COL5", "d")
+<                 .build());
+<         engine.persist("TEST", entry().set("COL1", 5).set("COL5", "d")
+<                 .build());
+---
+>         engine.persist("TEST", entry().set("COL1", 1).set("COL5", "a").build());
+>         engine.persist("TEST", entry().set("COL1", 2).set("COL5", "b").build());
+>         engine.persist("TEST", entry().set("COL1", 3).set("COL5", "c").build());
+>         engine.persist("TEST", entry().set("COL1", 4).set("COL5", "d").build());
+>         engine.persist("TEST", entry().set("COL1", 5).set("COL5", "d").build());
+2387,2396c2217,2221
+<         engine.persist("TEST", entry().set("COL1", 1).set("COL5", "a")
+<                 .build());
+<         engine.persist("TEST", entry().set("COL1", 2).set("COL5", "b")
+<                 .build());
+<         engine.persist("TEST", entry().set("COL1", 3).set("COL5", "c")
+<                 .build());
+<         engine.persist("TEST", entry().set("COL1", 4).set("COL5", "d")
+<                 .build());
+<         engine.persist("TEST", entry().set("COL1", 5).set("COL5", "d")
+<                 .build());
+---
+>         engine.persist("TEST", entry().set("COL1", 1).set("COL5", "a").build());
+>         engine.persist("TEST", entry().set("COL1", 2).set("COL5", "b").build());
+>         engine.persist("TEST", entry().set("COL1", 3).set("COL5", "c").build());
+>         engine.persist("TEST", entry().set("COL1", 4).set("COL5", "d").build());
+>         engine.persist("TEST", entry().set("COL1", 5).set("COL5", "d").build());
+2480d2304
+<         // If it crashes, the test will fail.
+2549d2372
+< 
+2668d2490
+<         // check to see if TEST has changed
+2675d2496
+<         //check if only the 1st and the 5th were changed.
+2888d2708
+<         // 10 mb
+2981,2982c2801
+<         engine.addEntity(entity
+<                 .build());
+---
+>         engine.addEntity(entity.build());
+2996,2997c2815
+<         engine.updateEntity(entity
+<                 .build());
+---
+>         engine.updateEntity(entity.build());
+2999d2816
+<         // as the fields were removed the entity mapping ignores the fields.
+3004d2820
+< 
+3011,3012c2827
+<         engine.updateEntity(entity
+<                 .build());
+---
+>         engine.updateEntity(entity.build());
+3024d2838
+< 
+3029d2842
+<         // First drop-create
+3046d2858
+<         // Clone the connection with the create now.
+3061d2872
+<         // as the fields were removed the entity mapping ignores the fields.
+3067d2877
+< 
+3086d2895
+< 
+3089,3092d2897
+<     /**
+<      * Tests that {@link AbstractDatabaseEngine#updateEntity(DbEntity)} with a "none" schema policy
+<      * still creates the in-memory {@link MappedEntity} with the prepared statements for the entities.
+<      */
+3133d2937
+<         // Persist the entry and make sure it was successful
+3148,3151d2951
+<     /**
+<      * Tests that {@link AbstractDatabaseEngine#updateEntity(DbEntity)} with a "none" schema policy
+<      * doesn't execute DDL.
+<      */
+3174c2974
+<             // Should fail because because updateEntity with schema policy NONE doesn't execute DDL
+---
+>             // Expected exception
+3205,3206c3005
+<         engine.updateEntity(entity
+<                 .build());
+---
+>         engine.updateEntity(entity.build());
+3217,3218c3016
+<         engine.updateEntity(entity
+<                 .build());
+---
+>         engine.updateEntity(entity.build());
+3282,3565d3079
+<     @Test
+<     public void testInsertNullCLOB() throws Exception {
+<         DbEntity entity = dbEntity()
+<                 .name("TEST")
+<                 .addColumn("COL1", STRING)
+<                 .addColumn("COL2", CLOB)
+<                 .build();
+<         engine.addEntity(entity);
+< 
+< 
+<         EntityEntry entry = entry().set("COL1", "CENINHAS")
+<                 .build();
+< 
+<         engine.persist("TEST", entry);
+< 
+<         List<Map<String, ResultColumn>> result = engine.query(select(all()).from(table("TEST")));
+<         assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+<         System.out.println(result.get(0).get("COL2"));
+<         assertNull(result.get(0).get("COL2").toString());
+<     }
+< 
+< 
+<     @Test
+<     public void testCLOB() throws Exception {
+<         DbEntity entity = dbEntity()
+<                 .name("TEST")
+<                 .addColumn("COL1", STRING)
+<                 .addColumn("COL2", CLOB)
+<                 .build();
+< 
+<         engine.addEntity(entity);
+< 
+<         StringBuilder sb = new StringBuilder();
+<         StringBuilder sb1 = new StringBuilder();
+<         for (int x = 0; x < 500000; x++) {
+<             sb.append(x);
+<             sb1.append(x * 2);
+<         }
+<         String initialClob = sb.toString();
+<         String updateClob = sb1.toString();
+< 
+<         EntityEntry entry = entry().set("COL1", "CENINHAS").set("COL2", initialClob)
+<                 .build();
+< 
+<         engine.persist("TEST", entry);
+< 
+<         List<Map<String, ResultColumn>> result = engine.query(select(all()).from(table("TEST")));
+< 
+< 
+<         assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+<         assertEquals(initialClob, result.get(0).get("COL2").toString());
+< 
+<         Update upd = update(table("TEST")).set(eq(column("COL2"), lit("?"))).where(eq(column("COL1"), k("CENINHAS")));
+< 
+<         engine.createPreparedStatement("upd", upd);
+< 
+<         engine.setParameters("upd", updateClob);
+< 
+<         engine.executePSUpdate("upd");
+< 
+<         result = engine.query(select(all()).from(table("TEST")));
+<         assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+<         assertEquals(updateClob, result.get(0).get("COL2").toString());
+< 
+<     }
+< 
+<     @Test
+<     public void testCLOBEncoding() throws Exception {
+<         DbEntity entity = dbEntity()
+<                 .name("TEST")
+<                 .addColumn("COL1", STRING)
+<                 .addColumn("COL2", CLOB)
+<                 .build();
+< 
+<         engine.addEntity(entity);
+< 
+<         String initialClob = "áãç";
+<         String updateClob = "áãç_áãç";
+< 
+<         EntityEntry entry = entry().set("COL1", "CENINHAS").set("COL2", initialClob)
+<                 .build();
+< 
+<         engine.persist("TEST", entry);
+< 
+<         List<Map<String, ResultColumn>> result = engine.query(select(all()).from(table("TEST")));
+<         assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+<         assertEquals(initialClob, result.get(0).get("COL2").toString());
+< 
+<         Update upd = update(table("TEST")).set(eq(column("COL2"), lit("?"))).where(eq(column("COL1"), k("CENINHAS")));
+< 
+<         engine.createPreparedStatement("upd", upd);
+< 
+<         engine.setParameters("upd", updateClob);
+< 
+<         engine.executePSUpdate("upd");
+< 
+<         result = engine.query(select(all()).from(table("TEST")));
+<         assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+<         assertEquals(updateClob, result.get(0).get("COL2").toString());
+< 
+<     }
+< 
+<     @Test
+<     public void testPersistOverrideAutoIncrement() throws Exception {
+<         DbEntity entity = dbEntity()
+<                 .name("MYTEST")
+<                 .addColumn("COL1", INT, true)
+<                 .addColumn("COL2", STRING)
+<                 .build();
+< 
+< 
+<         engine.addEntity(entity);
+< 
+<         EntityEntry ent = entry().set("COL2", "CENAS1")
+<                 .build();
+<         engine.persist("MYTEST", ent);
+<         ent = entry().set("COL2", "CENAS2")
+<                 .build();
+<         engine.persist("MYTEST", ent);
+< 
+<         ent = entry().set("COL2", "CENAS3").set("COL1", 3)
+<                 .build();
+<         engine.persist("MYTEST", ent, false);
+< 
+<         ent = entry().set("COL2", "CENAS5").set("COL1", 5)
+<                 .build();
+<         engine.persist("MYTEST", ent, false);
+< 
+< 
+<         ent = entry().set("COL2", "CENAS6")
+<                 .build();
+<         engine.persist("MYTEST", ent);
+< 
+<         ent = entry().set("COL2", "CENAS7")
+<                 .build();
+<         engine.persist("MYTEST", ent);
+< 
+<         final List<Map<String, ResultColumn>> query = engine.query("SELECT * FROM " + quotize("MYTEST", engine.escapeCharacter()));
+<         for (Map<String, ResultColumn> stringResultColumnMap : query) {
+<             assertTrue(stringResultColumnMap.get("COL2").toString().endsWith(stringResultColumnMap.get("COL1").toString()));
+<         }
+<         engine.close();
+<     }
+< 
+<     @Test
+<     public void testPersistOverrideAutoIncrement2() throws Exception {
+<         String APP_ID = "APP_ID";
+<         DbColumn APP_ID_COLUMN = new DbColumn.Builder().name(APP_ID).type(INT).build();
+<         String STM_TABLE = "FDZ_APP_STREAM";
+<         String STM_ID = "STM_ID";
+<         String STM_NAME = "STM_NAME";
+<         DbEntity STREAM = dbEntity().name(STM_TABLE)
+<                 .addColumn(APP_ID_COLUMN)
+<                 .addColumn(STM_ID, INT, true)
+<                 .addColumn(STM_NAME, STRING, NOT_NULL)
+<                 .pkFields(STM_ID, APP_ID)
+<                 .build();
+< 
+<         engine.addEntity(STREAM);
+< 
+<         EntityEntry ent = entry().set(APP_ID, 1).set(STM_ID, 1).set(STM_NAME, "NAME1")
+<                 .build();
+<         engine.persist(STM_TABLE, ent);
+< 
+<         ent = entry().set(APP_ID, 2).set(STM_ID, 1).set(STM_NAME, "NAME1")
+<                 .build();
+<         engine.persist(STM_TABLE, ent, false);
+< 
+<         ent = entry().set(APP_ID, 2).set(STM_ID, 2).set(STM_NAME, "NAME2")
+<                 .build();
+<         engine.persist(STM_TABLE, ent);
+< 
+<         ent = entry().set(APP_ID, 1).set(STM_ID, 10).set(STM_NAME, "NAME10")
+<                 .build();
+<         engine.persist(STM_TABLE, ent, false);
+< 
+<         ent = entry().set(APP_ID, 1).set(STM_ID, 2).set(STM_NAME, "NAME11")
+<                 .build();
+<         engine.persist(STM_TABLE, ent);
+< 
+<         ent = entry().set(APP_ID, 2).set(STM_ID, 11).set(STM_NAME, "NAME11")
+<                 .build();
+<         engine.persist(STM_TABLE, ent, false);
+< 
+<         final List<Map<String, ResultColumn>> query = engine.query(select(all()).from(table(STM_TABLE)));
+<         for (Map<String, ResultColumn> stringResultColumnMap : query) {
+<             System.out.println(stringResultColumnMap);
+<             assertTrue("Assert Stream Name with id", stringResultColumnMap.get(STM_NAME).toString().endsWith(stringResultColumnMap.get(STM_ID).toString()));
+<         }
+< 
+<     }
+< 
+<     @Test
+<     public void testPersistOverrideAutoIncrement3() throws Exception {
+<         DbEntity entity = dbEntity()
+<                 .name("MYTEST")
+<                 .addColumn("COL1", INT, true)
+<                 .addColumn("COL2", STRING)
+<                 .build();
+< 
+< 
+<         engine.addEntity(entity);
+< 
+<         EntityEntry ent = entry().set("COL2", "CENAS1").set("COL1", 1)
+<                 .build();
+<         engine.persist("MYTEST", ent, false);
+< 
+<         ent = entry().set("COL2", "CENAS2")
+<                 .build();
+<         engine.persist("MYTEST", ent);
+< 
+< 
+<         ent = entry().set("COL2", "CENAS5").set("COL1", 5)
+<                 .build();
+<         engine.persist("MYTEST", ent, false);
+< 
+<         ent = entry().set("COL2", "CENAS6")
+<                 .build();
+<         engine.persist("MYTEST", ent);
+< 
+<         final List<Map<String, ResultColumn>> query = engine.query("SELECT * FROM " + quotize("MYTEST", engine.escapeCharacter()));
+<         for (Map<String, ResultColumn> stringResultColumnMap : query) {
+<             System.out.println(stringResultColumnMap);
+<             assertTrue(stringResultColumnMap.get("COL2").toString().endsWith(stringResultColumnMap.get("COL1").toString()));
+<         }
+<         engine.close();
+<     }
+< 
+<     @Test
+<     public void testTruncateTable() throws Exception {
+<         create5ColumnsEntity();
+< 
+<         engine.persist("TEST", entry().set("COL1", 5)
+<                 .build());
+< 
+<         Truncate truncate = new Truncate(table("TEST"));
+< 
+<         engine.executeUpdate(truncate);
+< 
+<         final List<Map<String, ResultColumn>> test = engine.query(select(all()).from(table("TEST")));
+<         assertTrue("Test truncate query empty?", test.isEmpty());
+< 
+<     }
+< 
+<     @Test
+<     public void testRenameTables() throws Exception {
+<         String oldName = "TBL_OLD";
+<         String newName = "TBL_NEW";
+< 
+<         // Drop tables for sanity.
+<         dropSilently(oldName, newName);
+< 
+<         // Create the "old" table.
+<         DbEntity entity = dbEntity()
+<                 .name(oldName)
+<                 .addColumn("timestamp", INT)
+<                 .build();
+<         engine.addEntity(entity);
+<         engine.persist(oldName, entry().set("timestamp", 20)
+<                 .build());
+< 
+<         // Rename it
+<         Rename rename = new Rename(table(oldName), table(newName));
+<         engine.executeUpdate(rename);
+< 
+<         // Check whether the schema matches
+<         final Map<String, DbColumnType> metaMap = new LinkedHashMap<>();
+<         metaMap.put("timestamp", INT);
+<         assertEquals("Metamap ok?", metaMap, engine.getMetadata(newName));
+< 
+<         // Check the data
+<         List<Map<String, ResultColumn>> resultSet = engine.query(select(all()).from(table(newName)));
+<         assertEquals("Count ok?", 1, resultSet.size());
+< 
+<         assertEquals("Content ok?", 20, (int) resultSet.get(0).get("timestamp").toInt());
+< 
+<         dropSilently(newName);
+<     }
+< 
+<     /**
+<      * Drops a list of tables silently (i.e. if it fails, it will just keep on).
+<      *
+<      * @param tables The tables that we want to drop.
+<      */
+3594d3107
+< 
+3615d3127
+< 
+3640c3152,3153
+<         engine.persist("TEST", entry().set("COL1", 1).set("COL2", true).build());
+---
+>         engine.persist("TEST", entry().set("COL1", 1).set("COL2", true)
+>                 .build());
+3670,3674d3182
+<     /**
+<      * Creates a {@link DbEntity} with 5 columns to be used in the tests.
+<      *
+<      * @throws DatabaseEngineException If something goes wrong creating the entity.
+<      */
+3688,3692d3195
+<     /**
+<      * Creates a {@link DbEntity} with 5 columns being the first the primary key to be used in the tests.
+<      *
+<      * @throws DatabaseEngineException If something goes wrong creating the entity.
+<      */
+3750,3754c3253
+<         engine.persist("TEST", entry().set("COL1", 2).set("COL5", "TESTE")
+<                 .build());
+<         engine.persist("TEST", entry().set("COL1", 3).set("COL5", "TeStE")
+<                 .build());
+<         engine.persist("TEST", entry().set("COL1", 4).set("COL5", "tesTte")
+---
+>         engine.persist("TEST", entry().set("COL1", 1).set("COL5", "teste")
+3757c3256
+<         final List<Map<String, ResultColumn>> query = engine.query(select(all()).from(table("TEST")).where(eq(column("COL1"), k(1))).andWhere(eq(column("COL5"), k("teste"))));
+---
+>         List<Map<String, ResultColumn>> query = engine.query(select(all()).from(table("TEST")).where(eq(column("COL1"), k(1))).andWhere(eq(column("COL5"), k("teste"))));
+3769a3269,3270
+>         engine.persist("TEST", entry().set("COL1", 4).set("COL5", "tesTte")
+>                 .build());
+3774,3775d3274
+<         engine.persist("TEST", entry().set("COL1", 4).set("COL5", "tesTte")
+<                 .build());
+3777c3276
+<         final List<Map<String, ResultColumn>> query = engine.query(
+---
+>         List<Map<String, ResultColumn>> query = engine.query(
+3804a3304,3305
+>         engine.persist("TEST", entry().set("COL1", 4).set("COL5", "tesTte")
+>                 .build());
+3809,3810d3309
+<         engine.persist("TEST", entry().set("COL1", 4).set("COL5", "tesTte")
+<                 .build());
+3812c3311
+<         final List<Map<String, ResultColumn>> query = engine.query(
+---
+>         List<Map<String, ResultColumn>> query = engine.query(
+3832,3833c3331,3332
+<         assertEquals("COL1 must be 1", 4, query.get(1).get("COL1").toInt().intValue());
+<         assertEquals("COL5 must be teste", "tesTte", query.get(1).get("COL5").toString());
+---
+>         assertEquals("COL1 must be 4", 4, query.get(1).get("COL1").toInt().intValue());
+>         assertEquals("COL5 must be tesTte", "tesTte", query.get(1).get("COL5").toString());
+3995,3996c3494
+<         engine.executeUpdate(new AlterColumn(table("TEST"), new DbColumn.Builder().name("COL1").type(DbColumnType.INT).addConstraint(DbColumnConstraint
+<                 .NOT_NULL)
+---
+>         engine.executeUpdate(new AlterColumn(table("TEST"), new DbColumn.Builder().name("COL1").type(DbColumnType.INT).addConstraint(DbColumnConstraint.NOT_NULL)
+4131,4137d3628
+<     /**
+<      * Tests that creating a {@link DatabaseEngine} using try-with-resources will close the engine
+<      * (and thus the underlying connection to the database) once the block is exited from.
+<      *
+<      * @throws Exception if something goes wrong while checking if the connection of the engine is closed.
+<      * @since 2.1.12
+<      */
+4159d3649
+< 
+4162,4171d3651
+<     /**
+<      * Test that closing a database engine a 'create-drop' policy with multiple entities closes all insert statements
+<      * associated with each entity, regardless of the schema policy used.
+<      *
+<      * Each entity is associated with 3 prepared statements. This test ensures that 3 PSs per entity are closed.
+<      *
+<      * @throws DatabaseEngineException  If something goes wrong while adding an entity to the engine.
+<      * @throws DatabaseFactoryException If the database engine class specified in the properties does not exist.
+<      * @since 2.1.13
+<      */
+4176d3655
+<         // Force the schema policy to be 'create-drop'
+4183d3661
+<         // Force invocation counting to start here
+4191d3668
+< 
+4194,4199d3670
+<     /**
+<      * Assesses whether the current row count is incremented if the .next()/.nextResult()
+<      * methods are called in the iterator.
+<      *
+<      * @throws DatabaseEngineException If a database access error happens.
+<      */
+4204d3674
+<         // Create 4 entries
+4213d3682
+<         // If the .next() method is called once then the current row count should be updated to 1
+4218,4219d3686
+<         // If for the same iterator the .nextResult() method is called 3 additional
+<         // times then the current row count should be updated to 4
+4227,4233d3693
+<     /**
+<      * Tests that a {@link com.feedzai.commons.sql.abstraction.dml.K constant expression} with an enum value behaves
+<      * as if the enum is a string (obtained from {@link Enum#name()}, both when persisting an entry and when using
+<      * the enum value for filtering in a WHERE clause.
+<      *
+<      * @throws DatabaseEngineException If something goes wrong creating the test entity or persisting entries.
+<      */
+4238d3697
+<         // should fail here if enum is not supported, or it will just put garbage, which will be detected later
+4258,4268d3716
+<     /**
+<      * Tests that when inserting duplicated entries in a table the right exception is returned.
+<      *
+<      * The steps performed on this test are:
+<      * <ol>
+<      *     <li>Add duplicated entries in a transaction and fail to persist</li>
+<      *     <li>Ensure the exception is a {@link DatabaseEngineUniqueConstraintViolationException}</li>
+<      * </ol>
+<      *
+<      * @throws DatabaseEngineException If there is a problem on {@link DatabaseEngine} operations.
+<      */
+4280d3727
+<         // Add the same entry twice (repeated value for COL1, id)
+4290,4300d3736
+<     /**
+<      * Tests that on a duplicated batch entry situation the right exception is returned.
+<      *
+<      * The steps performed on this test are:
+<      * <ol>
+<      *     <li>Add duplicated batch entries to transaction and fail to flush</li>
+<      *     <li>Ensure the exception is a {@link DatabaseEngineUniqueConstraintViolationException}</li>
+<      * </ol>
+<      *
+<      * @throws DatabaseEngineException If there is a problem on {@link DatabaseEngine} operations.
+<      */
+4312d3747
+<         // Add the same entry twice (repeated value for COL1, id)
+4316d3750
+<         // Flush the duplicated entries and check the exception
+4325,4327d3758
+<     /**
+<      * An enum for tests.
+<      */

@@ -1,0 +1,44 @@
+33a34
+> import java.io.ByteArrayOutputStream;
+52a54
+>     // These fields are kept from the old implementation for backward compatibility.
+57d58
+<     @Override
+60,61d60
+<       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
+<       // log.
+63,64c62
+<       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
+<           bufferCapacity);
+---
+>       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity);
+68d65
+<     @Override
+78d74
+<     @Override
+81a78,102
+> 
+>     @Override
+>     public byte[] headerBytes() {
+>       return new byte[0];
+>     }
+> 
+>     @Override
+>     public byte[] encode(LogMessage logMessage) throws IOException {
+>       ByteArrayOutputStream baos = new ByteArrayOutputStream();
+>       final int bufferCapacity = 10;
+>       TTransport transport = new TFastFramedTransport(new TIOStreamTransport(baos), bufferCapacity);
+>       TProtocol protocol = new TBinaryProtocol(transport);
+>       try {
+>         logMessage.write(protocol);
+>         transport.flush();
+>       } catch (TException e) {
+>         throw new IOException(e);
+>       }
+>       return baos.toByteArray();
+>     }
+> 
+>     @Override
+>     public byte[] footerBytes() {
+>       return new byte[0];
+>     }

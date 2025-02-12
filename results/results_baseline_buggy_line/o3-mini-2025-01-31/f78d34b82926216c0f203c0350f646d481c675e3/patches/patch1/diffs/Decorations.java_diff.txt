@@ -1,0 +1,22 @@
+3d2
+< import develop.p2p.lib.WaveCreator;
+311a311,329
+>     private static class WaveCreator {
+>         private final double min;
+>         private final double max;
+>         private final double staticValue;
+>         
+>         public WaveCreator(double min, double max, double staticValue) {
+>             this.min = min;
+>             this.max = max;
+>             this.staticValue = staticValue;
+>         }
+>         
+>         public double get(double time, boolean dummy) {
+>             return min + (max - min) * Math.abs(Math.sin(time));
+>         }
+>         
+>         public double getStatic() {
+>             return staticValue;
+>         }
+>     }

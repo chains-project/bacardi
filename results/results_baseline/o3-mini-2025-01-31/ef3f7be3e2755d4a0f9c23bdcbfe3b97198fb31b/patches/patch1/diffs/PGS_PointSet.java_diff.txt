@@ -1,0 +1,54 @@
+70c70
+<                         if (tree.size() == 0 || tree.query1NN(coords).dist() > distanceTolerance) {
+---
+>                         if (tree.size() == 0 || tree.nearest(coords).distance() > distanceTolerance) {
+415c415
+<          * @param centerY     x coordinate of the center/mean of the ring
+---
+>          * @param centerY     y coordinate of the center/mean of the ring
+432c432
+<          * @param centerY     x coordinate of the center/mean of the ring
+---
+>          * @param centerY     y coordinate of the center/mean of the ring
+584,585c584
+<          * from a low discrepancy sequence (LDS) based on an irrational number (the
+<          * plastic constant).
+---
+>          * from a low discrepancy sequence (LDS) based on the plastic constant.
+605d603
+<                 // https://github.com/Atrix256/SampleZoo/blob/master/src/families/_2d/samples/irrational_numbers/irrational_numbers.cpp
+623,649c621
+<          * from a low discrepancy sequence (LDS) based on an irrational number. In this
+<          * method, a random jitter is added to points to give the point set
+<          * blue-noise-like properties.
+<          * <p>
+<          * Low discrepancy sequences are deterministic (not randomized) number sequences
+<          * that are low discrepancy - meaning the points tend not to clump together and
+<          * leave holes; the resulting point set is more evenly spaced than a simple
+<          * random distribution but less regular than lattices.
+<          * 
+<          * @param xMin x-coordinate of boundary minimum
+<          * @param yMin y-coordinate of boundary minimum
+<          * @param xMax x-coordinate of boundary maximum
+<          * @param yMax y-coordinate of boundary maximum
+<          * @param n    number of points to generate
+<          * @return
+<          * @see #plasticJitteredLDS(double, double, double, double, int, long) seeded
+<          *      irrationalJitteredLDS()
+<          */
+<         public static List<PVector> plasticJitteredLDS(double xMin, double yMin, double xMax, double yMax, int n) {
+<                 return plasticJitteredLDS(xMin, yMin, xMax, yMax, n, System.nanoTime());
+<         }
+< 
+<         /**
+<          * Generates a set of deterministic stratified points (bounded by a rectangle)
+<          * from a low discrepancy sequence (LDS) based on an irrational number. In this
+<          * method, a random jitter is added to points to give the point set
+<          * blue-noise-like properties.
+---
+>          * from a low discrepancy sequence (LDS) based on a plastic constant with jitter.
+664,665d635
+<          * @see #plasticJitteredLDS(double, double, double, double, int) non-seeded
+<          *      irrationalJitteredLDS()
+668d637
+<                 // https://github.com/Atrix256/SampleZoo/blob/master/src/families/_2d/samples/irrational_numbers/irrational_numbers.cpp

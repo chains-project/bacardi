@@ -1,0 +1,22 @@
+21a22,23
+> import java.beans.Introspector;
+> import java.beans.IntrospectionException;
+27d28
+< import org.apache.commons.beanutils.PropertyUtils;
+58d58
+< 
+62,64d61
+< 
+< 
+< 
+65a63
+> 
+104c102,103
+<                 for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
+---
+>                 try {
+>                         for (PropertyDescriptor descriptor : Introspector.getBeanInfo(modelClass).getPropertyDescriptors()) {
+109a109,111
+>                 } catch (IntrospectionException e) {
+>                         throw new RuntimeException(e);
+>                 }

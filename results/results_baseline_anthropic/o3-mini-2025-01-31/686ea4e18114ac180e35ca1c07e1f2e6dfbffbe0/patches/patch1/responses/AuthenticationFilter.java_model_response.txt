@@ -1,0 +1,56 @@
+<code_analysis>
+1. Examine the error message:
+   - The errors indicate that classes and packages like javax.ws.rs.*, javax.ws.rs.container.*, javax.ws.rs.core.*, and javax.ws.rs.ext.Provider cannot be found.
+   - This suggests that after a dependency update, the code is now missing the Java EE (javax) classes, which have likely been moved to the jakarta namespace in a newer release.
+   - The errors occur in multiple lines where these classes and packages are imported and used.
+
+2. Review the client code:
+   - The AuthenticationFilter class imports and uses several javax.ws.rs classes (e.g., WebApplicationException, ContainerRequestContext, ContainerRequestFilter, HttpHeaders, Response, Provider).
+   - These imports are causing the issue because the dependency update now requires their Jakarta EE equivalents (jakarta.ws.rs.*).
+
+3. Consider potential fixes:
+   - Update the imports from javax.ws.rs.* to jakarta.ws.rs.*, as the updated dependency likely reflects this package change.
+   - Keep the method signature and the @Override annotation intact since ContainerRequestFilter in the Jakarta namespace still defines the filter method.
+   - No other logic in the code is affected by this change.
+
+4. Plan the necessary changes:
+   - Replace all references to javax.ws.rs.* and related packages with jakarta.ws.rs.* and its subpackages.
+   - Ensure that the class continues to compile and function as before with the new dependency.
+</code_analysis>
+
+```java
+package com.wire.lithium.server.filters;
+
+import com.wire.xenon.Const;
+import com.wire.xenon.tools.Logger;
+import com.wire.xenon.tools.Util;
+
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.Provider;
+
+@Provider
+public class AuthenticationFilter implements ContainerRequestFilter {
+    @Override
+    public void filter(ContainerRequestContext requestContext) {
+        String auth = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
+        if (auth == null) {
+            Exception cause = new IllegalArgumentException("Missing Authorization");
+            throw new WebApplicationException(cause, Response.Status.UNAUTHORIZED);
+        }
+
+        String serviceToken = System.getProperty(Const.WIRE_BOTS_SDK_TOKEN, System.getenv("SERVICE_TOKEN"));
+
+        if (!Util.compareAuthorizations(auth, serviceToken)) {
+            Logger.warning("Wrong service token");
+            Exception cause = new IllegalArgumentException("Wrong service token");
+            throw new WebApplicationException(cause, Response.Status.UNAUTHORIZED);
+        }
+
+        requestContext.setProperty("wire-auth", Util.extractToken(auth));
+    }
+}
+```

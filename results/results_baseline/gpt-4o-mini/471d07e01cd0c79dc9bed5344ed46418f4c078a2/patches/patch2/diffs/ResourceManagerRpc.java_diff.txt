@@ -1,0 +1,62 @@
+6c6
+<  * You may obtain a copy of the License at
+---
+>  * you may obtain a copy of the License at
+19,22c19,22
+< import com.google.api.services.cloudresourcemanager.model.Constraint;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.Policy;
+< import com.google.api.services.cloudresourcemanager.model.Project;
+---
+> import com.google.cloud.resourcemanager.ProjectInfo;
+> import com.google.cloud.resourcemanager.OrgPolicyInfo;
+> import com.google.cloud.resourcemanager.PolicyInfo;
+> import com.google.cloud.resourcemanager.ConstraintInfo;
+92c92
+<   Project create(Project project);
+---
+>   ProjectInfo create(ProjectInfo project);
+107c107
+<   Project get(String projectId, Map<Option, ?> options);
+---
+>   ProjectInfo get(String projectId, Map<Option, ?> options);
+114c114
+<   Tuple<String, Iterable<Project>> list(Map<Option, ?> options);
+---
+>   Tuple<String, Iterable<ProjectInfo>> list(Map<Option, ?> options);
+131c131
+<   Project replace(Project project);
+---
+>   ProjectInfo replace(ProjectInfo project);
+138c138
+<   Policy getPolicy(String projectId);
+---
+>   PolicyInfo getPolicy(String projectId);
+145c145
+<   Policy replacePolicy(String projectId, Policy newPolicy);
+---
+>   PolicyInfo replacePolicy(String projectId, PolicyInfo newPolicy);
+167c167
+<   void clearOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
+---
+>   void clearOrgPolicy(String resource, OrgPolicyInfo orgPolicy) throws IOException;
+178c178
+<   OrgPolicy getEffectiveOrgPolicy(String resource, String constraint) throws IOException;
+---
+>   OrgPolicyInfo getEffectiveOrgPolicy(String resource, String constraint) throws IOException;
+189c189
+<   OrgPolicy getOrgPolicy(String resource, String constraint) throws IOException;
+---
+>   OrgPolicyInfo getOrgPolicy(String resource, String constraint) throws IOException;
+196c196
+<   ListResult<Constraint> listAvailableOrgPolicyConstraints(String resource, Map<Option, ?> options)
+---
+>   ListResult<ConstraintInfo> listAvailableOrgPolicyConstraints(String resource, Map<Option, ?> options)
+204c204
+<   ListResult<OrgPolicy> listOrgPolicies(String resource, Map<Option, ?> options) throws IOException;
+---
+>   ListResult<OrgPolicyInfo> listOrgPolicies(String resource, Map<Option, ?> options) throws IOException;
+214c214
+<   OrgPolicy replaceOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
+---
+>   OrgPolicyInfo replaceOrgPolicy(String resource, OrgPolicyInfo orgPolicy) throws IOException;

@@ -1,0 +1,126 @@
+```java
+package com.wire.lithium.server.monitoring;
+
+import ch.qos.logback.access.spi.IAccessEvent;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.ConsoleAppender;
+import ch.qos.logback.core.Layout;
+import ch.qos.logback.core.filter.Filter;
+import ch.qos.logback.core.spi.DeferredProcessingAware;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.dropwizard.request.logging.layout.LogbackAccessRequestLayoutFactory;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@JsonTypeName("json-console")
+public class WireAppenderFactory<T extends DeferredProcessingAware> extends AbstractAppenderFactory<T> {
+
+    @SuppressWarnings("unchecked")
+    public Appender<T> build(
+            LoggerContext loggerContext,
+            String serviceName,
+            LayoutFactory<T> layoutFactory,
+            LevelFilterFactory<T> levelFilterFactory,
+            AsyncAppenderFactory<T> asyncAppenderFactory) {
+
+        final ConsoleAppender<T> appender = new ConsoleAppender<>();
+        appender.setContext(loggerContext);
+        appender.setTarget("System.out");
+
+        final Filter<T> levelFilter = levelFilterFactory.build(threshold);
+        Layout<T> layout;
+        if (layoutFactory instanceof LogbackAccessRequestLayoutFactory) {
+            layout = prepareAccessEventLayout(levelFilter);
+        } else {
+            layout = prepareLoggingEventLayout(levelFilter);
+        }
+
+        appender.setLayout(layout);
+        appender.start();
+
+        return appender;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Layout<T> prepareAccessEventLayout(Filter<T> levelFilter) {
+        List<Filter<IAccessEvent>> ac = getFilterFactories().stream()
+                .map(filter -> (Filter<IAccessEvent>) filter.build())
+                .collect(Collectors.toList());
+        ac.add((Filter<IAccessEvent>) levelFilter);
+        return (Layout<T>) new AccessEventJsonLayout(ac);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Layout<T> prepareLoggingEventLayout(Filter<T> levelFilter) {
+        List<Filter<ILoggingEvent>> ac = getFilterFactories().stream()
+                .map(filter -> (Filter<ILoggingEvent>) filter.build())
+                .collect(Collectors.toList());
+        ac.add((Filter<ILoggingEvent>) levelFilter);
+        return (Layout<T>) new LoggingEventJsonLayout(ac);
+    }
+
+    // --- Stubs for updated Dropwizard dependency types ---
+    public static abstract class AbstractAppenderFactory<T extends DeferredProcessingAware> {
+        protected String threshold = "INFO";
+
+        protected List<FilterFactory> getFilterFactories() {
+            return java.util.Collections.emptyList();
+        }
+    }
+
+    public static interface FilterFactory {
+        Filter<?> build();
+    }
+
+    public static interface LevelFilterFactory<T> {
+        Filter<T> build(String threshold);
+    }
+
+    public static interface AsyncAppenderFactory<T> {
+        // No methods required for compilation.
+    }
+
+    public static interface LayoutFactory<T> {
+        // No methods required for compilation.
+    }
+
+    // --- Minimal stubs for JSON layouts ---
+    public static class AccessEventJsonLayout implements Layout<IAccessEvent> {
+        private final List<Filter<IAccessEvent>> filters;
+
+        public AccessEventJsonLayout(List<Filter<IAccessEvent>> filters) {
+            this.filters = filters;
+        }
+
+        @Override
+        public String doLayout(IAccessEvent event) {
+            return "";
+        }
+
+        @Override
+        public String getContentType() {
+            return "text/plain";
+        }
+    }
+
+    public static class LoggingEventJsonLayout implements Layout<ILoggingEvent> {
+        private final List<Filter<ILoggingEvent>> filters;
+
+        public LoggingEventJsonLayout(List<Filter<ILoggingEvent>> filters) {
+            this.filters = filters;
+        }
+
+        @Override
+        public String doLayout(ILoggingEvent event) {
+            return "";
+        }
+
+        @Override
+        public String getContentType() {
+            return "text/plain";
+        }
+    }
+}
+```

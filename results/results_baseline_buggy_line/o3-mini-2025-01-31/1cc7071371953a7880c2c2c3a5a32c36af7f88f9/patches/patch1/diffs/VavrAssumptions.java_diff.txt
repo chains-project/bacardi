@@ -1,0 +1,95 @@
+1,12d0
+< /*
+<  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+<  * the License. You may obtain a copy of the License at
+<  *
+<  * http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+<  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+<  * specific language governing permissions and limitations under the License.
+<  *
+<  * Copyright 2017-2022 the original author or authors.
+<  */
+24,33c12,20
+< import org.assertj.core.internal.bytebuddy.ByteBuddy;
+< import org.assertj.core.internal.bytebuddy.TypeCache;
+< import org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey;
+< import org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeValidation;
+< import org.assertj.core.internal.bytebuddy.implementation.Implementation;
+< import org.assertj.core.internal.bytebuddy.implementation.MethodDelegation;
+< import org.assertj.core.internal.bytebuddy.implementation.auxiliary.AuxiliaryType;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.RuntimeType;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This;
+---
+> import net.bytebuddy.ByteBuddy;
+> import net.bytebuddy.NamingStrategy;
+> import net.bytebuddy.dynamic.scaffold.TypeValidation;
+> import net.bytebuddy.implementation.Implementation;
+> import net.bytebuddy.implementation.MethodDelegation;
+> import net.bytebuddy.implementation.bind.annotation.RuntimeType;
+> import net.bytebuddy.implementation.bind.annotation.SuperCall;
+> import net.bytebuddy.implementation.bind.annotation.This;
+> import net.bytebuddy.matcher.ElementMatchers;
+38a26,28
+> import java.util.concurrent.ConcurrentHashMap;
+> import java.util.concurrent.ConcurrentMap;
+> import java.util.function.Supplier;
+40,41c30
+< import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any;
+< import static org.assertj.core.util.Arrays.array;
+---
+> import static net.bytebuddy.matcher.ElementMatchers.any;
+51c40
+<             .with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
+---
+>             .with(new NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
+198c187
+<         return asAssumption(assertionType, array(actualType), array(actual));
+---
+>         return asAssumption(assertionType, new Class<?>[]{actualType}, actual);
+259d247
+<         // @format:off
+268,269d255
+<         // @format:on
+<         // should not arrive here
+272a259,296
+>     private static class TypeCache<K> {
+>         private final ConcurrentMap<K, Class<?>> cache = new ConcurrentHashMap<>();
+> 
+>         public Class<?> findOrInsert(ClassLoader loader, K key, Supplier<Class<?>> supplier) {
+>             return cache.computeIfAbsent(key, k -> supplier.get());
+>         }
+> 
+>         static class WithInlineExpunction<K> extends TypeCache<K> {
+>             public WithInlineExpunction(Sort sort) {
+>                 super();
+>             }
+>         }
+> 
+>         enum Sort {
+>             SOFT
+>         }
+>     }
+> 
+>     private static class SimpleKey {
+>         private final Class<?> type;
+> 
+>         public SimpleKey(Class<?> type) {
+>             this.type = type;
+>         }
+> 
+>         @Override
+>         public boolean equals(Object o) {
+>             if (this == o) return true;
+>             if (!(o instanceof SimpleKey)) return false;
+>             SimpleKey that = (SimpleKey) o;
+>             return type.equals(that.type);
+>         }
+> 
+>         @Override
+>         public int hashCode() {
+>             return type.hashCode();
+>         }
+>     }

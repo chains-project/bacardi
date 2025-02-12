@@ -1,0 +1,65 @@
+<code_analysis>
+1. Error Message Analysis:
+   - The error indicates that the class LengthOf cannot be found in the package org.cactoos.iterable.
+   - This is occurring on the lines within the compareTo method where new LengthOf(...) is used.
+   - The dependency update in cactoos has moved (or removed) LengthOf from org.cactoos.iterable.
+
+2. Client Code Review:
+   - The problematic lines are:
+         return new LengthOf(other.suffixes()).intValue()
+             - new LengthOf(this.sfxs).intValue();
+   - The import statement currently attempts to import LengthOf from org.cactoos.iterable.
+
+3. Potential Fix Considerations:
+   - In the updated version of cactoos, the LengthOf class has been relocated to org.cactoos.scalar.
+   - Therefore, the fix is to update the import to refer to org.cactoos.scalar.LengthOf.
+   - There is no need to change the method signatures or logic.
+   - This approach directly addresses the missing symbol error without impacting functionality.
+
+4. Specific Modifications:
+   - Change the import line from:
+         import org.cactoos.iterable.LengthOf;
+     to:
+         import org.cactoos.scalar.LengthOf;
+   - No other changes to the code logic or annotations are necessary.
+</code_analysis>
+
+```java
+package io.zold.api;
+
+import org.cactoos.Text;
+import org.cactoos.scalar.LengthOf;
+
+/**
+ * Default implementation for {@link Score}.
+ *
+ * @since 1.0
+ */
+public final class RtScore implements Score {
+
+    /**
+     * The suffixes.
+     */
+    private final Iterable<Text> sfxs;
+
+    /**
+     * Ctor.
+     *
+     * @param sfxs The suffixes.
+     */
+    RtScore(final Iterable<Text> sfxs) {
+        this.sfxs = sfxs;
+    }
+
+    @Override
+    public int compareTo(final Score other) {
+        return new LengthOf(other.suffixes()).intValue()
+            - new LengthOf(this.sfxs).intValue();
+    }
+
+    @Override
+    public Iterable<Text> suffixes() {
+        return this.sfxs;
+    }
+}
+```

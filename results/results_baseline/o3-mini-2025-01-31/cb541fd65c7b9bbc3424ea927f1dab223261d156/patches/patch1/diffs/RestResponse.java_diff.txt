@@ -1,0 +1,87 @@
+48c48
+< import org.hamcrest.Matchers;
+---
+> import org.hamcrest.CoreMatchers;
+50,71d49
+< /**
+<  * REST response.
+<  *
+<  * <p>This response decorator is able to make basic assertions on
+<  * HTTP response and manipulate with it afterwords, for example:
+<  *
+<  * <pre> String name = new JdkRequest("http://my.example.com")
+<  *   .fetch()
+<  *   .as(RestResponse.class)
+<  *   .assertStatus(200)
+<  *   .assertBody(Matchers.containsString("hello, world!"))
+<  *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
+<  *   .jump(URI.create("/users"))
+<  *   .fetch();</pre>
+<  *
+<  * <p>Method {@link #jump(URI)} creates a new instance of class
+<  * {@link Request} with all cookies transferred from the current one.
+<  *
+<  * <p>The class is immutable and thread-safe.
+<  *
+<  * @since 0.8
+<  */
+332a311,369
+>     /**
+>      * Utility class to provide matcher functions.
+>      */
+>     private static final class Matchers {
+>         public static <T> Matcher<Iterable<T>> hasItems(final T... items) {
+>             return new org.hamcrest.TypeSafeDiagnosingMatcher<Iterable<T>>() {
+>                 @Override
+>                 protected boolean matchesSafely(final Iterable<T> iterable, final org.hamcrest.Description description) {
+>                     for (T item : items) {
+>                         boolean found = false;
+>                         for (T element : iterable) {
+>                             if (item == null && element == null) {
+>                                 found = true;
+>                                 break;
+>                             } else if (item != null && item.equals(element)) {
+>                                 found = true;
+>                                 break;
+>                             }
+>                         }
+>                         if (!found) {
+>                             description.appendText("item ")
+>                                        .appendValue(item)
+>                                        .appendText(" not found in iterable");
+>                             return false;
+>                         }
+>                     }
+>                     return true;
+>                 }
+> 
+>                 @Override
+>                 public void describeTo(final org.hamcrest.Description description) {
+>                     description.appendText("an iterable containing items ");
+>                     description.appendValueList("[", ", ", "]", items);
+>                 }
+>             };
+>         }
+> 
+>         public static <T> Matcher<Iterable<T>> emptyIterableOf(final Class<T> cls) {
+>             return new org.hamcrest.TypeSafeMatcher<Iterable<T>>() {
+>                 @Override
+>                 protected boolean matchesSafely(final Iterable<T> iterable) {
+>                     return !iterable.iterator().hasNext();
+>                 }
+> 
+>                 @Override
+>                 public void describeTo(final org.hamcrest.Description description) {
+>                     description.appendText("an empty iterable");
+>                 }
+>             };
+>         }
+> 
+>         public static <T> Matcher<T> not(final Matcher<T> matcher) {
+>             return CoreMatchers.not(matcher);
+>         }
+> 
+>         public static <T> Matcher<T> notNullValue() {
+>             return CoreMatchers.notNullValue();
+>         }
+>     }

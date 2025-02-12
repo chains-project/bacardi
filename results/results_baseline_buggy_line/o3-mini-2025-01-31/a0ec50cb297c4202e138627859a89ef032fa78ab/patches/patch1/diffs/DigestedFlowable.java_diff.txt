@@ -1,0 +1,31 @@
+1,4d0
+< /*
+<  * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
+<  * https://github.com/artipie/docker-adapter/LICENSE.txt
+<  */
+15,16d10
+< import org.cactoos.io.BytesOf;
+< import org.cactoos.text.HexOf;
+57c51
+<                 new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+---
+>                 new Digest.Sha256(toHexString(sha.digest()))
+69a64,81
+> 
+>     /**
+>      * Converts a byte array to its hexadecimal string representation.
+>      *
+>      * @param bytes the byte array to convert
+>      * @return the hexadecimal string representation
+>      */
+>     private static String toHexString(final byte[] bytes) {
+>         final StringBuilder hexString = new StringBuilder();
+>         for (final byte b : bytes) {
+>             String hex = Integer.toHexString(0xff & b);
+>             if (hex.length() == 1) {
+>                 hexString.append('0');
+>             }
+>             hexString.append(hex);
+>         }
+>         return hexString.toString();
+>     }

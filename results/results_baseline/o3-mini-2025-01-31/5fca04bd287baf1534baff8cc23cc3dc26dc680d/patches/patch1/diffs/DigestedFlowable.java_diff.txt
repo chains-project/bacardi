@@ -1,0 +1,31 @@
+15,16d14
+< import org.cactoos.io.BytesOf;
+< import org.cactoos.text.HexOf;
+50c48,49
+<         Flowable.fromPublisher(this.origin).map(
+---
+>         Flowable.fromPublisher(this.origin)
+>             .map(
+55c54,55
+<         ).doOnComplete(
+---
+>             )
+>             .doOnComplete(
+57c57,58
+<                 new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+---
+>                     new Digest.Sha256(bytesToHex(sha.digest()))
+>                 )
+59c60
+<         ).subscribe(subscriber);
+---
+>             .subscribe(subscriber);
+69a71,78
+> 
+>     private static String bytesToHex(final byte[] bytes) {
+>         final StringBuilder sb = new StringBuilder();
+>         for (final byte b : bytes) {
+>             sb.append(String.format("%02x", b));
+>         }
+>         return sb.toString();
+>     }

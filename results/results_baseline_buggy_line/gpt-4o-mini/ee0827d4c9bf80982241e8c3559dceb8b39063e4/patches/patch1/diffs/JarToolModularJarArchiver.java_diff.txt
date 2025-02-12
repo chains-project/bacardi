@@ -1,0 +1,15 @@
+41d40
+< import org.apache.commons.io.output.NullPrintStream;
+141c140,143
+<             Integer result = (Integer) jarRun.invoke( jarTool, System.out, System.err, getJarToolArguments() );
+---
+>             PrintStream nullPrintStream = new PrintStream(new java.io.OutputStream() {
+>                 public void write(int b) {}
+>             });
+>             Integer result = (Integer) jarRun.invoke( jarTool, nullPrintStream, nullPrintStream, getJarToolArguments() );
+300c302,304
+<             PrintStream nullPrintStream = NullPrintStream.NULL_PRINT_STREAM;
+---
+>             PrintStream nullPrintStream = new PrintStream(new java.io.OutputStream() {
+>                 public void write(int b) {}
+>             });

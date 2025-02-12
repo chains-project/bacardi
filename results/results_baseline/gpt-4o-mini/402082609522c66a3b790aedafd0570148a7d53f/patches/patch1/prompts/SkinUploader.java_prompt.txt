@@ -1,0 +1,68 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+
+```java
+package com.github.games647.changeskin.sponge.task;
+
+import com.github.games647.changeskin.core.model.auth.Account;
+import com.github.games647.changeskin.core.shared.task.SharedUploader;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import java.util.concurrent.TimeUnit;
+
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.scheduler.Task;
+
+public class SkinUploader extends SharedUploader {
+
+    private final ChangeSkinSponge plugin;
+    private final CommandSource invoker;
+
+    public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url) {
+        super(plugin.getCore(), owner, url);
+
+        this.plugin = plugin;
+        this.invoker = invoker;
+    }
+
+    @Override
+    public void sendMessageInvoker(String key) {
+        plugin.sendMessage(invoker, key);
+    }
+
+    @Override
+    protected void scheduleChangeTask(String oldSkinUrl) {
+        Runnable task = new SkinChanger(plugin, owner, url, oldSkinUrl, invoker);
+        Task.builder().delay(1, TimeUnit.MINUTES).execute(task).async().submit(plugin);
+    }
+}
+
+```
+
+ with the following error information:
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinUploader.java:[9,37] cannot find symbol
+  symbol:   class CommandSource
+  location: package org.spongepowered.api.command
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinUploader.java:[17,50] cannot find symbol
+  symbol:   class CommandSource
+  location: class com.github.games647.changeskin.sponge.task.SkinUploader
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinUploader.java:[15,19] cannot find symbol
+  symbol:   class CommandSource
+  location: class com.github.games647.changeskin.sponge.task.SkinUploader
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

@@ -1,0 +1,46 @@
+48c48,52
+< import org.hamcrest.Matchers;
+---
+> import static org.hamcrest.CoreMatchers.not;
+> import static org.hamcrest.CoreMatchers.notNullValue;
+> import static org.hamcrest.collection.IsIterableContainingInAnyOrder.hasItems;
+> import org.hamcrest.Description;
+> import org.hamcrest.TypeSafeMatcher;
+60,61c64,65
+<  *   .assertBody(Matchers.containsString("hello, world!"))
+<  *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
+---
+>  *   .assertBody(org.hamcrest.core.StringContains.containsString("hello, world!"))
+>  *   .assertHeader("Content-Type", hasItems("text/plain"))
+210c214
+<         return this.assertHeader(name, Matchers.hasItems(value));
+---
+>         return this.assertHeader(name, hasItems(value));
+246c250
+<             Matchers.not(Matchers.emptyIterableOf(String.class))
+---
+>             not(emptyIterableOf(String.class))
+284c288
+<             Matchers.notNullValue()
+---
+>             notNullValue()
+305a310,328
+>      * Matcher for empty iterable of a given type.
+>      * @param <T> Type parameter
+>      * @param type Class of the type
+>      * @return Matcher that matches an empty iterable.
+>      */
+>     private static <T> Matcher<Iterable<T>> emptyIterableOf(final Class<T> type) {
+>         return new TypeSafeMatcher<Iterable<T>>() {
+>             @Override
+>             public void describeTo(final Description description) {
+>                 description.appendText("an empty iterable of " + type.getSimpleName());
+>             }
+>             @Override
+>             protected boolean matchesSafely(final Iterable<T> items) {
+>                 return !items.iterator().hasNext();
+>             }
+>         };
+>     }
+> 
+>     /**

@@ -3,6 +3,7 @@ package se.kth.Util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.kth.model.SetupPipeline;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -61,5 +62,14 @@ public class FileUtils {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    public static String getAbsolutePath(SetupPipeline pipeline, String relativePath) {
+
+        String basePath = pipeline.getClientFolder().toString().split("/" + pipeline.getBreakingUpdate().project)[0];
+
+        String absolutePath = basePath.concat(relativePath);
+        // Return the absolute path as a string
+        return absolutePath;
     }
 }

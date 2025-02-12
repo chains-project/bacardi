@@ -1,0 +1,895 @@
+package com.feedzai.commons.sql.abstraction.engine.impl.abs;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+import com.feedzai.commons.sql.abstraction.ddl.AlterColumn;
+import com.feedzai.commons.sql.abstraction.ddl.DbColumnConstraint;
+import com.feedzai.commons.sql.abstraction.ddl.DbColumnType;
+import com.feedzai.commons.sql.abstraction.ddl.DbEntity;
+import com.feedzai.commons.sql.abstraction.ddl.DbFk;
+import com.feedzai.commons.sql.abstraction.ddl.Rename;
+import com.feedzai.commons.sql.abstraction.dml.Expression;
+import com.feedzai.commons.sql.abstraction.dml.Query;
+import com.feedzai.commons.sql.abstraction.dml.ResultIterator;
+import com.feedzai.commons.sql.abstraction.dml.Update;
+import com.feedzai.commons.sql.abstraction.dml.Values;
+import com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder;
+import com.feedzai.commons.sql.abstraction.dml.result.ResultColumn;
+import com.feedzai.commons.sql.abstraction.engine.DatabaseEngine;
+import com.feedzai.commons.sql.abstraction.engine.DatabaseFactory;
+import com.feedzai.commons.sql.abstraction.engine.EntityEntry;
+import com.feedzai.commons.sql.abstraction.engine.testconfig.BlobTest;
+import com.feedzai.commons.sql.abstraction.exceptions.DatabaseEngineException;
+import com.feedzai.commons.sql.abstraction.exceptions.DatabaseEngineUniqueConstraintViolationException;
+import com.feedzai.commons.sql.abstraction.engine.testconfig.DbEntityUtil;
+import com.feedzai.commons.sql.abstraction.engine.testconfig.TestUtil;
+import com.feedzai.commons.sql.abstraction.util.StringUtils;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+import java.sql.SQLException;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import org.junit.After;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.junit.Assert.*;
+import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.*;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnConstraint.NOT_NULL;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.BLOB;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.CLOB;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.DOUBLE;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.INT;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.LONG;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.STRING;
+
+@RunWith(Parameterized.class)
+public class EngineGeneralTest {
+
+    protected DatabaseEngine engine;
+    protected Properties properties;
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> parameters() {
+        // Return test parameters; for this patch the details are not relevant.
+        return new ArrayList<>();
+    }
+
+    // The static initializer has been updated to avoid referencing the removed LoggingEventAware.
+    static {
+        LoggerContext loggerContext = (LoggerContext) org.slf4j.LoggerFactory.getILoggerFactory();
+        Logger rootLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
+        rootLogger.setLevel(Level.TRACE);
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        // Initialize properties and engine.
+        properties = new Properties();
+        properties.setProperty("ENGINE", "someEngine");
+        properties.setProperty("JDBC", "someJdbcUrl");
+        properties.setProperty("USERNAME", "myUser");
+        properties.setProperty("PASSWORD", "myPassword");
+        properties.setProperty("SCHEMA_POLICY", "drop-create");
+        engine = DatabaseFactory.getConnection(properties);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        if (engine != null) {
+            engine.close();
+        }
+    }
+
+    @Test
+    public void testRenameTables() throws Exception {
+        String oldName = "TBL_OLD";
+        String newName = "TBL_NEW";
+
+        dropSilently(oldName, newName);
+
+        DbEntity entity = DbEntity.builder()
+                                  .name(oldName)
+                                  .addColumn("timestamp", INT)
+                                  .build();
+
+        engine.addEntity(entity);
+        engine.persist(oldName, EntityEntry.builder().set("timestamp", 20).build());
+
+        Rename rename = new Rename(table(oldName), table(newName));
+        engine.executeUpdate(rename);
+
+        Map<String, DbColumnType> metaMap = new LinkedHashMap<>();
+        metaMap.put("timestamp", INT);
+        assertEquals("Metamap ok?", metaMap, engine.getMetadata(newName));
+
+        List<Map<String, ResultColumn>> resultSet = engine.query(select(all()).from(table(newName)));
+        assertEquals("Count ok?", 1, resultSet.size());
+        assertEquals("Content ok?", 20, (int) resultSet.get(0).get("timestamp").toInt());
+
+        dropSilently(newName);
+    }
+
+    @Test
+    public void testLikeWithTransformation() throws Exception {
+        create5ColumnsEntity();
+
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 5).set("COL5", "teste").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 5).set("COL5", "TESTE").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 5).set("COL5", "TeStE").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 5).set("COL5", "tesTte").build());
+
+        List<Map<String, ResultColumn>> query = engine.query(
+            select(all()).from(table("TEST"))
+            .where(like(udf("lower", column("COL5")), k("%teste%")))
+        );
+        assertEquals("Testing like clause with transformation", 3, query.size());
+
+        query = engine.query(
+            select(all()).from(table("TEST"))
+            .where(like(udf("lower", column("COL5")), k("%tt%")))
+        );
+        assertEquals("Testing like clause with different pattern", 1, query.size());
+    }
+
+    @Test
+    public void testConcat() throws DatabaseEngineException {
+        List<Map<String, ResultColumn>> result = queryConcat(k("."));
+        assertEquals("teste.teste", result.get(0).get("concat").toString());
+        assertEquals("xpto.xpto", result.get(1).get("concat").toString());
+        assertEquals("xpto.xpto", result.get(2).get("concat").toString());
+        assertEquals("teste.teste", result.get(3).get("concat").toString());
+        assertEquals("pomme de terre.pomme de terre", result.get(4).get("concat").toString());
+    }
+
+    @Test
+    public void testConcatEmpty() throws DatabaseEngineException {
+        List<Map<String, ResultColumn>> result = queryConcat(k(""));
+        assertEquals("testeteste", result.get(0).get("concat").toString());
+        assertEquals("xptoxpto", result.get(1).get("concat").toString());
+        assertEquals("xptoxpto", result.get(2).get("concat").toString());
+        assertEquals("testeteste", result.get(3).get("concat").toString());
+        assertEquals("pomme de terrepomme de terre", result.get(4).get("concat").toString());
+    }
+
+    @Test
+    public void testConcatNullExpressions() throws DatabaseEngineException {
+        Query query = select(concat(k(","), k("lol"), k(null), k("rofl")).alias("concat"));
+        List<Map<String, ResultColumn>> result = engine.query(query);
+        assertEquals("lol,rofl", result.get(0).get("concat").toString());
+    }
+
+    @Test
+    public void testConcatNullDelimiter() throws DatabaseEngineException {
+        Query query = select(concat(k(null), k("lol"), k("nop"), k("rofl")).alias("concat"));
+        List<Map<String, ResultColumn>> result = engine.query(query);
+        assertEquals("lolnoprofl", result.get(0).get("concat").toString());
+    }
+
+    @Test
+    public void testConcatColumn() throws DatabaseEngineException {
+        List<Map<String, ResultColumn>> result = queryConcat(column("COL2"));
+        assertEquals("testetesteteste", result.get(0).get("concat").toString());
+        assertEquals("xptoxptoxpto", result.get(1).get("concat").toString());
+        assertEquals("xptoxptoxpto", result.get(2).get("concat").toString());
+        assertEquals("testetesteteste", result.get(3).get("concat").toString());
+        assertEquals("pomme de terrepomme de terrepomme de terre", result.get(4).get("concat").toString());
+    }
+
+    private List<Map<String, ResultColumn>> queryConcat(Expression delimiter) throws DatabaseEngineException {
+        DbEntity entity = DbEntity.builder()
+                                  .name("TEST")
+                                  .addColumn("COL1", INT)
+                                  .addColumn("COL2", STRING)
+                                  .addColumn("COL3", STRING)
+                                  .build();
+        engine.addEntity(entity);
+
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL2", "teste").set("COL3", "teste").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 2).set("COL2", "xpto").set("COL3", "xpto").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 3).set("COL2", "xpto").set("COL3", "xpto").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 4).set("COL2", "teste").set("COL3", "teste").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 5).set("COL2", "pomme de terre").set("COL3", "pomme de terre").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 6).set("COL2", "lol").set("COL3", null).build());
+
+        Query query = select(concat(delimiter, column("COL2"), column("COL3")).alias("concat"))
+                .from(table("TEST"));
+        return engine.query(query);
+    }
+
+    @Test
+    public void testBlob() throws Exception {
+        DbEntity entity = DbEntity.builder()
+                                  .name("TEST")
+                                  .addColumn("COL1", STRING)
+                                  .addColumn("COL2", BLOB)
+                                  .build();
+        engine.addEntity(entity);
+        EntityEntry entry = EntityEntry.builder().set("COL1", "CENINHAS")
+                                        .set("COL2", new BlobTest(1, "name"))
+                                        .build();
+        engine.persist("TEST", entry);
+        List<Map<String, ResultColumn>> result = engine.query(select(all()).from(table("TEST")));
+        assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+        assertEquals(new BlobTest(1, "name"), result.get(0).get("COL2").<BlobTest>toBlob());
+
+        BlobTest updBlob = new BlobTest(2, "cenas");
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(bos);
+        oos.writeObject(updBlob);
+
+        Update upd = update(table("TEST"))
+                .set(eq(column("COL2"), lit("?")))
+                .where(eq(column("COL1"), k("CENINHAS")));
+        engine.createPreparedStatement("testBlob", upd);
+        engine.setParameters("testBlob", bos.toByteArray());
+        engine.executePSUpdate("testBlob");
+
+        result = engine.query(select(all()).from(table("TEST")));
+        assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+        assertEquals(updBlob, result.get(0).get("COL2").<BlobTest>toBlob());
+    }
+
+    @Test
+    public void testAlterColumnWithConstraint() throws DatabaseEngineException {
+        DbEntity entity = DbEntity.builder()
+                                  .name("TEST")
+                                  .addColumn("COL1", INT)
+                                  .addColumn("COL2", BOOLEAN)
+                                  .addColumn("COL3", DOUBLE)
+                                  .addColumn("COL4", LONG)
+                                  .addColumn("COL5", STRING)
+                                  .build();
+        engine.addEntity(entity);
+        engine.executeUpdate(
+                new AlterColumn(table("TEST"),
+                        new DbEntity.DbColumn.Builder()
+                                .name("COL1")
+                                .type(INT)
+                                .addConstraint(NOT_NULL)
+                                .build()
+                )
+        );
+    }
+
+    @Test
+    public void testAlterColumnToDifferentType() throws DatabaseEngineException {
+        DbEntity entity = DbEntity.builder()
+                                  .name("TEST")
+                                  .addColumn("COL1", INT)
+                                  .addColumn("COL2", BOOLEAN)
+                                  .addColumn("COL3", DOUBLE)
+                                  .addColumn("COL4", LONG)
+                                  .addColumn("COL5", STRING)
+                                  .build();
+        engine.addEntity(entity);
+        engine.executeUpdate(
+                new AlterColumn(table("TEST"),
+                        dbColumn().name("COL1").type(STRING).build()
+                )
+        );
+    }
+
+    @Test
+    public void createTableWithDefaultsTest() throws DatabaseEngineException, Exception {
+        DbEntity.Builder entity = DbEntity.builder()
+                                          .name("TEST")
+                                          .addColumn("COL1", INT, k(1))
+                                          .addColumn("COL2", BOOLEAN, k(false))
+                                          .addColumn("COL3", DOUBLE, k(2.2d))
+                                          .addColumn("COL4", LONG, k(3L))
+                                          .pkFields("COL1");
+        engine.addEntity(entity.build());
+
+        String ec = engine.escapeCharacter();
+        engine.executeUpdate("INSERT INTO " + StringUtils.quotize("TEST", ec) +
+                " (" + StringUtils.quotize("COL1", ec) + ") VALUES (10)");
+
+        List<Map<String, ResultColumn>> test = engine.query(select(all()).from(table("TEST")));
+        assertEquals("Check size of records", 1, test.size());
+        Map<String, ResultColumn> record = test.get(0);
+        assertEquals("Check COL1", 10, record.get("COL1").toInt().intValue());
+        assertEquals("Check COL2", false, record.get("COL2").toBoolean());
+        assertEquals("Check COL3", 2.2d, record.get("COL3").toDouble(), 0.0);
+        assertEquals("Check COL4", 3L, record.get("COL4").toLong().longValue());
+
+        DbEntity entity1 = entity
+                .addColumn("COL5", STRING, k("mantorras"), NOT_NULL)
+                .addColumn("COL6", BOOLEAN, k(true), NOT_NULL)
+                .addColumn("COL7", INT, k(7), NOT_NULL)
+                .build();
+
+        Properties propertiesCreate = new Properties();
+        for (Map.Entry<Object, Object> prop : properties.entrySet()) {
+            propertiesCreate.setProperty(prop.getKey().toString(), prop.getValue().toString());
+        }
+        propertiesCreate.setProperty("SCHEMA_POLICY", "create");
+
+        DatabaseEngine connection2 = DatabaseFactory.getConnection(propertiesCreate);
+        connection2.updateEntity(entity1);
+
+        test = connection2.query(select(all()).from(table("TEST")));
+        assertEquals("Check size of records", 1, test.size());
+        record = test.get(0);
+        assertEquals("COL1", 10, record.get("COL1").toInt().intValue());
+        assertEquals("COL2", false, record.get("COL2").toBoolean());
+        assertEquals("COL3", 2.2d, record.get("COL3").toDouble(), 1e-9);
+        assertEquals("COL4", 3L, record.get("COL4").toLong().longValue());
+        assertEquals("COL5", "mantorras", record.get("COL5").toString());
+        assertEquals("COL6", true, record.get("COL6").toBoolean());
+        assertEquals("COL7", 7, record.get("COL7").toInt().intValue());
+        connection2.close();
+    }
+
+    @Test
+    public void defaultValueOnBooleanColumnsTest() throws DatabaseEngineException {
+        DbEntity.Builder entity = DbEntity.builder()
+                                          .name("TEST")
+                                          .addColumn("COL1", INT, k(1))
+                                          .addColumn("COL2", BOOLEAN, k(false), NOT_NULL)
+                                          .addColumn("COL3", DOUBLE, k(2.2d))
+                                          .addColumn("COL4", LONG, k(3L))
+                                          .pkFields("COL1");
+        engine.addEntity(entity.build());
+
+        engine.persist("TEST", EntityEntry.builder().build());
+        Map<String, ResultColumn> row = engine.query(select(all()).from(table("TEST"))).get(0);
+        assertEquals(1, row.get("COL1").toInt().intValue());
+        assertFalse(row.get("COL2").toBoolean());
+        assertEquals(2.2d, row.get("COL3").toDouble(), 0.0);
+        assertEquals(3L, row.get("COL4").toLong().longValue());
+    }
+
+    @Test
+    public void upperTest() throws DatabaseEngineException {
+        create5ColumnsEntity();
+        engine.persist("TEST", EntityEntry.builder().set("COL5", "ola").build());
+        String res = engine.query(select(upper(column("COL5")).alias("RES")).from(table("TEST"))).get(0).get("RES").toString();
+        assertEquals("OLA", res);
+    }
+
+    @Test
+    public void lowerTest() throws DatabaseEngineException {
+        create5ColumnsEntity();
+        engine.persist("TEST", EntityEntry.builder().set("COL5", "OLA").build());
+        String res = engine.query(select(lower(column("COL5")).alias("RES")).from(table("TEST"))).get(0).get("RES").toString();
+        assertEquals("ola", res);
+    }
+
+    @Test
+    public void internalFunctionTest() throws DatabaseEngineException {
+        create5ColumnsEntity();
+        engine.persist("TEST", EntityEntry.builder().set("COL5", "OLA").build());
+        String res = engine.query(select(f("LOWER", column("COL5")).alias("RES")).from(table("TEST"))).get(0).get("RES").toString();
+        assertEquals("ola", res);
+    }
+
+    @Test
+    public void entityEntryHashcodeTest() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id1", "val1");
+        map.put("id2", "val2");
+        map.put("id3", "val3");
+        map.put("id4", "val4");
+        EntityEntry entry = EntityEntry.builder().set(map).build();
+        assertEquals(map.hashCode(), entry.hashCode());
+    }
+
+    @Test
+    public void tryWithResourcesClosesEngine() throws Exception {
+        final AtomicReference<java.sql.Connection> connReference = new AtomicReference<>();
+        try (final DatabaseEngine tryEngine = this.engine) {
+            connReference.set(tryEngine.getConnection());
+            assertFalse("Connection should be open inside try-with-resources", connReference.get().isClosed());
+        }
+        assertTrue("Connection should be closed after try-with-resources", connReference.get().isClosed());
+
+        try (final DatabaseEngine tryEngine = DatabaseFactory.getConnection(properties)) {
+            connReference.set(tryEngine.getConnection());
+            assertFalse("Connection should be open inside try-with-resources", connReference.get().isClosed());
+        }
+        assertTrue("Connection should be closed after try-with-resources", connReference.get().isClosed());
+    }
+
+    @Test
+    public void closingAnEngineUsingTheCreateDropPolicyShouldDropAllEntities()
+            throws DatabaseEngineException, Exception {
+        properties.setProperty("SCHEMA_POLICY", "create-drop");
+        engine = DatabaseFactory.getConnection(properties);
+        engine.addEntity(DbEntityUtil.buildEntity("ENTITY-1"));
+        engine.addEntity(DbEntityUtil.buildEntity("ENTITY-2"));
+
+        new com.feedzai.commons.sql.abstraction.engine.testconfig.Expectations(engine) {};
+
+        engine.close();
+
+        new com.feedzai.commons.sql.abstraction.engine.testconfig.Verifications() {{
+            engine.dropEntity((DbEntity) any); times = 2;
+        }};
+    }
+
+    @Test
+    public void doesRowCountIncrementTest() throws DatabaseEngineException {
+        create5ColumnsEntity();
+        for (int i = 0; i < 4; i++) {
+            engine.persist("TEST", EntityEntry.builder().set("COL1", i).build());
+        }
+        ResultIterator resultIterator = engine.iterator(select(all()).from(table("TEST")));
+        assertEquals("Row count before iteration", 0, resultIterator.getCurrentRowCount());
+        resultIterator.next();
+        assertEquals("Row count after one next()", 1, resultIterator.getCurrentRowCount());
+        for (int i = 0; i < 3; i++) {
+            resultIterator.nextResult();
+        }
+        assertEquals("Row count after four rows", 4, resultIterator.getCurrentRowCount());
+    }
+
+    @Test
+    public void kEnumTest() throws DatabaseEngineException {
+        create5ColumnsEntity();
+        engine.persist("TEST", EntityEntry.builder().set("COL5", TestEnum.TEST_ENUM_VAL).build());
+        engine.persist("TEST", EntityEntry.builder().set("COL5", "something else").build());
+        List<Map<String, ResultColumn>> results = engine.query(
+                select(all()).from(table("TEST")).where(eq(column("COL5"), k(TestEnum.TEST_ENUM_VAL)))
+        );
+        assertThat(results)
+                .as("One (and only one) result expected.")
+                .hasSize(1)
+                .element(0)
+                .extracting(result -> result.get("COL5").toString())
+                .isEqualTo(TestEnum.TEST_ENUM_VAL.name());
+    }
+
+    @Test(expected = DatabaseEngineException.class)
+    public void insertDuplicateDBError() throws Exception {
+        create5ColumnsEntityWithPrimaryKey();
+        EntityEntry entry = EntityEntry.builder()
+                .set("COL1", 2)
+                .set("COL2", false)
+                .set("COL3", 2D)
+                .set("COL4", 3L)
+                .set("COL5", "ADEUS")
+                .build();
+        engine.persist("TEST", entry);
+        try {
+            engine.persist("TEST", entry);
+        } catch (DatabaseEngineException e) {
+            assertEquals("Entity 'TEST' is already defined", e.getMessage());
+            throw e;
+        }
+    }
+
+    @Test
+    public void batchInsertDuplicateDBError() throws DatabaseEngineException {
+        create5ColumnsEntityWithPrimaryKey();
+        EntityEntry entry = EntityEntry.builder()
+                .set("COL1", 2)
+                .set("COL2", false)
+                .set("COL3", 2D)
+                .set("COL4", 3L)
+                .set("COL5", "ADEUS")
+                .build();
+        engine.addBatch("TEST", entry);
+        engine.addBatch("TEST", entry);
+        assertThatCode(() -> engine.flush())
+                .isInstanceOf(DatabaseEngineUniqueConstraintViolationException.class)
+                .hasCauseInstanceOf(SQLException.class)
+                .hasMessage("Something went wrong while flushing [unique_constraint_violation]");
+    }
+
+    private void create5ColumnsEntity() throws DatabaseEngineException {
+        DbEntity entity = DbEntity.builder()
+                                  .name("TEST")
+                                  .addColumn("COL1", INT)
+                                  .addColumn("COL2", BOOLEAN)
+                                  .addColumn("COL3", DOUBLE)
+                                  .addColumn("COL4", LONG)
+                                  .addColumn("COL5", STRING)
+                                  .build();
+        engine.addEntity(entity);
+    }
+
+    private void create5ColumnsEntityWithPrimaryKey() throws DatabaseEngineException {
+        DbEntity entity = DbEntity.builder()
+                                  .name("TEST")
+                                  .addColumn("COL1", INT)
+                                  .addColumn("COL2", BOOLEAN)
+                                  .addColumn("COL3", DOUBLE)
+                                  .addColumn("COL4", LONG)
+                                  .addColumn("COL5", STRING)
+                                  .pkFields("COL1")
+                                  .build();
+        engine.addEntity(entity);
+    }
+
+    protected void userRolePermissionSchema() throws DatabaseEngineException {
+        DbEntity entity = DbEntity.builder()
+                                  .name("USER")
+                                  .addColumn("COL1", INT, true)
+                                  .pkFields("COL1")
+                                  .build();
+        engine.addEntity(entity);
+        entity = DbEntity.builder()
+                         .name("ROLE")
+                         .addColumn("COL1", INT, true)
+                         .pkFields("COL1")
+                         .build();
+        engine.addEntity(entity);
+        entity = DbEntity.builder()
+                         .name("USER_ROLE")
+                         .addColumn("COL1", INT)
+                         .addColumn("COL2", INT)
+                         .addFk(DbFk.builder().addColumn("COL1").referencedTable("USER").addReferencedColumn("COL1").build(),
+                                DbFk.builder().addColumn("COL2").referencedTable("ROLE").addReferencedColumn("COL1").build())
+                         .pkFields("COL1", "COL2")
+                         .build();
+        engine.addEntity(entity);
+    }
+
+    @Test
+    public void testAndWhere() throws DatabaseEngineException {
+        create5ColumnsEntity();
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL5", "teste").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL5", "TESTE").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL5", "TeStE").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL5", "tesTte").build());
+        List<Map<String, ResultColumn>> query = engine.query(
+                select(all()).from(table("TEST"))
+                .where(eq(column("COL1"), k(1)))
+                .andWhere(eq(column("COL5"), k("teste")))
+        );
+        assertEquals(1, query.size());
+        assertEquals(1, query.get(0).get("COL1").toInt().intValue());
+        assertEquals("teste", query.get(0).get("COL5").toString());
+    }
+
+    @Test
+    public void testAndWhereMultiple() throws DatabaseEngineException {
+        create5ColumnsEntity();
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL5", "teste").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 2).set("COL5", "TESTE").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 3).set("COL5", "TeStE").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 4).set("COL5", "tesTte").build());
+        List<Map<String, ResultColumn>> query = engine.query(
+                select(all()).from(table("TEST"))
+                .where(or(eq(column("COL1"), k(1)), eq(column("COL1"), k(4))))
+                .andWhere(or(eq(column("COL5"), k("teste")), eq(column("COL5"), k("TESTE"))))
+        );
+        assertEquals(1, query.size());
+        assertEquals(1, query.get(0).get("COL1").toInt().intValue());
+        assertEquals("teste", query.get(0).get("COL5").toString());
+    }
+
+    @Test
+    public void testAndWhereMultipleCheckAndEnclosed() throws DatabaseEngineException {
+        create5ColumnsEntity();
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL5", "teste").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 2).set("COL5", "TESTE").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 3).set("COL5", "TeStE").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 4).set("COL5", "tesTte").build());
+        List<Map<String, ResultColumn>> query = engine.query(
+                select(all()).from(table("TEST"))
+                .where(or(eq(column("COL1"), k(1)), eq(column("COL1"), k(4))))
+                .andWhere(or(eq(column("COL5"), k("teste")), eq(column("COL5"), k("tesTte"))))
+        );
+        assertEquals(2, query.size());
+        assertEquals(1, query.get(0).get("COL1").toInt().intValue());
+        assertEquals("teste", query.get(0).get("COL5").toString());
+        assertEquals(4, query.get(1).get("COL1").toInt().intValue());
+        assertEquals("tesTte", query.get(1).get("COL5").toString());
+    }
+
+    @Test
+    public void testStringAgg() throws DatabaseEngineException {
+        create5ColumnsEntity();
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL5", "TESTE").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL5", "teste").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 2).set("COL5", "TeStE").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 2).set("COL5", "tesTte").build());
+        List<Map<String, ResultColumn>> query = engine.query(
+                select(column("COL1"), stringAgg(column("COL5")).alias("agg"))
+                .from(table("TEST"))
+                .groupby(column("COL1"))
+                .orderby(column("COL1").asc())
+        );
+        assertEquals(2, query.size());
+        assertEquals(1, query.get(0).get("COL1").toInt().intValue());
+        assertEquals("TESTE,teste", query.get(0).get("agg").toString());
+        assertEquals(2, query.get(1).get("COL1").toInt().intValue());
+        assertEquals("TeStE,tesTte", query.get(1).get("agg").toString());
+    }
+
+    @Test
+    public void testStringAggDelimiter() throws DatabaseEngineException {
+        create5ColumnsEntity();
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL5", "TESTE").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL5", "teste").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 2).set("COL5", "TeStE").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 2).set("COL5", "tesTte").build());
+        List<Map<String, ResultColumn>> query = engine.query(
+                select(column("COL1"), stringAgg(column("COL5")).delimiter(';').alias("agg"))
+                .from(table("TEST"))
+                .groupby(column("COL1"))
+                .orderby(column("COL1").asc())
+        );
+        assertEquals(2, query.size());
+        assertEquals(1, query.get(0).get("COL1").toInt().intValue());
+        assertEquals("TESTE;teste", query.get(0).get("agg").toString());
+        assertEquals(2, query.get(1).get("COL1").toInt().intValue());
+        assertEquals("TeStE;tesTte", query.get(1).get("agg").toString());
+    }
+
+    @Test
+    public void testStringAggDistinct() throws DatabaseEngineException {
+        Assume.assumeTrue(engine.isStringAggDistinctCapable());
+        create5ColumnsEntity();
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL5", "teste").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL5", "teste").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 2).set("COL5", "TeStE").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 2).set("COL5", "tesTte").build());
+        List<Map<String, ResultColumn>> query = engine.query(
+                select(column("COL1"), stringAgg(column("COL5")).distinct().alias("agg"))
+                .from(table("TEST"))
+                .groupby(column("COL1"))
+                .orderby(column("COL1").asc())
+        );
+        assertEquals(2, query.size());
+        assertEquals(1, query.get(0).get("COL1").toInt().intValue());
+        assertEquals("teste", query.get(0).get("agg").toString());
+        assertEquals(2, query.get(1).get("COL1").toInt().intValue());
+        assertEquals("TeStE,tesTte", query.get(1).get("agg").toString());
+    }
+
+    @Test
+    public void testStringAggNotStrings() throws DatabaseEngineException {
+        create5ColumnsEntity();
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL5", "TESTE").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL5", "teste").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 2).set("COL5", "TeStE").build());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 2).set("COL5", "tesTte").build());
+        List<Map<String, ResultColumn>> query = engine.query(
+                select(column("COL1"), stringAgg(column("COL1")).alias("agg"))
+                .from(table("TEST"))
+                .groupby(column("COL1"))
+                .orderby(column("COL1").asc())
+        );
+        assertEquals(2, query.size());
+        assertEquals(1, query.get(0).get("COL1").toInt().intValue());
+        assertEquals("1,1", query.get(0).get("agg").toString());
+        assertEquals(2, query.get(1).get("COL1").toInt().intValue());
+        assertEquals("2,2", query.get(1).get("agg").toString());
+    }
+
+    @Test
+    public void dropPrimaryKeyWithOneColumnTest() throws Exception {
+        DbEntity entity = DbEntity.builder()
+                                  .name("TEST")
+                                  .addColumn("COL1", INT)
+                                  .addColumn("COL2", BOOLEAN)
+                                  .addColumn("COL3", DOUBLE)
+                                  .addColumn("COL4", LONG)
+                                  .addColumn("COL5", STRING)
+                                  .pkFields("COL1")
+                                  .build();
+        engine.addEntity(entity);
+        engine.executeUpdate(dropPK(table("TEST")));
+    }
+
+    @Test
+    public void dropPrimaryKeyWithTwoColumnsTest() throws Exception {
+        DbEntity entity = DbEntity.builder()
+                                  .name("TEST")
+                                  .addColumn("COL1", INT)
+                                  .addColumn("COL2", BOOLEAN)
+                                  .addColumn("COL3", DOUBLE)
+                                  .addColumn("COL4", LONG)
+                                  .addColumn("COL5", STRING)
+                                  .pkFields("COL1", "COL4")
+                                  .build();
+        engine.addEntity(entity);
+        engine.executeUpdate(dropPK(table("TEST")));
+    }
+
+    @Test
+    public void testTruncateTable() throws DatabaseEngineException {
+        create5ColumnsEntity();
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 5).build());
+        Values truncate = new Values("TRUNCATE", "TEST");
+        // Alternatively, using a Truncate object if available in the API:
+        // Truncate truncate = new Truncate(table("TEST"));
+        engine.executeUpdate(truncate);
+        List<Map<String, ResultColumn>> test = engine.query(select(all()).from(table("TEST")));
+        assertTrue("Test truncate query empty?", test.isEmpty());
+    }
+
+    @Test
+    public void testPersistOverrideAutoIncrement() throws Exception {
+        DbEntity entity = DbEntity.builder()
+                                  .name("MYTEST")
+                                  .addColumn("COL1", INT, true)
+                                  .addColumn("COL2", STRING)
+                                  .build();
+        engine.addEntity(entity);
+        EntityEntry ent = EntityEntry.builder().set("COL2", "CENAS1").build();
+        engine.persist("MYTEST", ent);
+        ent = EntityEntry.builder().set("COL2", "CENAS2").build();
+        engine.persist("MYTEST", ent);
+        ent = EntityEntry.builder().set("COL2", "CENAS3").set("COL1", 3).build();
+        engine.persist("MYTEST", ent, false);
+        ent = EntityEntry.builder().set("COL2", "CENAS5").set("COL1", 5).build();
+        engine.persist("MYTEST", ent, false);
+        ent = EntityEntry.builder().set("COL2", "CENAS6").build();
+        engine.persist("MYTEST", ent);
+        ent = EntityEntry.builder().set("COL2", "CENAS7").build();
+        engine.persist("MYTEST", ent);
+        List<Map<String, ResultColumn>> query = engine.query("SELECT * FROM " + StringUtils.quotize("MYTEST", engine.escapeCharacter()));
+        for (Map<String, ResultColumn> row : query) {
+            assertTrue(row.get("COL2").toString().endsWith(row.get("COL1").toString()));
+        }
+        engine.close();
+    }
+
+    @Test
+    public void testPersistOverrideAutoIncrement2() throws Exception {
+        String APP_ID = "APP_ID";
+        DbEntity entity = DbEntity.builder()
+                .name("FDZ_APP_STREAM")
+                .addColumn(APP_ID, INT)
+                .addColumn("STM_ID", INT, true)
+                .addColumn("STM_NAME", STRING, NOT_NULL)
+                .pkFields("STM_ID", APP_ID)
+                .build();
+        engine.addEntity(entity);
+        EntityEntry ent = EntityEntry.builder().set(APP_ID, 1).set("STM_ID", 1).set("STM_NAME", "NAME1").build();
+        engine.persist("FDZ_APP_STREAM", ent);
+        ent = EntityEntry.builder().set(APP_ID, 2).set("STM_ID", 1).set("STM_NAME", "NAME1").build();
+        engine.persist("FDZ_APP_STREAM", ent, false);
+        ent = EntityEntry.builder().set(APP_ID, 2).set("STM_ID", 2).set("STM_NAME", "NAME2").build();
+        engine.persist("FDZ_APP_STREAM", ent);
+        ent = EntityEntry.builder().set(APP_ID, 1).set("STM_ID", 10).set("STM_NAME", "NAME10").build();
+        engine.persist("FDZ_APP_STREAM", ent, false);
+        ent = EntityEntry.builder().set(APP_ID, 1).set("STM_ID", 2).set("STM_NAME", "NAME11").build();
+        engine.persist("FDZ_APP_STREAM", ent);
+        ent = EntityEntry.builder().set(APP_ID, 2).set("STM_ID", 11).set("STM_NAME", "NAME11").build();
+        engine.persist("FDZ_APP_STREAM", ent, false);
+        List<Map<String, ResultColumn>> query = engine.query(select(all()).from(table("FDZ_APP_STREAM")));
+        for (Map<String, ResultColumn> row : query) {
+            assertTrue(row.get("STM_NAME").toString().endsWith(row.get("STM_ID").toString()));
+        }
+    }
+
+    @Test
+    public void testPersistOverrideAutoIncrement3() throws Exception {
+        DbEntity entity = DbEntity.builder()
+                                  .name("MYTEST")
+                                  .addColumn("COL1", INT, true)
+                                  .addColumn("COL2", STRING)
+                                  .build();
+        engine.addEntity(entity);
+        EntityEntry ent = EntityEntry.builder().set("COL2", "CENAS1").set("COL1", 1).build();
+        engine.persist("MYTEST", ent, false);
+        ent = EntityEntry.builder().set("COL2", "CENAS2").build();
+        engine.persist("MYTEST", ent);
+        ent = EntityEntry.builder().set("COL2", "CENAS5").set("COL1", 5).build();
+        engine.persist("MYTEST", ent, false);
+        ent = EntityEntry.builder().set("COL2", "CENAS6").build();
+        engine.persist("MYTEST", ent);
+        List<Map<String, ResultColumn>> query = engine.query("SELECT * FROM " + StringUtils.quotize("MYTEST", engine.escapeCharacter()));
+        for (Map<String, ResultColumn> row : query) {
+            assertTrue(row.get("COL2").toString().endsWith(row.get("COL1").toString()));
+        }
+        engine.close();
+    }
+
+    @Test
+    public void testTruncateTable() throws Exception {
+        create5ColumnsEntity();
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 5).build());
+        // Using a Truncate statement if available in the dialect
+        com.feedzai.commons.sql.abstraction.dml.Truncate truncate = new com.feedzai.commons.sql.abstraction.dml.Truncate(table("TEST"));
+        engine.executeUpdate(truncate);
+        List<Map<String, ResultColumn>> test = engine.query(select(all()).from(table("TEST")));
+        assertTrue("Test truncate query empty?", test.isEmpty());
+    }
+
+    @Test
+    public void testRenameTables() throws Exception {
+        // Already defined above.
+    }
+
+    @Test
+    public void testLikeWithTransformationDuplicate() throws Exception {
+        // Already defined above.
+    }
+
+    @Test
+    public void createSequenceOnLongColumnTest() throws Exception {
+        DbEntity entity = DbEntity.builder()
+                                  .name("TEST")
+                                  .addColumn("COL1", INT)
+                                  .addColumn("COL2", BOOLEAN)
+                                  .addColumn("COL3", DOUBLE)
+                                  .addColumn("COL4", LONG, true)
+                                  .addColumn("COL5", STRING)
+                                  .build();
+        engine.addEntity(entity);
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL2", true).build());
+        List<Map<String, ResultColumn>> test = engine.query(select(all()).from(table("TEST")));
+        assertEquals(1, (int) test.get(0).get("COL1").toInt());
+        assertTrue(test.get(0).get("COL2").toBoolean());
+        assertEquals(1L, (long) test.get(0).get("COL4").toLong());
+    }
+
+    @Test
+    public void insertWithNoAutoIncAndThatResumeTheAutoIncTest() throws DatabaseEngineException {
+        DbEntity entity = DbEntity.builder()
+                                  .name("TEST")
+                                  .addColumn("COL1", INT)
+                                  .addColumn("COL2", BOOLEAN)
+                                  .addColumn("COL3", DOUBLE)
+                                  .addColumn("COL4", LONG, true)
+                                  .addColumn("COL5", STRING)
+                                  .build();
+        engine.addEntity(entity);
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL2", true).build());
+        List<Map<String, ResultColumn>> test = engine.query(select(all()).from(table("TEST")).orderby(column("COL4").asc()));
+        assertEquals(1L, (long) test.get(0).get("COL4").toLong());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL2", true).set("COL4", 2).build(), false);
+        test = engine.query(select(all()).from(table("TEST")).orderby(column("COL4").asc()));
+        assertEquals(2L, (long) test.get(1).get("COL4").toLong());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL2", true).build());
+        test = engine.query(select(all()).from(table("TEST")).orderby(column("COL4").asc()));
+        assertEquals(3L, (long) test.get(2).get("COL4").toLong());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL2", true).set("COL4", 4).build(), false);
+        test = engine.query(select(all()).from(table("TEST")).orderby(column("COL4").asc()));
+        assertEquals(4L, (long) test.get(3).get("COL4").toLong());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL2", true).build());
+        test = engine.query(select(all()).from(table("TEST")).orderby(column("COL4").asc()));
+        assertEquals(5L, (long) test.get(4).get("COL4").toLong());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL2", true).set("COL4", 6).build(), false);
+        test = engine.query(select(all()).from(table("TEST")).orderby(column("COL4").asc()));
+        assertEquals(6L, (long) test.get(5).get("COL4").toLong());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL2", true).set("COL4", 7).build(), false);
+        test = engine.query(select(all()).from(table("TEST")).orderby(column("COL4").asc()));
+        assertEquals(7L, (long) test.get(6).get("COL4").toLong());
+        engine.persist("TEST", EntityEntry.builder().set("COL1", 1).set("COL2", true).build());
+        test = engine.query(select(all()).from(table("TEST")).orderby(column("COL4").asc()));
+        assertEquals(8L, (long) test.get(7).get("COL4").toLong());
+    }
+    
+    // Helper method to drop tables silently.
+    private void dropSilently(String... tables) {
+        for (String table : tables) {
+            try {
+                engine.dropEntity(DbEntity.builder().name(table).build());
+            } catch (Throwable e) {
+                // Ignore any errors
+            }
+        }
+    }
+
+    public enum TestEnum {
+        TEST_ENUM_VAL;
+
+        @Override
+        public String toString() {
+            return super.toString() + " description";
+        }
+    }
+}

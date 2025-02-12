@@ -1,0 +1,37 @@
+19a20
+> import ch.qos.logback.classic.LoggerContext;
+165d165
+< 
+181c181,183
+<         ((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.TRACE);
+---
+>         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+>         Logger rootLogger = loggerContext.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
+>         rootLogger.setLevel(Level.TRACE);
+186,187c188
+<         properties = new Properties() {
+<             {
+---
+>         properties = new Properties() {{
+193,195c194
+<             }
+<         };
+< 
+---
+>         }};
+1079c1078
+<             assertEquals("Check correct row 6", offset + 1 + j, query.get(j).get("COL6").toInt().intValue());
+---
+>             assertEquals("Check correct row col6", offset + 1 + j, query.get(j).get("COL6").toInt().intValue());
+1946,1947d1944
+< 
+< 
+2041c2038
+<      * @throws DatabaseEngineException If something goes wrong executing the query.
+---
+>      * @throws DatabaseEngineException propagate
+3640c3637,3638
+<         engine.persist("TEST", entry().set("COL1", 1).set("COL2", true).build());
+---
+>         engine.persist("TEST", entry().set("COL1", 1).set("COL2", true)
+>                 .build());

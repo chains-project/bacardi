@@ -1,0 +1,18 @@
+3d2
+< import io.dropwizard.util.Strings;
+6a6
+> import javax.ws.rs.core.HttpHeaders;
+20c20
+<         addIfNotNull("forwardedFor", requestContext.getHeaderString("X-Request-Id"));
+---
+>         addIfNotNull("forwardedFor", requestContext.getHeaderString(HttpHeaders.X_REQUEST_ID));
+24,25c24,25
+<         addIfNotNull("forwardedFor", requestContext.getHeaderString("X-Forwarded-For"));
+<         addIfNotNull("realIp", requestContext.getHeaderString("X-Real-IP"));
+---
+>         addIfNotNull("forwardedFor", requestContext.getHeaderString(HttpHeaders.X_FORWARDED_FOR));
+>         addIfNotNull("realIp", requestContext.getHeaderString(HttpHeaders.X_REAL_IP));
+29c29
+<         if (!Strings.isNullOrEmpty(value)) {
+---
+>         if (value != null && !value.isEmpty()) {

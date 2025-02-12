@@ -1,0 +1,72 @@
+1,18d0
+< //
+< // Wire
+< // Copyright (C) 2016 Wire Swiss GmbH
+< //
+< // This program is free software: you can redistribute it and/or modify
+< // it under the terms of the GNU General Public License as published by
+< // the Free Software Foundation, either version 3 of the License, or
+< // (at your option) any later version.
+< //
+< // This program is distributed in the hope that it will be useful,
+< // but WITHOUT ANY WARRANTY; without even the implied warranty of
+< // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+< // GNU General Public License for more details.
+< //
+< // You should have received a copy of the GNU General Public License
+< // along with this program. If not, see http://www.gnu.org/licenses/.
+< //
+< 
+31c13,17
+< import io.swagger.annotations.*;
+---
+> import io.swagger.annotations.Api;
+> import io.swagger.annotations.ApiOperation;
+> import io.swagger.annotations.ApiParam;
+> import io.swagger.annotations.ApiResponse;
+> import io.swagger.annotations.ApiResponses;
+35,42c21,28
+< import javax.ws.rs.Consumes;
+< import javax.ws.rs.POST;
+< import javax.ws.rs.Path;
+< import javax.ws.rs.Produces;
+< import javax.ws.rs.container.ContainerRequestContext;
+< import javax.ws.rs.core.Context;
+< import javax.ws.rs.core.MediaType;
+< import javax.ws.rs.core.Response;
+---
+> import jakarta.ws.rs.Consumes;
+> import jakarta.ws.rs.POST;
+> import jakarta.ws.rs.Path;
+> import jakarta.ws.rs.Produces;
+> import jakarta.ws.rs.container.ContainerRequestContext;
+> import jakarta.ws.rs.core.Context;
+> import jakarta.ws.rs.core.MediaType;
+> import jakarta.ws.rs.core.Response;
+51d36
+< 
+66c51,52
+<             @ApiResponse(code = 201, message = "Alles gute")})
+---
+>             @ApiResponse(code = 201, message = "Alles gute")
+>     })
+113,116c99,102
+<             return Response.
+<                     status(500).
+<                     entity(new ErrorMessage(e.getMessage())).
+<                     build();
+---
+>             return Response
+>                     .status(500)
+>                     .entity(new ErrorMessage(e.getMessage()))
+>                     .build();
+119,122c105,108
+<         return Response.
+<                 ok(ret).
+<                 status(201).
+<                 build();
+---
+>         return Response
+>                 .ok(ret)
+>                 .status(201)
+>                 .build();

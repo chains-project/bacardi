@@ -1,0 +1,21 @@
+1d0
+< 
+2a2
+> import java.util.Locale;
+6,7c6,9
+< import javax.mvc.MvcContext;
+< //https://www.mvc-spec.org/learn/cookbook/multilang_en.html
+---
+> // import javax.mvc.MvcContext; // Removed due to dependency issue
+> import javax.mvc.locale.LocaleResolver; // Added import for LocaleResolver
+> import javax.mvc.MvcContext; // Added import for MvcContext
+> 
+23c25
+<     private MvcContext mvcContext;
+---
+>     private LocaleResolver localeResolver; // Changed MvcContext to LocaleResolver
+33c35,36
+<         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
+---
+>         final Locale locale = localeResolver.resolveLocale(); // Updated to use LocaleResolver
+>         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, locale);

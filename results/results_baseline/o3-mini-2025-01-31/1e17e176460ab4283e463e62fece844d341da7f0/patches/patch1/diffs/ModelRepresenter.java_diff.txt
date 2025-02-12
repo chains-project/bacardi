@@ -1,0 +1,35 @@
+15a16
+> import org.yaml.snakeyaml.DumperOptions;
+37a39
+>     super(new DumperOptions());
+94d95
+< 
+217,220c218,220
+<   @Override
+<   protected Set<Property> getProperties(Class<? extends Object> type)
+<           throws IntrospectionException {
+<     if (type.isAssignableFrom(Model.class)) {
+---
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+>     try {
+>       if (Model.class.isAssignableFrom(type)) {
+222c222
+<     } else if (type.isAssignableFrom(Developer.class)) {
+---
+>       } else if (Developer.class.isAssignableFrom(type)) {
+224c224
+<     } else if (type.isAssignableFrom(Contributor.class)) {
+---
+>       } else if (Contributor.class.isAssignableFrom(type)) {
+226c226
+<     }  else if (type.isAssignableFrom(Dependency.class)) {
+---
+>       } else if (Dependency.class.isAssignableFrom(type)) {
+228c228
+<     }  else if (type.isAssignableFrom(Plugin.class)) {
+---
+>       } else if (Plugin.class.isAssignableFrom(type)) {
+232a233,235
+>     } catch (IntrospectionException e) {
+>       throw new RuntimeException(e);
+>     }

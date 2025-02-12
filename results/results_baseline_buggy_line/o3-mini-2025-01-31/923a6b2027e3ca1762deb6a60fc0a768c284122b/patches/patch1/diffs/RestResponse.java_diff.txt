@@ -1,0 +1,72 @@
+37a38
+> import java.util.Arrays;
+48d48
+< import org.hamcrest.Matchers;
+332a333,399
+>     /**
+>      * Replacement for org.hamcrest.Matchers.
+>      */
+>     public static final class Matchers {
+>         
+>         public static <T> Matcher<Iterable<? super T>> hasItems(final T... items) {
+>             return new CustomMatcher<Iterable<? super T>>("an iterable containing " + Arrays.toString(items)) {
+>                 @Override
+>                 public boolean matches(final Object item) {
+>                     if (!(item instanceof Iterable)) {
+>                         return false;
+>                     }
+>                     Iterable<?> iterable = (Iterable<?>) item;
+>                     for (T expected : items) {
+>                         boolean found = false;
+>                         for (Object element : iterable) {
+>                             if (expected == null) {
+>                                 if (element == null) {
+>                                     found = true;
+>                                     break;
+>                                 }
+>                             } else if (expected.equals(element)) {
+>                                 found = true;
+>                                 break;
+>                             }
+>                         }
+>                         if (!found) {
+>                             return false;
+>                         }
+>                     }
+>                     return true;
+>                 }
+>             };
+>         }
+>         
+>         public static <T> Matcher<Iterable<? super T>> emptyIterableOf(final Class<T> type) {
+>             return new CustomMatcher<Iterable<? super T>>("an empty iterable") {
+>                 @Override
+>                 public boolean matches(final Object item) {
+>                     if (!(item instanceof Iterable)) {
+>                         return false;
+>                     }
+>                     Iterator<?> it = ((Iterable<?>) item).iterator();
+>                     return !it.hasNext();
+>                 }
+>             };
+>         }
+>         
+>         public static <T> Matcher<T> not(final Matcher<T> matcher) {
+>             return new CustomMatcher<T>("not " + matcher.toString()) {
+>                 @Override
+>                 public boolean matches(final Object item) {
+>                     return !matcher.matches(item);
+>                 }
+>             };
+>         }
+>         
+>         public static <T> Matcher<T> notNullValue() {
+>             return new CustomMatcher<T>("a non-null value") {
+>                 @Override
+>                 public boolean matches(final Object item) {
+>                     return item != null;
+>                 }
+>             };
+>         }
+>     }
+>     

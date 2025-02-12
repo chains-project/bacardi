@@ -1,0 +1,73 @@
+19d18
+< import com.google.api.services.cloudresourcemanager.model.Binding;
+26a26,27
+> import com.google.iam.v1.Binding;
+> import com.google.protobuf.ByteString;
+29d29
+< import java.util.LinkedList;
+36,37c36
+< final class PolicyMarshaller
+<     extends Marshaller<com.google.api.services.cloudresourcemanager.model.Policy> {
+---
+> final class PolicyMarshaller extends Policy.Marshaller<com.google.iam.v1.Policy> {
+55c54
+<   protected Policy fromPb(com.google.api.services.cloudresourcemanager.model.Policy policyPb) {
+---
+>   protected Policy fromPb(com.google.iam.v1.Policy policyPb) {
+57,58c56
+<     if (policyPb.getBindings() != null) {
+<       for (Binding bindingPb : policyPb.getBindings()) {
+---
+>     for (Binding bindingPb : policyPb.getBindingsList()) {
+63c61
+<                     bindingPb.getMembers(),
+---
+>                   bindingPb.getMembersList(),
+71,72c69,73
+<     }
+<     return new Builder(bindings, policyPb.getEtag(), policyPb.getVersion()).build();
+---
+>     return new Builder(
+>             bindings,
+>             policyPb.getEtag() != null ? policyPb.getEtag().toStringUtf8() : null,
+>             policyPb.getVersion())
+>         .build();
+76,79c77,78
+<   protected com.google.api.services.cloudresourcemanager.model.Policy toPb(Policy policy) {
+<     com.google.api.services.cloudresourcemanager.model.Policy policyPb =
+<         new com.google.api.services.cloudresourcemanager.model.Policy();
+<     List<Binding> bindingPbList = new LinkedList<>();
+---
+>   protected com.google.iam.v1.Policy toPb(Policy policy) {
+>     com.google.iam.v1.Policy.Builder policyPbBuilder = com.google.iam.v1.Policy.newBuilder();
+81,83c80,83
+<       Binding bindingPb = new Binding();
+<       bindingPb.setRole(binding.getKey().getValue());
+<       bindingPb.setMembers(
+---
+>       Binding bindingPb =
+>           Binding.newBuilder()
+>               .setRole(binding.getKey().getValue())
+>               .addAllMembers(
+91,92c91,101
+<               }));
+<       bindingPbList.add(bindingPb);
+---
+>                       }))
+>               .build();
+>       policyPbBuilder.addBindings(bindingPb);
+>     }
+>     if (policy.getEtag() != null) {
+>       policyPbBuilder.setEtag(ByteString.copyFromUtf8(policy.getEtag()));
+>     } else {
+>       policyPbBuilder.setEtag(ByteString.EMPTY);
+>     }
+>     if (policy.getVersion() != null) {
+>       policyPbBuilder.setVersion(policy.getVersion());
+94,97c103
+<     policyPb.setBindings(bindingPbList);
+<     policyPb.setEtag(policy.getEtag());
+<     policyPb.setVersion(policy.getVersion());
+<     return policyPb;
+---
+>     return policyPbBuilder.build();

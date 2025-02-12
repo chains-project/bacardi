@@ -1,0 +1,122 @@
+<code_analysis>
+1. The error message indicates that the constructor for org.hamcrest.core.StringContains now only accepts a single String argument. Previously, the code used a two-argument constructor (a boolean and a String) that is no longer available in the updated version of Hamcrest. The error is thrown on lines 57 and 58 in the method failsToResolveInvalid.
+2. In the client code, the problematic section is where two StringContains objects are created with boolean flags. The intent seems to be to check that the error message contains the substring "Unsupported reference" (likely ignoring case) and does not contain the provided invalid string.
+3. To fix this, we can replace the two-argument constructors with the standard one-argument matcher provided by Hamcrest. In addition, we can use the not() matcher to ensure that the error message does not contain the invalid input.
+4. Specifically, we will change the matcher construction from:
+     new AllOf<>(Arrays.asList(
+         new StringContains(true, "Unsupported reference"),
+         new StringContains(false, string)
+     ))
+   to the more standard form:
+     Matchers.allOf(
+         Matchers.containsString("Unsupported reference"),
+         Matchers.not(Matchers.containsString(string))
+     )
+   This change addresses the breaking dependency update while preserving the test’s intent.
+</code_analysis>
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+
+package com.artipie.docker.ref;
+
+import com.artipie.docker.Digest;
+import com.artipie.docker.Tag;
+import java.util.Arrays;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
+import org.hamcrest.core.AllOf;
+import org.hamcrest.core.StringContains;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
+/**
+ * Test case for {@link ManifestRef}.
+ * @since 0.1
+ */
+public final class ManifestRefTest {
+
+    @Test
+    void resolvesDigestString() {
+        MatcherAssert.assertThat(
+            new ManifestRef.FromString("sha256:1234").link().string(),
+            Matchers.equalTo("revisions/sha256/1234/link")
+        );
+    }
+
+    @Test
+    void resolvesTagString() {
+        MatcherAssert.assertThat(
+            new ManifestRef.FromString("1.0").link().string(),
+            Matchers.equalTo("tags/1.0/current/link")
+        );
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "",
+        "a:b:c",
+        ".123"
+    })
+    void failsToResolveInvalid(final String string) {
+        final Throwable throwable = Assertions.assertThrows(
+            IllegalStateException.class,
+            () -> new ManifestRef.FromString(string).link().string()
+        );
+        MatcherAssert.assertThat(
+            throwable.getMessage(),
+            Matchers.allOf(
+                Matchers.containsString("Unsupported reference"),
+                Matchers.not(Matchers.containsString(string))
+            )
+        );
+    }
+
+    @Test
+    void resolvesDigestLink() {
+        MatcherAssert.assertThat(
+            new ManifestRef.FromDigest(new Digest.Sha256("0000")).link().string(),
+            Matchers.equalTo("revisions/sha256/0000/link")
+        );
+    }
+
+    @Test
+    void resolvesTagLink() {
+        MatcherAssert.assertThat(
+            new ManifestRef.FromTag(new Tag.Valid("latest")).link().string(),
+            Matchers.equalTo("tags/latest/current/link")
+        );
+    }
+
+    @Test
+    void stringFromDigestRef() {
+        MatcherAssert.assertThat(
+            new ManifestRef.FromDigest(new Digest.Sha256("0123")).string(),
+            Matchers.equalTo("sha256:0123")
+        );
+    }
+
+    @Test
+    void stringFromTagRef() {
+        final String tag = "0.2";
+        MatcherAssert.assertThat(
+            new ManifestRef.FromTag(new Tag.Valid(tag)).string(),
+            Matchers.equalTo(tag)
+        );
+    }
+
+    @Test
+    void stringFromStringRef() {
+        final String value = "whatever";
+        MatcherAssert.assertThat(
+            new ManifestRef.FromString(value).string(),
+            Matchers.equalTo(value)
+        );
+    }
+}
+```

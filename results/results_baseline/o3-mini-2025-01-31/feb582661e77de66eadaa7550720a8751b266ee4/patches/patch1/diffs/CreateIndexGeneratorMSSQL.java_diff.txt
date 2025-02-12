@@ -1,0 +1,15 @@
+12d11
+< import liquibase.util.StringUtils;
+77c76
+<     if (StringUtils.trimToNull(statement.getTablespace()) != null) {
+---
+>     if (trimToNull(statement.getTablespace()) != null) {
+87a87,94
+> 
+>   private static String trimToNull(String input) {
+>     if (input == null) {
+>       return null;
+>     }
+>     String trimmed = input.trim();
+>     return trimmed.isEmpty() ? null : trimmed;
+>   }

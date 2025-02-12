@@ -1,0 +1,14 @@
+24d23
+< 
+25a25
+> import java.lang.reflect.Method;
+65c65,71
+<             this.sslFilter.initiateHandshake(ioSession);
+---
+>             try {
+>                 Method handshakeMethod = this.sslFilter.getClass().getMethod("initiateHandshake", IoSession.class);
+>                 handshakeMethod.invoke(this.sslFilter, ioSession);
+>             } catch (NoSuchMethodException e) {
+>                 // In the updated dependency, initiateHandshake is no longer available.
+>                 // Handshake will be performed automatically.
+>             }

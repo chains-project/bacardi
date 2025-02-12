@@ -1,0 +1,67 @@
+<code_analysis>
+1. Error Message Observations:
+   • The error indicates that the compiler cannot find the class CommandSource in package org.spongepowered.api.command.
+   • Specifically, the error is raised at lines where CommandSource is used (fields and constructor parameters).
+   • This indicates that, following the dependency update, CommandSource has been moved or renamed.
+
+2. Client Code Review:
+   • The class imports CommandSource from org.spongepowered.api.command, which is now invalid.
+   • CommandSource is used as a type for the "invoker" variable, passed to various methods.
+   • No changes to function signatures are needed.
+
+3. Potential Fix:
+   • Update the import to match the new location of CommandSource.
+   • In recent SpongeAPI updates, CommandSource has been relocated to org.spongepowered.api.command.source.CommandSource.
+   • Replace the old import with the new import without altering the existing functionality.
+
+4. Planned Changes:
+   • Remove: import org.spongepowered.api.command.CommandSource;
+   • Add: import org.spongepowered.api.command.source.CommandSource;
+   • All other code remains intact as no method signature changes are required.
+</code_analysis>
+
+```java
+package com.github.games647.changeskin.sponge.task;
+
+import com.github.games647.changeskin.core.shared.task.SharedNameResolver;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import java.util.UUID;
+
+import org.spongepowered.api.command.source.CommandSource;
+import org.spongepowered.api.entity.living.player.Player;
+
+public class NameResolver extends SharedNameResolver {
+
+    private final ChangeSkinSponge plugin;
+    private final CommandSource invoker;
+    private final Player receiver;
+    private final boolean keepSkin;
+
+    public NameResolver(ChangeSkinSponge plugin, CommandSource invoker, String targetName, Player receiver, boolean keepSkin) {
+        super(plugin.getCore(), targetName, keepSkin);
+
+        this.plugin = plugin;
+        this.invoker = invoker;
+        this.receiver = receiver;
+        this.keepSkin = keepSkin;
+    }
+
+    @Override
+    public void sendMessageInvoker(String id) {
+        plugin.sendMessage(invoker, id);
+    }
+
+    @Override
+    protected boolean hasSkinPermission(UUID uuid) {
+        //todo check skin permissions
+        return true;
+    }
+
+    @Override
+    protected void scheduleDownloader(UUID uuid) {
+        //run this is the same thread
+        new SkinDownloader(plugin, invoker, receiver, uuid, keepSkin).run();
+    }
+}
+```

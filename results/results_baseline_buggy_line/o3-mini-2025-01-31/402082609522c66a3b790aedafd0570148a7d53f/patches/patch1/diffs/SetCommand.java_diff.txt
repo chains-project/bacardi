@@ -1,0 +1,51 @@
+9d8
+< 
+11c10
+< 
+---
+> import org.spongepowered.api.command.Command;
+13,17c12,15
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.args.GenericArguments;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+> import org.spongepowered.api.command.source.CommandSource;
+20,22d17
+< 
+< import static org.spongepowered.api.command.args.GenericArguments.flags;
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+25c20
+< public class SetCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class SetCommand implements ChangeSkinCommand {
+36d30
+<     @Override
+50,51c44,45
+<         String targetSkin = args.<String>getOne("skin").get();
+<         boolean keepSkin = args.hasAny("keep");
+---
+>         String targetSkin = args.requireOne("skin");
+>         boolean keepSkin = args.getOne("keep").orElse(false);
+75,81c69,77
+<     @Override
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+<                 .executor(this)
+<                 .arguments(
+<                         string(of("skin")),
+<                         flags().flag("keep").buildWith(GenericArguments.none()))
+---
+>     public Command buildSpec() {
+>         return Command.builder()
+>                 .executor(context -> {
+>                     CommandSource src = context.cause().first(CommandSource.class)
+>                             .orElseThrow(() -> new CommandException(of("Command source not found")));
+>                     return execute(src, context);
+>                 })
+>                 .addParameter(Parameter.string().key("skin").build())
+>                 .addParameter(Parameter.bool().key("keep").optional().build())

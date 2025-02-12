@@ -1,0 +1,19 @@
+21d20
+< import static org.apache.commons.lang3.StringUtils.isAllBlank;
+140c139,142
+<             if (isAllBlank(server.getUrl(), server.getArtifactory().getUrl(), server.getDistribution().getUrl(),
+---
+>             String serverUrl = server.getUrl();
+>             String artifactoryUrl = server.getArtifactory().getUrl();
+>             String distributionUrl = server.getDistribution().getUrl();
+>             if (isAllBlank(serverUrl, artifactoryUrl, distributionUrl,
+153a156,164
+>         private boolean isAllBlank(String... values) {
+>             for (String value : values) {
+>                 if (isNotBlank(value)) {
+>                     return false;
+>                 }
+>             }
+>             return true;
+>         }
+> 

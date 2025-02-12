@@ -1,0 +1,32 @@
+1. 
+```java
+package micycle.pgs;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
+import processing.core.PShape;
+
+public class PGS_MeshingTests {
+
+	@Test
+	void testAreaMerge() {
+		PShape mesh = PGS_Triangulation.delaunayTriangulation(PGS_PointSet.random(0, 0, 1000, 1000, 1111, 0));
+		List<PShape> faces = PGS_Conversion.getChildren(mesh);
+		faces.sort((a, b) -> Double.compare(PGS_ShapePredicates.area(a), PGS_ShapePredicates.area(b)));
+		double areaThreshold = PGS_ShapePredicates.area(faces.get(faces.size() / 2));
+
+		PShape mergedMesh = PGS_Meshing.areaMerge(mesh, areaThreshold);
+		assertTrue(PGS_Conversion.getChildren(mergedMesh).stream().allMatch(f -> PGS_ShapePredicates.area(f) >= areaThreshold));
+		assertTrue(faces.size() >= mergedMesh.getChildCount());
+		assertEquals(PGS_ShapePredicates.area(mesh), PGS_ShapePredicates.area(mergedMesh), 1e-6);
+	}
+
+}
+```
+
+2. The changes made to the code involve updating the import statements for the assertion methods. The original code imported `assertEquals` and `assertTrue` from `org.junit.Assert`, which is not compatible with JUnit 5 (Jupiter). Instead, I updated the imports to use `org.junit.jupiter.api.Assertions`, which is the correct package for JUnit 5 assertions. This change resolves the "cannot find symbol" errors related to the assertion methods and the `Assert` class. The functionality of the tests remains unchanged.

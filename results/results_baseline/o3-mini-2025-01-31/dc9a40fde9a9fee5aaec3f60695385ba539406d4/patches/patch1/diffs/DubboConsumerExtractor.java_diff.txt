@@ -1,0 +1,25 @@
+8c8,12
+< import org.apache.dubbo.rpc.*;
+---
+> import org.apache.dubbo.rpc.AsyncRpcResult;
+> import org.apache.dubbo.rpc.Invocation;
+> import org.apache.dubbo.rpc.Result;
+> import org.apache.dubbo.rpc.RpcContext;
+> import org.apache.dubbo.rpc.RpcInvocation;
+9a14,16
+> import io.arex.inst.dubbo.apache.v2.FutureContext;
+> 
+> import java.util.concurrent.CompletableFuture;
+20a28
+> 
+24a33
+> 
+43c52,53
+<             RpcContext.getContext().setFuture(asyncRpcResult);
+---
+>             CompletableFuture<Object> future = asyncRpcResult.completableFuture();
+>             RpcContext.getContext().setFuture(future);
+45c55
+<             FutureContext.getContext().setCompatibleFuture(asyncRpcResult);
+---
+>             FutureContext.getContext().setCompatibleFuture(future);

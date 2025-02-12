@@ -38,7 +38,22 @@
             <artifactId>docker-build</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>se.kth</groupId>
+            <artifactId>extractor</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-api-impl</artifactId>
+            <version>4.0.0-beta-4</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.cdimascio</groupId>
+            <artifactId>java-dotenv</artifactId>
+            <version>5.2.2</version>
+        </dependency>
 
     </dependencies>
 
@@ -67,6 +82,22 @@
                                 </manifest>
                             </archive>
                             <finalName>Bacardi</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>bump</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <archive>
+                                <manifest>
+                                    <mainClass>se.kth.Bump</mainClass>
+                                </manifest>
+                            </archive>
+                            <finalName>Bump</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                         </configuration>
                     </execution>

@@ -1,0 +1,92 @@
+138c138,145
+<       return obj instanceof ResourceId && Objects.equals(toPb(), ((ResourceId) obj).toPb());
+---
+>       if (this == obj) {
+>         return true;
+>       }
+>       if (!(obj instanceof ResourceId)) {
+>         return false;
+>       }
+>       ResourceId other = (ResourceId) obj;
+>       return Objects.equals(id, other.id) && Objects.equals(type, other.type);
+146,157c153
+<     com.google.api.services.cloudresourcemanager.model.ResourceId toPb() {
+<       com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb =
+<           new com.google.api.services.cloudresourcemanager.model.ResourceId();
+<       resourceIdPb.setId(id);
+<       resourceIdPb.setType(type.toLowerCase());
+<       return resourceIdPb;
+<     }
+< 
+<     static ResourceId fromPb(
+<         com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb) {
+<       return new ResourceId(resourceIdPb.getId(), resourceIdPb.getType());
+<     }
+---
+>     // Legacy conversion methods referencing the removed external dependency have been removed.
+373,376c369,382
+<     return obj == this
+<         || obj != null
+<             && obj.getClass().equals(ProjectInfo.class)
+<             && Objects.equals(toPb(), ((ProjectInfo) obj).toPb());
+---
+>     if (this == obj) {
+>       return true;
+>     }
+>     if (!(obj instanceof ProjectInfo)) {
+>       return false;
+>     }
+>     ProjectInfo other = (ProjectInfo) obj;
+>     return Objects.equals(name, other.name)
+>         && Objects.equals(projectId, other.projectId)
+>         && Objects.equals(labels, other.labels)
+>         && Objects.equals(projectNumber, other.projectNumber)
+>         && Objects.equals(state, other.state)
+>         && Objects.equals(createTimeMillis, other.createTimeMillis)
+>         && Objects.equals(parent, other.parent);
+392,434c398
+<   com.google.api.services.cloudresourcemanager.model.Project toPb() {
+<     com.google.api.services.cloudresourcemanager.model.Project projectPb =
+<         new com.google.api.services.cloudresourcemanager.model.Project();
+<     projectPb.setName(name);
+<     projectPb.setProjectId(projectId);
+<     projectPb.setLabels(labels);
+<     projectPb.setProjectNumber(projectNumber);
+<     if (state != null) {
+<       projectPb.setLifecycleState(state.toString());
+<     }
+<     if (createTimeMillis != null) {
+<       projectPb.setCreateTime(
+<           DateTimeFormatter.ISO_DATE_TIME
+<               .withZone(ZoneOffset.UTC)
+<               .format(Instant.ofEpochMilli(createTimeMillis)));
+<     }
+<     if (parent != null) {
+<       projectPb.setParent(parent.toPb());
+<     }
+<     return projectPb;
+<   }
+< 
+<   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.model.Project projectPb) {
+<     Builder builder =
+<         newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
+<     if (projectPb.getName() != null && !projectPb.getName().equals("Unnamed")) {
+<       builder.setName(projectPb.getName());
+<     }
+<     if (projectPb.getLabels() != null) {
+<       builder.setLabels(projectPb.getLabels());
+<     }
+<     if (projectPb.getLifecycleState() != null) {
+<       builder.setState(State.valueOf(projectPb.getLifecycleState()));
+<     }
+<     if (projectPb.getCreateTime() != null) {
+<       builder.setCreateTimeMillis(
+<           DATE_TIME_FORMATTER.parse(projectPb.getCreateTime(), Instant.FROM).toEpochMilli());
+<     }
+<     if (projectPb.getParent() != null) {
+<       builder.setParent(ResourceId.fromPb(projectPb.getParent()));
+<     }
+<     return builder.build();
+<   }
+---
+>   // Legacy conversion methods referencing the removed external dependency have been removed.

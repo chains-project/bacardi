@@ -1,0 +1,43 @@
+24d23
+< import org.apache.thrift.transport.TFramedTransport;
+45,46c44,45
+<   private static final class ByteOffsetTFramedTransport extends TFramedTransport {
+< 
+---
+>   private static final class ByteOffsetTFramedTransport extends TTransport {
+>     private final TTransport underlying;
+50,51c49,50
+<       super(transport);
+<       byteOffset = 0;
+---
+>       this.underlying = transport;
+>       this.byteOffset = 0;
+56c55
+<       super.write(buf, off, len);
+---
+>       underlying.write(buf, off, len);
+62c61
+<       super.flush();
+---
+>       underlying.flush();
+69a69,88
+> 
+>     @Override
+>     public boolean isOpen() {
+>       return underlying.isOpen();
+>     }
+> 
+>     @Override
+>     public void open() throws TTransportException {
+>       underlying.open();
+>     }
+> 
+>     @Override
+>     public void close() {
+>       underlying.close();
+>     }
+> 
+>     @Override
+>     public int read(byte[] buf, int off, int len) throws TTransportException {
+>       return underlying.read(buf, off, len);
+>     }

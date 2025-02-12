@@ -1,0 +1,14 @@
+51c51
+<             if (!CollectionUtils.isEmpty(countryCodes) || !StringUtils.isAllBlank(siteName, cityName)) {
+---
+>             if (!CollectionUtils.isEmpty(countryCodes) || !isAnyNotBlank(siteName, cityName)) {
+65a66,74
+>     private static boolean isAnyNotBlank(String... strings) {
+>         for (String str : strings) {
+>             if (StringUtils.isNotBlank(str)) {
+>                 return true;
+>             }
+>         }
+>         return false;
+>     }
+> 

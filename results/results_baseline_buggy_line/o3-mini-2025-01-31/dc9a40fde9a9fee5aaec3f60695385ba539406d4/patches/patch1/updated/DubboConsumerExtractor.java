@@ -1,0 +1,55 @@
+package io.arex.inst.dubbo.apache.v2;
+
+import io.arex.agent.bootstrap.model.MockResult;
+import io.arex.agent.bootstrap.model.Mocker;
+import io.arex.inst.dubbo.common.DubboExtractor;
+import io.arex.inst.runtime.util.IgnoreUtils;
+import io.arex.inst.runtime.util.MockUtils;
+import org.apache.dubbo.rpc.AsyncRpcResult;
+import org.apache.dubbo.rpc.FutureContext;
+import org.apache.dubbo.rpc.Invocation;
+import org.apache.dubbo.rpc.RpcContext;
+import org.apache.dubbo.rpc.RpcInvocation;
+import org.apache.dubbo.rpc.Result;
+import org.apache.dubbo.rpc.support.RpcUtils;
+
+import java.util.concurrent.CompletableFuture;
+
+public class DubboConsumerExtractor extends DubboExtractor {
+    private final DubboAdapter adapter;
+
+    public DubboConsumerExtractor(DubboAdapter adapter) {
+        this.adapter = adapter;
+    }
+
+    public void record(Result result) {
+        adapter.execute(result, makeMocker());
+    }
+    private Mocker makeMocker() {
+        Mocker mocker = MockUtils.createDubboConsumer(adapter.getServiceOperation());
+        return buildMocker(mocker, adapter, null, null);
+    }
+    public MockResult replay() {
+        MockResult mockResult = null;
+        Object result = MockUtils.replayBody(makeMocker());
+        boolean ignoreMockResult = IgnoreUtils.ignoreMockResult(adapter.getPath(), adapter.getOperationName());
+        if (result != null && !ignoreMockResult) {
+            AsyncRpcResult asyncRpcResult;
+            Invocation invocation = adapter.getInvocation();
+            if (result instanceof Throwable) {
+                asyncRpcResult = AsyncRpcResult.newDefaultAsyncResult((Throwable) result, invocation);
+            } else {
+                asyncRpcResult = AsyncRpcResult.newDefaultAsyncResult(result, invocation);
+            }
+            mockResult = MockResult.success(ignoreMockResult, asyncRpcResult);
+            if (invocation instanceof RpcInvocation) {
+                RpcInvocation rpcInv = (RpcInvocation) invocation;
+                rpcInv.setInvokeMode(RpcUtils.getInvokeMode(adapter.getUrl(), invocation));
+            }
+            CompletableFuture<Object> future = asyncRpcResult.getAppResponseFuture();
+            RpcContext.getContext().setFuture(future);
+            FutureContext.getContext().setCompatibleFuture(future);
+        }
+        return mockResult;
+    }
+}

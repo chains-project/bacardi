@@ -1,0 +1,49 @@
+37,38c37
+< import org.cactoos.scalar.IoCheckedScalar;
+< import org.cactoos.scalar.SolidScalar;
+---
+> import org.cactoos.scalar.Sticky;
+40d38
+< import org.cactoos.text.JoinedText;
+53c51
+<     private final IoCheckedScalar<Path> path;
+---
+>     private final Scalar<Path> path;
+103,105c101
+<         this.path = new IoCheckedScalar<>(
+<             new SolidScalar<>(pth)
+<         );
+---
+>         this.path = new Sticky<>(pth);
+118,124c114,121
+<         final Path wpth = this.path.value().resolve(
+<             new JoinedText(
+<                 ".",
+<                 Long.toHexString(this.random.nextLong()),
+<                 this.ext
+<             ).asString()
+<         );
+---
+>         final Path base;
+>         try {
+>             base = this.path.value();
+>         } catch (final Exception ex) {
+>             throw new IOException(ex);
+>         }
+>         final String walletFileName = Long.toHexString(this.random.nextLong()) + "." + this.ext;
+>         final Path wpth = base.resolve(walletFileName);
+144,145c141
+<     public Wallet create(final long id, final String pubkey, final String
+<         network) throws IOException {
+---
+>     public Wallet create(final long id, final String pubkey, final String network) throws IOException {
+153a150
+>             final Path base = this.path.value();
+156c153
+<                 new Filtered<>(this.filter, new Directory(this.path.value()))
+---
+>                 new Filtered<>(this.filter, new Directory(base))
+158c155
+<         } catch (final IOException ex) {
+---
+>         } catch (final Exception ex) {

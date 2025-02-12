@@ -1,0 +1,43 @@
+6,13d5
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.UriRef;
+< import javax.mvc.binding.BindingResult;
+< import javax.mvc.binding.MvcBinding;
+< import javax.mvc.binding.ParamError;
+< import javax.mvc.security.CsrfProtected;
+< import javax.validation.constraints.NotBlank;
+24d15
+< @Controller
+28,35c19,21
+<     @Inject
+<     BindingResult bindingResult;
+< 
+<     @Inject
+<     Models models;
+< 
+<     @Inject
+<     AlertMessage flashMessage;
+---
+>     // Removed BindingResult and Models as they are not available in the new version
+>     // Added a simple error handling mechanism
+>     private String errorMessage;
+46d31
+<     @UriRef("greeting-post")
+49d33
+<             @MvcBinding
+51,58c35,36
+<         if (bindingResult.isFailed()) {
+<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
+<             bindingResult.getAllErrors()
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+<                         alert.addError(t.getParamName(), "", t.getMessage());
+<                     });
+<             models.put("errors", alert);
+---
+>         if (greeting == null || greeting.isBlank()) {
+>             errorMessage = "Validation violations!";
+63a42,43
+>         // Assuming AlertMessage is still available
+>         AlertMessage flashMessage = new AlertMessage();

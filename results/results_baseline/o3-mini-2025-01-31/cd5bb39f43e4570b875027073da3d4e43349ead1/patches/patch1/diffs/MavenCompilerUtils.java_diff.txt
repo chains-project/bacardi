@@ -1,0 +1,83 @@
+1,15d0
+< /*
+<  * Copyright 2019 Danny van Heumen
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+21d5
+< import org.codehaus.plexus.util.xml.Xpp3Dom;
+22a7,8
+> import java.lang.reflect.Method;
+> import java.util.Arrays;
+70,79c56,78
+<         if (config instanceof Xpp3Dom) {
+<             return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
+<                     .flatMap(aggregate -> stream(aggregate.getChildren("path")))
+<                     .map(processor -> system.createArtifact(
+<                             extractChildValue(processor, "groupId"),
+<                             extractChildValue(processor, "artifactId"),
+<                             extractChildValue(processor, "version"),
+<                             PACKAGING))
+<                     // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
+<                     // therefore there is little use in logging incomplete paths that are filtered out.
+---
+>         if ("Xpp3Dom".equals(config.getClass().getSimpleName())) {
+>             try {
+>                 Method getChildrenMethod = config.getClass().getMethod("getChildren", String.class);
+>                 Object annotationProcessorPathsObj = getChildrenMethod.invoke(config, "annotationProcessorPaths");
+>                 Object[] annotationProcessorPaths = (annotationProcessorPathsObj instanceof Object[])
+>                         ? (Object[]) annotationProcessorPathsObj : new Object[0];
+>                 return Arrays.stream(annotationProcessorPaths)
+>                         .flatMap(aggregate -> {
+>                             try {
+>                                 Method getChildren = aggregate.getClass().getMethod("getChildren", String.class);
+>                                 Object childrenObj = getChildren.invoke(aggregate, "path");
+>                                 Object[] children = (childrenObj instanceof Object[]) ? (Object[]) childrenObj : new Object[0];
+>                                 return Arrays.stream(children);
+>                             } catch (Exception e) {
+>                                 throw new RuntimeException(e);
+>                             }
+>                         })
+>                         .map(processor -> {
+>                             String groupId = extractChildValueReflectively(processor, "groupId");
+>                             String artifactId = extractChildValueReflectively(processor, "artifactId");
+>                             String version = extractChildValueReflectively(processor, "version");
+>                             return system.createArtifact(groupId, artifactId, version, PACKAGING);
+>                         })
+83a83,86
+>             } catch (Exception e) {
+>                 throw new UnsupportedOperationException("Please report that an unsupported type of configuration container" +
+>                         " was encountered: " + config.getClass(), e);
+>             }
+85,87d87
+<         // It is expected that this will never occur due to all Configuration instances of all plugins being provided as
+<         // XML document. If this happens to occur on very old plugin versions, we can safely add the type support and
+<         // simply return an empty set.
+99,101c99,111
+<     private static String extractChildValue(Xpp3Dom node, String name) {
+<         final Xpp3Dom child = node.getChild(name);
+<         return child == null ? "" : child.getValue();
+---
+>     private static String extractChildValueReflectively(Object node, String name) {
+>         try {
+>             Method getChildMethod = node.getClass().getMethod("getChild", String.class);
+>             Object child = getChildMethod.invoke(node, name);
+>             if (child == null) {
+>                 return "";
+>             }
+>             Method getValueMethod = child.getClass().getMethod("getValue");
+>             Object value = getValueMethod.invoke(child);
+>             return value == null ? "" : value.toString();
+>         } catch (Exception e) {
+>             throw new RuntimeException(e);
+>         }

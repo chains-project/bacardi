@@ -1,0 +1,110 @@
+1,23d0
+< /*
+<  * The MIT License (MIT)
+<  *
+<  * Copyright (c) 2018-2023 Yegor Bugayenko
+<  *
+<  * Permission is hereby granted, free of charge, to any person obtaining a copy
+<  * of this software and associated documentation files (the "Software"), to deal
+<  * in the Software without restriction, including without limitation the rights
+<  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+<  *
+<  * The above copyright notice and this permission notice shall be included
+<  * in all copies or substantial portions of the Software.
+<  *
+<  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+<  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+<  * SOFTWARE.
+<  */
+37d13
+< import org.cactoos.scalar.StickyScalar;
+40d15
+< import org.cactoos.text.SplitText;
+43d17
+< import org.cactoos.text.UncheckedText;
+88c62
+<     private final IoCheckedScalar<String> transaction;
+---
+>     private final String transaction;
+95,97c69
+<         this.transaction = new IoCheckedScalar<>(
+<             new StickyScalar<>(
+<                 () -> {
+---
+>         this.transaction = trnsct;
+103c75
+<                         throw new IOException(
+---
+>             throw new IllegalArgumentException(
+109c81
+<                             new SplitText(trnsct, ";")
+---
+>                 new org.cactoos.text.SplitText(trnsct, ";")
+113c85
+<                         throw new IOException(
+---
+>             throw new IllegalArgumentException(
+121,124d92
+<                     return trnsct;
+<                 }
+<             )
+<         );
+131d98
+<             new IoCheckedScalar<>(
+133,134c100
+<                     0, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>                 0, new org.cactoos.text.SplitText(this.transaction, ";")
+156d121
+<                 new IoCheckedScalar<>(
+158,159c123
+<                         1, new SplitText(this.transaction.value(), ";")
+<                     )
+---
+>                     1, new org.cactoos.text.SplitText(this.transaction, ";")
+169d132
+<             new IoCheckedScalar<>(
+171,172c134
+<                     2, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>                 2, new org.cactoos.text.SplitText(this.transaction, ";")
+193d154
+<             new IoCheckedScalar<>(
+196,197c157
+<                     3, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>                 3, new org.cactoos.text.SplitText(this.transaction, ";")
+213d172
+<             new IoCheckedScalar<>(
+216,217c175
+<                     4, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>                 4, new org.cactoos.text.SplitText(this.transaction, ";")
+237d194
+<             new IoCheckedScalar<>(
+240,241c197
+<                     5, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>                 5, new org.cactoos.text.SplitText(this.transaction, ";")
+261d216
+<             new IoCheckedScalar<>(
+264,265c219
+<                     6, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>                 6, new org.cactoos.text.SplitText(this.transaction, ";")
+286c240
+<         return new UncheckedScalar<>(this.transaction).value();
+---
+>         return this.transaction;

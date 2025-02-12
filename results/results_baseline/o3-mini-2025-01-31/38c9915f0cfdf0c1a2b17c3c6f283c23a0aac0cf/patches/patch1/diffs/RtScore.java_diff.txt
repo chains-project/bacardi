@@ -1,0 +1,18 @@
+27d26
+< import org.cactoos.iterable.LengthOf;
+52,53c51,53
+<         return new LengthOf(other.suffixes()).intValue()
+<             - new LengthOf(this.sfxs).intValue();
+---
+>         int lengthOther = count(other.suffixes());
+>         int lengthThis = count(this.sfxs);
+>         return lengthOther - lengthThis;
+59a60,67
+> 
+>     private static int count(final Iterable<?> iterable) {
+>         int count = 0;
+>         for (Object item : iterable) {
+>             count++;
+>         }
+>         return count;
+>     }

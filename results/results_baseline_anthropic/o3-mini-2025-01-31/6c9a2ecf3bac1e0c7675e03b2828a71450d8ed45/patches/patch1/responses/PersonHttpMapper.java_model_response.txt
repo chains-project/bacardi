@@ -1,0 +1,36 @@
+<code_analysis>
+1. The error “Couldn't retrieve @Mapper annotation” suggests that the MapStruct annotation processor is unable to locate or process the @Mapper annotation on the interface. This issue has appeared after a dependency update.
+2. In the client code, the interface is annotated with @Mapper and declares a static INSTANCE field with Mappers.getMapper(...). In recent MapStruct versions (especially when using dependency injection frameworks like Spring Boot), it is recommended to set the componentModel attribute (for example, to “spring”) and avoid using the static INSTANCE field.
+3. To address the issue without changing any method signatures, we can update the @Mapper annotation to specify componentModel = "spring". Since the project is a Spring Boot application (as indicated by “hexagonal-springboot”), this is appropriate. In addition, removing the now-unnecessary static INSTANCE field avoids potential conflicts with the dependency‐injected mapper instance.
+4. These changes adhere to the constraints: function signatures remain unchanged and only code that causes the compilation error is removed.
+</code_analysis>
+
+```java
+package io.github.wesleyosantos91.api.v1.mapper;
+
+import io.github.wesleyosantos91.api.v1.request.PersonRequest;
+import io.github.wesleyosantos91.api.v1.response.PersonResponse;
+import io.github.wesleyosantos91.core.domain.PersonDomain;
+import java.util.ArrayList;
+import java.util.List;
+import org.mapstruct.Mapper;
+
+@Mapper(componentModel = "spring")
+public interface PersonHttpMapper {
+
+    // Removed the static INSTANCE field to allow proper processing
+    // when using the Spring component model.
+
+    PersonDomain toDomain(PersonRequest request);
+    PersonRequest toRequest(PersonDomain domain);
+
+    PersonDomain toDomain(PersonResponse response);
+    PersonResponse toResponse(PersonDomain domain);
+
+    default List<PersonResponse> toListResponse(List<PersonDomain> domains) {
+        List<PersonResponse> list = new ArrayList<>();
+        domains.forEach(d -> list.add(toResponse(d)));
+        return list;
+    }
+}
+```

@@ -1,0 +1,228 @@
+0a1,9
+> package io.zold.api;
+> 
+> import java.io.IOException;
+> import java.math.BigInteger;
+> import java.time.ZonedDateTime;
+> import java.time.format.DateTimeFormatter;
+> import java.time.format.DateTimeParseException;
+> import java.util.regex.Pattern;
+> 
+24,53d32
+< package io.zold.api;
+< 
+< import java.io.IOException;
+< import java.math.BigInteger;
+< import java.time.ZonedDateTime;
+< import java.time.format.DateTimeFormatter;
+< import java.util.List;
+< import java.util.regex.Pattern;
+< import org.cactoos.Text;
+< import org.cactoos.iterable.LengthOf;
+< import org.cactoos.list.ListOf;
+< import org.cactoos.scalar.IoCheckedScalar;
+< import org.cactoos.scalar.ItemAt;
+< import org.cactoos.scalar.StickyScalar;
+< import org.cactoos.scalar.UncheckedScalar;
+< import org.cactoos.text.FormattedText;
+< import org.cactoos.text.SplitText;
+< import org.cactoos.text.TextOf;
+< import org.cactoos.text.TrimmedText;
+< import org.cactoos.text.UncheckedText;
+< import org.cactoos.time.ZonedDateTimeOf;
+< 
+< /**
+<  * RtTransaction.
+<  *
+<  * @since 0.1
+<  * @checkstyle ClassDataAbstractionCoupling (3 lines)
+<  */
+< @SuppressWarnings({"PMD.AvoidCatchingGenericException",
+<     "PMD.AvoidFieldNameMatchingMethodName"})
+88c67,72
+<     private final IoCheckedScalar<String> transaction;
+---
+>     private final String transaction;
+> 
+>     /**
+>      * Parts of the transaction string.
+>      */
+>     private final String[] parts;
+92a77
+>      * @throws IOException if the transaction string is invalid
+94,102c79,81
+<     RtTransaction(final String trnsct) {
+<         this.transaction = new IoCheckedScalar<>(
+<             new StickyScalar<>(
+<                 () -> {
+<                     if (
+<                         new TrimmedText(
+<                             new TextOf(trnsct)
+<                         ).asString().isEmpty()
+<                     ) {
+---
+>     RtTransaction(final String trnsct) throws IOException {
+>         final String trimmed = trnsct.trim();
+>         if (trimmed.isEmpty()) {
+107,112c86,87
+<                     final List<Text> pieces =
+<                         new ListOf<>(
+<                             new SplitText(trnsct, ";")
+<                         );
+<                     // @checkstyle MagicNumberCheck (1 line)
+<                     if (new LengthOf(pieces).intValue() != 7) {
+---
+>         final String[] pieces = trnsct.split(";");
+>         if (pieces.length != 7) {
+114,115c89
+<                             new FormattedText(
+<                                 // @checkstyle LineLength (1 line)
+---
+>                 String.format(
+117,122c91
+<                                 pieces.size()
+<                             ).asString()
+<                         );
+<                     }
+<                     return trnsct;
+<                 }
+---
+>                     pieces.length
+125a95,97
+>         this.transaction = trnsct;
+>         this.parts = pieces;
+>     }
+130,136c102
+<         final String ident = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     0, new SplitText(this.transaction.value(), ";")
+<                 )
+<             ).value()
+<         ).asString();
+---
+>         final String ident = this.parts[0];
+139,141c105
+<                 new UncheckedText(
+<                     new FormattedText(
+<                         // @checkstyle LineLength (1 line)
+---
+>                 String.format(
+145d108
+<                 ).asString()
+148d110
+<         // @checkstyle MagicNumber (1 line)
+154,163c116,120
+<         return new ZonedDateTimeOf(
+<             new UncheckedText(
+<                 new IoCheckedScalar<>(
+<                     new ItemAt<>(
+<                         1, new SplitText(this.transaction.value(), ";")
+<                     )
+<                 ).value()
+<             ).asString(),
+<             DateTimeFormatter.ISO_OFFSET_DATE_TIME
+<         ).value();
+---
+>         try {
+>             return ZonedDateTime.parse(this.parts[1], DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+>         } catch (DateTimeParseException ex) {
+>             throw new IOException("Invalid time format: " + this.parts[1], ex);
+>         }
+168,174c125
+<         final String amnt = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     2, new SplitText(this.transaction.value(), ";")
+<                 )
+<             ).value()
+<         ).asString();
+---
+>         final String amnt = this.parts[2];
+177,179c128
+<                 new UncheckedText(
+<                     new FormattedText(
+<                         // @checkstyle LineLength (1 line)
+---
+>                 String.format(
+183d131
+<                 ).asString()
+186d133
+<         // @checkstyle MagicNumber (1 line)
+192,200c139
+<         final String prefix = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+<                     3, new SplitText(this.transaction.value(), ";")
+<                 )
+<             ).value()
+<         ).asString();
+<         //@checkstyle MagicNumberCheck (1 line)
+---
+>         final String prefix = this.parts[3];
+212,219c151
+<         final String bnf = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+<                     4, new SplitText(this.transaction.value(), ";")
+<                 )
+<             ).value()
+<         ).asString();
+---
+>         final String bnf = this.parts[4];
+222,224c154
+<                 new UncheckedText(
+<                     new FormattedText(
+<                         // @checkstyle LineLength (1 line)
+---
+>                 String.format(
+228d157
+<                 ).asString()
+236,243c165
+<         final String dtls = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+<                     5, new SplitText(this.transaction.value(), ";")
+<                 )
+<             ).value()
+<         ).asString();
+---
+>         final String dtls = this.parts[5];
+246,248c168
+<                 new UncheckedText(
+<                     new FormattedText(
+<                         // @checkstyle LineLength (1 line)
+---
+>                 String.format(
+252d171
+<                 ).asString()
+260,270c179,180
+<         final String sign = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+<                     6, new SplitText(this.transaction.value(), ";")
+<                 )
+<             ).value()
+<         ).asString();
+<         // @checkstyle MagicNumber (1 line)
+<         if (sign.length() != 684
+<             || !RtTransaction.SIGN.matcher(sign).matches()) {
+---
+>         final String sign = this.parts[6];
+>         if (sign.length() != 684 || !RtTransaction.SIGN.matcher(sign).matches()) {
+272,274c182
+<                 new UncheckedText(
+<                     new FormattedText(
+<                         // @checkstyle LineLength (1 line)
+---
+>                 String.format(
+278d185
+<                 ).asString()
+286c193
+<         return new UncheckedScalar<>(this.transaction).value();
+---
+>         return this.transaction;

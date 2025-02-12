@@ -1,0 +1,8 @@
+14a15
+> import java.io.StringReader;
+88c89
+<     ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
+---
+>     ExportResponse exportResponse = objectMapper.readerFor(ExportResponse.class).readValue(new StringReader(body));
+166d166
+< 

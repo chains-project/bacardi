@@ -1,0 +1,10 @@
+21,22d20
+< import com.mysql.jdbc.exceptions.MySQLTimeoutException;
+< 
+23a22
+> import java.util.concurrent.TimeUnit;
+40c39,40
+<         return exception instanceof MySQLTimeoutException || super.isTimeoutException(exception);
+---
+>         return exception.getCause() instanceof com.mysql.cj.jdbc.exceptions.CommunicationsException
+>                 || super.isTimeoutException(exception);

@@ -1,0 +1,23 @@
+1. 
+```java
+package de.hilling.junit.cdi.scope;
+
+import org.immutables.value.Value;
+
+import jakarta.interceptor.InterceptorBinding; // Updated import from javax to jakarta
+import java.lang.annotation.*;
+
+/**
+ * Marker interface used internally by the {@link de.hilling.junit.cdi.scope.TestScopeExtension} to
+ * mark classes that can be mocked or replaced by other test beans.
+ */
+@Inherited
+@InterceptorBinding
+@Target({ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Value.Immutable
+public @interface Replaceable {
+}
+```
+
+2. The change made was to update the import statement for `InterceptorBinding` from `javax.interceptor.InterceptorBinding` to `jakarta.interceptor.InterceptorBinding`. This change reflects the package restructuring that occurred with the transition from the `javax` namespace to the `jakarta` namespace in the Jakarta EE specifications, which is necessary for compatibility with version 2.0.0 of the `jakarta.interceptor` library. No other changes were made to the code, ensuring that the functionality remains unchanged.

@@ -1,0 +1,78 @@
+Due to an update of Library org.spongepowered from version 7.4.0 to version 8.0.0, the code in file NameResolver.java below is causing errors.
+
+Here is the error message:
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/NameResolver.java:[18,50] cannot find symbol
+  symbol:   class CommandSource
+  location: class com.github.games647.changeskin.sponge.task.NameResolver
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/NameResolver.java:[8,37] cannot find symbol
+  symbol:   class CommandSource
+  location: package org.spongepowered.api.command
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/NameResolver.java:[14,19] cannot find symbol
+  symbol:   class CommandSource
+  location: class com.github.games647.changeskin.sponge.task.NameResolver
+
+
+
+Update the provided code to fix this error.
+
+Focus only on updates that do not change the code's functionality and are related to the version update of the library.
+
+You must reply in the following exact numbered format.
+
+1. `The full updated code in a fenced code block` do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+2. Explanation of the changes you made.
+
+Provided code:
+
+```
+package com.github.games647.changeskin.sponge.task;
+
+import com.github.games647.changeskin.core.shared.task.SharedNameResolver;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import java.util.UUID;
+
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.living.player.Player;
+
+public class NameResolver extends SharedNameResolver {
+
+    private final ChangeSkinSponge plugin;
+    private final CommandSource invoker;
+    private final Player receiver;
+    private final boolean keepSkin;
+
+    public NameResolver(ChangeSkinSponge plugin, CommandSource invoker, String targetName, Player receiver
+            , boolean keepSkin) {
+        super(plugin.getCore(), targetName, keepSkin);
+
+        this.plugin = plugin;
+        this.invoker = invoker;
+        this.receiver = receiver;
+        this.keepSkin = keepSkin;
+    }
+
+    @Override
+    public void sendMessageInvoker(String id) {
+        plugin.sendMessage(invoker, id);
+    }
+
+    @Override
+    protected boolean hasSkinPermission(UUID uuid) {
+        //todo check skin permissions
+        return true;
+    }
+
+    @Override
+    protected void scheduleDownloader(UUID uuid) {
+        //run this is the same thread
+        new SkinDownloader(plugin, invoker, receiver, uuid, keepSkin).run();
+    }
+}
+
+
+```
+
+Your Response:

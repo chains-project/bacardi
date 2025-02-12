@@ -1,0 +1,11 @@
+41d40
+< import org.apache.commons.io.output.NullPrintStream;
+300c299,304
+<             PrintStream nullPrintStream = NullPrintStream.NULL_PRINT_STREAM;
+---
+>             PrintStream nullPrintStream = new PrintStream(new OutputStream() {
+>                 @Override
+>                 public void write(int b) {
+>                     // No operation
+>                 }
+>             });

@@ -1,0 +1,32 @@
+1. 
+```java
+/*
+ * Copyright 2020 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.google.pubsublite.kafka.sink;
+
+import com.google.cloud.pubsublite.PubsubMessage; // Updated import
+import com.google.cloud.pubsublite.internal.Publisher;
+import java.util.Map;
+
+interface PublisherFactory {
+
+  Publisher<PubsubMessage> newPublisher(Map<String, String> params); // Updated type
+}
+```
+
+2. The changes made include:
+   - Replaced the import of `PublishMetadata` with `PubsubMessage`, as `PublishMetadata` was removed or renamed in the updated version of the library.
+   - Updated the generic type in the `Publisher` interface from `PublishMetadata` to `PubsubMessage` to reflect the new class that should be used for publishing messages in the updated library version. This maintains the functionality of the code while aligning it with the new library structure.

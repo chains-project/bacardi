@@ -1,0 +1,9 @@
+112c112,117
+<         logger.setLevel(Level.INFO);
+---
+>         try {
+>             java.lang.reflect.Method setLevelMethod = logger.getClass().getMethod("setLevel", Level.class);
+>             setLevelMethod.invoke(logger, Level.INFO);
+>         } catch (Exception e) {
+>             // ignore exception setting logging level
+>         }

@@ -1,0 +1,82 @@
+126,127c126,127
+<   private final ConcurrentSkipListMap<String, Project> projects = new ConcurrentSkipListMap<>();
+<   private final Map<String, Policy> policies = new HashMap<>();
+---
+>   private final ConcurrentSkipListMap<String, com.google.api.services.cloudresourcemanager.model.Project> projects = new ConcurrentSkipListMap<>();
+>   private final Map<String, com.google.api.services.cloudresourcemanager.model.Policy> policies = new HashMap<>();
+218c218
+<                 replace(projectIdFromUri(path), jsonFactory.fromString(requestBody, Project.class));
+---
+>                 replace(projectIdFromUri(path), jsonFactory.fromString(requestBody, com.google.api.services.cloudresourcemanager.model.Project.class));
+238c238
+<       return create(jsonFactory.fromString(requestBody, Project.class));
+---
+>       return create(jsonFactory.fromString(requestBody, com.google.api.services.cloudresourcemanager.model.Project.class));
+276c276
+<           Project project = projects.get(projectId);
+---
+>           com.google.api.services.cloudresourcemanager.model.Project project = projects.get(projectId);
+388c388
+<   private static String checkForProjectErrors(Project project) {
+---
+>   private static String checkForProjectErrors(com.google.api.services.cloudresourcemanager.model.Project project) {
+444c444
+<   synchronized Response create(Project project) {
+---
+>   synchronized Response create(com.google.api.services.cloudresourcemanager.model.Project project) {
+459c459
+<       Policy emptyPolicy =
+---
+>       com.google.api.services.cloudresourcemanager.model.Policy emptyPolicy =
+478c478
+<     Project project = projects.get(projectId);
+---
+>     com.google.api.services.cloudresourcemanager.model.Project project = projects.get(projectId);
+493c493
+<     Project project = projects.get(projectId);
+---
+>     com.google.api.services.cloudresourcemanager.model.Project project = projects.get(projectId);
+517c517
+<     Map<String, Project> projectsToScan = projects;
+---
+>     Map<String, com.google.api.services.cloudresourcemanager.model.Project> projectsToScan = projects;
+521c521
+<     for (Project p : projectsToScan.values()) {
+---
+>     for (com.google.api.services.cloudresourcemanager.model.Project p : projectsToScan.values()) {
+569c569
+<   private static boolean includeProject(Project project, String[] filters) {
+---
+>   private static boolean includeProject(com.google.api.services.cloudresourcemanager.model.Project project, String[] filters) {
+604c604
+<   private static Project extractFields(Project fullProject, String[] fields) {
+---
+>   private static com.google.api.services.cloudresourcemanager.model.Project extractFields(com.google.api.services.cloudresourcemanager.model.Project fullProject, String[] fields) {
+608c608
+<     Project project = new Project();
+---
+>     com.google.api.services.cloudresourcemanager.model.Project project = new com.google.api.services.cloudresourcemanager.model.Project();
+637,638c637,638
+<   synchronized Response replace(String projectId, Project project) {
+<     Project originalProject = projects.get(projectId);
+---
+>   synchronized Response replace(String projectId, com.google.api.services.cloudresourcemanager.model.Project project) {
+>     com.google.api.services.cloudresourcemanager.model.Project originalProject = projects.get(projectId);
+664c664
+<     Project project = projects.get(projectId);
+---
+>     com.google.api.services.cloudresourcemanager.model.Project project = projects.get(projectId);
+684c684
+<     Policy policy = policies.get(projectId);
+---
+>     com.google.api.services.cloudresourcemanager.model.Policy policy = policies.get(projectId);
+696,697c696,697
+<   synchronized Response replacePolicy(String projectId, Policy policy) {
+<     Policy originalPolicy = policies.get(projectId);
+---
+>   synchronized Response replacePolicy(String projectId, com.google.api.services.cloudresourcemanager.model.Policy policy) {
+>     com.google.api.services.cloudresourcemanager.model.Policy originalPolicy = policies.get(projectId);
+785c785
+<     Project project = projects.get(checkNotNull(projectId));
+---
+>     com.google.api.services.cloudresourcemanager.model.Project project = projects.get(checkNotNull(projectId));

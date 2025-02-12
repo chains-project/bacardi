@@ -1,0 +1,17 @@
+12a13
+> import java.nio.ByteBuffer;
+16,17d16
+< import org.cactoos.io.BytesOf;
+< import org.cactoos.text.HexOf;
+61c60
+<                     () -> new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+---
+>                     () -> new Digest.Sha256(toHex(sha.digest()))
+66a66,72
+>     private static String toHex(final byte[] bytes) {
+>         final StringBuilder builder = new StringBuilder(bytes.length * 2);
+>         for (final byte b : bytes) {
+>             builder.append(String.format("%02x", b));
+>         }
+>         return builder.toString();
+>     }

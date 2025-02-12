@@ -1,0 +1,29 @@
+64c64
+<     private EventSubscriberQueue mockEventSubscriberQueue;
+---
+>     private Appender mockLogAppender;
+83,84c83
+<     @Mock
+<     private Appender<ILoggingEvent> mockLogAppender;
+---
+>     
+113c112
+<         logger.addAppender(mockLogAppender);
+---
+>         logger.addAppender((Appender<ILoggingEvent>) mockLogAppender);
+177c176
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+---
+>         verify((Appender<ILoggingEvent>) mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+214c213
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+---
+>         verify((Appender<ILoggingEvent>) mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+251c250
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+---
+>         verify((Appender<ILoggingEvent>) mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+288c287
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+---
+>         verify((Appender<ILoggingEvent>) mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());

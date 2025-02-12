@@ -1,0 +1,20 @@
+16,17c16
+< import org.cactoos.io.BytesOf;
+< import org.cactoos.text.HexOf;
+---
+> import java.util.Formatter;
+61c60
+<                     () -> new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+---
+>                     () -> new Digest.Sha256(toHexString(sha.digest()))
+66a66,75
+>     private String toHexString(byte[] bytes) {
+>         StringBuilder hexString = new StringBuilder();
+>         for (byte b : bytes) {
+>             String hex = Integer.toHexString(0xff & b);
+>             if (hex.length() == 1) hexString.append('0');
+>             hexString.append(hex);
+>         }
+>         return hexString.toString();
+>     }
+> 

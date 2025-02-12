@@ -1,0 +1,57 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+
+```java
+package de.hilling.junit.cdi.annotations;
+
+import de.hilling.junit.cdi.scope.TestScoped;
+import org.immutables.value.Value;
+
+import javax.annotation.Priority;
+import javax.enterprise.inject.Alternative;
+import javax.enterprise.inject.Stereotype;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+/**
+ * Use this annotation to mark Alternatives that should globally replace
+ * production implementations.
+ * <p>
+ *     These services cannot be disabled or enabled on a per test basis
+ *     because the container is only started once.
+ * </p>
+ */
+@Alternative
+@TestScoped
+@Stereotype
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+@Priority(100)
+@Value.Immutable
+public @interface GlobalTestImplementation {
+}
+
+```
+
+ with the following error information:
+[ERROR] /cdi-test/cdi-test-api/src/main/java/de/hilling/junit/cdi/annotations/GlobalTestImplementation.java:[6,24] package javax.annotation does not exist
+
+[ERROR] /cdi-test/cdi-test-api/src/main/java/de/hilling/junit/cdi/annotations/GlobalTestImplementation.java:[27,2] cannot find symbol
+  symbol: class Priority
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

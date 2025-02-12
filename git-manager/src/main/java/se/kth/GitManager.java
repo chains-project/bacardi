@@ -62,8 +62,25 @@ public class GitManager {
         try {
 
             if (git.branchList().call().stream().anyMatch(ref -> ref.getName().equals("refs/heads/" + branchName))) {
+
+                if (branchName.equals(Constants.BRANCH_ORIGINAL_STATUS)) {
+                    git.checkout().setName(branchName).call();
+                    git.branchList().call().forEach(ref -> {
+                        if (!ref.getName().equals("refs/heads/" + "original_status") && !ref.getName().equals("refs/heads/" + "main")) {
+                            try {
+                                git.branchDelete().setBranchNames(ref.getName()).setForce(true).call();
+                            } catch (GitAPIException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    });
+
+                    return true;
+                }
                 log.info("Branch {} already exists", branchName);
+                // delete branch
                 return false;
+//                git.branchDelete().setBranchNames(branchName).setForce(true).call();
             }
 
             //Add all changes in the working branch

@@ -1,0 +1,21 @@
+1,4d0
+< /*
+<  * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
+<  * https://github.com/artipie/docker-adapter/LICENSE.txt
+<  */
+15,16d10
+< import org.cactoos.io.BytesOf;
+< import org.cactoos.text.HexOf;
+57c51
+<                 new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+---
+>                 new Digest.Sha256(toHex(sha.digest()))
+69a64,71
+>     
+>     private static String toHex(final byte[] bytes) {
+>         StringBuilder hex = new StringBuilder();
+>         for (byte b : bytes) {
+>             hex.append(String.format("%02x", b));
+>         }
+>         return hex.toString();
+>     }

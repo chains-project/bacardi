@@ -25,7 +25,7 @@ public class MavenErrorInformation {
         return "git%s%s".formatted(step, lineNumber);
     }
 
-    private MavenErrorLog extractLineNumbersWithPaths(String logFilePath) throws IOException {
+    public MavenErrorLog extractLineNumbersWithPaths(String logFilePath) throws IOException {
         Map<String, Map<Integer, String>> lineNumbersWithPaths = new HashMap<>();
         MavenErrorLog mavenErrorLogs = new MavenErrorLog();
 
@@ -53,6 +53,7 @@ public class MavenErrorInformation {
                     if (currentPath != null) {
                         ErrorInfo errorInfo = new ErrorInfo(String.valueOf(lineNumber), currentPath, line, lineNumberInFile, extractAdditionalInfo(reader));
                         errorInfo.setErrorLogGithubLink(generateLogsLink(projectURL, 4, lineNumberInFile));
+                        errorInfo.setFileName(extractFileName(currentPath));
                         mavenErrorLogs.addErrorInfo(currentPath, errorInfo);
                     }
                 }
@@ -95,6 +96,11 @@ public class MavenErrorInformation {
             e.printStackTrace();
             return "";
         }
+    }
+
+    public String extractFileName(String path){
+        String[] pathParts = path.split("/");
+        return pathParts[pathParts.length - 1];
     }
 
 }

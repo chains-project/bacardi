@@ -1,0 +1,26 @@
+3d2
+< import develop.p2p.lib.*;
+260a260,282
+>     
+>     private static class WaveCreator {
+>         private final double min;
+>         private final double max;
+>         private final double shift;
+>         
+>         public WaveCreator(double min, double max, double shift) {
+>             this.min = min;
+>             this.max = max;
+>             this.shift = shift;
+>         }
+>         
+>         public double get(double factor, boolean condition) {
+>             double mid = (min + max) / 2.0;
+>             double amplitude = (max - min) / 2.0;
+>             // Use cosine if condition is true, sine otherwise.
+>             return mid + amplitude * (condition ? Math.cos(shift + factor) : Math.sin(shift + factor));
+>         }
+>         
+>         public double getStatic() {
+>             return (min + max) / 2.0;
+>         }
+>     }

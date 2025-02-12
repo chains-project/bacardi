@@ -1,0 +1,33 @@
+1. 
+```java
+package fr.spoonlabs.flacoco.core.test.strategies.classloader.finder.classes.impl;
+
+import fr.spoonlabs.flacoco.core.test.strategies.classloader.finder.classes.ClassFinder;
+import org.apache.maven.plugin.surefire.util.DirectoryScanner;
+import org.apache.maven.surefire.api.testset.TestListResolver;
+
+import java.io.File;
+import java.util.List;
+
+
+public class SourceFolderFinder implements ClassFinder {
+
+    private String srcFolder;
+
+    public SourceFolderFinder(String srcFolder) {
+        this.srcFolder = srcFolder;
+    }
+
+    @Override
+    public String[] getClasses() {
+        return getClassesLoc(new File(srcFolder)).toArray(new String[0]);
+    }
+
+    static List<String> getClassesLoc(File testSrcFolder) {
+        DirectoryScanner directoryScanner = new DirectoryScanner(testSrcFolder, TestListResolver.getDefaultWildcard());
+        return directoryScanner.scan().getClasses();
+    }
+}
+```
+
+2. The change made was to replace the method call `TestListResolver.getWildcard()` with `TestListResolver.getDefaultWildcard()`. This change is necessary because the `getWildcard()` method was removed in the updated version of the `org.apache.maven.surefire` library, and `getDefaultWildcard()` serves the same purpose of providing the default wildcard pattern for test classes. This update maintains the original functionality of the code while ensuring compatibility with the new library version.

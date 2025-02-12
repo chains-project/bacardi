@@ -29,6 +29,12 @@ public enum FailureCategory {
     DEPENDENCY_RESOLUTION_FAILURE,
     DEPENDENCY_LOCK_FAILURE,
 
+    NOT_REPAIRED,
+    /**
+     * Response from the model is not as expec  ted
+     */
+    ERROR_MODEL_RESPONSE,
+
 
     /*
      * Only for repair purposes

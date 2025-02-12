@@ -1,0 +1,31 @@
+155c155
+<                     .orElseThrow(() -> new AssertionError("expected constraint missing"))));
+---
+>                     .orElseThrow(() -> new AssertionError("expected constraint missing")));
+165c165
+<                     .orElseThrow(() -> new AssertionError("expected constraint missing"))));
+---
+>                     .orElseThrow(() -> new AssertionError("expected constraint missing")));
+177c177
+<                     .orElseThrow(() -> new AssertionError("expected constraint missing"))));
+---
+>                     .orElseThrow(() -> new AssertionError("expected constraint missing")));
+297c297
+<                         .orElseThrow(() -> new AssertionError("expected constraint missing")))));
+---
+>                         .orElseThrow(() -> new AssertionError("expected constraint missing"))));
+304c304
+<                     .orElseThrow(() -> new AssertionError("expected constraint missing")))));
+---
+>                     .orElseThrow(() -> new AssertionError("expected constraint missing"))));
+311c311
+<                     .orElseThrow(() -> new AssertionError("expected constraint missing")))));
+---
+>                     .orElseThrow(() -> new AssertionError("expected constraint missing"))));
+318c318,321
+<             .thenAnswer(invocation -> invocation.getArgumentAt(0, Class.class).cast(result));
+---
+>             .thenAnswer(invocation -> {
+>                 Class<?> clazz = invocation.getArgument(0);
+>                 return clazz.cast(result);
+>             });

@@ -1,0 +1,102 @@
+/*
+ * Copyright (c) 2012 - 2016 Jadler contributors
+ * This program is made available under the terms of the MIT License.
+ */
+package net.jadler.stubbing.server.jetty;
+
+import net.jadler.RequestManager;
+import net.jadler.stubbing.server.StubHttpServer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.Validate;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletException;
+import java.io.IOException;
+
+/**
+ * Default stub http server implementation using Jetty as an http server.
+ */
+public class JettyStubHttpServer implements StubHttpServer {
+
+    private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
+    private final Server server;
+    private final ServerConnector httpConnector;
+
+    public JettyStubHttpServer() {
+        this(0);
+    }
+    
+
+    public JettyStubHttpServer(final int port) {
+        this.server = new Server();
+        this.server.setSendServerVersion(false);
+        this.server.setSendDateHeader(true);
+        
+        this.httpConnector = new ServerConnector(server);
+        this.httpConnector.setPort(port);
+        server.addConnector(this.httpConnector);
+    }
+    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void registerRequestManager(final RequestManager ruleProvider) {
+        Validate.notNull(ruleProvider, "ruleProvider cannot be null");
+
+        server.setHandler(new JadlerHandler(ruleProvider));
+    }
+    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void start() throws Exception {
+        logger.debug("starting jetty");
+        server.start();
+        logger.debug("jetty started");
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void stop() throws Exception {
+        logger.debug("stopping jetty");
+        server.stop();
+        logger.debug("jetty stopped");
+    }
+    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getPort() {
+        return httpConnector.getLocalPort();
+    }
+
+    private static class JadlerHandler extends AbstractHandler {
+        
+        private final RequestManager requestManager;
+        
+        public JadlerHandler(RequestManager requestManager) {
+            this.requestManager = requestManager;
+        }
+        
+        @Override
+        public void handle(String target, Request baseRequest, HttpServletRequest request,
+                           HttpServletResponse response) throws IOException, ServletException {
+            // Minimal implementation: mark the request as handled.
+            baseRequest.setHandled(true);
+        }
+    }
+}

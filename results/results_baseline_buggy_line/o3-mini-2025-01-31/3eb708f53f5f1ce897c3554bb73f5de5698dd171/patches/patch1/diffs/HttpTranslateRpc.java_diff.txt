@@ -1,0 +1,129 @@
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+25,28c9,12
+< import com.google.api.services.translate.Translate;
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.api.services.translate.model.TranslationsResource;
+---
+> import com.google.api.services.translate.v2.Translate;
+> import com.google.api.services.translate.v2.model.Detection;
+> import com.google.api.services.translate.v2.model.Language;
+> import com.google.api.services.translate.v2.model.Translation;
+32d15
+< import com.google.common.base.Function;
+34a18
+> import com.google.common.base.Function;
+35a20
+> import java.util.ArrayList;
+71c56
+<       List<List<DetectionsResourceItems>> detections =
+---
+>       List<List<Detection>> detectionLists =
+73c58,69
+<       return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
+---
+>       if (detectionLists == null) {
+>         return ImmutableList.of();
+>       }
+>       List<List<DetectionsResourceItems>> result = new ArrayList<>();
+>       for (List<Detection> innerList : detectionLists) {
+>         List<DetectionsResourceItems> transformedInner = new ArrayList<>();
+>         for (Detection d : innerList) {
+>           transformedInner.add(new DetectionsResourceItems(d));
+>         }
+>         result.add(transformedInner);
+>       }
+>       return result;
+82c78
+<       List<LanguagesResource> languages =
+---
+>       List<Language> languages =
+92c88,95
+<       return languages != null ? languages : ImmutableList.<LanguagesResource>of();
+---
+>       if (languages == null) {
+>         return ImmutableList.of();
+>       }
+>       List<LanguagesResource> result = new ArrayList<>();
+>       for (Language language : languages) {
+>         result.add(new LanguagesResource(language));
+>       }
+>       return result;
+104c107
+<       List<TranslationsResource> translations =
+---
+>       List<Translation> translations =
+114,120c117,124
+<       return Lists.transform(
+<           translations != null ? translations : ImmutableList.<TranslationsResource>of(),
+<           new Function<TranslationsResource, TranslationsResource>() {
+<             @Override
+<             public TranslationsResource apply(TranslationsResource translationsResource) {
+<               if (translationsResource.getDetectedSourceLanguage() == null) {
+<                 translationsResource.setDetectedSourceLanguage(sourceLanguage);
+---
+>       List<TranslationsResource> transformedTranslations = new ArrayList<>();
+>       if (translations != null) {
+>         for (Translation t : translations) {
+>           TranslationsResource tr = new TranslationsResource(t);
+>           if (tr.getDetectedSourceLanguage() == null) {
+>             tr.setDetectedSourceLanguage(sourceLanguage);
+>           }
+>           transformedTranslations.add(tr);
+122d125
+<               return translationsResource;
+124c127
+<           });
+---
+>       return transformedTranslations;
+128a132,165
+> 
+>   public static class DetectionsResourceItems extends Detection {
+>     public DetectionsResourceItems() {
+>       super();
+>     }
+> 
+>     public DetectionsResourceItems(Detection detection) {
+>       this.setConfidence(detection.getConfidence());
+>       this.setIsReliable(detection.getIsReliable());
+>       this.setLanguage(detection.getLanguage());
+>     }
+>   }
+> 
+>   public static class LanguagesResource extends Language {
+>     public LanguagesResource() {
+>       super();
+>     }
+> 
+>     public LanguagesResource(Language language) {
+>       this.setLanguage(language.getLanguage());
+>       this.setName(language.getName());
+>     }
+>   }
+> 
+>   public static class TranslationsResource extends Translation {
+>     public TranslationsResource() {
+>       super();
+>     }
+> 
+>     public TranslationsResource(Translation translation) {
+>       this.setTranslatedText(translation.getTranslatedText());
+>       this.setDetectedSourceLanguage(translation.getDetectedSourceLanguage());
+>     }
+>   }

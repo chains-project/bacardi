@@ -1,0 +1,145 @@
+ You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates.
+Your task is to analyze the provided code and error message, then propose a patch that can be applied to the client code to resolve the issue.
+
+ Here is the client code that is failing:
+```java
+package org.jfrog.hudson.pipeline.common.executors;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import hudson.FilePath;
+import hudson.model.Run;
+import hudson.model.TaskListener;
+import hudson.remoting.VirtualChannel;
+import jenkins.MasterToSlaveFileCallable;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.jfrog.build.extractor.clientConfiguration.DistributionManagerBuilder;
+import org.jfrog.build.extractor.clientConfiguration.client.distribution.DistributionManager;
+import org.jfrog.build.extractor.clientConfiguration.client.distribution.request.DistributeReleaseBundleRequest;
+import org.jfrog.hudson.pipeline.common.Utils;
+import org.jfrog.hudson.pipeline.common.types.DistributionServer;
+import org.jfrog.hudson.util.JenkinsBuildInfoLog;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+import static org.jfrog.hudson.util.SerializationUtils.createMapper;
+
+public class ReleaseBundleDistributeExecutor implements Executor {
+    private final DistributionManagerBuilder distributionManagerBuilder;
+    private final DistributeReleaseBundleRequest request;
+    private final transient FilePath ws;
+    private final String version;
+    private final boolean sync;
+    private final String name;
+
+    public ReleaseBundleDistributeExecutor(DistributionServer server, String name, String version, boolean dryRun, boolean sync,
+                                           String distRules, List<String> countryCodes, String siteName,
+                                           String cityName, TaskListener listener, Run<?, ?> build, FilePath ws) throws IOException {
+        this.distributionManagerBuilder = server.createDistributionManagerBuilder(new JenkinsBuildInfoLog(listener), build.getParent());
+        this.request = createRequest(distRules, countryCodes, siteName, cityName, dryRun);
+        this.ws = ws;
+        this.name = name;
+        this.version = version;
+        this.sync = sync;
+    }
+
+    public void execute() throws IOException, InterruptedException {
+        ws.act(new ReleaseBundleDistributeCallable(distributionManagerBuilder, request, name, version, sync));
+    }
+
+    private DistributeReleaseBundleRequest createRequest(String distRules, List<String> countryCodes,
+                                                         String siteName, String cityName, boolean dryRun) throws IOException {
+        DistributeReleaseBundleRequest request;
+        if (StringUtils.isNotBlank(distRules)) {
+            if (!CollectionUtils.isEmpty(countryCodes) || !StringUtils.isAllBlank(siteName, cityName)) {
+                throw new IOException("The distRules input can't be used with site, city or country codes");
+            }
+            ObjectMapper mapper = createMapper();
+            request = mapper.readValue(distRules, DistributeReleaseBundleRequest.class);
+        } else {
+            request = new DistributeReleaseBundleRequest();
+            request.setDistributionRules(Utils.createDistributionRules(countryCodes, siteName, cityName));
+        }
+        request.setDryRun(dryRun);
+        return request;
+    }
+
+    private static class ReleaseBundleDistributeCallable extends MasterToSlaveFileCallable<Void> {
+        private final DistributionManagerBuilder distributionManagerBuilder;
+        private final DistributeReleaseBundleRequest request;
+        private final String version;
+        private final boolean sync;
+        private final String name;
+
+        public ReleaseBundleDistributeCallable(DistributionManagerBuilder distributionManagerBuilder, DistributeReleaseBundleRequest request, String name, String version, boolean sync) {
+            this.distributionManagerBuilder = distributionManagerBuilder;
+            this.request = request;
+            this.name = name;
+            this.version = version;
+            this.sync = sync;
+        }
+
+        @Override
+        public Void invoke(File file, VirtualChannel channel) throws IOException, InterruptedException {
+            try (DistributionManager distributionManager = distributionManagerBuilder.build()) {
+                distributionManager.distributeReleaseBundle(name, version, sync, request);
+            }
+            return null;
+        }
+    }
+}
+
+```
+
+ And here is the error message:
+<error_message>
+[ERROR] /artifactory-plugin/src/main/java/org/jfrog/hudson/pipeline/common/executors/ReleaseBundleDistributeExecutor.java:[51,71] cannot find symbol
+  symbol:   method isAllBlank(java.lang.String,java.lang.String)
+  location: class org.apache.commons.lang3.StringUtils
+
+
+</error_message>
+
+ Before proposing a fix, please analyze the error message and client code. Wrap your analysis inside <code_analysis> tags:
+
+<code_analysis>
+1. Examine the error message:
+   - Identify the specific issue related to the dependency update.
+   - Note the line number or method where the error occurs.
+   - Determine which dependency and version is causing the issue.
+
+2. Review the client code:
+   - Locate the problematic areas mentioned in the error message.
+   - Identify any related code that might be affected by the changes.
+
+3. Consider potential fixes that adhere to the following constraints:
+   - Do not change any function signatures.
+   - Only remove the @Override annotation if the method no longer overrides a method in the updated dependency version.
+   - Ensure correct imports are used, considering the newer dependency version.
+   - Avoid removing existing code unless it directly causes a compilation or functionality error.
+
+4. Plan the necessary changes to fix the issue:
+   - List the specific modifications required.
+   - Consider potential side effects of the proposed changes.
+   - Ensure the fix addresses the root cause of the error.
+</code_analysis>
+
+Based on your analysis, propose a patch to fix the issue. Your response should be a complete and compilable Java class in a fenced code block. Adhere to these guidelines:
+
+1. Do not change any function signatures.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Avoid removing any existing code unless it directly causes a compilation or functionality error.
+6. Ensure the entire class is included and that it will compile correctly. Don't use the comment "// ... (rest of the class remains unchanged)".
+
+Please provide your fixed class in the following format:
+
+```java
+// Your complete, fixed Java class here
+```
+
+Remember to focus specifically on issues related to the dependency update when proposing your fix.
+ 

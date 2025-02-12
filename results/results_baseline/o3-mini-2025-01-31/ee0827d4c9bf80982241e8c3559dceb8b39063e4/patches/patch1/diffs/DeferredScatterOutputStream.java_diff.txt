@@ -1,0 +1,13 @@
+44c44,53
+<         dfos.write( data, offset, length );
+---
+>         if (offset == 0 && length == data.length)
+>         {
+>             dfos.write(data);
+>         }
+>         else
+>         {
+>             byte[] sub = new byte[length];
+>             System.arraycopy(data, offset, sub, 0, length);
+>             dfos.write(sub);
+>         }
