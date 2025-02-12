@@ -14,7 +14,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 
@@ -78,7 +81,7 @@ public class Bump {
                     .filter(e -> e.breakingCommit.equals(SPECIFIC_FILE)) // filter by breaking
                     // commitAllChanges
                     .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
-                    .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure
+//                    .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure
                     // category
                     .forEach(e -> {
                         threadrun(dockerBuild, e);
@@ -241,12 +244,23 @@ public class Bump {
 
         resultsMap.put(setupPipeline.getBreakingUpdate().breakingCommit, results);
         JsonUtils.writeToFile(Path.of(JSON_PATH), resultsMap);
+
+        // delete image
+//        deleteDockerImage(setupPipeline);
+
+    }
+
+    public static void deleteDockerImage(SetupPipeline setupPipeline) {
+
         DockerBuild.deleteImage(
                 setupPipeline.getBreakingUpdate().breakingUpdateReproductionCommand.replace("docker run ", ""));
         // TODO: isn't this image created in specific pipeline, shouldn't we add an
         // if-statement
-        DockerBuild
-                .deleteImage(setupPipeline.getBreakingUpdate().preCommitReproductionCommand.replace("docker run ", ""));
+        PromptPipeline[] pipeline = {PromptPipeline.BASELINE_API_DIFF};
+        if (Arrays.asList(pipeline).contains(PIPELINE)) {
+            DockerBuild
+                    .deleteImage(setupPipeline.getBreakingUpdate().preCommitReproductionCommand.replace("docker run ", ""));
+        }
     }
 
 }

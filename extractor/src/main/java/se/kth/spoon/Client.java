@@ -27,13 +27,12 @@ public class Client {
         Launcher launcher;
 
         // Analyze the source folders if it is a Maven project
-        if (Files.exists(sourcePath.resolve("pom.xml"))) {
-            launcher = new MavenLauncher(sourcePath.toString(), MavenLauncher.SOURCE_TYPE.ALL_SOURCE, new String[0]);
-        } else {
+//        if (Files.exists(sourcePath.resolve("pom.xml"))) {
+//            launcher = new MavenLauncher(sourcePath.toString(), MavenLauncher.SOURCE_TYPE.ALL_SOURCE, new String[0]);
+//        } else {
             launcher = new Launcher();
-            launcher.getEnvironment().setComplianceLevel(11);
             launcher.addInputResource(sourcePath.toString());
-        }
+//        }
 
         // Ignore missing types/classpath related errors
         launcher.getEnvironment().setNoClasspath(true);
@@ -41,6 +40,8 @@ public class Client {
         launcher.getEnvironment().setIgnoreSyntaxErrors(true);
         // Ignore duplicate declarations
         launcher.getEnvironment().setIgnoreDuplicateDeclarations(true);
+        launcher.getEnvironment().setAutoImports(true);
+//
 
         String[] cp = classpath.stream().map(p -> p.toAbsolutePath().toString()).toList().toArray(new String[0]);
         launcher.getEnvironment().setSourceClasspath(cp);
