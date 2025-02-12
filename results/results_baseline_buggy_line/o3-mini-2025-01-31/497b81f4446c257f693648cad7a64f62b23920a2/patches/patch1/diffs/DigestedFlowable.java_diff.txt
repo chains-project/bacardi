@@ -1,0 +1,19 @@
+15,16d14
+< import org.cactoos.io.BytesOf;
+< import org.cactoos.text.HexOf;
+57c55
+<                 new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+---
+>                 new Digest.Sha256(bytesToHex(sha.digest()))
+69a68,78
+>     
+>     private static String bytesToHex(final byte[] bytes) {
+>         final char[] hexArray = "0123456789abcdef".toCharArray();
+>         final char[] hexChars = new char[bytes.length * 2];
+>         for (int j = 0; j < bytes.length; j++) {
+>             int v = bytes[j] & 0xFF;
+>             hexChars[j * 2] = hexArray[v >>> 4];
+>             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+>         }
+>         return new String(hexChars);
+>     }

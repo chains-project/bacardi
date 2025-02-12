@@ -1,0 +1,268 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+```java
+package com.github.games647.changeskin.sponge;
+
+import com.github.games647.changeskin.core.ChangeSkinCore;
+import com.github.games647.changeskin.core.PlatformPlugin;
+import com.github.games647.changeskin.core.message.NamespaceKey;
+import com.github.games647.changeskin.sponge.bungee.CheckPermissionListener;
+import com.github.games647.changeskin.sponge.bungee.UpdateSkinListener;
+import com.github.games647.changeskin.sponge.command.InfoCommand;
+import com.github.games647.changeskin.sponge.command.InvalidateCommand;
+import com.github.games647.changeskin.sponge.command.SelectCommand;
+import com.github.games647.changeskin.sponge.command.SetCommand;
+import com.github.games647.changeskin.sponge.command.UploadCommand;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Singleton;
+
+import java.nio.file.Path;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.spongepowered.api.Platform.Type;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandManager;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.config.ConfigDir;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GameInitializationEvent;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+import org.spongepowered.api.network.ChannelRegistrar;
+import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.text.serializer.TextSerializers;
+
+import static com.github.games647.changeskin.core.message.CheckPermMessage.CHECK_PERM_CHANNEL;
+import static com.github.games647.changeskin.core.message.SkinUpdateMessage.UPDATE_SKIN_CHANNEL;
+import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
+
+@Singleton
+@Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+        url = PomData.URL, description = PomData.DESCRIPTION)
+public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
+
+    private final Path dataFolder;
+    private final Logger logger;
+    private final Injector injector;
+
+    private final ChangeSkinCore core = new ChangeSkinCore(this);
+    private final SpongeSkinAPI api = new SpongeSkinAPI(this);
+
+    private boolean initialized;
+
+    //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
+    @Inject
+    ChangeSkinSponge(Logger logger, @ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
+        this.dataFolder = dataFolder;
+        this.logger = logger;
+        this.injector = injector.createChildInjector(binder -> binder.bind(ChangeSkinCore.class).toInstance(core));
+    }
+
+    @Listener
+    public void onPreInit(GamePreInitializationEvent preInitEvent) {
+        //load config and database
+        try {
+            core.load(true);
+            initialized = true;
+        } catch (Exception ex) {
+            logger.error("Error initializing plugin. Disabling...", ex);
+        }
+    }
+
+    @Listener
+    public void onInit(GameInitializationEvent initEvent) {
+        if (!initialized)
+            return;
+
+        CommandManager cmdManager = Sponge.getCommandManager();
+
+        //command and event register
+        cmdManager.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+        cmdManager.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+        cmdManager.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+        cmdManager.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+        cmdManager.register(this, injector.getInstance(InvalidateCommand.class)
+                .buildSpec(), "skininvalidate", "skin-invalidate");
+
+        Sponge.getEventManager().registerListeners(this, injector.getInstance(LoginListener.class));
+
+        //incoming channel
+        ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
+        String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
+        String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
+        RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
+        RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
+        updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
+        permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
+    }
+
+    @Listener
+    public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
+        core.close();
+    }
+
+    public ChangeSkinCore getCore() {
+        return core;
+    }
+
+    @Override
+    public boolean hasSkinPermission(CommandSource invoker, UUID uuid, boolean sendMessage) {
+        if (invoker.hasPermission(PomData.ARTIFACT_ID + ".skin.whitelist." + uuid)) {
+            return true;
+        }
+
+        //disallow - not whitelisted or blacklisted
+        if (sendMessage) {
+            sendMessage(invoker, "no-permission");
+        }
+
+        return false;
+    }
+
+    public SpongeSkinAPI getApi() {
+        return api;
+    }
+
+    @Override
+    public String getName() {
+        return PomData.NAME;
+    }
+
+    @Override
+    public Path getPluginFolder() {
+        return dataFolder;
+    }
+
+    @Override
+    public Logger getLog() {
+        return logger;
+    }
+
+    @Override
+    public void sendMessage(CommandSource receiver, String key) {
+        String message = core.getMessage(key);
+        if (message != null && receiver != null) {
+            receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
+        }
+    }
+}
+
+```
+the error is triggered in the following specific lines in the previous code:
+
+```java
+@Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+```
+```java
+import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+```
+```java
+import org.spongepowered.api.text.serializer.TextSerializers;
+```
+```java
+public void sendMessage(CommandSource receiver, String key) {
+```
+```java
+public void onPreInit(GamePreInitializationEvent preInitEvent) {
+```
+```java
+import org.spongepowered.api.command.CommandManager;
+```
+```java
+import org.spongepowered.api.command.CommandSource;
+```
+```java
+import org.spongepowered.api.event.game.state.GameInitializationEvent;
+```
+```java
+public boolean hasSkinPermission(CommandSource invoker, UUID uuid, boolean sendMessage) {
+```
+```java
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+```
+```java
+public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
+```
+```java
+import org.spongepowered.api.network.ChannelRegistrar;
+```
+```java
+import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+```
+```java
+public void onInit(GameInitializationEvent initEvent) {
+```
+```java
+public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
+```
+```java
+import org.spongepowered.api.plugin.Plugin;
+```
+
+
+
+ with the following error information:
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/ChangeSkinSponge.java:[40,2] cannot find symbol
+
+  symbol: class Plugin
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/ChangeSkinSponge.java:[29,46] package org.spongepowered.api.event.game.state does not exist
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/ChangeSkinSponge.java:[33,45] package org.spongepowered.api.text.serializer does not exist
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/ChangeSkinSponge.java:[142,29] cannot find symbol
+
+  symbol:   class CommandSource
+  location: class com.github.games647.changeskin.sponge.ChangeSkinSponge
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/ChangeSkinSponge.java:[62,27] cannot find symbol
+
+  symbol:   class GamePreInitializationEvent
+  location: class com.github.games647.changeskin.sponge.ChangeSkinSponge
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/ChangeSkinSponge.java:[23,37] cannot find symbol
+
+  symbol:   class CommandManager
+  location: package org.spongepowered.api.command
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/ChangeSkinSponge.java:[24,37] cannot find symbol
+
+  symbol:   class CommandSource
+  location: package org.spongepowered.api.command
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/ChangeSkinSponge.java:[27,46] package org.spongepowered.api.event.game.state does not exist
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/ChangeSkinSponge.java:[109,38] cannot find symbol
+
+  symbol:   class CommandSource
+  location: class com.github.games647.changeskin.sponge.ChangeSkinSponge
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/ChangeSkinSponge.java:[28,46] package org.spongepowered.api.event.game.state does not exist
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/ChangeSkinSponge.java:[100,28] cannot find symbol
+
+  symbol:   class GameStoppingServerEvent
+  location: class com.github.games647.changeskin.sponge.ChangeSkinSponge
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/ChangeSkinSponge.java:[31,37] cannot find symbol
+
+  symbol:   class ChannelRegistrar
+  location: package org.spongepowered.api.network
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/ChangeSkinSponge.java:[30,52] package org.spongepowered.api.network.ChannelBinding does not exist
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/ChangeSkinSponge.java:[73,24] cannot find symbol
+
+  symbol:   class GameInitializationEvent
+  location: class com.github.games647.changeskin.sponge.ChangeSkinSponge
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/ChangeSkinSponge.java:[42,57] cannot find symbol
+
+  symbol: class CommandSource
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/ChangeSkinSponge.java:[32,36] cannot find symbol
+
+  symbol:   class Plugin
+  location: package org.spongepowered.api.plugin
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

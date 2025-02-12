@@ -1,0 +1,25 @@
+5c5,7
+< import org.apache.commons.codec.digest.DigestUtils;
+---
+> import java.security.MessageDigest;
+> import java.nio.charset.StandardCharsets;
+> import java.security.NoSuchAlgorithmException;
+44,45c46
+<          *                 automatically runs {@code DigestUtils.md5Hex}
+<          *                 on the string passed to it.
+---
+>          *                 automatically runs an MD5 hash on the string passed to it.
+49c50,60
+<             this.usernameMd5 = DigestUtils.md5Hex(username);
+---
+>             try {
+>                 MessageDigest md = MessageDigest.getInstance("MD5");
+>                 byte[] digest = md.digest(username.getBytes(StandardCharsets.UTF_8));
+>                 StringBuilder sb = new StringBuilder();
+>                 for (byte b : digest) {
+>                     sb.append(String.format("%02x", b));
+>                 }
+>                 this.usernameMd5 = sb.toString();
+>             } catch (NoSuchAlgorithmException e) {
+>                 throw new RuntimeException(e);
+>             }

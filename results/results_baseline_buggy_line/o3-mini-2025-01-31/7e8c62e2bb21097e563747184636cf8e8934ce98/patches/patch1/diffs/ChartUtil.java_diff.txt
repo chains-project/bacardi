@@ -1,0 +1,30 @@
+6,8d5
+< 
+< import com.gargoylesoftware.htmlunit.ScriptResult;
+< 
+32,33c29
+<                     "delete(window.Array.prototype.toJSON) %n"
+<                             + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
+---
+>                     "delete(window.Array.prototype.toJSON); return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
+35,36c31
+<             ScriptResult scriptResult = new ScriptResult(result);
+<             return scriptResult.getJavaScriptResult().toString();
+---
+>             return result != null ? result.toString() : null;
+56,57c51
+<                         "delete(window.Array.prototype.toJSON) %n"
+<                                 + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
+---
+>                         "delete(window.Array.prototype.toJSON); return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div [tool='%s']\")).getOption())",
+60,62c54,55
+<                 Object scriptResult = new ScriptResult(result).getJavaScriptResult();
+<                 if (scriptResult != null) {
+<                     return scriptResult.toString();
+---
+>                 if (result != null) {
+>                     return result.toString();
+108d100
+< 
+110d101
+< 

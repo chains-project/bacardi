@@ -1,0 +1,16 @@
+43d42
+<   @Override
+45c44,54
+<     return new Timestamp(super.between(from, to).getTime());
+---
+>     if (from == null || to == null) {
+>       throw new IllegalArgumentException("Date parameters cannot be null.");
+>     }
+>     long startMillis = from.getTime();
+>     long endMillis = to.getTime();
+>     if (endMillis <= startMillis) {
+>       throw new IllegalArgumentException("The 'to' date must be after the 'from' date.");
+>     }
+>     long diff = endMillis - startMillis;
+>     long randomOffset = (long) (faker.random().nextDouble() * diff);
+>     return new Timestamp(startMillis + randomOffset);

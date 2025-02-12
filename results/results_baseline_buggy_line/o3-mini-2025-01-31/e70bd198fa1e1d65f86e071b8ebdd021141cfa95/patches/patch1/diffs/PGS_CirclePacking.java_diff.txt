@@ -1,0 +1,37 @@
+23,27c23,24
+< import org.tinfour.common.IIncrementalTin;
+< import org.tinfour.common.SimpleTriangle;
+< import org.tinfour.common.Vertex;
+< import org.tinspin.index.PointDistanceFunction;
+< import org.tinspin.index.PointEntryDist;
+---
+> // Removed imports for PointEntryDist and PointDistanceFunction since they no longer exist in tinspin-index.
+> import org.tinspin.index.DistanceFunction;
+226c223
+<                         final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+---
+>                         final CoverTree.Entry<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+229c226
+<                          * nn.dist() does not return the radius (since it's a distance metric used to
+---
+>                          * nn.getDistance() does not return the radius (since it's a distance metric used to
+233,235c230,232
+<                         final float dx = p.x - nn.value().x;
+<                         final float dy = p.y - nn.value().y;
+<                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z);
+---
+>                         final float dx = p.x - nn.getValue().x;
+>                         final float dy = p.y - nn.getValue().y;
+>                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.getValue().z);
+332c329
+<          * value to control the accuracy of the LEC algorithm.
+---
+>          * value to control the LEC algorithm's accuracy.
+645c642
+<         private static final PointDistanceFunction circleDistanceMetric = (p1, p2) -> {
+---
+>         private static final DistanceFunction circleDistanceMetric = (p1, p2) -> {
+653c650
+<                 return euclideanDistance + absZDifference; // negative if inside
+---
+>                 return euclideanDistance + absZDifference;

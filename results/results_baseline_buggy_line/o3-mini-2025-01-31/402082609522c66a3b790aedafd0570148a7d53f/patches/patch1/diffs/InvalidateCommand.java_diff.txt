@@ -1,0 +1,37 @@
+7c7
+< 
+---
+> import org.spongepowered.api.command.Command;
+9,12c9,11
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.source.CommandSource;
+14a14
+> import org.spongepowered.api.text.Text;
+16c16
+< public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class InvalidateCommand implements ChangeSkinCommand {
+25,26c25
+<     @Override
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+---
+>     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+37,40c36,42
+<     @Override
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+<                 .executor(this)
+---
+>     public Command buildSpec() {
+>         return Command.builder()
+>                 .executor(context -> {
+>                     CommandSource src = context.cause().first(CommandSource.class)
+>                             .orElseThrow(() -> new CommandException(Text.of("No command source")));
+>                     return this.execute(src, context);
+>                 })

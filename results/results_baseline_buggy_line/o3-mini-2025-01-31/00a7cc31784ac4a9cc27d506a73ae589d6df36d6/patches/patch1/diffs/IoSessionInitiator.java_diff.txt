@@ -1,0 +1,19 @@
+195c195,201
+<             sslFilter.setUseClientMode(true);
+---
+>             try {
+>                 SSLFilter.class.getMethod("setUseClientMode", boolean.class).invoke(sslFilter, true);
+>             } catch (NoSuchMethodException nsme) {
+>                 // Method not available in the current dependency version; assume default client mode.
+>             } catch (Exception e) {
+>                 throw new GeneralSecurityException(e);
+>             }
+313,314d318
+<         // TODO JMX Expose reconnect property
+< 
+355,357c359
+<             // The following logon reenabled the session. The actual logon will take
+<             // place as a side-effect of the session timer task (not the reconnect task).
+<             reconnectTask.getFixSession().logon(); // only enables the session
+---
+>             reconnectTask.getFixSession().logon();

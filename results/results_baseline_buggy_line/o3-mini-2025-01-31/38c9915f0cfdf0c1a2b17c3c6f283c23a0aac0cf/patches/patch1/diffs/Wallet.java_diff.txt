@@ -1,0 +1,137 @@
+28a29
+> import java.nio.file.Files;
+30c31,33
+< import org.cactoos.collection.Filtered;
+---
+> import java.util.List;
+> import java.util.ArrayList;
+> import java.util.stream.Collectors;
+36,38d38
+< import org.cactoos.scalar.CheckedScalar;
+< import org.cactoos.scalar.Or;
+< import org.cactoos.scalar.UncheckedScalar;
+40d39
+< import org.cactoos.text.SplitText;
+42d40
+< import org.cactoos.text.UncheckedText;
+201,213c199,204
+<             return new CheckedScalar<>(
+<                 () -> Long.parseUnsignedLong(
+<                     new ListOf<>(
+<                         new SplitText(
+<                             new TextOf(this.path),
+<                             "\n"
+<                         )
+<                     ).get(2).asString(),
+<                     // @checkstyle MagicNumber (1 line)
+<                     16
+<                 ),
+<                 e -> new IOException(e)
+<             ).value();
+---
+>             try {
+>                 List<String> lines = Files.readAllLines(this.path);
+>                 return Long.parseUnsignedLong(lines.get(2), 16);
+>             } catch (Exception e) {
+>                 throw new IOException(e);
+>             }
+224,232d214
+<         // @todo #16:30min Following transactions should be ignored according
+<         //  to the whitepaper:
+<         //  a) If the transaction is negative and its signature is not valid,
+<         //  it is ignored;
+<         //  b) If the transaction makes the balance of the wallet negative,
+<         //  it is ignored;
+<         //  c) If the transaction is positive and it’s absent in the paying
+<         //  wallet (which exists at the node), it’s ignored; If the paying
+<         //  wallet doesn’t exist at the node, the transaction is ignored;
+235c217,219
+<             if (other.id() != this.id()) {
+---
+>             long ourId = this.id();
+>             long otherId = other.id();
+>             if (ourId != otherId) {
+237d220
+<                     new UncheckedText(
+240,242c223,224
+<                             other.id(),
+<                             this.id()
+<                         )
+---
+>                         ourId,
+>                         otherId
+246,266c228,251
+<             final Iterable<Transaction> ledger = this.ledger();
+<             final Iterable<Transaction> candidates = new Filtered<>(
+<                 incoming -> new Filtered<>(
+<                     origin -> new UncheckedScalar<>(
+<                         new Or(
+<                             () -> incoming.equals(origin),
+<                             () -> incoming.id() == origin.id()
+<                                 && incoming.bnf().equals(origin.bnf()),
+<                             () -> incoming.id() == origin.id()
+<                                 && incoming.amount() < 0L,
+<                             () -> incoming.prefix().equals(origin.prefix())
+<                         )
+<                     ).value(),
+<                     ledger
+<                 ).isEmpty(),
+<                 other.ledger()
+<             );
+<             return new Wallet.Fake(
+<                 this.id(),
+<                 new Joined<Transaction>(ledger, candidates)
+<             );
+---
+>             Iterable<Transaction> ledgerIterable = this.ledger();
+>             List<Transaction> ledger = new ArrayList<>();
+>             for (Transaction t : ledgerIterable) {
+>                 ledger.add(t);
+>             }
+>             List<Transaction> candidates = new ArrayList<>();
+>             for (Transaction incoming : other.ledger()) {
+>                 boolean found = false;
+>                 for (Transaction origin : ledger) {
+>                     if (incoming.equals(origin)
+>                         || (incoming.id() == origin.id() && incoming.bnf().equals(origin.bnf()))
+>                         || (incoming.id() == origin.id() && incoming.amount() < 0L)
+>                         || incoming.prefix().equals(origin.prefix())) {
+>                         found = true;
+>                         break;
+>                     }
+>                 }
+>                 if (!found) {
+>                     candidates.add(incoming);
+>                 }
+>             }
+>             List<Transaction> merged = new ArrayList<>(ledger);
+>             merged.addAll(candidates);
+>             return new Wallet.Fake(ourId, merged);
+271,283c256,264
+<             return new Mapped<>(
+<                 txt -> new RtTransaction(txt.asString()),
+<                 new Skipped<>(
+<                     new ListOf<>(
+<                         new SplitText(
+<                             new TextOf(this.path),
+<                             "\\n"
+<                         )
+<                     ),
+<                     // @checkstyle MagicNumberCheck (1 line)
+<                     5
+<                 )
+<             );
+---
+>             try {
+>                 List<String> lines = Files.readAllLines(this.path);
+>                 return lines.stream()
+>                     .skip(5)
+>                     .map(RtTransaction::new)
+>                     .collect(Collectors.toList());
+>             } catch (IOException e) {
+>                 throw new RuntimeException(e);
+>             }
+286,288d266
+<         // @todo #54:30min Implement key method. This should return the
+<         //  public RSA key of the wallet owner in Base64. Also add a unit test
+<         //  to replace WalletTest.keyIsNotYetImplemented().

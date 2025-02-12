@@ -1,0 +1,9 @@
+2a3
+> import com.fasterxml.jackson.databind.JsonNode;
+88c89,90
+<     ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
+---
+>     JsonNode tree = objectMapper.readTree(body);
+>     ExportResponse exportResponse = objectMapper.treeToValue(tree, ExportResponse.class);
+166d167
+< 

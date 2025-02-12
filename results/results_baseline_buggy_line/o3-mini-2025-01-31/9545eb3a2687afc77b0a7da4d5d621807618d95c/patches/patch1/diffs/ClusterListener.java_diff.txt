@@ -1,0 +1,26 @@
+18c18,22
+< import com.hazelcast.core.Cluster;
+---
+> import com.hazelcast.cluster.Cluster;
+> import com.hazelcast.cluster.Member;
+> import com.hazelcast.cluster.MembershipEvent;
+> import com.hazelcast.cluster.MembershipListener;
+> import com.hazelcast.cluster.MemberAttributeEvent;
+23,26d26
+< import com.hazelcast.core.Member;
+< import com.hazelcast.core.MemberAttributeEvent;
+< import com.hazelcast.core.MembershipEvent;
+< import com.hazelcast.core.MembershipListener;
+179,181d178
+<                 // The following line was intended to wait until all local handling finishes before informing other
+<                 // nodes. However that proved to be insufficient. Hence the 30 second default wait in the lines above.
+<                 // TODO Instead of the 30 second wait, we should look (and then wait) for some trigger or event that signifies that local handling has completed and caches have stabilized.
+236d232
+<             // This node may have realized that it got kicked out of the cluster
+239d234
+<             // Trigger event that a node left the cluster
+247,248d241
+<             // Remove traces of directed presences sent from local entities to handlers that no longer exist.
+<             // At this point c2s sessions are gone from the routing table so we can identify expired sessions
+251d243
+<         // Delete nodeID instance (release from memory)

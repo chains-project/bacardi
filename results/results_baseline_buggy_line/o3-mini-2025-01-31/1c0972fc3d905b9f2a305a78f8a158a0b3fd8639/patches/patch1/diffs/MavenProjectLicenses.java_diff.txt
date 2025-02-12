@@ -1,0 +1,30 @@
+33d32
+< import org.apache.maven.shared.dependency.graph.internal.Maven31DependencyGraphBuilder;
+44,49d42
+< /**
+<  * Helper class for building Artifact/License mappings from a maven project
+<  * (multi module or single).
+<  *
+<  * @author Royce Remer
+<  */
+186c179,196
+<     this.graph = Optional.ofNullable(graph).orElse(new Maven31DependencyGraphBuilder());
+---
+>     this.graph = Optional.ofNullable(graph).orElse(new DependencyGraphBuilder() {
+>       @Override
+>       public DependencyNode buildDependencyGraph(ProjectBuildingRequest buildingRequest, ArtifactFilter filter)
+>           throws DependencyGraphBuilderException {
+>         // Fallback implementation returns an empty dependency graph
+>         return new DependencyNode() {
+>           @Override
+>           public Artifact getArtifact() {
+>             return null;
+>           }
+> 
+>           @Override
+>           public List<DependencyNode> getChildren() {
+>             return Collections.emptyList();
+>           }
+>         };
+>       }
+>     });

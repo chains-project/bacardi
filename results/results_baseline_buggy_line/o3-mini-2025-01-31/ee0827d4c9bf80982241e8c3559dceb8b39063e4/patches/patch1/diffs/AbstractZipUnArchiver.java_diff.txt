@@ -1,0 +1,65 @@
+28d27
+< import org.apache.commons.io.input.BoundedInputStream;
+34,36d32
+< /**
+<  * @author <a href="mailto:evenisse@codehaus.org">Emmanuel Venisse</a>
+<  */
+211c207
+<                         remainingSpace -= cis.getByteCount();
+---
+>                         remainingSpace -= cis.getCount();
+226a223,276
+>     private static class BoundedInputStream extends InputStream {
+> 
+>         private final InputStream in;
+>         private long remaining;
+> 
+>         BoundedInputStream(InputStream in, long maxBytes) {
+>             this.in = in;
+>             this.remaining = maxBytes;
+>         }
+> 
+>         @Override
+>         public int read() throws IOException {
+>             if (remaining <= 0) {
+>                 return -1;
+>             }
+>             int result = in.read();
+>             if (result != -1) {
+>                 remaining--;
+>             }
+>             return result;
+>         }
+> 
+>         @Override
+>         public int read(byte[] b, int off, int len) throws IOException {
+>             if (remaining <= 0) {
+>                 return -1;
+>             }
+>             int toRead = (int) Math.min(len, remaining);
+>             int count = in.read(b, off, toRead);
+>             if (count > 0) {
+>                 remaining -= count;
+>             }
+>             return count;
+>         }
+> 
+>         @Override
+>         public long skip(long n) throws IOException {
+>             long toSkip = Math.min(n, remaining);
+>             long skipped = in.skip(toSkip);
+>             remaining -= skipped;
+>             return skipped;
+>         }
+> 
+>         @Override
+>         public int available() throws IOException {
+>             int available = in.available();
+>             return (int) Math.min(available, remaining);
+>         }
+> 
+>         @Override
+>         public void close() throws IOException {
+>             in.close();
+>         }
+>     }

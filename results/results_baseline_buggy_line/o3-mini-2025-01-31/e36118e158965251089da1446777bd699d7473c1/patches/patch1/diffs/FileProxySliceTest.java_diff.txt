@@ -1,0 +1,36 @@
+48a49
+> import java.util.AbstractMap;
+52d52
+< import org.cactoos.map.MapEntry;
+60,65d59
+< /**
+<  * Tests for {@link FileProxySlice}.
+<  *
+<  * @since 0.7
+<  * @checkstyle ClassDataAbstractionCouplingCheck (500 lines)
+<  */
+136,138c130,132
+<                         new MapEntry<>("header", "value"),
+<                         new MapEntry<>("Content-Length", "4"),
+<                         new MapEntry<>("Content-Length", "4")
+---
+>                         new AbstractMap.SimpleImmutableEntry<>("header", "value"),
+>                         new AbstractMap.SimpleImmutableEntry<>("Content-Length", "4"),
+>                         new AbstractMap.SimpleImmutableEntry<>("Content-Length", "4")
+164c158,159
+<                     new RsHasStatus(RsStatus.OK), new RsHasBody(body),
+---
+>                     new RsHasStatus(RsStatus.OK),
+>                     new RsHasBody(body),
+166c161
+<                         new MapEntry<>("Content-Length", String.valueOf(body.length))
+---
+>                         new AbstractMap.SimpleImmutableEntry<>("Content-Length", String.valueOf(body.length))
+220d214
+<         @Override
+225d218
+<         @Override
+230d222
+<         @Override
+235d226
+<         @Override

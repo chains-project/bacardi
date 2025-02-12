@@ -1,0 +1,133 @@
+1,15d0
+< /**
+<  * Copyright 2019 Pinterest, Inc.
+<  * 
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  * 
+<  *    http://www.apache.org/licenses/LICENSE-2.0
+<  * 
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+23d7
+< import org.apache.thrift.transport.TFramedTransport;
+25a10
+> import org.apache.thrift.transport.TTransportException;
+45d29
+< 
+53d36
+< 
+63c46
+<   // The framed framedTransport.
+---
+>   // The framedTransport.
+80,81c63
+<     this.framedTransport = new TFramedTransport(new TIOStreamTransport(this
+<         .byteOffsetInputStream), maxMessageSize);
+---
+>     this.framedTransport = new TFramedTransport(new TIOStreamTransport(this.byteOffsetInputStream), maxMessageSize);
+140a123,221
+> 
+>   /**
+>    * A minimal implementation of a framed transport that reads a frame length (int)
+>    * and then the frame from the underlying transport.
+>    */
+>   public static class TFramedTransport extends TTransport {
+>     private final TTransport underlying;
+>     private final int maxFrameSize;
+>     private byte[] frameBuffer;
+>     private int frameBufferPos;
+>     private int frameBufferLength;
+> 
+>     public TFramedTransport(TTransport transport, int maxFrameSize) {
+>       this.underlying = transport;
+>       this.maxFrameSize = maxFrameSize;
+>       this.frameBuffer = null;
+>       this.frameBufferPos = 0;
+>       this.frameBufferLength = 0;
+>     }
+> 
+>     @Override
+>     public boolean isOpen() {
+>       return underlying.isOpen();
+>     }
+> 
+>     @Override
+>     public void open() throws TTransportException {
+>       underlying.open();
+>     }
+> 
+>     @Override
+>     public void close() {
+>       underlying.close();
+>     }
+> 
+>     @Override
+>     public int read(byte[] buf, int off, int len) throws TTransportException {
+>       if (frameBuffer == null || frameBufferPos >= frameBufferLength) {
+>         readFrame();
+>       }
+>       int available = frameBufferLength - frameBufferPos;
+>       int bytesToRead = Math.min(len, available);
+>       System.arraycopy(frameBuffer, frameBufferPos, buf, off, bytesToRead);
+>       frameBufferPos += bytesToRead;
+>       return bytesToRead;
+>     }
+> 
+>     private void readFrame() throws TTransportException {
+>       byte[] lenBuf = new byte[4];
+>       int bytesRead = 0;
+>       while (bytesRead < 4) {
+>         int ret = underlying.read(lenBuf, bytesRead, 4 - bytesRead);
+>         if (ret <= 0) {
+>           throw new TTransportException("Cannot read frame size");
+>         }
+>         bytesRead += ret;
+>       }
+>       int frameSize = ((lenBuf[0] & 0xff) << 24) |
+>                       ((lenBuf[1] & 0xff) << 16) |
+>                       ((lenBuf[2] & 0xff) << 8)  |
+>                       (lenBuf[3] & 0xff);
+>       if (frameSize > maxFrameSize) {
+>         throw new TTransportException("Frame size " + frameSize + " is greater than max allowed " + maxFrameSize);
+>       }
+>       frameBuffer = new byte[frameSize];
+>       frameBufferPos = 0;
+>       frameBufferLength = 0;
+>       int bytesRemaining = frameSize;
+>       while (bytesRemaining > 0) {
+>         int ret = underlying.read(frameBuffer, frameBufferLength, bytesRemaining);
+>         if (ret <= 0) {
+>           throw new TTransportException("Unable to read full frame");
+>         }
+>         frameBufferLength += ret;
+>         bytesRemaining -= ret;
+>       }
+>     }
+> 
+>     public int getBytesRemainingInBuffer() {
+>       return (frameBuffer != null) ? (frameBufferLength - frameBufferPos) : 0;
+>     }
+> 
+>     public void consumeBuffer(int n) throws TTransportException {
+>       if (n != getBytesRemainingInBuffer()) {
+>         throw new TTransportException("consumeBuffer: n does not equal the remaining bytes");
+>       }
+>       frameBufferPos = frameBufferLength;
+>     }
+> 
+>     @Override
+>     public void write(byte[] buf, int off, int len) throws TTransportException {
+>       underlying.write(buf, off, len);
+>     }
+> 
+>     @Override
+>     public void flush() throws TTransportException {
+>       underlying.flush();
+>     }
+>   }

@@ -1,0 +1,49 @@
+18,21c18,19
+< import com.hazelcast.core.EntryEvent;
+< import com.hazelcast.core.EntryListener;
+< import com.hazelcast.core.IMap;
+< import com.hazelcast.core.MapEvent;
+---
+> import com.hazelcast.map.IMap;
+> import com.hazelcast.map.listener.MapEvent;
+23d20
+< import com.hazelcast.monitor.LocalMapStats;
+87c84
+<         final EntryListener<K, V> listener = new EntryListener<K, V>() {
+---
+>         final com.hazelcast.map.listener.EntryListener<K, V> listener = new com.hazelcast.map.listener.EntryListener<K, V>() {
+107c104
+<             public void entryUpdated(EntryEvent event) {
+---
+>             public void entryUpdated(com.hazelcast.map.listener.EntryEvent event) {
+116c113
+<             public void entryRemoved(EntryEvent event) {
+---
+>             public void entryRemoved(com.hazelcast.map.listener.EntryEvent event) {
+125c122
+<             public void entryEvicted(EntryEvent event) {
+---
+>             public void entryEvicted(com.hazelcast.map.listener.EntryEvent event) {
+134c131
+<             public void entryAdded(EntryEvent event) {
+---
+>             public void entryAdded(com.hazelcast.map.listener.EntryEvent event) {
+192,193c189
+<         final LocalMapStats stats = map.getLocalMapStats();
+<         return (int) (stats.getOwnedEntryCount() + stats.getBackupEntryCount());
+---
+>         return map.size();
+241c237
+<         return map.getLocalMapStats().getHits();
+---
+>         return 0L;
+246,247c242
+<         final long hits = map.getLocalMapStats().getHits();
+<         return numberOfGets > hits ? numberOfGets - hits : 0;
+---
+>         return numberOfGets;
+257,258c252
+<         final LocalMapStats stats = map.getLocalMapStats();
+<         return stats.getOwnedEntryMemoryCost() + stats.getBackupEntryMemoryCost();
+---
+>         return (long) map.size();

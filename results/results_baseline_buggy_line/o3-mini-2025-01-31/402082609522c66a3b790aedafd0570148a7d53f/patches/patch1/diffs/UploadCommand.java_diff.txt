@@ -1,0 +1,91 @@
+10a11
+> import java.util.ArrayList;
+11a13
+> import org.spongepowered.api.command.Command;
+13,16c15,20
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.CommandCause;
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.source.CommandSource;
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.CommandElement;
+> import org.spongepowered.api.command.parameter.managed.standard.StringParameters;
+19,20c23
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import static net.kyori.adventure.text.Component.text;
+22c25
+< public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class UploadCommand implements ChangeSkinCommand {
+33d35
+<     @Override
+35c37
+<         String url = args.<String>getOne("url").get();
+---
+>         String url = args.requireOne("url");
+48d49
+< 
+55,56c56,57
+<                 .executor(this)
+<                 .arguments(string(of("url")))
+---
+>                 .executor((context, cause) -> this.execute(cause.root(), context))
+>                 .arguments(StringParameters.string().key("url").build())
+59a61,111
+>     
+>     public static class CommandSpec {
+>         private final Command command;
+>         
+>         public CommandSpec(Command command) {
+>             this.command = command;
+>         }
+>         
+>         public Command getCommand() {
+>             return command;
+>         }
+>         
+>         public static Builder builder() {
+>             return new Builder();
+>         }
+>         
+>         public static class Builder {
+>             private CommandExecutor commandExecutor;
+>             private final List<CommandElement> parameters = new ArrayList<>();
+>             private String permission;
+>             
+>             public Builder executor(CommandExecutor executor) {
+>                 this.commandExecutor = executor;
+>                 return this;
+>             }
+>             
+>             public Builder arguments(CommandElement element) {
+>                 parameters.add(element);
+>                 return this;
+>             }
+>             
+>             public Builder permission(String permission) {
+>                 this.permission = permission;
+>                 return this;
+>             }
+>             
+>             public CommandSpec build() {
+>                 Command.Builder newBuilder = Command.builder();
+>                 if (commandExecutor != null) {
+>                     newBuilder.executor(commandExecutor);
+>                 }
+>                 for (CommandElement element : parameters) {
+>                     newBuilder.addParameter(element);
+>                 }
+>                 if (permission != null) {
+>                     newBuilder.permission(permission);
+>                 }
+>                 return new CommandSpec(newBuilder.build());
+>             }
+>         }
+>     }
