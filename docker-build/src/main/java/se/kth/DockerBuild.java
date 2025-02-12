@@ -245,8 +245,7 @@ public class DockerBuild {
 
         for (attemptCount = 3; attemptCount < 4; attemptCount++) {
 
-            startedContainers.put("postContainer%s".formatted(attemptCount), startContainer(getPostCmd(), image,
-                    client));
+            startedContainers.put("postContainer%s".formatted(attemptCount), startContainer(getPostCmd(), image, client));
 
             WaitContainerResultCallback result = dockerClient.waitContainerCmd(startedContainers.get("postContainer%s"
                     .formatted(attemptCount))).exec(new WaitContainerResultCallback());
@@ -256,14 +255,12 @@ public class DockerBuild {
                 storeLogFile(startedContainers.get("postContainer%s".formatted(attemptCount)), client);
                 // stop the process and store the log file
                 log.info("Breaking commit failed in the {} attempt.", attemptCount);
-                breakingUpdateReproductionResult.getAttempts().add(new Attempt(attemptCount,
-                        FailureCategory.UNKNOWN_FAILURE, false));
+                breakingUpdateReproductionResult.getAttempts().add(new Attempt(attemptCount, FailureCategory.UNKNOWN_FAILURE, false));
 
             } else {
                 log.info("Breaking commit did not fail in the {} attempt.", attemptCount);
                 if (attemptCount == 3) {
-                    breakingUpdateReproductionResult.getAttempts().add(new Attempt(attemptCount,
-                            FailureCategory.BUILD_SUCCESS, false));
+                    breakingUpdateReproductionResult.getAttempts().add(new Attempt(attemptCount, FailureCategory.BUILD_SUCCESS, false));
                     storeLogFile(startedContainers.get("postContainer%s".formatted(attemptCount)), client);
                 }
             }
@@ -391,7 +388,7 @@ public class DockerBuild {
     public String startSpinningContainer(String imageId) {
         CreateContainerResponse container = dockerClient
                 .createContainerCmd(imageId)
-                .withEntrypoint("sh", "-c", "sleep infinity")
+                .withEntrypoint("sh", "-c", "sleep 60")
                 .exec();
 
         dockerClient.startContainerCmd(container.getId()).exec();
