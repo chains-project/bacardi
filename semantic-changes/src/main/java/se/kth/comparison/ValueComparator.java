@@ -8,31 +8,9 @@ import se.kth.matching.Difference;
 import se.kth.matching.DifferenceType;
 import se.kth.model.MethodInvocation;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 
 public class ValueComparator {
-
-    public static void main(String[] args) throws Exception {
-        String json1 = Files.readString(Path.of("/home/leonard/code/java/bacardi/semantic-changes/src/main/resources" +
-                "/jsoup_Element.prepend/jsoup_1.7.1_value.json"));
-        String json2 = Files.readString(Path.of("/home/leonard/code/java/bacardi/semantic-changes/src/main/resources" +
-                "/jsoup_Element.prepend/jsoup_1.7.3_value.json"));
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode node1 = objectMapper.readTree(json1);
-        JsonNode node2 = objectMapper.readTree(json2);
-
-        List<Difference> differences = compare(node1, node2);
-
-        if (differences.isEmpty()) {
-            System.out.println("The two JSON objects are deeply equal.");
-        } else {
-            System.out.println("Differences found:");
-            differences.forEach(System.out::println);
-        }
-    }
 
     public static List<List<Difference>> compareAllReturnValues(List<Pair<MethodInvocation, MethodInvocation>> pairs) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
@@ -44,9 +22,6 @@ public class ValueComparator {
                 JsonNode leftReturnValue = mapper.readTree(left.getReturnValue());
                 JsonNode rightReturnValue = mapper.readTree(right.getReturnValue());
                 differences.add(compare(leftReturnValue, rightReturnValue));
-                JsonNode beforeObject = mapper.readTree(left.getThiz());
-                JsonNode afterObject = mapper.readTree(right.getThiz());
-                differences.add(compare(beforeObject, afterObject));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -54,7 +29,8 @@ public class ValueComparator {
         return differences;
     }
 
-    public static List<List<Difference>> compareArguments(MethodInvocation preArguments, MethodInvocation postArguments) throws JsonProcessingException {
+    public static List<List<Difference>> compareArguments(MethodInvocation preArguments,
+                                                          MethodInvocation postArguments) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         List<List<Difference>> differences = new ArrayList<>();
         JsonNode preArgumentsNode = mapper.readTree(preArguments.getArguments());
@@ -109,7 +85,8 @@ public class ValueComparator {
 
         if (!node1.getNodeType().equals(node2.getNodeType())) {
             differences.add(new Difference(path,
-                    "Node types differ (" + node1.getNodeType() + " vs " + node2.getNodeType() + ")", DifferenceType.TYPE_CHANGED));
+                    "Node types differ (" + node1.getNodeType() + " vs " + node2.getNodeType() + ")",
+                    DifferenceType.TYPE_CHANGED));
             return differences;
         }
 
@@ -158,7 +135,8 @@ public class ValueComparator {
             while (fieldNames2.hasNext()) {
                 String fieldName = fieldNames2.next();
                 if (!fieldName.equals("hash") && !node1.has(fieldName)) {
-                    differences.add(new Difference(path, fieldName + ": Field is missing in the first object", DifferenceType.FIELD_ADDED));
+                    differences.add(new Difference(path, fieldName + ": Field is missing in the first object",
+                            DifferenceType.FIELD_ADDED));
                 }
             }
         } else if (node1.isArray()) {
@@ -172,7 +150,8 @@ public class ValueComparator {
                 }
             }
         } else if (!node1.asText().equals(node2.asText())) {
-            differences.add(new Difference(path, "Values differ (" + node1.asText() + " vs " + node2.asText() + ")", DifferenceType.VALUE_CHANGED));
+            differences.add(new Difference(path, "Values differ (" + node1.asText() + " vs " + node2.asText() + ")",
+                    DifferenceType.VALUE_CHANGED));
         }
 
         return differences;
