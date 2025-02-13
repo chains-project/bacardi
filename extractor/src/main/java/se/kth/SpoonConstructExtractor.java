@@ -9,8 +9,11 @@ import se.kth.japicmp_analyzer.JApiCmpAnalyze;
 import se.kth.models.ErrorInfo;
 import se.kth.models.MavenErrorLog;
 import se.kth.spoon.SpoonUtilities;
+import spoon.reflect.CtModel;
 import spoon.reflect.declaration.CtElement;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +53,23 @@ public class SpoonConstructExtractor {
         return detectedFiles;
     }
 
+    public static Path getDirectFilePath(String filePath, String projectPath) {
+
+
+        String[] partes = projectPath.split("/");
+        String nombreCarpeta = partes[partes.length - 1]; // Última parte del path
+
+        // Eliminar la parte duplicada del archivo
+        String archivoLimpio = filePath.replaceFirst("^/" + nombreCarpeta, "");
+
+        // Construir la ruta completa
+        Path rutaCompleta = Paths.get(projectPath, archivoLimpio);
+
+        return rutaCompleta;
+
+
+    }
+
     private Map<String, Set<DetectedFileWithErrors>> getStringDetectedFileWithErrorsMap(List<String> classNamesJapicmp, Set<ApiChange> apiChanges) {
         Map<String, Set<DetectedFileWithErrors>> detectedFiles = new HashMap<>();
 
@@ -60,6 +80,11 @@ public class SpoonConstructExtractor {
          * Each value is a set of error information extracted from the log file and related to de bug file
          */
         errorInfoMap.forEach((key, value) -> {
+            Path filePath = getDirectFilePath(key, spoonUtilities.getClient().getSourcePath().toString());
+
+            CtModel model = spoonUtilities.getClient().createModel(filePath);
+            spoonUtilities.setModel(model);
+
             value.forEach(errorInfo -> {
                 // all elements from the buggy line in the client application code
                 Set<CtElement> elements = spoonUtilities.localizeErrorInfoElements(errorInfo);

@@ -241,13 +241,12 @@ public class BacardiCore {
                         try {
                             Path promptPath = storeInfo.copyContentToFile("prompts/%s_prompt.txt".formatted(fileName),
                                     prompt);
-
-                            String model_response = generatePrompt.callPythonScript(PYTHON_SCRIPT, promptPath);
+//                            String model_response = generatePrompt.callPythonScript(PYTHON_SCRIPT, promptPath);
+                            String model_response = "response";
                             // save model model_response to a file
                             storeInfo.copyContentToFile("responses/%s_model_response.txt".formatted(fileName),
                                     model_response);
                             String onlyCodeResponse = generatePrompt.extractContentFromModelResponse(model_response);
-
                             storeInfo.copyContentToFile("responses/%s_response.txt".formatted(fileName),
                                     onlyCodeResponse);
                             // save the updated file
@@ -280,18 +279,18 @@ public class BacardiCore {
                     gitManager.commitAllChanges(
                             "Direct compilation failure repair attempt %s".formatted(result.getAttempts().size()));
                     // copy the file to docker image
-                    try {
-                        String dockerImage = dockerBuild.copyFolderToDockerImage(setupPipeline.getDockerImage(),
-                                setupPipeline.getClientFolder().toString());
-                        setupPipeline.setDockerImage(dockerImage);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+//                    try {
+//                        String dockerImage = dockerBuild.copyFolderToDockerImage(setupPipeline.getDockerImage(),
+//                                setupPipeline.getClientFolder().toString());
+//                        setupPipeline.setDockerImage(dockerImage);
+//                    } catch (IOException e) {
+//                        throw new RuntimeException(e);
+//                    }
                     // reproduce the build
-                    Path logFilePath = storeInfo.getPatchFolder().resolve("output.log");
-                    dockerBuild.reproduce(setupPipeline.getDockerImage(), FailureCategory.COMPILATION_FAILURE,
-                            setupPipeline.getClientFolder(), logFilePath);
-                    setupPipeline.setLogFilePath(logFilePath);
+//                    Path logFilePath = storeInfo.getPatchFolder().resolve("output.log");
+//                    dockerBuild.reproduce(setupPipeline.getDockerImage(), FailureCategory.COMPILATION_FAILURE,
+//                            setupPipeline.getClientFolder(), logFilePath);
+//                    setupPipeline.setLogFilePath(logFilePath);
                     RepairDirectFailures rebuildDirectFailures = new RepairDirectFailures(
                             setupPipeline.getDockerBuild(),
                             setupPipeline);

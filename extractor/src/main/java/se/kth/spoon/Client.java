@@ -14,7 +14,8 @@ import java.util.List;
 @lombok.EqualsAndHashCode
 
 public class Client {
-    private final Path sourcePath;
+    private Path sourcePath;
+    private Path currentFile;
 
     private List<Path> classpath = Collections.emptyList();
 
@@ -22,17 +23,17 @@ public class Client {
         this.sourcePath = sourcePath;
     }
 
-    public CtModel createModel() {
+    public CtModel createModel(Path sourcePath) {
 
         Launcher launcher;
 
         // Analyze the source folders if it is a Maven project
-//        if (Files.exists(sourcePath.resolve("pom.xml"))) {
-//            launcher = new MavenLauncher(sourcePath.toString(), MavenLauncher.SOURCE_TYPE.ALL_SOURCE, new String[0]);
-//        } else {
+        if (Files.exists(sourcePath.resolve("pom.xml"))) {
+            launcher = new MavenLauncher(sourcePath.toString(), MavenLauncher.SOURCE_TYPE.ALL_SOURCE, new String[0]);
+        } else {
             launcher = new Launcher();
             launcher.addInputResource(sourcePath.toString());
-//        }
+        }
 
         // Ignore missing types/classpath related errors
         launcher.getEnvironment().setNoClasspath(true);
@@ -49,5 +50,5 @@ public class Client {
 
     }
 
-
 }
+
