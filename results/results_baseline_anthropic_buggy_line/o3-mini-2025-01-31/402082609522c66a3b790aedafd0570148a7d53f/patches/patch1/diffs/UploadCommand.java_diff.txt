@@ -1,0 +1,43 @@
+9d8
+< 
+11a11
+> import org.spongepowered.api.command.Command;
+13,16c13,16
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.source.CommandSource;
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+19,21d18
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+< 
+34,35c31,34
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         String url = args.<String>getOne("url").get();
+---
+>     public CommandResult execute(CommandContext args) {
+>         // In the new API the command source is obtained from the cause.
+>         CommandSource src = args.cause().root();
+>         String url = args.requireOne("url");
+48d46
+< 
+53,54c51,57
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command buildSpec() {
+>         // Create a parameter for the URL using the new Parameter API.
+>         Parameter.Value<String> urlParam = Parameter.string()
+>                 .key("url")
+>                 .build();
+> 
+>         return Command.builder()
+56c59
+<                 .arguments(string(of("url")))
+---
+>                 .addParameter(urlParam)

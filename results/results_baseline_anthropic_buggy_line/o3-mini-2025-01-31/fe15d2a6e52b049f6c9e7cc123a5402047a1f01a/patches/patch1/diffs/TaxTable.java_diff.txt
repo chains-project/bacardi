@@ -1,0 +1,34 @@
+8d7
+< 
+23d21
+< 
+41d38
+<  * 
+48,49c45
+< public class TaxTable implements ToString2
+< {
+---
+> public class TaxTable implements ToString2 {
+69d64
+<      * 
+73,74d67
+<      * 
+<      * 
+85c78,79
+<         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+---
+>         // Use the public static field INSTANCE from JAXBToStringStrategy instead of getInstance()
+>         final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
+101,105c95,98
+<         {
+<             List<TaxTableEntry> theTaxTableEntry;
+<             theTaxTableEntry = (((this.taxTableEntry!= null)&&(!this.taxTableEntry.isEmpty()))?this.getTaxTableEntry():null);
+<             strategy.appendField(locator, this, "taxTableEntry", buffer, theTaxTableEntry, ((this.taxTableEntry!= null)&&(!this.taxTableEntry.isEmpty())));
+<         }
+---
+>         List<TaxTableEntry> theTaxTableEntry = ((this.taxTableEntry != null) && (!this.taxTableEntry.isEmpty()))
+>                 ? this.getTaxTableEntry() : null;
+>         strategy.appendField(locator, this, "taxTableEntry", buffer, theTaxTableEntry, 
+>                 (this.taxTableEntry != null) && (!this.taxTableEntry.isEmpty()));
+108d100
+< 

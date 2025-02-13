@@ -1,0 +1,124 @@
+<code_analysis>
+1. Error Message Analysis:
+   - The error message indicates that the constructor of org.hamcrest.core.StringContains is now different. Previously, the constructor accepted two parameters (a boolean and a String), but in the current version it only accepts a single String argument.
+   - The error appears on lines using "new StringContains(false, ...)" in both largeImagePullWorks() and largeImageUploadWorks().
+
+2. Client Code Review:
+   - In the first instance, the code constructs a StringContains matcher with a boolean flag (false) and a formatted string for the status message.
+   - In the second instance, a similar construction is done with a boolean flag (false) and the string "Pushed".
+   - Neither case is compatible with the new constructor signature of StringContains, which now only takes a single String argument.
+
+3. Potential Fix:
+   - Remove the boolean flag completely and only pass the substring to be matched.
+   - This change complies with the updated dependency's requirements and does not affect other parts of the code.
+   - No need to change any other function signatures or to remove any annotations.
+
+4. Proposed Modifications:
+   - Replace "new StringContains(false, someString)" with "new StringContains(someString)" in both occurrences.
+   - Ensure that the import of org.hamcrest.core.StringContains is correct.
+
+There are no side effects as we are only updating the usage to fit the new dependency version.
+</code_analysis>
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker.http;
+
+import com.artipie.asto.fs.FileStorage;
+import com.artipie.asto.test.TestResource;
+import com.artipie.docker.asto.AstoDocker;
+import com.artipie.docker.junit.DockerClient;
+import com.artipie.docker.junit.DockerClientSupport;
+import com.artipie.docker.junit.DockerRepository;
+import java.nio.file.Path;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.core.StringContains;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.io.TempDir;
+
+/**
+ * Integration test for large file pushing scenario of {@link DockerSlice}.
+ *
+ * @since 0.3
+ */
+@DockerClientSupport
+@DisabledOnOs(OS.WINDOWS)
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
+public final class LargeImageITCase {
+    /**
+     * Docker image name.
+     */
+    private static final String IMAGE = "large-image";
+
+    /**
+     * Docker client.
+     */
+    private DockerClient client;
+
+    /**
+     * Docker repository.
+     */
+    private DockerRepository repository;
+
+    @BeforeEach
+    void setUp(final @TempDir Path storage) {
+        this.repository = new DockerRepository(
+            new AstoDocker(new FileStorage(storage))
+        );
+        this.repository.start();
+    }
+
+    @AfterEach
+    void tearDown() {
+        this.repository.stop();
+    }
+
+    @Test
+    void largeImagePullWorks() throws Exception {
+        try {
+            this.buildImage();
+            this.client.run("push", this.remote());
+            this.client.run("image", "rm", this.remote());
+            final String output = this.client.run("pull", this.remote());
+            MatcherAssert.assertThat(
+                output,
+                new StringContains(
+                    String.format("Status: Downloaded newer image for %s", this.remote())
+                )
+            );
+        } finally {
+            this.client.run("rmi", this.remote());
+        }
+    }
+
+    @Test
+    void largeImageUploadWorks() throws Exception {
+        try {
+            this.buildImage();
+            final String output = this.client.run("push", this.remote());
+            MatcherAssert.assertThat(output, new StringContains("Pushed"));
+        } finally {
+            this.client.run("rmi", this.remote());
+        }
+    }
+
+    private void buildImage() throws Exception {
+        this.client.run("build", this.dockerFile().getParent().toString(), "-t", this.remote());
+    }
+
+    private Path dockerFile() {
+        return new TestResource("large-image/Dockerfile").asPath();
+    }
+
+    private String remote() {
+        return String.format("%s/%s", this.repository.url(), LargeImageITCase.IMAGE);
+    }
+}
+```

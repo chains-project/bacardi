@@ -1,0 +1,36 @@
+<code_analysis>
+1. The error message indicates that the class CommandSource cannot be found in the package org.spongepowered.api.command, and similarly, the package org.spongepowered.api.text.serializer (and its TextSerializers class) no longer exists. This suggests that the Sponge dependency has been updated, and these classes have been moved.
+2. Reviewing the client code, we see:
+   - The import of CommandSource is using the old package.
+   - The import and use of TextSerializers are causing errors because the package has been restructured in the newer dependency version.
+3. To address this:
+   - Replace the import for CommandSource to the new package location: org.spongepowered.api.command.source.CommandSource.
+   - Since TextSerializers has been removed, use the Adventure API replacement. In current Sponge versions, legacy text serialization is handled by net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.
+   - In the sendMessageInvoker method, replace the call to TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage) with a call to LegacyComponentSerializer.legacySection().deserialize(localeMessage) to achieve similar functionality.
+4. The function signatures remain unchanged and the @Override annotation is kept because the method still overrides its counterpart in the parent class.
+</code_analysis>
+
+```java
+package com.github.games647.changeskin.sponge.task;
+
+import com.github.games647.changeskin.core.model.auth.Account;
+import com.github.games647.changeskin.core.shared.task.SharedSkinChanger;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import org.spongepowered.api.command.source.CommandSource;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+
+public class SkinChanger extends SharedSkinChanger {
+
+    private final CommandSource invoker;
+
+    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandSource invoker) {
+        super(plugin.getCore(), owner, url, oldSkinUrl);
+        this.invoker = invoker;
+    }
+
+    @Override
+    protected void sendMessageInvoker(String localeMessage) {
+        invoker.sendMessage(LegacyComponentSerializer.legacySection().deserialize(localeMessage));
+    }
+}
+```

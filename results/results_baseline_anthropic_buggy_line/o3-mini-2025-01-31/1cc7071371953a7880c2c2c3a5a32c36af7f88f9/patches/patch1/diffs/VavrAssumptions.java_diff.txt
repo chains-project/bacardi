@@ -1,0 +1,36 @@
+24,33c24,35
+< import org.assertj.core.internal.bytebuddy.ByteBuddy;
+< import org.assertj.core.internal.bytebuddy.TypeCache;
+< import org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey;
+< import org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeValidation;
+< import org.assertj.core.internal.bytebuddy.implementation.Implementation;
+< import org.assertj.core.internal.bytebuddy.implementation.MethodDelegation;
+< import org.assertj.core.internal.bytebuddy.implementation.auxiliary.AuxiliaryType;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.RuntimeType;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This;
+---
+> import net.bytebuddy.ByteBuddy;
+> import net.bytebuddy.utility.cache.TypeCache;
+> import net.bytebuddy.utility.cache.TypeCache.SimpleKey;
+> import net.bytebuddy.dynamic.scaffold.TypeValidation;
+> import net.bytebuddy.implementation.Implementation;
+> import net.bytebuddy.implementation.MethodDelegation;
+> import net.bytebuddy.implementation.auxiliary.AuxiliaryType;
+> import net.bytebuddy.implementation.bind.annotation.RuntimeType;
+> import net.bytebuddy.implementation.bind.annotation.This;
+> import net.bytebuddy.implementation.bind.annotation.SuperCall;
+> import static net.bytebuddy.matcher.ElementMatchers.any;
+> 
+40,41d41
+< import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any;
+< import static org.assertj.core.util.Arrays.array;
+198c198
+<         return asAssumption(assertionType, array(actualType), array(actual));
+---
+>         return asAssumption(assertionType, new Class<?>[] { actualType }, actual);
+259d258
+<         // @format:off
+268,269d266
+<         // @format:on
+<         // should not arrive here

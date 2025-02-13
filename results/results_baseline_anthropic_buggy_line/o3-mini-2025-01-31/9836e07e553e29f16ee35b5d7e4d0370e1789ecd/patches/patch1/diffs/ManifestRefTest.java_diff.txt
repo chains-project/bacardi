@@ -1,0 +1,14 @@
+14d13
+< import org.hamcrest.core.StringContains;
+55,59c54,58
+<             new AllOf<>(
+<                 Arrays.asList(
+<                     new StringContains(true, "Unsupported reference"),
+<                     new StringContains(false, string)
+<                 )
+---
+>             AllOf.allOf(
+>                 // Assert that the message contains "Unsupported reference"
+>                 Matchers.containsString("Unsupported reference"),
+>                 // Ensure that the message does not contain the provided invalid string
+>                 Matchers.not(Matchers.containsString(string))

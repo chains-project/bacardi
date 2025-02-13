@@ -1,0 +1,59 @@
+10c10,31
+< import org.apache.maven.model.*;
+---
+> import org.apache.maven.model.Build;
+> import org.apache.maven.model.BuildBase;
+> import org.apache.maven.model.CiManagement;
+> import org.apache.maven.model.Contributor;
+> import org.apache.maven.model.Dependency;
+> import org.apache.maven.model.DependencyManagement;
+> import org.apache.maven.model.Developer;
+> import org.apache.maven.model.DistributionManagement;
+> import org.apache.maven.model.Extension;
+> import org.apache.maven.model.IssueManagement;
+> import org.apache.maven.model.License;
+> import org.apache.maven.model.MailingList;
+> import org.apache.maven.model.Model;
+> import org.apache.maven.model.Organization;
+> import org.apache.maven.model.Parent;
+> import org.apache.maven.model.Plugin;
+> import org.apache.maven.model.PluginExecution;
+> import org.apache.maven.model.PluginManagement;
+> import org.apache.maven.model.ReportPlugin;
+> import org.apache.maven.model.ReportSet;
+> import org.apache.maven.model.Repository;
+> import org.apache.maven.model.Resource;
+16c37,42
+< import org.yaml.snakeyaml.nodes.*;
+---
+> import org.yaml.snakeyaml.nodes.Node;
+> import org.yaml.snakeyaml.nodes.NodeId;
+> import org.yaml.snakeyaml.nodes.MappingNode;
+> import org.yaml.snakeyaml.nodes.NodeTuple;
+> import org.yaml.snakeyaml.nodes.ScalarNode;
+> import org.yaml.snakeyaml.nodes.Tag;
+43c69,70
+<     super(Model.class);
+---
+>     // Fix: removed the parameter Model.class as the updated Constructor no longer has such a constructor
+>     super();
+60c87
+<     desc.putListPropertyType("profiles", Profile.class);
+---
+>     desc.putListPropertyType("profiles", org.apache.maven.model.Profile.class);
+68c95
+<     desc.putListPropertyType("exclusions", Exclusion.class);
+---
+>     desc.putListPropertyType("exclusions", org.apache.maven.model.Exclusion.class);
+102c129
+<     desc = new TypeDescription(Reporting.class);
+---
+>     desc = new TypeDescription(org.apache.maven.model.Reporting.class);
+115c142
+<     desc.putListPropertyType("notifiers", Notifier.class);
+---
+>     desc.putListPropertyType("notifiers", org.apache.maven.model.Notifier.class);
+132c159
+<     addTypeDescription(new TypeDescription(Scm.class));
+---
+>     addTypeDescription(new TypeDescription(org.apache.maven.model.Scm.class));

@@ -1,0 +1,52 @@
+<code_analysis>
+1. Error Message Analysis:
+   - The error indicates that the package "io.dropwizard.logging.filter" and its class FilterFactory cannot be found.
+   - This suggests that a recent dependency update in Dropwizard has moved or removed the FilterFactory interface from the package "io.dropwizard.logging.filter".
+
+2. Client Code Review:
+   - The class StatusCheckFilter imports and implements FilterFactory from the now-nonexistent package.
+   - The build() method (along with its anonymous inner Filter) is otherwise valid and correctly implements the intended logging filter logic.
+
+3. Potential Fix:
+   - With the dependency update, the FilterFactory interface is now likely located elsewhere. In Dropwizard 2.x the logging-related classes have been reorganized into the "io.dropwizard.logback" package.
+   - To fix the error, the import should be updated to import FilterFactory from the correct package, such as "io.dropwizard.logback.filter.FilterFactory".
+   - No function signatures or other code changes are needed.
+
+4. Planned Modifications:
+   - Change the import from "io.dropwizard.logging.filter.FilterFactory" to "io.dropwizard.logback.filter.FilterFactory".
+   - Leave all other code unchanged in order to preserve the class’s intended functionality and public API.
+</code_analysis>
+
+Below is the complete, fixed Java class:
+
+```java
+package com.wire.lithium.server.monitoring;
+
+import ch.qos.logback.access.spi.IAccessEvent;
+import ch.qos.logback.core.filter.Filter;
+import ch.qos.logback.core.spi.FilterReply;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.dropwizard.logback.filter.FilterFactory;
+
+@JsonTypeName("status-filter-factory")
+public class StatusCheckFilter implements FilterFactory<IAccessEvent> {
+    @Override
+    public Filter<IAccessEvent> build() {
+        return new Filter<IAccessEvent>() {
+            @Override
+            public FilterReply decide(IAccessEvent event) {
+                if (event.getRequestURI().contains("/status")) {
+                    return FilterReply.DENY;
+                }
+                if (event.getRequestURI().contains("/swagger")) {
+                    return FilterReply.DENY;
+                }
+                if (event.getRequestURI().contains("/metrics")) {
+                    return FilterReply.DENY;
+                }
+                return FilterReply.NEUTRAL;
+            }
+        };
+    }
+}
+```

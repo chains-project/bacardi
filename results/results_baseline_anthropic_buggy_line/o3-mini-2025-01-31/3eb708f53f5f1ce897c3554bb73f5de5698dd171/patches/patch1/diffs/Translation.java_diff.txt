@@ -1,0 +1,69 @@
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+19d2
+< import com.google.api.services.translate.model.TranslationsResource;
+36a20,21
+> 
+>   // Using our own inner class TranslationsResource (stub) as a replacement for the removed dependency.
+111a97,142
+> 
+>   /**
+>    * A stub replacement for the removed
+>    * com.google.api.services.translate.model.TranslationsResource class.
+>    * This minimal implementation provides the methods needed by Translation.fromPb.
+>    */
+>   public static class TranslationsResource implements Serializable {
+> 
+>     private static final long serialVersionUID = 1L;
+>     private String translatedText;
+>     private String detectedSourceLanguage;
+>     private String model;
+> 
+>     public TranslationsResource() {
+>     }
+> 
+>     public TranslationsResource(String translatedText, String detectedSourceLanguage, String model) {
+>       this.translatedText = translatedText;
+>       this.detectedSourceLanguage = detectedSourceLanguage;
+>       this.model = model;
+>     }
+> 
+>     public String getTranslatedText() {
+>       return translatedText;
+>     }
+> 
+>     public void setTranslatedText(String translatedText) {
+>       this.translatedText = translatedText;
+>     }
+> 
+>     public String getDetectedSourceLanguage() {
+>       return detectedSourceLanguage;
+>     }
+> 
+>     public void setDetectedSourceLanguage(String detectedSourceLanguage) {
+>       this.detectedSourceLanguage = detectedSourceLanguage;
+>     }
+> 
+>     public String getModel() {
+>       return model;
+>     }
+> 
+>     public void setModel(String model) {
+>       this.model = model;
+>     }
+>   }

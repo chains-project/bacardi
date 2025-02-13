@@ -1,0 +1,6 @@
+34c34,36
+<         if (StringUtils.isAllBlank(kanikoImageFile, jibImageFile) || StringUtils.isNoneBlank(kanikoImageFile, jibImageFile)) {
+---
+>         // Validate that exactly one of kanikoImageFile or jibImageFile is configured.
+>         if ((StringUtils.isBlank(kanikoImageFile) && StringUtils.isBlank(jibImageFile)) ||
+>             (StringUtils.isNotBlank(kanikoImageFile) && StringUtils.isNotBlank(jibImageFile))) {

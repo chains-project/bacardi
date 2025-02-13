@@ -1,0 +1,15 @@
+12a13
+> import org.jenkinsci.plugins.p4.workspace.Workspace;
+23c24
+<  * @author Aviad Shikloshi
+---
+>  * Author: Aviad Shikloshi
+44c45,48
+<                 ClientHelper perforceClient = new ClientHelper(credentials, buildListener, clientString, StandardCharsets.UTF_8.toString());
+---
+>                 // Construct a Workspace instance from the client string and encoding.
+>                 Workspace ws = new Workspace(clientString, StandardCharsets.UTF_8.toString());
+>                 // Use build.getProject() (which implements hudson.model.Item) as the first parameter.
+>                 ClientHelper perforceClient = new ClientHelper(build.getProject(), credentials, buildListener, ws);
+58d61
+< 

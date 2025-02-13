@@ -1,0 +1,63 @@
+<code_analysis>
+1. Error message analysis:
+   - The error indicates that the symbol "MvcContext" cannot be found, specifically at the injection point "private MvcContext mvcContext;".
+   - The error suggests that the dependency update has likely moved the MvcContext interface from the javax.mvc package to a new package (jakarta.mvc).
+
+2. Client code review:
+   - The problematic import is "import javax.mvc.MvcContext;".
+   - This import is used to inject the MvcContext dependency.
+   - The code uses mvcContext.getLocale() to determine locale-specific behavior.
+
+3. Potential fixes:
+   - Update the import statement to use the new package: "jakarta.mvc.MvcContext" instead of "javax.mvc.MvcContext".
+   - This change will resolve the compilation error without altering any function signatures or business logic.
+
+4. Planned modifications:
+   - Remove the old import "javax.mvc.MvcContext".
+   - Add the new import "jakarta.mvc.MvcContext".
+   - No other code changes are needed since the only dependency breaking the build is the MvcContext reference.
+</code_analysis>
+
+Below is the fixed version of the class:
+
+```java
+import java.util.ResourceBundle;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
+import jakarta.mvc.MvcContext;
+//https://www.mvc-spec.org/learn/cookbook/multilang_en.html
+/**
+ * Provides I18n messages for the UI per request. To get the correct locale, the method {@link MvcContext#getLocale()}
+ * is used. This method uses the built-in {@link jakarta.mvc.locale.LocaleResolver} of the used MVC Implementation.
+ *
+ * Author: Tobias Erdle
+ * @see MvcContext#getLocale()
+ * @see jakarta.mvc.locale.LocaleResolver
+ */
+@RequestScoped
+@Named("msg")
+public class Messages {
+
+    private static final String BASE_NAME = "messages";
+
+    @Inject
+    private MvcContext mvcContext;
+
+    /**
+     * Get the assigned message to some key based on the {@link java.util.Locale} of the current request.
+     *
+     * @param key the message key to use
+     * @return the correct translation assigned to the key for the request locale, a fallback translation or a
+     * placeholder for unknown keys.
+     */
+    public final String get(final String key) {
+        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
+        return bundle.containsKey(key) ? bundle.getString(key) : formatUnknownKey(key);
+    }
+
+    private static String formatUnknownKey(final String key) {
+        return String.format("???%s???", key);
+    }
+}
+```

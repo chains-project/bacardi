@@ -1,0 +1,36 @@
+<code_analysis>
+1. The error message indicates that the static method getInstance() is no longer available on the ExecutorService class. The compiler cannot locate getInstance() in the updated dependency.
+2. In the client code, the problematic line is:
+   ExecutorService.getInstance().getExecutor(this).execute(...);
+   This line uses the old method which has been removed in the newer version of the dependency.
+3. To fix this, we use the new way of obtaining an Executor instance via the Scope API. In the updated Liquibase dependency, services such as ExecutorService are retrieved using:
+   Scope.getCurrentScope().getSingleton(ExecutorService.class)
+   which then allows us to obtain the appropriate Executor with getExecutor(this).
+4. The necessary modification is to replace the call to ExecutorService.getInstance() with the new Scope-based singleton access, and update the imports accordingly.
+</code_analysis>
+
+```java
+package liquibase.ext.mssql.database;
+
+import liquibase.CatalogAndSchema;
+import liquibase.Scope;
+import liquibase.executor.Executor;
+import liquibase.executor.ExecutorService;
+import liquibase.exception.LiquibaseException;
+import liquibase.ext.mssql.statement.DropStoredProcedureStatement;
+
+public class MSSQLDatabase extends liquibase.database.core.MSSQLDatabase {
+
+    @Override
+    public int getPriority() {
+        return PRIORITY_DATABASE;
+    }
+    
+    @Override
+    public void dropDatabaseObjects(CatalogAndSchema schemaToDrop) throws LiquibaseException {
+        super.dropDatabaseObjects(schemaToDrop);
+        Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor(this);
+        executor.execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+    }
+}
+```

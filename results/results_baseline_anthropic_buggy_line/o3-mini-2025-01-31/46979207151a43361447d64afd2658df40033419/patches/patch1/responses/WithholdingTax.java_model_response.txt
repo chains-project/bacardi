@@ -1,0 +1,158 @@
+<code_analysis>
+1. Examine the error message:
+   - The error indicates that the method getInstance() is no longer found in the class JAXBToStringStrategy.
+   - The error is reported on the line where we attempt to call JAXBToStringStrategy.getInstance(), meaning that in the updated dependency the static factory method has been removed.
+2. Review the client code:
+   - The problematic line is in the toString() method where
+     final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+     is used to obtain an instance of the to-string strategy.
+   - The rest of the code uses this strategy to build the string representation.
+3. Potential fixes:
+   - Since the updated dependency removed the getInstance() method, we must find the alternative way of obtaining an instance.
+   - In the newer version of the dependency, the recommended approach is often to access a public static field, for example, JAXBToStringStrategy.INSTANCE.
+   - This change aligns with the dependency update without altering method signatures.
+4. Planned modifications:
+   - Replace the call to getInstance() with a reference to JAXBToStringStrategy.INSTANCE.
+   - No changes are required in the method signatures, annotations, or any other code.
+</code_analysis>
+
+Below is the complete, fixed Java class:
+
+```java
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_02_01.schema;
+
+import java.math.BigDecimal;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
+import org.jvnet.jaxb2_commons.lang.ToString2;
+import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
+import org.jvnet.jaxb2_commons.locator.ObjectLocator;
+
+/**
+ * <p>Java class for WithholdingTax complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType name="WithholdingTax"&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}WithholdingTaxType" minOccurs="0"/&gt;
+ *         &lt;element name="WithholdingTaxDescription" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SAFPTtextTypeMandatoryMax60Car" minOccurs="0"/&gt;
+ *         &lt;element name="WithholdingTaxAmount" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SAFmonetaryType"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ */
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "WithholdingTax", propOrder = {
+    "withholdingTaxType",
+    "withholdingTaxDescription",
+    "withholdingTaxAmount"
+})
+public class WithholdingTax implements ToString2 {
+
+    @XmlElement(name = "WithholdingTaxType")
+    protected String withholdingTaxType;
+    @XmlElement(name = "WithholdingTaxDescription")
+    protected String withholdingTaxDescription;
+    @XmlElement(name = "WithholdingTaxAmount", required = true)
+    protected BigDecimal withholdingTaxAmount;
+
+    /**
+     * Gets the value of the withholdingTaxType property.
+     * 
+     * @return possible object is {@link String }
+     */
+    public String getWithholdingTaxType() {
+        return withholdingTaxType;
+    }
+
+    /**
+     * Sets the value of the withholdingTaxType property.
+     * 
+     * @param value allowed object is {@link String }
+     */
+    public void setWithholdingTaxType(String value) {
+        this.withholdingTaxType = value;
+    }
+
+    /**
+     * Gets the value of the withholdingTaxDescription property.
+     * 
+     * @return possible object is {@link String }
+     */
+    public String getWithholdingTaxDescription() {
+        return withholdingTaxDescription;
+    }
+
+    /**
+     * Sets the value of the withholdingTaxDescription property.
+     * 
+     * @param value allowed object is {@link String }
+     */
+    public void setWithholdingTaxDescription(String value) {
+        this.withholdingTaxDescription = value;
+    }
+
+    /**
+     * Gets the value of the withholdingTaxAmount property.
+     * 
+     * @return possible object is {@link BigDecimal }
+     */
+    public BigDecimal getWithholdingTaxAmount() {
+        return withholdingTaxAmount;
+    }
+
+    /**
+     * Sets the value of the withholdingTaxAmount property.
+     * 
+     * @param value allowed object is {@link BigDecimal }
+     */
+    public void setWithholdingTaxAmount(BigDecimal value) {
+        this.withholdingTaxAmount = value;
+    }
+
+    @Override
+    public String toString() {
+        final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
+        final StringBuilder buffer = new StringBuilder();
+        append(null, buffer, strategy);
+        return buffer.toString();
+    }
+
+    @Override
+    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+        strategy.appendStart(locator, this, buffer);
+        appendFields(locator, buffer, strategy);
+        strategy.appendEnd(locator, this, buffer);
+        return buffer;
+    }
+
+    @Override
+    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+        {
+            String theWithholdingTaxType = this.getWithholdingTaxType();
+            strategy.appendField(locator, this, "withholdingTaxType", buffer, theWithholdingTaxType, (this.withholdingTaxType != null));
+        }
+        {
+            String theWithholdingTaxDescription = this.getWithholdingTaxDescription();
+            strategy.appendField(locator, this, "withholdingTaxDescription", buffer, theWithholdingTaxDescription, (this.withholdingTaxDescription != null));
+        }
+        {
+            BigDecimal theWithholdingTaxAmount = this.getWithholdingTaxAmount();
+            strategy.appendField(locator, this, "withholdingTaxAmount", buffer, theWithholdingTaxAmount, (this.withholdingTaxAmount != null));
+        }
+        return buffer;
+    }
+}
+```
+
+In this patch, the call to getInstance() has been replaced with a direct reference to JAXBToStringStrategy.INSTANCE, which is compatible with the updated dependency version.

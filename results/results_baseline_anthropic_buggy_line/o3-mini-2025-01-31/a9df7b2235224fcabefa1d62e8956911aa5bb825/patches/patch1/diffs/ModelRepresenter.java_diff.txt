@@ -1,0 +1,12 @@
+94d93
+< 
+218,219c217,218
+<   protected Set<Property> getProperties(Class<? extends Object> type)
+<           throws IntrospectionException {
+---
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+>     try {
+232a232,234
+>     } catch (IntrospectionException e) {
+>       throw new RuntimeException("Failed to get properties for class: " + type.getName(), e);
+>     }

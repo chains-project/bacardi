@@ -1,0 +1,14 @@
+160c160,165
+<         dependencies.addAll(getGraph().buildDependencyGraph(project, getFilter()).getChildren());
+---
+>         // Create a new ProjectBuildingRequest for the current project by copying the existing one,
+>         // and set the pom file of the project so that the dependency graph builder builds
+>         // the graph for that specific project.
+>         DefaultProjectBuildingRequest requestForProject = new DefaultProjectBuildingRequest(getBuildingRequest());
+>         requestForProject.setPomFile(project.getFile());
+>         dependencies.addAll(getGraph().buildDependencyGraph(requestForProject, getFilter()).getChildren());
+174,177d178
+< 
+<     // tempting, but does not resolve dependencies after the scope in which this
+<     // plugin is invoked
+<     // return project.getArtifacts();

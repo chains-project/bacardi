@@ -1,0 +1,18 @@
+26,27d25
+< import org.tinspin.index.PointDistanceFunction;
+< import org.tinspin.index.PointEntryDist;
+28a27
+> import org.tinspin.index.covertree.DistanceFunction;
+226c225
+<                         final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+---
+>                         final CoverTree.Entry<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+645,646c644
+<         private static final PointDistanceFunction circleDistanceMetric = (p1, p2) -> {
+<                 // from https://stackoverflow.com/a/21975136/
+---
+>         private static final DistanceFunction circleDistanceMetric = (p1, p2) -> {
+653c651
+<                 return euclideanDistance + absZDifference; // negative if inside
+---
+>                 return euclideanDistance + absZDifference;

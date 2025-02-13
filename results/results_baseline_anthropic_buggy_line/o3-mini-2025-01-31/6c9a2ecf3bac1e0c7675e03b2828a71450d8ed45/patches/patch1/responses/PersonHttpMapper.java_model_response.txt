@@ -1,0 +1,36 @@
+<code_analysis>
+1. The error message “Couldn't retrieve @Mapper annotation” indicates that after a dependency update (likely in MapStruct), the mechanism that retrieves mapper metadata (via reflection) is not finding the annotation on the interface. This suggests that the new dependency version may require an explicit configuration in the annotation.
+2. In the client code, the @Mapper annotation is used on the PersonHttpMapper interface. The failure occurs at the annotation line, specifically when Mappers.getMapper(PersonHttpMapper.class) is invoked.
+3. A common fix with updated versions of MapStruct is to explicitly specify the component model. By adding componentModel = "default" (which is the implicit default model used by MapStruct when no DI framework is present), we ensure that the metadata is retained as expected for retrieval.
+4. The fix only adds an attribute to the @Mapper annotation without changing any function signatures or removing any code.
+</code_analysis>
+
+```java
+package io.github.wesleyosantos91.api.v1.mapper;
+
+import io.github.wesleyosantos91.api.v1.request.PersonRequest;
+import io.github.wesleyosantos91.api.v1.response.PersonResponse;
+import io.github.wesleyosantos91.core.domain.PersonDomain;
+import java.util.ArrayList;
+import java.util.List;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
+
+@Mapper(componentModel = "default")
+public interface PersonHttpMapper {
+
+    PersonHttpMapper INSTANCE = Mappers.getMapper(PersonHttpMapper.class);
+    
+    PersonDomain toDomain(PersonRequest request);
+    PersonRequest toRequest(PersonDomain domain);
+
+    PersonDomain toDomain(PersonResponse response);
+    PersonResponse toResponse(PersonDomain domain);
+
+    default List<PersonResponse> toListResponse(List<PersonDomain> domains){
+        List<PersonResponse> list = new ArrayList<>();
+        domains.forEach(d -> list.add(toResponse(d)));
+        return list;
+    }
+}
+```

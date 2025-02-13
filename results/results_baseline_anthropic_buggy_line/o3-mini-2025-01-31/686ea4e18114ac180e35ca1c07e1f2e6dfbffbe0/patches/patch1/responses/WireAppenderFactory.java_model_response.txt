@@ -1,0 +1,98 @@
+<code_analysis>
+1. Issue Identification:
+   - The error messages indicate that classes and packages such as AbstractAppenderFactory, AsyncAppenderFactory, LevelFilterFactory, and LayoutFactory are no longer found in the packages "io.dropwizard.logging", "io.dropwizard.logging.async", "io.dropwizard.logging.filter", and "io.dropwizard.logging.layout". This indicates that a dependency update (likely to a newer Dropwizard version) has moved these classes into different packages.
+   
+2. Client Code Review:
+   - The class WireAppenderFactory extends AbstractAppenderFactory<T>, and its build() method uses AsyncAppenderFactory, LevelFilterFactory, and LayoutFactory from the outdated packages.
+   - The broken imports appear at the top of the file.
+  
+3. Proposed Fix:
+   - Update the import statements to reference the correct package locations as per the new dependency version.
+   - In Dropwizard 2.x, these classes have been moved under the "io.dropwizard.logging.appender" package (and sub-packages). Specifically:
+     • AbstractAppenderFactory is now in io.dropwizard.logging.appender.AbstractAppenderFactory.
+     • AsyncAppenderFactory is now in io.dropwizard.logging.appender.async.AsyncAppenderFactory.
+     • LevelFilterFactory is now in io.dropwizard.logging.appender.filter.LevelFilterFactory.
+     • LayoutFactory is now in io.dropwizard.logging.appender.layout.LayoutFactory.
+   - All function signatures and existing logic remain unchanged.
+  
+4. Modifications Summary:
+   - Replace the outdated import statements with the updated ones.
+   - Ensure the rest of the class remains untouched to preserve functionality.
+</code_analysis>
+
+```java
+package com.wire.lithium.server.monitoring;
+
+import ch.qos.logback.access.spi.IAccessEvent;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.ConsoleAppender;
+import ch.qos.logback.core.Layout;
+import ch.qos.logback.core.filter.Filter;
+import ch.qos.logback.core.spi.DeferredProcessingAware;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.dropwizard.logging.appender.AbstractAppenderFactory;
+import io.dropwizard.logging.appender.async.AsyncAppenderFactory;
+import io.dropwizard.logging.appender.filter.LevelFilterFactory;
+import io.dropwizard.logging.appender.layout.LayoutFactory;
+import io.dropwizard.request.logging.layout.LogbackAccessRequestLayoutFactory;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * Production console appender using logging to JSON.
+ */
+@JsonTypeName("json-console")
+public class WireAppenderFactory<T extends DeferredProcessingAware> extends AbstractAppenderFactory<T> {
+
+    @Override
+    public Appender<T> build(
+            LoggerContext loggerContext,
+            String serviceName,
+            LayoutFactory<T> layoutFactory,
+            LevelFilterFactory<T> levelFilterFactory,
+            AsyncAppenderFactory<T> asyncAppenderFactory) {
+
+        final ConsoleAppender<T> appender = new ConsoleAppender<>();
+        appender.setContext(loggerContext);
+        appender.setTarget("System.out");
+
+        final Filter<T> levelFilter = levelFilterFactory.build(threshold);
+        Layout<T> layout;
+        // this is quite ugly hack to achieve just a single name for the logger
+        if (layoutFactory instanceof LogbackAccessRequestLayoutFactory) {
+            layout = prepareAccessEventLayout(levelFilter);
+        } else {
+            layout = prepareLoggingEventLayout(levelFilter);
+        }
+
+        appender.setLayout(layout);
+        appender.start();
+
+        return appender;
+    }
+
+    // we know that T is either ILoggingEvent or IAccessEvent
+    // so this is in a fact checked cast
+    // moreover thanks to the generics erasure during runtime, its safe anyway
+    @SuppressWarnings("unchecked")
+    private Layout<T> prepareAccessEventLayout(Filter<T> levelFilter) {
+        List<Filter<IAccessEvent>> ac = getFilterFactories().stream()
+                .map(filter -> (Filter<IAccessEvent>) filter.build())
+                .collect(Collectors.toList());
+        ac.add((Filter<IAccessEvent>) levelFilter);
+        return (Layout<T>) new AccessEventJsonLayout(ac);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Layout<T> prepareLoggingEventLayout(Filter<T> levelFilter) {
+        List<Filter<ILoggingEvent>> ac = getFilterFactories().stream()
+                .map(filter -> (Filter<ILoggingEvent>) filter.build())
+                .collect(Collectors.toList());
+        ac.add((Filter<ILoggingEvent>) levelFilter);
+        return (Layout<T>) new LoggingEventJsonLayout(ac);
+    }
+}
+```

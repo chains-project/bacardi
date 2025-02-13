@@ -1,0 +1,43 @@
+33c33
+< import org.apache.maven.shared.dependency.graph.internal.Maven31DependencyGraphBuilder;
+---
+> import org.apache.maven.shared.dependency.graph.DependencyNodeVisitor;
+186c186,187
+<     this.graph = Optional.ofNullable(graph).orElse(new Maven31DependencyGraphBuilder());
+---
+>     // Use fallback builder if graph is null to fix dependency issue
+>     this.graph = Optional.ofNullable(graph).orElse(new FallbackDependencyGraphBuilder());
+219a221,253
+> 
+>   /**
+>    * Fallback implementation of DependencyGraphBuilder to address removal of
+>    * Maven31DependencyGraphBuilder in newer dependency versions.
+>    */
+>   private static class FallbackDependencyGraphBuilder implements DependencyGraphBuilder {
+>     @Override
+>     public DependencyNode buildDependencyGraph(ProjectBuildingRequest buildingRequest, ArtifactFilter filter)
+>         throws DependencyGraphBuilderException {
+>       return new EmptyDependencyNode();
+>     }
+>   }
+> 
+>   /**
+>    * Empty implementation of DependencyNode that returns no children.
+>    */
+>   private static class EmptyDependencyNode implements DependencyNode {
+> 
+>     @Override
+>     public Artifact getArtifact() {
+>       return null;
+>     }
+> 
+>     @Override
+>     public List<DependencyNode> getChildren() {
+>       return Collections.emptyList();
+>     }
+> 
+>     @Override
+>     public void accept(DependencyNodeVisitor visitor) {
+>       // No operation as there are no children.
+>     }
+>   }

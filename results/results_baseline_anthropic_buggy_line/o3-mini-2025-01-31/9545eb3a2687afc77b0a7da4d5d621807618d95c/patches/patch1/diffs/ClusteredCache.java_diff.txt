@@ -1,0 +1,40 @@
+18,21c18,19
+< import com.hazelcast.core.EntryEvent;
+< import com.hazelcast.core.EntryListener;
+< import com.hazelcast.core.IMap;
+< import com.hazelcast.core.MapEvent;
+---
+> import com.hazelcast.map.IMap;
+> import com.hazelcast.map.listener.MapEvent;
+23c21
+< import com.hazelcast.monitor.LocalMapStats;
+---
+> import com.hazelcast.map.LocalMapStats;
+85,87c83,84
+<     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode)
+<     {
+<         final EntryListener<K, V> listener = new EntryListener<K, V>() {
+---
+>     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode) {
+>         final com.hazelcast.core.EntryListener<K, V> listener = new com.hazelcast.core.EntryListener<K, V>() {
+107c104
+<             public void entryUpdated(EntryEvent event) {
+---
+>             public void entryUpdated(com.hazelcast.core.EntryEvent event) {
+116c113
+<             public void entryRemoved(EntryEvent event) {
+---
+>             public void entryRemoved(com.hazelcast.core.EntryEvent event) {
+125c122
+<             public void entryEvicted(EntryEvent event) {
+---
+>             public void entryEvicted(com.hazelcast.core.EntryEvent event) {
+134c131
+<             public void entryAdded(EntryEvent event) {
+---
+>             public void entryAdded(com.hazelcast.core.EntryEvent event) {
+224,225d220
+< 
+<         // Instances are likely all loaded by the same class loader. For resource usage optimization, let's test just one, not all.
+329d323
+<             // Try to determine what plugin loaded the offending class.

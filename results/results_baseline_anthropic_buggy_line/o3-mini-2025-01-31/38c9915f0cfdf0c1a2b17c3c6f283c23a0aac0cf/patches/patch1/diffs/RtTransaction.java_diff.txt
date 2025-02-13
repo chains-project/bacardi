@@ -1,0 +1,123 @@
+33c33
+< import org.cactoos.iterable.LengthOf;
+---
+> import org.cactoos.iterable.Length;
+35c35
+< import org.cactoos.scalar.IoCheckedScalar;
+---
+> import org.cactoos.scalar.IoChecked;
+37,38c37,38
+< import org.cactoos.scalar.StickyScalar;
+< import org.cactoos.scalar.UncheckedScalar;
+---
+> import org.cactoos.scalar.Sticky;
+> import org.cactoos.scalar.Unchecked;
+40c40
+< import org.cactoos.text.SplitText;
+---
+> import org.cactoos.text.Split;
+42c42
+< import org.cactoos.text.TrimmedText;
+---
+> import org.cactoos.text.Trimmed;
+52,53c52,55
+< @SuppressWarnings({"PMD.AvoidCatchingGenericException",
+<     "PMD.AvoidFieldNameMatchingMethodName"})
+---
+> @SuppressWarnings({
+>     "PMD.AvoidCatchingGenericException",
+>     "PMD.AvoidFieldNameMatchingMethodName"
+> })
+88c90
+<     private final IoCheckedScalar<String> transaction;
+---
+>     private final IoChecked<String> transaction;
+95,102c97,99
+<         this.transaction = new IoCheckedScalar<>(
+<             new StickyScalar<>(
+<                 () -> {
+<                     if (
+<                         new TrimmedText(
+<                             new TextOf(trnsct)
+<                         ).asString().isEmpty()
+<                     ) {
+---
+>         this.transaction = new IoChecked<>(
+>             new Sticky<>(() -> {
+>                 if (new Trimmed(new TextOf(trnsct)).asString().isEmpty()) {
+107,109c104,105
+<                     final List<Text> pieces =
+<                         new ListOf<>(
+<                             new SplitText(trnsct, ";")
+---
+>                 final List<Text> pieces = new ListOf<>(
+>                     new Split(trnsct, ";")
+112c108
+<                     if (new LengthOf(pieces).intValue() != 7) {
+---
+>                 if (new Length<>(pieces).value() != 7) {
+122,123c118
+<                 }
+<             )
+---
+>             })
+131c126
+<             new IoCheckedScalar<>(
+---
+>             new IoChecked<>(
+133c128
+<                     0, new SplitText(this.transaction.value(), ";")
+---
+>                     0, new Split(this.transaction.value(), ";")
+156c151
+<                 new IoCheckedScalar<>(
+---
+>                 new IoChecked<>(
+158c153
+<                         1, new SplitText(this.transaction.value(), ";")
+---
+>                         1, new Split(this.transaction.value(), ";")
+169c164
+<             new IoCheckedScalar<>(
+---
+>             new IoChecked<>(
+171c166
+<                     2, new SplitText(this.transaction.value(), ";")
+---
+>                     2, new Split(this.transaction.value(), ";")
+193c188
+<             new IoCheckedScalar<>(
+---
+>             new IoChecked<>(
+196c191
+<                     3, new SplitText(this.transaction.value(), ";")
+---
+>                     3, new Split(this.transaction.value(), ";")
+213c208
+<             new IoCheckedScalar<>(
+---
+>             new IoChecked<>(
+216c211
+<                     4, new SplitText(this.transaction.value(), ";")
+---
+>                     4, new Split(this.transaction.value(), ";")
+237c232
+<             new IoCheckedScalar<>(
+---
+>             new IoChecked<>(
+240c235
+<                     5, new SplitText(this.transaction.value(), ";")
+---
+>                     5, new Split(this.transaction.value(), ";")
+261c256
+<             new IoCheckedScalar<>(
+---
+>             new IoChecked<>(
+264c259
+<                     6, new SplitText(this.transaction.value(), ";")
+---
+>                     6, new Split(this.transaction.value(), ";")
+286c281
+<         return new UncheckedScalar<>(this.transaction).value();
+---
+>         return new Unchecked<>(this.transaction).value();

@@ -1,0 +1,44 @@
+12,17c12,17
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.View;
+< import javax.mvc.binding.BindingResult;
+< import javax.mvc.binding.ParamError;
+< import javax.mvc.security.CsrfProtected;
+---
+> import jakarta.mvc.Controller;
+> import jakarta.mvc.Models;
+> import jakarta.mvc.View;
+> import jakarta.mvc.binding.BindingResult;
+> import jakarta.mvc.binding.ParamError;
+> import jakarta.mvc.security.CsrfProtected;
+61c61,62
+<         log.log(Level.INFO, "got all tasks: todotasks@{0}, doingtasks@{1}, donetasks@{2}", new Object[]{todotasks.size(), doingtasks.size(), donetasks.size()});
+---
+>         log.log(Level.INFO, "got all tasks: todotasks@{0}, doingtasks@{1}, donetasks@{2}",
+>                 new Object[]{todotasks.size(), doingtasks.size(), donetasks.size()});
+66d66
+< 
+90d89
+<     //@ValidateOnExecution(type = ExecutableType.NONE)
+96,98c95
+<             validationResult.getAllErrors()
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+---
+>             validationResult.getAllErrors().stream().forEach((ParamError t) -> {
+140,142c137
+<             validationResult.getAllErrors()
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+---
+>             validationResult.getAllErrors().stream().forEach((ParamError t) -> {
+164,166c159,162
+<     //@CsrfProtected
+<     public Response updateStatus(@PathParam(value = "id") Long id, @NotNull @FormParam(value = "status") String status) {
+<         log.log(Level.INFO, "updating status of the existed task@id:{0}, status:{1}", new Object[]{id, status});
+---
+>     public Response updateStatus(@PathParam(value = "id") Long id,
+>                                  @NotNull @FormParam(value = "status") String status) {
+>         log.log(Level.INFO, "updating status of the existed task@id:{0}, status:{1}",
+>                 new Object[]{id, status});

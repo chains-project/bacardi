@@ -1,0 +1,27 @@
+48a49
+> import java.util.AbstractMap.SimpleImmutableEntry;
+52d52
+< import org.cactoos.map.MapEntry;
+127c127,129
+<                         RsStatus.OK, new Headers.From("header", "value"), new Content.From(body)
+---
+>                         RsStatus.OK,
+>                         new Headers.From("header", "value"),
+>                         new Content.From(body)
+136,138c138,140
+<                         new MapEntry<>("header", "value"),
+<                         new MapEntry<>("Content-Length", "4"),
+<                         new MapEntry<>("Content-Length", "4")
+---
+>                         new SimpleImmutableEntry<>("header", "value"),
+>                         new SimpleImmutableEntry<>("Content-Length", "4"),
+>                         new SimpleImmutableEntry<>("Content-Length", "4")
+164c166,167
+<                     new RsHasStatus(RsStatus.OK), new RsHasBody(body),
+---
+>                     new RsHasStatus(RsStatus.OK),
+>                     new RsHasBody(body),
+166c169
+<                         new MapEntry<>("Content-Length", String.valueOf(body.length))
+---
+>                         new SimpleImmutableEntry<>("Content-Length", String.valueOf(body.length))
