@@ -516,7 +516,7 @@ public class DockerBuild {
      * Command to compile and test the breaking update
      */
     private static String getPostCmd() {
-        return "set -o pipefail && mvn test -B | tee mavenLog.log";
+        return "set -o pipefail && mvn test -Dcheckstyle.skip=true -B | tee mavenLog.log";
 
     }
 
