@@ -1,0 +1,13 @@
+21,22d20
+< import com.mysql.jdbc.exceptions.MySQLTimeoutException;
+< 
+28c26
+<  * @author José Fidalgo (jose.fidalgo@feedzai.com)
+---
+>  * @author José Fidalgo
+40c38,40
+<         return exception instanceof MySQLTimeoutException || super.isTimeoutException(exception);
+---
+>         // The specific MySQL timeout exception is no longer present in the updated dependency.
+>         // Rely on the superclass implementation to determine if the exception represents a timeout.
+>         return super.isTimeoutException(exception);

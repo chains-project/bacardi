@@ -1,0 +1,78 @@
+6,8d5
+< 
+< import com.gargoylesoftware.htmlunit.ScriptResult;
+< 
+12c9
+<  * Charts are displayed one multiple PageObjects. This util provides some helper methods to deal with charts.
+---
+>  * Charts are displayed on multiple PageObjects. This util provides some helper methods to deal with charts.
+14d10
+< @SuppressWarnings("hideutilityclassconstructor")
+15a12
+> @SuppressWarnings("hideutilityclassconstructor")
+22,26c19,20
+<      * @param pageObject
+<      *         which contains chart
+<      * @param elementId
+<      *         of chart
+<      *
+---
+>      * @param pageObject  which contains chart
+>      * @param elementId   of chart
+35,36c29
+<             ScriptResult scriptResult = new ScriptResult(result);
+<             return scriptResult.getJavaScriptResult().toString();
+---
+>             return result != null ? result.toString() : null;
+44,48c37,38
+<      * @param pageObject
+<      *         which contains only one chart with given tool attribute value
+<      * @param toolAttribute
+<      *         value in div tag of chart
+<      *
+---
+>      * @param pageObject     which contains only one chart with given tool attribute value
+>      * @param toolAttribute  value in div tag of chart
+60,62c50,51
+<                 Object scriptResult = new ScriptResult(result).getJavaScriptResult();
+<                 if (scriptResult != null) {
+<                     return scriptResult.toString();
+---
+>                 if (result != null) {
+>                     return result.toString();
+67c56
+<         throw new java.util.NoSuchElementException("Found no trend chart with ID '%s''" + toolAttribute);
+---
+>         throw new java.util.NoSuchElementException("Found no trend chart with tool attribute '" + toolAttribute + "'");
+73,77c62,63
+<      * @param pageObject
+<      *         which contains chart
+<      * @param elementId
+<      *         of chart
+<      *
+---
+>      * @param pageObject  which contains chart
+>      * @param elementId   of chart
+84,85c70
+<         }
+<         catch (NoSuchElementException exception) {
+---
+>         } catch (NoSuchElementException exception) {
+93,97c78,79
+<      * @param pageObject
+<      *         which contains chart
+<      * @param toolAttribute
+<      *         of div tag of chart
+<      *
+---
+>      * @param pageObject    which contains chart
+>      * @param toolAttribute of div tag of chart
+104,105c86
+<         }
+<         catch (NoSuchElementException exception) {
+---
+>         } catch (NoSuchElementException exception) {
+108d88
+< 
+110d89
+< 

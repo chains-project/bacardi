@@ -1,0 +1,12 @@
+34a35
+> import org.yaml.snakeyaml.LoaderOptions;
+50c51
+<  *     - id: cluster-1:
+---
+>  *     - id: cluster-1
+83c84,86
+<       Constructor constructor = new Constructor(Config.class);
+---
+>       LoaderOptions loaderOptions = new LoaderOptions();
+>       Constructor constructor = new Constructor(loaderOptions);
+>       constructor.setRootType(Config.class);

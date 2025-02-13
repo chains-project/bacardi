@@ -1,0 +1,29 @@
+7,8d6
+< import com.gargoylesoftware.htmlunit.ScriptResult;
+< 
+35,36c33
+<             ScriptResult scriptResult = new ScriptResult(result);
+<             return scriptResult.getJavaScriptResult().toString();
+---
+>             return result != null ? result.toString() : null;
+60,62c57,58
+<                 Object scriptResult = new ScriptResult(result).getJavaScriptResult();
+<                 if (scriptResult != null) {
+<                     return scriptResult.toString();
+---
+>                 if (result != null) {
+>                     return result.toString();
+84,85c80
+<         }
+<         catch (NoSuchElementException exception) {
+---
+>         } catch (NoSuchElementException exception) {
+104,105c99
+<         }
+<         catch (NoSuchElementException exception) {
+---
+>         } catch (NoSuchElementException exception) {
+108d101
+< 
+110d102
+< 

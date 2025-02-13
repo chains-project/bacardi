@@ -1,0 +1,22 @@
+8c8,13
+< import org.apache.dubbo.rpc.*;
+---
+> import org.apache.dubbo.rpc.AsyncRpcResult;
+> import org.apache.dubbo.rpc.FutureContext;
+> import org.apache.dubbo.rpc.Invocation;
+> import org.apache.dubbo.rpc.RpcContext;
+> import org.apache.dubbo.rpc.RpcInvocation;
+> import org.apache.dubbo.rpc.Result;
+10a16,17
+> import java.util.concurrent.CompletableFuture;
+> 
+38d44
+<             // need to set invoke mode to FUTURE if return type is CompletableFuture
+43,45c49,51
+<             RpcContext.getContext().setFuture(asyncRpcResult);
+<             // save for 2.6.x compatibility, for example, TraceFilter in Zipkin uses com.alibaba.xxx.FutureAdapter
+<             FutureContext.getContext().setCompatibleFuture(asyncRpcResult);
+---
+>             CompletableFuture<Object> future = asyncRpcResult.getAppResponseFuture();
+>             RpcContext.getContext().setFuture(future);
+>             FutureContext.getContext().setCompatibleFuture(future);

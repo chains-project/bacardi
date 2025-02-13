@@ -25,15 +25,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DockerBuild {
 
@@ -95,6 +93,39 @@ public class DockerBuild {
         } catch (Exception e) {
             log.error("Could not copy the project {}", project, e);
             return null;
+        }
+    }
+
+    public Optional<String> createImageForRepositoryAtVersion(String baseImage, URL gitUrl, String versionTag,
+                                                              String imageName, Path outputPath) {
+        String projectDirectoryName = "project";
+
+        log.info("Creating container for {} with version {} in {}", gitUrl, versionTag, baseImage);
+        CreateContainerResponse container = dockerClient.createContainerCmd(baseImage)
+                .withCmd("/bin/sh", "-c",
+                        ("git clone --branch %s %s %s && cd %s && mvn test -B -l output.log -DtestFailureIgnore=true " +
+                                "-Dmaven.test.failure.ignore=true").formatted(versionTag,
+                                gitUrl, projectDirectoryName, projectDirectoryName))
+                .exec();
+        dockerClient.startContainerCmd(container.getId()).exec();
+        WaitContainerResultCallback waitResult = dockerClient.waitContainerCmd(container.getId())
+                .exec(new WaitContainerResultCallback());
+        if (waitResult.awaitStatusCode() != EXIT_CODE_OK) {
+            log.warn("Could not create docker image for project {} at version {} in {}", gitUrl, versionTag, baseImage);
+            this.copyM2FolderToLocalPath(container.getId(), Paths.get("/project/output.log"), outputPath);
+            dockerClient.removeContainerCmd(container.getId()).exec();
+            return Optional.empty();
+        } else {
+            log.info("Successfully created docker image for project {} at version {} in {}", gitUrl, versionTag,
+                    baseImage);
+            this.copyM2FolderToLocalPath(container.getId(), Paths.get("/project/output.log"), outputPath);
+            dockerClient.commitCmd(container.getId())
+                    .withWorkingDir("/project")
+                    .withRepository("ghcr.io/chains-project/breaking-updates")
+                    .withTag(imageName)
+                    .exec();
+            dockerClient.removeContainerCmd(container.getId()).exec();
+            return Optional.of(container.getId());
         }
     }
 
@@ -485,7 +516,7 @@ public class DockerBuild {
      * Command to compile and test the breaking update
      */
     private static String getPostCmd() {
-        return "set -o pipefail && mvn test -B | tee mavenLog.log";
+        return "set -o pipefail && mvn test -Dcheckstyle.skip=true -Dpmd.skip=true  -B | tee mavenLog.log";
 
     }
 

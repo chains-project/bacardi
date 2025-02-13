@@ -1,0 +1,83 @@
+<code_analysis>
+1. The error indicates that the class ClientConnectionEvent (and its inner class Auth) can no longer be found in the package org.spongepowered.api.event.network. This is likely because the Sponge dependency was updated and the event has been renamed or moved.
+2. Reviewing the code, the method onPlayerPreLogin is declared with a parameter of type ClientConnectionEvent.Auth and the corresponding import is used. Both of these now cause compilation errors.
+3. The solution is to update the import and parameter type to use the new event class provided by the updated Sponge API. In Sponge 8, ClientConnectionEvent has been replaced with ServerSideConnectionEvent. Therefore, the parameter type should be updated to ServerSideConnectionEvent.Auth and the corresponding import adjusted.
+4. No other changes are required, and no function signatures are modified. Only the necessary type and import are updated to align with the dependency changes.
+</code_analysis>
+
+```java
+package com.github.games647.changeskin.sponge;
+
+import com.github.games647.changeskin.core.SkinStorage;
+import com.github.games647.changeskin.core.model.UserPreference;
+import com.github.games647.changeskin.core.model.skin.SkinModel;
+import com.github.games647.changeskin.core.shared.SharedListener;
+import com.google.inject.Inject;
+
+import java.util.Optional;
+import java.util.UUID;
+
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.network.ServerSideConnectionEvent;
+import org.spongepowered.api.profile.GameProfile;
+import org.spongepowered.api.scheduler.Task;
+
+public class LoginListener extends SharedListener {
+
+    private final ChangeSkinSponge plugin;
+
+    @Inject
+    LoginListener(ChangeSkinSponge plugin) {
+        super(plugin.getCore());
+        this.plugin = plugin;
+    }
+
+    @Listener
+    public void onPlayerPreLogin(ServerSideConnectionEvent.Auth preLoginEvent) {
+        SkinStorage storage = core.getStorage();
+        GameProfile profile = preLoginEvent.getProfile();
+        UUID playerUUID = profile.getUniqueId();
+
+        UserPreference preferences = storage.getPreferences(playerUUID);
+        Optional<SkinModel> optSkin = preferences.getTargetSkin();
+        if (optSkin.isPresent()) {
+            SkinModel targetSkin = optSkin.get();
+            if (!preferences.isKeepSkin()) {
+                targetSkin = core.checkAutoUpdate(targetSkin);
+            }
+            plugin.getApi().applyProperties(profile, targetSkin);
+            save(preferences);
+        } else {
+            String playerName = profile.getName().get();
+            if (!core.getConfig().getBoolean("restoreSkins") || !refetchSkin(playerName, preferences)) {
+                setDefaultSkin(preferences, profile);
+            }
+        }
+    }
+
+    private void setDefaultSkin(UserPreference preferences, GameProfile profile) {
+        Optional<SkinModel> randomSkin = getRandomSkin();
+        if (randomSkin.isPresent()) {
+            SkinModel targetSkin = randomSkin.get();
+            preferences.setTargetSkin(targetSkin);
+            plugin.getApi().applyProperties(profile, targetSkin);
+        }
+    }
+
+    @Override
+    protected void save(final UserPreference preferences) {
+        Task.builder()
+                .async()
+                .execute(() -> {
+                    Optional<SkinModel> optSkin = preferences.getTargetSkin();
+                    if (optSkin.isPresent()) {
+                        if (core.getStorage().save(optSkin.get())) {
+                            core.getStorage().save(preferences);
+                        }
+                    } else {
+                        core.getStorage().save(preferences);
+                    }
+                }).submit(plugin);
+    }
+}
+```

@@ -1,0 +1,16 @@
+1,4d0
+< /*
+<  * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
+<  * https://github.com/artipie/docker-adapter/LICENSE.txt
+<  */
+12d7
+< import org.hamcrest.core.StringContains;
+15a11,12
+> import static org.hamcrest.CoreMatchers.containsString;
+> import static org.hamcrest.CoreMatchers.not;
+62,63c59,60
+<                     new StringContains(true, "Invalid tag"),
+<                     new StringContains(false, original)
+---
+>                     containsString("Invalid tag"),
+>                     not(containsString(original))

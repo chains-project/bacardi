@@ -1,0 +1,181 @@
+0a1,7
+> package com.google.cloud.resourcemanager;
+> 
+> import com.google.common.base.Function;
+> import com.google.common.base.MoreObjects;
+> import java.util.List;
+> import java.util.Objects;
+> 
+16,25d22
+< package com.google.cloud.resourcemanager;
+< 
+< import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+< import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+< import com.google.common.base.Function;
+< import com.google.common.base.MoreObjects;
+< import java.util.List;
+< import java.util.Objects;
+40d36
+<         @Override
+47d42
+<         @Override
+125c120
+<     private final List<java.lang.String> deniedValues;
+---
+>     private final List<String> deniedValues;
+391a387,538
+> 
+> class BooleanPolicy {
+> 
+>   private Boolean enforced;
+> 
+>   public BooleanPolicy() {}
+> 
+>   BooleanPolicy setEnforced(Boolean enforced) {
+>     this.enforced = enforced;
+>     return this;
+>   }
+> 
+>   Boolean getEnforced() {
+>     return enforced;
+>   }
+> }
+> 
+> class ListPolicy {
+> 
+>   private String allValues;
+>   private List<String> allowedValues;
+>   private List<String> deniedValues;
+>   private Boolean inheritFromParent;
+>   private String suggestedValue;
+> 
+>   public ListPolicy() {}
+> 
+>   ListPolicy setAllValues(String allValues) {
+>     this.allValues = allValues;
+>     return this;
+>   }
+> 
+>   String getAllValues() {
+>     return allValues;
+>   }
+> 
+>   ListPolicy setAllowedValues(List<String> allowedValues) {
+>     this.allowedValues = allowedValues;
+>     return this;
+>   }
+> 
+>   List<String> getAllowedValues() {
+>     return allowedValues;
+>   }
+> 
+>   ListPolicy setDeniedValues(List<String> deniedValues) {
+>     this.deniedValues = deniedValues;
+>     return this;
+>   }
+> 
+>   List<String> getDeniedValues() {
+>     return deniedValues;
+>   }
+> 
+>   ListPolicy setInheritFromParent(Boolean inheritFromParent) {
+>     this.inheritFromParent = inheritFromParent;
+>     return this;
+>   }
+> 
+>   Boolean getInheritFromParent() {
+>     return inheritFromParent;
+>   }
+> 
+>   ListPolicy setSuggestedValue(String suggestedValue) {
+>     this.suggestedValue = suggestedValue;
+>     return this;
+>   }
+> 
+>   String getSuggestedValue() {
+>     return suggestedValue;
+>   }
+> }
+> 
+> class OrgPolicy {
+> 
+>   private BooleanPolicy booleanPolicy;
+>   private String constraint;
+>   private ListPolicy listPolicy;
+>   private RestoreDefault restoreDefault;
+>   private String etag;
+>   private String updateTime;
+>   private Integer version;
+> 
+>   public OrgPolicy() {}
+> 
+>   OrgPolicy setBooleanPolicy(BooleanPolicy booleanPolicy) {
+>     this.booleanPolicy = booleanPolicy;
+>     return this;
+>   }
+> 
+>   BooleanPolicy getBooleanPolicy() {
+>     return booleanPolicy;
+>   }
+> 
+>   OrgPolicy setConstraint(String constraint) {
+>     this.constraint = constraint;
+>     return this;
+>   }
+> 
+>   String getConstraint() {
+>     return constraint;
+>   }
+> 
+>   OrgPolicy setListPolicy(ListPolicy listPolicy) {
+>     this.listPolicy = listPolicy;
+>     return this;
+>   }
+> 
+>   ListPolicy getListPolicy() {
+>     return listPolicy;
+>   }
+> 
+>   OrgPolicy setRestoreDefault(RestoreDefault restoreDefault) {
+>     this.restoreDefault = restoreDefault;
+>     return this;
+>   }
+> 
+>   RestoreDefault getRestoreDefault() {
+>     return restoreDefault;
+>   }
+> 
+>   OrgPolicy setEtag(String etag) {
+>     this.etag = etag;
+>     return this;
+>   }
+> 
+>   String getEtag() {
+>     return etag;
+>   }
+> 
+>   OrgPolicy setUpdateTime(String updateTime) {
+>     this.updateTime = updateTime;
+>     return this;
+>   }
+> 
+>   String getUpdateTime() {
+>     return updateTime;
+>   }
+> 
+>   OrgPolicy setVersion(Integer version) {
+>     this.version = version;
+>     return this;
+>   }
+> 
+>   Integer getVersion() {
+>     return version;
+>   }
+> }
+> 
+> class RestoreDefault {
+>   public RestoreDefault() {}
+> }
+\ No newline at end of file

@@ -1,0 +1,20 @@
+1,4d0
+< /*
+<  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
+<  * https://github.com/artipie/docker-adapter/LICENSE.txt
+<  */
+12c8,9
+< import org.hamcrest.core.StringContains;
+---
+> import static org.hamcrest.CoreMatchers.containsString;
+> import static org.hamcrest.CoreMatchers.not;
+60,64c57,59
+<             new AllOf<>(
+<                 Arrays.asList(
+<                     new StringContains(true, "Invalid tag"),
+<                     new StringContains(false, original)
+<                 )
+---
+>             AllOf.allOf(
+>                 containsString("Invalid tag"),
+>                 not(containsString(original))

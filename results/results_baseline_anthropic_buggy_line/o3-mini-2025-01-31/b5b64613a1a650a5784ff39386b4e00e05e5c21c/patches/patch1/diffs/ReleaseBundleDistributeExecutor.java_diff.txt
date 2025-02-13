@@ -1,0 +1,5 @@
+51c51,52
+<             if (!CollectionUtils.isEmpty(countryCodes) || !StringUtils.isAllBlank(siteName, cityName)) {
+---
+>             // Replace StringUtils.isAllBlank(siteName, cityName) with individual isBlank checks
+>             if (!CollectionUtils.isEmpty(countryCodes) || (!StringUtils.isBlank(siteName) || !StringUtils.isBlank(cityName))) {

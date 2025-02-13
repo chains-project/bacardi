@@ -1,0 +1,18 @@
+23a24
+> import java.io.OutputStream;
+40,41d40
+< import org.apache.commons.compress.parallel.InputStreamSupplier;
+< import org.apache.commons.io.output.NullPrintStream;
+72a72,78
+>     private static final PrintStream NULL_PRINT_STREAM = new PrintStream(new OutputStream() {
+>         @Override
+>         public void write(int b) throws IOException {
+>             // Do nothing
+>         }
+>     });
+> 
+300,301c306
+<             PrintStream nullPrintStream = NullPrintStream.NULL_PRINT_STREAM;
+<             Integer result = (Integer) runMethod.invoke( jarTool, nullPrintStream, nullPrintStream, args );
+---
+>             Integer result = (Integer) runMethod.invoke( jarTool, NULL_PRINT_STREAM, NULL_PRINT_STREAM, args );

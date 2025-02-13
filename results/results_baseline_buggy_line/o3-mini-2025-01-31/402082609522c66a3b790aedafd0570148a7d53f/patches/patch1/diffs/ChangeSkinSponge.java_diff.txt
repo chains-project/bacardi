@@ -1,0 +1,90 @@
+16d15
+< 
+19,20d17
+< 
+< import org.slf4j.Logger;
+23,24c20,21
+< import org.spongepowered.api.command.CommandManager;
+< import org.spongepowered.api.command.CommandSource;
+---
+> import org.spongepowered.api.command.manager.CommandManager;
+> import org.spongepowered.api.command.source.CommandSource;
+27,37c24,33
+< import org.spongepowered.api.event.game.state.GameInitializationEvent;
+< import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+< import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelRegistrar;
+< import org.spongepowered.api.plugin.Plugin;
+< import org.spongepowered.api.text.serializer.TextSerializers;
+< 
+< import static com.github.games647.changeskin.core.message.CheckPermMessage.CHECK_PERM_CHANNEL;
+< import static com.github.games647.changeskin.core.message.SkinUpdateMessage.UPDATE_SKIN_CHANNEL;
+< import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
+---
+> import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
+> import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+> import org.spongepowered.api.event.lifecycle.StopGameEvent;
+> import org.spongepowered.plugin.Plugin;
+> import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+> import org.spongepowered.api.network.channel.ChannelRegistrar;
+> import org.spongepowered.api.network.channel.raw.RawDataChannel;
+> import com.github.games647.changeskin.sponge.PomData;
+> import com.github.games647.changeskin.sponge.SpongeSkinAPI;
+> import com.github.games647.changeskin.sponge.LoginListener;
+40c36
+< @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+---
+> @Plugin(id = PomData.ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+45c41
+<     private final Logger logger;
+---
+>     private final org.slf4j.Logger logger;
+53d48
+<     //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
+55c50
+<     ChangeSkinSponge(Logger logger, @ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
+---
+>     ChangeSkinSponge(org.slf4j.Logger logger, @ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
+62,63c57
+<     public void onPreInit(GamePreInitializationEvent preInitEvent) {
+<         //load config and database
+---
+>     public void onPreInit(ConstructPluginEvent preInitEvent) {
+73,74c67,68
+<     public void onInit(GameInitializationEvent initEvent) {
+<         if (!initialized)
+---
+>     public void onInit(RegisterCommandEvent<CommandSource> initEvent) {
+>         if (!initialized) {
+75a70
+>         }
+79d73
+<         //command and event register
+84,85c78
+<         cmdManager.register(this, injector.getInstance(InvalidateCommand.class)
+<                 .buildSpec(), "skininvalidate", "skin-invalidate");
+---
+>         cmdManager.register(this, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
+89d81
+<         //incoming channel
+91,92c83,84
+<         String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
+<         String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
+---
+>         String updateChannelName = new NamespaceKey(PomData.ARTIFACT_ID, UpdateSkinListener.UPDATE_SKIN_CHANNEL).getCombinedName();
+>         String permissionChannelName = new NamespaceKey(PomData.ARTIFACT_ID, CheckPermissionListener.CHECK_PERM_CHANNEL).getCombinedName();
+100c92
+<     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
+---
+>     public void onShutdown(StopGameEvent stoppingServerEvent) {
+114d105
+<         //disallow - not whitelisted or blacklisted
+137c128
+<     public Logger getLog() {
+---
+>     public org.slf4j.Logger getLog() {
+145c136
+<             receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
+---
+>             receiver.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(message));

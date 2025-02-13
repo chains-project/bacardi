@@ -1,0 +1,167 @@
+ You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates.
+Your task is to analyze the provided code and error message, then propose a patch that can be applied to the client code to resolve the issue.
+
+ Here is the client code that is failing:
+```java
+package de.hilling.junit.cdi.scope;
+
+import de.hilling.junit.cdi.util.ReflectionsUtils;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
+
+import javax.annotation.Priority;
+import javax.enterprise.context.Dependent;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.Interceptor;
+import javax.interceptor.InvocationContext;
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+@Replaceable
+@Interceptor
+@Dependent
+@Priority(0)
+public class CallRedirectionInterceptor implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    @Inject
+    private Instance<InvocationTargetManager> invocationTargetManager;
+
+    @AroundInvoke
+    public Object invokeMockableBean(InvocationContext ctx) throws Throwable {
+        Class<?> javaClass = ReflectionsUtils.getOriginalClass(ctx.getTarget().getClass());
+        if (invocationTargetManager.get().isAlternativeEnabled(javaClass)) {
+            return callAlternative(ctx, javaClass);
+        } else if (invocationTargetManager.get().isMockEnabled(javaClass)) {
+            return callMock(ctx, javaClass);
+        } else {
+            return ctx.proceed();
+        }
+    }
+
+    @SuppressWarnings("squid:S00112")
+    private Object callAlternative(InvocationContext ctx, Class<?> javaClass) throws Throwable {
+        Method method = ctx.getMethod();
+        Object alternative = BeanProvider
+                .getContextualReference(invocationTargetManager.get().alternativeFor(javaClass));
+        try {
+            Method alternativeMethod = alternative.getClass().getMethod(method.getName(), method.getParameterTypes());
+            return alternativeMethod.invoke(alternative, ctx.getParameters());
+        } catch (NoSuchMethodException nme) {
+            throw new IllegalStateException("method " + method.getName() + " not found on alternative " + alternative);
+        } catch (InvocationTargetException ite) {
+            throw ite.getCause();
+        }
+    }
+
+    @SuppressWarnings("squid:S00112")
+    private Object callMock(InvocationContext ctx, Class<?> javaClass) throws Throwable {
+        try {
+            return ctx.getMethod().invoke(invocationTargetManager.get().mock(javaClass), ctx.getParameters());
+        } catch (InvocationTargetException ite) {
+            throw ite.getCause();
+        }
+    }
+}
+
+```
+
+ the error is triggered in the following specific lines in the previous code:
+
+```java
+private Object callMock(InvocationContext ctx, Class<?> javaClass) throws Throwable {
+```
+```java
+import javax.interceptor.InvocationContext;
+```
+```java
+import javax.interceptor.Interceptor;
+```
+```java
+@AroundInvoke
+```
+```java
+private Object callAlternative(InvocationContext ctx, Class<?> javaClass) throws Throwable {
+```
+```java
+import javax.interceptor.AroundInvoke;
+```
+```java
+public Object invokeMockableBean(InvocationContext ctx) throws Throwable {
+```
+```java
+@Interceptor
+```
+
+
+ And here is the error message:
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[55,29] cannot find symbol
+  symbol:   class InvocationContext
+  location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
+
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[12,25] package javax.interceptor does not exist
+
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[11,25] package javax.interceptor does not exist
+
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[27,6] cannot find symbol
+  symbol:   class AroundInvoke
+  location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
+
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[40,36] cannot find symbol
+  symbol:   class InvocationContext
+  location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
+
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[10,25] package javax.interceptor does not exist
+
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[28,38] cannot find symbol
+  symbol:   class InvocationContext
+  location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
+
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[18,2] cannot find symbol
+  symbol: class Interceptor
+
+
+
+ Before proposing a fix, please analyze the error message and client code. Wrap your analysis inside <code_analysis> tags:
+
+<code_analysis>
+1. Examine the error message:
+   - Identify the specific issue related to the dependency update.
+   - Note the line number or method where the error occurs.
+   - Determine which dependency and version is causing the issue.
+
+2. Review the client code:
+   - Locate the problematic areas mentioned in the error message.
+   - Identify any related code that might be affected by the changes.
+
+3. Consider potential fixes that adhere to the following constraints:
+   - Do not change any function signatures.
+   - Only remove the @Override annotation if the method no longer overrides a method in the updated dependency version.
+   - Ensure correct imports are used, considering the newer dependency version.
+   - Avoid removing existing code unless it directly causes a compilation or functionality error.
+
+4. Plan the necessary changes to fix the issue:
+   - List the specific modifications required.
+   - Consider potential side effects of the proposed changes.
+   - Ensure the fix addresses the root cause of the error.
+</code_analysis>
+
+Based on your analysis, propose a patch to fix the issue. Your response should be a complete and compilable Java class in a fenced code block. Adhere to these guidelines:
+
+1. Do not change any function signatures.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Avoid removing any existing code unless it directly causes a compilation or functionality error.
+6. Ensure the entire class is included and that it will compile correctly. Don't use the comment "// ... (rest of the class remains unchanged)".
+
+Please provide your fixed class in the following format:
+
+```java
+// Your complete, fixed Java class here
+```
+
+Remember to focus specifically on issues related to the dependency update when proposing your fix.
+ 

@@ -1,0 +1,56 @@
+4,11d3
+< import redis.clients.jedis.commands.BasicRedisPipeline;
+< import redis.clients.jedis.commands.BinaryRedisPipeline;
+< import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
+< import redis.clients.jedis.commands.ClusterPipeline;
+< import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;
+< import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
+< import redis.clients.jedis.commands.RedisPipeline;
+< import redis.clients.jedis.commands.ScriptingCommandsPipeline;
+20,24c12
+< public interface RedisGraphTransaction extends
+<         MultiKeyBinaryRedisPipeline,
+<         MultiKeyCommandsPipeline, ClusterPipeline,
+<         BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
+<         BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
+---
+> public interface RedisGraphTransaction extends Closeable {
+64c52
+<      * @param args
+---
+>      * @param args procedure arguments
+94c82
+<      * @param timeout
+---
+>      * @param timeout timeout duration.
+104c92
+<      * @param timeout
+---
+>      * @param timeout timeout duration.
+129,131c117,119
+<      * @param procedure - procedure to execute
+<      * @param args - procedure arguments
+<      * @param kwargs - procedure output arguments
+---
+>      * @param procedure procedure to execute
+>      * @param args procedure arguments
+>      * @param kwargs procedure output arguments
+143d130
+< 
+145c132
+<      * executes the transaction
+---
+>      * Executes the transaction.
+152c139
+<      * flushes all previously queued commands in a transaction and restores the connection state to normal
+---
+>      * flushes all previously queued commands in a transaction and restores the connection state to normal.
+158c145
+<      * @return
+---
+>      * @return list of responses
+163c150,151
+<      * Flushes all previously queued commands in a transaction and restores the connection state to normal
+---
+>      * Flushes all previously queued commands in a transaction and restores the connection state to normal.
+>      * @return the discard status as String.

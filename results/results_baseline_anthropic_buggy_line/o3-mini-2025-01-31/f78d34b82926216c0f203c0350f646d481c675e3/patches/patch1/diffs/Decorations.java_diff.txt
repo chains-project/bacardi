@@ -1,0 +1,40 @@
+3d2
+< import develop.p2p.lib.WaveCreator;
+152d150
+< 
+173d170
+< 
+233d229
+< 
+244d239
+< 
+311a307,335
+>     /**
+>      * Dummy WaveCreator class to replace the missing dependency.
+>      */
+>     public static class WaveCreator {
+>         private final double base;
+>         private final double amplitude;
+>         private final double step;
+>         private double time;
+>         
+>         public WaveCreator(double base, double amplitude, double step) {
+>             this.base = base;
+>             this.amplitude = amplitude;
+>             this.step = step;
+>             this.time = 0.0;
+>         }
+>         
+>         public double get(double delta, boolean update) {
+>             if (update) {
+>                 time += delta;
+>             } else {
+>                 time += step;
+>             }
+>             return base + Math.sin(time) * amplitude;
+>         }
+>         
+>         public double getStatic() {
+>             return amplitude;
+>         }
+>     }

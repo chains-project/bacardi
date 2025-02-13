@@ -1,0 +1,45 @@
+211c211
+<         .create(this.options.getProjectId(), zone)
+---
+>         .create(this.options.getProjectId(), zone.getName(), zone)
+232c232
+<         .get(this.options.getProjectId(), zoneName)
+---
+>         .get(this.options.getProjectId(), zoneName, "")
+249c249
+<         .list(this.options.getProjectId())
+---
+>         .list(this.options.getProjectId(), "")
+271c271
+<     return dns.managedZones().delete(this.options.getProjectId(), zoneName);
+---
+>     return dns.managedZones().delete(this.options.getProjectId(), zoneName, "");
+287c287,290
+<     // options are fields, page token, dns name, type
+---
+>     String recordName = Option.NAME.getString(options);
+>     if (recordName == null) {
+>       recordName = "";
+>     }
+289c292
+<         .list(this.options.getProjectId(), zoneName)
+---
+>         .list(this.options.getProjectId(), zoneName, recordName)
+308c311
+<         .get(this.options.getProjectId())
+---
+>         .get(this.options.getProjectId(), "")
+325c328
+<         .create(this.options.getProjectId(), zoneName, changeRequest)
+---
+>         .create(this.options.getProjectId(), zoneName, "", changeRequest)
+352c355
+<         .get(this.options.getProjectId(), zoneName, changeRequestId)
+---
+>         .get(this.options.getProjectId(), zoneName, "", changeRequestId)
+369d371
+<     // options are fields, page token, page size, sort order
+372c374
+<             .list(this.options.getProjectId(), zoneName)
+---
+>             .list(this.options.getProjectId(), zoneName, "")

@@ -1,0 +1,14 @@
+3c3,5
+< import io.dropwizard.util.Strings;
+---
+> import jakarta.ws.rs.container.ContainerRequestContext;
+> import jakarta.ws.rs.container.ContainerRequestFilter;
+> import jakarta.ws.rs.ext.Provider;
+7,9d8
+< import javax.ws.rs.container.ContainerRequestContext;
+< import javax.ws.rs.container.ContainerRequestFilter;
+< import javax.ws.rs.ext.Provider;
+29c28
+<         if (!Strings.isNullOrEmpty(value)) {
+---
+>         if (value != null && !value.isEmpty()) {

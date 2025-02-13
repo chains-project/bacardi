@@ -1,0 +1,24 @@
+20a21
+> import com.hazelcast.config.EvictionConfig;
+22d22
+< import com.hazelcast.config.MaxSizeConfig;
+27c27,28
+< import com.hazelcast.core.Cluster;
+---
+> import com.hazelcast.cluster.Cluster;
+> import com.hazelcast.cluster.Member;
+30d30
+< import com.hazelcast.core.Member;
+288c288,291
+<             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+---
+>             EvictionConfig evictionConfig = new EvictionConfig();
+>             evictionConfig.setSize(hazelcastMaxCacheSizeInMegaBytes);
+>             evictionConfig.setMaximumSizePolicy(EvictionConfig.MaxSizePolicy.USED_HEAP_SIZE);
+>             dynamicConfig.setEvictionConfig(evictionConfig);
+699d701
+< 
+701,703d702
+< 
+< 
+< 

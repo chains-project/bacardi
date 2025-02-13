@@ -1,0 +1,78 @@
+<code_analysis>
+1. The error messages indicate two separate issues:
+   - The PublishMetadata type is no longer available in the package com.google.cloud.pubsublite. In the updated dependency it has been moved to an internal package.
+   - The lambda passed to builder.setPublisherFactory now fails because the PartitionPublisherFactory interface is no longer a functional interface (i.e. it declares more than one abstract method). In previous versions a lambda was acceptable but now we must supply an anonymous class that implements all abstract methods.
+
+2. In the client code:
+   - The import statement for PublishMetadata needs to be updated.
+   - The lambda expression for setPublisherFactory must be replaced with an anonymous inner class that implements all required methods (for example, newPublisher for both int and long partition types).
+
+3. The patch therefore does the following:
+   - Change the import line from com.google.cloud.pubsublite.PublishMetadata to com.google.cloud.pubsublite.internal.PublishMetadata.
+   - Replace the lambda with an anonymous inner class for PartitionPublisherFactory that implements both newPublisher(int) and newPublisher(long).
+
+4. The function signatures remain unchanged, and only the minimum necessary modifications have been made to address the dependency update issues.
+</code_analysis>
+
+Below is the complete, fixed Java class:
+
+------------------------------------------------------------
+```java
+package com.google.pubsublite.kafka.sink;
+
+import com.google.cloud.pubsublite.CloudZone;
+import com.google.cloud.pubsublite.ProjectPath;
+import com.google.cloud.pubsublite.internal.PublishMetadata;
+import com.google.cloud.pubsublite.TopicName;
+import com.google.cloud.pubsublite.TopicPath;
+import com.google.cloud.pubsublite.internal.Publisher;
+import com.google.cloud.pubsublite.internal.wire.PubsubContext;
+import com.google.cloud.pubsublite.internal.wire.PubsubContext.Framework;
+import com.google.cloud.pubsublite.internal.wire.RoutingPublisherBuilder;
+import com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisherBuilder;
+import com.google.cloud.pubsublite.internal.wire.PartitionPublisherFactory;
+import java.util.Map;
+import org.apache.kafka.common.config.ConfigValue;
+
+class PublisherFactoryImpl implements PublisherFactory {
+
+  private static final Framework FRAMEWORK = Framework.of("KAFKA_CONNECT");
+
+  @Override
+  public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
+    Map<String, ConfigValue> config = ConfigDefs.config().validateAll(params);
+    RoutingPublisherBuilder.Builder builder = RoutingPublisherBuilder.newBuilder();
+    TopicPath topic =
+        TopicPath.newBuilder()
+            .setProject(
+                ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
+                    .project())
+            .setLocation(CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
+            .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
+            .build();
+    builder.setTopic(topic);
+    
+    // Replace lambda with an anonymous inner class that implements both required methods.
+    builder.setPublisherFactory(new PartitionPublisherFactory() {
+      @Override
+      public Publisher<PublishMetadata> newPublisher(int partition) {
+        return SinglePartitionPublisherBuilder.newBuilder()
+            .setTopic(topic)
+            .setPartition(partition)
+            .setContext(PubsubContext.of(FRAMEWORK))
+            .build();
+      }
+
+      @Override
+      public Publisher<PublishMetadata> newPublisher(long partition) {
+        // Delegate to the int version.
+        return newPublisher((int) partition);
+      }
+    });
+    return builder.build();
+  }
+}
+```
+------------------------------------------------------------
+
+This patch updates the import for PublishMetadata and replaces the lambda with an anonymous inner class implementing both newPublisher methods, thereby addressing the compilation errors caused by the breaking dependency update.

@@ -1,0 +1,41 @@
+7,8d6
+< import com.gargoylesoftware.htmlunit.ScriptResult;
+< 
+14d11
+< @SuppressWarnings("hideutilityclassconstructor")
+15a13
+> @SuppressWarnings("hideutilityclassconstructor")
+31c29
+<             Object result = pageObject.executeScript(String.format(
+---
+>             Object jsResult = pageObject.executeScript(String.format(
+35,36c33
+<             ScriptResult scriptResult = new ScriptResult(result);
+<             return scriptResult.getJavaScriptResult().toString();
+---
+>             return jsResult != null ? jsResult.toString() : null;
+55c52
+<                 Object result = pageObject.executeScript(String.format(
+---
+>                 Object jsResult = pageObject.executeScript(String.format(
+60,62c57,58
+<                 Object scriptResult = new ScriptResult(result).getJavaScriptResult();
+<                 if (scriptResult != null) {
+<                     return scriptResult.toString();
+---
+>                 if (jsResult != null) {
+>                     return jsResult.toString();
+84,85c80
+<         }
+<         catch (NoSuchElementException exception) {
+---
+>         } catch (NoSuchElementException exception) {
+104,105c99
+<         }
+<         catch (NoSuchElementException exception) {
+---
+>         } catch (NoSuchElementException exception) {
+108d101
+< 
+110d102
+< 

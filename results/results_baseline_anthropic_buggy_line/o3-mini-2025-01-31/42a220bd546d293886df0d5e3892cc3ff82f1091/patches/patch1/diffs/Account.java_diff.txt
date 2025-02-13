@@ -1,0 +1,36 @@
+5c5,7
+< import org.apache.commons.codec.digest.DigestUtils;
+---
+> import java.security.MessageDigest;
+> import java.security.NoSuchAlgorithmException;
+> import java.nio.charset.StandardCharsets;
+44,45c46
+<          *                 automatically runs {@code DigestUtils.md5Hex}
+<          *                 on the string passed to it.
+---
+>          *                 automatically computes the MD5 hash of the string passed to it.
+49c50
+<             this.usernameMd5 = DigestUtils.md5Hex(username);
+---
+>             this.usernameMd5 = Account.md5Hex(username);
+75a77,96
+>     }
+>     
+>     // Utility method to compute the MD5 hex string of the input.
+>     private static String md5Hex(String input) {
+>         try {
+>             MessageDigest md = MessageDigest.getInstance("MD5");
+>             byte[] digest = md.digest(input.getBytes(StandardCharsets.UTF_8));
+>             return bytesToHex(digest);
+>         } catch (NoSuchAlgorithmException e) {
+>             throw new RuntimeException("MD5 algorithm not found", e);
+>         }
+>     }
+>     
+>     // Utility method to convert a byte array to a hex string.
+>     private static String bytesToHex(byte[] bytes) {
+>         StringBuilder sb = new StringBuilder();
+>         for (byte b : bytes) {
+>             sb.append(String.format("%02x", b));
+>         }
+>         return sb.toString();

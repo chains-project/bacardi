@@ -1,0 +1,43 @@
+20a21
+> import java.beans.IntrospectionException;
+21a23
+> import java.beans.Introspector;
+38,44c40,46
+< import javax.validation.Validator;
+< import javax.validation.constraints.NotBlank;
+< import javax.validation.constraints.NotEmpty;
+< import javax.validation.constraints.NotNull;
+< import javax.validation.metadata.BeanDescriptor;
+< import javax.validation.metadata.ConstraintDescriptor;
+< import javax.validation.metadata.ElementDescriptor;
+---
+> import jakarta.validation.Validator;
+> import jakarta.validation.constraints.NotBlank;
+> import jakarta.validation.constraints.NotEmpty;
+> import jakarta.validation.constraints.NotNull;
+> import jakarta.validation.metadata.BeanDescriptor;
+> import jakarta.validation.metadata.ConstraintDescriptor;
+> import jakarta.validation.metadata.ElementDescriptor;
+46d47
+< import org.apache.commons.beanutils.PropertyUtils;
+255a257,276
+>         
+>         private static class PropertyUtils {
+>                 public static PropertyDescriptor[] getPropertyDescriptors(Class<?> beanClass) {
+>                         try {
+>                                 return Introspector.getBeanInfo(beanClass).getPropertyDescriptors();
+>                         } catch (IntrospectionException e) {
+>                                 throw new RuntimeException("Failed to get property descriptors for class " + beanClass.getName(), e);
+>                         }
+>                 }
+>                 
+>                 public static PropertyDescriptor getPropertyDescriptor(Object bean, String propertyName) {
+>                         PropertyDescriptor[] descriptors = getPropertyDescriptors(bean.getClass());
+>                         for (PropertyDescriptor descriptor : descriptors) {
+>                                 if (descriptor.getName().equals(propertyName)) {
+>                                         return descriptor;
+>                                 }
+>                         }
+>                         throw new RuntimeException("Property '" + propertyName + "' not found on class " + bean.getClass().getName());
+>                 }
+>         }

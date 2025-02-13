@@ -1,0 +1,56 @@
+21d20
+< import org.spongepowered.api.Platform.Type;
+23,24c22,23
+< import org.spongepowered.api.command.CommandManager;
+< import org.spongepowered.api.command.CommandSource;
+---
+> import org.spongepowered.api.command.manager.CommandManager;
+> import org.spongepowered.api.command.source.CommandSource;
+27,33c26,32
+< import org.spongepowered.api.event.game.state.GameInitializationEvent;
+< import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+< import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelRegistrar;
+< import org.spongepowered.api.plugin.Plugin;
+< import org.spongepowered.api.text.serializer.TextSerializers;
+---
+> import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
+> import org.spongepowered.api.event.lifecycle.StartEngineEvent;
+> import org.spongepowered.api.event.lifecycle.StopEngineEvent;
+> import org.spongepowered.api.network.channel.ChannelRegistrar;
+> import org.spongepowered.api.network.channel.raw.RawDataChannel;
+> import org.spongepowered.plugin.Plugin;
+> import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+62c61
+<     public void onPreInit(GamePreInitializationEvent preInitEvent) {
+---
+>     public void onPreInit(ConstructPluginEvent preInitEvent) {
+73,74c72,73
+<     public void onInit(GameInitializationEvent initEvent) {
+<         if (!initialized)
+---
+>     public void onInit(StartEngineEvent initEvent) {
+>         if (!initialized) {
+75a75
+>         }
+84,85c84,85
+<         cmdManager.register(this, injector.getInstance(InvalidateCommand.class)
+<                 .buildSpec(), "skininvalidate", "skin-invalidate");
+---
+>         cmdManager.register(this, injector.getInstance(InvalidateCommand.class).buildSpec(),
+>                 "skininvalidate", "skin-invalidate");
+95,96c95,96
+<         updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
+<         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
+---
+>         updateChannel.addListener(org.spongepowered.api.Platform.Type.SERVER, injector.getInstance(UpdateSkinListener.class));
+>         permChannel.addListener(org.spongepowered.api.Platform.Type.SERVER, injector.getInstance(CheckPermissionListener.class));
+100c100
+<     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
+---
+>     public void onShutdown(StopEngineEvent stoppingServerEvent) {
+145c145
+<             receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
+---
+>             receiver.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(message));

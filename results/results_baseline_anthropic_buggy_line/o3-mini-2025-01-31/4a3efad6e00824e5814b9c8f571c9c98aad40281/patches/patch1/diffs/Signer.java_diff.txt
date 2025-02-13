@@ -1,0 +1,75 @@
+6,7c6,10
+< import eu.europa.esig.dss.model.*;
+< import eu.europa.esig.dss.pades.CertificationPermission;
+---
+> import eu.europa.esig.dss.model.DSSDocument;
+> import eu.europa.esig.dss.model.FileDocument;
+> import eu.europa.esig.dss.model.InMemoryDocument;
+> import eu.europa.esig.dss.model.ToBeSigned;
+> import eu.europa.esig.dss.model.SignatureValue;
+9a13
+> import eu.europa.esig.dss.pades.TableSignatureFieldParameters;
+44,47d47
+<         //https://github.com/apache/pdfbox/blob/trunk/examples/src/main/java/org/apache/pdfbox/examples/signature/CreateVisibleSignature2.java
+<         //https://ec.europa.eu/cefdigital/DSS/webapp-demo/doc/dss-documentation.html
+<         //load PDF file
+<         //PDDocument doc = PDDocument.load(pdfFile.toFile());
+49c49
+<         //load PDF file in DSSDocument format
+---
+>         // Load PDF file in DSSDocument format
+52c52
+<         //load certificate and private key
+---
+>         // Load certificate and private key from the keystore
+56c56
+<         //PAdES parameters
+---
+>         // Set up PAdES parameters
+58c58
+<         //signatureParameters.bLevel().setSigningDate(new Date());
+---
+> 
+63d62
+<         ;
+71c70,71
+<         signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
+---
+>         // Removed setPermission call due to removal of CertificationPermission in the updated dependency
+>         // signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
+80c80
+<         // Initialize visual signature and configure
+---
+>         // Initialize visual signature and configure if the signature should be visible
+89c89
+<                 imageParameters.setImage(new InMemoryDocument((IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("signature.png")))));
+---
+>                 imageParameters.setImage(new InMemoryDocument(IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("signature.png"))));
+98d97
+< 
+106,107c105
+<             // Get the SignedInfo segment that need to be signed.
+<             // respect local timezone
+---
+>             // Configure signature date using the system timezone
+109d106
+<             // user-provided timezone, if any
+123d119
+< 
+129,132d124
+<         //https://gist.github.com/Manouchehri/fd754e402d98430243455713efada710
+<         //only use TSP source, if parameter is set
+<         //if it is set to an url, us this
+<         //otherwise, default
+142c134
+<                 params.getTSA().stream().forEach(source -> {
+---
+>                 params.getTSA().forEach(source -> {
+151,152d142
+<         // This function obtains the signature value for signed information using the
+<         // private key and specified algorithm
+156,159d145
+< 
+<         /*if (service.isValidSignatureValue(dataToSign, signatureValue, signingToken.getKey("alias").getCertificate())) {
+<             log.debug("is true");
+<         }*/

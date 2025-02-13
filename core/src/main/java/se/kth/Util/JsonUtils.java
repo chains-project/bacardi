@@ -1,5 +1,6 @@
 package se.kth.Util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -71,6 +72,21 @@ public class JsonUtils {
                 return mapper.readValue(Files.readString(file), jsonType);
             }
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Parse a JSON object from a string
+     *
+     * @param string   the content to parse
+     * @param jsonType the type that the data should be considered as
+     * @return an object of the specified type as read from the given content
+     */
+    public static <T> T parseString(String string, Class<T> jsonType) {
+        try {
+            return mapper.readValue(string, jsonType);
+        } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
     }

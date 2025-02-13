@@ -1,0 +1,39 @@
+12d11
+< import liquibase.util.StringUtils;
+26,29c25,28
+<    * @param statement
+<    * @param database
+<    * @param sqlGeneratorChain
+<    * @return
+---
+>    * @param statement the SQL statement
+>    * @param database the database
+>    * @param sqlGeneratorChain the chain of SQL generators
+>    * @return array of SQL statements
+47,50c46,49
+<    * @param statement
+<    * @param database
+<    * @param sqlGeneratorChain
+<    * @return
+---
+>    * @param statement the MSSQL specific SQL statement
+>    * @param database the database
+>    * @param sqlGeneratorChain the chain of SQL generators
+>    * @return array of SQL statements
+55c54,55
+<       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) + " ADD PRIMARY KEY (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
+---
+>       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName())
+>           + " ADD PRIMARY KEY (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
+57c57,58
+<       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) + " ADD CONSTRAINT " + database.escapeConstraintName(statement.getConstraintName())+" PRIMARY KEY";
+---
+>       sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName())
+>           + " ADD CONSTRAINT " + database.escapeConstraintName(statement.getConstraintName()) + " PRIMARY KEY";
+67,68c68,70
+<     if (StringUtils.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
+<       sql += " ON "+statement.getTablespace();
+---
+>     String tablespace = statement.getTablespace();
+>     if (tablespace != null && !tablespace.trim().isEmpty() && database.supportsTablespaces()) {
+>       sql += " ON " + tablespace;

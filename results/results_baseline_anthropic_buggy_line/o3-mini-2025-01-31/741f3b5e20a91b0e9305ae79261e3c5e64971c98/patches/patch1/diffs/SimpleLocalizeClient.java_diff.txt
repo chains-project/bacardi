@@ -1,0 +1,98 @@
+31,32c31
+< public class SimpleLocalizeClient
+< {
+---
+> public class SimpleLocalizeClient {
+42,44c41
+<   public SimpleLocalizeClient(String baseUrl, String apiKey)
+<   {
+< 
+---
+>   public SimpleLocalizeClient(String baseUrl, String apiKey) {
+55,56c52
+<   public static SimpleLocalizeClient create(String baseUrl, String apiKey)
+<   {
+---
+>   public static SimpleLocalizeClient create(String baseUrl, String apiKey) {
+60,61c56
+<   public void uploadKeys(Collection<String> keys) throws IOException, InterruptedException
+<   {
+---
+>   public void uploadKeys(Collection<String> keys) throws IOException, InterruptedException {
+70,71c65
+<   public void uploadFile(UploadRequest uploadRequest) throws IOException, InterruptedException
+<   {
+---
+>   public void uploadFile(UploadRequest uploadRequest) throws IOException, InterruptedException {
+80,81c74
+<   public List<DownloadableFile> fetchDownloadableFiles(DownloadRequest downloadRequest) throws IOException, InterruptedException
+<   {
+---
+>   public List<DownloadableFile> fetchDownloadableFiles(DownloadRequest downloadRequest) throws IOException, InterruptedException {
+88c81,82
+<     ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
+---
+>     // Use ObjectReader to avoid direct dependency on StreamReadException in the readValue method signature.
+>     ExportResponse exportResponse = objectMapper.readerFor(ExportResponse.class).readValue(body);
+92,93c86
+<   public void downloadFile(DownloadableFile downloadableFile, String downloadPathTemplate)
+<   {
+---
+>   public void downloadFile(DownloadableFile downloadableFile, String downloadPathTemplate) {
+101,102c94
+<     try
+<     {
+---
+>     try {
+104,105c96
+<       if (parentDirectory != null)
+<       {
+---
+>       if (parentDirectory != null) {
+109,111c100,102
+<       httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofFile(savePath, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING));
+<     } catch (IOException e)
+<     {
+---
+>       httpClient.send(httpRequest,
+>               HttpResponse.BodyHandlers.ofFile(savePath, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING));
+>     } catch (IOException e) {
+113,114c104
+<     } catch (InterruptedException e)
+<     {
+---
+>     } catch (InterruptedException e) {
+120,121c110
+<   public int validateGate() throws IOException, InterruptedException
+<   {
+---
+>   public int validateGate() throws IOException, InterruptedException {
+134,137c123,124
+<   private void throwOnError(HttpResponse<?> httpResponse)
+<   {
+<     if (httpResponse.statusCode() != 200)
+<     {
+---
+>   private void throwOnError(HttpResponse<?> httpResponse) {
+>     if (httpResponse.statusCode() != 200) {
+145,146c132
+<       if (message == null)
+<       {
+---
+>       if (message == null) {
+154,157c140,141
+<   private String safeCastHttpBodyToString(Object responseBody)
+<   {
+<     if (responseBody instanceof byte[])
+<     {
+---
+>   private String safeCastHttpBodyToString(Object responseBody) {
+>     if (responseBody instanceof byte[]) {
+159,160c143
+<     } else if (responseBody instanceof String)
+<     {
+---
+>     } else if (responseBody instanceof String) {
+165,166d147
+< 
+< 

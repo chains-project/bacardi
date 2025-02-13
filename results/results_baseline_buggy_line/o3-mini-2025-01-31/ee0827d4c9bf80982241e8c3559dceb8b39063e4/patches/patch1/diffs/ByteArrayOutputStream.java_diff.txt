@@ -1,0 +1,14 @@
+29d28
+< import org.apache.commons.io.input.ClosedInputStream;
+348c347,351
+<         return toBufferedInputStream( input, 1024 );
+---
+>         // It does not matter if a ByteArrayOutputStream is not closed as close() is a no-op
+>         @SuppressWarnings( "resource" )
+>         final ByteArrayOutputStream output = new ByteArrayOutputStream( 1024 );
+>         output.write( input );
+>         return output.toInputStream();
+401c404
+<             return new ClosedInputStream();
+---
+>             return new ByteArrayInputStream(EMPTY_BYTE_ARRAY);
