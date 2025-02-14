@@ -37,9 +37,37 @@ public class Bump {
 
         if (RESTART) {
 
-            deleteDirectoryContent(Path.of(PROJECTS_PATH));
-            deleteDirectoryContent(Path.of(OUTPUT_PATH));
+            if (!SPECIFIC_FILE.isEmpty()) {
+                ArrayList<String> files = new ArrayList<>();
 
+                if (SPECIFIC_FILE.contains(",")) {
+                    files.addAll(Arrays.asList(SPECIFIC_FILE.split(",")));
+                } else {
+                    files.add(SPECIFIC_FILE);
+                }
+                resultsMap = getPreviousResults(JSON_PATH);
+
+                for (String file : files) {
+                    if (resultsMap.containsKey(file)) {
+                        resultsMap.remove(file);
+                        JsonUtils.writeToFile(Path.of(JSON_PATH), resultsMap);
+                    }
+                    if (Files.exists(Path.of(PROJECTS_PATH).resolve(file))) {
+                        deleteDirectoryContent(Path.of(PROJECTS_PATH).resolve(file));
+                    }
+                    if (Files.exists(Path.of(OUTPUT_PATH).resolve(file))) {
+                        deleteDirectoryContent(Path.of(OUTPUT_PATH).resolve(file));
+                    }
+                }
+            } else {
+                if (Files.exists(Path.of(PROJECTS_PATH))) {
+                    deleteDirectoryContent(Path.of(PROJECTS_PATH));
+                }
+                if (Files.exists(Path.of(OUTPUT_PATH))) {
+                    deleteDirectoryContent(Path.of(OUTPUT_PATH));
+                }
+
+            }
         }
         LogUtils.logWithBox(log, "Bump analysis started. PIPELINE: %s MODEL: %s".formatted(PIPELINE, LLM));
 
@@ -47,15 +75,13 @@ public class Bump {
         log.info("Filtering breaking dependency updates");
         log.info("");
         // Filter by java version incompatibility
-        ArrayList<String> listOfJavaVersionIncompatibilities = readJavaVersionIncompatibilities(
-                JAVA_VERSION_INCOMPATIBILITY_FILE);
+        ArrayList<String> listOfJavaVersionIncompatibilities = readJavaVersionIncompatibilities(JAVA_VERSION_INCOMPATIBILITY_FILE);
 
         // List of breaking updates
         // List<BreakingUpdate> breaking =
         // BreakingUpdateProvider.getBreakingUpdatesFromResourcesByCategory(BENCHMARK_PATH,
         // FailureCategory.COMPILATION_FAILURE, listOfJavaVersionIncompatibilities);
-        List<BreakingUpdate> breaking = BreakingUpdateProvider.getBreakingUpdatesFromResourcesByCategory(BENCHMARK_PATH,
-                FailureCategory.COMPILATION_FAILURE);
+        List<BreakingUpdate> breaking = BreakingUpdateProvider.getBreakingUpdatesFromResourcesByCategory(BENCHMARK_PATH, FailureCategory.COMPILATION_FAILURE);
 
         // read Json file with attempts information
         resultsMap.putAll(getPreviousResults(JSON_PATH));
@@ -76,22 +102,30 @@ public class Bump {
         ForkJoinPool customThreadPool = new ForkJoinPool(4); //
 
         if (!SPECIFIC_FILE.isEmpty()) {
-            customThreadPool.submit(() -> breaking
-                    .parallelStream()
-                    .filter(e -> e.breakingCommit.equals(SPECIFIC_FILE)) // filter by breaking
-                    // commitAllChanges
-                    .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
-                    .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure
-                    // category
-                    .forEach(e -> {
-                        threadrun(dockerBuild, e);
-                    })).join();
-            customThreadPool.shutdown();
-            customThreadPool.close();
-
+            if (SPECIFIC_FILE.contains(",")) {
+                List<String> files = Arrays.asList(SPECIFIC_FILE.split(","));
+                customThreadPool.submit(() -> breaking.parallelStream().filter(e -> files.contains(e.breakingCommit)) // filter by breaking
+                        // commitAllChanges
+                        .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
+                        .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure
+                        // category
+                        .forEach(e -> {
+                            threadrun(dockerBuild, e);
+                        })).join();
+            } else {
+                customThreadPool.submit(() -> breaking.parallelStream().filter(e -> e.breakingCommit.equals(SPECIFIC_FILE)) // filter by breaking
+                        // commitAllChanges
+                        .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
+                        .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure
+                        // category
+                        .forEach(e -> {
+                            threadrun(dockerBuild, e);
+                        })).join();
+                customThreadPool.shutdown();
+                customThreadPool.close();
+            }
         } else {
-            customThreadPool.submit(() -> breaking
-                    .parallelStream()
+            customThreadPool.submit(() -> breaking.parallelStream()
                     // commitAllChanges
                     .filter(e -> !listOfJavaVersionIncompatibilities.contains(e.breakingCommit))
                     .filter(e -> !resultsMap.containsKey(e.breakingCommit))// filter by failure
@@ -106,8 +140,7 @@ public class Bump {
 
     private static void deleteDirectoryContent(Path of) {
         try {
-            Files.walk(of)
-                    .sorted((path1, path2) -> path2.compareTo(path1)) // sort in reverse order to delete files before
+            Files.walk(of).sorted((path1, path2) -> path2.compareTo(path1)) // sort in reverse order to delete files before
                     // directories
                     .forEach(path -> {
                         try {
@@ -137,8 +170,7 @@ public class Bump {
             // adding client folder to the pipeline
             setupPipeline.setClientFolder(clientFolder.resolve(e.project));
             // adding log file path to the pipeline
-            setupPipeline.setLogFilePath(
-                    Path.of("%s/%s.log".formatted(clientFolder.resolve(e.project), e.breakingCommit)));
+            setupPipeline.setLogFilePath(Path.of("%s/%s.log".formatted(clientFolder.resolve(e.project), e.breakingCommit)));
             // adding m2 folder path to the pipeline
             setupPipeline.setM2FolderPath(Path.of("%s/%s/m2/".formatted(CLIENT_PATH, e.breakingCommit)));
             // adding docker image to the pipeline
@@ -163,8 +195,7 @@ public class Bump {
                 log.info("Project already exists and is not empty. Skipping download process...");
             } else {
                 try {
-                    if (!Files.exists(clientFolder))
-                        Files.createDirectory(clientFolder);
+                    if (!Files.exists(clientFolder)) Files.createDirectory(clientFolder);
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -175,19 +206,9 @@ public class Bump {
                 // root/.m2/repository/org/yaml/snakeyaml/2.1/snakeyaml-2.1.jar
                 // create this route
 
-                Path prevoiusJarInContainerPath = fromContainerM2.resolve("repository/%s/%s/%s/%s-%s.jar".formatted(
-                        e.updatedDependency.dependencyGroupID.replace(".", "/"),
-                        e.updatedDependency.dependencyArtifactID.replace(".", "/"),
-                        e.updatedDependency.previousVersion,
-                        e.updatedDependency.dependencyArtifactID,
-                        e.updatedDependency.previousVersion));
+                Path prevoiusJarInContainerPath = fromContainerM2.resolve("repository/%s/%s/%s/%s-%s.jar".formatted(e.updatedDependency.dependencyGroupID.replace(".", "/"), e.updatedDependency.dependencyArtifactID.replace(".", "/"), e.updatedDependency.previousVersion, e.updatedDependency.dependencyArtifactID, e.updatedDependency.previousVersion));
 
-                Path newJarInContainerPath = fromContainerM2.resolve("repository/%s/%s/%s/%s-%s.jar".formatted(
-                        e.updatedDependency.dependencyGroupID.replace(".", "/"),
-                        e.updatedDependency.dependencyArtifactID.replace(".", "/"),
-                        e.updatedDependency.newVersion,
-                        e.updatedDependency.dependencyArtifactID,
-                        e.updatedDependency.newVersion));
+                Path newJarInContainerPath = fromContainerM2.resolve("repository/%s/%s/%s/%s-%s.jar".formatted(e.updatedDependency.dependencyGroupID.replace(".", "/"), e.updatedDependency.dependencyArtifactID.replace(".", "/"), e.updatedDependency.newVersion, e.updatedDependency.dependencyArtifactID, e.updatedDependency.newVersion));
 
                 String preBreakingImage = e.preCommitReproductionCommand.replace("docker run ", "");
                 Path fromContainerProject = Path.of(e.project);
@@ -200,8 +221,7 @@ public class Bump {
                     getProjectData(preBreakingImage, dockerBuild, clientFolder, null, null, prevoiusJarInContainerPath);
                 }
                 // get jar from container for new version and m2 folder and project
-                getProjectData(breakingImage, dockerBuild, clientFolder, fromContainerM2, fromContainerProject,
-                        newJarInContainerPath);
+                getProjectData(breakingImage, dockerBuild, clientFolder, fromContainerM2, fromContainerProject, newJarInContainerPath);
 
                 // copy project from container
                 // delete Image
@@ -244,12 +264,10 @@ public class Bump {
 
         resultsMap.put(setupPipeline.getBreakingUpdate().breakingCommit, results);
         JsonUtils.writeToFile(Path.of(JSON_PATH), resultsMap);
-        DockerBuild.deleteImage(
-                setupPipeline.getBreakingUpdate().breakingUpdateReproductionCommand.replace("docker run ", ""));
+        DockerBuild.deleteImage(setupPipeline.getBreakingUpdate().breakingUpdateReproductionCommand.replace("docker run ", ""));
         // TODO: isn't this image created in specific pipeline, shouldn't we add an
         // if-statement
-        DockerBuild
-                .deleteImage(setupPipeline.getBreakingUpdate().preCommitReproductionCommand.replace("docker run ", ""));
+        DockerBuild.deleteImage(setupPipeline.getBreakingUpdate().preCommitReproductionCommand.replace("docker run ", ""));
     }
 
 }
