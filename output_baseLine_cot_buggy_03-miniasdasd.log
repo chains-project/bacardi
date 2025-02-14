@@ -1,0 +1,60 @@
+14:10:32.944 [main] ERROR se.kth.Bump - Error deleting directory content
+java.nio.file.NoSuchFileException: /home/kth/Documents/bacardi/projects
+	at java.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:92)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:106)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:111)
+	at java.base/sun.nio.fs.UnixFileAttributeViews$Basic.readAttributes(UnixFileAttributeViews.java:55)
+	at java.base/sun.nio.fs.UnixFileSystemProvider.readAttributes(UnixFileSystemProvider.java:171)
+	at java.base/sun.nio.fs.LinuxFileSystemProvider.readAttributes(LinuxFileSystemProvider.java:99)
+	at java.base/java.nio.file.Files.readAttributes(Files.java:1853)
+	at java.base/java.nio.file.FileTreeWalker.getAttributes(FileTreeWalker.java:220)
+	at java.base/java.nio.file.FileTreeWalker.visit(FileTreeWalker.java:277)
+	at java.base/java.nio.file.FileTreeWalker.walk(FileTreeWalker.java:323)
+	at java.base/java.nio.file.FileTreeIterator.<init>(FileTreeIterator.java:71)
+	at java.base/java.nio.file.Files.walk(Files.java:3898)
+	at java.base/java.nio.file.Files.walk(Files.java:3953)
+	at se.kth.Bump.deleteDirectoryContent(Bump.java:109)
+	at se.kth.Bump.main(Bump.java:40)
+14:10:33.381 [main] INFO  se.kth.Bump - 
+14:10:33.383 [main] INFO  se.kth.Bump - |--------------------------------------------------------------|
+14:10:33.383 [main] INFO  se.kth.Bump - | Bump analysis started. PIPELINE: BASELINE MODEL: gpt-4o-mini |
+14:10:33.389 [main] INFO  se.kth.Bump - |--------------------------------------------------------------|
+14:10:33.389 [main] INFO  se.kth.Bump - 
+14:10:33.389 [main] INFO  se.kth.Bump - Filtering breaking dependency updates
+14:10:33.389 [main] INFO  se.kth.Bump - 
+14:10:34.201 [ForkJoinPool-1-worker-1] INFO  se.kth.Bump - 
+14:10:34.203 [ForkJoinPool-1-worker-1] INFO  se.kth.Bump - |----------------------------------------------------------------------|
+14:10:34.203 [ForkJoinPool-1-worker-1] INFO  se.kth.Bump - | Processing breaking update: 54857351e0b0a655970d7e2ccdb67f175cc5d688 |
+14:10:34.203 [ForkJoinPool-1-worker-1] INFO  se.kth.Bump - |----------------------------------------------------------------------|
+14:10:34.203 [ForkJoinPool-1-worker-1] INFO  se.kth.Bump - 
+14:10:34.274 [ForkJoinPool-1-worker-1] INFO  se.kth.DockerBuild - Base image not present, pulling ghcr.io/chains-project/breaking-updates:54857351e0b0a655970d7e2ccdb67f175cc5d688-breaking
+14:10:34.274 [ForkJoinPool-1-worker-1] INFO  se.kth.DockerBuild - Pulling Maven image ghcr.io/chains-project/breaking-updates:54857351e0b0a655970d7e2ccdb67f175cc5d688-breaking ...
+14:10:34.906 [ForkJoinPool-1-worker-1] INFO  se.kth.DockerBuild - Done pulling Maven image ghcr.io/chains-project/breaking-updates:54857351e0b0a655970d7e2ccdb67f175cc5d688-breaking
+14:10:35.424 [ForkJoinPool-1-worker-1] INFO  se.kth.DockerBuild - 
+14:10:35.424 [ForkJoinPool-1-worker-1] INFO  se.kth.DockerBuild - Copying folder 54857351e0b0a655970d7e2ccdb67f175cc5d688 from container to local path
+14:10:35.682 [ForkJoinPool-1-worker-1] INFO  se.kth.DockerBuild - Folder 54857351e0b0a655970d7e2ccdb67f175cc5d688 copied successfully
+14:10:36.276 [ForkJoinPool-1-worker-1] INFO  se.kth.DockerBuild - Container with id: dece63ed827fabfbf0bea0da27d2eb827bf59080ae93013088b5dab200085bac removed successfully
+14:10:36.320 [ForkJoinPool-1-worker-1] INFO  se.kth.DockerBuild - File /root/.m2/repository/net/lingala/zip4j/zip4j/2.10.0/zip4j-2.10.0.jar copied successfully
+14:10:36.328 [ForkJoinPool-1-worker-1] INFO  se.kth.DockerBuild - Container with id: 4bddfab7aca9169f54fba5be42c7f312a715b4582da9d82a382c095d018636df removed successfully
+14:10:36.581 [ForkJoinPool-1-worker-1] ERROR se.kth.GitManager - Repository HEAD is null
+14:10:36.971 [ForkJoinPool-1-worker-1] INFO  se.kth.GitManager - Branch original_status created
+14:10:36.976 [ForkJoinPool-1-worker-1] INFO  se.kth.BacardiCore - Compilation failure detected.
+14:10:37.120 [ForkJoinPool-1-worker-1] INFO  se.kth.GitManager - Branch repair_direct_compilation_failure_0 created
+14:10:37.124 [ForkJoinPool-1-worker-1] INFO  se.kth.BacardiCore - ghcr.io/chains-project/breaking-updates:54857351e0b0a655970d7e2ccdb67f175cc5d688-breakingBase Maven image exists.
+14:10:37.141 [ForkJoinPool-1-worker-1] INFO  se.kth.BacardiCore - Constructs found in the direct compilation failure: 1
+14:10:37.144 [ForkJoinPool-1-worker-1] INFO  se.kth.BacardiCore - File: /allure-maven/src/main/java/io/qameta/allure/maven/AllureCommandline.java
+14:10:37.146 [ForkJoinPool-1-worker-1] INFO  se.kth.prompt.GeneratePrompt - Generating prompt for pipeline: BASELINE
+14:10:37.147 [ForkJoinPool-1-worker-1] INFO  se.kth.prompt.BasePromptTemplate - Generating prompt for baseline pipeline
+14:10:37.148 [ForkJoinPool-1-worker-1] INFO  se.kth.BacardiCore - Waiting for response...
+Script executed successfully:
+Files differ. Differences saved to: results/results_baseline/gpt-4o-mini/54857351e0b0a655970d7e2ccdb67f175cc5d688/patches/patch1/diffs/AllureCommandline.java_diff.txt
+14:11:38.975 [ForkJoinPool-1-worker-1] WARN  c.g.d.core.DockerClientBuilder - 'dockerHttpClient' should be set.Falling back to Jersey, will be an error in future releases.
+14:11:39.687 [ForkJoinPool-1-worker-1] INFO  se.kth.DockerBuild - Created container with ID: 34fb438111a616fec62417caa3a4d0a28ff6d1528a54d4f626e557f1399716aa
+14:11:40.398 [ForkJoinPool-1-worker-1] INFO  se.kth.DockerBuild - Copied folder to container
+14:11:40.848 [ForkJoinPool-1-worker-1] INFO  se.kth.DockerBuild - Committed container to create new image: sha256:91c58355808ad6ddf3b2613e7a730738fdfb86f69e997ae4c34c09f06e1c89c6
+14:11:40.853 [ForkJoinPool-1-worker-1] ERROR se.kth.DockerBuild - Could not stop container Status 304: null 
+14:11:51.666 [ForkJoinPool-1-worker-1] INFO  se.kth.DockerBuild - Breaking commit failed in the 1 attempt.
+14:11:51.682 [ForkJoinPool-1-worker-1] INFO  se.kth.DockerBuild - Container with id: 76456b142d5e8ac05a575ce928b466136998ffaae367a0e34e102d864953b109 removed successfully
+14:11:51.693 [ForkJoinPool-1-worker-1] INFO  se.kth.BacardiCore - Attempt: Attempt[index=1, failureCategory=UNKNOWN_FAILURE, prefixFiles=1, postfixFiles=0, fixedFiles=1, unfixedFiles=0, newFiles=0, prefixErrors=1, postfixErrors=0, fixedErrors=1, unfixedErrors=0, newErrors=0, outputFolder=results/results_baseline/gpt-4o-mini/54857351e0b0a655970d7e2ccdb67f175cc5d688/patches/patch1, successful=false]
+14:11:51.785 [ForkJoinPool-1-worker-1] INFO  se.kth.DockerBuild - Image ghcr.io/chains-project/breaking-updates:54857351e0b0a655970d7e2ccdb67f175cc5d688-breaking deleted successfully
+14:11:51.787 [ForkJoinPool-1-worker-1] WARN  se.kth.DockerBuild - Image ghcr.io/chains-project/breaking-updates:54857351e0b0a655970d7e2ccdb67f175cc5d688-pre not found, skipping deletion
