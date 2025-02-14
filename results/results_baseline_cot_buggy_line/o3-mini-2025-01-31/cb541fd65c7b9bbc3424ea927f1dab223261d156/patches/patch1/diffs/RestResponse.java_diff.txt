@@ -1,0 +1,69 @@
+18,19c18,19
+<  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+<  * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+---
+>  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+>  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+48c48
+< import org.hamcrest.Matchers;
+---
+> import org.hamcrest.CoreMatchers;
+60,61c60,61
+<  *   .assertBody(Matchers.containsString("hello, world!"))
+<  *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
+---
+>  *   .assertBody(CoreMatchers.containsString("hello, world!"))
+>  *   .assertHeader("Content-Type", CoreMatchers.hasItem("text/plain"))
+210c210
+<         return this.assertHeader(name, Matchers.hasItems(value));
+---
+>         return this.assertHeader(name, RestResponse.hasItems(value));
+246c246
+<             Matchers.not(Matchers.emptyIterableOf(String.class))
+---
+>             CoreMatchers.not(RestResponse.emptyIterableOf(String.class))
+284c284
+<             Matchers.notNullValue()
+---
+>             CoreMatchers.notNullValue()
+332a333,372
+>     /**
+>      * Returns a matcher that verifies an iterable is empty.
+>      * @param <T> Type parameter
+>      * @param clazz the class of the items in the iterable
+>      * @return Matcher for checking empty iterable
+>      */
+>     private static <T> Matcher<Iterable<T>> emptyIterableOf(final Class<T> clazz) {
+>         return new CustomMatcher<Iterable<T>>("empty iterable of " + clazz.getName()) {
+>             @Override
+>             public boolean matches(final Object item) {
+>                 if (!(item instanceof Iterable)) {
+>                     return false;
+>                 }
+>                 return !((Iterable<?>) item).iterator().hasNext();
+>             }
+>         };
+>     }
+> 
+>     /**
+>      * Returns a matcher that verifies an iterable contains the given item.
+>      * @param <T> Type parameter
+>      * @param value the expected item
+>      * @return Matcher for checking if iterable contains the given item
+>      */
+>     private static <T> Matcher<Iterable<T>> hasItems(final T value) {
+>         return new CustomMatcher<Iterable<T>>("iterable containing " + value) {
+>             @Override
+>             public boolean matches(final Object item) {
+>                 if (!(item instanceof Iterable)) {
+>                     return false;
+>                 }
+>                 for (final Object element : (Iterable<?>) item) {
+>                     if (value.equals(element)) {
+>                         return true;
+>                     }
+>                 }
+>                 return false;
+>             }
+>         };
+>     }

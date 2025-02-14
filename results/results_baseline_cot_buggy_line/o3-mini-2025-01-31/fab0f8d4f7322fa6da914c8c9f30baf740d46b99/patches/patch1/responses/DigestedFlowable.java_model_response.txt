@@ -1,0 +1,95 @@
+<code_analysis>
+1. The error message indicates that the packages and classes from the cactoos library (specifically, org.cactoos.text.HexOf and org.cactoos.io.BytesOf) are no longer available in the updated dependency. The error occurs when the Digest is created, specifically in the lines that import and use these classes.
+2. In the client code, the problematic areas are:
+   - The import statements for org.cactoos.text.HexOf and org.cactoos.io.BytesOf.
+   - The use of new HexOf(new BytesOf(sha.digest())).asString() in the doOnComplete callback.
+3. A potential fix is to remove these cactoos classes in favor of a native conversion from a byte array to its hexadecimal string representation. This can be achieved by writing a simple helper method that converts the byte array to a hex string.
+4. The modifications are:
+   - Remove the cactoos imports that are causing the errors.
+   - Replace the invocation of HexOf/BytesOf with a custom helper method (e.g., toHex(byte[])) to convert sha.digest() to a hex string.
+   - Ensure no changes to function signatures and other functionality.
+</code_analysis>
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker.misc;
+
+import com.artipie.asto.Remaining;
+import com.artipie.asto.ext.Digests;
+import com.artipie.docker.Digest;
+import io.reactivex.Flowable;
+import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+
+/**
+ * {@link Flowable} that calculates digest of origin {@link Publisher} bytes when they pass by.
+ *
+ * @since 0.12
+ */
+public final class DigestedFlowable extends Flowable<ByteBuffer> {
+
+    /**
+     * Origin publisher.
+     */
+    private final Publisher<ByteBuffer> origin;
+
+    /**
+     * Calculated digest.
+     */
+    private final AtomicReference<Digest> dig;
+
+    /**
+     * Ctor.
+     *
+     * @param origin Origin publisher.
+     */
+    public DigestedFlowable(final Publisher<ByteBuffer> origin) {
+        this.dig = new AtomicReference<>();
+        this.origin = origin;
+    }
+
+    @Override
+    public void subscribeActual(final Subscriber<? super ByteBuffer> subscriber) {
+        final MessageDigest sha = Digests.SHA256.get();
+        Flowable.fromPublisher(this.origin)
+            .map(buf -> {
+                sha.update(new Remaining(buf, true).bytes());
+                return buf;
+            })
+            .doOnComplete(() -> this.dig.set(
+                new Digest.Sha256(toHex(sha.digest()))
+            ))
+            .subscribe(subscriber);
+    }
+
+    /**
+     * Calculated digest.
+     *
+     * @return Digest.
+     */
+    public Digest digest() {
+        return Objects.requireNonNull(this.dig.get(), "Digest is not yet calculated.");
+    }
+
+    /**
+     * Helper method to convert a byte array to its hexadecimal string representation.
+     *
+     * @param bytes the byte array to convert.
+     * @return hexadecimal string.
+     */
+    private static String toHex(final byte[] bytes) {
+        final StringBuilder hex = new StringBuilder(bytes.length * 2);
+        for (final byte b : bytes) {
+            hex.append(String.format("%02x", b));
+        }
+        return hex.toString();
+    }
+}
+```

@@ -1,0 +1,89 @@
+<code_analysis>
+1. Error analysis:
+   - The error messages indicate that methods like setPort(int) on Connector and setSendServerVersion(boolean) / setSendDateHeader(boolean) on Server no longer exist. The import for SelectChannelConnector is also broken.
+   - These errors suggest that the code was written against an older Jetty API (using classes such as SelectChannelConnector) but the current dependency update has moved to a newer API (Jetty 9+).
+
+2. Code review:
+   - The code sets properties (server.setSendServerVersion(false) and server.setSendDateHeader(true)) that are no longer available on Jetty’s Server class. In newer Jetty versions, these options are configured via an HttpConfiguration.
+   - The original SelectChannelConnector is no longer available in the updated dependency. It needs to be replaced by the new ServerConnector.
+   - The setPort(int) and getLocalPort() methods should be invoked on an instance of ServerConnector rather than on the base Connector class.
+
+3. Proposed modifications:
+   - Remove the calls to setSendServerVersion and setSendDateHeader on the Server object.
+   - Introduce an HttpConfiguration instance, set its properties (sendServerVersion and sendDateHeader), and use it to create an HttpConnectionFactory.
+   - Replace the usage of SelectChannelConnector with ServerConnector.
+   - Change the field type of httpConnector to ServerConnector, ensuring that setPort and getLocalPort are available.
+   - Update the import statements to the new classes (org.eclipse.jetty.server.ServerConnector, org.eclipse.jetty.server.HttpConfiguration, and org.eclipse.jetty.server.HttpConnectionFactory).
+
+4. Side effects and constraints:
+   - None of the public method signatures are changed.
+   - The overall functionality remains the same, but now uses the updated Jetty API.
+   - The solution alters only the code that triggers compilation errors due to the broken dependency.
+</code_analysis>
+
+```java
+package net.jadler.stubbing.server.jetty;
+
+import net.jadler.RequestManager;
+import net.jadler.stubbing.server.StubHttpServer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.Validate;
+
+/**
+ * Default stub http server implementation using Jetty as an http server.
+ */
+public class JettyStubHttpServer implements StubHttpServer {
+
+    private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
+    private final Server server;
+    private final ServerConnector httpConnector;
+
+    public JettyStubHttpServer() {
+        this(0);
+    }
+    
+    public JettyStubHttpServer(final int port) {
+        this.server = new Server();
+
+        // In Jetty 9+, configure HTTP settings using HttpConfiguration
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        httpConfig.setSendServerVersion(false);
+        httpConfig.setSendDateHeader(true);
+
+        // Create a ServerConnector using the updated API
+        this.httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+        this.httpConnector.setPort(port);
+        server.addConnector(this.httpConnector);
+    }
+    
+    @Override
+    public void registerRequestManager(final RequestManager ruleProvider) {
+        Validate.notNull(ruleProvider, "ruleProvider cannot be null");
+        server.setHandler(new JadlerHandler(ruleProvider));
+    }
+    
+    @Override
+    public void start() throws Exception {
+        logger.debug("starting jetty");
+        server.start();
+        logger.debug("jetty started");
+    }
+    
+    @Override
+    public void stop() throws Exception {
+        logger.debug("stopping jetty");
+        server.stop();
+        logger.debug("jetty stopped");
+    }
+    
+    @Override
+    public int getPort() {
+        return httpConnector.getLocalPort();
+    }
+}
+```

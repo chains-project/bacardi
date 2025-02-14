@@ -1,0 +1,65 @@
+```java
+package com.github.knaufk.flink.faker;
+
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+import net.datafaker.DateAndTime;
+import net.datafaker.Faker;
+
+public class DateTime extends DateAndTime {
+
+  protected DateTime(Faker faker) {
+    super(faker);
+  }
+
+  public Timestamp past(int atMost, TimeUnit unit) {
+    return new Timestamp(super.past(atMost, unit).getTime());
+  }
+
+  public Timestamp past(int atMost, int minimum, TimeUnit unit) {
+    return new Timestamp(super.past(atMost, minimum, unit).getTime());
+  }
+
+  @Override
+  public Timestamp future(int atMost, TimeUnit unit) {
+    return new Timestamp(super.future(atMost, unit).getTime());
+  }
+
+  @Override
+  public Timestamp future(int atMost, int minimum, TimeUnit unit) {
+    return new Timestamp(super.future(atMost, minimum, unit).getTime());
+  }
+
+  @Override
+  public Timestamp future(int atMost, TimeUnit unit, Date referenceDate) {
+    return new Timestamp(super.future(atMost, unit, referenceDate).getTime());
+  }
+
+  @Override
+  public Timestamp past(int atMost, TimeUnit unit, Date referenceDate) {
+    return new Timestamp(super.past(atMost, unit, referenceDate).getTime());
+  }
+
+  // Removed @Override annotation as the method may not exist in the updated dependency
+  public Timestamp between(Date from, Date to) throws IllegalArgumentException {
+    Date date = super.between(from, to); // Store the result in a variable
+    return new Timestamp(date.getTime());
+  }
+
+  @Override
+  public Timestamp birthday() {
+    return new Timestamp(super.birthday().getTime());
+  }
+
+  @Override
+  public Timestamp birthday(int minAge, int maxAge) {
+    return new Timestamp(super.birthday(minAge, maxAge).getTime());
+  }
+}
+``` 
+
+### Explanation of Changes:
+1. **Removed @Override Annotation**: The `between` method was likely removed or changed in the updated dependency, so the `@Override` annotation was removed to prevent compilation errors.
+2. **Variable for Clarity**: Introduced a variable `date` to store the result of `super.between(from, to)` before converting it to `Timestamp`. This improves readability and ensures that the method compiles correctly.
+3. **Maintained Function Signatures**: All method signatures remain unchanged as per the requirements.

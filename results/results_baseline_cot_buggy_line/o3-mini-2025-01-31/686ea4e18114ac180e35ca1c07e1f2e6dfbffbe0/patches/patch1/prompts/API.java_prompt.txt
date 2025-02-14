@@ -1,0 +1,556 @@
+ You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates.
+Your task is to analyze the provided code and error message, then propose a patch that can be applied to the client code to resolve the issue.
+
+ Here is the client code that is failing:
+```java
+//
+// Wire
+// Copyright (C) 2016 Wire Swiss GmbH
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see http://www.gnu.org/licenses/.
+//
+
+package com.wire.lithium;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wire.lithium.models.NewBotResponseModel;
+import com.wire.xenon.Const;
+import com.wire.xenon.WireAPI;
+import com.wire.xenon.assets.IAsset;
+import com.wire.xenon.backend.models.Conversation;
+import com.wire.xenon.backend.models.User;
+import com.wire.xenon.exceptions.HttpException;
+import com.wire.xenon.models.AssetKey;
+import com.wire.xenon.models.otr.*;
+import com.wire.xenon.tools.Logger;
+import com.wire.xenon.tools.Util;
+import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.logging.LoggingFeature;
+import org.glassfish.jersey.media.multipart.BodyPart;
+import org.glassfish.jersey.media.multipart.MultiPart;
+
+import javax.annotation.Nullable;
+import javax.ws.rs.NotSupportedException;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
+import java.util.logging.Level;
+
+public class API implements WireAPI {
+    private final String wireHost;
+
+    private final WebTarget messages;
+    private final WebTarget assets;
+    private final WebTarget client;
+    private final WebTarget prekeys;
+    private final WebTarget users;
+    private final WebTarget conversation;
+    private final WebTarget bot;
+
+    private final Client httpClient;
+    private final String token;
+
+    public API(Client httpClient, String token) {
+        this(httpClient, token, deriveHost());
+    }
+
+    public API(Client httpClient, String token, String wireHost) {
+        this.httpClient = httpClient;
+        this.token = token;
+
+        this.wireHost = wireHost;
+
+        bot = httpClient
+                .target(wireHost)
+                .path("bot");
+        messages = bot
+                .path("messages");
+        assets = bot
+                .path("assets");
+        users = bot
+                .path("users");
+        conversation = bot
+                .path("conversation");
+        client = bot
+                .path("client")
+                .path("prekeys");
+        prekeys = users
+                .path("prekeys");
+
+        if (Logger.getLevel() == Level.FINE) {
+            Feature feature = new LoggingFeature(Logger.getLOGGER(), Level.FINE, null, null);
+            assets.register(feature);
+            users.register(feature);
+        }
+    }
+
+    private static String deriveHost() {
+        String host = System.getProperty(Const.WIRE_BOTS_SDK_API, System.getenv("WIRE_API_HOST"));
+        return host != null ? host : "https://prod-nginz-https.wire.com";
+    }
+
+    public Response status() {
+        return httpClient.target(wireHost)
+                .path("status")
+                .request()
+                .get();
+    }
+
+    public String getWireHost() {
+        return this.wireHost;
+    }
+
+    /**
+     * This method sends the OtrMessage to BE. Message must contain cipher for all participants and all their clients.
+     *
+     * @param msg           OtrMessage object containing ciphers for all clients
+     * @param ignoreMissing If TRUE ignore missing clients and deliver the message to available clients
+     * @return List of missing devices in case of fail or an empty list.
+     * @throws HttpException Http Exception is thrown when status {@literal >}= 400
+     */
+    @Override
+    public Devices sendMessage(OtrMessage msg, Object... ignoreMissing) throws HttpException {
+        Response response = messages
+                .queryParam("ignore_missing", ignoreMissing)
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, bearer())
+                .post(Entity.entity(msg, MediaType.APPLICATION_JSON));
+
+        int statusCode = response.getStatus();
+        if (statusCode == 412) {
+            // This message was not sent due to missing clients. Parse those missing clients so the caller can add them
+            return response.readEntity(Devices.class);
+        }
+
+        if (statusCode >= 400) {
+            throw new HttpException(response.readEntity(String.class), statusCode);
+        }
+
+        return response.readEntity(Devices.class);
+    }
+
+    @Override
+    public Devices sendPartialMessage(OtrMessage msg, UUID userId) throws HttpException {
+        Response response = messages
+                .queryParam("report_missing", userId)
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, bearer())
+                .post(Entity.entity(msg, MediaType.APPLICATION_JSON));
+
+        int statusCode = response.getStatus();
+        if (statusCode == 412) {
+            // This message was not sent due to missing clients. Parse those missing clients so the caller can add them
+            return response.readEntity(Devices.class);
+        }
+
+        if (statusCode >= 400) {
+            throw new HttpException(response.readEntity(String.class), statusCode);
+        }
+
+        return response.readEntity(Devices.class);
+    }
+
+    @Override
+    public Collection<User> getUsers(Collection<UUID> ids) {
+        return users
+                .queryParam("ids", ids.toArray())
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, bearer())
+                .get(new GenericType<ArrayList<User>>() {
+                });
+    }
+
+    @Override
+    public User getSelf() {
+        return bot
+                .path("self")
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, bearer())
+                .get(User.class);
+    }
+
+    @Override
+    public Conversation getConversation() {
+        return conversation
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, bearer())
+                .accept(MediaType.APPLICATION_JSON)
+                .get(Conversation.class);
+    }
+
+    @Override
+    public PreKeys getPreKeys(Missing missing) {
+        return prekeys
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, bearer())
+                .accept(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(missing, MediaType.APPLICATION_JSON), PreKeys.class);
+    }
+
+    @Override
+    public ArrayList<Integer> getAvailablePrekeys(@Nullable String clientId) {
+        return client
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, bearer())
+                .accept(MediaType.APPLICATION_JSON)
+                .get(new GenericType<>() {
+                });
+    }
+
+    @Override
+    public void uploadPreKeys(ArrayList<PreKey> preKeys) throws IOException {
+        NewBotResponseModel model = new NewBotResponseModel();
+        model.preKeys = preKeys;
+
+        Response res = client
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, bearer())
+                .accept(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(model, MediaType.APPLICATION_JSON));
+
+        int statusCode = res.getStatus();
+        if (statusCode >= 400) {
+            throw new IOException(res.readEntity(String.class));
+        }
+    }
+
+    @Override
+    public AssetKey uploadAsset(IAsset asset) throws Exception {
+        StringBuilder sb = new StringBuilder();
+
+        // Part 1
+        String strMetadata = String.format("{\"public\": %s, \"retention\": \"%s\"}",
+                asset.isPublic(),
+                asset.getRetention());
+        sb.append("--frontier\r\n");
+        sb.append("Content-Type: application/json; charset=utf-8\r\n");
+        sb.append("Content-Length: ")
+                .append(strMetadata.length())
+                .append("\r\n\r\n");
+        sb.append(strMetadata)
+                .append("\r\n");
+
+        // Part 2
+        sb.append("--frontier\r\n");
+        sb.append("Content-Type: ")
+                .append(asset.getMimeType())
+                .append("\r\n");
+        sb.append("Content-Length: ")
+                .append(asset.getEncryptedData().length)
+                .append("\r\n");
+        sb.append("Content-MD5: ")
+                .append(Util.calcMd5(asset.getEncryptedData()))
+                .append("\r\n\r\n");
+
+        // Complete
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        os.write(sb.toString().getBytes(StandardCharsets.UTF_8));
+        os.write(asset.getEncryptedData());
+        os.write("\r\n--frontier--\r\n".getBytes(StandardCharsets.UTF_8));
+
+        Response response = assets
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .header(HttpHeaders.AUTHORIZATION, bearer())
+                .post(Entity.entity(os.toByteArray(), "multipart/mixed; boundary=frontier"));
+
+        if (response.getStatus() >= 400) {
+            throw new HttpException(response.readEntity(String.class), response.getStatus());
+        }
+
+        return response.readEntity(AssetKey.class);
+    }
+
+    private MultiPart getMultiPart(IAsset asset) throws NoSuchAlgorithmException {
+        MetaData metaData = new MetaData();
+        metaData.retention = asset.getRetention();
+        metaData.scope = asset.isPublic();
+
+        BodyPart bodyPart1 = new BodyPart(metaData, MediaType.APPLICATION_JSON_TYPE);
+        BodyPart bodyPart2 = new BodyPart().entity(asset.getEncryptedData());
+
+        MultivaluedMap<String, String> headers = bodyPart2.getHeaders();
+        headers.add("Content-Type", asset.getMimeType());
+        headers.add("Content-MD5", Util.calcMd5(asset.getEncryptedData()));
+
+        return new MultiPart()
+                .bodyPart(bodyPart1)
+                .bodyPart(bodyPart2);
+    }
+
+    @Override
+    public byte[] downloadAsset(String assetId, String assetToken) throws HttpException {
+        Invocation.Builder req = assets
+                .path(assetId)
+                .request()
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.FALSE)
+                .header(HttpHeaders.AUTHORIZATION, bearer());
+
+        if (assetToken != null && !assetToken.isBlank())
+            req.header("Asset-Token", assetToken);
+
+        Response response = req.get();
+
+        if (response.getStatus() >= 400) {
+            throw new HttpException(response.readEntity(String.class), response.getStatus());
+        }
+
+        final String location = response.getHeaderString(HttpHeaders.LOCATION);
+        response.close();
+
+        response = httpClient
+                .target(location)
+                .request()
+                .get();
+
+        if (response.getStatus() >= 400) {
+            throw new HttpException(response.readEntity(String.class), response.getStatus());
+        }
+
+        return response.readEntity(byte[].class);
+    }
+
+    @Override
+    public boolean deleteConversation(UUID teamId) {
+        throw new NotSupportedException();
+    }
+
+    @Override
+    public User addService(UUID serviceId, UUID providerId) {
+        throw new NotSupportedException();
+    }
+
+    @Override
+    public User addParticipants(UUID... userIds) {
+        throw new NotSupportedException();
+    }
+
+    @Override
+    public Conversation createConversation(String name, UUID teamId, List<UUID> users) {
+        throw new NotSupportedException();
+    }
+
+    @Override
+    public Conversation createOne2One(UUID teamId, UUID userId) {
+        throw new NotSupportedException();
+    }
+
+    @Override
+    public void leaveConversation(UUID user) {
+        throw new NotSupportedException();
+    }
+
+    @Override
+    public User getUser(UUID userId) {
+        return getUsers(Collections.singletonList(userId))
+                .stream()
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
+    public UUID getUserId(String handle) {
+        throw new NotSupportedException();
+    }
+
+    @Override
+    public boolean hasDevice(UUID userId, String clientId) {
+        throw new NotSupportedException();
+    }
+
+    @Override
+    public UUID getTeam() {
+        throw new NotSupportedException();
+    }
+
+    @Override
+    public Collection<UUID> getTeamMembers(UUID teamId) {
+        throw new NotSupportedException();
+    }
+
+    @Override
+    public void acceptConnection(UUID user) {
+        throw new NotSupportedException();
+    }
+
+    private String bearer() {
+        return String.format("Bearer %s", token);
+    }
+
+    public static class MetaData {
+        @JsonProperty("public")
+        public boolean scope;
+        @JsonProperty
+        public String retention;
+    }
+}
+
+```
+
+ the error is triggered in the following specific lines in the previous code:
+
+```java
+private final WebTarget bot;
+```
+```java
+public Response status() {
+```
+```java
+private final WebTarget assets;
+```
+```java
+import javax.ws.rs.NotSupportedException;
+```
+```java
+private final WebTarget users;
+```
+```java
+public API(Client httpClient, String token) {
+```
+```java
+private final WebTarget client;
+```
+```java
+private final Client httpClient;
+```
+```java
+private final WebTarget prekeys;
+```
+```java
+public API(Client httpClient, String token, String wireHost) {
+```
+```java
+private final WebTarget conversation;
+```
+```java
+import javax.ws.rs.client.Entity;
+```
+```java
+import javax.ws.rs.client.WebTarget;
+```
+```java
+private final WebTarget messages;
+```
+```java
+import javax.ws.rs.core.*;
+```
+```java
+import javax.ws.rs.client.Invocation;
+```
+
+
+ And here is the error message:
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[61,19] cannot find symbol
+  symbol:   class WebTarget
+  location: class com.wire.lithium.API
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[105,12] cannot find symbol
+  symbol:   class Response
+  location: class com.wire.lithium.API
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[56,19] cannot find symbol
+  symbol:   class WebTarget
+  location: class com.wire.lithium.API
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[39,19] package javax.ws.rs does not exist
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[59,19] cannot find symbol
+  symbol:   class WebTarget
+  location: class com.wire.lithium.API
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[66,16] cannot find symbol
+  symbol:   class Client
+  location: class com.wire.lithium.API
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[57,19] cannot find symbol
+  symbol:   class WebTarget
+  location: class com.wire.lithium.API
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[63,19] cannot find symbol
+  symbol:   class Client
+  location: class com.wire.lithium.API
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[58,19] cannot find symbol
+  symbol:   class WebTarget
+  location: class com.wire.lithium.API
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[70,16] cannot find symbol
+  symbol:   class Client
+  location: class com.wire.lithium.API
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[60,19] cannot find symbol
+  symbol:   class WebTarget
+  location: class com.wire.lithium.API
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[41,26] package javax.ws.rs.client does not exist
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[43,26] package javax.ws.rs.client does not exist
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[55,19] cannot find symbol
+  symbol:   class WebTarget
+  location: class com.wire.lithium.API
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[44,1] package javax.ws.rs.core does not exist
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/API.java:[42,26] package javax.ws.rs.client does not exist
+
+
+
+ Before proposing a fix, please analyze the error message and client code. Wrap your analysis inside <code_analysis> tags:
+
+<code_analysis>
+1. Examine the error message:
+   - Identify the specific issue related to the dependency update.
+   - Note the line number or method where the error occurs.
+   - Determine which dependency and version is causing the issue.
+
+2. Review the client code:
+   - Locate the problematic areas mentioned in the error message.
+   - Identify any related code that might be affected by the changes.
+
+3. Consider potential fixes that adhere to the following constraints:
+   - Do not change any function signatures.
+   - Only remove the @Override annotation if the method no longer overrides a method in the updated dependency version.
+   - Ensure correct imports are used, considering the newer dependency version.
+   - Avoid removing existing code unless it directly causes a compilation or functionality error.
+
+4. Plan the necessary changes to fix the issue:
+   - List the specific modifications required.
+   - Consider potential side effects of the proposed changes.
+   - Ensure the fix addresses the root cause of the error.
+</code_analysis>
+
+Based on your analysis, propose a patch to fix the issue. Your response should be a complete and compilable Java class in a fenced code block. Adhere to these guidelines:
+
+1. Do not change any function signatures.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Avoid removing any existing code unless it directly causes a compilation or functionality error.
+6. Ensure the entire class is included and that it will compile correctly. Don't use the comment "// ... (rest of the class remains unchanged)".
+
+Please provide your fixed class in the following format:
+
+```java
+// Your complete, fixed Java class here
+```
+
+Remember to focus specifically on issues related to the dependency update when proposing your fix.
+ 

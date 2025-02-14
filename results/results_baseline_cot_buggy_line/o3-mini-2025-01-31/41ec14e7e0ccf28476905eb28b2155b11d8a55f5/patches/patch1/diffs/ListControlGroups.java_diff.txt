@@ -1,0 +1,144 @@
+1,18d0
+< /**
+<  * Copyright (C) 2014 Premium Minds.
+<  *
+<  * This file is part of wicket-crudifier.
+<  *
+<  * wicket-crudifier is free software: you can redistribute it and/or modify it under
+<  * the terms of the GNU Lesser General Public License as published by the Free
+<  * Software Foundation, either version 3 of the License, or (at your option) any
+<  * later version.
+<  *
+<  * wicket-crudifier is distributed in the hope that it will be useful, but WITHOUT ANY
+<  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+<  * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+<  * details.
+<  *
+<  * You should have received a copy of the GNU Lesser General Public License
+<  * along with wicket-crudifier. If not, see <http://www.gnu.org/licenses/>.
+<  */
+20a3,5
+> import java.beans.BeanInfo;
+> import java.beans.IntrospectionException;
+> import java.beans.Introspector;
+38,44c23,30
+< import javax.validation.Validator;
+< import javax.validation.constraints.NotBlank;
+< import javax.validation.constraints.NotEmpty;
+< import javax.validation.constraints.NotNull;
+< import javax.validation.metadata.BeanDescriptor;
+< import javax.validation.metadata.ConstraintDescriptor;
+< import javax.validation.metadata.ElementDescriptor;
+---
+> // Replaced javax.validation imports with jakarta.validation
+> import jakarta.validation.Validator;
+> import jakarta.validation.constraints.NotBlank;
+> import jakarta.validation.constraints.NotEmpty;
+> import jakarta.validation.constraints.NotNull;
+> import jakarta.validation.metadata.BeanDescriptor;
+> import jakarta.validation.metadata.ConstraintDescriptor;
+> import jakarta.validation.metadata.ElementDescriptor;
+46d31
+< import org.apache.commons.beanutils.PropertyUtils;
+62d46
+< 
+64d47
+< 
+67d49
+< 
+98a81
+>         // Add properties in the specific order
+100c83
+<                         if(!entitySettings.getHiddenFields().contains(property))
+---
+>             if (!entitySettings.getHiddenFields().contains(property)) {
+103c86,90
+<                 for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
+---
+>         }
+>         // Use Java Beans introspection instead of BeanUtils
+>         try {
+>             BeanInfo beanInfo = Introspector.getBeanInfo(modelClass);
+>             for (PropertyDescriptor descriptor : beanInfo.getPropertyDescriptors()) {
+106c93
+<                            !descriptor.getName().equals("class"))
+---
+>                     !"class".equals(descriptor.getName())) {
+109c96,99
+< 
+---
+>             }
+>         } catch (IntrospectionException e) {
+>             throw new RuntimeException("Error introspecting class " + modelClass, e);
+>         }
+112a103,117
+>     // Helper to get a PropertyDescriptor for a given property using introspection
+>     private PropertyDescriptor getPropertyDescriptor(Object bean, String property) {
+>         try {
+>             BeanInfo beanInfo = Introspector.getBeanInfo(bean.getClass());
+>             for (PropertyDescriptor desc : beanInfo.getPropertyDescriptors()) {
+>                 if (desc.getName().equals(property)) {
+>                     return desc;
+>                 }
+>             }
+>             return null;
+>         } catch (IntrospectionException e) {
+>             throw new RuntimeException("Error introspecting bean " + bean.getClass(), e);
+>         }
+>     }
+> 
+120d124
+< 
+128c132
+<                                 descriptor = PropertyUtils.getPropertyDescriptor(getModel().getObject(), property);
+---
+>                 descriptor = getPropertyDescriptor(getModel().getObject(), property);
+134d137
+< 
+141c144
+<                                            constraint.getAnnotation() instanceof NotBlank)
+---
+>                         constraint.getAnnotation() instanceof NotBlank) {
+145c148
+< 
+---
+>             }
+157,158c160,164
+<                                                 if(objectProperty.type.isEnum()) typesControlGroup = EnumControlGroup.class;
+<                                                 else typesControlGroup = ObjectChoiceControlGroup.class;
+---
+>                         if (objectProperty.type.isEnum()) {
+>                             typesControlGroup = EnumControlGroup.class;
+>                         } else {
+>                             typesControlGroup = ObjectChoiceControlGroup.class;
+>                         }
+160d165
+< 
+162,163c167,168
+< 
+<                                         controlGroup = (AbstractControlGroup<?>) constructor.newInstance(view.newChildId(), new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name));
+---
+>                     controlGroup = (AbstractControlGroup<?>) constructor.newInstance(view.newChildId(),
+>                         new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name));
+167d171
+< 
+183d186
+< 
+185,189c188,190
+<                                         controlGroup = controlGroupProviders
+<                                                         .get(objectProperty.type)
+<                                                         .createControlGroup(view.newChildId()
+<                                                                         , new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name)
+<                                                                         , objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
+---
+>                     controlGroup = controlGroupProviders.get(objectProperty.type)
+>                         .createControlGroup(view.newChildId(), new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name),
+>                                 objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
+192d192
+< 
+228c228,230
+<                         if(type.isAssignableFrom(mapType)) return typesControlGroups.get(mapType);
+---
+>             if (type.isAssignableFrom(mapType)) {
+>                 return typesControlGroups.get(mapType);
+>             }

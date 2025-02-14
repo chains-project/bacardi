@@ -1,0 +1,11 @@
+6d5
+< 
+10d8
+< 
+13a12
+>     private static final String DEFAULT_TEST_PATTERN = "**/*Test*.class";
+25c24,25
+<         DirectoryScanner directoryScanner = new DirectoryScanner(testSrcFolder, TestListResolver.getWildcard());
+---
+>         // Replace the removed TestListResolver.getWildcard() with a constant pattern.
+>         DirectoryScanner directoryScanner = new DirectoryScanner(testSrcFolder, DEFAULT_TEST_PATTERN);

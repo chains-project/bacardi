@@ -1,0 +1,29 @@
+<code_analysis>
+1. The error message indicates that the package "javax.interceptor" is no longer available (likely due to a dependency update where Java EE packages have been replaced by Jakarta EE packages). Specifically, the errors occur at the import statement for InterceptorBinding and its usage as an annotation.
+2. In the client code, the problematic lines are:
+   - The import statement: "import javax.interceptor.InterceptorBinding;"
+   - The use of the annotation "@InterceptorBinding" on the Replaceable interface.
+3. The fix involves updating the import to reflect the new package provided by Jakarta EE. In the newer dependency version, the InterceptorBinding annotation is found under "jakarta.interceptor.InterceptorBinding".
+4. The necessary change is to update the import statement to "import jakarta.interceptor.InterceptorBinding;" while leaving the rest of the code unchanged.
+</code_analysis>
+
+```java
+package de.hilling.junit.cdi.scope;
+
+import org.immutables.value.Value;
+
+import jakarta.interceptor.InterceptorBinding;
+import java.lang.annotation.*;
+
+/**
+ * Marker interface used internally by the {@link de.hilling.junit.cdi.scope.TestScopeExtension} to
+ * mark classes that can be mocked or replaced by other test beans.
+ */
+@Inherited
+@InterceptorBinding
+@Target({ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Value.Immutable
+public @interface Replaceable {
+}
+```

@@ -1,0 +1,20 @@
+25d24
+< 
+27a27
+> import org.apache.mina.core.filterchain.IoFilter.NextFilter;
+41a42,44
+>     // Define the missing attribute constant for peer address
+>     private static final String PEER_ADDRESS = "peerAddress";
+> 
+43c46,48
+<         super(sslContext, autoStart);
+---
+>         // The updated SslFilter constructor no longer accepts autoStart,
+>         // so we ignore the autoStart parameter and call the single-argument constructor.
+>         super(sslContext);
+56a62
+>         // No-op to allow external cipher suite configuration.
+76c82
+<                 // activate the SNI support in the JSSE SSLEngine
+---
+>                 // Activate the SNI support in the JSSE SSLEngine

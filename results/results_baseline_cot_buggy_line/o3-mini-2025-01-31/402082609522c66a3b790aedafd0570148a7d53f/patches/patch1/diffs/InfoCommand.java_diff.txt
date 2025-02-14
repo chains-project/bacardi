@@ -1,0 +1,48 @@
+9d8
+< 
+12d10
+< 
+14c12
+< import org.spongepowered.api.command.CommandException;
+---
+> import org.spongepowered.api.command.Command;
+16,19c14,17
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.source.CommandSource;
+22,23c20,21
+< import org.spongepowered.api.text.Text;
+< import org.spongepowered.api.text.serializer.TextSerializers;
+---
+> import net.kyori.adventure.text.Component;
+> import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+33d30
+< 
+35c32,34
+<     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+---
+>     public CommandResult execute(CommandContext args) throws CommandException {
+>         // In the new API, the CommandSource is retrieved from the command context's cause.
+>         CommandSource src = args.cause().root();
+53,54c52,53
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command buildSpec() {
+>         return Command.builder()
+61c60
+<         Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
+---
+>         Optional<Player> optPlayer = Sponge.server().player(uuid);
+70,71c69,70
+<                 Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
+<                 player.sendMessage(text);
+---
+>                 Component component = LegacyComponentSerializer.legacySection().deserialize(formatted);
+>                 player.sendMessage(component);

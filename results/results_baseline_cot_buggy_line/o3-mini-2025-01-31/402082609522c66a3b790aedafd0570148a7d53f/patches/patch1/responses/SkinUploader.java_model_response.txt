@@ -1,0 +1,58 @@
+<code_analysis>
+1. Error Message Analysis:
+   - The error states that the symbol CommandSource cannot be found in package org.spongepowered.api.command.
+   - This indicates that a dependency update to the Sponge API has moved the CommandSource class from its previous package.
+   - The error occurs in the import, field declaration, and constructor parameter.
+
+2. Client Code Analysis:
+   - The code imports CommandSource from "org.spongepowered.api.command.CommandSource" and uses it in the class.
+   - Due to the dependency update, CommandSource has likely been relocated to a new package.
+   - In newer versions of the Sponge API, CommandSource is found under the package "org.spongepowered.api.command.source".
+
+3. Proposed Fix:
+   - Update the import statement to refer to the correct package "org.spongepowered.api.command.source.CommandSource".
+   - No changes to function signatures or logic, ensuring that only the import line is modified.
+   - Keeping @Override annotations as they are assumed to correctly override methods from the parent class in the updated dependency.
+
+4. Side Effects:
+   - This change ensures that the code compiles with the updated dependency.
+   - No adverse side effects are expected as this is a straightforward package adjustment.
+</code_analysis>
+
+Below is the complete, fixed Java class:
+
+```java
+package com.github.games647.changeskin.sponge.task;
+
+import com.github.games647.changeskin.core.model.auth.Account;
+import com.github.games647.changeskin.core.shared.task.SharedUploader;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import java.util.concurrent.TimeUnit;
+
+import org.spongepowered.api.command.source.CommandSource;
+import org.spongepowered.api.scheduler.Task;
+
+public class SkinUploader extends SharedUploader {
+
+    private final ChangeSkinSponge plugin;
+    private final CommandSource invoker;
+
+    public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url) {
+        super(plugin.getCore(), owner, url);
+        this.plugin = plugin;
+        this.invoker = invoker;
+    }
+
+    @Override
+    public void sendMessageInvoker(String key) {
+        plugin.sendMessage(invoker, key);
+    }
+
+    @Override
+    protected void scheduleChangeTask(String oldSkinUrl) {
+        Runnable task = new SkinChanger(plugin, owner, url, oldSkinUrl, invoker);
+        Task.builder().delay(1, TimeUnit.MINUTES).execute(task).async().submit(plugin);
+    }
+}
+```

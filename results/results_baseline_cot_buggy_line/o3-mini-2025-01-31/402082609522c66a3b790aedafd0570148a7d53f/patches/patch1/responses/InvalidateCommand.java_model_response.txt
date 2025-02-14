@@ -1,0 +1,73 @@
+<code_analysis>
+1. The error message indicates that several types formerly located under the package "org.spongepowered.api.command.spec" (such as CommandSpec and CommandExecutor) and "org.spongepowered.api.command.args" (such as CommandContext) can no longer be found. This suggests that a breaking change in the Sponge dependency has moved or renamed these classes.
+2. In the client code the following issues occur:
+   - The imports for CommandSource, CommandSpec, CommandExecutor, and CommandContext refer to outdated packages.
+   - The class declaration implements CommandExecutor, which is no longer available.
+   - The buildSpec() method uses CommandSpec.builder() when the new Sponge API now offers a builder through a different class.
+3. To fix the issue while respecting the constraints:
+   - Update the imports to point to the new packages. For instance, CommandSource is now in org.spongepowered.api.command.source and CommandContext in org.spongepowered.api.command.parameter.
+   - The command API has been revamped so that instead of implementing the old CommandExecutor interface, the command is now executed via a lambda. To avoid changing function signatures or removing existing logic, we introduce a new process(CommandContext args) method (matching the new executor’s signature) that extracts a CommandSource from the CommandContext and then delegates to the original execute(CommandSource, CommandContext) method.
+   - Remove CommandExecutor from the implemented interfaces (and its import) since it no longer exists.
+   - Update buildSpec() to build the new command using Command.builder() and register the executor via a method reference (this::process). The return type is updated to Command (the new interface replacing CommandSpec) without changing the executor logic.
+   - Remove the @Override annotation from execute since it no longer overrides a method from an interface.
+4. These modifications address the root cause of the errors (moved/renamed classes) while preserving the original logic.
+</code_analysis>
+
+```java
+package com.github.games647.changeskin.sponge.command;
+
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.github.games647.changeskin.sponge.PomData;
+import com.github.games647.changeskin.sponge.task.SkinInvalidator;
+import com.google.inject.Inject;
+
+import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.source.CommandSource;
+import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
+
+import java.util.Optional;
+
+public class InvalidateCommand implements ChangeSkinCommand {
+
+    private final ChangeSkinSponge plugin;
+
+    @Inject
+    public InvalidateCommand(ChangeSkinSponge plugin) {
+        this.plugin = plugin;
+    }
+
+    // This method is kept intact from the original client code.
+    // Note: The @Override annotation has been removed because it no longer overrides any method in the new dependency.
+    public CommandResult execute(CommandSource src, CommandContext args) {
+        if (!(src instanceof Player)) {
+            plugin.sendMessage(src, "no-console");
+            return CommandResult.empty();
+        }
+
+        Player receiver = (Player) src;
+        Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
+        return CommandResult.success();
+    }
+
+    // New method that conforms to the new Sponge command API executor,
+    // extracting the CommandSource from the CommandContext and delegating to the existing execute method.
+    public CommandResult process(CommandContext args) {
+        Optional<CommandSource> sourceOpt = args.cause().first(CommandSource.class);
+        if (!sourceOpt.isPresent()) {
+            return CommandResult.empty();
+        }
+        return execute(sourceOpt.get(), args);
+    }
+
+    @Override
+    public Command buildSpec() {
+        return Command.builder()
+                .executor(this::process)
+                .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base")
+                .build();
+    }
+}
+```

@@ -1,0 +1,194 @@
+ You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates.
+Your task is to analyze the provided code and error message, then propose a patch that can be applied to the client code to resolve the issue.
+
+ Here is the client code that is failing:
+```java
+package com.github.games647.changeskin.sponge.bungee;
+
+import com.github.games647.changeskin.core.message.NamespaceKey;
+import com.github.games647.changeskin.core.message.CheckPermMessage;
+import com.github.games647.changeskin.core.message.PermResultMessage;
+import com.github.games647.changeskin.core.model.skin.SkinModel;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+import com.google.inject.Inject;
+
+import java.util.UUID;
+
+import org.spongepowered.api.Platform.Type;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+import org.spongepowered.api.network.ChannelBuf;
+import org.spongepowered.api.network.ChannelRegistrar;
+import org.spongepowered.api.network.RawDataListener;
+import org.spongepowered.api.network.RemoteConnection;
+
+import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
+import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
+
+public class CheckPermissionListener implements RawDataListener {
+
+    private final ChangeSkinSponge plugin;
+    private final RawDataChannel permissionsResultChannel;
+
+    @Inject
+    CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+        this.plugin = plugin;
+
+        String combinedName = new NamespaceKey(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL).getCombinedName();
+        permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
+    }
+
+    @Override
+    public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+        CheckPermMessage checkMessage = new CheckPermMessage();
+        checkMessage.readFrom(dataInput);
+
+        CheckPermMessage message = new CheckPermMessage();
+        message.readFrom(dataInput);
+
+        checkPermissions((Player) connection, message);
+    }
+
+    private void checkPermissions(Player player, CheckPermMessage permMessage) {
+        UUID receiverUUID = permMessage.getReceiverUUD();
+        boolean op = permMessage.isOp();
+        SkinModel targetSkin = permMessage.getTargetSkin();
+        UUID skinProfile = targetSkin.getProfileId();
+
+        boolean success = op || checkBungeePerms(player, receiverUUID, permMessage.isSkinPerm(), skinProfile);
+        sendResultMessage(player, new PermResultMessage(success, targetSkin, receiverUUID));
+    }
+
+    private boolean checkBungeePerms(Player player, UUID receiverUUID, boolean skinPerm, UUID targetUUID) {
+        if (player.getUniqueId().equals(receiverUUID)) {
+            return checkPerm(player, "command.setskin", skinPerm, targetUUID);
+        }
+
+        return checkPerm(player, "command.setskin.other", skinPerm, targetUUID);
+    }
+
+    private boolean checkPerm(Player invoker, String node, boolean skinPerm, UUID targetUUID) {
+        String pluginName = plugin.getName().toLowerCase();
+        boolean hasCommandPerm = invoker.hasPermission(pluginName +  '.' + node);
+        if (skinPerm) {
+            return hasCommandPerm && plugin.hasSkinPermission(invoker, targetUUID, false);
+        }
+
+        return hasCommandPerm;
+    }
+
+    private void sendResultMessage(Player receiver, PermResultMessage resultMessage) {
+        ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
+        resultMessage.writeTo(dataOutput);
+        permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+    }
+}
+
+```
+
+ the error is triggered in the following specific lines in the previous code:
+
+```java
+import org.spongepowered.api.network.RawDataListener;
+```
+```java
+import org.spongepowered.api.network.ChannelBuf;
+```
+```java
+public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+```
+```java
+public class CheckPermissionListener implements RawDataListener {
+```
+```java
+CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+```
+```java
+import org.spongepowered.api.network.ChannelRegistrar;
+```
+```java
+import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+```
+```java
+private final RawDataChannel permissionsResultChannel;
+```
+
+
+ And here is the error message:
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[20,37] cannot find symbol
+  symbol:   class RawDataListener
+  location: package org.spongepowered.api.network
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[18,37] cannot find symbol
+  symbol:   class ChannelBuf
+  location: package org.spongepowered.api.network
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[40,31] cannot find symbol
+  symbol:   class ChannelBuf
+  location: class com.github.games647.changeskin.sponge.bungee.CheckPermissionListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[26,49] cannot find symbol
+  symbol: class RawDataListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[32,54] cannot find symbol
+  symbol:   class ChannelRegistrar
+  location: class com.github.games647.changeskin.sponge.bungee.CheckPermissionListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[19,37] cannot find symbol
+  symbol:   class ChannelRegistrar
+  location: package org.spongepowered.api.network
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[17,52] package org.spongepowered.api.network.ChannelBinding does not exist
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[29,19] cannot find symbol
+  symbol:   class RawDataChannel
+  location: class com.github.games647.changeskin.sponge.bungee.CheckPermissionListener
+
+
+
+ Before proposing a fix, please analyze the error message and client code. Wrap your analysis inside <code_analysis> tags:
+
+<code_analysis>
+1. Examine the error message:
+   - Identify the specific issue related to the dependency update.
+   - Note the line number or method where the error occurs.
+   - Determine which dependency and version is causing the issue.
+
+2. Review the client code:
+   - Locate the problematic areas mentioned in the error message.
+   - Identify any related code that might be affected by the changes.
+
+3. Consider potential fixes that adhere to the following constraints:
+   - Do not change any function signatures.
+   - Only remove the @Override annotation if the method no longer overrides a method in the updated dependency version.
+   - Ensure correct imports are used, considering the newer dependency version.
+   - Avoid removing existing code unless it directly causes a compilation or functionality error.
+
+4. Plan the necessary changes to fix the issue:
+   - List the specific modifications required.
+   - Consider potential side effects of the proposed changes.
+   - Ensure the fix addresses the root cause of the error.
+</code_analysis>
+
+Based on your analysis, propose a patch to fix the issue. Your response should be a complete and compilable Java class in a fenced code block. Adhere to these guidelines:
+
+1. Do not change any function signatures.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Avoid removing any existing code unless it directly causes a compilation or functionality error.
+6. Ensure the entire class is included and that it will compile correctly. Don't use the comment "// ... (rest of the class remains unchanged)".
+
+Please provide your fixed class in the following format:
+
+```java
+// Your complete, fixed Java class here
+```
+
+Remember to focus specifically on issues related to the dependency update when proposing your fix.
+ 

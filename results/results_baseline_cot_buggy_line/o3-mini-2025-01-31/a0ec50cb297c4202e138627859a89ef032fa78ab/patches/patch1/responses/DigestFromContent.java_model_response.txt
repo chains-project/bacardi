@@ -1,0 +1,103 @@
+<code_analysis>
+1. Error Message Analysis:
+   - The errors indicate that the packages "org.cactoos.io" and "org.cactoos.text" are no longer available in the updated dependency. Specifically, the class BytesOf from "org.cactoos.io" and the class HexOf from "org.cactoos.text" are missing.
+   - The error occurs at the import statements and at the line where HexOf is used to convert the byte digest into a hexadecimal string.
+   
+2. Client Code Review:
+   - The problematic import statements are:
+       import org.cactoos.io.BytesOf;
+       import org.cactoos.text.HexOf;
+   - The code uses these classes in the digest() method on the line:
+       () -> new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+   - Since the dependency update has removed these classes, the code fails at compilation.
+
+3. Potential Fixes:
+   - One approach is to replace the functionality provided by BytesOf and HexOf with our own code that converts a byte array (i.e. the output of sha.digest()) into its hexadecimal string representation.
+   - We can implement a private helper method (e.g., toHex) that iterates over the byte array and builds a hex string.
+   - This change adheres to the constraints: the method signature for digest() remains unchanged, and only the necessary code is modified.
+
+4. Modifications Required:
+   - Remove the imports for org.cactoos.io.BytesOf and org.cactoos.text.HexOf.
+   - Replace the expression new HexOf(new BytesOf(sha.digest())).asString() with a call to our helper method toHex(sha.digest()).
+   - Insert a private static method toHex(byte[] bytes) that correctly formats the byte array into a hex string.
+</code_analysis>
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker.misc;
+
+import com.artipie.asto.Content;
+import com.artipie.docker.Digest;
+import hu.akarnokd.rxjava2.interop.SingleInterop;
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.CompletionStage;
+
+/**
+ * Digest from content.
+ * @since 0.2
+ */
+public final class DigestFromContent {
+
+    /**
+     * Content.
+     */
+    private final Content content;
+
+    /**
+     * Ctor.
+     * @param content Content publisher
+     */
+    public DigestFromContent(final Content content) {
+        this.content = content;
+    }
+
+    /**
+     * Calculates digest from content.
+     * @return CompletionStage from digest
+     */
+    public CompletionStage<Digest> digest() {
+        final MessageDigest sha;
+        try {
+            sha = MessageDigest.getInstance("SHA-256");
+        } catch (final NoSuchAlgorithmException err) {
+            throw new IllegalStateException("This runtime doesn't have SHA-256 algorithm", err);
+        }
+        return Flowable.fromPublisher(this.content)
+            .flatMapCompletable(
+                buf -> Completable.fromAction(
+                    () -> {
+                        buf.mark();
+                        sha.update(buf);
+                        buf.reset();
+                    }
+                )
+            )
+            .<Digest>andThen(
+                Single.fromCallable(
+                    () -> new Digest.Sha256(toHex(sha.digest()))
+                )
+            )
+            .to(SingleInterop.get()).toCompletableFuture();
+    }
+
+    /**
+     * Converts a byte array to its hexadecimal string representation.
+     * @param bytes the byte array
+     * @return the hexadecimal string
+     */
+    private static String toHex(final byte[] bytes) {
+        StringBuilder hex = new StringBuilder();
+        for (byte b : bytes) {
+            hex.append(String.format("%02x", b));
+        }
+        return hex.toString();
+    }
+}
+```

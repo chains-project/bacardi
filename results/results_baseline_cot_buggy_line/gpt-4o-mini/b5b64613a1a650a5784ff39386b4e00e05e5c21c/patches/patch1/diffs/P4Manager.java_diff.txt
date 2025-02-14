@@ -1,0 +1,10 @@
+13a14,16
+> import hudson.model.ItemGroup; // Added import for ItemGroup
+> import hudson.model.Item; // Added import for Item
+> import org.jenkinsci.plugins.p4.workspace.Workspace; // Added import for Workspace
+44c47,49
+<                 ClientHelper perforceClient = new ClientHelper(credentials, buildListener, clientString, StandardCharsets.UTF_8.toString());
+---
+>                 // Create a Workspace instance (assuming a default workspace is needed)
+>                 Workspace workspace = new Workspace(); // Create a new Workspace instance
+>                 ClientHelper perforceClient = new ClientHelper((ItemGroup) null, credentials, buildListener, workspace); // Updated constructor call

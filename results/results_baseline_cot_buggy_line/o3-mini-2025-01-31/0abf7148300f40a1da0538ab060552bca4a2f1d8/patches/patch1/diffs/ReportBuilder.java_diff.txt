@@ -1,0 +1,134 @@
+3,25d2
+< /*-
+<  * #%L
+<  * XDEV BI Suite
+<  * %%
+<  * Copyright (C) 2011 - 2020 XDEV Software
+<  * %%
+<  * This program is free software: you can redistribute it and/or modify
+<  * it under the terms of the GNU Lesser General Public License as
+<  * published by the Free Software Foundation, either version 3 of the
+<  * License, or (at your option) any later version.
+<  * 
+<  * This program is distributed in the hope that it will be useful,
+<  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+<  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<  * GNU General Lesser Public License for more details.
+<  * 
+<  * You should have received a copy of the GNU General Lesser Public
+<  * License along with this program.  If not, see
+<  * <http://www.gnu.org/licenses/lgpl-3.0.html>.
+<  * #L%
+<  */
+< 
+< 
+59,69d35
+< 
+< /**
+<  * The {@link ReportBuilder} generates a {@link JasperReport} based on the
+<  * information of the {@link TemplateConfig}.
+<  * 
+<  * @author XDEV Software (FHAE)
+<  * 
+<  * @see TemplateConfig
+<  * @see ReportExporter
+<  * 
+<  */
+75d40
+<         
+81d45
+<         
+91d54
+<         
+94d56
+<                 // Header
+101d62
+<         
+121d81
+<         
+134,140d93
+<         /***
+<          * Calculated the page width including the margins.
+<          * 
+<          * @param properties
+<          * 
+<          * @return
+<          */
+155,159d107
+<         
+<         /**
+<          * 
+<          * @return
+<          */
+162d109
+<                 
+171d117
+<                         //get the normal height of the label
+173d118
+<                         //add the column border width
+175d119
+<                         //Add padding
+189d132
+<                 
+199d141
+<                         //Add border width
+201d142
+<                         //Add padding
+213d153
+<         
+231,232c171
+<                                 throw new ExportException("error during add the field "
+<                                                 + col.getContentColumn().getFieldName(),e);
+---
+>                                 throw new ExportException("error during add the field " + col.getContentColumn().getFieldName(), e);
+235d173
+<                 
+238d175
+<         
+255d191
+<         
+274d209
+<                         // Header is created
+277,278d211
+<                                 // If this column has a header the JRDesignStaticText get the
+<                                 // propertys of the Column
+282d214
+<                                         // Build label and set x / y
+295,296d226
+<                                         
+<                                         // Get the Property
+302,303d231
+<                                         // an empty label must be added to complete the layout
+<                                         // Build label and set x / y
+322d249
+<                         // box tag properties
+338d264
+<                 
+345d270
+<                 // Font
+353d277
+<                 
+360d283
+<         
+368,369c291,292
+<                 
+<                 textField.getLineBox().getPen().setLineWidth(border.getLineWidth());
+---
+>                 // Patch: Convert int to float for the updated dependency requiring java.lang.Float
+>                 textField.getLineBox().getPen().setLineWidth((float) border.getLineWidth());
+379d301
+<                 
+386d307
+<         
+394,402d314
+<         
+<         /**
+<          * 
+<          * Assemble and compile a {@link JasperReport} based on the information of
+<          * the {@link TemplateConfig} object.
+<          * 
+<          * @return the compiled {@link JasperReport}
+<          * @throws ExportException
+<          */
+428d339
+<         
