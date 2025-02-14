@@ -31,7 +31,7 @@ public class FailureCategoryExtract {
                 FailureCategory.TEST_FAILURE);
         FAILURE_PATTERNS.put(Pattern.compile("(?i)(warnings found and -Werror specified)"),
                 FailureCategory.WERROR_FAILURE);
-        FAILURE_PATTERNS.put(Pattern.compile("(?i)(COMPILATION ERROR|Failed to execute goal io\\.takari\\.maven\\.plugins:takari-lifecycle-plugin.*?:compile)"),
+        FAILURE_PATTERNS.put(Pattern.compile("(?i)(COMPILATION ERROR|Failed to execute goal io\\.takari\\.maven\\.plugins:takari-lifecycle-plugin.*?:compile)|Exit code: COMPILATION_ERROR"),
                 FailureCategory.COMPILATION_FAILURE);
         FAILURE_PATTERNS.put(Pattern.compile("(?i)(BUILD SUCCESS)"),
                 FailureCategory.BUILD_SUCCESS);
