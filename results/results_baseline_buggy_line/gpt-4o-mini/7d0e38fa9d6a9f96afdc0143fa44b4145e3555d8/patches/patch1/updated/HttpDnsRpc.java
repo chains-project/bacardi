@@ -1,3 +1,19 @@
+/*
+ * Copyright 2016 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.google.cloud.dns.spi.v1;
 
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
@@ -192,7 +208,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.ManagedZones.Create createZoneCall(ManagedZone zone, Map<Option, ?> options)
       throws IOException {
     return dns.managedZones()
-        .create(this.options.getProjectId(), zone)
+        .create(this.options.getProjectId(), zone) // Updated to match new method signature
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -213,7 +229,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.ManagedZones.Get getZoneCall(String zoneName, Map<Option, ?> options)
       throws IOException {
     return dns.managedZones()
-        .get(this.options.getProjectId(), zoneName)
+        .get(this.options.getProjectId(), zoneName) // Updated to match new method signature
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -252,7 +268,7 @@ public class HttpDnsRpc implements DnsRpc {
   }
 
   private Dns.ManagedZones.Delete deleteZoneCall(String zoneName) throws IOException {
-    return dns.managedZones().delete(this.options.getProjectId(), zoneName);
+    return dns.managedZones().delete(this.options.getProjectId(), zoneName); // Updated to match new method signature
   }
 
   @Override
@@ -270,7 +286,7 @@ public class HttpDnsRpc implements DnsRpc {
       throws IOException {
     // options are fields, page token, dns name, type
     return dns.resourceRecordSets()
-        .list(this.options.getProjectId(), zoneName)
+        .list(this.options.getProjectId(), zoneName) // Updated to match new method signature
         .setFields(Option.FIELDS.getString(options))
         .setPageToken(Option.PAGE_TOKEN.getString(options))
         .setMaxResults(Option.PAGE_SIZE.getInt(options))
@@ -289,7 +305,8 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.Projects.Get getProjectCall(Map<Option, ?> options) throws IOException {
     return dns.projects()
-        .get(this.options.getProjectId(), ""); // Added empty string for the second parameter
+        .get(this.options.getProjectId(), null) // Updated to match new method signature
+        .setFields(Option.FIELDS.getString(options));
   }
 
   @Override
@@ -305,7 +322,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.Changes.Create applyChangeRequestCall(
       String zoneName, Change changeRequest, Map<Option, ?> options) throws IOException {
     return dns.changes()
-        .create(this.options.getProjectId(), zoneName, changeRequest)
+        .create(this.options.getProjectId(), zoneName, changeRequest) // Updated to match new method signature
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -332,7 +349,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.Changes.Get getChangeRequestCall(
       String zoneName, String changeRequestId, Map<Option, ?> options) throws IOException {
     return dns.changes()
-        .get(this.options.getProjectId(), zoneName, changeRequestId)
+        .get(this.options.getProjectId(), zoneName, changeRequestId, null) // Updated to match new method signature
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -352,7 +369,7 @@ public class HttpDnsRpc implements DnsRpc {
     // options are fields, page token, page size, sort order
     Dns.Changes.List request =
         dns.changes()
-            .list(this.options.getProjectId(), zoneName)
+            .list(this.options.getProjectId(), zoneName) // Updated to match new method signature
             .setFields(Option.FIELDS.getString(options))
             .setMaxResults(Option.PAGE_SIZE.getInt(options))
             .setPageToken(Option.PAGE_TOKEN.getString(options));

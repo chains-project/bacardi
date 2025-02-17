@@ -1,7 +1,7 @@
- Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
-You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
-To solve the failure you can only work on the client code.
- the following client code fails:
+ You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates.
+Your task is to analyze the provided code and error message, then propose a patch that can be applied to the client code to resolve the issue.
+
+ Here is the client code that is failing:
 ```java
 /*
  * Copyright 2015 Google LLC
@@ -292,25 +292,52 @@ public class Project extends ProjectInfo {
 }
 
 ```
-the error is triggered in the following specific lines in the previous code:
 
-```java
-com.google.api.services.cloudresourcemanager.model.Project answer) {
-```
-
-
-
- with the following error information:
+ And here is the error message:
+<error_message>
 [ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/Project.java:[283,57] package com.google.api.services.cloudresourcemanager.model does not exist
 
 
+</error_message>
 
- propose a patch that can be applied to the code to fix the issue.
- Return only a complete and compilable class in a fenced code block.
- Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
- You CANNOT change the function signature of any method but may create variables if it simplifies the code.
- You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
- If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
- Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
- Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ Before proposing a fix, please analyze the error message and client code. Wrap your analysis inside <code_analysis> tags:
+
+<code_analysis>
+1. Examine the error message:
+   - Identify the specific issue related to the dependency update.
+   - Note the line number or method where the error occurs.
+   - Determine which dependency and version is causing the issue.
+
+2. Review the client code:
+   - Locate the problematic areas mentioned in the error message.
+   - Identify any related code that might be affected by the changes.
+
+3. Consider potential fixes that adhere to the following constraints:
+   - Do not change any function signatures.
+   - Only remove the @Override annotation if the method no longer overrides a method in the updated dependency version.
+   - Ensure correct imports are used, considering the newer dependency version.
+   - Avoid removing existing code unless it directly causes a compilation or functionality error.
+
+4. Plan the necessary changes to fix the issue:
+   - List the specific modifications required.
+   - Consider potential side effects of the proposed changes.
+   - Ensure the fix addresses the root cause of the error.
+</code_analysis>
+
+Based on your analysis, propose a patch to fix the issue. Your response should be a complete and compilable Java class in a fenced code block. Adhere to these guidelines:
+
+1. Do not change any function signatures.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Avoid removing any existing code unless it directly causes a compilation or functionality error.
+6. Ensure the entire class is included and that it will compile correctly. Don't use the comment "// ... (rest of the class remains unchanged)".
+
+Please provide your fixed class in the following format:
+
+```java
+// Your complete, fixed Java class here
+```
+
+Remember to focus specifically on issues related to the dependency update when proposing your fix.
  

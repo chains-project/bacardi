@@ -1,61 +1,36 @@
-1,16d0
-< /*
-<  * Copyright 2016 Google LLC
-<  *
-<  * Licensed under the Apache License, Version 2.0 (the "License");
-<  * you may not use this file except in compliance with the License.
-<  * You may obtain a copy of the License at
-<  *
-<  *       http://www.apache.org/licenses/LICENSE-2.0
-<  *
-<  * Unless required by applicable law or agreed to in writing, software
-<  * distributed under the License is distributed on an "AS IS" BASIS,
-<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-<  * See the License for the specific language governing permissions and
-<  * limitations under the License.
-<  */
-< 
-23,24c7,8
+23c23
 < import com.google.api.services.translate.model.DetectionsResourceItems;
-< import com.google.api.services.translate.model.LanguagesResource;
 ---
-> import com.google.api.services.translate.model.Detection;
-> import com.google.api.services.translate.model.Language;
-25a10
-> import com.google.api.services.translate.model.LanguagesResource;
-43c28
+> import com.google.api.services.translate.model.DetectionsResource;
+43c43
 <   private static final Function<List<DetectionsResourceItems>, Detection>
 ---
->   private static final Function<List<Detection>, Detection>
-45,48c30,32
+>   private static final Function<List<DetectionsResource>, Detection>
+45c45
 <           new Function<List<DetectionsResourceItems>, Detection>() {
-<             @Override
-<             public Detection apply(List<DetectionsResourceItems> detectionPb) {
-<               return Detection.fromPb(detectionPb.get(0));
 ---
->           new Function<List<Detection>, Detection>() {
->             public Detection apply(List<Detection> detectionPb) {
->               return detectionPb.get(0);
-63d46
-<                 @Override
-80c63
+>           new Function<List<DetectionsResource>, Detection>() {
+47c47
+<             public Detection apply(List<DetectionsResourceItems> detectionPb) {
+---
+>             public Detection apply(List<DetectionsResource> detectionPb) {
+80c80
 <       List<List<DetectionsResourceItems>> detectionsPb =
 ---
->       List<List<Detection>> detectionsPb =
-82,84c65,66
+>       List<List<DetectionsResource>> detectionsPb =
+82c82
 <               new Callable<List<List<DetectionsResourceItems>>>() {
-<                 @Override
+---
+>               new Callable<List<List<DetectionsResource>>>() {
+84c84
 <                 public List<List<DetectionsResourceItems>> call() {
 ---
->               new Callable<List<List<Detection>>>() {
->                 public List<List<Detection>> call() {
-91c73
+>                 public List<List<DetectionsResource>> call() {
+91c91
 <       Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
 ---
->       Iterator<List<Detection>> detectionIterator = detectionsPb.iterator();
-94c76
+>       Iterator<List<DetectionsResource>> detectionIterator = detectionsPb.iterator();
+94c94
 <         List<DetectionsResourceItems> detectionPb = detectionIterator.next();
 ---
->         List<Detection> detectionPb = detectionIterator.next();
-122d103
-<                 @Override
+>         List<DetectionsResource> detectionPb = detectionIterator.next();

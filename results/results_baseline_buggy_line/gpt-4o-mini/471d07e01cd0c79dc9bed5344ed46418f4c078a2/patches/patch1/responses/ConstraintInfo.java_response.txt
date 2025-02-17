@@ -15,6 +15,7 @@
  */
 package com.google.cloud.resourcemanager;
 
+import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
 import com.google.api.services.cloudresourcemanager.model.Constraint;
 import com.google.api.services.cloudresourcemanager.model.ListConstraint;
 import com.google.common.base.Function;
@@ -33,18 +34,20 @@ public class ConstraintInfo {
 
   static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
       new Function<Constraint, ConstraintInfo>() {
+        @Override
         public ConstraintInfo apply(Constraint protobuf) {
           return ConstraintInfo.fromProtobuf(protobuf);
         }
       };
   static final Function<ConstraintInfo, Constraint> TO_PROTOBUF_FUNCTION =
       new Function<ConstraintInfo, Constraint>() {
+        @Override
         public Constraint apply(ConstraintInfo constraintInfo) {
           return constraintInfo.toProtobuf();
         }
       };
 
-  private Object booleanConstraint; // Changed to Object to avoid dependency issues
+  private BooleanConstraint booleanConstraint;
   private String constraintDefault;
   private String description;
   private String displayName;
@@ -66,14 +69,23 @@ public class ConstraintInfo {
       this.supportsUnder = supportsUnder;
     }
 
+    /**
+     * The Google Cloud Console tries to default to a configuration that matches the value specified
+     * in this Constraint.
+     */
     String getSuggestedValue() {
       return suggestedValue;
     }
 
+    /**
+     * Indicates whether subtrees of Cloud Resource Manager resource hierarchy can be used in
+     * Policy.allowed_values and Policy.denied_values.
+     */
     Boolean getSupportsUnder() {
       return supportsUnder;
     }
 
+    @Override
     public String toString() {
       return MoreObjects.toStringHelper(this)
           .add("suggestedValue", getSuggestedValue())
@@ -81,10 +93,12 @@ public class ConstraintInfo {
           .toString();
     }
 
+    @Override
     public int hashCode() {
       return Objects.hash(suggestedValue, supportsUnder);
     }
 
+    @Override
     public boolean equals(Object o) {
       if (this == o) {
         return true;
@@ -106,8 +120,9 @@ public class ConstraintInfo {
     }
   }
 
+  /** Builder for {@code ConstraintInfo}. */
   static class Builder {
-    private Object booleanConstraint; // Changed to Object to avoid dependency issues
+    private BooleanConstraint booleanConstraint;
     private String constraintDefault;
     private String description;
     private String displayName;
@@ -129,7 +144,7 @@ public class ConstraintInfo {
       this.version = info.version;
     }
 
-    Builder setBooleanConstraint(Object booleanConstraint) { // Changed to Object
+    Builder setBooleanConstraint(BooleanConstraint booleanConstraint) {
       this.booleanConstraint = booleanConstraint;
       return this;
     }
@@ -179,34 +194,42 @@ public class ConstraintInfo {
     this.version = builder.version;
   }
 
-  public Object getBooleanConstraint() { // Changed to Object
+  /** Returns the boolean constraint to check whether the constraint is enforced or not. */
+  public BooleanConstraint getBooleanConstraint() {
     return booleanConstraint;
   }
 
+  /** Returns the default behavior of the constraint. */
   public String getConstraintDefault() {
     return constraintDefault;
   }
 
+  /** Returns the detailed description of the constraint. */
   public String getDescription() {
     return description;
   }
 
+  /** Returns the human readable name of the constraint. */
   public String getDisplayName() {
     return displayName;
   }
 
+  /** Returns the listConstraintInfo. */
   public Constraints getConstraints() {
     return constraints;
   }
 
+  /** Returns the globally unique name of the constraint. */
   public String getName() {
     return name;
   }
 
+  /** Returns the version of the Constraint. Default version is 0. */
   public Integer getVersion() {
     return version;
   }
 
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -224,22 +247,25 @@ public class ConstraintInfo {
         && Objects.equals(version, that.version);
   }
 
+  @Override
   public int hashCode() {
     return Objects.hash(
         booleanConstraint, constraintDefault, description, displayName, constraints, name, version);
   }
 
+  /** Returns a builder for the {@link ConstraintInfo} object. */
   public static Builder newBuilder(String name) {
     return new Builder(name);
   }
 
+  /** Returns a builder for the {@link ConstraintInfo} object. */
   public Builder toBuilder() {
     return new Builder(this);
   }
 
   Constraint toProtobuf() {
     Constraint constraintProto = new Constraint();
-    constraintProto.setBooleanConstraint(booleanConstraint); // Changed to Object
+    constraintProto.setBooleanConstraint(booleanConstraint);
     constraintProto.setConstraintDefault(constraintDefault);
     constraintProto.setDescription(description);
     constraintProto.setDisplayName(displayName);
@@ -253,7 +279,7 @@ public class ConstraintInfo {
 
   static ConstraintInfo fromProtobuf(Constraint constraintProtobuf) {
     Builder builder = newBuilder(constraintProtobuf.getName());
-    builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint()); // Changed to Object
+    builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint());
     builder.setConstraintDefault(constraintProtobuf.getConstraintDefault());
     builder.setDescription(constraintProtobuf.getDescription());
     builder.setDisplayName(constraintProtobuf.getDisplayName());

@@ -1,9 +1,25 @@
+/*
+ * Copyright 2015 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.google.cloud.resourcemanager.spi.v1beta1;
 
-import com.google.cloud.resourcemanager.ProjectInfo;
-import com.google.cloud.resourcemanager.PolicyInfo;
-import com.google.cloud.resourcemanager.OrgPolicyInfo;
-import com.google.cloud.resourcemanager.ConstraintInfo;
+import com.google.api.services.cloudresourcemanager.model.Constraint;
+import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+import com.google.api.services.cloudresourcemanager.model.Policy;
+import com.google.api.services.cloudresourcemanager.model.Project;
 import com.google.cloud.ServiceRpc;
 import com.google.cloud.Tuple;
 import com.google.cloud.resourcemanager.ResourceManagerException;
@@ -68,12 +84,13 @@ public interface ResourceManagerRpc extends ServiceRpc {
       return pageToken;
     }
   }
+  
   /**
    * Creates a new project.
    *
    * @throws ResourceManagerException upon failure
    */
-  ProjectInfo create(ProjectInfo project);
+  Project create(Project project);
 
   /**
    * Marks the project identified by the specified project ID for deletion.
@@ -88,14 +105,14 @@ public interface ResourceManagerRpc extends ServiceRpc {
    *
    * @throws ResourceManagerException upon failure
    */
-  ProjectInfo get(String projectId, Map<Option, ?> options);
+  Project get(String projectId, Map<Option, ?> options);
 
   /**
    * Lists the projects visible to the current user.
    *
    * @throws ResourceManagerException upon failure
    */
-  Tuple<String, Iterable<ProjectInfo>> list(Map<Option, ?> options);
+  Tuple<String, Iterable<Project>> list(Map<Option, ?> options);
 
   /**
    * Restores the project identified by the specified project ID. Undelete will only succeed if the
@@ -112,21 +129,21 @@ public interface ResourceManagerRpc extends ServiceRpc {
    *
    * @throws ResourceManagerException upon failure
    */
-  ProjectInfo replace(ProjectInfo project);
+  Project replace(Project project);
 
   /**
    * Returns the IAM policy associated with a project.
    *
    * @throws ResourceManagerException upon failure
    */
-  PolicyInfo getPolicy(String projectId);
+  Policy getPolicy(String projectId);
 
   /**
    * Replaces the IAM policy associated with the given project.
    *
    * @throws ResourceManagerException upon failure
    */
-  PolicyInfo replacePolicy(String projectId, PolicyInfo newPolicy);
+  Policy replacePolicy(String projectId, Policy newPolicy);
 
   /**
    * Tests whether the caller has the given permissions. Returns a list of booleans corresponding to
@@ -148,7 +165,7 @@ public interface ResourceManagerRpc extends ServiceRpc {
   // TODO(ajaykannan): implement "Organization" functionality when available (issue #319)
 
   /** Clears the Policy from a resource. */
-  void clearOrgPolicy(String resource, OrgPolicyInfo orgPolicy) throws IOException;
+  void clearOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
 
   /**
    * Gets the effective Policy on a resource.
@@ -159,7 +176,7 @@ public interface ResourceManagerRpc extends ServiceRpc {
    *
    * @throws ResourceManagerException upon failure
    */
-  OrgPolicyInfo getEffectiveOrgPolicy(String resource, String constraint) throws IOException;
+  OrgPolicy getEffectiveOrgPolicy(String resource, String constraint) throws IOException;
 
   /**
    * Gets the Policy on a resource.
@@ -170,14 +187,14 @@ public interface ResourceManagerRpc extends ServiceRpc {
    *
    * @throws ResourceManagerException upon failure
    */
-  OrgPolicyInfo getOrgPolicy(String resource, String constraint) throws IOException;
+  OrgPolicy getOrgPolicy(String resource, String constraint) throws IOException;
 
   /**
    * Lists all the Constraints that can be applied on the specified resource.
    *
    * @throws ResourceManagerException upon failure
    */
-  ListResult<ConstraintInfo> listAvailableOrgPolicyConstraints(String resource, Map<Option, ?> options)
+  ListResult<Constraint> listAvailableOrgPolicyConstraints(String resource, Map<Option, ?> options)
       throws IOException;
 
   /**
@@ -185,7 +202,7 @@ public interface ResourceManagerRpc extends ServiceRpc {
    *
    * @throws ResourceManagerException upon failure
    */
-  ListResult<OrgPolicyInfo> listOrgPolicies(String resource, Map<Option, ?> options) throws IOException;
+  ListResult<OrgPolicy> listOrgPolicies(String resource, Map<Option, ?> options) throws IOException;
 
   /**
    * Updates the specified Policy on the resource. Creates a new Policy for that Constraint on the
@@ -195,5 +212,5 @@ public interface ResourceManagerRpc extends ServiceRpc {
    *
    * @throws ResourceManagerException upon failure
    */
-  OrgPolicyInfo replaceOrgPolicy(String resource, OrgPolicyInfo orgPolicy) throws IOException;
+  OrgPolicy replaceOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
 }
