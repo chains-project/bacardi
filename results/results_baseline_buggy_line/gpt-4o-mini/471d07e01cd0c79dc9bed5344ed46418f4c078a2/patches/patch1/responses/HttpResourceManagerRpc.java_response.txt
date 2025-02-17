@@ -1,19 +1,3 @@
-/*
- * Copyright 2016 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.google.cloud.resourcemanager.spi.v1beta1;
 
 import static com.google.cloud.RetryHelper.runWithRetries;
@@ -29,27 +13,27 @@ import com.google.api.core.ApiClock;
 import com.google.api.gax.retrying.ResultRetryAlgorithm;
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.retrying.TimedAttemptSettings;
-import com.google.api.services.cloudresourcemanager.v1.CloudResourceManager; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.ClearOrgPolicyRequest; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.Constraint; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.GetEffectiveOrgPolicyRequest; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.GetIamPolicyRequest; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.GetOrgPolicyRequest; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.ListAvailableOrgPolicyConstraintsRequest; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.ListAvailableOrgPolicyConstraintsResponse; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.ListOrgPoliciesRequest; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.ListOrgPoliciesResponse; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.ListProjectsResponse; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.Operation; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.OrgPolicy; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.Policy; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.Project; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.SetIamPolicyRequest; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.SetOrgPolicyRequest; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.Status; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.TestIamPermissionsRequest; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.TestIamPermissionsResponse; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.UndeleteProjectRequest; // Updated import
+import com.google.api.services.cloudresourcemanager.v3.CloudResourceManager;
+import com.google.api.services.cloudresourcemanager.v3.model.ClearOrgPolicyRequest;
+import com.google.api.services.cloudresourcemanager.v3.model.Constraint;
+import com.google.api.services.cloudresourcemanager.v3.model.GetEffectiveOrgPolicyRequest;
+import com.google.api.services.cloudresourcemanager.v3.model.GetIamPolicyRequest;
+import com.google.api.services.cloudresourcemanager.v3.model.GetOrgPolicyRequest;
+import com.google.api.services.cloudresourcemanager.v3.model.ListAvailableOrgPolicyConstraintsRequest;
+import com.google.api.services.cloudresourcemanager.v3.model.ListAvailableOrgPolicyConstraintsResponse;
+import com.google.api.services.cloudresourcemanager.v3.model.ListOrgPoliciesRequest;
+import com.google.api.services.cloudresourcemanager.v3.model.ListOrgPoliciesResponse;
+import com.google.api.services.cloudresourcemanager.v3.model.ListProjectsResponse;
+import com.google.api.services.cloudresourcemanager.v3.model.Operation;
+import com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy;
+import com.google.api.services.cloudresourcemanager.v3.model.Policy;
+import com.google.api.services.cloudresourcemanager.v3.model.Project;
+import com.google.api.services.cloudresourcemanager.v3.model.SetIamPolicyRequest;
+import com.google.api.services.cloudresourcemanager.v3.model.SetOrgPolicyRequest;
+import com.google.api.services.cloudresourcemanager.v3.model.Status;
+import com.google.api.services.cloudresourcemanager.v3.model.TestIamPermissionsRequest;
+import com.google.api.services.cloudresourcemanager.v3.model.TestIamPermissionsResponse;
+import com.google.api.services.cloudresourcemanager.v3.model.UndeleteProjectRequest;
 import com.google.cloud.RetryHelper;
 import com.google.cloud.Tuple;
 import com.google.cloud.http.BaseHttpServiceException;
@@ -81,27 +65,6 @@ public class HttpResourceManagerRpc implements ResourceManagerRpc {
           .setJittered(true)
           .setInitialRpcTimeout(Duration.ofSeconds(5))
           .setMaxRpcTimeout(Duration.ofSeconds(5))
-          .build();
-
-  private static final ImmutableMap<Integer, Integer> RPC_TO_HTTP_CODES =
-      ImmutableMap.<Integer, Integer>builder()
-          .put(0, 200)
-          .put(1, 499)
-          .put(2, 500)
-          .put(3, 400)
-          .put(4, 504)
-          .put(5, 404)
-          .put(6, 409)
-          .put(7, 403)
-          .put(16, 401)
-          .put(8, 429)
-          .put(9, 400)
-          .put(10, 409)
-          .put(11, 400)
-          .put(12, 501)
-          .put(13, 500)
-          .put(14, 503)
-          .put(15, 500)
           .build();
 
   private static final ResultRetryAlgorithm<Operation> OPERATION_HANDLER =
@@ -142,10 +105,7 @@ public class HttpResourceManagerRpc implements ResourceManagerRpc {
   }
 
   private static ResourceManagerException translate(Status status) {
-    Integer code = RPC_TO_HTTP_CODES.get(status.getCode());
-    if (code == null) {
-      code = BaseHttpServiceException.UNKNOWN_CODE;
-    }
+    Integer code = BaseHttpServiceException.UNKNOWN_CODE;
     return new ResourceManagerException(code, status.getMessage());
   }
 

@@ -32,17 +32,15 @@ import java.util.Objects;
 @Deprecated
 public class ConstraintInfo {
 
-  static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
-      new Function<Constraint, ConstraintInfo>() {
-        @Override
-        public ConstraintInfo apply(Constraint protobuf) {
+  static final Function<com.google.api.services.cloudresourcemanager.model.Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+      new Function<com.google.api.services.cloudresourcemanager.model.Constraint, ConstraintInfo>() {
+        public ConstraintInfo apply(com.google.api.services.cloudresourcemanager.model.Constraint protobuf) {
           return ConstraintInfo.fromProtobuf(protobuf);
         }
       };
-  static final Function<ConstraintInfo, Constraint> TO_PROTOBUF_FUNCTION =
-      new Function<ConstraintInfo, Constraint>() {
-        @Override
-        public Constraint apply(ConstraintInfo constraintInfo) {
+  static final Function<ConstraintInfo, com.google.api.services.cloudresourcemanager.model.Constraint> TO_PROTOBUF_FUNCTION =
+      new Function<ConstraintInfo, com.google.api.services.cloudresourcemanager.model.Constraint>() {
+        public com.google.api.services.cloudresourcemanager.model.Constraint apply(ConstraintInfo constraintInfo) {
           return constraintInfo.toProtobuf();
         }
       };
@@ -85,7 +83,6 @@ public class ConstraintInfo {
       return supportsUnder;
     }
 
-    @Override
     public String toString() {
       return MoreObjects.toStringHelper(this)
           .add("suggestedValue", getSuggestedValue())
@@ -93,12 +90,10 @@ public class ConstraintInfo {
           .toString();
     }
 
-    @Override
     public int hashCode() {
       return Objects.hash(suggestedValue, supportsUnder);
     }
 
-    @Override
     public boolean equals(Object o) {
       if (this == o) {
         return true;
@@ -229,7 +224,6 @@ public class ConstraintInfo {
     return version;
   }
 
-  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -247,7 +241,6 @@ public class ConstraintInfo {
         && Objects.equals(version, that.version);
   }
 
-  @Override
   public int hashCode() {
     return Objects.hash(
         booleanConstraint, constraintDefault, description, displayName, constraints, name, version);
@@ -263,8 +256,8 @@ public class ConstraintInfo {
     return new Builder(this);
   }
 
-  Constraint toProtobuf() {
-    Constraint constraintProto = new Constraint();
+  com.google.api.services.cloudresourcemanager.model.Constraint toProtobuf() {
+    com.google.api.services.cloudresourcemanager.model.Constraint constraintProto = new com.google.api.services.cloudresourcemanager.model.Constraint();
     constraintProto.setBooleanConstraint(booleanConstraint);
     constraintProto.setConstraintDefault(constraintDefault);
     constraintProto.setDescription(description);
@@ -277,7 +270,7 @@ public class ConstraintInfo {
     return constraintProto;
   }
 
-  static ConstraintInfo fromProtobuf(Constraint constraintProtobuf) {
+  static ConstraintInfo fromProtobuf(com.google.api.services.cloudresourcemanager.model.Constraint constraintProtobuf) {
     Builder builder = newBuilder(constraintProtobuf.getName());
     builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint());
     builder.setConstraintDefault(constraintProtobuf.getConstraintDefault());

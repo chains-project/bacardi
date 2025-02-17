@@ -1,5 +1,38 @@
-19c19,20
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+19,21d2
 < import com.google.api.services.translate.model.TranslationsResource;
+< import com.google.common.base.Function;
+< import com.google.common.base.MoreObjects;
+37,40c18,20
+<   static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =
+<       new Function<TranslationsResource, Translation>() {
+<         @Override
+<         public Translation apply(TranslationsResource translationPb) {
 ---
-> import com.google.api.services.translate.model.TranslationsListResponse; // Updated import
-> import com.google.api.services.translate.model.TranslationsResource; // Ensure this import is correct
+>   static final java.util.function.Function<com.google.cloud.translate.TranslationsResource, Translation> FROM_PB_FUNCTION =
+>       new java.util.function.Function<com.google.cloud.translate.TranslationsResource, Translation>() {
+>         public Translation apply(com.google.cloud.translate.TranslationsResource translationPb) {
+82c62
+<     return MoreObjects.toStringHelper(this)
+---
+>     return com.google.common.base.MoreObjects.toStringHelper(this)
+106c86
+<   static Translation fromPb(TranslationsResource translationPb) {
+---
+>   static Translation fromPb(com.google.cloud.translate.TranslationsResource translationPb) {

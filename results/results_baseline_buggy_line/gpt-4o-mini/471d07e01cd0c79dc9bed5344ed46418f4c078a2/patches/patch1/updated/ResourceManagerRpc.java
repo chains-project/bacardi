@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * you may obtain a copy of the License at
  *
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -16,10 +16,6 @@
 
 package com.google.cloud.resourcemanager.spi.v1beta1;
 
-import com.google.api.services.cloudresourcemanager.model.Constraint;
-import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
-import com.google.api.services.cloudresourcemanager.model.Policy;
-import com.google.api.services.cloudresourcemanager.model.Project;
 import com.google.cloud.ServiceRpc;
 import com.google.cloud.Tuple;
 import com.google.cloud.resourcemanager.ResourceManagerException;
@@ -84,13 +80,12 @@ public interface ResourceManagerRpc extends ServiceRpc {
       return pageToken;
     }
   }
-  
   /**
    * Creates a new project.
    *
    * @throws ResourceManagerException upon failure
    */
-  Project create(Project project);
+  com.google.cloud.resourcemanager.Project create(com.google.cloud.resourcemanager.Project project);
 
   /**
    * Marks the project identified by the specified project ID for deletion.
@@ -105,14 +100,14 @@ public interface ResourceManagerRpc extends ServiceRpc {
    *
    * @throws ResourceManagerException upon failure
    */
-  Project get(String projectId, Map<Option, ?> options);
+  com.google.cloud.resourcemanager.Project get(String projectId, Map<Option, ?> options);
 
   /**
    * Lists the projects visible to the current user.
    *
    * @throws ResourceManagerException upon failure
    */
-  Tuple<String, Iterable<Project>> list(Map<Option, ?> options);
+  Tuple<String, Iterable<com.google.cloud.resourcemanager.Project>> list(Map<Option, ?> options);
 
   /**
    * Restores the project identified by the specified project ID. Undelete will only succeed if the
@@ -129,21 +124,21 @@ public interface ResourceManagerRpc extends ServiceRpc {
    *
    * @throws ResourceManagerException upon failure
    */
-  Project replace(Project project);
+  com.google.cloud.resourcemanager.Project replace(com.google.cloud.resourcemanager.Project project);
 
   /**
    * Returns the IAM policy associated with a project.
    *
    * @throws ResourceManagerException upon failure
    */
-  Policy getPolicy(String projectId);
+  com.google.cloud.resourcemanager.Policy getPolicy(String projectId);
 
   /**
    * Replaces the IAM policy associated with the given project.
    *
    * @throws ResourceManagerException upon failure
    */
-  Policy replacePolicy(String projectId, Policy newPolicy);
+  com.google.cloud.resourcemanager.Policy replacePolicy(String projectId, com.google.cloud.resourcemanager.Policy newPolicy);
 
   /**
    * Tests whether the caller has the given permissions. Returns a list of booleans corresponding to
@@ -165,7 +160,7 @@ public interface ResourceManagerRpc extends ServiceRpc {
   // TODO(ajaykannan): implement "Organization" functionality when available (issue #319)
 
   /** Clears the Policy from a resource. */
-  void clearOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
+  void clearOrgPolicy(String resource, com.google.cloud.resourcemanager.OrgPolicy orgPolicy) throws IOException;
 
   /**
    * Gets the effective Policy on a resource.
@@ -176,7 +171,7 @@ public interface ResourceManagerRpc extends ServiceRpc {
    *
    * @throws ResourceManagerException upon failure
    */
-  OrgPolicy getEffectiveOrgPolicy(String resource, String constraint) throws IOException;
+  com.google.cloud.resourcemanager.OrgPolicy getEffectiveOrgPolicy(String resource, String constraint) throws IOException;
 
   /**
    * Gets the Policy on a resource.
@@ -187,14 +182,14 @@ public interface ResourceManagerRpc extends ServiceRpc {
    *
    * @throws ResourceManagerException upon failure
    */
-  OrgPolicy getOrgPolicy(String resource, String constraint) throws IOException;
+  com.google.cloud.resourcemanager.OrgPolicy getOrgPolicy(String resource, String constraint) throws IOException;
 
   /**
    * Lists all the Constraints that can be applied on the specified resource.
    *
    * @throws ResourceManagerException upon failure
    */
-  ListResult<Constraint> listAvailableOrgPolicyConstraints(String resource, Map<Option, ?> options)
+  ListResult<com.google.cloud.resourcemanager.Constraint> listAvailableOrgPolicyConstraints(String resource, Map<Option, ?> options)
       throws IOException;
 
   /**
@@ -202,7 +197,7 @@ public interface ResourceManagerRpc extends ServiceRpc {
    *
    * @throws ResourceManagerException upon failure
    */
-  ListResult<OrgPolicy> listOrgPolicies(String resource, Map<Option, ?> options) throws IOException;
+  ListResult<com.google.cloud.resourcemanager.OrgPolicy> listOrgPolicies(String resource, Map<Option, ?> options) throws IOException;
 
   /**
    * Updates the specified Policy on the resource. Creates a new Policy for that Constraint on the
@@ -212,5 +207,5 @@ public interface ResourceManagerRpc extends ServiceRpc {
    *
    * @throws ResourceManagerException upon failure
    */
-  OrgPolicy replaceOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
+  com.google.cloud.resourcemanager.OrgPolicy replaceOrgPolicy(String resource, com.google.cloud.resourcemanager.OrgPolicy orgPolicy) throws IOException;
 }

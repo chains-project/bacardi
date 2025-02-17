@@ -15,10 +15,10 @@
  */
 package com.google.cloud.resourcemanager;
 
-import com.google.api.services.cloudresourcemanager.v1.model.BooleanPolicy; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.ListPolicy; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.OrgPolicy; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.RestoreDefault; // Updated import
+import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+import com.google.api.services.cloudresourcemanager.model.PolicyRestoreDefault; // Updated import
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.List;
@@ -37,14 +37,12 @@ public class OrgPolicyInfo {
 
   static final Function<OrgPolicy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
       new Function<OrgPolicy, OrgPolicyInfo>() {
-        @Override
         public OrgPolicyInfo apply(OrgPolicy protobuf) {
           return OrgPolicyInfo.fromProtobuf(protobuf);
         }
       };
   static final Function<OrgPolicyInfo, OrgPolicy> TO_PROTOBUF_FUNCTION =
       new Function<OrgPolicyInfo, OrgPolicy>() {
-        @Override
         public OrgPolicy apply(OrgPolicyInfo orgPolicyInfo) {
           return orgPolicyInfo.toProtobuf();
         }
@@ -54,7 +52,7 @@ public class OrgPolicyInfo {
   private String constraint;
   private String etag;
   private Policies policies;
-  private RestoreDefault restoreDefault;
+  private PolicyRestoreDefault restoreDefault; // Updated type
   private String updateTime;
   private Integer version;
 
@@ -71,12 +69,10 @@ public class OrgPolicyInfo {
       return enforce;
     }
 
-    @Override
     public String toString() {
       return MoreObjects.toStringHelper(this).add("enforce", getEnforce()).toString();
     }
 
-    @Override
     public boolean equals(Object o) {
       if (this == o) {
         return true;
@@ -88,7 +84,6 @@ public class OrgPolicyInfo {
       return Objects.equals(enforce, that.enforce);
     }
 
-    @Override
     public int hashCode() {
       return Objects.hash(enforce);
     }
@@ -102,27 +97,11 @@ public class OrgPolicyInfo {
     }
   }
 
-  /**
-   * The organization ListPolicy object.
-   *
-   * <p>ListPolicy can define specific values and subtrees of Cloud Resource Manager resource
-   * hierarchy (Organizations, Folders, Projects) that are allowed or denied by setting the
-   * allowedValues and deniedValues fields. This is achieved by using the under: and optional is:
-   * prefixes. The under: prefix denotes resource subtree values. The is: prefix is used to denote
-   * specific values, and is required only if the value contains a ":". Values prefixed with "is:"
-   * are treated the same as values with no prefix. Ancestry subtrees must be in one of the
-   * following formats: - "projects/", e.g. "projects/tokyo-rain-123" - "folders/", e.g.
-   * "folders/1234" - "organizations/", e.g. "organizations/1234" The supportsUnder field of the
-   * associated Constraint defines whether ancestry prefixes can be used. You can set allowedValues
-   * and deniedValues in the same Policy if allValues is ALL_VALUES_UNSPECIFIED. ALLOW or DENY are
-   * used to allow or deny all values. If allValues is set to either ALLOW or DENY, allowedValues
-   * and deniedValues must be unset.
-   */
   static class Policies {
 
     private final String allValues;
     private final List<String> allowedValues;
-    private final List<String> deniedValues; // Fixed type declaration
+    private final List<java.lang.String> deniedValues;
     private final Boolean inheritFromParent;
     private final String suggestedValue;
 
@@ -139,32 +118,26 @@ public class OrgPolicyInfo {
       this.suggestedValue = suggestedValue;
     }
 
-    /** Returns all the Values state of this policy. */
     String getAllValues() {
       return allValues;
     }
 
-    /** Returns the list of allowed values of this resource */
     List<String> getAllowedValues() {
       return allowedValues;
     }
 
-    /** Returns the list of denied values of this resource. */
     List<String> getDeniedValues() {
       return deniedValues;
     }
 
-    /** Returns the inheritance behavior for this Policy */
     Boolean getInheritFromParent() {
       return inheritFromParent;
     }
 
-    /** Returns the suggested value of this policy. */
     String getSuggestedValue() {
       return suggestedValue;
     }
 
-    @Override
     public String toString() {
       return MoreObjects.toStringHelper(this)
           .add("allValues", getAllValues())
@@ -175,7 +148,6 @@ public class OrgPolicyInfo {
           .toString();
     }
 
-    @Override
     public boolean equals(Object o) {
       if (this == o) {
         return true;
@@ -191,7 +163,6 @@ public class OrgPolicyInfo {
           && Objects.equals(suggestedValue, policies.suggestedValue);
     }
 
-    @Override
     public int hashCode() {
       return Objects.hash(
           allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
@@ -216,13 +187,12 @@ public class OrgPolicyInfo {
     }
   }
 
-  /** Builder for {@code OrganizationPolicyInfo}. */
   static class Builder {
     private BoolPolicy boolPolicy;
     private String constraint;
     private String etag;
     private Policies policies;
-    private RestoreDefault restoreDefault;
+    private PolicyRestoreDefault restoreDefault; // Updated type
     private String updateTime;
     private Integer version;
 
@@ -258,7 +228,7 @@ public class OrgPolicyInfo {
       return this;
     }
 
-    Builder setRestoreDefault(RestoreDefault restoreDefault) {
+    Builder setRestoreDefault(PolicyRestoreDefault restoreDefault) { // Updated type
       this.restoreDefault = restoreDefault;
       return this;
     }
@@ -288,42 +258,34 @@ public class OrgPolicyInfo {
     this.version = builder.version;
   }
 
-  /** Returns the boolean constraint to check whether the constraint is enforced or not. */
   public BoolPolicy getBoolPolicy() {
     return boolPolicy;
   }
 
-  /** Returns the name of the Constraint. */
   public String getConstraint() {
     return constraint;
   }
 
-  /** Returns the etag value of policy. */
   public String getEtag() {
     return etag;
   }
 
-  /** Return the policies. */
   public Policies getPolicies() {
     return policies;
   }
 
-  /** Restores the default behavior of the constraint. */
-  public RestoreDefault getRestoreDefault() {
+  public PolicyRestoreDefault getRestoreDefault() { // Updated return type
     return restoreDefault;
   }
 
-  /** Returns the updated timestamp of policy. */
   public String getUpdateTime() {
     return updateTime;
   }
 
-  /** Returns the version of the Policy, Default version is 0. */
   public Integer getVersion() {
     return version;
   }
 
-  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -341,18 +303,15 @@ public class OrgPolicyInfo {
         && Objects.equals(version, policyInfo.version);
   }
 
-  @Override
   public int hashCode() {
     return Objects.hash(
         boolPolicy, constraint, etag, policies, restoreDefault, updateTime, version);
   }
 
-  /** Returns a builder for the {@link OrgPolicyInfo} object. */
   public static Builder newBuilder() {
     return new Builder();
   }
 
-  /** Returns a builder for the {@link OrgPolicyInfo} object. */
   public Builder toBuilder() {
     return new Builder(this);
   }

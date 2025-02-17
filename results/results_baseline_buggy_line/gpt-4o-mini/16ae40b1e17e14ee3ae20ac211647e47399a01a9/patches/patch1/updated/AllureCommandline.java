@@ -15,8 +15,21 @@
  */
 package io.qameta.allure.maven;
 
-import net.lingala.zip4j.ZipFile; // Updated import statement
-import net.lingala.zip4j.exception.ZipException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteWatchdog;
@@ -29,23 +42,6 @@ import org.apache.maven.settings.Proxy;
 import org.apache.maven.shared.transfer.artifact.resolve.ArtifactResult;
 import org.apache.maven.shared.transfer.dependencies.resolve.DependencyResolver;
 import org.apache.maven.shared.transfer.dependencies.resolve.DependencyResolverException;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.Authenticator;
-import java.net.InetSocketAddress;
-import java.net.PasswordAuthentication;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings({"ClassDataAbstractionCoupling", "ClassFanOutComplexity",
         "MultipleStringLiterals"})
@@ -116,9 +112,9 @@ public class AllureCommandline {
         return execute(commandLine, timeout);
     }
 
-    private void checkAllureExists() throws FileNotFoundException {
+    private void checkAllureExists() throws IOException {
         if (allureNotExists()) {
-            throw new FileNotFoundException("There is no valid allure installation."
+            throw new IOException("There is no valid allure installation."
                     + " Make sure you're using allure version not less then 2.x.");
         }
     }
@@ -214,11 +210,23 @@ public class AllureCommandline {
     }
 
     private void unpack(final File file) throws IOException {
-        try {
-            final ZipFile zipFile = new ZipFile(file);
-            zipFile.extractAll(getInstallationDirectory().toAbsolutePath().toString());
-        } catch (ZipException e) {
-            throw new IOException(e);
+        try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(file.toPath()))) {
+            ZipEntry zipEntry;
+            while ((zipEntry = zis.getNextEntry()) != null) {
+                File newFile = new File(getInstallationDirectory().toAbsolutePath().toString(), zipEntry.getName());
+                if (zipEntry.isDirectory()) {
+                    newFile.mkdirs();
+                } else {
+                    try (FileOutputStream fos = new FileOutputStream(newFile)) {
+                        byte[] buffer = new byte[1024];
+                        int len;
+                        while ((len = zis.read(buffer)) > 0) {
+                            fos.write(buffer, 0, len);
+                        }
+                    }
+                }
+                zis.closeEntry();
+            }
         }
 
         final Path allureExecutable = getAllureExecutablePath();

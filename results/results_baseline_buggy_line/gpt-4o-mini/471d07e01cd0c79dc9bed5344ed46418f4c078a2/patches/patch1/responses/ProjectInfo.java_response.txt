@@ -1,19 +1,3 @@
-/*
- * Copyright 2015 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.google.cloud.resourcemanager;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -32,7 +16,6 @@ import java.util.Objects;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.format.DateTimeFormatter;
-import com.google.api.services.cloudresourcemanager.model.ResourceId as ApiResourceId; // Updated import
 
 /**
  * A Google Cloud Resource Manager project metadata object. A Project is a high-level Google Cloud
@@ -144,14 +127,16 @@ public class ProjectInfo implements Serializable {
       return Objects.hash(id, type);
     }
 
-    ApiResourceId toPb() { // Updated method return type
-      ApiResourceId resourceIdPb = new ApiResourceId(); // Updated instantiation
+    com.google.api.services.cloudresourcemanager.v1.model.ResourceId toPb() {
+      com.google.api.services.cloudresourcemanager.v1.model.ResourceId resourceIdPb =
+          new com.google.api.services.cloudresourcemanager.v1.model.ResourceId();
       resourceIdPb.setId(id);
       resourceIdPb.setType(type.toLowerCase());
       return resourceIdPb;
     }
 
-    static ResourceId fromPb(ApiResourceId resourceIdPb) { // Updated method parameter type
+    static ResourceId fromPb(
+        com.google.api.services.cloudresourcemanager.v1.model.ResourceId resourceIdPb) {
       return new ResourceId(resourceIdPb.getId(), resourceIdPb.getType());
     }
   }
@@ -388,9 +373,9 @@ public class ProjectInfo implements Serializable {
     return new BuilderImpl(this);
   }
 
-  com.google.api.services.cloudresourcemanager.model.Project toPb() {
-    com.google.api.services.cloudresourcemanager.model.Project projectPb =
-        new com.google.api.services.cloudresourcemanager.model.Project();
+  com.google.api.services.cloudresourcemanager.v1.model.Project toPb() {
+    com.google.api.services.cloudresourcemanager.v1.model.Project projectPb =
+        new com.google.api.services.cloudresourcemanager.v1.model.Project();
     projectPb.setName(name);
     projectPb.setProjectId(projectId);
     projectPb.setLabels(labels);
@@ -410,7 +395,7 @@ public class ProjectInfo implements Serializable {
     return projectPb;
   }
 
-  static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.model.Project projectPb) {
+  static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v1.model.Project projectPb) {
     Builder builder =
         newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
     if (projectPb.getName() != null && !projectPb.getName().equals("Unnamed")) {

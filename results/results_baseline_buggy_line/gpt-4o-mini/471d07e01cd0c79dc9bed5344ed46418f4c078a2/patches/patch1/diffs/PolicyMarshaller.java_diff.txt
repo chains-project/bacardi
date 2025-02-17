@@ -1,24 +1,47 @@
-6c6
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
 <  * You may obtain a copy of the License at
----
->  * you may obtain a copy of the License at
-19c19
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+19d2
 < import com.google.api.services.cloudresourcemanager.model.Binding;
----
-> import com.google.api.services.cloudresourcemanager.v1.model.Binding; // Updated import
-37c37
+37c20
 <     extends Marshaller<com.google.api.services.cloudresourcemanager.model.Policy> {
 ---
->     extends Marshaller<com.google.api.services.cloudresourcemanager.v1.model.Policy> { // Updated type
-55c55
+>     extends Marshaller<Policy> {
+54,55c37
+<   @Override
 <   protected Policy fromPb(com.google.api.services.cloudresourcemanager.model.Policy policyPb) {
 ---
->   protected Policy fromPb(com.google.api.services.cloudresourcemanager.v1.model.Policy policyPb) { // Updated type
-76,78c76,78
+>   protected Policy fromPb(com.google.cloud.resourcemanager.Policy policyPb) {
+58c40
+<       for (Binding bindingPb : policyPb.getBindings()) {
+---
+>       for (com.google.cloud.resourcemanager.Binding bindingPb : policyPb.getBindings()) {
+75,79c57,60
+<   @Override
 <   protected com.google.api.services.cloudresourcemanager.model.Policy toPb(Policy policy) {
 <     com.google.api.services.cloudresourcemanager.model.Policy policyPb =
 <         new com.google.api.services.cloudresourcemanager.model.Policy();
+<     List<Binding> bindingPbList = new LinkedList<>();
 ---
->   protected com.google.api.services.cloudresourcemanager.v1.model.Policy toPb(Policy policy) { // Updated type
->     com.google.api.services.cloudresourcemanager.v1.model.Policy policyPb = // Updated type
->         new com.google.api.services.cloudresourcemanager.v1.model.Policy(); // Updated type
+>   protected com.google.cloud.resourcemanager.Policy toPb(Policy policy) {
+>     com.google.cloud.resourcemanager.Policy policyPb =
+>         new com.google.cloud.resourcemanager.Policy();
+>     List<com.google.cloud.resourcemanager.Binding> bindingPbList = new LinkedList<>();
+81c62
+<       Binding bindingPb = new Binding();
+---
+>       com.google.cloud.resourcemanager.Binding bindingPb = new com.google.cloud.resourcemanager.Binding();

@@ -1,22 +1,5 @@
-/*
- * Copyright 2016 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * you may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.google.cloud.resourcemanager;
 
-import com.google.api.services.cloudresourcemanager.v1.model.Binding; // Updated import
 import com.google.cloud.Identity;
 import com.google.cloud.Policy;
 import com.google.cloud.Policy.Marshaller;
@@ -34,7 +17,7 @@ import java.util.Set;
 /** @deprecated v3 GAPIC client of ResourceManager is now available */
 @Deprecated
 final class PolicyMarshaller
-    extends Marshaller<com.google.api.services.cloudresourcemanager.v1.model.Policy> { // Updated type
+    extends Marshaller<Policy> {
 
   static final PolicyMarshaller INSTANCE = new PolicyMarshaller();
 
@@ -51,11 +34,10 @@ final class PolicyMarshaller
     }
   }
 
-  @Override
-  protected Policy fromPb(com.google.api.services.cloudresourcemanager.v1.model.Policy policyPb) { // Updated type
+  protected Policy fromPb(com.google.cloud.resourcemanager.Policy policyPb) {
     Map<Role, Set<Identity>> bindings = new HashMap<>();
     if (policyPb.getBindings() != null) {
-      for (Binding bindingPb : policyPb.getBindings()) {
+      for (com.google.cloud.resourcemanager.Binding bindingPb : policyPb.getBindings()) {
         bindings.put(
             Role.of(bindingPb.getRole()),
             ImmutableSet.copyOf(
@@ -72,13 +54,12 @@ final class PolicyMarshaller
     return new Builder(bindings, policyPb.getEtag(), policyPb.getVersion()).build();
   }
 
-  @Override
-  protected com.google.api.services.cloudresourcemanager.v1.model.Policy toPb(Policy policy) { // Updated type
-    com.google.api.services.cloudresourcemanager.v1.model.Policy policyPb = // Updated type
-        new com.google.api.services.cloudresourcemanager.v1.model.Policy(); // Updated type
-    List<Binding> bindingPbList = new LinkedList<>();
+  protected com.google.cloud.resourcemanager.Policy toPb(Policy policy) {
+    com.google.cloud.resourcemanager.Policy policyPb =
+        new com.google.cloud.resourcemanager.Policy();
+    List<com.google.cloud.resourcemanager.Binding> bindingPbList = new LinkedList<>();
     for (Map.Entry<Role, Set<Identity>> binding : policy.getBindings().entrySet()) {
-      Binding bindingPb = new Binding();
+      com.google.cloud.resourcemanager.Binding bindingPb = new com.google.cloud.resourcemanager.Binding();
       bindingPb.setRole(binding.getKey().getValue());
       bindingPb.setMembers(
           Lists.transform(

@@ -1,4 +1,54 @@
-18c18
+18,19c18,26
 < import net.lingala.zip4j.core.ZipFile;
+< import net.lingala.zip4j.exception.ZipException;
 ---
-> import net.lingala.zip4j.ZipFile; // Updated import statement
+> import java.util.zip.ZipEntry;
+> import java.util.zip.ZipInputStream;
+> import java.io.FileInputStream;
+> import java.io.FileOutputStream;
+> import java.io.IOException;
+> import java.io.File;
+> import java.nio.file.Files;
+> import java.nio.file.Path;
+> import java.nio.file.StandardCopyOption;
+33,35d39
+< import java.io.File;
+< import java.io.FileNotFoundException;
+< import java.io.IOException;
+41,43d44
+< import java.nio.file.Files;
+< import java.nio.file.Path;
+< import java.nio.file.StandardCopyOption;
+119c120
+<     private void checkAllureExists() throws FileNotFoundException {
+---
+>     private void checkAllureExists() throws IOException {
+121c122
+<             throw new FileNotFoundException("There is no valid allure installation."
+---
+>             throw new IOException("There is no valid allure installation."
+217,221c218,235
+<         try {
+<             final ZipFile zipFile = new ZipFile(file);
+<             zipFile.extractAll(getInstallationDirectory().toAbsolutePath().toString());
+<         } catch (ZipException e) {
+<             throw new IOException(e);
+---
+>         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(file))) {
+>             ZipEntry zipEntry;
+>             while ((zipEntry = zis.getNextEntry()) != null) {
+>                 File newFile = new File(getInstallationDirectory().toAbsolutePath().toString(), zipEntry.getName());
+>                 if (zipEntry.isDirectory()) {
+>                     newFile.mkdirs();
+>                 } else {
+>                     new File(newFile.getParent()).mkdirs();
+>                     try (FileOutputStream fos = new FileOutputStream(newFile)) {
+>                         byte[] buffer = new byte[1024];
+>                         int len;
+>                         while ((len = zis.read(buffer)) > 0) {
+>                             fos.write(buffer, 0, len);
+>                         }
+>                     }
+>                 }
+>                 zis.closeEntry();
+>             }
