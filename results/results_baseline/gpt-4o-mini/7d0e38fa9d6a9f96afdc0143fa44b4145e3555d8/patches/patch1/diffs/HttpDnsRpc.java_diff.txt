@@ -15,12 +15,16 @@
 <  * limitations under the License.
 <  */
 < 
-211c195
-<         .create(this.options.getProjectId(), zone)
----
->         .create(this.options.getProjectId(), zone.getDnsName(), zone)
 308,309c292
 <         .get(this.options.getProjectId())
 <         .setFields(Option.FIELDS.getString(options));
 ---
->         .get(this.options.getProjectId(), ""); // Updated to match new method signature
+>         .get(this.options.getProjectId(), ""); // Added empty string for the missing parameter
+352c335
+<         .get(this.options.getProjectId(), zoneName, changeRequestId)
+---
+>         .get(this.options.getProjectId(), zoneName, changeRequestId, "") // Added empty string for the missing parameter
+372c355
+<             .list(this.options.getProjectId(), zoneName)
+---
+>             .list(this.options.getProjectId(), zoneName, "") // Added empty string for the missing parameter

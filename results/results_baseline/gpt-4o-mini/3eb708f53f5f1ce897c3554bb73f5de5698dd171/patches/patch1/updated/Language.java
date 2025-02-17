@@ -1,5 +1,24 @@
+/*
+ * Copyright 2016 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * you may not use this file except in compliance with the License.
+ * you may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.google.cloud.translate;
 
+import com.google.common.base.Function;
+import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -14,6 +33,12 @@ import java.util.Objects;
 public class Language implements Serializable {
 
   private static final long serialVersionUID = 5205240279371907020L;
+  static final Function<com.google.api.services.translate.model.LanguagesResource, Language> FROM_PB_FUNCTION =
+      new Function<com.google.api.services.translate.model.LanguagesResource, Language>() {
+        public Language apply(com.google.api.services.translate.model.LanguagesResource languagePb) {
+          return Language.fromPb(languagePb);
+        }
+      };
 
   private final String code;
   private final String name;
@@ -35,7 +60,7 @@ public class Language implements Serializable {
 
   @Override
   public String toString() {
-    return String.format("Language{code='%s', name='%s'}", code, name);
+    return MoreObjects.toStringHelper(this).add("code", code).add("name", name).toString();
   }
 
   @Override
@@ -55,7 +80,7 @@ public class Language implements Serializable {
     return Objects.equals(code, other.code) && Objects.equals(name, other.name);
   }
 
-  static Language fromPb(String languageCode, String languageName) {
-    return new Language(languageCode, languageName);
+  static Language fromPb(com.google.api.services.translate.model.LanguagesResource languagePb) {
+    return new Language(languagePb.getLanguage(), languagePb.getName());
   }
 }
