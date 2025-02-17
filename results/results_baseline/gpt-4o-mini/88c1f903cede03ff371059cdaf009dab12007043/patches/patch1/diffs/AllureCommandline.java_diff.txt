@@ -4,11 +4,12 @@
 48a47,48
 > import java.util.zip.ZipEntry;
 > import java.util.zip.ZipInputStream;
-217,220c217,228
+217,221c217,227
 <         try {
 <             final ZipFile zipFile = new ZipFile(file);
 <             zipFile.extractAll(getInstallationDirectory().toAbsolutePath().toString());
 <         } catch (ZipException e) {
+<             throw new IOException(e);
 ---
 >         try (ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(file.toPath()))) {
 >             ZipEntry entry;
@@ -21,4 +22,3 @@
 >                 }
 >                 zipInputStream.closeEntry();
 >             }
->         } catch (IOException e) {

@@ -145,16 +145,14 @@ public class ProjectInfo implements Serializable {
       return Objects.hash(id, type);
     }
 
-    NewResourceId toPb() { // Updated method
-      NewResourceId resourceIdPb =
-          new NewResourceId();
+    NewResourceId toPb() { // Updated method return type
+      NewResourceId resourceIdPb = new NewResourceId(); // Updated instantiation
       resourceIdPb.setId(id);
       resourceIdPb.setType(type.toLowerCase());
       return resourceIdPb;
     }
 
-    static ResourceId fromPb(
-        NewResourceId resourceIdPb) { // Updated method
+    static ResourceId fromPb(NewResourceId resourceIdPb) { // Updated method parameter type
       return new ResourceId(resourceIdPb.getId(), resourceIdPb.getType());
     }
   }
@@ -391,9 +389,8 @@ public class ProjectInfo implements Serializable {
     return new BuilderImpl(this);
   }
 
-  NewProject toPb() { // Updated method
-    NewProject projectPb =
-        new NewProject();
+  NewProject toPb() { // Updated method return type
+    NewProject projectPb = new NewProject(); // Updated instantiation
     projectPb.setName(name);
     projectPb.setProjectId(projectId);
     projectPb.setLabels(labels);
@@ -413,7 +410,7 @@ public class ProjectInfo implements Serializable {
     return projectPb;
   }
 
-  static ProjectInfo fromPb(NewProject projectPb) { // Updated method
+  static ProjectInfo fromPb(NewProject projectPb) { // Updated method parameter type
     Builder builder =
         newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
     if (projectPb.getName() != null && !projectPb.getName().equals("Unnamed")) {

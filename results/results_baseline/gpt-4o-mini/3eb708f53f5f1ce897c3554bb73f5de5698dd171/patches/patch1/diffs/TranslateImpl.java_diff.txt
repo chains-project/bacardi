@@ -15,55 +15,58 @@
 <  * limitations under the License.
 <  */
 < 
-23,25d6
+23,25c7
 < import com.google.api.services.translate.model.DetectionsResourceItems;
 < import com.google.api.services.translate.model.LanguagesResource;
 < import com.google.api.services.translate.model.TranslationsResource;
+---
+> import com.google.cloud.translate.spi.v2.TranslateRpc;
+28d9
+< import com.google.cloud.translate.spi.v2.TranslateRpc;
 43c24
 <   private static final Function<List<DetectionsResourceItems>, Detection>
 ---
->   private static final Function<List<com.google.api.services.translate.model.DetectionsResourceItem>, Detection>
-45c26
+>   private static final Function<List<com.google.cloud.translate.Detection>, Detection>
+45,47c26,27
 <           new Function<List<DetectionsResourceItems>, Detection>() {
----
->           new Function<List<com.google.api.services.translate.model.DetectionsResourceItem>, Detection>() {
-47c28
+<             @Override
 <             public Detection apply(List<DetectionsResourceItems> detectionPb) {
 ---
->             public Detection apply(List<com.google.api.services.translate.model.DetectionsResourceItem> detectionPb) {
-62c43
+>           new Function<List<com.google.cloud.translate.Detection>, Detection>() {
+>             public Detection apply(List<com.google.cloud.translate.Detection> detectionPb) {
+62c42
 <               new Callable<List<LanguagesResource>>() {
 ---
->               new Callable<List<com.google.api.services.translate.model.LanguagesResource>>() {
-64c45
+>               new Callable<List<com.google.cloud.translate.Language>>() {
+64c44
 <                 public List<LanguagesResource> call() {
 ---
->                 public List<com.google.api.services.translate.model.LanguagesResource> call() {
-80c61
+>                 public List<com.google.cloud.translate.Language> call() {
+80c60
 <       List<List<DetectionsResourceItems>> detectionsPb =
 ---
->       List<List<com.google.api.services.translate.model.DetectionsResourceItem>> detectionsPb =
-82c63
+>       List<List<com.google.cloud.translate.Detection>> detectionsPb =
+82c62
 <               new Callable<List<List<DetectionsResourceItems>>>() {
 ---
->               new Callable<List<List<com.google.api.services.translate.model.DetectionsResourceItem>>>() {
-84c65
+>               new Callable<List<List<com.google.cloud.translate.Detection>>>() {
+84c64
 <                 public List<List<DetectionsResourceItems>> call() {
 ---
->                 public List<List<com.google.api.services.translate.model.DetectionsResourceItem>> call() {
-91c72
+>                 public List<List<com.google.cloud.translate.Detection>> call() {
+91c71
 <       Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
 ---
->       Iterator<List<com.google.api.services.translate.model.DetectionsResourceItem>> detectionIterator = detectionsPb.iterator();
-94c75
+>       Iterator<List<com.google.cloud.translate.Detection>> detectionIterator = detectionsPb.iterator();
+94c74
 <         List<DetectionsResourceItems> detectionPb = detectionIterator.next();
 ---
->         List<com.google.api.services.translate.model.DetectionsResourceItem> detectionPb = detectionIterator.next();
-121c102
+>         List<com.google.cloud.translate.Detection> detectionPb = detectionIterator.next();
+121c101
 <               new Callable<List<TranslationsResource>>() {
 ---
->               new Callable<List<com.google.api.services.translate.model.TranslationsResource>>() {
-123c104
+>               new Callable<List<com.google.cloud.translate.Translation>>() {
+123c103
 <                 public List<TranslationsResource> call() {
 ---
->                 public List<com.google.api.services.translate.model.TranslationsResource> call() {
+>                 public List<com.google.cloud.translate.Translation> call() {
