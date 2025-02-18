@@ -16,7 +16,7 @@
 
 package com.google.cloud.translate;
 
-import com.google.api.services.translate.model.Translations;
+import com.google.cloud.translate.Translate.TranslationsResource; // Updated import statement
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
@@ -34,10 +34,10 @@ import java.util.Objects;
 public class Translation implements Serializable {
 
   private static final long serialVersionUID = 2556017420486245581L;
-  static final Function<Translations, Translation> FROM_PB_FUNCTION =
-      new Function<Translations, Translation>() {
+  static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =
+      new Function<TranslationsResource, Translation>() {
         @Override
-        public Translation apply(Translations translationPb) {
+        public Translation apply(TranslationsResource translationPb) {
           return Translation.fromPb(translationPb);
         }
       };
@@ -103,7 +103,7 @@ public class Translation implements Serializable {
         && Objects.equals(sourceLanguage, other.sourceLanguage);
   }
 
-  static Translation fromPb(Translations translationPb) {
+  static Translation fromPb(TranslationsResource translationPb) {
     return new Translation(
         translationPb.getTranslatedText(),
         translationPb.getDetectedSourceLanguage(),

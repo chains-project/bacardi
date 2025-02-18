@@ -1,8 +1,16 @@
-24c24
-< import com.google.api.client.json.jackson2.JacksonFactory;
+26c26
+< import com.google.api.services.translate.model.DetectionsResourceItems;
 ---
-> import com.google.api.client.json.JsonFactory; // Updated import
-50c50
-<         new Translate.Builder(transport, new JacksonFactory(), initializer)
+> import com.google.api.services.translate.model.DetectionsResource;
+69c69
+<   public List<List<DetectionsResourceItems>> detect(List<String> texts) {
 ---
->         new Translate.Builder(transport, new JsonFactory(), initializer) // Updated to JsonFactory
+>   public List<List<DetectionsResource>> detect(List<String> texts) {
+71c71
+<       List<List<DetectionsResourceItems>> detections =
+---
+>       List<List<DetectionsResource>> detections =
+73c73
+<       return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
+---
+>       return detections != null ? detections : ImmutableList.<List<DetectionsResource>>of();

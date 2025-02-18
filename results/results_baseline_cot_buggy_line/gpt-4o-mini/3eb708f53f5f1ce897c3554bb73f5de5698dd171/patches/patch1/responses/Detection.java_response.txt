@@ -16,7 +16,8 @@
 
 package com.google.cloud.translate;
 
-import com.google.api.services.translate.model.DetectionsResourceItem; // Updated import
+// Updated import statement to reflect the new package structure
+import com.google.cloud.translate.v2.model.DetectionsResourceItems; // Adjusted import based on the new dependency
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import java.util.Objects;
@@ -84,7 +85,7 @@ public class Detection implements Serializable {
     return Objects.equals(language, other.language) && Objects.equals(confidence, other.confidence);
   }
 
-  static Detection fromPb(DetectionsResourceItem detectionPb) { // Updated method parameter type
+  static Detection fromPb(DetectionsResourceItems detectionPb) {
     return new Detection(detectionPb.getLanguage(), detectionPb.getConfidence());
   }
 }

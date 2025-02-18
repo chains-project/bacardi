@@ -21,9 +21,9 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory; // Updated import
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.translate.Translate;
-import com.google.api.services.translate.model.DetectionsResourceItems;
+import com.google.api.services.translate.model.DetectionsResource;
 import com.google.api.services.translate.model.LanguagesResource;
 import com.google.api.services.translate.model.TranslationsResource;
 import com.google.cloud.http.HttpTransportOptions;
@@ -47,7 +47,7 @@ public class HttpTranslateRpc implements TranslateRpc {
     HttpRequestInitializer initializer = transportOptions.getHttpRequestInitializer(options);
     this.options = options;
     translate =
-        new Translate.Builder(transport, new JsonFactory(), initializer) // Updated to JsonFactory
+        new Translate.Builder(transport, new JacksonFactory(), initializer)
             .setRootUrl(options.getHost())
             .setApplicationName(options.getApplicationName())
             .build();
@@ -66,11 +66,11 @@ public class HttpTranslateRpc implements TranslateRpc {
   }
 
   @Override
-  public List<List<DetectionsResourceItems>> detect(List<String> texts) {
+  public List<List<DetectionsResource>> detect(List<String> texts) {
     try {
-      List<List<DetectionsResourceItems>> detections =
+      List<List<DetectionsResource>> detections =
           translate.detections().list(texts).setKey(options.getApiKey()).execute().getDetections();
-      return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
+      return detections != null ? detections : ImmutableList.<List<DetectionsResource>>of();
     } catch (IOException ex) {
       throw translate(ex);
     }
