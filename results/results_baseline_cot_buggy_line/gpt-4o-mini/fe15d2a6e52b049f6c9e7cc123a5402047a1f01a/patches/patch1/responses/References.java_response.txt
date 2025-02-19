@@ -6,7 +6,7 @@
 //
 
 
-package com.premiumminds.billy.portugal.services.export.saftpt.v1_02_01.schema;
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -27,8 +27,8 @@ import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy; // Ensure this import 
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Reference" minOccurs="0"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Reason" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Reference" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Reason" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;

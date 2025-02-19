@@ -6,7 +6,7 @@
 //
 
 
-package com.premiumminds.billy.portugal.services.export.saftpt.v1_02_01.schema;
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -28,10 +28,12 @@ import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy; // Ensure this import 
 @XmlType(name = "", propOrder = {
     "salesInvoices",
     "movementOfGoods",
-    "workingDocuments"
+    "workingDocuments",
+    "payments"
 })
 @XmlRootElement(name = "SourceDocuments")
-public class SourceDocuments implements ToString2 {
+public class SourceDocuments implements ToString2
+{
 
     @XmlElement(name = "SalesInvoices")
     protected SourceDocuments.SalesInvoices salesInvoices;
@@ -39,6 +41,8 @@ public class SourceDocuments implements ToString2 {
     protected SourceDocuments.MovementOfGoods movementOfGoods;
     @XmlElement(name = "WorkingDocuments")
     protected SourceDocuments.WorkingDocuments workingDocuments;
+    @XmlElement(name = "Payments")
+    protected SourceDocuments.Payments payments;
 
     public SourceDocuments.SalesInvoices getSalesInvoices() {
         return salesInvoices;
@@ -64,9 +68,17 @@ public class SourceDocuments implements ToString2 {
         this.workingDocuments = value;
     }
 
+    public SourceDocuments.Payments getPayments() {
+        return payments;
+    }
+
+    public void setPayments(SourceDocuments.Payments value) {
+        this.payments = value;
+    }
+
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance(); // This line is now valid
+        final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
@@ -97,6 +109,11 @@ public class SourceDocuments implements ToString2 {
             theWorkingDocuments = this.getWorkingDocuments();
             strategy.appendField(locator, this, "workingDocuments", buffer, theWorkingDocuments, (this.workingDocuments != null));
         }
+        {
+            SourceDocuments.Payments thePayments;
+            thePayments = this.getPayments();
+            strategy.appendField(locator, this, "payments", buffer, thePayments, (this.payments != null));
+        }
         return buffer;
     }
 
@@ -106,7 +123,8 @@ public class SourceDocuments implements ToString2 {
         "totalQuantityIssued",
         "stockMovement"
     })
-    public static class MovementOfGoods implements ToString2 {
+    public static class MovementOfGoods implements ToString2
+    {
 
         @XmlElement(name = "NumberOfMovementLines", required = true)
         @XmlSchemaType(name = "nonNegativeInteger")
@@ -141,7 +159,7 @@ public class SourceDocuments implements ToString2 {
 
         @Override
         public String toString() {
-            final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance(); // This line is now valid
+            final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
             final StringBuilder buffer = new StringBuilder();
             append(null, buffer, strategy);
             return buffer.toString();
@@ -178,29 +196,40 @@ public class SourceDocuments implements ToString2 {
         @XmlAccessorType(XmlAccessType.FIELD)
         @XmlType(name = "", propOrder = {
             "documentNumber",
+            "atcud",
             "documentStatus",
             "hash",
             "hashControl",
             "period",
             "movementDate",
             "movementType",
-            "sourceID",
-            "eacCode",
             "systemEntryDate",
+            "transactionID",
             "customerID",
             "supplierID",
+            "sourceID",
+            "eacCode",
+            "movementComments",
+            "shipTo",
+            "shipFrom",
+            "movementEndTime",
+            "movementStartTime",
+            "atDocCodeID",
             "line",
             "documentTotals"
         })
-        public static class StockMovement implements ToString2 {
+        public static class StockMovement implements ToString2
+        {
 
             @XmlElement(name = "DocumentNumber", required = true)
             protected String documentNumber;
+            @XmlElement(name = "ATCUD", required = true)
+            protected String atcud;
             @XmlElement(name = "DocumentStatus", required = true)
             protected SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus documentStatus;
             @XmlElement(name = "Hash", required = true)
             protected String hash;
-            @XmlElement(name = "HashControl")
+            @XmlElement(name = "HashControl", required = true)
             protected String hashControl;
             @XmlElement(name = "Period")
             protected Integer period;
@@ -212,6 +241,8 @@ public class SourceDocuments implements ToString2 {
             @XmlElement(name = "SystemEntryDate", required = true)
             @XmlSchemaType(name = "dateTime")
             protected XMLGregorianCalendar systemEntryDate;
+            @XmlElement(name = "TransactionID")
+            protected String transactionID;
             @XmlElement(name = "CustomerID")
             protected String customerID;
             @XmlElement(name = "SupplierID")
@@ -222,6 +253,18 @@ public class SourceDocuments implements ToString2 {
             protected String eacCode;
             @XmlElement(name = "MovementComments")
             protected String movementComments;
+            @XmlElement(name = "ShipTo")
+            protected ShippingPointStructure shipTo;
+            @XmlElement(name = "ShipFrom")
+            protected ShippingPointStructure shipFrom;
+            @XmlElement(name = "MovementEndTime")
+            @XmlSchemaType(name = "dateTime")
+            protected XMLGregorianCalendar movementEndTime;
+            @XmlElement(name = "MovementStartTime", required = true)
+            @XmlSchemaType(name = "dateTime")
+            protected XMLGregorianCalendar movementStartTime;
+            @XmlElement(name = "ATDocCodeID")
+            protected String atDocCodeID;
             @XmlElement(name = "Line", required = true)
             protected List<SourceDocuments.MovementOfGoods.StockMovement.Line> line;
             @XmlElement(name = "DocumentTotals", required = true)
@@ -233,6 +276,14 @@ public class SourceDocuments implements ToString2 {
 
             public void setDocumentNumber(String value) {
                 this.documentNumber = value;
+            }
+
+            public String getATCUD() {
+                return atcud;
+            }
+
+            public void setATCUD(String value) {
+                this.atcud = value;
             }
 
             public SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus getDocumentStatus() {
@@ -291,6 +342,14 @@ public class SourceDocuments implements ToString2 {
                 this.systemEntryDate = value;
             }
 
+            public String getTransactionID() {
+                return transactionID;
+            }
+
+            public void setTransactionID(String value) {
+                this.transactionID = value;
+            }
+
             public String getCustomerID() {
                 return customerID;
             }
@@ -331,6 +390,38 @@ public class SourceDocuments implements ToString2 {
                 this.movementComments = value;
             }
 
+            public ShippingPointStructure getShipTo() {
+                return shipTo;
+            }
+
+            public void setShipTo(ShippingPointStructure value) {
+                this.shipTo = value;
+            }
+
+            public ShippingPointStructure getShipFrom() {
+                return shipFrom;
+            }
+
+            public void setShipFrom(ShippingPointStructure value) {
+                this.shipFrom = value;
+            }
+
+            public XMLGregorianCalendar getMovementEndTime() {
+                return movementEndTime;
+            }
+
+            public void setMovementEndTime(XMLGregorianCalendar value) {
+                this.movementEndTime = value;
+            }
+
+            public XMLGregorianCalendar getMovementStartTime() {
+                return movementStartTime;
+            }
+
+            public void setMovementStartTime(XMLGregorianCalendar value) {
+                this.movementStartTime = value;
+            }
+
             public List<SourceDocuments.MovementOfGoods.StockMovement.Line> getLine() {
                 if (line == null) {
                     line = new ArrayList<SourceDocuments.MovementOfGoods.StockMovement.Line>();
@@ -348,7 +439,7 @@ public class SourceDocuments implements ToString2 {
 
             @Override
             public String toString() {
-                final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance(); // This line is now valid
+                final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
                 final StringBuilder buffer = new StringBuilder();
                 append(null, buffer, strategy);
                 return buffer.toString();
@@ -368,6 +459,11 @@ public class SourceDocuments implements ToString2 {
                     String theDocumentNumber;
                     theDocumentNumber = this.getDocumentNumber();
                     strategy.appendField(locator, this, "documentNumber", buffer, theDocumentNumber, (this.documentNumber != null));
+                }
+                {
+                    String theATCUD;
+                    theATCUD = this.getATCUD();
+                    strategy.appendField(locator, this, "atcud", buffer, theATCUD, (this.atcud != null));
                 }
                 {
                     SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus theDocumentStatus;
@@ -405,29 +501,14 @@ public class SourceDocuments implements ToString2 {
                     strategy.appendField(locator, this, "systemEntryDate", buffer, theSystemEntryDate, (this.systemEntryDate != null));
                 }
                 {
+                    String theTransactionID;
+                    theTransactionID = this.getTransactionID();
+                    strategy.appendField(locator, this, "transactionID", buffer, theTransactionID, (this.transactionID != null));
+                }
+                {
                     String theCustomerID;
                     theCustomerID = this.getCustomerID();
                     strategy.appendField(locator, this, "customerID", buffer, theCustomerID, (this.customerID != null));
-                }
-                {
-                    String theSupplierID;
-                    theSupplierID = this.getSupplierID();
-                    strategy.appendField(locator, this, "supplierID", buffer, theSupplierID, (this.supplierID != null));
-                }
-                {
-                    String theSourceID;
-                    theSourceID = this.getSourceID();
-                    strategy.appendField(locator, this, "sourceID", buffer, theSourceID, (this.sourceID != null));
-                }
-                {
-                    String theEACCode;
-                    theEACCode = this.getEACCode();
-                    strategy.appendField(locator, this, "eacCode", buffer, theEACCode, (this.eacCode != null));
-                }
-                {
-                    String theMovementComments;
-                    theMovementComments = this.getMovementComments();
-                    strategy.appendField(locator, this, "movementComments", buffer, theMovementComments, (this.movementComments != null));
                 }
                 {
                     List<SourceDocuments.MovementOfGoods.StockMovement.Line> theLine;
@@ -449,7 +530,8 @@ public class SourceDocuments implements ToString2 {
                 "grossTotal",
                 "currency"
             })
-            public static class DocumentTotals implements ToString2 {
+            public static class DocumentTotals implements ToString2
+            {
 
                 @XmlElement(name = "TaxPayable", required = true)
                 protected BigDecimal taxPayable;
@@ -494,1078 +576,7 @@ public class SourceDocuments implements ToString2 {
 
                 @Override
                 public String toString() {
-                    final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance(); // This line is now valid
-                    final StringBuilder buffer = new StringBuilder();
-                    append(null, buffer, strategy);
-                    return buffer.toString();
-                }
-
-                @Override
-                public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                    strategy.appendStart(locator, this, buffer);
-                    appendFields(locator, buffer, strategy);
-                    strategy.appendEnd(locator, this, buffer);
-                    return buffer;
-                }
-
-                @Override
-                public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                    {
-                        BigDecimal theTaxPayable;
-                        theTaxPayable = this.getTaxPayable();
-                        strategy.appendField(locator, this, "taxPayable", buffer, theTaxPayable, (this.taxPayable != null));
-                    }
-                    {
-                        BigDecimal theNetTotal;
-                        theNetTotal = this.getNetTotal();
-                        strategy.appendField(locator, this, "netTotal", buffer, theNetTotal, (this.netTotal != null));
-                    }
-                    {
-                        BigDecimal theGrossTotal;
-                        theGrossTotal = this.getGrossTotal();
-                        strategy.appendField(locator, this, "grossTotal", buffer, theGrossTotal, (this.grossTotal != null));
-                    }
-                    {
-                        Currency theCurrency;
-                        theCurrency = this.getCurrency();
-                        strategy.appendField(locator, this, "currency", buffer, theCurrency, (this.currency != null));
-                    }
-                    return buffer;
-                }
-
-            }
-
-        }
-
-    }
-
-    @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "", propOrder = {
-        "numberOfEntries",
-        "totalDebit",
-        "totalCredit",
-        "invoice"
-    })
-    public static class SalesInvoices implements ToString2 {
-
-        @XmlElement(name = "NumberOfEntries", required = true)
-        @XmlSchemaType(name = "nonNegativeInteger")
-        protected BigInteger numberOfEntries;
-        @XmlElement(name = "TotalDebit", required = true)
-        protected BigDecimal totalDebit;
-        @XmlElement(name = "TotalCredit", required = true)
-        protected BigDecimal totalCredit;
-        @XmlElement(name = "Invoice")
-        protected List<SourceDocuments.SalesInvoices.Invoice> invoice;
-
-        public BigInteger getNumberOfEntries() {
-            return numberOfEntries;
-        }
-
-        public void setNumberOfEntries(BigInteger value) {
-            this.numberOfEntries = value;
-        }
-
-        public BigDecimal getTotalDebit() {
-            return totalDebit;
-        }
-
-        public void setTotalDebit(BigDecimal value) {
-            this.totalDebit = value;
-        }
-
-        public BigDecimal getTotalCredit() {
-            return totalCredit;
-        }
-
-        public void setTotalCredit(BigDecimal value) {
-            this.totalCredit = value;
-        }
-
-        public List<SourceDocuments.SalesInvoices.Invoice> getInvoice() {
-            if (invoice == null) {
-                invoice = new ArrayList<SourceDocuments.SalesInvoices.Invoice>();
-            }
-            return this.invoice;
-        }
-
-        @Override
-        public String toString() {
-            final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance(); // This line is now valid
-            final StringBuilder buffer = new StringBuilder();
-            append(null, buffer, strategy);
-            return buffer.toString();
-        }
-
-        @Override
-        public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-            strategy.appendStart(locator, this, buffer);
-            appendFields(locator, buffer, strategy);
-            strategy.appendEnd(locator, this, buffer);
-            return buffer;
-        }
-
-        @Override
-        public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-            {
-                BigInteger theNumberOfEntries;
-                theNumberOfEntries = this.getNumberOfEntries();
-                strategy.appendField(locator, this, "numberOfEntries", buffer, theNumberOfEntries, (this.numberOfEntries != null));
-            }
-            {
-                BigDecimal theTotalDebit;
-                theTotalDebit = this.getTotalDebit();
-                strategy.appendField(locator, this, "totalDebit", buffer, theTotalDebit, (this.totalDebit != null));
-            }
-            {
-                BigDecimal theTotalCredit;
-                theTotalCredit = this.getTotalCredit();
-                strategy.appendField(locator, this, "totalCredit", buffer, theTotalCredit, (this.totalCredit != null));
-            }
-            {
-                List<SourceDocuments.SalesInvoices.Invoice> theInvoice;
-                theInvoice = (((this.invoice != null) && (!this.invoice.isEmpty())) ? this.getInvoice() : null);
-                strategy.appendField(locator, this, "invoice", buffer, theInvoice, ((this.invoice != null) && (!this.invoice.isEmpty())));
-            }
-            return buffer;
-        }
-
-        @XmlAccessorType(XmlAccessType.FIELD)
-        @XmlType(name = "", propOrder = {
-            "invoiceNo",
-            "documentStatus",
-            "hash",
-            "hashControl",
-            "period",
-            "invoiceDate",
-            "invoiceType",
-            "selfBillingIndicator",
-            "sourceID",
-            "eacCode",
-            "systemEntryDate",
-            "transactionID",
-            "customerID",
-            "shipTo",
-            "shipFrom",
-            "movementEndTime",
-            "movementStartTime",
-            "line",
-            "documentTotals",
-            "withholdingTax"
-        })
-        public static class Invoice implements ToString2 {
-
-            @XmlElement(name = "InvoiceNo", required = true)
-            protected String invoiceNo;
-            @XmlElement(name = "DocumentStatus", required = true)
-            protected SourceDocuments.SalesInvoices.Invoice.DocumentStatus documentStatus;
-            @XmlElement(name = "Hash", required = true)
-            protected String hash;
-            @XmlElement(name = "HashControl")
-            protected String hashControl;
-            @XmlElement(name = "Period")
-            protected Integer period;
-            @XmlElement(name = "InvoiceDate", required = true)
-            @XmlSchemaType(name = "date")
-            protected XMLGregorianCalendar invoiceDate;
-            @XmlElement(name = "InvoiceType", required = true)
-            protected String invoiceType;
-            @XmlElement(name = "SelfBillingIndicator")
-            protected int selfBillingIndicator;
-            @XmlElement(name = "SourceID", required = true)
-            protected String sourceID;
-            @XmlElement(name = "EACCode")
-            protected String eacCode;
-            @XmlElement(name = "SystemEntryDate", required = true)
-            @XmlSchemaType(name = "dateTime")
-            protected XMLGregorianCalendar systemEntryDate;
-            @XmlElement(name = "TransactionID")
-            protected String transactionID;
-            @XmlElement(name = "CustomerID", required = true)
-            protected String customerID;
-            @XmlElement(name = "ShipTo")
-            protected ShippingPointStructure shipTo;
-            @XmlElement(name = "ShipFrom")
-            protected ShippingPointStructure shipFrom;
-            @XmlElement(name = "MovementEndTime")
-            @XmlSchemaType(name = "dateTime")
-            protected XMLGregorianCalendar movementEndTime;
-            @XmlElement(name = "MovementStartTime")
-            @XmlSchemaType(name = "dateTime")
-            protected XMLGregorianCalendar movementStartTime;
-            @XmlElement(name = "Line", required = true)
-            protected List<SourceDocuments.SalesInvoices.Invoice.Line> line;
-            @XmlElement(name = "DocumentTotals", required = true)
-            protected SourceDocuments.SalesInvoices.Invoice.DocumentTotals documentTotals;
-            @XmlElement(name = "WithholdingTax")
-            protected List<WithholdingTax> withholdingTax;
-
-            public String getInvoiceNo() {
-                return invoiceNo;
-            }
-
-            public void setInvoiceNo(String value) {
-                this.invoiceNo = value;
-            }
-
-            public SourceDocuments.SalesInvoices.Invoice.DocumentStatus getDocumentStatus() {
-                return documentStatus;
-            }
-
-            public void setDocumentStatus(SourceDocuments.SalesInvoices.Invoice.DocumentStatus value) {
-                this.documentStatus = value;
-            }
-
-            public String getHash() {
-                return hash;
-            }
-
-            public void setHash(String value) {
-                this.hash = value;
-            }
-
-            public String getHashControl() {
-                return hashControl;
-            }
-
-            public void setHashControl(String value) {
-                this.hashControl = value;
-            }
-
-            public Integer getPeriod() {
-                return period;
-            }
-
-            public void setPeriod(Integer value) {
-                this.period = value;
-            }
-
-            public XMLGregorianCalendar getInvoiceDate() {
-                return invoiceDate;
-            }
-
-            public void setInvoiceDate(XMLGregorianCalendar value) {
-                this.invoiceDate = value;
-            }
-
-            public String getInvoiceType() {
-                return invoiceType;
-            }
-
-            public void setInvoiceType(String value) {
-                this.invoiceType = value;
-            }
-
-            public int getSelfBillingIndicator() {
-                return selfBillingIndicator;
-            }
-
-            public void setSelfBillingIndicator(int value) {
-                this.selfBillingIndicator = value;
-            }
-
-            public String getSourceID() {
-                return sourceID;
-            }
-
-            public void setSourceID(String value) {
-                this.sourceID = value;
-            }
-
-            public String getEACCode() {
-                return eacCode;
-            }
-
-            public void setEACCode(String value) {
-                this.eacCode = value;
-            }
-
-            public XMLGregorianCalendar getSystemEntryDate() {
-                return systemEntryDate;
-            }
-
-            public void setSystemEntryDate(XMLGregorianCalendar value) {
-                this.systemEntryDate = value;
-            }
-
-            public String getTransactionID() {
-                return transactionID;
-            }
-
-            public void setTransactionID(String value) {
-                this.transactionID = value;
-            }
-
-            public String getCustomerID() {
-                return customerID;
-            }
-
-            public void setCustomerID(String value) {
-                this.customerID = value;
-            }
-
-            public ShippingPointStructure getShipTo() {
-                return shipTo;
-            }
-
-            public void setShipTo(ShippingPointStructure value) {
-                this.shipTo = value;
-            }
-
-            public ShippingPointStructure getShipFrom() {
-                return shipFrom;
-            }
-
-            public void setShipFrom(ShippingPointStructure value) {
-                this.shipFrom = value;
-            }
-
-            public XMLGregorianCalendar getMovementEndTime() {
-                return movementEndTime;
-            }
-
-            public void setMovementEndTime(XMLGregorianCalendar value) {
-                this.movementEndTime = value;
-            }
-
-            public XMLGregorianCalendar getMovementStartTime() {
-                return movementStartTime;
-            }
-
-            public void setMovementStartTime(XMLGregorianCalendar value) {
-                this.movementStartTime = value;
-            }
-
-            public List<SourceDocuments.SalesInvoices.Invoice.Line> getLine() {
-                if (line == null) {
-                    line = new ArrayList<SourceDocuments.SalesInvoices.Invoice.Line>();
-                }
-                return this.line;
-            }
-
-            public SourceDocuments.SalesInvoices.Invoice.DocumentTotals getDocumentTotals() {
-                return documentTotals;
-            }
-
-            public void setDocumentTotals(SourceDocuments.SalesInvoices.Invoice.DocumentTotals value) {
-                this.documentTotals = value;
-            }
-
-            public List<WithholdingTax> getWithholdingTax() {
-                if (withholdingTax == null) {
-                    withholdingTax = new ArrayList<WithholdingTax>();
-                }
-                return this.withholdingTax;
-            }
-
-            @Override
-            public String toString() {
-                final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance(); // This line is now valid
-                final StringBuilder buffer = new StringBuilder();
-                append(null, buffer, strategy);
-                return buffer.toString();
-            }
-
-            @Override
-            public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                strategy.appendStart(locator, this, buffer);
-                appendFields(locator, buffer, strategy);
-                strategy.appendEnd(locator, this, buffer);
-                return buffer;
-            }
-
-            @Override
-            public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                {
-                    String theInvoiceNo;
-                    theInvoiceNo = this.getInvoiceNo();
-                    strategy.appendField(locator, this, "invoiceNo", buffer, theInvoiceNo, (this.invoiceNo != null));
-                }
-                {
-                    SourceDocuments.SalesInvoices.Invoice.DocumentStatus theDocumentStatus;
-                    theDocumentStatus = this.getDocumentStatus();
-                    strategy.appendField(locator, this, "documentStatus", buffer, theDocumentStatus, (this.documentStatus != null));
-                }
-                {
-                    String theHash;
-                    theHash = this.getHash();
-                    strategy.appendField(locator, this, "hash", buffer, theHash, (this.hash != null));
-                }
-                {
-                    String theHashControl;
-                    theHashControl = this.getHashControl();
-                    strategy.appendField(locator, this, "hashControl", buffer, theHashControl, (this.hashControl != null));
-                }
-                {
-                    Integer thePeriod;
-                    thePeriod = this.getPeriod();
-                    strategy.appendField(locator, this, "period", buffer, thePeriod, (this.period != null));
-                }
-                {
-                    XMLGregorianCalendar theInvoiceDate;
-                    theInvoiceDate = this.getInvoiceDate();
-                    strategy.appendField(locator, this, "invoiceDate", buffer, theInvoiceDate, (this.invoiceDate != null));
-                }
-                {
-                    String theInvoiceType;
-                    theInvoiceType = this.getInvoiceType();
-                    strategy.appendField(locator, this, "invoiceType", buffer, theInvoiceType, (this.invoiceType != null));
-                }
-                {
-                    int theSelfBillingIndicator;
-                    theSelfBillingIndicator = this.getSelfBillingIndicator();
-                    strategy.appendField(locator, this, "selfBillingIndicator", buffer, theSelfBillingIndicator, true);
-                }
-                {
-                    String theSourceID;
-                    theSourceID = this.getSourceID();
-                    strategy.appendField(locator, this, "sourceID", buffer, theSourceID, (this.sourceID != null));
-                }
-                {
-                    String theEACCode;
-                    theEACCode = this.getEACCode();
-                    strategy.appendField(locator, this, "eacCode", buffer, theEACCode, (this.eacCode != null));
-                }
-                {
-                    XMLGregorianCalendar theSystemEntryDate;
-                    theSystemEntryDate = this.getSystemEntryDate();
-                    strategy.appendField(locator, this, "systemEntryDate", buffer, theSystemEntryDate, (this.systemEntryDate != null));
-                }
-                {
-                    String theTransactionID;
-                    theTransactionID = this.getTransactionID();
-                    strategy.appendField(locator, this, "transactionID", buffer, theTransactionID, (this.transactionID != null));
-                }
-                {
-                    String theCustomerID;
-                    theCustomerID = this.getCustomerID();
-                    strategy.appendField(locator, this, "customerID", buffer, theCustomerID, (this.customerID != null));
-                }
-                {
-                    ShippingPointStructure theShipTo;
-                    theShipTo = this.getShipTo();
-                    strategy.appendField(locator, this, "shipTo", buffer, theShipTo, (this.shipTo != null));
-                }
-                {
-                    ShippingPointStructure theShipFrom;
-                    theShipFrom = this.getShipFrom();
-                    strategy.appendField(locator, this, "shipFrom", buffer, theShipFrom, (this.shipFrom != null));
-                }
-                {
-                    XMLGregorianCalendar theMovementEndTime;
-                    theMovementEndTime = this.getMovementEndTime();
-                    strategy.appendField(locator, this, "movementEndTime", buffer, theMovementEndTime, (this.movementEndTime != null));
-                }
-                {
-                    XMLGregorianCalendar theMovementStartTime;
-                    theMovementStartTime = this.getMovementStartTime();
-                    strategy.appendField(locator, this, "movementStartTime", buffer, theMovementStartTime, (this.movementStartTime != null));
-                }
-                {
-                    List<SourceDocuments.SalesInvoices.Invoice.Line> theLine;
-                    theLine = (((this.line != null) && (!this.line.isEmpty())) ? this.getLine() : null);
-                    strategy.appendField(locator, this, "line", buffer, theLine, ((this.line != null) && (!this.line.isEmpty())));
-                }
-                {
-                    SourceDocuments.SalesInvoices.Invoice.DocumentTotals theDocumentTotals;
-                    theDocumentTotals = this.getDocumentTotals();
-                    strategy.appendField(locator, this, "documentTotals", buffer, theDocumentTotals, (this.documentTotals != null));
-                }
-                {
-                    List<WithholdingTax> theWithholdingTax;
-                    theWithholdingTax = (((this.withholdingTax != null) && (!this.withholdingTax.isEmpty())) ? this.getWithholdingTax() : null);
-                    strategy.appendField(locator, this, "withholdingTax", buffer, theWithholdingTax, ((this.withholdingTax != null) && (!this.withholdingTax.isEmpty())));
-                }
-                return buffer;
-            }
-
-            @XmlAccessorType(XmlAccessType.FIELD)
-            @XmlType(name = "", propOrder = {
-                "invoiceStatus",
-                "invoiceStatusDate",
-                "reason",
-                "sourceID",
-                "sourceBilling"
-            })
-            public static class DocumentStatus implements ToString2 {
-
-                @XmlElement(name = "InvoiceStatus", required = true)
-                protected String invoiceStatus;
-                @XmlElement(name = "InvoiceStatusDate", required = true)
-                @XmlSchemaType(name = "dateTime")
-                protected XMLGregorianCalendar invoiceStatusDate;
-                @XmlElement(name = "Reason")
-                protected String reason;
-                @XmlElement(name = "SourceID", required = true)
-                protected String sourceID;
-                @XmlElement(name = "SourceBilling", required = true)
-                protected String sourceBilling;
-
-                public String getInvoiceStatus() {
-                    return invoiceStatus;
-                }
-
-                public void setInvoiceStatus(String value) {
-                    this.invoiceStatus = value;
-                }
-
-                public XMLGregorianCalendar getInvoiceStatusDate() {
-                    return invoiceStatusDate;
-                }
-
-                public void setInvoiceStatusDate(XMLGregorianCalendar value) {
-                    this.invoiceStatusDate = value;
-                }
-
-                public String getReason() {
-                    return reason;
-                }
-
-                public void setReason(String value) {
-                    this.reason = value;
-                }
-
-                public String getSourceID() {
-                    return sourceID;
-                }
-
-                public void setSourceID(String value) {
-                    this.sourceID = value;
-                }
-
-                public String getSourceBilling() {
-                    return sourceBilling;
-                }
-
-                public void setSourceBilling(String value) {
-                    this.sourceBilling = value;
-                }
-
-                @Override
-                public String toString() {
-                    final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance(); // This line is now valid
-                    final StringBuilder buffer = new StringBuilder();
-                    append(null, buffer, strategy);
-                    return buffer.toString();
-                }
-
-                @Override
-                public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                    strategy.appendStart(locator, this, buffer);
-                    appendFields(locator, buffer, strategy);
-                    strategy.appendEnd(locator, this, buffer);
-                    return buffer;
-                }
-
-                @Override
-                public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                    {
-                        String theInvoiceStatus;
-                        theInvoiceStatus = this.getInvoiceStatus();
-                        strategy.appendField(locator, this, "invoiceStatus", buffer, theInvoiceStatus, (this.invoiceStatus != null));
-                    }
-                    {
-                        XMLGregorianCalendar theInvoiceStatusDate;
-                        theInvoiceStatusDate = this.getInvoiceStatusDate();
-                        strategy.appendField(locator, this, "invoiceStatusDate", buffer, theInvoiceStatusDate, (this.invoiceStatusDate != null));
-                    }
-                    {
-                        String theReason;
-                        theReason = this.getReason();
-                        strategy.appendField(locator, this, "reason", buffer, theReason, (this.reason != null));
-                    }
-                    {
-                        String theSourceID;
-                        theSourceID = this.getSourceID();
-                        strategy.appendField(locator, this, "sourceID", buffer, theSourceID, (this.sourceID != null));
-                    }
-                    {
-                        String theSourceBilling;
-                        theSourceBilling = this.getSourceBilling();
-                        strategy.appendField(locator, this, "sourceBilling", buffer, theSourceBilling, (this.sourceBilling != null));
-                    }
-                    return buffer;
-                }
-
-            }
-
-            @XmlAccessorType(XmlAccessType.FIELD)
-            @XmlType(name = "", propOrder = {
-                "taxPayable",
-                "netTotal",
-                "grossTotal",
-                "currency"
-            })
-            public static class DocumentTotals implements ToString2 {
-
-                @XmlElement(name = "TaxPayable", required = true)
-                protected BigDecimal taxPayable;
-                @XmlElement(name = "NetTotal", required = true)
-                protected BigDecimal netTotal;
-                @XmlElement(name = "GrossTotal", required = true)
-                protected BigDecimal grossTotal;
-                @XmlElement(name = "Currency")
-                protected Currency currency;
-
-                public BigDecimal getTaxPayable() {
-                    return taxPayable;
-                }
-
-                public void setTaxPayable(BigDecimal value) {
-                    this.taxPayable = value;
-                }
-
-                public BigDecimal getNetTotal() {
-                    return netTotal;
-                }
-
-                public void setNetTotal(BigDecimal value) {
-                    this.netTotal = value;
-                }
-
-                public BigDecimal getGrossTotal() {
-                    return grossTotal;
-                }
-
-                public void setGrossTotal(BigDecimal value) {
-                    this.grossTotal = value;
-                }
-
-                public Currency getCurrency() {
-                    return currency;
-                }
-
-                public void setCurrency(Currency value) {
-                    this.currency = value;
-                }
-
-                @Override
-                public String toString() {
-                    final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance(); // This line is now valid
-                    final StringBuilder buffer = new StringBuilder();
-                    append(null, buffer, strategy);
-                    return buffer.toString();
-                }
-
-                @Override
-                public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                    strategy.appendStart(locator, this, buffer);
-                    appendFields(locator, buffer, strategy);
-                    strategy.appendEnd(locator, this, buffer);
-                    return buffer;
-                }
-
-                @Override
-                public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                    {
-                        BigDecimal theTaxPayable;
-                        theTaxPayable = this.getTaxPayable();
-                        strategy.appendField(locator, this, "taxPayable", buffer, theTaxPayable, (this.taxPayable != null));
-                    }
-                    {
-                        BigDecimal theNetTotal;
-                        theNetTotal = this.getNetTotal();
-                        strategy.appendField(locator, this, "netTotal", buffer, theNetTotal, (this.netTotal != null));
-                    }
-                    {
-                        BigDecimal theGrossTotal;
-                        theGrossTotal = this.getGrossTotal();
-                        strategy.appendField(locator, this, "grossTotal", buffer, theGrossTotal, (this.grossTotal != null));
-                    }
-                    {
-                        Currency theCurrency;
-                        theCurrency = this.getCurrency();
-                        strategy.appendField(locator, this, "currency", buffer, theCurrency, (this.currency != null));
-                    }
-                    return buffer;
-                }
-
-            }
-
-        }
-
-    }
-
-    @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "", propOrder = {
-        "numberOfEntries",
-        "totalDebit",
-        "totalCredit",
-        "workDocument"
-    })
-    public static class WorkingDocuments implements ToString2 {
-
-        @XmlElement(name = "NumberOfEntries", required = true)
-        @XmlSchemaType(name = "nonNegativeInteger")
-        protected BigInteger numberOfEntries;
-        @XmlElement(name = "TotalDebit", required = true)
-        protected BigDecimal totalDebit;
-        @XmlElement(name = "TotalCredit", required = true)
-        protected BigDecimal totalCredit;
-        @XmlElement(name = "WorkDocument")
-        protected List<SourceDocuments.WorkingDocuments.WorkDocument> workDocument;
-
-        public BigInteger getNumberOfEntries() {
-            return numberOfEntries;
-        }
-
-        public void setNumberOfEntries(BigInteger value) {
-            this.numberOfEntries = value;
-        }
-
-        public BigDecimal getTotalDebit() {
-            return totalDebit;
-        }
-
-        public void setTotalDebit(BigDecimal value) {
-            this.totalDebit = value;
-        }
-
-        public BigDecimal getTotalCredit() {
-            return totalCredit;
-        }
-
-        public void setTotalCredit(BigDecimal value) {
-            this.totalCredit = value;
-        }
-
-        public List<SourceDocuments.WorkingDocuments.WorkDocument> getWorkDocument() {
-            if (workDocument == null) {
-                workDocument = new ArrayList<SourceDocuments.WorkingDocuments.WorkDocument>();
-            }
-            return this.workDocument;
-        }
-
-        @Override
-        public String toString() {
-            final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance(); // This line is now valid
-            final StringBuilder buffer = new StringBuilder();
-            append(null, buffer, strategy);
-            return buffer.toString();
-        }
-
-        @Override
-        public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-            strategy.appendStart(locator, this, buffer);
-            appendFields(locator, buffer, strategy);
-            strategy.appendEnd(locator, this, buffer);
-            return buffer;
-        }
-
-        @Override
-        public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-            {
-                BigInteger theNumberOfEntries;
-                theNumberOfEntries = this.getNumberOfEntries();
-                strategy.appendField(locator, this, "numberOfEntries", buffer, theNumberOfEntries, (this.numberOfEntries != null));
-            }
-            {
-                BigDecimal theTotalDebit;
-                theTotalDebit = this.getTotalDebit();
-                strategy.appendField(locator, this, "totalDebit", buffer, theTotalDebit, (this.totalDebit != null));
-            }
-            {
-                BigDecimal theTotalCredit;
-                theTotalCredit = this.getTotalCredit();
-                strategy.appendField(locator, this, "totalCredit", buffer, theTotalCredit, (this.totalCredit != null));
-            }
-            {
-                List<SourceDocuments.WorkingDocuments.WorkDocument> theWorkDocument;
-                theWorkDocument = (((this.workDocument != null) && (!this.workDocument.isEmpty())) ? this.getWorkDocument() : null);
-                strategy.appendField(locator, this, "workDocument", buffer, theWorkDocument, ((this.workDocument != null) && (!this.workDocument.isEmpty())));
-            }
-            return buffer;
-        }
-
-        @XmlAccessorType(XmlAccessType.FIELD)
-        @XmlType(name = "", propOrder = {
-            "documentNumber",
-            "documentStatus",
-            "hash",
-            "hashControl",
-            "period",
-            "workDate",
-            "workType",
-            "sourceID",
-            "eacCode",
-            "systemEntryDate",
-            "customerID",
-            "line",
-            "documentTotals"
-        })
-        public static class WorkDocument implements ToString2 {
-
-            @XmlElement(name = "DocumentNumber", required = true)
-            protected String documentNumber;
-            @XmlElement(name = "DocumentStatus", required = true)
-            protected SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus documentStatus;
-            @XmlElement(name = "Hash", required = true)
-            protected String hash;
-            @XmlElement(name = "HashControl")
-            protected String hashControl;
-            @XmlElement(name = "Period")
-            protected Integer period;
-            @XmlElement(name = "WorkDate", required = true)
-            @XmlSchemaType(name = "date")
-            protected XMLGregorianCalendar workDate;
-            @XmlElement(name = "WorkType", required = true)
-            protected String workType;
-            @XmlElement(name = "SourceID", required = true)
-            protected String sourceID;
-            @XmlElement(name = "EACCode")
-            protected String eacCode;
-            @XmlElement(name = "SystemEntryDate", required = true)
-            @XmlSchemaType(name = "dateTime")
-            protected XMLGregorianCalendar systemEntryDate;
-            @XmlElement(name = "CustomerID", required = true)
-            protected String customerID;
-            @XmlElement(name = "Line", required = true)
-            protected List<SourceDocuments.WorkingDocuments.WorkDocument.Line> line;
-            @XmlElement(name = "DocumentTotals", required = true)
-            protected SourceDocuments.WorkingDocuments.WorkDocument.DocumentTotals documentTotals;
-
-            public String getDocumentNumber() {
-                return documentNumber;
-            }
-
-            public void setDocumentNumber(String value) {
-                this.documentNumber = value;
-            }
-
-            public SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus getDocumentStatus() {
-                return documentStatus;
-            }
-
-            public void setDocumentStatus(SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus value) {
-                this.documentStatus = value;
-            }
-
-            public String getHash() {
-                return hash;
-            }
-
-            public void setHash(String value) {
-                this.hash = value;
-            }
-
-            public String getHashControl() {
-                return hashControl;
-            }
-
-            public void setHashControl(String value) {
-                this.hashControl = value;
-            }
-
-            public Integer getPeriod() {
-                return period;
-            }
-
-            public void setPeriod(Integer value) {
-                this.period = value;
-            }
-
-            public XMLGregorianCalendar getWorkDate() {
-                return workDate;
-            }
-
-            public void setWorkDate(XMLGregorianCalendar value) {
-                this.workDate = value;
-            }
-
-            public String getWorkType() {
-                return workType;
-            }
-
-            public void setWorkType(String value) {
-                this.workType = value;
-            }
-
-            public String getSourceID() {
-                return sourceID;
-            }
-
-            public void setSourceID(String value) {
-                this.sourceID = value;
-            }
-
-            public String getEACCode() {
-                return eacCode;
-            }
-
-            public void setEACCode(String value) {
-                this.eacCode = value;
-            }
-
-            public XMLGregorianCalendar getSystemEntryDate() {
-                return systemEntryDate;
-            }
-
-            public void setSystemEntryDate(XMLGregorianCalendar value) {
-                this.systemEntryDate = value;
-            }
-
-            public String getCustomerID() {
-                return customerID;
-            }
-
-            public void setCustomerID(String value) {
-                this.customerID = value;
-            }
-
-            public List<SourceDocuments.WorkingDocuments.WorkDocument.Line> getLine() {
-                if (line == null) {
-                    line = new ArrayList<SourceDocuments.WorkingDocuments.WorkDocument.Line>();
-                }
-                return this.line;
-            }
-
-            public SourceDocuments.WorkingDocuments.WorkDocument.DocumentTotals getDocumentTotals() {
-                return documentTotals;
-            }
-
-            public void setDocumentTotals(SourceDocuments.WorkingDocuments.WorkDocument.DocumentTotals value) {
-                this.documentTotals = value;
-            }
-
-            @Override
-            public String toString() {
-                final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance(); // This line is now valid
-                final StringBuilder buffer = new StringBuilder();
-                append(null, buffer, strategy);
-                return buffer.toString();
-            }
-
-            @Override
-            public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                strategy.appendStart(locator, this, buffer);
-                appendFields(locator, buffer, strategy);
-                strategy.appendEnd(locator, this, buffer);
-                return buffer;
-            }
-
-            @Override
-            public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                {
-                    String theDocumentNumber;
-                    theDocumentNumber = this.getDocumentNumber();
-                    strategy.appendField(locator, this, "documentNumber", buffer, theDocumentNumber, (this.documentNumber != null));
-                }
-                {
-                    SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus theDocumentStatus;
-                    theDocumentStatus = this.getDocumentStatus();
-                    strategy.appendField(locator, this, "documentStatus", buffer, theDocumentStatus, (this.documentStatus != null));
-                }
-                {
-                    String theHash;
-                    theHash = this.getHash();
-                    strategy.appendField(locator, this, "hash", buffer, theHash, (this.hash != null));
-                }
-                {
-                    String theHashControl;
-                    theHashControl = this.getHashControl();
-                    strategy.appendField(locator, this, "hashControl", buffer, theHashControl, (this.hashControl != null));
-                }
-                {
-                    Integer thePeriod;
-                    thePeriod = this.getPeriod();
-                    strategy.appendField(locator, this, "period", buffer, thePeriod, (this.period != null));
-                }
-                {
-                    XMLGregorianCalendar theWorkDate;
-                    theWorkDate = this.getWorkDate();
-                    strategy.appendField(locator, this, "workDate", buffer, theWorkDate, (this.workDate != null));
-                }
-                {
-                    String theWorkType;
-                    theWorkType = this.getWorkType();
-                    strategy.appendField(locator, this, "workType", buffer, theWorkType, (this.workType != null));
-                }
-                {
-                    String theSourceID;
-                    theSourceID = this.getSourceID();
-                    strategy.appendField(locator, this, "sourceID", buffer, theSourceID, (this.sourceID != null));
-                }
-                {
-                    String theEACCode;
-                    theEACCode = this.getEACCode();
-                    strategy.appendField(locator, this, "eacCode", buffer, theEACCode, (this.eacCode != null));
-                }
-                {
-                    XMLGregorianCalendar theSystemEntryDate;
-                    theSystemEntryDate = this.getSystemEntryDate();
-                    strategy.appendField(locator, this, "systemEntryDate", buffer, theSystemEntryDate, (this.systemEntryDate != null));
-                }
-                {
-                    String theCustomerID;
-                    theCustomerID = this.getCustomerID();
-                    strategy.appendField(locator, this, "customerID", buffer, theCustomerID, (this.customerID != null));
-                }
-                {
-                    List<SourceDocuments.WorkingDocuments.WorkDocument.Line> theLine;
-                    theLine = (((this.line != null) && (!this.line.isEmpty())) ? this.getLine() : null);
-                    strategy.appendField(locator, this, "line", buffer, theLine, ((this.line != null) && (!this.line.isEmpty())));
-                }
-                {
-                    SourceDocuments.WorkingDocuments.WorkDocument.DocumentTotals theDocumentTotals;
-                    theDocumentTotals = this.getDocumentTotals();
-                    strategy.appendField(locator, this, "documentTotals", buffer, theDocumentTotals, (this.documentTotals != null));
-                }
-                return buffer;
-            }
-
-            @XmlAccessorType(XmlAccessType.FIELD)
-            @XmlType(name = "", propOrder = {
-                "taxPayable",
-                "netTotal",
-                "grossTotal",
-                "currency"
-            })
-            public static class DocumentTotals implements ToString2 {
-
-                @XmlElement(name = "TaxPayable", required = true)
-                protected BigDecimal taxPayable;
-                @XmlElement(name = "NetTotal", required = true)
-                protected BigDecimal netTotal;
-                @XmlElement(name = "GrossTotal", required = true)
-                protected BigDecimal grossTotal;
-                @XmlElement(name = "Currency")
-                protected Currency currency;
-
-                public BigDecimal getTaxPayable() {
-                    return taxPayable;
-                }
-
-                public void setTaxPayable(BigDecimal value) {
-                    this.taxPayable = value;
-                }
-
-                public BigDecimal getNetTotal() {
-                    return netTotal;
-                }
-
-                public void setNetTotal(BigDecimal value) {
-                    this.netTotal = value;
-                }
-
-                public BigDecimal getGrossTotal() {
-                    return grossTotal;
-                }
-
-                public void setGrossTotal(BigDecimal value) {
-                    this.grossTotal = value;
-                }
-
-                public Currency getCurrency() {
-                    return currency;
-                }
-
-                public void setCurrency(Currency value) {
-                    this.currency = value;
-                }
-
-                @Override
-                public String toString() {
-                    final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance(); // This line is now valid
+                    final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
                     final StringBuilder buffer = new StringBuilder();
                     append(null, buffer, strategy);
                     return buffer.toString();

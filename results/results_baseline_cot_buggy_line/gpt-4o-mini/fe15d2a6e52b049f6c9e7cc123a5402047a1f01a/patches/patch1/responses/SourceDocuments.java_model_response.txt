@@ -7,7 +7,7 @@
 //
 
 
-package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -197,12 +197,17 @@ public class SourceDocuments implements ToString2
         @XmlAccessorType(XmlAccessType.FIELD)
         @XmlType(name = "", propOrder = {
             "documentNumber",
+            "atcud",
             "documentStatus",
             "hash",
             "hashControl",
             "period",
             "movementDate",
             "movementType",
+            "systemEntryDate",
+            "transactionID",
+            "customerID",
+            "supplierID",
             "sourceID",
             "eacCode",
             "movementComments",
@@ -210,6 +215,7 @@ public class SourceDocuments implements ToString2
             "shipFrom",
             "movementEndTime",
             "movementStartTime",
+            "atDocCodeID",
             "line",
             "documentTotals"
         })
@@ -218,11 +224,13 @@ public class SourceDocuments implements ToString2
 
             @XmlElement(name = "DocumentNumber", required = true)
             protected String documentNumber;
+            @XmlElement(name = "ATCUD", required = true)
+            protected String atcud;
             @XmlElement(name = "DocumentStatus", required = true)
             protected SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus documentStatus;
             @XmlElement(name = "Hash", required = true)
             protected String hash;
-            @XmlElement(name = "HashControl")
+            @XmlElement(name = "HashControl", required = true)
             protected String hashControl;
             @XmlElement(name = "Period")
             protected Integer period;
@@ -241,4 +249,378 @@ public class SourceDocuments implements ToString2
             @XmlElement(name = "SupplierID")
             protected String supplierID;
             @XmlElement(name = "SourceID", required = true)
-            protected String sourceID
+            protected String sourceID;
+            @XmlElement(name = "EACCode")
+            protected String eacCode;
+            @XmlElement(name = "MovementComments")
+            protected String movementComments;
+            @XmlElement(name = "ShipTo")
+            protected ShippingPointStructure shipTo;
+            @XmlElement(name = "ShipFrom")
+            protected ShippingPointStructure shipFrom;
+            @XmlElement(name = "MovementEndTime")
+            @XmlSchemaType(name = "dateTime")
+            protected XMLGregorianCalendar movementEndTime;
+            @XmlElement(name = "MovementStartTime", required = true)
+            @XmlSchemaType(name = "dateTime")
+            protected XMLGregorianCalendar movementStartTime;
+            @XmlElement(name = "ATDocCodeID")
+            protected String atDocCodeID;
+            @XmlElement(name = "Line", required = true)
+            protected List<SourceDocuments.MovementOfGoods.StockMovement.Line> line;
+            @XmlElement(name = "DocumentTotals", required = true)
+            protected SourceDocuments.MovementOfGoods.StockMovement.DocumentTotals documentTotals;
+
+            public String getDocumentNumber() {
+                return documentNumber;
+            }
+
+            public void setDocumentNumber(String value) {
+                this.documentNumber = value;
+            }
+
+            public String getATCUD() {
+                return atcud;
+            }
+
+            public void setATCUD(String value) {
+                this.atcud = value;
+            }
+
+            public SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus getDocumentStatus() {
+                return documentStatus;
+            }
+
+            public void setDocumentStatus(SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus value) {
+                this.documentStatus = value;
+            }
+
+            public String getHash() {
+                return hash;
+            }
+
+            public void setHash(String value) {
+                this.hash = value;
+            }
+
+            public String getHashControl() {
+                return hashControl;
+            }
+
+            public void setHashControl(String value) {
+                this.hashControl = value;
+            }
+
+            public Integer getPeriod() {
+                return period;
+            }
+
+            public void setPeriod(Integer value) {
+                this.period = value;
+            }
+
+            public XMLGregorianCalendar getMovementDate() {
+                return movementDate;
+            }
+
+            public void setMovementDate(XMLGregorianCalendar value) {
+                this.movementDate = value;
+            }
+
+            public String getMovementType() {
+                return movementType;
+            }
+
+            public void setMovementType(String value) {
+                this.movementType = value;
+            }
+
+            public XMLGregorianCalendar getSystemEntryDate() {
+                return systemEntryDate;
+            }
+
+            public void setSystemEntryDate(XMLGregorianCalendar value) {
+                this.systemEntryDate = value;
+            }
+
+            public String getTransactionID() {
+                return transactionID;
+            }
+
+            public void setTransactionID(String value) {
+                this.transactionID = value;
+            }
+
+            public String getCustomerID() {
+                return customerID;
+            }
+
+            public void setCustomerID(String value) {
+                this.customerID = value;
+            }
+
+            public String getSupplierID() {
+                return supplierID;
+            }
+
+            public void setSupplierID(String value) {
+                this.supplierID = value;
+            }
+
+            public String getSourceID() {
+                return sourceID;
+            }
+
+            public void setSourceID(String value) {
+                this.sourceID = value;
+            }
+
+            public String getEACCode() {
+                return eacCode;
+            }
+
+            public void setEACCode(String value) {
+                this.eacCode = value;
+            }
+
+            public String getMovementComments() {
+                return movementComments;
+            }
+
+            public void setMovementComments(String value) {
+                this.movementComments = value;
+            }
+
+            public ShippingPointStructure getShipTo() {
+                return shipTo;
+            }
+
+            public void setShipTo(ShippingPointStructure value) {
+                this.shipTo = value;
+            }
+
+            public ShippingPointStructure getShipFrom() {
+                return shipFrom;
+            }
+
+            public void setShipFrom(ShippingPointStructure value) {
+                this.shipFrom = value;
+            }
+
+            public XMLGregorianCalendar getMovementEndTime() {
+                return movementEndTime;
+            }
+
+            public void setMovementEndTime(XMLGregorianCalendar value) {
+                this.movementEndTime = value;
+            }
+
+            public XMLGregorianCalendar getMovementStartTime() {
+                return movementStartTime;
+            }
+
+            public void setMovementStartTime(XMLGregorianCalendar value) {
+                this.movementStartTime = value;
+            }
+
+            public List<SourceDocuments.MovementOfGoods.StockMovement.Line> getLine() {
+                if (line == null) {
+                    line = new ArrayList<SourceDocuments.MovementOfGoods.StockMovement.Line>();
+                }
+                return this.line;
+            }
+
+            public SourceDocuments.MovementOfGoods.StockMovement.DocumentTotals getDocumentTotals() {
+                return documentTotals;
+            }
+
+            public void setDocumentTotals(SourceDocuments.MovementOfGoods.StockMovement.DocumentTotals value) {
+                this.documentTotals = value;
+            }
+
+            @Override
+            public String toString() {
+                final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+                final StringBuilder buffer = new StringBuilder();
+                append(null, buffer, strategy);
+                return buffer.toString();
+            }
+
+            @Override
+            public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                strategy.appendStart(locator, this, buffer);
+                appendFields(locator, buffer, strategy);
+                strategy.appendEnd(locator, this, buffer);
+                return buffer;
+            }
+
+            @Override
+            public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                {
+                    String theDocumentNumber;
+                    theDocumentNumber = this.getDocumentNumber();
+                    strategy.appendField(locator, this, "documentNumber", buffer, theDocumentNumber, (this.documentNumber != null));
+                }
+                {
+                    String theATCUD;
+                    theATCUD = this.getATCUD();
+                    strategy.appendField(locator, this, "atcud", buffer, theATCUD, (this.atcud != null));
+                }
+                {
+                    SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus theDocumentStatus;
+                    theDocumentStatus = this.getDocumentStatus();
+                    strategy.appendField(locator, this, "documentStatus", buffer, theDocumentStatus, (this.documentStatus != null));
+                }
+                {
+                    String theHash;
+                    theHash = this.getHash();
+                    strategy.appendField(locator, this, "hash", buffer, theHash, (this.hash != null));
+                }
+                {
+                    String theHashControl;
+                    theHashControl = this.getHashControl();
+                    strategy.appendField(locator, this, "hashControl", buffer, theHashControl, (this.hashControl != null));
+                }
+                {
+                    Integer thePeriod;
+                    thePeriod = this.getPeriod();
+                    strategy.appendField(locator, this, "period", buffer, thePeriod, (this.period != null));
+                }
+                {
+                    XMLGregorianCalendar theMovementDate;
+                    theMovementDate = this.getMovementDate();
+                    strategy.appendField(locator, this, "movementDate", buffer, theMovementDate, (this.movementDate != null));
+                }
+                {
+                    String theMovementType;
+                    theMovementType = this.getMovementType();
+                    strategy.appendField(locator, this, "movementType", buffer, theMovementType, (this.movementType != null));
+                }
+                {
+                    XMLGregorianCalendar theSystemEntryDate;
+                    theSystemEntryDate = this.getSystemEntryDate();
+                    strategy.appendField(locator, this, "systemEntryDate", buffer, theSystemEntryDate, (this.systemEntryDate != null));
+                }
+                {
+                    String theTransactionID;
+                    theTransactionID = this.getTransactionID();
+                    strategy.appendField(locator, this, "transactionID", buffer, theTransactionID, (this.transactionID != null));
+                }
+                {
+                    String theCustomerID;
+                    theCustomerID = this.getCustomerID();
+                    strategy.appendField(locator, this, "customerID", buffer, theCustomerID, (this.customerID != null));
+                }
+                {
+                    List<SourceDocuments.MovementOfGoods.StockMovement.Line> theLine;
+                    theLine = (((this.line != null) && (!this.line.isEmpty())) ? this.getLine() : null);
+                    strategy.appendField(locator, this, "line", buffer, theLine, ((this.line != null) && (!this.line.isEmpty())));
+                }
+                {
+                    SourceDocuments.MovementOfGoods.StockMovement.DocumentTotals theDocumentTotals;
+                    theDocumentTotals = this.getDocumentTotals();
+                    strategy.appendField(locator, this, "documentTotals", buffer, theDocumentTotals, (this.documentTotals != null));
+                }
+                return buffer;
+            }
+
+            @XmlAccessorType(XmlAccessType.FIELD)
+            @XmlType(name = "", propOrder = {
+                "taxPayable",
+                "netTotal",
+                "grossTotal",
+                "currency"
+            })
+            public static class DocumentTotals implements ToString2
+            {
+
+                @XmlElement(name = "TaxPayable", required = true)
+                protected BigDecimal taxPayable;
+                @XmlElement(name = "NetTotal", required = true)
+                protected BigDecimal netTotal;
+                @XmlElement(name = "GrossTotal", required = true)
+                protected BigDecimal grossTotal;
+                @XmlElement(name = "Currency")
+                protected Currency currency;
+
+                public BigDecimal getTaxPayable() {
+                    return taxPayable;
+                }
+
+                public void setTaxPayable(BigDecimal value) {
+                    this.taxPayable = value;
+                }
+
+                public BigDecimal getNetTotal() {
+                    return netTotal;
+                }
+
+                public void setNetTotal(BigDecimal value) {
+                    this.netTotal = value;
+                }
+
+                public BigDecimal getGrossTotal() {
+                    return grossTotal;
+                }
+
+                public void setGrossTotal(BigDecimal value) {
+                    this.grossTotal = value;
+                }
+
+                public Currency getCurrency() {
+                    return currency;
+                }
+
+                public void setCurrency(Currency value) {
+                    this.currency = value;
+                }
+
+                @Override
+                public String toString() {
+                    final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+                    final StringBuilder buffer = new StringBuilder();
+                    append(null, buffer, strategy);
+                    return buffer.toString();
+                }
+
+                @Override
+                public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                    strategy.appendStart(locator, this, buffer);
+                    appendFields(locator, buffer, strategy);
+                    strategy.appendEnd(locator, this, buffer);
+                    return buffer;
+                }
+
+                @Override
+                public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                    {
+                        BigDecimal theTaxPayable;
+                        theTaxPayable = this.getTaxPayable();
+                        strategy.appendField(locator, this, "taxPayable", buffer, theTaxPayable, (this.taxPayable != null));
+                    }
+                    {
+                        BigDecimal theNetTotal;
+                        theNetTotal = this.getNetTotal();
+                        strategy.appendField(locator, this, "netTotal", buffer, theNetTotal, (this.netTotal != null));
+                    }
+                    {
+                        BigDecimal theGrossTotal;
+                        theGrossTotal = this.getGrossTotal();
+                        strategy.appendField(locator, this, "grossTotal", buffer, theGrossTotal, (this.grossTotal != null));
+                    }
+                    {
+                        Currency theCurrency;
+                        theCurrency = this.getCurrency();
+                        strategy.appendField(locator, this, "currency", buffer, theCurrency, (this.currency != null));
+                    }
+                    return buffer;
+                }
+
+            }
+
+        }
+
+    }
+
+}
+```

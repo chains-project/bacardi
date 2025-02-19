@@ -55,4 +55,31 @@ public final class PGS_PointSet {
 	 * Returns a filtered copy of the input, containing no points that are within
 	 * the <code>distanceTolerance</code> of each other.
 	 * <p>
-	 * This method can be used to convert a random point set into a blue
+	 * This method can be used to convert a random point set into a blue-noise-like
+	 * (poisson) point set.
+	 * 
+	 * @param points            list of points to filter
+	 * @param distanceTolerance a point that is within this distance of a previously
+	 *                          included point is not included in the output
+	 * @return
+	 */
+	public static List<PVector> prunePointsWithinDistance(List<PVector> points, double distanceTolerance) {
+		final KDTree<PVector> tree = KDTree.create(2);
+		final List<PVector> newPoints = new ArrayList<>();
+		for (PVector p : points) {
+			final double[] coords = new double[] { p.x, p.y };
+			if (tree.size() == 0 || tree.query1NN(coords).distance() > distanceTolerance) {
+				tree.insert(coords, p);
+				newPoints.add(p);
+			}
+		}
+		return newPoints;
+	}
+
+	// ... (rest of the class remains unchanged)
+}
+``` 
+
+### Explanation of Changes:
+1. **Method Update**: The method `query1NN(coords).dist()` was changed to `query1NN(coords).distance()` to align with the updated method signature in the `KDTree` class from the `tinspin` library.
+2. **No Other Changes**: The rest of the class remains unchanged, ensuring that the functionality is preserved and the class compiles correctly.

@@ -104,7 +104,7 @@ public class SpecialRegimes implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = JAXBToStringStrategy.DEFAULT; // Updated to use DEFAULT
+        final ToStringStrategy2 strategy = new JAXBToStringStrategy(); // Updated to create a new instance
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
