@@ -20,6 +20,11 @@ import static com.google.cloud.RetryHelper.runWithRetries;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
+import com.google.api.services.translate.model.DetectionsResource;
+import com.google.api.services.translate.model.LanguagesResource;
+import com.google.api.services.translate.model.TranslationsResource;
+import com.google.cloud.BaseService;
+import com.google.cloud.RetryHelper.RetryHelperException;
 import com.google.cloud.translate.spi.v2.TranslateRpc;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -31,23 +36,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-// Updated imports to reflect the new dependency structure
-import com.google.api.services.translate.model.DetectionsResourceItem; // Changed from DetectionsResourceItems
-import com.google.api.services.translate.model.Language; // Added import for Language
-import com.google.api.services.translate.model.TranslationsResource; // Ensure this is correct
-import com.google.api.services.translate.model.LanguagesResource; // Ensure this is correct
-import com.google.cloud.BaseService;
-import com.google.cloud.RetryHelper.RetryHelperException;
-
 final class TranslateImpl extends BaseService<TranslateOptions> implements Translate {
 
   private final TranslateRpc translateRpc;
 
-  private static final Function<List<DetectionsResourceItem>, Detection>
+  private static final Function<List<DetectionsResource>, Detection>
       DETECTION_FROM_PB_FUNCTION =
-          new Function<List<DetectionsResourceItem>, Detection>() {
+          new Function<List<DetectionsResource>, Detection>() {
             @Override
-            public Detection apply(List<DetectionsResourceItem> detectionPb) {
+            public Detection apply(List<DetectionsResource> detectionPb) {
               return Detection.fromPb(detectionPb.get(0));
             }
           };
@@ -80,21 +77,21 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   @Override
   public List<Detection> detect(final List<String> texts) {
     try {
-      List<List<DetectionsResourceItem>> detectionsPb =
+      List<List<DetectionsResource>> detectionsPb =
           runWithRetries(
-              new Callable<List<List<DetectionsResourceItem>>>() {
+              new Callable<List<List<DetectionsResource>>>() {
                 @Override
-                public List<List<DetectionsResourceItem>> call() {
+                public List<List<DetectionsResource>> call() {
                   return translateRpc.detect(texts);
                 }
               },
               getOptions().getRetrySettings(),
               EXCEPTION_HANDLER,
               getOptions().getClock());
-      Iterator<List<DetectionsResourceItem>> detectionIterator = detectionsPb.iterator();
+      Iterator<List<DetectionsResource>> detectionIterator = detectionsPb.iterator();
       Iterator<String> textIterator = texts.iterator();
       while (detectionIterator.hasNext() && textIterator.hasNext()) {
-        List<DetectionsResourceItem> detectionPb = detectionIterator.next();
+        List<DetectionsResource> detectionPb = detectionIterator.next();
         String text = textIterator.next();
         checkState(
             detectionPb != null && !detectionPb.isEmpty(), "No detection found for text: %s", text);

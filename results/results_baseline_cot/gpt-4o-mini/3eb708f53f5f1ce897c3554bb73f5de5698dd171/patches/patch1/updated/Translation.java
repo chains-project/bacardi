@@ -16,7 +16,8 @@
 
 package com.google.cloud.translate;
 
-import com.google.cloud.translate.Translate.TranslationsResource; // Updated import statement
+import com.google.api.services.translate.model.TranslationsListResponse; // Updated import
+import com.google.api.services.translate.model.TranslationsResource; // Ensure this import is correct
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;

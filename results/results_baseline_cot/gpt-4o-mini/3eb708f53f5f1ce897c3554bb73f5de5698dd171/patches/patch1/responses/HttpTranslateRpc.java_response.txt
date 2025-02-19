@@ -21,11 +21,11 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.translate.Translate;
-import com.google.api.services.translate.model.DetectionsResource;
-import com.google.api.services.translate.model.Languages;
-import com.google.api.services.translate.model.Translations;
+import com.google.api.client.json.JsonFactory; // Updated import
+import com.google.api.services.translate.Translate; // Ensure this is the correct package
+import com.google.api.services.translate.model.DetectionsResourceItems; // Ensure this is the correct package
+import com.google.api.services.translate.model.LanguagesResource; // Ensure this is the correct package
+import com.google.api.services.translate.model.TranslationsResource; // Ensure this is the correct package
 import com.google.cloud.http.HttpTransportOptions;
 import com.google.cloud.translate.TranslateException;
 import com.google.cloud.translate.TranslateOptions;
@@ -47,7 +47,7 @@ public class HttpTranslateRpc implements TranslateRpc {
     HttpRequestInitializer initializer = transportOptions.getHttpRequestInitializer(options);
     this.options = options;
     translate =
-        new Translate.Builder(transport, new JacksonFactory(), initializer)
+        new Translate.Builder(transport, new JsonFactory(), initializer) // Updated to JsonFactory
             .setRootUrl(options.getHost())
             .setApplicationName(options.getApplicationName())
             .build();
@@ -66,20 +66,20 @@ public class HttpTranslateRpc implements TranslateRpc {
   }
 
   @Override
-  public List<List<DetectionsResource>> detect(List<String> texts) {
+  public List<List<DetectionsResourceItems>> detect(List<String> texts) {
     try {
-      List<List<DetectionsResource>> detections =
+      List<List<DetectionsResourceItems>> detections =
           translate.detections().list(texts).setKey(options.getApiKey()).execute().getDetections();
-      return detections != null ? detections : ImmutableList.<List<DetectionsResource>>of();
+      return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
     } catch (IOException ex) {
       throw translate(ex);
     }
   }
 
   @Override
-  public List<Languages> listSupportedLanguages(Map<Option, ?> optionMap) {
+  public List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap) {
     try {
-      List<Languages> languages =
+      List<LanguagesResource> languages =
           translate
               .languages()
               .list()
@@ -89,19 +89,19 @@ public class HttpTranslateRpc implements TranslateRpc {
                       Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()))
               .execute()
               .getLanguages();
-      return languages != null ? languages : ImmutableList.<Languages>of();
+      return languages != null ? languages : ImmutableList.<LanguagesResource>of();
     } catch (IOException ex) {
       throw translate(ex);
     }
   }
 
   @Override
-  public List<Translations> translate(List<String> texts, Map<Option, ?> optionMap) {
+  public List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap) {
     try {
       String targetLanguage =
           firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
       final String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
-      List<Translations> translations =
+      List<TranslationsResource> translations =
           translate
               .translations()
               .list(texts, targetLanguage)
@@ -112,10 +112,10 @@ public class HttpTranslateRpc implements TranslateRpc {
               .execute()
               .getTranslations();
       return Lists.transform(
-          translations != null ? translations : ImmutableList.<Translations>of(),
-          new Function<Translations, Translations>() {
+          translations != null ? translations : ImmutableList.<TranslationsResource>of(),
+          new Function<TranslationsResource, TranslationsResource>() {
             @Override
-            public Translations apply(Translations translationsResource) {
+            public TranslationsResource apply(TranslationsResource translationsResource) {
               if (translationsResource.getDetectedSourceLanguage() == null) {
                 translationsResource.setDetectedSourceLanguage(sourceLanguage);
               }

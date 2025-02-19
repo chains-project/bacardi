@@ -128,4 +128,56 @@ public class AccountController {
 		final Collection<Transaction> transactions = this.unconfirmedTransactions.getMostRecentTransactionsForAccount(address,
 				MAX_UNCONFIRMED_TRANSACTIONS);
 		final Collection<UnconfirmedTransactionMetaDataPair> pairs = transactions.stream().map(t -> {
-			if (TransactionTypes.MULTISIG == t.getType())
+			if (TransactionTypes.MULTISIG == t.getType()) {
+				final MultisigTransaction multisig = (MultisigTransaction) t;
+				return new UnconfirmedTransactionMetaDataPair(t, new UnconfirmedTransactionMetaData(multisig.getOtherTransactionHash()));
+			} else {
+				return new UnconfirmedTransactionMetaDataPair(t, new UnconfirmedTransactionMetaData((Hash) null));
+			}
+		}).collect(Collectors.toList());
+		return new SerializableList<>(pairs);
+	}
+
+	/**
+	 * Gets information about harvested blocks.
+	 *
+	 * @param idBuilder The id builder.
+	 * @param pageBuilder The page builder.
+	 * @return Information about harvested blocks.
+	 */
+	@RequestMapping(value = "/account/harvests", method = RequestMethod.GET)
+	@ClientApi
+	public SerializableList<HarvestInfo> accountHarvests(final AccountIdBuilder idBuilder, final DefaultPageBuilder pageBuilder) {
+		final Address address = idBuilder.build().getAddress();
+		final DefaultPage page = pageBuilder.build();
+		return this.accountIo.getAccountHarvests(address, page.getId(), page.getPageSize());
+	}
+
+	/**
+	 * Gets the current account importance information for all accounts.
+	 *
+	 * @return Account importance information.
+	 */
+	@RequestMapping(value = "/account/importances", method = RequestMethod.GET)
+	@PublicApi
+	public SerializableList<AccountImportanceViewModel> getImportances() {
+		final List<AccountImportanceViewModel> viewModels = this.accountStateCache.contents().stream()
+				.map(a -> new AccountImportanceViewModel(a.getAddress(), a.getImportanceInfo())).collect(Collectors.toList());
+
+		return new SerializableList<>(viewModels);
+	}
+
+	/**
+	 * API for creating new account data.
+	 *
+	 * @return A key pair view model.
+	 */
+	@RequestMapping(value = "/account/generate", method = RequestMethod.GET)
+	@TrustedApi
+	public KeyPairViewModel generateAccount() {
+		final NetworkInfo networkInfo = NetworkInfos.getDefault();
+		final KeyPair keyPair = new KeyPair();
+		return new KeyPairViewModel(keyPair, networkInfo.getVersion());
+	}
+}
+```
