@@ -24,6 +24,7 @@ import java.io.ObjectInputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import com.google.cloud.resourcemanager.ProjectInfo; // Updated import
 
 /**
  * A Google Cloud Resource Manager project object.
@@ -276,5 +277,12 @@ public class Project extends ProjectInfo {
   private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
     in.defaultReadObject();
     this.resourceManager = options.getService();
+  }
+
+  static Project fromPb(
+      ResourceManager resourceManager,
+      com.google.cloud.resourcemanager.Project answer) { // Updated class reference
+    ProjectInfo info = ProjectInfo.fromPb(answer);
+    return new Project(resourceManager, new ProjectInfo.BuilderImpl(info));
   }
 }

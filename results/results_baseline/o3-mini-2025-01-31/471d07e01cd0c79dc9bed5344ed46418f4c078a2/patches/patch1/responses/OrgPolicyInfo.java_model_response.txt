@@ -1,24 +1,49 @@
 ```java
+/*
+ * Copyright 2020 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * you may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.google.cloud.resourcemanager;
 
+import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * A Google Cloud Resource Manager organization policy metadata object.
+ *
+ * <p>Defines a Cloud Organization Policy which specifies constraints for configurations of Cloud
+ * Platform resources.
+ *
+ * @deprecated v3 GAPIC client of ResourceManager is now available
+ */
 @Deprecated
 public class OrgPolicyInfo {
 
   static final Function<OrgPolicy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
       new Function<OrgPolicy, OrgPolicyInfo>() {
-        @Override
         public OrgPolicyInfo apply(OrgPolicy protobuf) {
           return OrgPolicyInfo.fromProtobuf(protobuf);
         }
       };
   static final Function<OrgPolicyInfo, OrgPolicy> TO_PROTOBUF_FUNCTION =
       new Function<OrgPolicyInfo, OrgPolicy>() {
-        @Override
         public OrgPolicy apply(OrgPolicyInfo orgPolicyInfo) {
           return orgPolicyInfo.toProtobuf();
         }
@@ -45,12 +70,10 @@ public class OrgPolicyInfo {
       return enforce;
     }
 
-    @Override
     public String toString() {
       return MoreObjects.toStringHelper(this).add("enforce", getEnforce()).toString();
     }
 
-    @Override
     public boolean equals(Object o) {
       if (this == o) {
         return true;
@@ -62,7 +85,6 @@ public class OrgPolicyInfo {
       return Objects.equals(enforce, that.enforce);
     }
 
-    @Override
     public int hashCode() {
       return Objects.hash(enforce);
     }
@@ -138,7 +160,6 @@ public class OrgPolicyInfo {
       return suggestedValue;
     }
 
-    @Override
     public String toString() {
       return MoreObjects.toStringHelper(this)
           .add("allValues", getAllValues())
@@ -149,7 +170,6 @@ public class OrgPolicyInfo {
           .toString();
     }
 
-    @Override
     public boolean equals(Object o) {
       if (this == o) {
         return true;
@@ -165,7 +185,6 @@ public class OrgPolicyInfo {
           && Objects.equals(suggestedValue, policies.suggestedValue);
     }
 
-    @Override
     public int hashCode() {
       return Objects.hash(
           allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
@@ -297,7 +316,6 @@ public class OrgPolicyInfo {
     return version;
   }
 
-  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -315,7 +333,6 @@ public class OrgPolicyInfo {
         && Objects.equals(version, policyInfo.version);
   }
 
-  @Override
   public int hashCode() {
     return Objects.hash(
         boolPolicy, constraint, etag, policies, restoreDefault, updateTime, version);
@@ -361,150 +378,6 @@ public class OrgPolicyInfo {
     builder.setUpdateTime(orgPolicyProtobuf.getUpdateTime());
     builder.setVersion(orgPolicyProtobuf.getVersion());
     return builder.build();
-  }
-
-  public static class BooleanPolicy {
-    private Boolean enforced;
-
-    public BooleanPolicy setEnforced(Boolean enforced) {
-      this.enforced = enforced;
-      return this;
-    }
-
-    public Boolean getEnforced() {
-      return enforced;
-    }
-  }
-
-  public static class ListPolicy {
-    private String allValues;
-    private List<String> allowedValues;
-    private List<String> deniedValues;
-    private Boolean inheritFromParent;
-    private String suggestedValue;
-
-    public ListPolicy setAllValues(String allValues) {
-      this.allValues = allValues;
-      return this;
-    }
-
-    public String getAllValues() {
-      return allValues;
-    }
-
-    public ListPolicy setAllowedValues(List<String> allowedValues) {
-      this.allowedValues = allowedValues;
-      return this;
-    }
-
-    public List<String> getAllowedValues() {
-      return allowedValues;
-    }
-
-    public ListPolicy setDeniedValues(List<String> deniedValues) {
-      this.deniedValues = deniedValues;
-      return this;
-    }
-
-    public List<String> getDeniedValues() {
-      return deniedValues;
-    }
-
-    public ListPolicy setInheritFromParent(Boolean inheritFromParent) {
-      this.inheritFromParent = inheritFromParent;
-      return this;
-    }
-
-    public Boolean getInheritFromParent() {
-      return inheritFromParent;
-    }
-
-    public ListPolicy setSuggestedValue(String suggestedValue) {
-      this.suggestedValue = suggestedValue;
-      return this;
-    }
-
-    public String getSuggestedValue() {
-      return suggestedValue;
-    }
-  }
-
-  public static class OrgPolicy {
-    private BooleanPolicy booleanPolicy;
-    private String constraint;
-    private ListPolicy listPolicy;
-    private RestoreDefault restoreDefault;
-    private String etag;
-    private String updateTime;
-    private Integer version;
-
-    public OrgPolicy() {}
-
-    public BooleanPolicy getBooleanPolicy() {
-      return booleanPolicy;
-    }
-
-    public OrgPolicy setBooleanPolicy(BooleanPolicy booleanPolicy) {
-      this.booleanPolicy = booleanPolicy;
-      return this;
-    }
-
-    public String getConstraint() {
-      return constraint;
-    }
-
-    public OrgPolicy setConstraint(String constraint) {
-      this.constraint = constraint;
-      return this;
-    }
-
-    public ListPolicy getListPolicy() {
-      return listPolicy;
-    }
-
-    public OrgPolicy setListPolicy(ListPolicy listPolicy) {
-      this.listPolicy = listPolicy;
-      return this;
-    }
-
-    public RestoreDefault getRestoreDefault() {
-      return restoreDefault;
-    }
-
-    public OrgPolicy setRestoreDefault(RestoreDefault restoreDefault) {
-      this.restoreDefault = restoreDefault;
-      return this;
-    }
-
-    public String getEtag() {
-      return etag;
-    }
-
-    public OrgPolicy setEtag(String etag) {
-      this.etag = etag;
-      return this;
-    }
-
-    public String getUpdateTime() {
-      return updateTime;
-    }
-
-    public OrgPolicy setUpdateTime(String updateTime) {
-      this.updateTime = updateTime;
-      return this;
-    }
-
-    public Integer getVersion() {
-      return version;
-    }
-
-    public OrgPolicy setVersion(Integer version) {
-      this.version = version;
-      return this;
-    }
-  }
-
-  public static class RestoreDefault {
   }
 }
 ```

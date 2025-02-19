@@ -20,8 +20,9 @@ import static com.google.cloud.RetryHelper.runWithRetries;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.api.gax.paging.Page;
-import com.google.api.services.cloudresourcemanager.v1beta1.model.Constraint;
-import com.google.api.services.cloudresourcemanager.v1beta1.model.OrgPolicy;
+import com.google.api.services.cloudresourcemanager.v1.model.Constraint;
+import com.google.api.services.cloudresourcemanager.v1.model.OrgPolicy;
+import com.google.api.services.cloudresourcemanager.v1.model.Project;
 import com.google.cloud.BaseService;
 import com.google.cloud.PageImpl;
 import com.google.cloud.PageImpl.NextPageFetcher;
@@ -58,9 +59,9 @@ final class ResourceManagerImpl extends BaseService<ResourceManagerOptions>
       return Project.fromPb(
           this,
           runWithRetries(
-              new Callable<com.google.api.services.cloudresourcemanager.model.Project>() {
+              new Callable<com.google.api.services.cloudresourcemanager.v1.model.Project>() {
                 @Override
-                public com.google.api.services.cloudresourcemanager.model.Project call() {
+                public com.google.api.services.cloudresourcemanager.v1.model.Project call() {
                   return resourceManagerRpc.create(project.toPb());
                 }
               },
@@ -95,11 +96,11 @@ final class ResourceManagerImpl extends BaseService<ResourceManagerOptions>
   public Project get(final String projectId, ProjectGetOption... options) {
     final Map<ResourceManagerRpc.Option, ?> optionsMap = optionMap(options);
     try {
-      com.google.api.services.cloudresourcemanager.model.Project answer =
+      com.google.api.services.cloudresourcemanager.v1.model.Project answer =
           runWithRetries(
-              new Callable<com.google.api.services.cloudresourcemanager.model.Project>() {
+              new Callable<com.google.api.services.cloudresourcemanager.v1.model.Project>() {
                 @Override
-                public com.google.api.services.cloudresourcemanager.model.Project call() {
+                public com.google.api.services.cloudresourcemanager.v1.model.Project call() {
                   return resourceManagerRpc.get(projectId, optionsMap);
                 }
               },
@@ -142,16 +143,16 @@ final class ResourceManagerImpl extends BaseService<ResourceManagerOptions>
       final ResourceManagerOptions serviceOptions,
       final Map<ResourceManagerRpc.Option, ?> optionsMap) {
     try {
-      Tuple<String, Iterable<com.google.api.services.cloudresourcemanager.model.Project>> result =
+      Tuple<String, Iterable<com.google.api.services.cloudresourcemanager.v1.model.Project>> result =
           runWithRetries(
               new Callable<
                   Tuple<
                       String,
-                      Iterable<com.google.api.services.cloudresourcemanager.model.Project>>>() {
+                      Iterable<com.google.api.services.cloudresourcemanager.v1.model.Project>>>() {
                 @Override
                 public Tuple<
                         String,
-                        Iterable<com.google.api.services.cloudresourcemanager.model.Project>>
+                        Iterable<com.google.api.services.cloudresourcemanager.v1.model.Project>>
                     call() {
                   return serviceOptions.getResourceManagerRpcV1Beta1().list(optionsMap);
                 }
@@ -166,10 +167,10 @@ final class ResourceManagerImpl extends BaseService<ResourceManagerOptions>
               : Iterables.transform(
                   result.y(),
                   new Function<
-                      com.google.api.services.cloudresourcemanager.model.Project, Project>() {
+                      com.google.api.services.cloudresourcemanager.v1.model.Project, Project>() {
                     @Override
                     public Project apply(
-                        com.google.api.services.cloudresourcemanager.model.Project projectPb) {
+                        com.google.api.services.cloudresourcemanager.v1.model.Project projectPb) {
                       return new Project(
                           serviceOptions.getService(),
                           new ProjectInfo.BuilderImpl(ProjectInfo.fromPb(projectPb)));
@@ -188,9 +189,9 @@ final class ResourceManagerImpl extends BaseService<ResourceManagerOptions>
       return Project.fromPb(
           this,
           runWithRetries(
-              new Callable<com.google.api.services.cloudresourcemanager.model.Project>() {
+              new Callable<com.google.api.services.cloudresourcemanager.v1.model.Project>() {
                 @Override
-                public com.google.api.services.cloudresourcemanager.model.Project call() {
+                public com.google.api.services.cloudresourcemanager.v1.model.Project call() {
                   return resourceManagerRpc.replace(newProject.toPb());
                 }
               },
@@ -224,11 +225,11 @@ final class ResourceManagerImpl extends BaseService<ResourceManagerOptions>
   @Override
   public Policy getPolicy(final String projectId) {
     try {
-      com.google.api.services.cloudresourcemanager.model.Policy answer =
+      com.google.api.services.cloudresourcemanager.v1.model.Policy answer =
           runWithRetries(
-              new Callable<com.google.api.services.cloudresourcemanager.model.Policy>() {
+              new Callable<com.google.api.services.cloudresourcemanager.v1.model.Policy>() {
                 @Override
-                public com.google.api.services.cloudresourcemanager.model.Policy call() {
+                public com.google.api.services.cloudresourcemanager.v1.model.Policy call() {
                   return resourceManagerRpc.getPolicy(projectId);
                 }
               },
@@ -246,9 +247,9 @@ final class ResourceManagerImpl extends BaseService<ResourceManagerOptions>
     try {
       return PolicyMarshaller.INSTANCE.fromPb(
           runWithRetries(
-              new Callable<com.google.api.services.cloudresourcemanager.model.Policy>() {
+              new Callable<com.google.api.services.cloudresourcemanager.v1.model.Policy>() {
                 @Override
-                public com.google.api.services.cloudresourcemanager.model.Policy call() {
+                public com.google.api.services.cloudresourcemanager.v1.model.Policy call() {
                   return resourceManagerRpc.replacePolicy(
                       projectId, PolicyMarshaller.INSTANCE.toPb(newPolicy));
                 }

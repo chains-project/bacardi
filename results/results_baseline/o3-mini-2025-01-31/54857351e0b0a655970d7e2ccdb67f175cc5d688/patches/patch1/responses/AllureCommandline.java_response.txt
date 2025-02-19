@@ -15,8 +15,6 @@
  */
 package io.qameta.allure.maven;
 
-import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteWatchdog;
@@ -46,6 +44,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 @SuppressWarnings({"ClassDataAbstractionCoupling", "ClassFanOutComplexity",
         "MultipleStringLiterals"})
@@ -214,11 +214,17 @@ public class AllureCommandline {
     }
 
     private void unpack(final File file) throws IOException {
-        try {
-            final ZipFile zipFile = new ZipFile(file);
-            zipFile.extractAll(getInstallationDirectory().toAbsolutePath().toString());
-        } catch (ZipException e) {
-            throw new IOException(e);
+        try (ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(file.toPath()))) {
+            ZipEntry entry;
+            while ((entry = zipInputStream.getNextEntry()) != null) {
+                Path outputPath = getInstallationDirectory().resolve(entry.getName());
+                if (entry.isDirectory()) {
+                    Files.createDirectories(outputPath);
+                } else {
+                    Files.copy(zipInputStream, outputPath, StandardCopyOption.REPLACE_EXISTING);
+                }
+                zipInputStream.closeEntry();
+            }
         }
 
         final Path allureExecutable = getAllureExecutablePath();
