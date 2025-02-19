@@ -1,4 +1,3 @@
-```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
  * https://github.com/artipie/docker-adapter/LICENSE.txt
@@ -82,7 +81,10 @@ final class DockerSliceITCase {
         final String output = this.client.run("pull", this.image.remote());
         MatcherAssert.assertThat(
             output,
-            new StringContains(String.format("Status: Downloaded newer image for %s", this.image.remote()))
+            new StringContains(
+                false,
+                String.format("Status: Downloaded newer image for %s", this.image.remote())
+            )
         );
     }
 
@@ -94,7 +96,10 @@ final class DockerSliceITCase {
         final String output = this.client.run("pull", this.image.remoteByDigest());
         MatcherAssert.assertThat(
             output,
-            new StringContains(String.format("Status: Downloaded newer image for %s", this.image.remoteByDigest()))
+            new StringContains(
+                false,
+                String.format("Status: Downloaded newer image for %s", this.image.remoteByDigest())
+            )
         );
     }
 
@@ -115,15 +120,17 @@ final class DockerSliceITCase {
     }
 
     private Matcher<String> manifestPushed() {
-        return new StringContains(String.format("latest: digest: %s", this.image.digest()));
+        return new StringContains(false, String.format("latest: digest: %s", this.image.digest()));
     }
 
     private Matcher<String> layersPushed() {
-        return new StringContains(String.format("%s: Pushed", this.image.layer()));
+        return new StringContains(false, String.format("%s: Pushed", this.image.layer()));
     }
 
     private Matcher<String> layersAlreadyExist() {
-        return new StringContains(String.format("%s: Layer already exists", this.image.layer()));
+        return new StringContains(
+            false,
+            String.format("%s: Layer already exists", this.image.layer())
+        );
     }
 }
-```

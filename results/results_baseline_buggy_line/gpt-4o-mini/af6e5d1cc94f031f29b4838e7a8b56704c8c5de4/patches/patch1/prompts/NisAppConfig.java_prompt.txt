@@ -456,10 +456,10 @@ public class NisAppConfig {
 the error is triggered in the following specific lines in the previous code:
 
 ```java
-flyway.setLocations(prop.getProperty("flyway.locations"));
+flyway.setClassLoader(NisAppConfig.class.getClassLoader());
 ```
 ```java
-flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 ```
 ```java
 final org.flywaydb.core.Flyway flyway = new Flyway();
@@ -468,19 +468,19 @@ final org.flywaydb.core.Flyway flyway = new Flyway();
 flyway.setDataSource(this.dataSource());
 ```
 ```java
-flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+flyway.setLocations(prop.getProperty("flyway.locations"));
 ```
 
 
 
  with the following error information:
-[ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[111,23] cannot find symbol
-
-  symbol:   method setLocations(java.lang.String)
-  location: variable flyway of type org.flywaydb.core.Flyway
 [ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[110,23] cannot find symbol
 
   symbol:   method setClassLoader(java.lang.ClassLoader)
+  location: variable flyway of type org.flywaydb.core.Flyway
+[ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[112,23] cannot find symbol
+
+  symbol:   method setValidateOnMigrate(java.lang.Boolean)
   location: variable flyway of type org.flywaydb.core.Flyway
 [ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[108,57] constructor Flyway in class org.flywaydb.core.Flyway cannot be applied to given types;
 
@@ -491,9 +491,9 @@ flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate"))
 
   symbol:   method setDataSource(javax.sql.DataSource)
   location: variable flyway of type org.flywaydb.core.Flyway
-[ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[112,23] cannot find symbol
+[ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[111,23] cannot find symbol
 
-  symbol:   method setValidateOnMigrate(java.lang.Boolean)
+  symbol:   method setLocations(java.lang.String)
   location: variable flyway of type org.flywaydb.core.Flyway
 
 

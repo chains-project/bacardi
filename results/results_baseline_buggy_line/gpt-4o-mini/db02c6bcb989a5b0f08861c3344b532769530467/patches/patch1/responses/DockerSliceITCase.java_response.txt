@@ -1,4 +1,3 @@
-```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
  * https://github.com/artipie/docker-adapter/LICENSE.txt
@@ -126,4 +125,3 @@ final class DockerSliceITCase {
         return new StringContains(String.format("%s: Layer already exists", this.image.layer()));
     }
 }
-```

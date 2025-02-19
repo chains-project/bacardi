@@ -1,4 +1,3 @@
-```java
 /*
  * Copyright 2014 Feedzai
  *
@@ -207,4 +206,3 @@ public class EngineGeneralTest {
 
     // ... (rest of the code remains unchanged)
 }
-```

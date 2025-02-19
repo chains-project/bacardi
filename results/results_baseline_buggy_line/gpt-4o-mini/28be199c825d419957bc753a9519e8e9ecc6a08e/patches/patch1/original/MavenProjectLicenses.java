@@ -1,4 +1,3 @@
-```java
 /*
  * Copyright (C) 2008-2021 Mycila (mathieu.carbou@gmail.com)
  *
@@ -141,6 +140,7 @@ public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
     return map;
   }
 
+  @Override
   public Map<License, Set<Artifact>> getLicenseMap() {
     return getLicenseMapFromArtifacts(getDependencies());
   }
@@ -157,7 +157,6 @@ public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
     getLog().debug(String.format("Building dependency graphs for %d projects", getProjects().size()));
     getProjects().parallelStream().forEach(project -> {
       try {
-        ProjectBuildingRequest request = getBuildingRequest();
         dependencies.addAll(getGraph().buildDependencyGraph(project, getFilter()).getChildren());
       } catch (DependencyGraphBuilderException ex) {
         getLog().warn(
@@ -234,4 +233,3 @@ public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
     this.buildingRequest = Optional.ofNullable(buildingRequest).orElse(new DefaultProjectBuildingRequest());
   }
 }
-```

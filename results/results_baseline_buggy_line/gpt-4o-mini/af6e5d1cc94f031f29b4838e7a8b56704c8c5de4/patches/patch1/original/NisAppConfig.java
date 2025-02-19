@@ -1,8 +1,6 @@
-```java
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.configuration.Configuration;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -107,12 +105,12 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final Configuration configuration = Flyway.configure()
-				.dataSource(this.dataSource())
-				.locations(prop.getProperty("flyway.locations"))
-				.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-
-		return new Flyway(configuration);
+		final org.flywaydb.core.Flyway flyway = new Flyway();
+		flyway.setDataSource(this.dataSource());
+		flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+		flyway.setLocations(prop.getProperty("flyway.locations"));
+		flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		return flyway;
 	}
 
 	@Bean
@@ -448,4 +446,3 @@ public class NisAppConfig {
 		return new SynchronizedMosaicIdCache(new DefaultMosaicIdCache());
 	}
 }
-```

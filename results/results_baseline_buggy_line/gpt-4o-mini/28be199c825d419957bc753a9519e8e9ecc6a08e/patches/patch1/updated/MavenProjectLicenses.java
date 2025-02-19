@@ -1,4 +1,3 @@
-```java
 /*
  * Copyright (C) 2008-2021 Mycila (mathieu.carbou@gmail.com)
  *
@@ -234,4 +233,3 @@ public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
     this.buildingRequest = Optional.ofNullable(buildingRequest).orElse(new DefaultProjectBuildingRequest());
   }
 }
-```
