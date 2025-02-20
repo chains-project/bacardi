@@ -15,7 +15,7 @@
  */
 package io.qameta.allure.maven;
 
-import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.ZipFile; // Updated import statement
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
