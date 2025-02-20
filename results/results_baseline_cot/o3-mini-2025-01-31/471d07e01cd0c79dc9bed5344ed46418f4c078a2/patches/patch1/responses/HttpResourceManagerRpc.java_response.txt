@@ -29,27 +29,27 @@ import com.google.api.core.ApiClock;
 import com.google.api.gax.retrying.ResultRetryAlgorithm;
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.retrying.TimedAttemptSettings;
-import com.google.api.services.cloudresourcemanager.v1.CloudResourceManager;
-import com.google.api.services.cloudresourcemanager.v1.model.ClearOrgPolicyRequest;
-import com.google.api.services.cloudresourcemanager.v1.model.Constraint;
-import com.google.api.services.cloudresourcemanager.v1.model.GetEffectiveOrgPolicyRequest;
-import com.google.api.services.cloudresourcemanager.v1.model.GetIamPolicyRequest;
-import com.google.api.services.cloudresourcemanager.v1.model.GetOrgPolicyRequest;
-import com.google.api.services.cloudresourcemanager.v1.model.ListAvailableOrgPolicyConstraintsRequest;
-import com.google.api.services.cloudresourcemanager.v1.model.ListAvailableOrgPolicyConstraintsResponse;
-import com.google.api.services.cloudresourcemanager.v1.model.ListOrgPoliciesRequest;
-import com.google.api.services.cloudresourcemanager.v1.model.ListOrgPoliciesResponse;
-import com.google.api.services.cloudresourcemanager.v1.model.ListProjectsResponse;
-import com.google.api.services.cloudresourcemanager.v1.model.Operation;
-import com.google.api.services.cloudresourcemanager.v1.model.OrgPolicy;
-import com.google.api.services.cloudresourcemanager.v1.model.Policy;
-import com.google.api.services.cloudresourcemanager.v1.model.Project;
-import com.google.api.services.cloudresourcemanager.v1.model.SetIamPolicyRequest;
-import com.google.api.services.cloudresourcemanager.v1.model.SetOrgPolicyRequest;
-import com.google.api.services.cloudresourcemanager.v1.model.Status;
-import com.google.api.services.cloudresourcemanager.v1.model.TestIamPermissionsRequest;
-import com.google.api.services.cloudresourcemanager.v1.model.TestIamPermissionsResponse;
-import com.google.api.services.cloudresourcemanager.v1.model.UndeleteProjectRequest;
+import com.google.api.services.cloudresourcemanager.v1.CloudResourceManager; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.ClearOrgPolicyRequest; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.Constraint; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.GetEffectiveOrgPolicyRequest; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.GetIamPolicyRequest; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.GetOrgPolicyRequest; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.ListAvailableOrgPolicyConstraintsRequest; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.ListAvailableOrgPolicyConstraintsResponse; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.ListOrgPoliciesRequest; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.ListOrgPoliciesResponse; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.ListProjectsResponse; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.Operation; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.OrgPolicy; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.Policy; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.Project; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.SetIamPolicyRequest; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.SetOrgPolicyRequest; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.Status; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.TestIamPermissionsRequest; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.TestIamPermissionsResponse; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.UndeleteProjectRequest; // Updated import
 import com.google.cloud.RetryHelper;
 import com.google.cloud.Tuple;
 import com.google.cloud.http.BaseHttpServiceException;
@@ -72,24 +72,17 @@ public class HttpResourceManagerRpc implements ResourceManagerRpc {
 
   private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
-  // See doc of create() for more details:
-  // https://developers.google.com/resources/api-libraries/documentation/cloudresourcemanager/v1/java/latest/com/google/api/services/cloudresourcemanager/CloudResourceManager.Projects.html#create(com.google.api.services.cloudresourcemanager.model.Project)
   private static final RetrySettings CREATE_RETRY_SETTINGS =
       RetrySettings.newBuilder()
-          // SLO permits 30s at 90th percentile, 4x it for total limit.
-          // Observed latency is much lower: 11s at 95th percentile.
           .setTotalTimeout(Duration.ofMinutes(2))
-          // Linked doc recommends polling at 5th second.
           .setInitialRetryDelay(Duration.ofSeconds(5))
           .setRetryDelayMultiplier(1.5)
-          // Observed P95 latency is 11s. We probably shouldn't sleep longer than this.
           .setMaxRetryDelay(Duration.ofSeconds(11))
           .setJittered(true)
           .setInitialRpcTimeout(Duration.ofSeconds(5))
           .setMaxRpcTimeout(Duration.ofSeconds(5))
           .build();
 
-  // reference: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
   private static final ImmutableMap<Integer, Integer> RPC_TO_HTTP_CODES =
       ImmutableMap.<Integer, Integer>builder()
           .put(0, 200)
@@ -184,12 +177,6 @@ public class HttpResourceManagerRpc implements ResourceManagerRpc {
       throw translate(finishedOp.getError());
     }
 
-    // NOTE(pongad): Operation.getResponse() returns a Map<String, Object>.
-    // 1. `(Project) finishedOp.getResponse()` doesn't work,
-    // because JSON deserializer in execute() didn't know to create a Project object.
-    // 2. `new Project().putAll(finishedOp.getResponse())` doesn't work either.
-    // 64-bit integers are sent as strings in JSON,
-    // so execute(), not knowing the type, parses it as String, not Long.
     try {
       String responseTxt = JSON_FACTORY.toString(finishedOp.getResponse());
       return JSON_FACTORY.fromString(responseTxt, Project.class);
@@ -218,7 +205,6 @@ public class HttpResourceManagerRpc implements ResourceManagerRpc {
     } catch (IOException ex) {
       ResourceManagerException translated = translate(ex);
       if (translated.getCode() == HTTP_FORBIDDEN || translated.getCode() == HTTP_NOT_FOUND) {
-        // Service can return either 403 or 404 to signify that the project doesn't exist.
         return null;
       } else {
         throw translated;
@@ -273,7 +259,6 @@ public class HttpResourceManagerRpc implements ResourceManagerRpc {
     } catch (IOException ex) {
       ResourceManagerException translated = translate(ex);
       if (translated.getCode() == HTTP_FORBIDDEN) {
-        // Service returns permission denied if policy doesn't exist.
         return null;
       } else {
         throw translated;

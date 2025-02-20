@@ -1,27 +1,3 @@
-<code_analysis>
-1. Error Message Analysis:
-   - The error indicates that the class LanguagesResource (and its package com.google.api.services.translate.model) cannot be found.
-   - The errors reference its usage at the declaration of the FROM_PB_FUNCTION constant and in the static fromPb(LanguagesResource) method.
-   - This strongly suggests that a dependency update has removed or relocated the LanguagesResource class from the expected package.
-
-2. Client Code Review:
-   - The client code imports LanguagesResource from com.google.api.services.translate.model.
-   - Two code sections rely on LanguagesResource:
-     • The static final Function (FROM_PB_FUNCTION) that converts a LanguagesResource object to a Language.
-     • The static fromPb(LanguagesResource languagePb) method which accesses languagePb.getLanguage() and languagePb.getName().
-   - Since LanguagesResource no longer exists in the updated dependency, these parts cause compilation errors.
-
-3. Planning the Fix:
-   - To resolve the issue, we must remove any references to LanguagesResource. Since these references now cause compilation errors, it is acceptable to remove them.
-   - We leave all public API methods (getCode, getName, toString, equals, hashCode) unchanged in accordance with the requirement.
-   - Because the conversion functionality (FROM_PB_FUNCTION and fromPb method) directly causes the compile errors and depends on the removed dependency class, we remove them entirely.
-   - No changes to function signatures are needed apart from removing the methods that reference the now-missing type.
-   - The import for LanguagesResource is also removed.
-
-4. Conclusion:
-   - The patch removes the import and code referencing LanguagesResource. This eliminates the compilation errors resulting from the breaking dependency update.
-</code_analysis>
-
 ```java
 /*
  * Copyright 2016 Google LLC
@@ -41,6 +17,9 @@
 
 package com.google.cloud.translate;
 
+// Updated import statement to reflect the new package structure
+import com.google.api.services.translate.v2.model.LanguagesResource; // Corrected import
+import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import java.util.Objects;
@@ -56,8 +35,13 @@ import java.util.Objects;
 public class Language implements Serializable {
 
   private static final long serialVersionUID = 5205240279371907020L;
-
-  // Removed FROM_PB_FUNCTION and fromPb() as the dependency no longer supplies LanguagesResource.
+  static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
+      new Function<LanguagesResource, Language>() {
+        @Override
+        public Language apply(LanguagesResource languagePb) {
+          return Language.fromPb(languagePb);
+        }
+      };
 
   private final String code;
   private final String name;
@@ -97,6 +81,10 @@ public class Language implements Serializable {
     }
     Language other = (Language) obj;
     return Objects.equals(code, other.code) && Objects.equals(name, other.name);
+  }
+
+  static Language fromPb(LanguagesResource languagePb) {
+    return new Language(languagePb.getLanguage(), languagePb.getName());
   }
 }
 ```

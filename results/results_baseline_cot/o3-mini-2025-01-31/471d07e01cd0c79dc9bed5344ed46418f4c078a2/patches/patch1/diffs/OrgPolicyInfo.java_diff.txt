@@ -4,74 +4,61 @@
 < import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
 < import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
 ---
-> import com.google.cloud.resourcemanager.v3.OrgPolicy;
-> import com.google.cloud.resourcemanager.v3.OrgPolicy.BooleanPolicy;
-> import com.google.cloud.resourcemanager.v3.OrgPolicy.ListPolicy;
-> import com.google.cloud.resourcemanager.v3.OrgPolicy.RestoreDefault;
-97c97
-<       return new BooleanPolicy().setEnforced(enforce);
----
->       return OrgPolicy.BooleanPolicy.newBuilder().setEnforced(enforce).build();
-125c125
+> import com.google.api.services.cloudresourcemanager.v1.model.BooleanPolicy; // Updated import
+> import com.google.api.services.cloudresourcemanager.v1.model.ListPolicy; // Updated import
+> import com.google.api.services.cloudresourcemanager.v1.model.OrgPolicy; // Updated import
+> import com.google.api.services.cloudresourcemanager.v1.model.RestoreDefault; // Updated import
+105,120d104
+<   /**
+<    * The organization ListPolicy object.
+<    *
+<    * <p>ListPolicy can define specific values and subtrees of Cloud Resource Manager resource
+<    * hierarchy (Organizations, Folders, Projects) that are allowed or denied by setting the
+<    * allowedValues and deniedValues fields. This is achieved by using the under: and optional is:
+<    * prefixes. The under: prefix denotes resource subtree values. The is: prefix is used to denote
+<    * specific values, and is required only if the value contains a ":". Values prefixed with "is:"
+<    * are treated the same as values with no prefix. Ancestry subtrees must be in one of the
+<    * following formats: - "projects/", e.g. "projects/tokyo-rain-123" - "folders/", e.g.
+<    * "folders/1234" - "organizations/", e.g. "organizations/1234" The supportsUnder field of the
+<    * associated Constraint defines whether ancestry prefixes can be used. You can set allowedValues
+<    * and deniedValues in the same Policy if allValues is ALL_VALUES_UNSPECIFIED. ALLOW or DENY are
+<    * used to allow or deny all values. If allValues is set to either ALLOW or DENY, allowedValues
+<    * and deniedValues must be unset.
+<    */
+125c109
 <     private final List<java.lang.String> deniedValues;
 ---
->     private final List<String> deniedValues;
-201,206c201,217
-<       return new ListPolicy()
-<           .setAllValues(allValues)
-<           .setAllowedValues(allowedValues)
-<           .setDeniedValues(deniedValues)
-<           .setInheritFromParent(inheritFromParent)
-<           .setSuggestedValue(suggestedValue);
+>     private final List<String> deniedValues; // Fixed type declaration
+142d125
+<     /** Returns all the Values state of this policy. */
+147d129
+<     /** Returns the list of allowed values of this resource */
+152,153c134
+<     /** Returns the list of denied values of this resource. */
+<     List<String> getDeniedValues() {
 ---
->       ListPolicy.Builder builder = ListPolicy.newBuilder();
->       if (allValues != null) {
->         builder.setAllValues(allValues);
->       }
->       if (allowedValues != null) {
->         builder.addAllAllowedValues(allowedValues);
->       }
->       if (deniedValues != null) {
->         builder.addAllDeniedValues(deniedValues);
->       }
->       if (inheritFromParent != null) {
->         builder.setInheritFromParent(inheritFromParent);
->       }
->       if (suggestedValue != null) {
->         builder.setSuggestedValue(suggestedValue);
->       }
->       return builder.build();
-212,213c223,224
-<           listPolicy.getAllowedValues(),
-<           listPolicy.getDeniedValues(),
----
->           listPolicy.getAllowedValuesList(),
->           listPolicy.getDeniedValuesList(),
-361c372
-<     OrgPolicy orgPolicyProto = new OrgPolicy();
----
->     OrgPolicy.Builder orgPolicyBuilder = OrgPolicy.newBuilder();
-363c374
-<       orgPolicyProto.setBooleanPolicy(boolPolicy.toProtobuf());
----
->       orgPolicyBuilder.setBooleanPolicy(boolPolicy.toProtobuf());
-365c376
-<     orgPolicyProto.setConstraint(constraint);
----
->     orgPolicyBuilder.setConstraint(constraint);
-367c378
-<       orgPolicyProto.setListPolicy(policies.toProtobuf());
----
->       orgPolicyBuilder.setListPolicy(policies.toProtobuf());
-369,373c380,384
-<     orgPolicyProto.setRestoreDefault(restoreDefault);
-<     orgPolicyProto.setEtag(etag);
-<     orgPolicyProto.setUpdateTime(updateTime);
-<     orgPolicyProto.setVersion(version);
-<     return orgPolicyProto;
----
->     orgPolicyBuilder.setRestoreDefault(restoreDefault);
->     orgPolicyBuilder.setEtag(etag);
->     orgPolicyBuilder.setUpdateTime(updateTime);
->     orgPolicyBuilder.setVersion(version);
->     return orgPolicyBuilder.build();
+>     List<String> getDeniedValues() { // Fixed return type
+157d137
+<     /** Returns the inheritance behavior for this Policy */
+162d141
+<     /** Returns the suggested value of this policy. */
+219d197
+<   /** Builder for {@code OrganizationPolicyInfo}. */
+291d268
+<   /** Returns the boolean constraint to check whether the constraint is enforced or not. */
+296d272
+<   /** Returns the name of the Constraint. */
+301d276
+<   /** Returns the etag value of policy. */
+306d280
+<   /** Return the policies. */
+311d284
+<   /** Restores the default behavior of the constraint. */
+316d288
+<   /** Returns the updated timestamp of policy. */
+321d292
+<   /** Returns the version of the Policy, Default version is 0. */
+350d320
+<   /** Returns a builder for the {@link OrgPolicyInfo} object. */
+355d324
+<   /** Returns a builder for the {@link OrgPolicyInfo} object. */

@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+// Import the correct package for Project from the updated dependency
+import com.google.api.services.cloudresourcemanager.v1.model.Project as ApiProject;
+
 /**
  * A Google Cloud Resource Manager project object.
  *
@@ -280,7 +283,7 @@ public class Project extends ProjectInfo {
 
   static Project fromPb(
       ResourceManager resourceManager,
-      com.google.cloud.resourcemanager.v3.Project answer) {
+      ApiProject answer) { // Updated to use the correct class from the new dependency
     ProjectInfo info = ProjectInfo.fromPb(answer);
     return new Project(resourceManager, new ProjectInfo.BuilderImpl(info));
   }

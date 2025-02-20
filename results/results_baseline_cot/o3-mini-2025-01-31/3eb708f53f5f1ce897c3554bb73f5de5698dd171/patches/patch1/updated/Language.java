@@ -16,6 +16,9 @@
 
 package com.google.cloud.translate;
 
+// Updated import statement to reflect the new package structure
+import com.google.api.services.translate.v2.model.LanguagesResource; // Corrected import
+import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import java.util.Objects;
@@ -31,8 +34,13 @@ import java.util.Objects;
 public class Language implements Serializable {
 
   private static final long serialVersionUID = 5205240279371907020L;
-
-  // Removed FROM_PB_FUNCTION and fromPb() as the dependency no longer supplies LanguagesResource.
+  static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
+      new Function<LanguagesResource, Language>() {
+        @Override
+        public Language apply(LanguagesResource languagePb) {
+          return Language.fromPb(languagePb);
+        }
+      };
 
   private final String code;
   private final String name;
@@ -72,5 +80,9 @@ public class Language implements Serializable {
     }
     Language other = (Language) obj;
     return Objects.equals(code, other.code) && Objects.equals(name, other.name);
+  }
+
+  static Language fromPb(LanguagesResource languagePb) {
+    return new Language(languagePb.getLanguage(), languagePb.getName());
   }
 }

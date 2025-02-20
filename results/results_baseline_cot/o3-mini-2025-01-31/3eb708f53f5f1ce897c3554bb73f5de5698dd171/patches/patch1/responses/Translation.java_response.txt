@@ -16,6 +16,8 @@
 
 package com.google.cloud.translate;
 
+import com.google.cloud.translate.Translate.TranslationsResource; // Updated import statement
+import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import java.util.List;
@@ -32,9 +34,13 @@ import java.util.Objects;
 public class Translation implements Serializable {
 
   private static final long serialVersionUID = 2556017420486245581L;
-
-  // The legacy conversion from a TranslationsResource (from the old dependency) has been removed
-  // because the updated dependency no longer provides the TranslationsResource class.
+  static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =
+      new Function<TranslationsResource, Translation>() {
+        @Override
+        public Translation apply(TranslationsResource translationPb) {
+          return Translation.fromPb(translationPb);
+        }
+      };
 
   private final String translatedText;
   private final String sourceLanguage;
@@ -95,5 +101,12 @@ public class Translation implements Serializable {
     Translation other = (Translation) obj;
     return Objects.equals(translatedText, other.translatedText)
         && Objects.equals(sourceLanguage, other.sourceLanguage);
+  }
+
+  static Translation fromPb(TranslationsResource translationPb) {
+    return new Translation(
+        translationPb.getTranslatedText(),
+        translationPb.getDetectedSourceLanguage(),
+        translationPb.getModel());
   }
 }

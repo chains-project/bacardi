@@ -20,6 +20,9 @@ import static com.google.cloud.RetryHelper.runWithRetries;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
+import com.google.api.services.translate.model.DetectionsResource;
+import com.google.api.services.translate.model.LanguagesResource;
+import com.google.api.services.translate.model.TranslationsResource;
 import com.google.cloud.BaseService;
 import com.google.cloud.RetryHelper.RetryHelperException;
 import com.google.cloud.translate.spi.v2.TranslateRpc;
@@ -37,11 +40,11 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
 
   private final TranslateRpc translateRpc;
 
-  private static final Function<List<DetectionsResourceItems>, Detection>
+  private static final Function<List<DetectionsResource>, Detection>
       DETECTION_FROM_PB_FUNCTION =
-          new Function<List<DetectionsResourceItems>, Detection>() {
+          new Function<List<DetectionsResource>, Detection>() {
             @Override
-            public Detection apply(List<DetectionsResourceItems> detectionPb) {
+            public Detection apply(List<DetectionsResource> detectionPb) {
               return Detection.fromPb(detectionPb.get(0));
             }
           };
@@ -74,21 +77,21 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   @Override
   public List<Detection> detect(final List<String> texts) {
     try {
-      List<List<DetectionsResourceItems>> detectionsPb =
+      List<List<DetectionsResource>> detectionsPb =
           runWithRetries(
-              new Callable<List<List<DetectionsResourceItems>>>() {
+              new Callable<List<List<DetectionsResource>>>() {
                 @Override
-                public List<List<DetectionsResourceItems>> call() {
+                public List<List<DetectionsResource>> call() {
                   return translateRpc.detect(texts);
                 }
               },
               getOptions().getRetrySettings(),
               EXCEPTION_HANDLER,
               getOptions().getClock());
-      Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
+      Iterator<List<DetectionsResource>> detectionIterator = detectionsPb.iterator();
       Iterator<String> textIterator = texts.iterator();
       while (detectionIterator.hasNext() && textIterator.hasNext()) {
-        List<DetectionsResourceItems> detectionPb = detectionIterator.next();
+        List<DetectionsResource> detectionPb = detectionIterator.next();
         String text = textIterator.next();
         checkState(
             detectionPb != null && !detectionPb.isEmpty(), "No detection found for text: %s", text);
@@ -142,20 +145,5 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
       checkArgument(prev == null, "Duplicate option %s", option);
     }
     return optionMap;
-  }
-  
-  // Dummy replacement classes for the removed dependency types.
-  // These serve as placeholders compatible with the existing conversion functions.
-
-  static class DetectionsResourceItems {
-    // Minimal placeholder implementation.
-  }
-
-  static class LanguagesResource {
-    // Minimal placeholder implementation.
-  }
-
-  static class TranslationsResource {
-    // Minimal placeholder implementation.
   }
 }

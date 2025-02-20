@@ -1,12 +1,3 @@
-<code_analysis>
-1. The error message indicates that the package "net.lingala.zip4j.core" does not exist. This error occurs because the project is using a newer version of the zip4j dependency where the package structure has changed.
-2. In the client code, the import statement "import net.lingala.zip4j.core.ZipFile;" is now invalid because in the updated zip4j library the ZipFile class is located in "net.lingala.zip4j.ZipFile". The rest of the code, including how the ZipFile is used in the unpack method, remains valid.
-3. To fix the issue:
-   - Update the import statement for ZipFile.
-   - Retain the existing function signatures and logic.
-4. The change has minimal side effects as it only alters the import to match the updated dependency's package structure.
-</code_analysis>
-
 ```java
 /*
  *  Copyright 2021 Qameta Software OÜ
@@ -25,7 +16,7 @@
  */
 package io.qameta.allure.maven;
 
-import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.ZipFile; // Updated import statement
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
@@ -180,6 +171,7 @@ public class AllureCommandline {
                 unpack(resolved.next().getArtifact().getFile());
             } else {
                 throw new IOException("No allure commandline artifact found.");
+
             }
         } catch (DependencyResolverException e) {
             throw new IOException("Cannot resolve allure commandline dependencies.", e);

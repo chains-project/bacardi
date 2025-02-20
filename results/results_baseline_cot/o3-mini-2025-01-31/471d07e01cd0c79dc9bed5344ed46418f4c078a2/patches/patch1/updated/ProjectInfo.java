@@ -32,6 +32,8 @@ import java.util.Objects;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.format.DateTimeFormatter;
+import com.google.api.services.cloudresourcemanager.model.ResourceId as ApiResourceId; // Updated import
+import com.google.api.services.cloudresourcemanager.model.Project as ApiProject; // Updated import
 
 /**
  * A Google Cloud Resource Manager project metadata object. A Project is a high-level Google Cloud
@@ -135,20 +137,25 @@ public class ProjectInfo implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (!(obj instanceof ResourceId)) {
-        return false;
-      }
-      ResourceId other = (ResourceId) obj;
-      return Objects.equals(this.id, other.id)
-          && Objects.equals(this.type, other.type);
+      return obj instanceof ResourceId && Objects.equals(toPb(), ((ResourceId) obj).toPb());
     }
 
     @Override
     public int hashCode() {
       return Objects.hash(id, type);
+    }
+
+    ApiResourceId toPb() { // Updated method to use the new import
+      ApiResourceId resourceIdPb =
+          new ApiResourceId();
+      resourceIdPb.setId(id);
+      resourceIdPb.setType(type.toLowerCase());
+      return resourceIdPb;
+    }
+
+    static ResourceId fromPb(
+        ApiResourceId resourceIdPb) { // Updated method to use the new import
+      return new ResourceId(resourceIdPb.getId(), resourceIdPb.getType());
     }
   }
 
@@ -365,20 +372,10 @@ public class ProjectInfo implements Serializable {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (!(obj instanceof ProjectInfo)) {
-      return false;
-    }
-    ProjectInfo other = (ProjectInfo) obj;
-    return Objects.equals(this.name, other.name)
-        && Objects.equals(this.projectId, other.projectId)
-        && Objects.equals(this.labels, other.labels)
-        && Objects.equals(this.projectNumber, other.projectNumber)
-        && Objects.equals(this.state, other.state)
-        && Objects.equals(this.createTimeMillis, other.createTimeMillis)
-        && Objects.equals(this.parent, other.parent);
+    return obj == this
+        || obj != null
+            && obj.getClass().equals(ProjectInfo.class)
+            && Objects.equals(toPb(), ((ProjectInfo) obj).toPb());
   }
 
   @Override
@@ -392,5 +389,49 @@ public class ProjectInfo implements Serializable {
 
   public Builder toBuilder() {
     return new BuilderImpl(this);
+  }
+
+  ApiProject toPb() { // Updated method to use the new import
+    ApiProject projectPb =
+        new ApiProject();
+    projectPb.setName(name);
+    projectPb.setProjectId(projectId);
+    projectPb.setLabels(labels);
+    projectPb.setProjectNumber(projectNumber);
+    if (state != null) {
+      projectPb.setLifecycleState(state.toString());
+    }
+    if (createTimeMillis != null) {
+      projectPb.setCreateTime(
+          DateTimeFormatter.ISO_DATE_TIME
+              .withZone(ZoneOffset.UTC)
+              .format(Instant.ofEpochMilli(createTimeMillis)));
+    }
+    if (parent != null) {
+      projectPb.setParent(parent.toPb());
+    }
+    return projectPb;
+  }
+
+  static ProjectInfo fromPb(ApiProject projectPb) { // Updated method to use the new import
+    Builder builder =
+        newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
+    if (projectPb.getName() != null && !projectPb.getName().equals("Unnamed")) {
+      builder.setName(projectPb.getName());
+    }
+    if (projectPb.getLabels() != null) {
+      builder.setLabels(projectPb.getLabels());
+    }
+    if (projectPb.getLifecycleState() != null) {
+      builder.setState(State.valueOf(projectPb.getLifecycleState()));
+    }
+    if (projectPb.getCreateTime() != null) {
+      builder.setCreateTimeMillis(
+          DATE_TIME_FORMATTER.parse(projectPb.getCreateTime(), Instant.FROM).toEpochMilli());
+    }
+    if (projectPb.getParent() != null) {
+      builder.setParent(ResourceId.fromPb(projectPb.getParent()));
+    }
+    return builder.build();
   }
 }

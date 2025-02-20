@@ -15,9 +15,9 @@
  */
 package com.google.cloud.resourcemanager;
 
-import com.google.cloud.resourcemanager.v3.BooleanConstraint;
-import com.google.cloud.resourcemanager.v3.Constraint;
-import com.google.cloud.resourcemanager.v3.ListConstraint;
+import com.google.api.services.cloudresourcemanager.v1.model.BooleanConstraint; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.Constraint; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.ListConstraint; // Updated import
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.Objects;

@@ -1,40 +1,64 @@
+/*
+ * Copyright 2016 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.google.cloud.translate.spi.v2;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 
 import com.google.api.client.http.GenericUrl;
-import com.google.cloud.translate.Detection;
-import com.google.cloud.translate.Language;
+import com.google.api.client.http.HttpRequestInitializer;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.cloud.translate.Translate;
-import com.google.cloud.translate.Translation;
 import com.google.cloud.translate.TranslateException;
 import com.google.cloud.translate.TranslateOptions;
+import com.google.cloud.translate.DetectionsResourceItems; // Updated import
+import com.google.cloud.translate.LanguagesResource; // Updated import
+import com.google.cloud.translate.TranslationsResource; // Updated import
+import com.google.cloud.http.HttpTransportOptions;
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
-import java.util.ArrayList;
+import com.google.common.collect.Lists;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Updated implementation of HttpTranslateRpc to work with the new dependency.
- */
 public class HttpTranslateRpc implements TranslateRpc {
 
   private final TranslateOptions options;
   private final Translate translate;
 
   public HttpTranslateRpc(TranslateOptions options) {
+    HttpTransportOptions transportOptions = (HttpTransportOptions) options.getTransportOptions();
+    HttpTransport transport = transportOptions.getHttpTransportFactory().create();
+    HttpRequestInitializer initializer = transportOptions.getHttpRequestInitializer(options);
     this.options = options;
-    // Use the new client to obtain a Translate service instance.
-    this.translate = options.getService();
+    translate =
+        new Translate.Builder(transport, new JacksonFactory(), initializer)
+            .setRootUrl(options.getHost())
+            .setApplicationName(options.getApplicationName())
+            .build();
   }
 
-  private static TranslateException translate(Exception exception) {
+  private static TranslateException translate(IOException exception) {
     return new TranslateException(exception);
   }
 
-  // Fixed buildTargetUrl to use options.getHost() instead of calling translate.getBaseUrl().
   private GenericUrl buildTargetUrl(String path) {
-    GenericUrl genericUrl = new GenericUrl(options.getHost() + "v2/" + path);
+    GenericUrl genericUrl = new GenericUrl(translate.getBaseUrl() + "v2/" + path);
     if (options.getApiKey() != null) {
       genericUrl.put("key", options.getApiKey());
     }
@@ -42,63 +66,63 @@ public class HttpTranslateRpc implements TranslateRpc {
   }
 
   @Override
-  public List<List<Detection>> detect(List<String> texts) {
+  public List<List<DetectionsResourceItems>> detect(List<String> texts) {
     try {
-      // The new API returns a List<Detection> for the provided texts.
-      List<Detection> detections = translate.detect(texts);
-      // Wrap each Detection in a singleton list to match the original nested list signature.
-      List<List<Detection>> wrappedDetections = new ArrayList<>(detections.size());
-      for (Detection detection : detections) {
-        wrappedDetections.add(ImmutableList.of(detection));
-      }
-      return wrappedDetections;
-    } catch (Exception ex) {
+      List<List<DetectionsResourceItems>> detections =
+          translate.detections().list(texts).setKey(options.getApiKey()).execute().getDetections();
+      return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
+    } catch (IOException ex) {
       throw translate(ex);
     }
   }
 
   @Override
-  public List<Language> listSupportedLanguages(Map<Option, ?> optionMap) {
+  public List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap) {
     try {
-      String targetLanguage =
-          firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
-      // Use the new API to list supported languages.
-      List<Language> languages = translate.listSupportedLanguages(targetLanguage);
-      return languages != null ? languages : ImmutableList.of();
-    } catch (Exception ex) {
+      List<LanguagesResource> languages =
+          translate
+              .languages()
+              .list()
+              .setKey(options.getApiKey())
+              .setTarget(
+                  firstNonNull(
+                      Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()))
+              .execute()
+              .getLanguages();
+      return languages != null ? languages : ImmutableList.<LanguagesResource>of();
+    } catch (IOException ex) {
       throw translate(ex);
     }
   }
 
   @Override
-  public List<Translation> translate(List<String> texts, Map<Option, ?> optionMap) {
+  public List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap) {
     try {
       String targetLanguage =
           firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
       final String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
-
-      // Build TranslateOption parameters based on the options map.
-      List<Translate.TranslateOption> optionsList = new ArrayList<>();
-      optionsList.add(Translate.TranslateOption.targetLanguage(targetLanguage));
-      if (sourceLanguage != null) {
-        optionsList.add(Translate.TranslateOption.sourceLanguage(sourceLanguage));
-      }
-      String model = Option.MODEL.getString(optionMap);
-      if (model != null) {
-        optionsList.add(Translate.TranslateOption.model(model));
-      }
-      String format = Option.FORMAT.getString(optionMap);
-      if (format != null) {
-        optionsList.add(Translate.TranslateOption.format(format));
-      }
-      Translate.TranslateOption[] optionsArray =
-          optionsList.toArray(new Translate.TranslateOption[0]);
-
-      // Call the new API method to perform translation.
-      List<Translation> translations = translate.translate(texts, optionsArray);
-      // The new Translation objects are immutable so we omit any setter adjustments.
-      return translations != null ? translations : ImmutableList.of();
-    } catch (Exception ex) {
+      List<TranslationsResource> translations =
+          translate
+              .translations()
+              .list(texts, targetLanguage)
+              .setSource(sourceLanguage)
+              .setKey(options.getApiKey())
+              .setModel(Option.MODEL.getString(optionMap))
+              .setFormat(Option.FORMAT.getString(optionMap))
+              .execute()
+              .getTranslations();
+      return Lists.transform(
+          translations != null ? translations : ImmutableList.<TranslationsResource>of(),
+          new Function<TranslationsResource, TranslationsResource>() {
+            @Override
+            public TranslationsResource apply(TranslationsResource translationsResource) {
+              if (translationsResource.getDetectedSourceLanguage() == null) {
+                translationsResource.setDetectedSourceLanguage(sourceLanguage);
+              }
+              return translationsResource;
+            }
+          });
+    } catch (IOException ex) {
       throw translate(ex);
     }
   }

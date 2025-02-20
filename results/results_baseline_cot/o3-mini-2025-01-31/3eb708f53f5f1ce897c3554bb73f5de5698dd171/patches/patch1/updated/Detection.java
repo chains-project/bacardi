@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * you may obtain a copy of the License at
  *
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -16,6 +16,8 @@
 
 package com.google.cloud.translate;
 
+import com.google.cloud.translate.Detection; // Updated import to use the correct class
+import com.google.api.services.translate.v2.model.DetectionsResourceItems; // Updated import to the correct package
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import java.util.Objects;
@@ -83,5 +85,7 @@ public class Detection implements Serializable {
     return Objects.equals(language, other.language) && Objects.equals(confidence, other.confidence);
   }
 
-  // Removed the fromPb method as it depends on the removed DetectionsResourceItems type.
+  static Detection fromPb(DetectionsResourceItems detectionPb) {
+    return new Detection(detectionPb.getLanguage(), detectionPb.getConfidence());
+  }
 }
