@@ -1,117 +1,69 @@
-0a1,6
-> package com.google.cloud.resourcemanager;
-> 
-> import com.google.common.base.Function;
-> import com.google.common.base.MoreObjects;
-> import java.util.Objects;
-> 
-16,23d21
-< package com.google.cloud.resourcemanager;
-< 
+1,15d0
+< /*
+<  * Copyright 2020 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+18d2
 < import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
-< import com.google.api.services.cloudresourcemanager.model.Constraint;
-< import com.google.api.services.cloudresourcemanager.model.ListConstraint;
-< import com.google.common.base.Function;
-< import com.google.common.base.MoreObjects;
-< import java.util.Objects;
-295a294,392
-> 
-> class Constraint {
->   private BooleanConstraint booleanConstraint;
->   private String constraintDefault;
->   private String description;
->   private String displayName;
->   private ListConstraint listConstraint;
->   private String name;
->   private Integer version;
-> 
->   Constraint setBooleanConstraint(BooleanConstraint booleanConstraint) {
->     this.booleanConstraint = booleanConstraint;
->     return this;
->   }
-> 
->   Constraint setConstraintDefault(String constraintDefault) {
->     this.constraintDefault = constraintDefault;
->     return this;
->   }
-> 
->   Constraint setDescription(String description) {
->     this.description = description;
->     return this;
->   }
-> 
->   Constraint setDisplayName(String displayName) {
->     this.displayName = displayName;
->     return this;
->   }
-> 
->   Constraint setListConstraint(ListConstraint listConstraint) {
->     this.listConstraint = listConstraint;
->     return this;
->   }
-> 
->   Constraint setName(String name) {
->     this.name = name;
->     return this;
->   }
-> 
->   Constraint setVersion(Integer version) {
->     this.version = version;
->     return this;
->   }
-> 
->   BooleanConstraint getBooleanConstraint() {
->     return booleanConstraint;
->   }
-> 
->   String getConstraintDefault() {
->     return constraintDefault;
->   }
-> 
->   String getDescription() {
->     return description;
->   }
-> 
->   String getDisplayName() {
->     return displayName;
->   }
-> 
->   ListConstraint getListConstraint() {
->     return listConstraint;
->   }
-> 
->   String getName() {
->     return name;
->   }
-> 
->   Integer getVersion() {
->     return version;
->   }
-> }
-> 
-> class BooleanConstraint {
-> }
-> 
-> class ListConstraint {
->   private String suggestedValue;
->   private Boolean supportsUnder;
-> 
->   ListConstraint setSuggestedValue(String suggestedValue) {
->     this.suggestedValue = suggestedValue;
->     return this;
->   }
-> 
->   ListConstraint setSupportsUnder(Boolean supportsUnder) {
->     this.supportsUnder = supportsUnder;
->     return this;
->   }
-> 
->   String getSuggestedValue() {
->     return suggestedValue;
->   }
-> 
->   Boolean getSupportsUnder() {
->     return supportsUnder;
->   }
-> }
-\ No newline at end of file
+20a5
+> import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
+37d21
+<         @Override
+44d27
+<         @Override
+58,61d40
+<   /**
+<    * A Constraint that allows or disallows a list of string values, which are configured by an
+<    * Organization's policy administrator with a Policy.
+<    */
+72,75d50
+<     /**
+<      * The Google Cloud Console tries to default to a configuration that matches the value specified
+<      * in this Constraint.
+<      */
+80,83d54
+<     /**
+<      * Indicates whether subtrees of Cloud Resource Manager resource hierarchy can be used in
+<      * Policy.allowed_values and Policy.denied_values.
+<      */
+88d58
+<     @Override
+96d65
+<     @Override
+101d69
+<     @Override
+123d90
+<   /** Builder for {@code ConstraintInfo}. */
+197d163
+<   /** Returns the boolean constraint to check whether the constraint is enforced or not. */
+202d167
+<   /** Returns the default behavior of the constraint. */
+207d171
+<   /** Returns the detailed description of the constraint. */
+212d175
+<   /** Returns the human readable name of the constraint. */
+217d179
+<   /** Returns the listConstraintInfo. */
+222d183
+<   /** Returns the globally unique name of the constraint. */
+227d187
+<   /** Returns the version of the Constraint. Default version is 0. */
+232d191
+<   @Override
+250d208
+<   @Override
+256d213
+<   /** Returns a builder for the {@link ConstraintInfo} object. */
+261d217
+<   /** Returns a builder for the {@link ConstraintInfo} object. */

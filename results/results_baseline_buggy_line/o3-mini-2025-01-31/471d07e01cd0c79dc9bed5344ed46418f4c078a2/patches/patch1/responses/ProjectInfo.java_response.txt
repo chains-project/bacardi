@@ -1,19 +1,3 @@
-/*
- * Copyright 2015 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.google.cloud.resourcemanager;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -135,14 +119,7 @@ public class ProjectInfo implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (!(obj instanceof ResourceId)) {
-        return false;
-      }
-      ResourceId other = (ResourceId) obj;
-      return Objects.equals(id, other.id) && Objects.equals(type, other.type);
+      return obj instanceof ResourceId && Objects.equals(toPb(), ((ResourceId) obj).toPb());
     }
 
     @Override
@@ -150,7 +127,18 @@ public class ProjectInfo implements Serializable {
       return Objects.hash(id, type);
     }
 
-    // Legacy conversion methods referencing the removed external dependency have been removed.
+    com.google.api.services.cloudresourcemanager.v1.ResourceId toPb() {
+      com.google.api.services.cloudresourcemanager.v1.ResourceId resourceIdPb =
+          new com.google.api.services.cloudresourcemanager.v1.ResourceId();
+      resourceIdPb.setId(id);
+      resourceIdPb.setType(type.toLowerCase());
+      return resourceIdPb;
+    }
+
+    static ResourceId fromPb(
+        com.google.api.services.cloudresourcemanager.v1.ResourceId resourceIdPb) {
+      return new ResourceId(resourceIdPb.getId(), resourceIdPb.getType());
+    }
   }
 
   /** Builder for {@code ProjectInfo}. */
@@ -366,20 +354,10 @@ public class ProjectInfo implements Serializable {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (!(obj instanceof ProjectInfo)) {
-      return false;
-    }
-    ProjectInfo other = (ProjectInfo) obj;
-    return Objects.equals(name, other.name)
-        && Objects.equals(projectId, other.projectId)
-        && Objects.equals(labels, other.labels)
-        && Objects.equals(projectNumber, other.projectNumber)
-        && Objects.equals(state, other.state)
-        && Objects.equals(createTimeMillis, other.createTimeMillis)
-        && Objects.equals(parent, other.parent);
+    return obj == this
+        || obj != null
+            && obj.getClass().equals(ProjectInfo.class)
+            && Objects.equals(toPb(), ((ProjectInfo) obj).toPb());
   }
 
   @Override
@@ -395,5 +373,47 @@ public class ProjectInfo implements Serializable {
     return new BuilderImpl(this);
   }
 
-  // Legacy conversion methods referencing the removed external dependency have been removed.
+  com.google.api.services.cloudresourcemanager.v1.Project toPb() {
+    com.google.api.services.cloudresourcemanager.v1.Project projectPb =
+        new com.google.api.services.cloudresourcemanager.v1.Project();
+    projectPb.setName(name);
+    projectPb.setProjectId(projectId);
+    projectPb.setLabels(labels);
+    projectPb.setProjectNumber(projectNumber);
+    if (state != null) {
+      projectPb.setLifecycleState(state.toString());
+    }
+    if (createTimeMillis != null) {
+      projectPb.setCreateTime(
+          DateTimeFormatter.ISO_DATE_TIME
+              .withZone(ZoneOffset.UTC)
+              .format(Instant.ofEpochMilli(createTimeMillis)));
+    }
+    if (parent != null) {
+      projectPb.setParent(parent.toPb());
+    }
+    return projectPb;
+  }
+
+  static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v1.Project projectPb) {
+    Builder builder =
+        newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
+    if (projectPb.getName() != null && !projectPb.getName().equals("Unnamed")) {
+      builder.setName(projectPb.getName());
+    }
+    if (projectPb.getLabels() != null) {
+      builder.setLabels(projectPb.getLabels());
+    }
+    if (projectPb.getLifecycleState() != null) {
+      builder.setState(State.valueOf(projectPb.getLifecycleState()));
+    }
+    if (projectPb.getCreateTime() != null) {
+      builder.setCreateTimeMillis(
+          DATE_TIME_FORMATTER.parse(projectPb.getCreateTime(), Instant.FROM).toEpochMilli());
+    }
+    if (projectPb.getParent() != null) {
+      builder.setParent(ResourceId.fromPb(projectPb.getParent()));
+    }
+    return builder.build();
+  }
 }

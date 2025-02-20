@@ -1,17 +1,41 @@
-19,21d18
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+19,22c3,4
 < import com.google.api.services.translate.model.DetectionsResourceItems;
 < import com.google.api.services.translate.model.LanguagesResource;
 < import com.google.api.services.translate.model.TranslationsResource;
-77a75,86
-> 
->   public static class LanguagesResource {
->     // Minimal stub class for compatibility with updated dependency.
->   }
-> 
->   public static class DetectionsResourceItems {
->     // Minimal stub class for compatibility with updated dependency.
->   }
-> 
->   public static class TranslationsResource {
->     // Minimal stub class for compatibility with updated dependency.
->   }
+< import com.google.cloud.ServiceRpc;
+---
+> import com.google.cloud.translate.Translate.TranslateOption;
+> import com.google.cloud.translate.Translation;
+26c8
+< public interface TranslateRpc extends ServiceRpc {
+---
+> public interface TranslateRpc {
+59c41
+<   List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap);
+---
+>   List<String> listSupportedLanguages(Map<Option, ?> optionMap);
+67c49
+<   List<List<DetectionsResourceItems>> detect(List<String> texts);
+---
+>   List<List<Translation>> detect(List<String> texts);
+77c59
+<   List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap);
+---
+>   List<Translation> translate(List<String> texts, Map<Option, ?> optionMap);

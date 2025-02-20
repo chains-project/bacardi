@@ -1,24 +1,11 @@
 package com.google.cloud.resourcemanager;
 
+import com.google.api.services.cloudresourcemanager.model.Constraint;
+import com.google.api.services.cloudresourcemanager.model.ListConstraint;
+import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.Objects;
-
-/*
- * Copyright 2020 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 /**
  * A Google Cloud Resource Manager constraint metadata object.
@@ -32,14 +19,12 @@ public class ConstraintInfo {
 
   static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
       new Function<Constraint, ConstraintInfo>() {
-        @Override
         public ConstraintInfo apply(Constraint protobuf) {
           return ConstraintInfo.fromProtobuf(protobuf);
         }
       };
   static final Function<ConstraintInfo, Constraint> TO_PROTOBUF_FUNCTION =
       new Function<ConstraintInfo, Constraint>() {
-        @Override
         public Constraint apply(ConstraintInfo constraintInfo) {
           return constraintInfo.toProtobuf();
         }
@@ -53,10 +38,6 @@ public class ConstraintInfo {
   private String name;
   private Integer version;
 
-  /**
-   * A Constraint that allows or disallows a list of string values, which are configured by an
-   * Organization's policy administrator with a Policy.
-   */
   static class Constraints {
 
     private final String suggestedValue;
@@ -67,23 +48,14 @@ public class ConstraintInfo {
       this.supportsUnder = supportsUnder;
     }
 
-    /**
-     * The Google Cloud Console tries to default to a configuration that matches the value specified
-     * in this Constraint.
-     */
     String getSuggestedValue() {
       return suggestedValue;
     }
 
-    /**
-     * Indicates whether subtrees of Cloud Resource Manager resource hierarchy can be used in
-     * Policy.allowed_values and Policy.denied_values.
-     */
     Boolean getSupportsUnder() {
       return supportsUnder;
     }
 
-    @Override
     public String toString() {
       return MoreObjects.toStringHelper(this)
           .add("suggestedValue", getSuggestedValue())
@@ -91,12 +63,10 @@ public class ConstraintInfo {
           .toString();
     }
 
-    @Override
     public int hashCode() {
       return Objects.hash(suggestedValue, supportsUnder);
     }
 
-    @Override
     public boolean equals(Object o) {
       if (this == o) {
         return true;
@@ -118,7 +88,6 @@ public class ConstraintInfo {
     }
   }
 
-  /** Builder for {@code ConstraintInfo}. */
   static class Builder {
     private BooleanConstraint booleanConstraint;
     private String constraintDefault;
@@ -192,42 +161,34 @@ public class ConstraintInfo {
     this.version = builder.version;
   }
 
-  /** Returns the boolean constraint to check whether the constraint is enforced or not. */
   public BooleanConstraint getBooleanConstraint() {
     return booleanConstraint;
   }
 
-  /** Returns the default behavior of the constraint. */
   public String getConstraintDefault() {
     return constraintDefault;
   }
 
-  /** Returns the detailed description of the constraint. */
   public String getDescription() {
     return description;
   }
 
-  /** Returns the human readable name of the constraint. */
   public String getDisplayName() {
     return displayName;
   }
 
-  /** Returns the listConstraintInfo. */
   public Constraints getConstraints() {
     return constraints;
   }
 
-  /** Returns the globally unique name of the constraint. */
   public String getName() {
     return name;
   }
 
-  /** Returns the version of the Constraint. Default version is 0. */
   public Integer getVersion() {
     return version;
   }
 
-  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -245,18 +206,15 @@ public class ConstraintInfo {
         && Objects.equals(version, that.version);
   }
 
-  @Override
   public int hashCode() {
     return Objects.hash(
         booleanConstraint, constraintDefault, description, displayName, constraints, name, version);
   }
 
-  /** Returns a builder for the {@link ConstraintInfo} object. */
   public static Builder newBuilder(String name) {
     return new Builder(name);
   }
 
-  /** Returns a builder for the {@link ConstraintInfo} object. */
   public Builder toBuilder() {
     return new Builder(this);
   }
@@ -289,104 +247,5 @@ public class ConstraintInfo {
     }
     builder.setVersion(constraintProtobuf.getVersion());
     return builder.build();
-  }
-}
-
-class Constraint {
-  private BooleanConstraint booleanConstraint;
-  private String constraintDefault;
-  private String description;
-  private String displayName;
-  private ListConstraint listConstraint;
-  private String name;
-  private Integer version;
-
-  Constraint setBooleanConstraint(BooleanConstraint booleanConstraint) {
-    this.booleanConstraint = booleanConstraint;
-    return this;
-  }
-
-  Constraint setConstraintDefault(String constraintDefault) {
-    this.constraintDefault = constraintDefault;
-    return this;
-  }
-
-  Constraint setDescription(String description) {
-    this.description = description;
-    return this;
-  }
-
-  Constraint setDisplayName(String displayName) {
-    this.displayName = displayName;
-    return this;
-  }
-
-  Constraint setListConstraint(ListConstraint listConstraint) {
-    this.listConstraint = listConstraint;
-    return this;
-  }
-
-  Constraint setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  Constraint setVersion(Integer version) {
-    this.version = version;
-    return this;
-  }
-
-  BooleanConstraint getBooleanConstraint() {
-    return booleanConstraint;
-  }
-
-  String getConstraintDefault() {
-    return constraintDefault;
-  }
-
-  String getDescription() {
-    return description;
-  }
-
-  String getDisplayName() {
-    return displayName;
-  }
-
-  ListConstraint getListConstraint() {
-    return listConstraint;
-  }
-
-  String getName() {
-    return name;
-  }
-
-  Integer getVersion() {
-    return version;
-  }
-}
-
-class BooleanConstraint {
-}
-
-class ListConstraint {
-  private String suggestedValue;
-  private Boolean supportsUnder;
-
-  ListConstraint setSuggestedValue(String suggestedValue) {
-    this.suggestedValue = suggestedValue;
-    return this;
-  }
-
-  ListConstraint setSupportsUnder(Boolean supportsUnder) {
-    this.supportsUnder = supportsUnder;
-    return this;
-  }
-
-  String getSuggestedValue() {
-    return suggestedValue;
-  }
-
-  Boolean getSupportsUnder() {
-    return supportsUnder;
   }
 }

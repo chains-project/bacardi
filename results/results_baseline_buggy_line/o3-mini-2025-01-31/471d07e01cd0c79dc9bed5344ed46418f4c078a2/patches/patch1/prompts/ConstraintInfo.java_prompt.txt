@@ -303,25 +303,34 @@ public class ConstraintInfo {
 the error is triggered in the following specific lines in the previous code:
 
 ```java
-import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
+static final Function<ConstraintInfo, Constraint> TO_PROTOBUF_FUNCTION =
 ```
 ```java
-static final Function<ConstraintInfo, Constraint> TO_PROTOBUF_FUNCTION =
+Builder setBooleanConstraint(BooleanConstraint booleanConstraint) {
+```
+```java
+static ConstraintInfo fromProtobuf(Constraint constraintProtobuf) {
 ```
 ```java
 static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
 ```
 ```java
-Constraint toProtobuf() {
+ListConstraint toProtobuf() {
 ```
 ```java
-ListConstraint toProtobuf() {
+private BooleanConstraint booleanConstraint;
 ```
 ```java
 public BooleanConstraint getBooleanConstraint() {
 ```
 ```java
+Constraint toProtobuf() {
+```
+```java
 import com.google.api.services.cloudresourcemanager.model.Constraint;
+```
+```java
+import com.google.api.services.cloudresourcemanager.model.ListConstraint;
 ```
 ```java
 static Constraints fromProtobuf(ListConstraint listConstraint) {
@@ -330,23 +339,21 @@ static Constraints fromProtobuf(ListConstraint listConstraint) {
 private BooleanConstraint booleanConstraint;
 ```
 ```java
-Builder setBooleanConstraint(BooleanConstraint booleanConstraint) {
-```
-```java
-import com.google.api.services.cloudresourcemanager.model.ListConstraint;
-```
-```java
-private BooleanConstraint booleanConstraint;
-```
-```java
-static ConstraintInfo fromProtobuf(Constraint constraintProtobuf) {
+import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
 ```
 
 
 
  with the following error information:
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/ConstraintInfo.java:[18,58] package com.google.api.services.cloudresourcemanager.model does not exist
 [ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/ConstraintInfo.java:[42,41] cannot find symbol
+
+  symbol:   class Constraint
+  location: class com.google.cloud.resourcemanager.ConstraintInfo
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/ConstraintInfo.java:[147,34] cannot find symbol
+
+  symbol:   class BooleanConstraint
+  location: class com.google.cloud.resourcemanager.ConstraintInfo.Builder
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/ConstraintInfo.java:[280,38] cannot find symbol
 
   symbol:   class Constraint
   location: class com.google.cloud.resourcemanager.ConstraintInfo
@@ -354,19 +361,24 @@ static ConstraintInfo fromProtobuf(Constraint constraintProtobuf) {
 
   symbol:   class Constraint
   location: class com.google.cloud.resourcemanager.ConstraintInfo
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/ConstraintInfo.java:[266,3] cannot find symbol
-
-  symbol:   class Constraint
-  location: class com.google.cloud.resourcemanager.ConstraintInfo
 [ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/ConstraintInfo.java:[114,5] cannot find symbol
 
   symbol:   class ListConstraint
   location: class com.google.cloud.resourcemanager.ConstraintInfo.Constraints
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/ConstraintInfo.java:[50,11] cannot find symbol
+
+  symbol:   class BooleanConstraint
+  location: class com.google.cloud.resourcemanager.ConstraintInfo
 [ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/ConstraintInfo.java:[198,10] cannot find symbol
 
   symbol:   class BooleanConstraint
   location: class com.google.cloud.resourcemanager.ConstraintInfo
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/ConstraintInfo.java:[266,3] cannot find symbol
+
+  symbol:   class Constraint
+  location: class com.google.cloud.resourcemanager.ConstraintInfo
 [ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/ConstraintInfo.java:[19,58] package com.google.api.services.cloudresourcemanager.model does not exist
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/ConstraintInfo.java:[20,58] package com.google.api.services.cloudresourcemanager.model does not exist
 [ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/ConstraintInfo.java:[118,37] cannot find symbol
 
   symbol:   class ListConstraint
@@ -375,19 +387,7 @@ static ConstraintInfo fromProtobuf(Constraint constraintProtobuf) {
 
   symbol:   class BooleanConstraint
   location: class com.google.cloud.resourcemanager.ConstraintInfo.Builder
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/ConstraintInfo.java:[147,34] cannot find symbol
-
-  symbol:   class BooleanConstraint
-  location: class com.google.cloud.resourcemanager.ConstraintInfo.Builder
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/ConstraintInfo.java:[20,58] package com.google.api.services.cloudresourcemanager.model does not exist
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/ConstraintInfo.java:[50,11] cannot find symbol
-
-  symbol:   class BooleanConstraint
-  location: class com.google.cloud.resourcemanager.ConstraintInfo
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/ConstraintInfo.java:[280,38] cannot find symbol
-
-  symbol:   class Constraint
-  location: class com.google.cloud.resourcemanager.ConstraintInfo
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/ConstraintInfo.java:[18,58] package com.google.api.services.cloudresourcemanager.model does not exist
 
 
 

@@ -1,21 +1,19 @@
-19d18
+6c6
+<  * You may obtain a copy of the License at
+---
+>  * you may obtain a copy of the License at
+19,20d18
 < import com.google.api.services.translate.model.DetectionsResourceItems;
-89a89,106
->   
->   public static class DetectionsResourceItems {
->     private String language;
->     private Float confidence;
-> 
->     public DetectionsResourceItems(String language, Float confidence) {
->       this.language = language;
->       this.confidence = confidence;
->     }
-> 
->     public String getLanguage() {
->       return language;
->     }
-> 
->     public Float getConfidence() {
->       return confidence;
->     }
->   }
+< import com.google.common.base.MoreObjects;
+64c62
+<     return MoreObjects.toStringHelper(this)
+---
+>     return com.google.common.base.MoreObjects.toStringHelper(this)
+87,88c85,88
+<   static Detection fromPb(DetectionsResourceItems detectionPb) {
+<     return new Detection(detectionPb.getLanguage(), detectionPb.getConfidence());
+---
+>   static Detection fromPb(Object detectionPb) {
+>     String language = (String) detectionPb.getClass().getMethod("getLanguage").invoke(detectionPb);
+>     Float confidence = (Float) detectionPb.getClass().getMethod("getConfidence").invoke(detectionPb);
+>     return new Detection(language, confidence);
