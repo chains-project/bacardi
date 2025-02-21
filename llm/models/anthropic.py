@@ -31,3 +31,8 @@ class AnthropicModel:
             result = completion
 
         return result
+
+    def _token_cost(dict_response: dict) -> Any:
+
+
+        return dict_response["cost"]
