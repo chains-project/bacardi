@@ -1,0 +1,33 @@
+14c14
+< import org.spongepowered.api.command.CommandException;
+---
+> import org.spongepowered.api.command.Command;
+16,19c16,17
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+21a20
+> import org.spongepowered.api.service.permission.Subject;
+25c24
+< public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class InfoCommand implements Command.Parameterized, ChangeSkinCommand {
+35c34
+<     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+---
+>     public CommandResult execute(Subject src, CommandContext args) {
+53,54c52,53
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command.Builder buildSpec() {
+>         return Command.builder()
+56,57c55
+<                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
+<                 .build();
+---
+>                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base");

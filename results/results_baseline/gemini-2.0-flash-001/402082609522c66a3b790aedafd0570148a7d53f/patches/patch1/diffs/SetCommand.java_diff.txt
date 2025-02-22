@@ -1,0 +1,65 @@
+11a12
+> import org.spongepowered.api.command.Command;
+13,17c14,16
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.args.GenericArguments;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.CommonParameters;
+> import org.spongepowered.api.command.parameter.Parameter;
+21,23c20,25
+< import static org.spongepowered.api.command.args.GenericArguments.flags;
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import com.google.common.collect.ImmutableList;
+> import org.spongepowered.api.command.CommandCause;
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.CommandExecutor;
+> 
+> import java.util.Optional;
+37c39,40
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+---
+>     public CommandResult execute(CommandContext context) throws CommandException {
+>         CommandCause src = context.cause();
+50,51c53,60
+<         String targetSkin = args.<String>getOne("skin").get();
+<         boolean keepSkin = args.hasAny("keep");
+---
+>         Optional<String> targetSkinOptional = context.one(CommonParameters.STRING);
+>         if (!targetSkinOptional.isPresent()) {
+>             plugin.sendMessage(src, "invalid-usage");
+>             return CommandResult.empty();
+>         }
+> 
+>         String targetSkin = targetSkinOptional.get();
+>         boolean keepSkin = context.hasFlag("keep");
+57a67
+>             try {
+67a78,81
+>             } catch (IllegalArgumentException e) {
+>                 plugin.sendMessage(src, "invalid-uuid");
+>                 return CommandResult.empty();
+>             }
+76,77c90,93
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command.Builder buildSpec() {
+>         Parameter.Value<String> skinParam = CommonParameters.STRING;
+> 
+>         return Command.builder()
+79,83c95,97
+<                 .arguments(
+<                         string(of("skin")),
+<                         flags().flag("keep").buildWith(GenericArguments.none()))
+<                 .permission(PomData.ARTIFACT_ID + ".command.setskin.base")
+<                 .build();
+---
+>                 .addParameter(skinParam)
+>                 .addFlag(org.spongepowered.api.command.parameter.Flag.builder().setAliases("keep").build())
+>                 .permission(PomData.ARTIFACT_ID + ".command.setskin.base");

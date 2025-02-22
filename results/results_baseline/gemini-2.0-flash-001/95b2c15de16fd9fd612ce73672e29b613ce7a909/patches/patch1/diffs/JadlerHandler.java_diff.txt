@@ -1,0 +1,22 @@
+40,43c40,41
+<     public void handle(final String target, final Request baseRequest, final HttpServletRequest request,
+<                        final HttpServletResponse response) throws IOException, ServletException {
+< 
+<         final net.jadler.Request req = RequestUtils.convert(request);
+---
+>     public void handle(Request request, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException, ServletException {
+>         final net.jadler.Request req = RequestUtils.convert(httpServletRequest);
+46,47c44,45
+<         response.setStatus(stubResponse.getStatus());
+<         this.insertResponseHeaders(stubResponse.getHeaders(), response);
+---
+>         httpServletResponse.setStatus(stubResponse.getStatus());
+>         this.insertResponseHeaders(stubResponse.getHeaders(), httpServletResponse);
+49c47
+<         baseRequest.setHandled(true);
+---
+>         request.setHandled(true);
+52c50
+<         this.insertResponseBody(stubResponse.getBody(), response);
+---
+>         this.insertResponseBody(stubResponse.getBody(), httpServletResponse);

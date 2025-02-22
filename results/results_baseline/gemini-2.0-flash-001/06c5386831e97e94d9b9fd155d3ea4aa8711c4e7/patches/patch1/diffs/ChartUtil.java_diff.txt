@@ -1,0 +1,24 @@
+7c7,8
+< import com.gargoylesoftware.htmlunit.ScriptResult;
+---
+> import net.sourceforge.htmlunit.corejs.javascript.ScriptableObject;
+> import net.sourceforge.htmlunit.corejs.javascript.Undefined;
+35,36c36,41
+<             ScriptResult scriptResult = new ScriptResult(result);
+<             return scriptResult.getJavaScriptResult().toString();
+---
+>             if (result instanceof String) {
+>                 return (String) result;
+>             } else if (result instanceof ScriptableObject) {
+>                 return Undefined.instance.equals(result) ? null : result.toString();
+>             }
+>             return null;
+60c65,68
+<                 Object scriptResult = new ScriptResult(result).getJavaScriptResult();
+---
+>                 if (result instanceof String) {
+>                     return (String) result;
+>                 } else if (result instanceof ScriptableObject) {
+>                     Object scriptResult = Undefined.instance.equals(result) ? null : result;
+63a72
+>                 }

@@ -1,0 +1,25 @@
+15,16c15,17
+< import org.cactoos.io.BytesOf;
+< import org.cactoos.text.HexOf;
+---
+> import java.io.ByteArrayOutputStream;
+> import java.io.IOException;
+> import java.util.Formatter;
+57c58
+<                 new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+---
+>                 new Digest.Sha256(DigestedFlowable.bytesToHex(sha.digest()))
+69a71,83
+> 
+>     /**
+>      * Converts byte array to hex string.
+>      * @param bytes Bytes array
+>      * @return Hex string
+>      */
+>     private static String bytesToHex(byte[] bytes) {
+>         Formatter result = new Formatter();
+>         for (byte b : bytes) {
+>             result.format("%02x", b);
+>         }
+>         return result.toString();
+>     }

@@ -1,0 +1,41 @@
+7a8
+> import org.spongepowered.api.command.Command;
+9,12c10,11
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+14a14
+> import org.spongepowered.api.command.CommandCause;
+16c16,18
+< public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> import java.util.Collections;
+> 
+> public class InvalidateCommand implements Command {
+26,28c28,30
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+---
+>     public CommandResult execute(CommandCause cause, CommandContext args) {
+>         if (!(cause.getAudience() instanceof Player)) {
+>             plugin.sendMessage(cause.getAudience(), "no-console");
+32c34
+<         Player receiver = (Player) src;
+---
+>         Player receiver = (Player) cause.getAudience();
+38,39c40,41
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public org.spongepowered.api.command.Command.Builder builder() {
+>         return Command.builder()
+41,42c43
+<                 .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base")
+<                 .build();
+---
+>                 .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base");

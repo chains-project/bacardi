@@ -1,0 +1,24 @@
+20d19
+< import com.google.cloud.pubsublite.PublishMetadata;
+27a27
+> import com.google.cloud.pubsublite.proto.PubSubMessage;
+36c36
+<   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
+---
+>   public Publisher<PubSubMessage> newPublisher(Map<String, String> params) {
+49,54c49,56
+<         partition ->
+<             SinglePartitionPublisherBuilder.newBuilder()
+<                 .setTopic(topic)
+<                 .setPartition(partition)
+<                 .setContext(PubsubContext.of(FRAMEWORK))
+<                 .build());
+---
+>         partition -> {
+>           SinglePartitionPublisherBuilder partitionPublisherBuilder =
+>               SinglePartitionPublisherBuilder.newBuilder();
+>           partitionPublisherBuilder.setTopic(topic);
+>           partitionPublisherBuilder.setPartition(partition);
+>           partitionPublisherBuilder.setContext(PubsubContext.of(FRAMEWORK));
+>           return partitionPublisherBuilder.build();
+>         });

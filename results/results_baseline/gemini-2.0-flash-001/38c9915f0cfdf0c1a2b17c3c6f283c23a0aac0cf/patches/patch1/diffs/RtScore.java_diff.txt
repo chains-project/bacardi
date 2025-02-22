@@ -1,0 +1,35 @@
+10,11c10
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+---
+>  * copies of the Software, and to permit persons to do so, subject to the following conditions:
+18c17
+<  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+---
+>  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+25a25
+> import java.util.Iterator;
+27d26
+< import org.cactoos.iterable.LengthOf;
+52,53c51,52
+<         return new LengthOf(other.suffixes()).intValue()
+<             - new LengthOf(this.sfxs).intValue();
+---
+>         return RtScore.length(other.suffixes())
+>             - RtScore.length(this.sfxs);
+59a59,73
+> 
+>     /**
+>      * Length of iterable.
+>      * @param iterable The iterable.
+>      * @return The length.
+>      */
+>     private static int length(final Iterable<?> iterable) {
+>         int length = 0;
+>         final Iterator<?> iterator = iterable.iterator();
+>         while (iterator.hasNext()) {
+>             length += 1;
+>             iterator.next();
+>         }
+>         return length;
+>     }

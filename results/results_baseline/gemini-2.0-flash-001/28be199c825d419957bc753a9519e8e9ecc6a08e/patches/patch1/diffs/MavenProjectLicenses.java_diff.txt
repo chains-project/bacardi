@@ -1,0 +1,9 @@
+34a35
+> import java.io.File;
+111c112,115
+<       MavenProject project = getProjectBuilder().build(artifact, getBuildingRequest()).getProject();
+---
+>       File artifactFile = artifact.getFile();
+>       ProjectBuildingRequest buildingRequest = getBuildingRequest();
+>       buildingRequest.setProcessPlugins(false);
+>       MavenProject project = getProjectBuilder().build(artifactFile, buildingRequest).getProject();

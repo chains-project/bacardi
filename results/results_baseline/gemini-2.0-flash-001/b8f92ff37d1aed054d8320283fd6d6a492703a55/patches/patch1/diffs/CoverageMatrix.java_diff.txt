@@ -1,0 +1,18 @@
+14a15
+> import org.apache.maven.shared.utils.io.SelectorUtils;
+199,200c200,203
+<             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), TestListResolver.getWildcard());
+<             if (directoryScanner.scan().getClasses().contains(className)) {
+---
+>             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir));
+>                         directoryScanner.setIncludes(new String[]{"**/*.class"});
+>                         directoryScanner.scan();
+>             if (Arrays.asList(directoryScanner.getClasses()).contains(className)) {
+205,206c208,211
+<             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), TestListResolver.getWildcard());
+<             if (directoryScanner.scan().getClasses().contains(className)) {
+---
+>             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir));
+>                         directoryScanner.setIncludes(new String[]{"**/*.class"});
+>                         directoryScanner.scan();
+>             if (Arrays.asList(directoryScanner.getClasses()).contains(className)) {

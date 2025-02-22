@@ -1,0 +1,10 @@
+13c13
+<  * See the License for the specific language governing permissions and
+---
+>  * See the License for specific language governing permissions and
+111c111,113
+<       MavenProject project = getProjectBuilder().build(artifact, getBuildingRequest()).getProject();
+---
+>       ProjectBuildingRequest buildingRequest = new DefaultProjectBuildingRequest(getBuildingRequest());
+>       buildingRequest.setProject(artifact);
+>       MavenProject project = getProjectBuilder().build(artifact, buildingRequest).getProject();

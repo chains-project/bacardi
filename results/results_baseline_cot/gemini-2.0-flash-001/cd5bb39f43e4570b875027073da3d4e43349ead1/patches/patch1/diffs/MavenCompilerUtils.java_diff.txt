@@ -1,0 +1,16 @@
+24a25
+> import java.util.stream.Stream;
+71,72c72,81
+<             return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
+<                     .flatMap(aggregate -> stream(aggregate.getChildren("path")))
+---
+>             Xpp3Dom xpp3DomConfig = (Xpp3Dom) config;
+>             Xpp3Dom[] annotationProcessorPaths = xpp3DomConfig.getChildren("annotationProcessorPaths");
+> 
+>             Stream<Xpp3Dom> annotationProcessorPathsStream = annotationProcessorPaths != null ? stream(annotationProcessorPaths) : Stream.empty();
+> 
+>             return annotationProcessorPathsStream
+>                     .flatMap(aggregate -> {
+>                         Xpp3Dom[] pathChildren = aggregate.getChildren("path");
+>                         return pathChildren != null ? stream(pathChildren) : Stream.empty();
+>                     })

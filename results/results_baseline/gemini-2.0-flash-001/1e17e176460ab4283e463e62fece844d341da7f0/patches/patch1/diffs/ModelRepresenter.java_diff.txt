@@ -1,0 +1,13 @@
+37a38
+>     super();
+217,219c218,219
+<   @Override
+<   protected Set<Property> getProperties(Class<? extends Object> type)
+<           throws IntrospectionException {
+---
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+>     try {
+232a233,235
+>     } catch (IntrospectionException e) {
+>       return super.getProperties(type);
+>     }

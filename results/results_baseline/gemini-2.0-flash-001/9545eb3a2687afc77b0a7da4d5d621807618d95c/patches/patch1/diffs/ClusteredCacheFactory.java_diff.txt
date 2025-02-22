@@ -1,0 +1,35 @@
+22,23d21
+< import com.hazelcast.config.MaxSizeConfig;
+< import com.hazelcast.config.MemberAttributeConfig;
+27d24
+< import com.hazelcast.core.Cluster;
+30c27,35
+< import com.hazelcast.core.Member;
+---
+> import com.hazelcast.core.MemberSelector;
+> import com.hazelcast.map.listener.EntryAddedListener;
+> import com.hazelcast.map.listener.EntryRemovedListener;
+> import com.hazelcast.map.listener.EntryUpdatedListener;
+> import com.hazelcast.cluster.Cluster;
+> import com.hazelcast.cluster.Member;
+> import com.hazelcast.config.AttributeConfig;
+> import com.hazelcast.config.MemberAttributeConfig;
+> import com.hazelcast.config.MaxSizeConfig;
+194,195c199,200
+<                 memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
+<                 memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
+---
+>                 memberAttributeConfig.setAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
+>                 memberAttributeConfig.setAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
+288c293
+<             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+---
+>             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig().setSize(hazelcastMaxCacheSizeInMegaBytes).setMaxSizePolicy(MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+656c661
+<         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
+---
+>         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE));
+701,703d705
+< 
+< 
+< 

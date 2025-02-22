@@ -1,0 +1,30 @@
+19d18
+< import com.google.api.services.cloudresourcemanager.model.Binding;
+22d20
+< import com.google.cloud.Policy.Marshaller;
+37c35
+<     extends Marshaller<com.google.api.services.cloudresourcemanager.model.Policy> {
+---
+>     extends Policy.Marshaller<com.google.api.resourcemanager.v3.Policy> {
+55c53
+<   protected Policy fromPb(com.google.api.services.cloudresourcemanager.model.Policy policyPb) {
+---
+>   protected Policy fromPb(com.google.api.resourcemanager.v3.Policy policyPb) {
+58c56
+<       for (Binding bindingPb : policyPb.getBindings()) {
+---
+>       for (com.google.api.resourcemanager.v3.Binding bindingPb : policyPb.getBindings()) {
+76,79c74,77
+<   protected com.google.api.services.cloudresourcemanager.model.Policy toPb(Policy policy) {
+<     com.google.api.services.cloudresourcemanager.model.Policy policyPb =
+<         new com.google.api.services.cloudresourcemanager.model.Policy();
+<     List<Binding> bindingPbList = new LinkedList<>();
+---
+>   protected com.google.api.resourcemanager.v3.Policy toPb(Policy policy) {
+>     com.google.api.resourcemanager.v3.Policy policyPb =
+>         new com.google.api.resourcemanager.v3.Policy();
+>     List<com.google.api.resourcemanager.v3.Binding> bindingPbList = new LinkedList<>();
+81c79
+<       Binding bindingPb = new Binding();
+---
+>       com.google.api.resourcemanager.v3.Binding bindingPb = new com.google.api.resourcemanager.v3.Binding();

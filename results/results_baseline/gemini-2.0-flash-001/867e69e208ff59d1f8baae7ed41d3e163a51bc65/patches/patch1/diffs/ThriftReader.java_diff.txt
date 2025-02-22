@@ -1,0 +1,15 @@
+11c11
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+---
+>  * is distributed under the License is distributed on an "AS IS" BASIS,
+23,24d22
+< import org.apache.thrift.transport.TFramedTransport;
+< import org.apache.thrift.transport.TIOStreamTransport;
+25a24,25
+> import org.apache.thrift.transport.TIOStreamTransport;
+> import org.apache.thrift.transport.layered.TFramedTransport;
+81c81,82
+<         .byteOffsetInputStream), maxMessageSize);
+---
+>         .byteOffsetInputStream));
+>     framedTransport.setMaxFrameSize(maxMessageSize);

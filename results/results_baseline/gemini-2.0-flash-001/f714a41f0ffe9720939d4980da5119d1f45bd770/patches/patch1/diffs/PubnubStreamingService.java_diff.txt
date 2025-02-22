@@ -1,0 +1,38 @@
+15,17c15,18
+< import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
+< import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
+< import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
+---
+> import com.pubnub.api.models.consumer.objects.membership.PNMembership;
+> import com.pubnub.api.models.consumer.objects.PNObject;
+> import com.pubnub.api.models.consumer.objects.channel.PNChannel;
+> import com.pubnub.api.models.consumer.objects.user.PNUser;
+26a28
+> import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
+40,41c42
+<     PNConfiguration pnConfiguration = new PNConfiguration();
+<     pnConfiguration.setSubscribeKey(publicKey);
+---
+>     PNConfiguration pnConfiguration = new PNConfiguration(publicKey);
+94,105c95,96
+<                 public void user(PubNub pubnub, PNUserResult pnUserResult) {
+<                   LOG.debug("PubNub user: {}", pnUserResult.toString());
+<                 }
+< 
+<                 @Override
+<                 public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
+<                   LOG.debug("PubNub space: {}", pnSpaceResult.toString());
+<                 }
+< 
+<                 @Override
+<                 public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
+<                   LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
+---
+>                 public void objects(PubNub pubnub, PNObject pnObject) {
+>                   LOG.debug("PubNub object: {}", pnObject.toString());
+112a104,108
+> 
+>                 @Override
+>                 public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
+>                   LOG.debug("PubNub file: {}", pnFileEventResult.toString());
+>                 }

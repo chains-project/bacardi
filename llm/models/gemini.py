@@ -1,15 +1,8 @@
-import google.api_core
-import google.api_core.exceptions
-
 from dotenv import load_dotenv
 from typing import Any, List
 
 import os
-from google.genai import types
 import google.generativeai as genai
-
-import google
-
 
 def extract_text(response) -> str:
     return response['candidates'][0]['content']['parts'][0]['text']

@@ -1,0 +1,14 @@
+13c13
+< import org.spongepowered.api.event.network.ClientConnectionEvent;
+---
+> import org.spongepowered.api.event.network.ServerSideConnectionEvent;
+29c29
+<     public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
+---
+>     public void onPlayerPreLogin(ServerSideConnectionEvent.Auth preLoginEvent) {
+45,46c45,46
+<             String playerName = profile.getName().get();
+<             if (!core.getConfig().getBoolean("restoreSkins") || !refetchSkin(playerName, preferences)) {
+---
+>             Optional<String> playerName = profile.getName();
+>             if (!core.getConfig().getBoolean("restoreSkins") || !refetchSkin(playerName.orElse(null), preferences)) {

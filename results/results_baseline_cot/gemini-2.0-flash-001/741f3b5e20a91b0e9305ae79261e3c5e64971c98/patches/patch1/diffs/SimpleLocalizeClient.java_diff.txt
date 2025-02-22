@@ -1,0 +1,13 @@
+3a4
+> import com.fasterxml.jackson.core.JsonProcessingException;
+88c89,96
+<     ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
+---
+>     ExportResponse exportResponse = null;
+>     try
+>     {
+>       exportResponse = objectMapper.readValue(body, ExportResponse.class);
+>     } catch (JsonProcessingException e)
+>     {
+>       throw new IOException(e);
+>     }

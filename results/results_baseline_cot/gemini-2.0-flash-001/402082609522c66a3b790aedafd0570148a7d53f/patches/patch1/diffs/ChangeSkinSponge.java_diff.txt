@@ -1,0 +1,52 @@
+21c21
+< import org.spongepowered.api.Platform.Type;
+---
+> import org.spongepowered.api.Platform;
+23c23
+< import org.spongepowered.api.command.CommandManager;
+---
+> import org.spongepowered.api.command.Command;
+27,31c27,30
+< import org.spongepowered.api.event.game.state.GameInitializationEvent;
+< import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+< import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelRegistrar;
+---
+> import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
+> import org.spongepowered.api.event.lifecycle.StoppingServerEvent;
+> import org.spongepowered.api.network.channel.raw.RawDataChannel;
+> import org.spongepowered.api.network.channel.ChannelRegistrar;
+62c61
+<     public void onPreInit(GamePreInitializationEvent preInitEvent) {
+---
+>     public void onPreInit(ConstructPluginEvent preInitEvent) {
+73c72
+<     public void onInit(GameInitializationEvent initEvent) {
+---
+>     public void onInit(org.spongepowered.api.event.lifecycle.StartedEngineEvent<org.spongepowered.api.Server> initEvent) {
+77c76
+<         CommandManager cmdManager = Sponge.getCommandManager();
+---
+>         org.spongepowered.api.command.CommandManager cmdManager = Sponge.getCommandManager();
+83c82,85
+<         cmdManager.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+---
+> 
+>         Command.Parameterized changeskinCommand = injector.getInstance(SetCommand.class).buildSpec();
+>         cmdManager.register(this, changeskinCommand, "changeskin", "setskin", "skin");
+> 
+93,96c95,98
+<         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
+<         RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
+<         updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
+<         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
+---
+>         RawDataChannel updateChannel = channelReg.getOrCreate(this, updateChannelName, buffer -> {});
+>         RawDataChannel permChannel = channelReg.getOrCreate(this, permissionChannelName, buffer -> {});
+>         updateChannel.addListener(injector.getInstance(UpdateSkinListener.class));
+>         permChannel.addListener(injector.getInstance(CheckPermissionListener.class));
+100c102
+<     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
+---
+>     public void onShutdown(StoppingServerEvent stoppingServerEvent) {
