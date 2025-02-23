@@ -1,0 +1,87 @@
+11a12
+> import org.spongepowered.api.command.Command;
+13,17c14,16
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.args.GenericArguments;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.CommonParameters;
+> import org.spongepowered.api.command.parameter.Parameter;
+19a19,20
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.CommandCause;
+21,23c22,23
+< import static org.spongepowered.api.command.args.GenericArguments.flags;
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import java.util.Optional;
+> import org.spongepowered.api.text.Text;
+25c25
+< public class SetCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class SetCommand implements Command.Executor, ChangeSkinCommand {
+37,39c37,39
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+---
+>     public CommandResult execute(CommandCause cause, CommandContext args) throws CommandException {
+>         if (!(cause.root() instanceof Player)) {
+>             plugin.sendMessage(cause.audience(), "no-console");
+43c43
+<         UUID uniqueId = ((Player) src).getUniqueId();
+---
+>         UUID uniqueId = ((Player) cause.root()).getUniqueId();
+45c45
+<             plugin.sendMessage(src, "cooldown");
+---
+>             plugin.sendMessage(cause.audience(), "cooldown");
+49,50c49,57
+<         Player receiver = (Player) src;
+<         String targetSkin = args.<String>getOne("skin").get();
+---
+>         Player receiver = (Player) cause.root();
+>         Optional<String> targetSkinOptional = args.getOne(CommonParameters.STRING);
+> 
+>         if (!targetSkinOptional.isPresent()) {
+>             plugin.sendMessage(cause.audience(), "invalid-usage");
+>             return CommandResult.empty();
+>         }
+> 
+>         String targetSkin = targetSkinOptional.get();
+60c67
+<             if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(src, targetUUID, true)) {
+---
+>             if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(cause.audience(), targetUUID, true)) {
+64,65c71,72
+<             plugin.sendMessage(src, "skin-change-queue");
+<             Runnable skinDownloader = new SkinDownloader(plugin, src, receiver, targetUUID, keepSkin);
+---
+>             plugin.sendMessage(cause.audience(), "skin-change-queue");
+>             Runnable skinDownloader = new SkinDownloader(plugin, cause.audience(), receiver, targetUUID, keepSkin);
+70c77
+<         Runnable nameResolver = new NameResolver(plugin, src, targetSkin, receiver, keepSkin);
+---
+>         Runnable nameResolver = new NameResolver(plugin, cause.audience(), targetSkin, receiver, keepSkin);
+76,77c83,86
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command.Builder buildSpec() {
+>          Parameter.Value<String> skinParameter = Parameter.string().key(CommonParameters.STRING).build();
+> 
+>         return Command.builder()
+79,83c88,90
+<                 .arguments(
+<                         string(of("skin")),
+<                         flags().flag("keep").buildWith(GenericArguments.none()))
+<                 .permission(PomData.ARTIFACT_ID + ".command.setskin.base")
+<                 .build();
+---
+>                 .addParameter(skinParameter)
+>                 .addFlag(org.spongepowered.api.command.flag.Flag.of("keep", "k"))
+>                 .permission(PomData.ARTIFACT_ID + ".command.setskin.base");

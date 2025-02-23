@@ -1,0 +1,12 @@
+24c24,25
+< import com.hazelcast.core.Member;
+---
+> import com.hazelcast.cluster.Member;
+> import com.hazelcast.cluster.Address;
+42c43,46
+<         this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";
+---
+>         String hostnameAttribute = member.getStringAttribute(HOST_NAME_ATTRIBUTE);
+>         Address address = member.getAddress();
+>         String hostString = address != null ? address.getHost() : "unknown";
+>         this.hostname = hostnameAttribute + " (" + hostString + ")";

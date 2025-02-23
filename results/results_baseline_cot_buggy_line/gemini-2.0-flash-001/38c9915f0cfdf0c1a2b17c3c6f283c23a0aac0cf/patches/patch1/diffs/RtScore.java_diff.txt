@@ -1,0 +1,20 @@
+10,11c10
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+---
+>  * copies of the software, and to permit persons to do so, subject to the following conditions:
+27c26,27
+< import org.cactoos.iterable.LengthOf;
+---
+> import org.cactoos.iterable.IterableOf;
+> import org.cactoos.scalar.LengthOf;
+52,53c52,57
+<         return new LengthOf(other.suffixes()).intValue()
+<             - new LengthOf(this.sfxs).intValue();
+---
+>         try {
+>             return new LengthOf(new IterableOf<>(other.suffixes())).value().intValue()
+>                 - new LengthOf(new IterableOf<>(this.sfxs)).value().intValue();
+>         } catch (final Exception ex) {
+>             throw new IllegalStateException(ex);
+>         }

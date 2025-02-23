@@ -1,0 +1,17 @@
+7,8d6
+< import com.gargoylesoftware.htmlunit.ScriptResult;
+< 
+35,36c33,34
+<             ScriptResult scriptResult = new ScriptResult(result);
+<             return scriptResult.getJavaScriptResult().toString();
+---
+>             // ScriptResult scriptResult = new ScriptResult(result); // ScriptResult is removed as it is not available in newer htmlunit version
+>             return result != null ? result.toString() : null; // Directly returning the result as string
+60,62c58,60
+<                 Object scriptResult = new ScriptResult(result).getJavaScriptResult();
+<                 if (scriptResult != null) {
+<                     return scriptResult.toString();
+---
+>                 // Object scriptResult = new ScriptResult(result).getJavaScriptResult(); // ScriptResult is removed as it is not available in newer htmlunit version
+>                 if (result != null) {
+>                     return result.toString();

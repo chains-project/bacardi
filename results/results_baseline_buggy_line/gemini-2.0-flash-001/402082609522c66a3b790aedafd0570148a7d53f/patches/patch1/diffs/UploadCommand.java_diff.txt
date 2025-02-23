@@ -1,0 +1,51 @@
+10a11
+> import java.util.Optional;
+11a13
+> import org.spongepowered.api.command.Command;
+13,15c15,16
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+16a18
+> import org.spongepowered.api.entity.living.player.Player;
+19,20c21,22
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import net.kyori.adventure.text.TextComponent;
+> import net.kyori.adventure.text.Component;
+22c24
+< public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class UploadCommand implements Command, ChangeSkinCommand {
+34,35c36,43
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         String url = args.<String>getOne("url").get();
+---
+>     public CommandResult execute(CommandContext context) {
+>         Optional<String> urlOptional = context.one(Parameter.string().key("url").build());
+> 
+>         if (!urlOptional.isPresent()) {
+>             return CommandResult.empty();
+>         }
+> 
+>         String url = urlOptional.get();
+39c47
+<                 plugin.sendMessage(src, "no-accounts");
+---
+>                 plugin.sendMessage(context.getCause().getAudience(), "no-accounts");
+42c50
+<                 Runnable skinUploader = new SkinUploader(plugin, src, uploadAccount, url);
+---
+>                 Runnable skinUploader = new SkinUploader(plugin, context.getCause().getAudience(), uploadAccount, url);
+46c54
+<             plugin.sendMessage(src, "no-valid-url");
+---
+>             plugin.sendMessage(context.getCause().getAudience(), "no-valid-url");
+56c64
+<                 .arguments(string(of("url")))
+---
+>                 .addParameter(Parameter.string().key("url").build())

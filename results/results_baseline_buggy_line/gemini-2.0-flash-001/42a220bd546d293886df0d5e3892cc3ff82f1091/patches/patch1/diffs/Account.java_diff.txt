@@ -1,0 +1,9 @@
+4a5
+> import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+6a8,9
+> import java.security.MessageDigest;
+> 
+49c52
+<             this.usernameMd5 = DigestUtils.md5Hex(username);
+---
+>             this.usernameMd5 = new DigestUtils(MessageDigestAlgorithms.MD5).digestAsHex(username);

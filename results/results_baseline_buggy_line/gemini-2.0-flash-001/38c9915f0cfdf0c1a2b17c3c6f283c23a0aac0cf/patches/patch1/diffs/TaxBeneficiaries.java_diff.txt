@@ -1,0 +1,14 @@
+10c10
+<  * copies of the Software, and to permit persons to whom the Software is
+---
+>  * copies of the software, and to permit persons to whom the Software is
+29,30c29,30
+< import org.cactoos.iterable.LengthOf;
+< import org.cactoos.iterable.Sorted;
+---
+> import org.cactoos.list.LengthOf;
+> import org.cactoos.scalar.Unchecked;
+49c49
+<                 n -> new LengthOf(n.score().suffixes()).intValue() >= 16,
+---
+>                 n -> new Unchecked<>(new LengthOf(n.score().suffixes())).value() >= 16,

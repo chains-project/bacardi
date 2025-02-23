@@ -1,0 +1,23 @@
+22d21
+< import org.apache.maven.artifact.DependencyResolutionRequiredException;
+39a39
+> import org.apache.maven.project.MavenProject;
+49a50
+> import java.util.List;
+110c111
+<       final Iterator<String> artifacts = getProject().getRuntimeClasspathElements().iterator();
+---
+>       final List<String> artifacts = getProject().getRuntimeClasspathElements();
+114c115
+<       while (artifacts.hasNext()) {
+---
+>       for (final String artifact : artifacts) {
+116d116
+<         final String artifact = artifacts.next();
+196c196
+<     } catch (final DependencyResolutionRequiredException drre) {
+---
+>     } catch (final org.apache.maven.artifact.DependencyResolutionRequiredException drre) {
+214,215d213
+< 
+< 

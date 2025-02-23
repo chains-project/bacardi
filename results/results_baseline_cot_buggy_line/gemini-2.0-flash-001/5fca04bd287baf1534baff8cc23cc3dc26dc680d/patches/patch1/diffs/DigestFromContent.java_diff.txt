@@ -1,0 +1,15 @@
+12a13
+> import java.nio.charset.StandardCharsets;
+14a16
+> import java.util.HexFormat;
+16,17d17
+< import org.cactoos.io.BytesOf;
+< import org.cactoos.text.HexOf;
+61c61,65
+<                     () -> new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+---
+>                     () -> {
+>                         byte[] digest = sha.digest();
+>                         String hex = HexFormat.of().formatHex(digest);
+>                         return new Digest.Sha256(hex);
+>                     }

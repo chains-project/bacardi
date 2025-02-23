@@ -1,0 +1,21 @@
+19c19,20
+< import com.google.api.services.translate.model.LanguagesResource;
+---
+> import com.google.cloud.translate.v3.DetectedLanguage;
+> import com.google.cloud.translate.v3.TranslationLanguage;
+36,37c37,38
+<   static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
+<       new Function<LanguagesResource, Language>() {
+---
+>   static final Function<TranslationLanguage, Language> FROM_PB_FUNCTION =
+>       new Function<TranslationLanguage, Language>() {
+39c40
+<         public Language apply(LanguagesResource languagePb) {
+---
+>         public Language apply(TranslationLanguage languagePb) {
+84,85c85,86
+<   static Language fromPb(LanguagesResource languagePb) {
+<     return new Language(languagePb.getLanguage(), languagePb.getName());
+---
+>   static Language fromPb(TranslationLanguage languagePb) {
+>     return new Language(languagePb.getLanguageCode(), languagePb.getDisplayName());

@@ -1,0 +1,16 @@
+27d26
+< import org.apache.commons.beanutils.PropertyUtils;
+35a35
+> import org.apache.commons.beanutils.PropertyUtilsBean;
+98a99
+>                 PropertyUtilsBean propertyUtilsBean = new PropertyUtilsBean();
+104c105,106
+<                 for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
+---
+>                 try {
+>                         for(PropertyDescriptor descriptor : propertyUtilsBean.getPropertyDescriptors(modelClass)){
+109a112,115
+>                 } catch (Exception e) {
+>                         // Handle exception appropriately, e.g., log it or throw a runtime exception
+>                         e.printStackTrace();
+>                 }

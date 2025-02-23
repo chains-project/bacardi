@@ -1,0 +1,90 @@
+23,27d22
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.api.services.translate.model.TranslationsResource;
+< import com.google.cloud.BaseService;
+< import com.google.cloud.RetryHelper.RetryHelperException;
+38a34,44
+> import com.google.cloud.BaseService;
+> import com.google.cloud.RetryHelper.RetryHelperException;
+> 
+> import com.google.api.gax.rpc.ApiException;
+> import com.google.cloud.translate.v3.Detection;
+> import com.google.cloud.translate.v3.DetectLanguageResponse;
+> import com.google.cloud.translate.v3.LocationName;
+> import com.google.cloud.translate.v3.SupportedLanguage;
+> import com.google.cloud.translate.v3.TranslateTextResponse;
+> import com.google.cloud.translate.v3.Translation;
+> 
+43c49
+<   private static final Function<List<DetectionsResourceItems>, Detection>
+---
+>   private static final Function<List<com.google.cloud.translate.v3.Detection>, Detection>
+45c51
+<           new Function<List<DetectionsResourceItems>, Detection>() {
+---
+>           new Function<List<com.google.cloud.translate.v3.Detection>, Detection>() {
+47,48c53,54
+<             public Detection apply(List<DetectionsResourceItems> detectionPb) {
+<               return Detection.fromPb(detectionPb.get(0));
+---
+>             public Detection apply(List<com.google.cloud.translate.v3.Detection> detectionPb) {
+>               return Detection.newBuilder().setLanguageCode(detectionPb.get(0).getLanguageCode()).setConfidence(detectionPb.get(0).getConfidence()).build();
+62c68
+<               new Callable<List<LanguagesResource>>() {
+---
+>               new Callable<List<SupportedLanguage>>() {
+64c70
+<                 public List<LanguagesResource> call() {
+---
+>                 public List<SupportedLanguage> call() {
+74a81,83
+>      catch (ApiException e) {
+>       throw TranslateException.translateAndThrow(e);
+>     }
+80c89
+<       List<List<DetectionsResourceItems>> detectionsPb =
+---
+>       List<List<com.google.cloud.translate.v3.Detection>> detectionsPb =
+82c91
+<               new Callable<List<List<DetectionsResourceItems>>>() {
+---
+>               new Callable<List<List<com.google.cloud.translate.v3.Detection>>>() {
+84c93
+<                 public List<List<DetectionsResourceItems>> call() {
+---
+>                 public List<List<com.google.cloud.translate.v3.Detection>> call() {
+91c100
+<       Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
+---
+>       Iterator<List<com.google.cloud.translate.v3.Detection>> detectionIterator = detectionsPb.iterator();
+94c103
+<         List<DetectionsResourceItems> detectionPb = detectionIterator.next();
+---
+>         List<com.google.cloud.translate.v3.Detection> detectionPb = detectionIterator.next();
+103a113,115
+>      catch (ApiException e) {
+>       throw TranslateException.translateAndThrow(e);
+>     }
+113c125,126
+<     return detect(Collections.singletonList(text)).get(0);
+---
+>     List<Detection> detections = detect(Collections.singletonList(text));
+>     return detections.isEmpty() ? null : detections.get(0);
+121c134
+<               new Callable<List<TranslationsResource>>() {
+---
+>               new Callable<List<Translation>>() {
+123c136
+<                 public List<TranslationsResource> call() {
+---
+>                 public List<Translation> call() {
+133a147,149
+>      catch (ApiException e) {
+>       throw TranslateException.translateAndThrow(e);
+>     }
+138c154,155
+<     return translate(Collections.singletonList(text), options).get(0);
+---
+>     List<Translation> translations = translate(Collections.singletonList(text), options);
+>     return translations.isEmpty() ? null : translations.get(0);

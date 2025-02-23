@@ -1,0 +1,93 @@
+146,150c146,151
+<     com.google.api.services.cloudresourcemanager.model.ResourceId toPb() {
+<       com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb =
+<           new com.google.api.services.cloudresourcemanager.model.ResourceId();
+<       resourceIdPb.setId(id);
+<       resourceIdPb.setType(type.toLowerCase());
+---
+>     com.google.cloud.resourcemanager.v3.ResourceId toPb() {
+>       com.google.cloud.resourcemanager.v3.ResourceId resourceIdPb =
+>           com.google.cloud.resourcemanager.v3.ResourceId.newBuilder()
+>               .setId(id)
+>               .setType(type.toLowerCase())
+>               .build();
+154,155c155
+<     static ResourceId fromPb(
+<         com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb) {
+---
+>     static ResourceId fromPb(com.google.cloud.resourcemanager.v3.ResourceId resourceIdPb) {
+392,398c392,400
+<   com.google.api.services.cloudresourcemanager.model.Project toPb() {
+<     com.google.api.services.cloudresourcemanager.model.Project projectPb =
+<         new com.google.api.services.cloudresourcemanager.model.Project();
+<     projectPb.setName(name);
+<     projectPb.setProjectId(projectId);
+<     projectPb.setLabels(labels);
+<     projectPb.setProjectNumber(projectNumber);
+---
+>   com.google.cloud.resourcemanager.v3.Project toPb() {
+>     com.google.cloud.resourcemanager.v3.Project.Builder projectPbBuilder =
+>         com.google.cloud.resourcemanager.v3.Project.newBuilder();
+>     projectPbBuilder.setName(name == null ? "Unnamed" : name);
+>     projectPbBuilder.setProjectId(projectId);
+>     projectPbBuilder.putAllLabels(labels);
+>     if (projectNumber != null) {
+>       projectPbBuilder.setProjectNumber(projectNumber);
+>     }
+400c402,403
+<       projectPb.setLifecycleState(state.toString());
+---
+>       projectPbBuilder.setState(
+>           com.google.cloud.resourcemanager.v3.Project.State.valueOf(state.toString()));
+403,406c406,410
+<       projectPb.setCreateTime(
+<           DateTimeFormatter.ISO_DATE_TIME
+<               .withZone(ZoneOffset.UTC)
+<               .format(Instant.ofEpochMilli(createTimeMillis)));
+---
+>       projectPbBuilder.setCreateTime(
+>           com.google.protobuf.Timestamp.newBuilder()
+>               .setSeconds(Instant.ofEpochMilli(createTimeMillis).getEpochSecond())
+>               .setNanos(Instant.ofEpochMilli(createTimeMillis).getNano())
+>               .build());
+409c413
+<       projectPb.setParent(parent.toPb());
+---
+>       projectPbBuilder.setParent(parent.toPb().toString());
+411c415
+<     return projectPb;
+---
+>     return projectPbBuilder.build();
+414,416c418,419
+<   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.model.Project projectPb) {
+<     Builder builder =
+<         newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
+---
+>   static ProjectInfo fromPb(com.google.cloud.resourcemanager.v3.Project projectPb) {
+>     Builder builder = newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
+420,421c423,424
+<     if (projectPb.getLabels() != null) {
+<       builder.setLabels(projectPb.getLabels());
+---
+>     if (projectPb.getLabelsMap() != null) {
+>       builder.setLabels(projectPb.getLabelsMap());
+423,424c426,427
+<     if (projectPb.getLifecycleState() != null) {
+<       builder.setState(State.valueOf(projectPb.getLifecycleState()));
+---
+>     if (projectPb.getState() != null) {
+>       builder.setState(State.valueOf(projectPb.getState().toString()));
+428c431
+<           DATE_TIME_FORMATTER.parse(projectPb.getCreateTime(), Instant.FROM).toEpochMilli());
+---
+>           Instant.ofEpochSecond(projectPb.getCreateTime().getSeconds(), projectPb.getCreateTime().getNanos()).toEpochMilli());
+431c434,440
+<       builder.setParent(ResourceId.fromPb(projectPb.getParent()));
+---
+>       String parentString = projectPb.getParent();
+>       String[] parts = parentString.split("/");
+>       if (parts.length == 4 && parts[2].equals("organizations")) {
+>         builder.setParent(ResourceId.of(parts[3], "organization"));
+>       } else if (parts.length == 4 && parts[2].equals("folders")) {
+>         builder.setParent(ResourceId.of(parts[3], "folder"));
+>       }

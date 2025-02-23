@@ -1,0 +1,73 @@
+11a12
+> import org.spongepowered.api.command.Command;
+13,17c14,17
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.args.GenericArguments;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+> import org.spongepowered.api.command.parameter.managed.Flag;
+> import org.spongepowered.api.command.parameter.managed.standard.VariableValueParameters;
+21,23c21,24
+< import static org.spongepowered.api.command.args.GenericArguments.flags;
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import static org.spongepowered.api.command.CommandResult.success;
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.parameter.CommonParameters;
+> import org.spongepowered.api.command.CommandCause;
+25c26,28
+< public class SetCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> import java.util.Optional;
+> 
+> public class SetCommand implements Command, ChangeSkinCommand {
+37c40,41
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+---
+>     public CommandResult execute(CommandCause cause, CommandContext args) throws CommandException {
+>         Object src = cause.source();
+50,51c54,61
+<         String targetSkin = args.<String>getOne("skin").get();
+<         boolean keepSkin = args.hasAny("keep");
+---
+>         Optional<String> targetSkinOptional = args.one(CommonParameters.STRING);
+>         if (!targetSkinOptional.isPresent()) {
+>             plugin.sendMessage(src, "invalid-usage");
+>             return CommandResult.empty();
+>         }
+> 
+>         String targetSkin = targetSkinOptional.get();
+>         boolean keepSkin = args.hasFlag("keep");
+67c77
+<             return CommandResult.success();
+---
+>             return success();
+72c82
+<         return CommandResult.success();
+---
+>         return success();
+76,81c86,93
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+<                 .executor(this)
+<                 .arguments(
+<                         string(of("skin")),
+<                         flags().flag("keep").buildWith(GenericArguments.none()))
+---
+>     public org.spongepowered.api.command.Command.Builder buildSpec() {
+>         Parameter.Value<String> skinParam = Parameter.string().key(CommonParameters.STRING).build();
+> 
+>         Flag keepFlag = Flag.builder().alias("keep").build();
+> 
+>         return org.spongepowered.api.command.Command.builder()
+>                 .addParameter(skinParam)
+>                 .addFlag(keepFlag)
+83c95
+<                 .build();
+---
+>                 .executor(this);

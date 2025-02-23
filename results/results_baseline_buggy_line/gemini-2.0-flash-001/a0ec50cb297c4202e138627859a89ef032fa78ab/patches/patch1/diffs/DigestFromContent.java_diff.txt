@@ -1,0 +1,18 @@
+12a13
+> import java.nio.ByteBuffer;
+16,17c17
+< import org.cactoos.io.BytesOf;
+< import org.cactoos.text.HexOf;
+---
+> import org.apache.commons.codec.binary.Hex;
+54c54,57
+<                         sha.update(buf);
+---
+>                         final ByteBuffer buffer = buf.asReadOnlyBuffer();
+>                         final byte[] bytes = new byte[buffer.remaining()];
+>                         buffer.get(bytes);
+>                         sha.update(bytes);
+61c64
+<                     () -> new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+---
+>                     () -> new Digest.Sha256(new String(Hex.encodeHex(sha.digest())))

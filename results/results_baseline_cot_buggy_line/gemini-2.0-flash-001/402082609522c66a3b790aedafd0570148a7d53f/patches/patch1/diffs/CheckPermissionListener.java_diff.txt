@@ -1,0 +1,57 @@
+17,20c17,20
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelBuf;
+< import org.spongepowered.api.network.ChannelRegistrar;
+< import org.spongepowered.api.network.RawDataListener;
+---
+> import org.spongepowered.api.network.Channel;
+> import org.spongepowered.api.network.ChannelRegistry;
+> import org.spongepowered.api.network.MessageChannel;
+> import org.spongepowered.api.network.MessageHandler;
+22a23,24
+> import io.netty.buffer.ByteBuf;
+> 
+26c28
+< public class CheckPermissionListener implements RawDataListener {
+---
+> public class CheckPermissionListener implements MessageHandler<ByteBuf> {
+29c31
+<     private final RawDataChannel permissionsResultChannel;
+---
+>     private final MessageChannel permissionsResultChannel;
+32c34
+<     CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+---
+>     CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistry channelRegistry) {
+36c38,39
+<         permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
+---
+>         Channel channel = channelRegistry.findChannel(plugin, combinedName).orElse(channelRegistry.createChannel(plugin, combinedName));
+>         permissionsResultChannel = channel.asMessageChannel();
+40c43,55
+<     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+---
+>     public void handleMessage(ByteBuf data, RemoteConnection connection, Type side) {
+>         byte[] array;
+>         int offset;
+> 
+>         int readableBytes = data.readableBytes();
+>         if (data.hasArray()) {
+>             array = data.array();
+>             offset = data.arrayOffset() + data.readerIndex();
+>         } else {
+>             array = new byte[readableBytes];
+>             data.getBytes(data.readerIndex(), array);
+>             offset = 0;
+>         }
+42,44c57
+<         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+<         CheckPermMessage checkMessage = new CheckPermMessage();
+<         checkMessage.readFrom(dataInput);
+---
+>         ByteArrayDataInput dataInput = ByteStreams.newDataInput(array, offset, readableBytes);
+83c96,97
+<         permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+---
+>         byte[] bytes = dataOutput.toByteArray();
+>         permissionsResultChannel.sendTo(receiver, bytes);

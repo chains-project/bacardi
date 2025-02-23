@@ -1,0 +1,47 @@
+17,20c17,20
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelBuf;
+< import org.spongepowered.api.network.ChannelRegistrar;
+< import org.spongepowered.api.network.RawDataListener;
+---
+> import org.spongepowered.api.event.Listener;
+> import org.spongepowered.api.event.channel.MessageChannelEvent;
+> import org.spongepowered.api.network.Channel;
+> import org.spongepowered.api.network.ChannelRegistry;
+26c26
+< public class CheckPermissionListener implements RawDataListener {
+---
+> public class CheckPermissionListener {
+29c29
+<     private final RawDataChannel permissionsResultChannel;
+---
+>     private final Channel permissionsResultChannel;
+32c32
+<     CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+---
+>     CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistry channelRegistry) {
+36c36
+<         permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
+---
+>         permissionsResultChannel = channelRegistry.getOrCreate(plugin, combinedName);
+39,40c39,47
+<     @Override
+<     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+---
+>     @Listener
+>     public void handlePayload(MessageChannelEvent.RawMessage event, RemoteConnection connection, Type side) {
+>         if (!(connection instanceof Player)) {
+>             return;
+>         }
+> 
+>         if (!event.getChannel().equals(permissionsResultChannel.getName())) {
+>             return;
+>         }
+42c49
+<         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+---
+>         ByteArrayDataInput dataInput = ByteStreams.newDataInput(event.getContent());
+83c90
+<         permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+---
+>         permissionsResultChannel.sendTo(receiver, dataOutput.toByteArray());

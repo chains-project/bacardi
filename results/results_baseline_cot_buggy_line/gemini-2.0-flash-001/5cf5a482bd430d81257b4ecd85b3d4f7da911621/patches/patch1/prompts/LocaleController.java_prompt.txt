@@ -1,0 +1,119 @@
+ You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates.
+Your task is to analyze the provided code and error message, then propose a patch that can be applied to the client code to resolve the issue.
+
+ Here is the client code that is failing:
+```java
+package com.example.web;
+
+import java.util.Locale;
+import java.util.logging.Logger;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.mvc.Controller;
+import javax.mvc.Models;
+import javax.mvc.MvcContext;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+
+/**
+ *
+ * @author hantsy
+ */
+@Path("locale")
+@Controller
+@RequestScoped
+public class LocaleController {
+
+    @Inject
+    MvcContext mvc;
+
+    @Inject
+    Models models;
+
+    @Inject
+    Logger log;
+
+    @GET
+    public String get() {
+        Locale locale = mvc.getLocale();
+        models.put("locale", locale);
+        return "locale.xhtml";
+    }
+
+}
+
+```
+
+ the error is triggered in the following specific lines in the previous code:
+
+```java
+Models models;
+```
+```java
+@Controller
+```
+```java
+import javax.mvc.MvcContext;
+```
+```java
+MvcContext mvc;
+```
+
+
+ And here is the error message:
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/LocaleController.java:[26,5] cannot find symbol
+  symbol:   class Models
+  location: class com.example.web.LocaleController
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/LocaleController.java:[18,2] cannot find symbol
+  symbol: class Controller
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/LocaleController.java:[9,17] package javax.mvc does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/LocaleController.java:[23,5] cannot find symbol
+  symbol:   class MvcContext
+  location: class com.example.web.LocaleController
+
+
+
+ Before proposing a fix, please analyze the error message and client code. Wrap your analysis inside <code_analysis> tags:
+
+<code_analysis>
+1. Examine the error message:
+   - Identify the specific issue related to the dependency update.
+   - Note the line number or method where the error occurs.
+   - Determine which dependency and version is causing the issue.
+
+2. Review the client code:
+   - Locate the problematic areas mentioned in the error message.
+   - Identify any related code that might be affected by the changes.
+
+3. Consider potential fixes that adhere to the following constraints:
+   - Do not change any function signatures.
+   - Only remove the @Override annotation if the method no longer overrides a method in the updated dependency version.
+   - Ensure correct imports are used, considering the newer dependency version.
+   - Avoid removing existing code unless it directly causes a compilation or functionality error.
+
+4. Plan the necessary changes to fix the issue:
+   - List the specific modifications required.
+   - Consider potential side effects of the proposed changes.
+   - Ensure the fix addresses the root cause of the error.
+</code_analysis>
+
+Based on your analysis, propose a patch to fix the issue. Your response should be a complete and compilable Java class in a fenced code block. Adhere to these guidelines:
+
+1. Do not change any function signatures.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Avoid removing any existing code unless it directly causes a compilation or functionality error.
+6. Ensure the entire class is included and that it will compile correctly. Don't use the comment "// ... (rest of the class remains unchanged)".
+
+Please provide your fixed class in the following format:
+
+```java
+// Your complete, fixed Java class here
+```
+
+Remember to focus specifically on issues related to the dependency update when proposing your fix.
+ 

@@ -1,0 +1,34 @@
+7a8
+> import org.spongepowered.api.command.Command;
+9,11c10,11
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+16,17c16,17
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import net.kyori.adventure.text.TextComponent;
+> import net.kyori.adventure.text.Component;
+19c19
+< public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class SelectCommand implements Command, ChangeSkinCommand {
+29c29,31
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+---
+>     public CommandResult execute(CommandContext context) {
+>         org.spongepowered.api.command.CommandSource src = context.cause().root();
+> 
+35c37,38
+<         String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
+---
+>         Parameter.Key<String> skinNameKey = Parameter.key("skinName", String.class);
+>         String skinName = context.one(skinNameKey).get().toLowerCase().replace("skin-", "");
+52c55
+<                 .arguments(string(of("skinName")))
+---
+>                 .addParameter(Parameter.string().key("skinName").build())

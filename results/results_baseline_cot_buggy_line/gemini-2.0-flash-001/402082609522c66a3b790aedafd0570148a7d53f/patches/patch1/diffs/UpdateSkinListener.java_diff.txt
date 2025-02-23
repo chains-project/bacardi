@@ -1,0 +1,28 @@
+12c12
+< import org.spongepowered.api.Platform.Type;
+---
+> import org.spongepowered.api.Platform;
+17,19c17,19
+< import org.spongepowered.api.network.RawDataListener;
+< import org.spongepowered.api.network.RemoteConnection;
+< import org.spongepowered.api.scheduler.Task;
+---
+> import org.spongepowered.api.network.ChannelRegistrar;
+> import org.spongepowered.api.network.MessageReader;
+> import org.spongepowered.api.network.MessageHandler;
+21c21
+< public class UpdateSkinListener implements RawDataListener {
+---
+> public class UpdateSkinListener implements MessageHandler<SkinUpdateMessage> {
+27,31c27
+<     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+<         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+<         SkinUpdateMessage updateMessage = new SkinUpdateMessage();
+<         updateMessage.readFrom(dataInput);
+< 
+---
+>     public void handleMessage(SkinUpdateMessage updateMessage, org.spongepowered.api.network.RemoteConnection connection, Platform.Type side) {
+36c32
+<             Task.builder().execute(skinUpdater).submit(plugin);
+---
+>             Sponge.getServer().getScheduler().createTaskBuilder().execute(skinUpdater).submit(plugin);

@@ -1,0 +1,30 @@
+11c11
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+---
+>  * is distributed on an "AS IS" BASIS,
+23d22
+< import org.apache.thrift.transport.TFramedTransport;
+64c63
+<   private final TFramedTransport framedTransport;
+---
+>   private final TTransport framedTransport;
+80,81c79,80
+<     this.framedTransport = new TFramedTransport(new TIOStreamTransport(this
+<         .byteOffsetInputStream), maxMessageSize);
+---
+>     this.framedTransport = new TIOStreamTransport(this
+>         .byteOffsetInputStream);
+95c94
+<     if (framedTransport.getBytesRemainingInBuffer() == 0 && byteOffsetInputStream.isEOF()) {
+---
+>     if (framedTransport.isOpen() && byteOffsetInputStream.isEOF()) {
+110,111c109,110
+<         byteOffsetInputStream.getByteOffset() >= framedTransport.getBytesRemainingInBuffer());
+<     return byteOffsetInputStream.getByteOffset() - framedTransport.getBytesRemainingInBuffer();
+---
+>         byteOffsetInputStream.getByteOffset() >= byteOffsetInputStream.getBufferOffset());
+>     return byteOffsetInputStream.getByteOffset() - byteOffsetInputStream.getBufferOffset();
+127c126
+<     framedTransport.consumeBuffer(framedTransport.getBytesRemainingInBuffer());
+---
+>     //framedTransport.consumeBuffer(framedTransport.getBytesRemainingInBuffer());

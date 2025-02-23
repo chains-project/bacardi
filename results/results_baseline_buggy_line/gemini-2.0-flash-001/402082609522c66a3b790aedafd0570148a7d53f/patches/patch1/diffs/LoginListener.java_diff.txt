@@ -1,0 +1,32 @@
+11a12
+> import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+13c14
+< import org.spongepowered.api.event.network.ClientConnectionEvent;
+---
+> import org.spongepowered.api.event.network.ServerSideConnectionEvent;
+29c30
+<     public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
+---
+>     public void onPlayerPreLogin(ServerSideConnectionEvent.Auth preLoginEvent) {
+31c32
+<         GameProfile profile = preLoginEvent.getProfile();
+---
+>         GameProfile profile = preLoginEvent.profile();
+45,46c46,48
+<             String playerName = profile.getName().get();
+<             if (!core.getConfig().getBoolean("restoreSkins") || !refetchSkin(playerName, preferences)) {
+---
+>             Optional<String> playerName = profile.name();
+>             if (playerName.isPresent()) {
+>                 if (!core.getConfig().getBoolean("restoreSkins") || !refetchSkin(playerName.get(), preferences)) {
+48a51,60
+>             } else {
+>                 ServerPlayer player = preLoginEvent.player().orElse(null);
+>                 if (player != null) {
+>                     if (!core.getConfig().getBoolean("restoreSkins") || !refetchSkin(player.getName(), preferences)) {
+>                         setDefaultSkin(preferences, profile);
+>                     }
+>                 } else {
+>                     setDefaultSkin(preferences, profile);
+>                 }
+>             }

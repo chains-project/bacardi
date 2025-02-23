@@ -1,0 +1,15 @@
+6a7,8
+> import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+> 
+8c10
+< import org.spongepowered.api.text.serializer.TextSerializers;
+---
+> import org.spongepowered.api.entity.living.player.Player;
+22c24,28
+<         invoker.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage));
+---
+>         if (invoker instanceof Player) {
+>             ((Player) invoker).sendMessage(LegacyComponentSerializer.legacySection().deserialize(localeMessage));
+>         } else {
+>             invoker.sendMessage(LegacyComponentSerializer.legacySection().deserialize(localeMessage));
+>         }

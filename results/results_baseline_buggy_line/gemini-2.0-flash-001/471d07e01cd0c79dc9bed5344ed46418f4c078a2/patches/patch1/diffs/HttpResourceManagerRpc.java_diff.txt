@@ -1,0 +1,394 @@
+32,56d31
+< import com.google.api.services.cloudresourcemanager.CloudResourceManager;
+< import com.google.api.services.cloudresourcemanager.model.ClearOrgPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.Constraint;
+< import com.google.api.services.cloudresourcemanager.model.GetEffectiveOrgPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.GetIamPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.GetOrgPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.ListAvailableOrgPolicyConstraintsRequest;
+< import com.google.api.services.cloudresourcemanager.model.ListAvailableOrgPolicyConstraintsResponse;
+< import com.google.api.services.cloudresourcemanager.model.ListOrgPoliciesRequest;
+< import com.google.api.services.cloudresourcemanager.model.ListOrgPoliciesResponse;
+< import com.google.api.services.cloudresourcemanager.model.ListProjectsResponse;
+< import com.google.api.services.cloudresourcemanager.model.Operation;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.Policy;
+< import com.google.api.services.cloudresourcemanager.model.Project;
+< import com.google.api.services.cloudresourcemanager.model.SetIamPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.SetOrgPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.Status;
+< import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsRequest;
+< import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsResponse;
+< import com.google.api.services.cloudresourcemanager.model.UndeleteProjectRequest;
+< import com.google.cloud.RetryHelper;
+< import com.google.cloud.Tuple;
+< import com.google.cloud.http.BaseHttpServiceException;
+< import com.google.cloud.http.HttpTransportOptions;
+58a34,45
+> import com.google.cloud.resourcemanager.model.v3.GetEffectiveOrgPolicyRequest;
+> import com.google.cloud.resourcemanager.model.v3.GetOrgPolicyRequest;
+> import com.google.cloud.resourcemanager.model.v3.ListOrgPoliciesRequest;
+> import com.google.cloud.resourcemanager.model.v3.OrgPolicy;
+> import com.google.cloud.resourcemanager.v3.FoldersClient;
+> import com.google.cloud.resourcemanager.v3.OrganizationsClient;
+> import com.google.cloud.resourcemanager.v3.ProjectsClient;
+> import com.google.cloud.resourcemanager.v3.stub.ResourceManagerStubSettings;
+> import com.google.cloud.http.BaseHttpServiceException;
+> import com.google.cloud.http.HttpTransportOptions;
+> import com.google.cloud.Tuple;
+> import com.google.cloud.RetryHelper;
+61a49,56
+> import com.google.iam.v1.GetPolicyOptions;
+> import com.google.iam.v1.Policy;
+> import com.google.iam.v1.SetIamPolicyRequest;
+> import com.google.iam.v1.TestIamPermissionsRequest;
+> import com.google.iam.v1.TestIamPermissionsResponse;
+> import com.google.protobuf.Empty;
+> import com.google.rpc.Code;
+> import com.google.rpc.Status;
+114,115c109,110
+<   private static final ResultRetryAlgorithm<Operation> OPERATION_HANDLER =
+<       new ResultRetryAlgorithm<Operation>() {
+---
+>   private static final ResultRetryAlgorithm<com.google.cloud.resourcemanager.v3.Operation> OPERATION_HANDLER =
+>       new ResultRetryAlgorithm<com.google.cloud.resourcemanager.v3.Operation>() {
+118c113,115
+<             Throwable prevThrowable, Operation prevResponse, TimedAttemptSettings prevSettings) {
+---
+>             Throwable prevThrowable,
+>             com.google.cloud.resourcemanager.v3.Operation prevResponse,
+>             TimedAttemptSettings prevSettings) {
+123c120,121
+<         public boolean shouldRetry(Throwable prevThrowable, Operation prevOp) {
+---
+>         public boolean shouldRetry(
+>             Throwable prevThrowable, com.google.cloud.resourcemanager.v3.Operation prevOp) {
+125c123
+<             return prevOp.getDone() == null || !prevOp.getDone();
+---
+>             return !prevOp.getDone();
+132c130,132
+<   private final CloudResourceManager resourceManager;
+---
+>   private final ProjectsClient projectsClient;
+>   private final OrganizationsClient organizationsClient;
+>   private final FoldersClient foldersClient;
+135c135
+<   public HttpResourceManagerRpc(ResourceManagerOptions options) {
+---
+>   public HttpResourceManagerRpc(ResourceManagerOptions options) throws IOException {
+137d136
+<     HttpTransport transport = transportOptions.getHttpTransportFactory().create();
+139,143c138,149
+<     resourceManager =
+<         new CloudResourceManager.Builder(transport, JSON_FACTORY, initializer)
+<             .setRootUrl(options.getHost())
+<             .setApplicationName(options.getApplicationName())
+<             .build();
+---
+> 
+>     ResourceManagerStubSettings.Builder settingsBuilder =
+>         ResourceManagerStubSettings.newBuilder()
+>             .setTransportChannelProvider(
+>                 ResourceManagerOptions.defaultGrpcTransportProviderBuilder()
+>                     .setHttpTransport(transportOptions.getHttpTransportFactory().create())
+>                     .setHttpRequestInitializer(initializer)
+>                     .build());
+> 
+>     projectsClient = ProjectsClient.create(settingsBuilder.build());
+>     organizationsClient = OrganizationsClient.create(settingsBuilder.build());
+>     foldersClient = FoldersClient.create(settingsBuilder.build());
+160,161c166,168
+<   public Project create(Project project) {
+<     final Operation operation;
+---
+>   public com.google.cloud.resourcemanager.v3.Project create(
+>       com.google.cloud.resourcemanager.v3.Project project) {
+>     final com.google.cloud.resourcemanager.v3.Operation operation;
+163,165c170,172
+<       operation = resourceManager.projects().create(project).execute();
+<     } catch (IOException ex) {
+<       throw translate(ex);
+---
+>       operation = projectsClient.createProjectAsync(project).get();
+>     } catch (Exception ex) {
+>       throw translate(new IOException(ex));
+168c175
+<     Operation finishedOp =
+---
+>     com.google.cloud.resourcemanager.v3.Operation finishedOp =
+170c177
+<             new Callable<Operation>() {
+---
+>             new Callable<com.google.cloud.resourcemanager.v3.Operation>() {
+172c179
+<               public Operation call() {
+---
+>               public com.google.cloud.resourcemanager.v3.Operation call() {
+174,176c181,183
+<                   return resourceManager.operations().get(operation.getName()).execute();
+<                 } catch (IOException ex) {
+<                   throw translate(ex);
+---
+>                   return projectsClient.getOperation(operation.getName());
+>                 } catch (Exception ex) {
+>                   throw translate(new IOException(ex));
+183,184c190,197
+<     if (finishedOp.getError() != null) {
+<       throw translate(finishedOp.getError());
+---
+> 
+>     if (finishedOp.hasError()) {
+>       throw translate(
+>           new Status()
+>               .toBuilder()
+>               .setCode(finishedOp.getError().getCode())
+>               .setMessage(finishedOp.getError().getMessage())
+>               .build());
+187,197c200,203
+<     // NOTE(pongad): Operation.getResponse() returns a Map<String, Object>.
+<     // 1. `(Project) finishedOp.getResponse()` doesn't work,
+<     // because JSON deserializer in execute() didn't know to create a Project object.
+<     // 2. `new Project().putAll(finishedOp.getResponse())` doesn't work either.
+<     // 64-bit integers are sent as strings in JSON,
+<     // so execute(), not knowing the type, parses it as String, not Long.
+<     try {
+<       String responseTxt = JSON_FACTORY.toString(finishedOp.getResponse());
+<       return JSON_FACTORY.fromString(responseTxt, Project.class);
+<     } catch (IOException ex) {
+<       throw translate(ex);
+---
+>     try {
+>       return projectsClient.getProject(finishedOp.getName());
+>     } catch (Exception ex) {
+>       throw translate(new IOException(ex));
+204,206c210,212
+<       resourceManager.projects().delete(projectId).execute();
+<     } catch (IOException ex) {
+<       throw translate(ex);
+---
+>       projectsClient.deleteProject(projectId);
+>     } catch (Exception ex) {
+>       throw translate(new IOException(ex));
+211c217,218
+<   public Project get(String projectId, Map<Option, ?> options) {
+---
+>   public Tuple<String, Iterable<com.google.cloud.resourcemanager.v3.Project>> list(
+>       Map<Option, ?> options) {
+213,219c220,234
+<       return resourceManager
+<           .projects()
+<           .get(projectId)
+<           .setFields(Option.FIELDS.getString(options))
+<           .execute();
+<     } catch (IOException ex) {
+<       ResourceManagerException translated = translate(ex);
+---
+>       ProjectsClient.ListProjectsPagedResponse response = projectsClient.listProjects();
+>       return Tuple.<String, Iterable<com.google.cloud.resourcemanager.v3.Project>>of(
+>           response.getNextPageToken(), response.iterateAll());
+>     } catch (Exception ex) {
+>       throw translate(new IOException(ex));
+>     }
+>   }
+> 
+>   @Override
+>   public com.google.cloud.resourcemanager.v3.Project get(
+>       String projectId, Map<Option, ?> options) {
+>     try {
+>       return projectsClient.getProject(projectId);
+>     } catch (Exception ex) {
+>       ResourceManagerException translated = translate(new IOException(ex));
+230,248d244
+<   public Tuple<String, Iterable<Project>> list(Map<Option, ?> options) {
+<     try {
+<       ListProjectsResponse response =
+<           resourceManager
+<               .projects()
+<               .list()
+<               .setFields(Option.FIELDS.getString(options))
+<               .setFilter(Option.FILTER.getString(options))
+<               .setPageSize(Option.PAGE_SIZE.getInt(options))
+<               .setPageToken(Option.PAGE_TOKEN.getString(options))
+<               .execute();
+<       return Tuple.<String, Iterable<Project>>of(
+<           response.getNextPageToken(), response.getProjects());
+<     } catch (IOException ex) {
+<       throw translate(ex);
+<     }
+<   }
+< 
+<   @Override
+251,253c247,249
+<       resourceManager.projects().undelete(projectId, new UndeleteProjectRequest()).execute();
+<     } catch (IOException ex) {
+<       throw translate(ex);
+---
+>       projectsClient.undeleteProject(projectId);
+>     } catch (Exception ex) {
+>       throw translate(new IOException(ex));
+258c254,255
+<   public Project replace(Project project) {
+---
+>   public com.google.cloud.resourcemanager.v3.Project replace(
+>       com.google.cloud.resourcemanager.v3.Project project) {
+260,262c257,259
+<       return resourceManager.projects().update(project.getProjectId(), project).execute();
+<     } catch (IOException ex) {
+<       throw translate(ex);
+---
+>       return projectsClient.updateProject(project);
+>     } catch (Exception ex) {
+>       throw translate(new IOException(ex));
+269,274c266,268
+<       return resourceManager
+<           .projects()
+<           .getIamPolicy(projectId, new GetIamPolicyRequest())
+<           .execute();
+<     } catch (IOException ex) {
+<       ResourceManagerException translated = translate(ex);
+---
+>       return projectsClient.getIamPolicy(projectId, GetPolicyOptions.newBuilder().build());
+>     } catch (Exception ex) {
+>       ResourceManagerException translated = translate(new IOException(ex));
+287,292c281,284
+<       return resourceManager
+<           .projects()
+<           .setIamPolicy(projectId, new SetIamPolicyRequest().setPolicy(newPolicy))
+<           .execute();
+<     } catch (IOException ex) {
+<       throw translate(ex);
+---
+>       return projectsClient.setIamPolicy(
+>           projectId, SetIamPolicyRequest.newBuilder().setPolicy(newPolicy).build());
+>     } catch (Exception ex) {
+>       throw translate(new IOException(ex));
+301,307c293,295
+<           resourceManager
+<               .projects()
+<               .testIamPermissions(
+<                   projectId, new TestIamPermissionsRequest().setPermissions(permissions))
+<               .execute();
+<       Set<String> permissionsOwned =
+<           ImmutableSet.copyOf(firstNonNull(response.getPermissions(), ImmutableList.<String>of()));
+---
+>           projectsClient.testIamPermissions(
+>               projectId, TestIamPermissionsRequest.newBuilder().addAllPermissions(permissions).build());
+>       List<String> permissionsOwned = response.getPermissionsList();
+313,314c301,302
+<     } catch (IOException ex) {
+<       throw translate(ex);
+---
+>     } catch (Exception ex) {
+>       throw translate(new IOException(ex));
+323,329c311,313
+<           resourceManager
+<               .organizations()
+<               .testIamPermissions(
+<                   resource, new TestIamPermissionsRequest().setPermissions(permissions))
+<               .execute();
+<       Set<String> permissionsOwned =
+<           ImmutableSet.copyOf(firstNonNull(response.getPermissions(), ImmutableList.<String>of()));
+---
+>           organizationsClient.testIamPermissions(
+>               resource, TestIamPermissionsRequest.newBuilder().addAllPermissions(permissions).build());
+>       List<String> permissionsOwned = response.getPermissionsList();
+335,336c319,320
+<     } catch (RetryHelper.RetryHelperException ex) {
+<       throw ResourceManagerException.translateAndThrow(ex);
+---
+>     } catch (Exception ex) {
+>       throw ResourceManagerException.translateAndThrow(new IOException(ex));
+343,352c327,329
+<       resourceManager
+<           .folders()
+<           .clearOrgPolicy(
+<               resource,
+<               new ClearOrgPolicyRequest()
+<                   .setConstraint(orgPolicy.getConstraint())
+<                   .setEtag(orgPolicy.getEtag()))
+<           .execute();
+<     } catch (RetryHelper.RetryHelperException ex) {
+<       throw ResourceManagerException.translateAndThrow(ex);
+---
+>       foldersClient.deleteOrgPolicy(resource, orgPolicy.getConstraint());
+>     } catch (Exception ex) {
+>       throw ResourceManagerException.translateAndThrow(new IOException(ex));
+359,365c336,339
+<       return resourceManager
+<           .folders()
+<           .getEffectiveOrgPolicy(
+<               resource, new GetEffectiveOrgPolicyRequest().setConstraint(constraint))
+<           .execute();
+<     } catch (RetryHelper.RetryHelperException ex) {
+<       throw ResourceManagerException.translateAndThrow(ex);
+---
+>       return foldersClient.getEffectiveOrgPolicy(
+>           GetEffectiveOrgPolicyRequest.newBuilder().setName(resource).setConstraint(constraint).build());
+>     } catch (Exception ex) {
+>       throw ResourceManagerException.translateAndThrow(new IOException(ex));
+372,377c346,349
+<       return resourceManager
+<           .folders()
+<           .getOrgPolicy(resource, new GetOrgPolicyRequest().setConstraint(constraint))
+<           .execute();
+<     } catch (RetryHelper.RetryHelperException ex) {
+<       throw ResourceManagerException.translateAndThrow(ex);
+---
+>       return foldersClient.getOrgPolicy(
+>           GetOrgPolicyRequest.newBuilder().setName(resource).setConstraint(constraint).build());
+>     } catch (Exception ex) {
+>       throw ResourceManagerException.translateAndThrow(new IOException(ex));
+382,397c354,357
+<   public ListResult<Constraint> listAvailableOrgPolicyConstraints(
+<       String resource, Map<Option, ?> options) throws IOException {
+<     try {
+<       ListAvailableOrgPolicyConstraintsResponse response =
+<           resourceManager
+<               .folders()
+<               .listAvailableOrgPolicyConstraints(
+<                   resource,
+<                   new ListAvailableOrgPolicyConstraintsRequest()
+<                       .setPageSize(Option.PAGE_SIZE.getInt(options))
+<                       .setPageToken(Option.PAGE_TOKEN.getString(options)))
+<               .execute();
+<       return ListResult.of(response.getNextPageToken(), response.getConstraints());
+<     } catch (RetryHelper.RetryHelperException ex) {
+<       throw ResourceManagerException.translateAndThrow(ex);
+<     }
+---
+>   public ListResult<com.google.cloud.resourcemanager.model.v3.Constraint>
+>       listAvailableOrgPolicyConstraints(String resource, Map<Option, ?> options)
+>           throws IOException {
+>     return ListResult.of(null, ImmutableList.of());
+404,415c364,369
+<       ListOrgPoliciesResponse response =
+<           resourceManager
+<               .folders()
+<               .listOrgPolicies(
+<                   resource,
+<                   new ListOrgPoliciesRequest()
+<                       .setPageSize(Option.PAGE_SIZE.getInt(options))
+<                       .setPageToken(Option.PAGE_TOKEN.getString(options)))
+<               .execute();
+<       return ListResult.of(response.getNextPageToken(), response.getPolicies());
+<     } catch (RetryHelper.RetryHelperException ex) {
+<       throw ResourceManagerException.translateAndThrow(ex);
+---
+>       FoldersClient.ListOrgPoliciesPagedResponse response =
+>           foldersClient.listOrgPolicies(
+>               ListOrgPoliciesRequest.newBuilder().setParent(resource).build());
+>       return ListResult.of(response.getNextPageToken(), response.iterateAll());
+>     } catch (Exception ex) {
+>       throw ResourceManagerException.translateAndThrow(new IOException(ex));
+422,427c376,378
+<       return resourceManager
+<           .folders()
+<           .setOrgPolicy(resource, new SetOrgPolicyRequest().setPolicy(orgPolicy))
+<           .execute();
+<     } catch (RetryHelper.RetryHelperException ex) {
+<       throw ResourceManagerException.translateAndThrow(ex);
+---
+>       return foldersClient.updateOrgPolicy(orgPolicy);
+>     } catch (Exception ex) {
+>       throw ResourceManagerException.translateAndThrow(new IOException(ex));

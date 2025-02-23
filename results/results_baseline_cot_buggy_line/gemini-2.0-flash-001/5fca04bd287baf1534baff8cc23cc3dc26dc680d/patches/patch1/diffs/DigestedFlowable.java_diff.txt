@@ -1,0 +1,24 @@
+11a12
+> import java.nio.charset.StandardCharsets;
+15,16d15
+< import org.cactoos.io.BytesOf;
+< import org.cactoos.text.HexOf;
+56,58c55,68
+<             () -> this.dig.set(
+<                 new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+<             )
+---
+>             () -> {
+>                 byte[] digestBytes = sha.digest();
+>                 StringBuilder hexString = new StringBuilder(2 * digestBytes.length);
+>                 for (byte b : digestBytes) {
+>                     String hex = Integer.toHexString(0xff & b);
+>                     if (hex.length() == 1) {
+>                         hexString.append('0');
+>                     }
+>                     hexString.append(hex);
+>                 }
+>                 this.dig.set(
+>                     new Digest.Sha256(hexString.toString())
+>                 );
+>             }

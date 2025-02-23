@@ -1,0 +1,51 @@
+25,28d24
+< import com.google.api.services.translate.Translate;
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.api.services.translate.model.TranslationsResource;
+38a35,42
+> import com.google.cloud.translate.v2.Translate;
+> import com.google.cloud.translate.v2.Translate.Detections;
+> import com.google.cloud.translate.v2.Translate.Languages;
+> import com.google.cloud.translate.v2.Translate.Translations;
+> import com.google.cloud.translate.v2.model.DetectionsResourceItems;
+> import com.google.cloud.translate.v2.model.LanguagesResource;
+> import com.google.cloud.translate.v2.model.TranslationsResource;
+> 
+51c55
+<             .setRootUrl(options.getHost())
+---
+>             .setEndpoint(options.getHost())
+71,73c75,78
+<       List<List<DetectionsResourceItems>> detections =
+<           translate.detections().list(texts).setKey(options.getApiKey()).execute().getDetections();
+<       return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
+---
+>       Detections detections = translate.detections();
+>       List<List<DetectionsResourceItems>> detectionsList =
+>           detections.list(texts).setKey(options.getApiKey()).execute().getDetections();
+>       return detectionsList != null ? detectionsList : ImmutableList.<List<DetectionsResourceItems>>of();
+82,84c87,89
+<       List<LanguagesResource> languages =
+<           translate
+<               .languages()
+---
+>       Languages languages = translate.languages();
+>       List<LanguagesResource> languagesList =
+>           languages
+92c97
+<       return languages != null ? languages : ImmutableList.<LanguagesResource>of();
+---
+>       return languagesList != null ? languagesList : ImmutableList.<LanguagesResource>of();
+104,106c109,111
+<       List<TranslationsResource> translations =
+<           translate
+<               .translations()
+---
+>       Translations translations = translate.translations();
+>       List<TranslationsResource> translationsList =
+>           translations
+115c120
+<           translations != null ? translations : ImmutableList.<TranslationsResource>of(),
+---
+>           translationsList != null ? translationsList : ImmutableList.<TranslationsResource>of(),

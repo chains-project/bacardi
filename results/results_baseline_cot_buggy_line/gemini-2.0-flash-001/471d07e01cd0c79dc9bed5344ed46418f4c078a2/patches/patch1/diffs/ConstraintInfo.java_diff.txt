@@ -1,0 +1,39 @@
+18d17
+< import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
+20d18
+< import com.google.api.services.cloudresourcemanager.model.ListConstraint;
+23a22
+> import javax.annotation.Nullable;
+50c49
+<   private BooleanConstraint booleanConstraint;
+---
+>   private Object booleanConstraint;
+114,115c113,117
+<     ListConstraint toProtobuf() {
+<       return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
+---
+>     Object toProtobuf() {
+>       com.google.api.services.cloudresourcemanager.model.ListConstraint listConstraint = new com.google.api.services.cloudresourcemanager.model.ListConstraint();
+>       listConstraint.setSuggestedValue(suggestedValue);
+>       listConstraint.setSupportsUnder(supportsUnder);
+>       return listConstraint;
+118c120
+<     static Constraints fromProtobuf(ListConstraint listConstraint) {
+---
+>     static Constraints fromProtobuf(com.google.api.services.cloudresourcemanager.model.ListConstraint listConstraint) {
+125c127
+<     private BooleanConstraint booleanConstraint;
+---
+>     private Object booleanConstraint;
+147c149
+<     Builder setBooleanConstraint(BooleanConstraint booleanConstraint) {
+---
+>     Builder setBooleanConstraint(Object booleanConstraint) {
+198c200
+<   public BooleanConstraint getBooleanConstraint() {
+---
+>   public Object getBooleanConstraint() {
+273c275
+<       constraintProto.setListConstraint(constraints.toProtobuf());
+---
+>       constraintProto.setListConstraint((com.google.api.services.cloudresourcemanager.model.ListConstraint) constraints.toProtobuf());

@@ -1,0 +1,6 @@
+160c160,162
+<         dependencies.addAll(getGraph().buildDependencyGraph(project, getFilter()).getChildren());
+---
+>         ProjectBuildingRequest buildingRequest = getBuildingRequest();
+>         buildingRequest.setProject(project);
+>         dependencies.addAll(getGraph().buildDependencyGraph(buildingRequest, getFilter()).getChildren());

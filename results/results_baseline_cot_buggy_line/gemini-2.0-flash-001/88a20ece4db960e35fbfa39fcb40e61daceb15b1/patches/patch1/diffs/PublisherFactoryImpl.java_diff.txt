@@ -1,0 +1,24 @@
+20d19
+< import com.google.cloud.pubsublite.PublishMetadata;
+23a23
+> import com.google.cloud.pubsublite.internal.wire.PartitionPublisherFactory;
+27a28
+> import com.google.protobuf.ByteString;
+36c37
+<   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
+---
+>   public Publisher<ByteString> newPublisher(Map<String, String> params) {
+49,50c50,53
+<         partition ->
+<             SinglePartitionPublisherBuilder.newBuilder()
+---
+>         new PartitionPublisherFactory() {
+>           @Override
+>           public Publisher<ByteString> newPublisher(long partition) {
+>             return SinglePartitionPublisherBuilder.newBuilder()
+54c57,59
+<                 .build());
+---
+>                 .build();
+>           }
+>         });
