@@ -7,12 +7,14 @@ from dotenv import load_dotenv
 from models.gemini import GoogleModels, extract_text
 from models.openai import OpenAiModel
 from models.anthropic import AnthropicModel
+from models.openrouter import OpenRouterModels
 
 
 class LLMType(Enum):
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
     GEMINI = "google"
+    OPENROUTE = "openrouter"
 
     def __str__(self):
         return self.value
@@ -46,6 +48,16 @@ def init_gemini(prompt):
     resolver = LLMResolver()
     update_costs(resolver, os.getenv("LLM"), cost)
 
+    return text
+
+def init_openroute(prompt):
+    model_response = OpenRouterModels(os.getenv("LLM"), prompt)
+    _result = model_response._generate_response()
+    text = _result['choices'][0]['message']['content']
+    cost = model_response.token_cost(_result, os.getenv("LLM"))
+    # Instantiate LLMResolver so that update_costs gets self with cost_data and file_path initialized
+    resolver = LLMResolver()
+    update_costs(resolver, os.getenv("LLM"), cost)
     return text
 
 
@@ -107,7 +119,8 @@ class LLMResolver:
         definitions = {
             LLMType.OPENAI: init_gpt4,
             LLMType.ANTHROPIC: init_anthropic,
-            LLMType.GEMINI: init_gemini
+            LLMType.GEMINI: init_gemini,
+            LLMType.OPENROUTE: init_openroute
         }
 
         return definitions[for_type](prompt)
