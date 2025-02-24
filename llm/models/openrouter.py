@@ -12,12 +12,15 @@ class OpenRouterModels:
         self.model_name = model_name
         self.prompt = prompt
         self.include_reasoning = True
-        self.provider = "DeepSeek"
+
+
+        load_dotenv()
+        self.provider = os.getenv("OPENROUTER_PROVIDER",None)
         self.provider_args = {
             "allow_fallbacks": False,
         }
-
-        load_dotenv()
+        if self.provider:
+            self.provider_args["order"] = [self.provider]
         self.temperature = float(os.getenv("LLM_TEMP", 0.0))
         self.api_key = os.getenv("OPENROUTER_API_KEY")
         self.openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
@@ -62,6 +65,10 @@ class OpenRouterModels:
                 "completion": 0.28,
             },
             "deepseek/deepseek-chat:free": {
+                "prompt": 0.14,
+                "completion": 0.28,
+            },
+            "deepseek/deepseek-chat": {
                 "prompt": 0.14,
                 "completion": 0.28,
             },
