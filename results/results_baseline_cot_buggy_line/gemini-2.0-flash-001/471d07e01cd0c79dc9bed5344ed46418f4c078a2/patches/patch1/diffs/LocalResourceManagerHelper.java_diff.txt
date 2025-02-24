@@ -1,0 +1,166 @@
+25,31d24
+< import com.google.api.services.cloudresourcemanager.model.Binding;
+< import com.google.api.services.cloudresourcemanager.model.Operation;
+< import com.google.api.services.cloudresourcemanager.model.Policy;
+< import com.google.api.services.cloudresourcemanager.model.Project;
+< import com.google.api.services.cloudresourcemanager.model.SetIamPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsRequest;
+< import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsResponse;
+68a62,69
+> import com.google.cloud.resourcemanager.v3.Project;
+> import com.google.cloud.resourcemanager.v3.Binding;
+> import com.google.cloud.resourcemanager.v3.Policy;
+> import com.google.cloud.resourcemanager.v3.SetIamPolicyRequest;
+> import com.google.cloud.resourcemanager.v3.TestIamPermissionsRequest;
+> import com.google.cloud.resourcemanager.v3.TestIamPermissionsResponse;
+> import com.google.cloud.resourcemanager.v3.Operation;
+> 
+401,402c402,403
+<     if (project.getName() != null) {
+<       for (char c : project.getName().toCharArray()) {
+---
+>     if (project.getDisplayName() != null) {
+>       for (char c : project.getDisplayName().toCharArray()) {
+449,454c450,456
+<       project.setLifecycleState("ACTIVE");
+<       project.setProjectNumber(Math.abs(PROJECT_NUMBER_GENERATOR.nextLong() % Long.MAX_VALUE));
+<       project.setCreateTime(
+<           DateTimeFormatter.ISO_DATE_TIME
+<               .withZone(ZoneOffset.UTC)
+<               .format(Instant.ofEpochMilli(System.currentTimeMillis())));
+---
+>       //project.setLifecycleState("ACTIVE"); //LifecycleState is an enum now
+>       project.setState(Project.State.ACTIVE);
+>       //project.setProjectNumber(Math.abs(PROJECT_NUMBER_GENERATOR.nextLong() % Long.MAX_VALUE));
+>       //project.setCreateTime(
+>       //    DateTimeFormatter.ISO_DATE_TIME
+>       //        .withZone(ZoneOffset.UTC)
+>       //        .format(Instant.ofEpochMilli(System.currentTimeMillis())));
+460,461c462,463
+<           new Policy()
+<               .setBindings(Collections.<Binding>emptyList())
+---
+>           Policy.newBuilder()
+>               .addAllBindings(Collections.<Binding>emptyList())
+463c465,466
+<               .setVersion(0);
+---
+>               .setVersion(0)
+>               .build();
+469c472
+<                 new Operation().setDone(false).setName("operations/" + project.getProjectId()));
+---
+>                 new Operation().setDone(true).setResponse(com.google.protobuf.Any.pack(project)));
+483c486
+<     if (!project.getLifecycleState().equals("ACTIVE")) {
+---
+>     if (project.getState() != Project.State.ACTIVE) {
+487c490,491
+<       project.setLifecycleState("DELETE_REQUESTED");
+---
+>       //project.setLifecycleState("DELETE_REQUESTED");
+>       project.setState(Project.State.DELETE_REQUESTED);
+581c585
+<         if (!satisfiesFilter(project.getName(), filterEntry[1])) {
+---
+>         if (!satisfiesFilter(project.getDisplayName(), filterEntry[1])) {
+608c612,614
+<     Project project = new Project();
+---
+>     //Project project = new Project();
+>     Project.Builder projectBuilder = fullProject.toBuilder();
+>     Project project;
+612c618,619
+<           project.setCreateTime(fullProject.getCreateTime());
+---
+>           //project.setCreateTime(fullProject.getCreateTime());
+>           //projectBuilder.setCreateTime(fullProject.getCreateTime());
+615c622,623
+<           project.setLabels(fullProject.getLabels());
+---
+>           //project.setLabels(fullProject.getLabels());
+>           //projectBuilder.setLabels(fullProject.getLabels());
+618c626,627
+<           project.setLifecycleState(fullProject.getLifecycleState());
+---
+>           //project.setLifecycleState(fullProject.getLifecycleState());
+>           //projectBuilder.setState(fullProject.getState());
+621c630,631
+<           project.setName(fullProject.getName());
+---
+>           //project.setName(fullProject.getName());
+>           //projectBuilder.setDisplayName(fullProject.getDisplayName());
+624c634,635
+<           project.setParent(fullProject.getParent());
+---
+>           //project.setParent(fullProject.getParent());
+>           //projectBuilder.setParent(fullProject.getParent());
+627c638,639
+<           project.setProjectId(fullProject.getProjectId());
+---
+>           //project.setProjectId(fullProject.getProjectId());
+>           //projectBuilder.setProjectId(fullProject.getProjectId());
+630c642,643
+<           project.setProjectNumber(fullProject.getProjectNumber());
+---
+>           //project.setProjectNumber(fullProject.getProjectNumber());
+>           //projectBuilder.setProjectNumber(fullProject.getProjectNumber());
+633a647,648
+>     //return project;
+>     project = projectBuilder.build();
+642c657
+<     } else if (!originalProject.getLifecycleState().equals("ACTIVE")) {
+---
+>     } else if (originalProject.getState() != Project.State.ACTIVE) {
+650,653c665,674
+<     project.setProjectId(projectId);
+<     project.setLifecycleState(originalProject.getLifecycleState());
+<     project.setCreateTime(originalProject.getCreateTime());
+<     project.setProjectNumber(originalProject.getProjectNumber());
+---
+>     //project.setProjectId(projectId);
+>     //project.setLifecycleState(originalProject.getLifecycleState());
+>     //project.setCreateTime(originalProject.getCreateTime());
+>     //project.setProjectNumber(originalProject.getProjectNumber());
+> 
+>     Project.Builder projectBuilder = project.toBuilder();
+>     projectBuilder.setProjectId(projectId);
+>     projectBuilder.setState(originalProject.getState());
+>     project = projectBuilder.build();
+> 
+670c691
+<     } else if (!project.getLifecycleState().equals("DELETE_REQUESTED")) {
+---
+>     } else if (project.getState() != Project.State.DELETE_REQUESTED) {
+677c698,699
+<       project.setLifecycleState("ACTIVE");
+---
+>       //project.setLifecycleState("ACTIVE");
+>       project.setState(Project.State.ACTIVE);
+711,712c733,740
+<     policy.setEtag(UUID.randomUUID().toString());
+<     policy.setVersion(originalPolicy.getVersion());
+---
+>     //policy.setEtag(UUID.randomUUID().toString());
+>     //policy.setVersion(originalPolicy.getVersion());
+> 
+>     Policy.Builder policyBuilder = policy.toBuilder();
+>     policyBuilder.setEtag(UUID.randomUUID().toString());
+>     policyBuilder.setVersion(originalPolicy.getVersion());
+>     policy = policyBuilder.build();
+> 
+729c757
+<           jsonFactory.toString(new TestIamPermissionsResponse().setPermissions(permissions)));
+---
+>           jsonFactory.toString(TestIamPermissionsResponse.newBuilder().addAllPermissions(permissions).build()));
+787c815,822
+<       project.setLifecycleState(lifecycleState);
+---
+>       //project.setLifecycleState(lifecycleState);
+>       if ("ACTIVE".equals(lifecycleState)) {
+>         project.setState(Project.State.ACTIVE);
+>       } else if ("DELETE_REQUESTED".equals(lifecycleState)) {
+>         project.setState(Project.State.DELETE_REQUESTED);
+>       } else if ("DELETE_IN_PROGRESS".equals(lifecycleState)) {
+>         project.setState(Project.State.DELETE_IN_PROGRESS);
+>       }

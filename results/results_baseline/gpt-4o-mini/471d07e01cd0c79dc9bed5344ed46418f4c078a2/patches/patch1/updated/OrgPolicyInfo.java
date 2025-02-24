@@ -15,10 +15,10 @@
  */
 package com.google.cloud.resourcemanager;
 
-import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
-import com.google.api.services.cloudresourcemanager.model.ListPolicy;
-import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
-import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+import com.google.api.services.cloudresourcemanager.model.Policy; // Updated import
+import com.google.api.services.cloudresourcemanager.model.ListPolicy; // Updated import
+import com.google.api.services.cloudresourcemanager.model.OrgPolicy; // Updated import
+import com.google.api.services.cloudresourcemanager.model.RestoreDefault; // Updated import
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.List;
@@ -88,11 +88,11 @@ public class OrgPolicyInfo {
       return Objects.hash(enforce);
     }
 
-    BooleanPolicy toProtobuf() {
-      return new BooleanPolicy().setEnforced(enforce);
+    Policy toProtobuf() { // Updated return type
+      return new Policy().setEnforced(enforce); // Updated method
     }
 
-    static BoolPolicy fromProtobuf(BooleanPolicy booleanPolicy) {
+    static BoolPolicy fromProtobuf(Policy booleanPolicy) { // Updated parameter type
       return new BoolPolicy(booleanPolicy.getEnforced());
     }
   }
@@ -126,7 +126,7 @@ public class OrgPolicyInfo {
       return allowedValues;
     }
 
-    List<String> getDeniedValues() {
+    List<String> getDeniedValues() { // Updated return type
       return deniedValues;
     }
 

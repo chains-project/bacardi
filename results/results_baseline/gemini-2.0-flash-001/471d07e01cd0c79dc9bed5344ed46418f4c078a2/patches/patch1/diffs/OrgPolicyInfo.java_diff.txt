@@ -1,0 +1,56 @@
+18,21c18,22
+< import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+< import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+---
+> import com.google.api.core.BetaApi;
+> import com.google.cloud.resourcemanager.v3.BooleanPolicy;
+> import com.google.cloud.resourcemanager.v3.ListPolicy;
+> import com.google.cloud.resourcemanager.v3.OrgPolicy;
+> import com.google.cloud.resourcemanager.v3.RestoreDefault;
+25a27
+> import javax.annotation.Nullable;
+35a38
+> @BetaApi
+97c100
+<       return new BooleanPolicy().setEnforced(enforce);
+---
+>       return BooleanPolicy.newBuilder().setEnforced(enforce).build();
+201c204
+<       return new ListPolicy()
+---
+>       return ListPolicy.newBuilder()
+203,204c206,207
+<           .setAllowedValues(allowedValues)
+<           .setDeniedValues(deniedValues)
+---
+>           .addAllAllowedValues(allowedValues)
+>           .addAllDeniedValues(deniedValues)
+206c209,210
+<           .setSuggestedValue(suggestedValue);
+---
+>           .setSuggestedValue(suggestedValue)
+>           .build();
+212,213c216,217
+<           listPolicy.getAllowedValues(),
+<           listPolicy.getDeniedValues(),
+---
+>           listPolicy.getAllowedValuesList(),
+>           listPolicy.getDeniedValuesList(),
+361c365
+<     OrgPolicy orgPolicyProto = new OrgPolicy();
+---
+>     OrgPolicy.Builder orgPolicyProto = OrgPolicy.newBuilder();
+368a373
+>     if (restoreDefault != null) {
+369a375
+>     }
+373c379
+<     return orgPolicyProto;
+---
+>     return orgPolicyProto.build();
+384a391
+>     if (orgPolicyProtobuf.getRestoreDefault() != null) {
+385a393
+>     }

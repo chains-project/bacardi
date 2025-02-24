@@ -1,0 +1,18 @@
+7c7
+< import com.gargoylesoftware.htmlunit.ScriptResult;
+---
+> import com.gargoylesoftware.htmlunit.javascript.JavaScriptEngine;
+35,36c35,36
+<             ScriptResult scriptResult = new ScriptResult(result);
+<             return scriptResult.getJavaScriptResult().toString();
+---
+>             String scriptResult = JavaScriptEngine.toString(result);
+>             return scriptResult;
+60c60
+<                 Object scriptResult = new ScriptResult(result).getJavaScriptResult();
+---
+>                 String scriptResult = JavaScriptEngine.toString(result);
+62c62
+<                     return scriptResult.toString();
+---
+>                     return scriptResult;

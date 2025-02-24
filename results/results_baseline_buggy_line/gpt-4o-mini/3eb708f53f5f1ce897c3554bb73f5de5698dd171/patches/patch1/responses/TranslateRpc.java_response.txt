@@ -54,5 +54,5 @@ public interface TranslateRpc extends ServiceRpc {
    * @return a list of resources containing translation information, in the same order of the
    *     provided texts
    */
-  List<String> translate(List<String> texts, Map<Option, ?> optionMap);
+  List<List<String>> translate(List<String> texts, Map<Option, ?> optionMap);
 }

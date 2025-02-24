@@ -1,0 +1,21 @@
+7c7
+< import io.dropwizard.logging.filter.FilterFactory;
+---
+> import io.dropwizard.logging.common.filter.FilterFactory;
+11c11
+< public class StatusCheckFilter implements FilterFactory<IAccessEvent> {
+---
+> public class StatusCheckFilter implements FilterFactory<IAccessEvent, Filter<IAccessEvent>> {
+13c13
+<     public Filter<IAccessEvent> build() {
+---
+>     public Filter<IAccessEvent> build(IAccessEvent event) {
+30d29
+< }
+31a31,35
+>     @Override
+>     public Filter<IAccessEvent> build() {
+>         return build(null);
+>     }
+> }
+\ No newline at end of file

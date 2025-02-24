@@ -1,0 +1,13 @@
+36d35
+< import org.yaml.snakeyaml.inspector.TrustedTagInspector;
+43a43
+> import org.yaml.snakeyaml.inspector.TagInspector;
+66c66,71
+<         loadingConfig.setTagInspector(new TrustedTagInspector());
+---
+>         loadingConfig.setTagInspector(new TagInspector() {
+>             @Override
+>             public boolean isAllowedTag(Tag tag) {
+>                 return true;
+>             }
+>         });

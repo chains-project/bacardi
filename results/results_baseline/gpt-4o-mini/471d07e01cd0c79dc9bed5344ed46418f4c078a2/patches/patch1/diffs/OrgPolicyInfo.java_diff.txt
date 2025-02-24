@@ -1,3 +1,13 @@
+18,21c18,21
+< import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+< import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+---
+> import com.google.api.services.cloudresourcemanager.model.Policy; // Updated import
+> import com.google.api.services.cloudresourcemanager.model.ListPolicy; // Updated import
+> import com.google.api.services.cloudresourcemanager.model.OrgPolicy; // Updated import
+> import com.google.api.services.cloudresourcemanager.model.RestoreDefault; // Updated import
 40d39
 <         @Override
 47d45
@@ -8,6 +18,16 @@
 <     @Override
 91d86
 <     @Override
+96,97c91,92
+<     BooleanPolicy toProtobuf() {
+<       return new BooleanPolicy().setEnforced(enforce);
+---
+>     Policy toProtobuf() { // Updated return type
+>       return new Policy().setEnforced(enforce); // Updated method
+100c95
+<     static BoolPolicy fromProtobuf(BooleanPolicy booleanPolicy) {
+---
+>     static BoolPolicy fromProtobuf(Policy booleanPolicy) { // Updated parameter type
 105,120d99
 <   /**
 <    * The organization ListPolicy object.
@@ -33,8 +53,11 @@
 <     /** Returns all the Values state of this policy. */
 147d124
 <     /** Returns the list of allowed values of this resource */
-152d128
+152,153c129
 <     /** Returns the list of denied values of this resource. */
+<     List<String> getDeniedValues() {
+---
+>     List<String> getDeniedValues() { // Updated return type
 157d132
 <     /** Returns the inheritance behavior for this Policy */
 162d136

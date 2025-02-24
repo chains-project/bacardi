@@ -1,0 +1,23 @@
+113,114c113,114
+<             first = develop.p2p.lib.LeetConverter.convert(first);
+<             last = develop.p2p.lib.LeetConverter.convert(last);
+---
+>             first = convertToLeet(first);
+>             last = convertToLeet(last);
+139a140,155
+>     private static String convertToLeet(String input) {
+>         StringBuilder leet = new StringBuilder();
+>         for (char c : input.toCharArray()) {
+>             switch (Character.toLowerCase(c)) {
+>                 case 'a': leet.append("4"); break;
+>                 case 'e': leet.append("3"); break;
+>                 case 'i': leet.append("1"); break;
+>                 case 'o': leet.append("0"); break;
+>                 case 's': leet.append("5"); break;
+>                 case 't': leet.append("7"); break;
+>                 default: leet.append(c);
+>             }
+>         }
+>         return leet.toString();
+>     }
+> 

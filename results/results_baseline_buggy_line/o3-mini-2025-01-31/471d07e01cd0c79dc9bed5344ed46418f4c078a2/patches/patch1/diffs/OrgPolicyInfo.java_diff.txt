@@ -1,181 +1,73 @@
-0a1,7
-> package com.google.cloud.resourcemanager;
-> 
-> import com.google.common.base.Function;
-> import com.google.common.base.MoreObjects;
-> import java.util.List;
-> import java.util.Objects;
-> 
-16,25d22
-< package com.google.cloud.resourcemanager;
-< 
-< import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
-< import com.google.api.services.cloudresourcemanager.model.ListPolicy;
-< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
-< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
-< import com.google.common.base.Function;
-< import com.google.common.base.MoreObjects;
-< import java.util.List;
-< import java.util.Objects;
-40d36
+21a22
+> import com.google.api.services.cloudresourcemanager.model.Policy; // Updated import
+40d40
 <         @Override
-47d42
+47d46
 <         @Override
-125c120
+74d72
+<     @Override
+79d76
+<     @Override
+91d87
+<     @Override
+105,120d100
+<   /**
+<    * The organization ListPolicy object.
+<    *
+<    * <p>ListPolicy can define specific values and subtrees of Cloud Resource Manager resource
+<    * hierarchy (Organizations, Folders, Projects) that are allowed or denied by setting the
+<    * allowedValues and deniedValues fields. This is achieved by using the under: and optional is:
+<    * prefixes. The under: prefix denotes resource subtree values. The is: prefix is used to denote
+<    * specific values, and is required only if the value contains a ":". Values prefixed with "is:"
+<    * are treated the same as values with no prefix. Ancestry subtrees must be in one of the
+<    * following formats: - "projects/", e.g. "projects/tokyo-rain-123" - "folders/", e.g.
+<    * "folders/1234" - "organizations/", e.g. "organizations/1234" The supportsUnder field of the
+<    * associated Constraint defines whether ancestry prefixes can be used. You can set allowedValues
+<    * and deniedValues in the same Policy if allValues is ALL_VALUES_UNSPECIFIED. ALLOW or DENY are
+<    * used to allow or deny all values. If allValues is set to either ALLOW or DENY, allowedValues
+<    * and deniedValues must be unset.
+<    */
+125c105
 <     private final List<java.lang.String> deniedValues;
 ---
 >     private final List<String> deniedValues;
-391a387,538
-> 
-> class BooleanPolicy {
-> 
->   private Boolean enforced;
-> 
->   public BooleanPolicy() {}
-> 
->   BooleanPolicy setEnforced(Boolean enforced) {
->     this.enforced = enforced;
->     return this;
->   }
-> 
->   Boolean getEnforced() {
->     return enforced;
->   }
-> }
-> 
-> class ListPolicy {
-> 
->   private String allValues;
->   private List<String> allowedValues;
->   private List<String> deniedValues;
->   private Boolean inheritFromParent;
->   private String suggestedValue;
-> 
->   public ListPolicy() {}
-> 
->   ListPolicy setAllValues(String allValues) {
->     this.allValues = allValues;
->     return this;
->   }
-> 
->   String getAllValues() {
->     return allValues;
->   }
-> 
->   ListPolicy setAllowedValues(List<String> allowedValues) {
->     this.allowedValues = allowedValues;
->     return this;
->   }
-> 
->   List<String> getAllowedValues() {
->     return allowedValues;
->   }
-> 
->   ListPolicy setDeniedValues(List<String> deniedValues) {
->     this.deniedValues = deniedValues;
->     return this;
->   }
-> 
->   List<String> getDeniedValues() {
->     return deniedValues;
->   }
-> 
->   ListPolicy setInheritFromParent(Boolean inheritFromParent) {
->     this.inheritFromParent = inheritFromParent;
->     return this;
->   }
-> 
->   Boolean getInheritFromParent() {
->     return inheritFromParent;
->   }
-> 
->   ListPolicy setSuggestedValue(String suggestedValue) {
->     this.suggestedValue = suggestedValue;
->     return this;
->   }
-> 
->   String getSuggestedValue() {
->     return suggestedValue;
->   }
-> }
-> 
-> class OrgPolicy {
-> 
->   private BooleanPolicy booleanPolicy;
->   private String constraint;
->   private ListPolicy listPolicy;
->   private RestoreDefault restoreDefault;
->   private String etag;
->   private String updateTime;
->   private Integer version;
-> 
->   public OrgPolicy() {}
-> 
->   OrgPolicy setBooleanPolicy(BooleanPolicy booleanPolicy) {
->     this.booleanPolicy = booleanPolicy;
->     return this;
->   }
-> 
->   BooleanPolicy getBooleanPolicy() {
->     return booleanPolicy;
->   }
-> 
->   OrgPolicy setConstraint(String constraint) {
->     this.constraint = constraint;
->     return this;
->   }
-> 
->   String getConstraint() {
->     return constraint;
->   }
-> 
->   OrgPolicy setListPolicy(ListPolicy listPolicy) {
->     this.listPolicy = listPolicy;
->     return this;
->   }
-> 
->   ListPolicy getListPolicy() {
->     return listPolicy;
->   }
-> 
->   OrgPolicy setRestoreDefault(RestoreDefault restoreDefault) {
->     this.restoreDefault = restoreDefault;
->     return this;
->   }
-> 
->   RestoreDefault getRestoreDefault() {
->     return restoreDefault;
->   }
-> 
->   OrgPolicy setEtag(String etag) {
->     this.etag = etag;
->     return this;
->   }
-> 
->   String getEtag() {
->     return etag;
->   }
-> 
->   OrgPolicy setUpdateTime(String updateTime) {
->     this.updateTime = updateTime;
->     return this;
->   }
-> 
->   String getUpdateTime() {
->     return updateTime;
->   }
-> 
->   OrgPolicy setVersion(Integer version) {
->     this.version = version;
->     return this;
->   }
-> 
->   Integer getVersion() {
->     return version;
->   }
-> }
-> 
-> class RestoreDefault {
->   public RestoreDefault() {}
-> }
-\ No newline at end of file
+142d121
+<     /** Returns all the Values state of this policy. */
+147d125
+<     /** Returns the list of allowed values of this resource */
+152d129
+<     /** Returns the list of denied values of this resource. */
+157d133
+<     /** Returns the inheritance behavior for this Policy */
+162d137
+<     /** Returns the suggested value of this policy. */
+167d141
+<     @Override
+178d151
+<     @Override
+194d166
+<     @Override
+219d190
+<   /** Builder for {@code OrganizationPolicyInfo}. */
+291d261
+<   /** Returns the boolean constraint to check whether the constraint is enforced or not. */
+296d265
+<   /** Returns the name of the Constraint. */
+301d269
+<   /** Returns the etag value of policy. */
+306d273
+<   /** Return the policies. */
+311d277
+<   /** Restores the default behavior of the constraint. */
+316d281
+<   /** Returns the updated timestamp of policy. */
+321d285
+<   /** Returns the version of the Policy, Default version is 0. */
+326d289
+<   @Override
+344d306
+<   @Override
+350d311
+<   /** Returns a builder for the {@link OrgPolicyInfo} object. */
+355d315
+<   /** Returns a builder for the {@link OrgPolicyInfo} object. */

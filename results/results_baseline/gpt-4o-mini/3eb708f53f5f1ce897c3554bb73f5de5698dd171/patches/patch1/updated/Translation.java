@@ -20,6 +20,7 @@ public class Translation implements Serializable {
   private static final long serialVersionUID = 2556017420486245581L;
   static final Function<Translations, Translation> FROM_PB_FUNCTION =
       new Function<Translations, Translation>() {
+        @Override
         public Translation apply(Translations translationPb) {
           return Translation.fromPb(translationPb);
         }
@@ -60,6 +61,7 @@ public class Translation implements Serializable {
     return model;
   }
 
+  @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
         .add("translatedText", translatedText)
@@ -67,10 +69,12 @@ public class Translation implements Serializable {
         .toString();
   }
 
+  @Override
   public final int hashCode() {
     return Objects.hash(translatedText, sourceLanguage);
   }
 
+  @Override
   public final boolean equals(Object obj) {
     if (obj == this) {
       return true;

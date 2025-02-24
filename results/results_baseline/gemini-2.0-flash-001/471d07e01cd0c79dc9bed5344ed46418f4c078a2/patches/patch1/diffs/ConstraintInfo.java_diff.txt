@@ -1,0 +1,26 @@
+18,20d17
+< import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
+< import com.google.api.services.cloudresourcemanager.model.Constraint;
+< import com.google.api.services.cloudresourcemanager.model.ListConstraint;
+22a20,22
+> import com.google.cloud.resourcemanager.v3.Constraint;
+> import com.google.cloud.resourcemanager.v3.Constraint.BooleanConstraint;
+> import com.google.cloud.resourcemanager.v3.Constraint.ListConstraint;
+115c115
+<       return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
+---
+>       return ListConstraint.newBuilder().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder).build();
+267c267,268
+<     Constraint constraintProto = new Constraint();
+---
+>     Constraint.Builder constraintProto = Constraint.newBuilder();
+>     if (booleanConstraint != null) {
+268a270
+>     }
+275a278
+>     if (version != null) {
+277c280,281
+<     return constraintProto;
+---
+>     }
+>     return constraintProto.build();

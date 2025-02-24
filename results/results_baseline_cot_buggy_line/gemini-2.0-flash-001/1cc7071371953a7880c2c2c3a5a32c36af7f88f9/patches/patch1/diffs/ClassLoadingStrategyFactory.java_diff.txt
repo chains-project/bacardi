@@ -1,0 +1,13 @@
+16,17d15
+< import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector;
+< import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+21a20,22
+> import net.bytebuddy.dynamic.loading.ClassInjector;
+> import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+> 
+34,35c35,36
+<                 return ClassLoadingStrategy.UsingLookup.of(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));
+<             } catch (Exception e) {
+---
+>                 return ClassLoadingStrategy.UsingLookup.of(MethodHandles.lookup().unreflect(PRIVATE_LOOKUP_IN).bindTo(null).invoke(assertClass, LOOKUP));
+>             } catch (Throwable e) {

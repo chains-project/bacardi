@@ -1,0 +1,55 @@
+10a11
+> import java.util.Optional;
+11a13
+> import org.spongepowered.api.command.Command;
+13,15c15
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+17a18
+> import org.spongepowered.api.command.parameter.CommonParameters;
+19,20c20,22
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import static org.spongepowered.api.command.CommandResult.success;
+> import static org.spongepowered.api.command.parameter.CommonParameters.string;
+> import org.spongepowered.api.text.Text;
+22c24
+< public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class UploadCommand implements Command, ChangeSkinCommand {
+34,35c36,43
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         String url = args.<String>getOne("url").get();
+---
+>     public CommandResult execute(CommandContext args) {
+>         Optional<String> urlOptional = args.one(CommonParameters.STRING);
+>         if (!urlOptional.isPresent()) {
+>             plugin.sendMessage(args.getCause().get("source", org.spongepowered.api.command.CommandCause.class).get(), "no-valid-url");
+>             return CommandResult.empty();
+>         }
+> 
+>         String url = urlOptional.get();
+39c47
+<                 plugin.sendMessage(src, "no-accounts");
+---
+>                 plugin.sendMessage(args.getCause().get("source", org.spongepowered.api.command.CommandCause.class).get(), "no-accounts");
+42c50
+<                 Runnable skinUploader = new SkinUploader(plugin, src, uploadAccount, url);
+---
+>                 Runnable skinUploader = new SkinUploader(plugin, args.getCause().get("source", org.spongepowered.api.command.CommandCause.class).get(), uploadAccount, url);
+46c54
+<             plugin.sendMessage(src, "no-valid-url");
+---
+>             plugin.sendMessage(args.getCause().get("source", org.spongepowered.api.command.CommandCause.class).get(), "no-valid-url");
+49c57
+<         return CommandResult.success();
+---
+>         return success();
+56c64
+<                 .arguments(string(of("url")))
+---
+>                 .addParameter(CommonParameters.STRING)

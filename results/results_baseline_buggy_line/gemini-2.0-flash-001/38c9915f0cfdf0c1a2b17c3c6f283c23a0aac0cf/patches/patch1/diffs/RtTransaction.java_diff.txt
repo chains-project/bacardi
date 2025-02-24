@@ -1,0 +1,89 @@
+31a32
+> import org.cactoos.Scalar;
+35,38c36,38
+< import org.cactoos.scalar.IoCheckedScalar;
+< import org.cactoos.scalar.ItemAt;
+< import org.cactoos.scalar.StickyScalar;
+< import org.cactoos.scalar.UncheckedScalar;
+---
+> import org.cactoos.scalar.IoChecked;
+> import org.cactoos.scalar.Sticky;
+> import org.cactoos.scalar.Unchecked;
+88c88
+<     private final IoCheckedScalar<String> transaction;
+---
+>     private final Scalar<String> transaction;
+95,96c95,96
+<         this.transaction = new IoCheckedScalar<>(
+<             new StickyScalar<>(
+---
+>         this.transaction = new IoChecked<>(
+>             new Sticky<>(
+131,133c131,133
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     0, new SplitText(this.transaction.value(), ";")
+---
+>             new IoChecked<>(
+>                 new org.cactoos.scalar.ItemAt<>(
+>                     0, new SplitText(new Unchecked(this.transaction).value(), ";")
+156,158c156,158
+<                 new IoCheckedScalar<>(
+<                     new ItemAt<>(
+<                         1, new SplitText(this.transaction.value(), ";")
+---
+>                 new IoChecked<>(
+>                     new org.cactoos.scalar.ItemAt<>(
+>                         1, new SplitText(new Unchecked(this.transaction).value(), ";")
+169,171c169,171
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     2, new SplitText(this.transaction.value(), ";")
+---
+>             new IoChecked<>(
+>                 new org.cactoos.scalar.ItemAt<>(
+>                     2, new SplitText(new Unchecked(this.transaction).value(), ";")
+193,194c193,194
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+---
+>             new IoChecked<>(
+>                 new org.cactoos.scalar.ItemAt<>(
+196c196
+<                     3, new SplitText(this.transaction.value(), ";")
+---
+>                     3, new SplitText(new Unchecked(this.transaction).value(), ";")
+213,214c213,214
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+---
+>             new IoChecked<>(
+>                 new org.cactoos.scalar.ItemAt<>(
+216c216
+<                     4, new SplitText(this.transaction.value(), ";")
+---
+>                     4, new SplitText(new Unchecked(this.transaction).value(), ";")
+237,238c237,238
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+---
+>             new IoChecked<>(
+>                 new org.cactoos.scalar.ItemAt<>(
+240c240
+<                     5, new SplitText(this.transaction.value(), ";")
+---
+>                     5, new SplitText(new Unchecked(this.transaction).value(), ";")
+261,262c261,262
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+---
+>             new IoChecked<>(
+>                 new org.cactoos.scalar.ItemAt<>(
+264c264
+<                     6, new SplitText(this.transaction.value(), ";")
+---
+>                     6, new SplitText(new Unchecked(this.transaction).value(), ";")
+286c286
+<         return new UncheckedScalar<>(this.transaction).value();
+---
+>         return new Unchecked<>(this.transaction).value();

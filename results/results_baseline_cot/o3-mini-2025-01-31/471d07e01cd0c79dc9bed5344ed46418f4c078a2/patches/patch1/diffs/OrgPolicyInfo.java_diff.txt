@@ -1,0 +1,64 @@
+18,21c18,21
+< import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+< import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+---
+> import com.google.api.services.cloudresourcemanager.v1.model.BooleanPolicy; // Updated import
+> import com.google.api.services.cloudresourcemanager.v1.model.ListPolicy; // Updated import
+> import com.google.api.services.cloudresourcemanager.v1.model.OrgPolicy; // Updated import
+> import com.google.api.services.cloudresourcemanager.v1.model.RestoreDefault; // Updated import
+105,120d104
+<   /**
+<    * The organization ListPolicy object.
+<    *
+<    * <p>ListPolicy can define specific values and subtrees of Cloud Resource Manager resource
+<    * hierarchy (Organizations, Folders, Projects) that are allowed or denied by setting the
+<    * allowedValues and deniedValues fields. This is achieved by using the under: and optional is:
+<    * prefixes. The under: prefix denotes resource subtree values. The is: prefix is used to denote
+<    * specific values, and is required only if the value contains a ":". Values prefixed with "is:"
+<    * are treated the same as values with no prefix. Ancestry subtrees must be in one of the
+<    * following formats: - "projects/", e.g. "projects/tokyo-rain-123" - "folders/", e.g.
+<    * "folders/1234" - "organizations/", e.g. "organizations/1234" The supportsUnder field of the
+<    * associated Constraint defines whether ancestry prefixes can be used. You can set allowedValues
+<    * and deniedValues in the same Policy if allValues is ALL_VALUES_UNSPECIFIED. ALLOW or DENY are
+<    * used to allow or deny all values. If allValues is set to either ALLOW or DENY, allowedValues
+<    * and deniedValues must be unset.
+<    */
+125c109
+<     private final List<java.lang.String> deniedValues;
+---
+>     private final List<String> deniedValues; // Fixed type declaration
+142d125
+<     /** Returns all the Values state of this policy. */
+147d129
+<     /** Returns the list of allowed values of this resource */
+152,153c134
+<     /** Returns the list of denied values of this resource. */
+<     List<String> getDeniedValues() {
+---
+>     List<String> getDeniedValues() { // Fixed return type
+157d137
+<     /** Returns the inheritance behavior for this Policy */
+162d141
+<     /** Returns the suggested value of this policy. */
+219d197
+<   /** Builder for {@code OrganizationPolicyInfo}. */
+291d268
+<   /** Returns the boolean constraint to check whether the constraint is enforced or not. */
+296d272
+<   /** Returns the name of the Constraint. */
+301d276
+<   /** Returns the etag value of policy. */
+306d280
+<   /** Return the policies. */
+311d284
+<   /** Restores the default behavior of the constraint. */
+316d288
+<   /** Returns the updated timestamp of policy. */
+321d292
+<   /** Returns the version of the Policy, Default version is 0. */
+350d320
+<   /** Returns a builder for the {@link OrgPolicyInfo} object. */
+355d324
+<   /** Returns a builder for the {@link OrgPolicyInfo} object. */

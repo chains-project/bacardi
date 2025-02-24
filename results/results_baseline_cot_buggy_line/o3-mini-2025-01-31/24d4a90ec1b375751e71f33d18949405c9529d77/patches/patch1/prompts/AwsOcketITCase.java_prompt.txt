@@ -1,0 +1,188 @@
+ You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates.
+Your task is to analyze the provided code and error message, then propose a patch that can be applied to the client code to resolve the issue.
+
+ Here is the client code that is failing:
+```java
+/**
+ * Copyright (c) 2012-2022, jcabi.com
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met: 1) Redistributions of source code must retain the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer. 2) Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3) Neither the name of the jcabi.com nor
+ * the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
+ * permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+ * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+ * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package com.jcabi.s3;
+
+import com.jcabi.aspects.Tv;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
+import org.junit.Rule;
+import org.junit.Test;
+
+/**
+ * Integration case for {@link AwsOcket}.
+ *
+ * @author Yegor Bugayenko (yegor256@gmail.com)
+ * @version $Id: d67286e195243030346f4424945bcc8027d7b932 $
+ * @since 0.1
+ */
+public final class AwsOcketITCase {
+
+    /**
+     * Bucket we're working with.
+     * @checkstyle VisibilityModifier (3 lines)
+     */
+    @Rule
+    public final transient BucketRule rule = new BucketRule();
+
+    /**
+     * AwsOcket can read and write S3 content.
+     * @throws Exception If fails
+     */
+    @Test
+    public void readsAndWritesObjectContent() throws Exception {
+        final Bucket bucket = this.rule.bucket();
+        final String name = "a/b/c/test.txt";
+        final Ocket.Text ocket = new Ocket.Text(bucket.ocket(name));
+        final String content = "text \u20ac\n\t\rtest";
+        ocket.write(content);
+        ocket.write(content);
+        try {
+            MatcherAssert.assertThat(ocket.read(), Matchers.equalTo(content));
+        } finally {
+            bucket.remove(name);
+        }
+    }
+
+    /**
+     * AwsOcket can read and write large S3 content.
+     * @throws Exception If fails
+     */
+    @Test
+    public void readsAndWritesLargeObjectContent() throws Exception {
+        final Bucket bucket = this.rule.bucket();
+        final String name = "test-44.txt";
+        final Ocket.Text ocket = new Ocket.Text(bucket.ocket(name));
+        final String data = RandomStringUtils.random(Tv.HUNDRED * Tv.THOUSAND);
+        ocket.write(data);
+        try {
+            MatcherAssert.assertThat(ocket.read(), Matchers.equalTo(data));
+        } finally {
+            bucket.remove(name);
+        }
+    }
+
+    /**
+     * AwsOcket can check S3 object existence.
+     * @throws Exception If fails
+     */
+    @Test
+    public void checksObjectExistenceInBucket() throws Exception {
+        final Bucket bucket = this.rule.bucket();
+        final String name = "a/b/ffo/test.txt";
+        new Ocket.Text(bucket.ocket(name)).write("test me");
+        try {
+            MatcherAssert.assertThat(
+                bucket.ocket(name).exists(),
+                Matchers.is(true)
+            );
+            MatcherAssert.assertThat(
+                bucket.ocket("a/b/ffo/test-2.txt").exists(),
+                Matchers.is(false)
+            );
+        } finally {
+            bucket.remove(name);
+        }
+    }
+
+    /**
+     * Region can throw when ocket is absent.
+     * @throws Exception If fails
+     */
+    @Test(expected = OcketNotFoundException.class)
+    public void throwsWhenObjectIsAbsent() throws Exception {
+        final Bucket bucket = this.rule.bucket();
+        new Ocket.Text(bucket.ocket("key-is-absent.txt")).read();
+    }
+
+}
+
+```
+
+ the error is triggered in the following specific lines in the previous code:
+
+```java
+import com.jcabi.aspects.Tv;
+```
+
+
+ And here is the error message:
+[ERROR] /jcabi-s3/src/test/java/com/jcabi/s3/AwsOcketITCase.java:[32,25] cannot find symbol
+  symbol:   class Tv
+  location: package com.jcabi.aspects
+
+
+
+ Before proposing a fix, please analyze the error message and client code. Wrap your analysis inside <code_analysis> tags:
+
+<code_analysis>
+1. Examine the error message:
+   - Identify the specific issue related to the dependency update.
+   - Note the line number or method where the error occurs.
+   - Determine which dependency and version is causing the issue.
+
+2. Review the client code:
+   - Locate the problematic areas mentioned in the error message.
+   - Identify any related code that might be affected by the changes.
+
+3. Consider potential fixes that adhere to the following constraints:
+   - Do not change any function signatures.
+   - Only remove the @Override annotation if the method no longer overrides a method in the updated dependency version.
+   - Ensure correct imports are used, considering the newer dependency version.
+   - Avoid removing existing code unless it directly causes a compilation or functionality error.
+
+4. Plan the necessary changes to fix the issue:
+   - List the specific modifications required.
+   - Consider potential side effects of the proposed changes.
+   - Ensure the fix addresses the root cause of the error.
+</code_analysis>
+
+Based on your analysis, propose a patch to fix the issue. Your response should be a complete and compilable Java class in a fenced code block. Adhere to these guidelines:
+
+1. Do not change any function signatures.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Avoid removing any existing code unless it directly causes a compilation or functionality error.
+6. Ensure the entire class is included and that it will compile correctly. Don't use the comment "// ... (rest of the class remains unchanged)".
+
+Please provide your fixed class in the following format:
+
+```java
+// Your complete, fixed Java class here
+```
+
+Remember to focus specifically on issues related to the dependency update when proposing your fix.
+ 

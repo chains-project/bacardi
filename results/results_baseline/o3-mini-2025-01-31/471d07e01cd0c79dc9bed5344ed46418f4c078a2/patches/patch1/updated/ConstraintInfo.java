@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * you may obtain a copy of the License at
  *
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -15,6 +15,10 @@
  */
 package com.google.cloud.resourcemanager;
 
+import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
+import com.google.api.services.cloudresourcemanager.model.Constraint;
+import com.google.api.services.cloudresourcemanager.model.ListConstraint;
+import com.google.api.services.cloudresourcemanager.model.Policy; // Updated import
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.Objects;
@@ -31,14 +35,12 @@ public class ConstraintInfo {
 
   static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
       new Function<Constraint, ConstraintInfo>() {
-        @Override
         public ConstraintInfo apply(Constraint protobuf) {
           return ConstraintInfo.fromProtobuf(protobuf);
         }
       };
   static final Function<ConstraintInfo, Constraint> TO_PROTOBUF_FUNCTION =
       new Function<ConstraintInfo, Constraint>() {
-        @Override
         public Constraint apply(ConstraintInfo constraintInfo) {
           return constraintInfo.toProtobuf();
         }
@@ -82,7 +84,6 @@ public class ConstraintInfo {
       return supportsUnder;
     }
 
-    @Override
     public String toString() {
       return MoreObjects.toStringHelper(this)
           .add("suggestedValue", getSuggestedValue())
@@ -90,12 +91,10 @@ public class ConstraintInfo {
           .toString();
     }
 
-    @Override
     public int hashCode() {
       return Objects.hash(suggestedValue, supportsUnder);
     }
 
-    @Override
     public boolean equals(Object o) {
       if (this == o) {
         return true;
@@ -226,7 +225,6 @@ public class ConstraintInfo {
     return version;
   }
 
-  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -244,7 +242,6 @@ public class ConstraintInfo {
         && Objects.equals(version, that.version);
   }
 
-  @Override
   public int hashCode() {
     return Objects.hash(
         booleanConstraint, constraintDefault, description, displayName, constraints, name, version);
@@ -288,111 +285,5 @@ public class ConstraintInfo {
     }
     builder.setVersion(constraintProtobuf.getVersion());
     return builder.build();
-  }
-  
-  // Stub implementations to replace missing external dependency classes.
-
-  public static class Constraint {
-    private BooleanConstraint booleanConstraint;
-    private String constraintDefault;
-    private String description;
-    private String displayName;
-    private ListConstraint listConstraint;
-    private String name;
-    private Integer version;
-
-    public Constraint() {}
-
-    public Constraint setBooleanConstraint(BooleanConstraint booleanConstraint) {
-      this.booleanConstraint = booleanConstraint;
-      return this;
-    }
-
-    public Constraint setConstraintDefault(String constraintDefault) {
-      this.constraintDefault = constraintDefault;
-      return this;
-    }
-
-    public Constraint setDescription(String description) {
-      this.description = description;
-      return this;
-    }
-
-    public Constraint setDisplayName(String displayName) {
-      this.displayName = displayName;
-      return this;
-    }
-
-    public Constraint setListConstraint(ListConstraint listConstraint) {
-      this.listConstraint = listConstraint;
-      return this;
-    }
-
-    public Constraint setName(String name) {
-      this.name = name;
-      return this;
-    }
-
-    public Constraint setVersion(Integer version) {
-      this.version = version;
-      return this;
-    }
-
-    public BooleanConstraint getBooleanConstraint() {
-      return booleanConstraint;
-    }
-
-    public String getConstraintDefault() {
-      return constraintDefault;
-    }
-
-    public String getDescription() {
-      return description;
-    }
-
-    public String getDisplayName() {
-      return displayName;
-    }
-
-    public ListConstraint getListConstraint() {
-      return listConstraint;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public Integer getVersion() {
-      return version;
-    }
-  }
-
-  public static class ListConstraint {
-    private String suggestedValue;
-    private Boolean supportsUnder;
-
-    public ListConstraint() {}
-
-    public ListConstraint setSuggestedValue(String suggestedValue) {
-      this.suggestedValue = suggestedValue;
-      return this;
-    }
-
-    public ListConstraint setSupportsUnder(Boolean supportsUnder) {
-      this.supportsUnder = supportsUnder;
-      return this;
-    }
-
-    public String getSuggestedValue() {
-      return suggestedValue;
-    }
-
-    public Boolean getSupportsUnder() {
-      return supportsUnder;
-    }
-  }
-
-  public static class BooleanConstraint {
-    public BooleanConstraint() {}
   }
 }

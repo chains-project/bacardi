@@ -106,4 +106,132 @@ public class MavenProjectLicenses implements LicenseMap, LicenseMessage {
   /**
    * Return a set of licenses attributed to a single artifact.
    */
-  protected Set<License
+  protected Set<License> getLicensesFromArtifact(final Artifact artifact) {
+    Set<License> licenses = new HashSet<License>();
+    try {
+      MavenProject project = getProjectBuilder().build(artifact, getBuildingRequest()).getProject();
+      licenses.addAll(project.getLicenses());
+    } catch (ProjectBuildingException ex) {
+      getLog().warn(String.format("Could not get project from dependency's artifact: %s", artifact.getFile()));
+    }
+
+    return licenses;
+  }
+
+  /**
+   * Get mapping of Licenses to a set of artifacts presenting that license.
+   *
+   * @param dependencies Set<Artifact> to collate License entries from
+   * @return Map<License, Set < Artifact>> the same artifacts passed in, keyed by
+   * License.
+   */
+  protected Map<License, Set<Artifact>> getLicenseMapFromArtifacts(final Set<Artifact> dependencies) {
+    final ConcurrentMap<License, Set<Artifact>> map = new ConcurrentHashMap<License, Set<Artifact>>();
+
+    // license:artifact is a many-to-many relationship.
+    // Each artifact may have several licenses.
+    // Each artifact may appear multiple times in the map.
+    dependencies.parallelStream().forEach(artifact -> getLicensesFromArtifact(artifact).forEach(license -> {
+      map.putIfAbsent(license, new HashSet<Artifact>());
+      Set<Artifact> artifacts = map.get(license);
+      artifacts.add(artifact);
+      map.put(license, artifacts);
+    }));
+
+    return map;
+  }
+
+  public Map<License, Set<Artifact>> getLicenseMap() {
+    return getLicenseMapFromArtifacts(getDependencies());
+  }
+
+  /**
+   * Return the Set of all direct and transitive Artifact dependencies.
+   */
+  private Set<Artifact> getDependencies() {
+    final Set<Artifact> artifacts = new HashSet<Artifact>();
+    final Set<DependencyNode> dependencies = new HashSet<DependencyNode>();
+
+    // build the set of maven dependencies for each module in the reactor (might
+    // only be the single one) and all its transitives
+    getLog().debug(String.format("Building dependency graphs for %d projects", getProjects().size()));
+    getProjects().parallelStream().forEach(project -> {
+      try {
+        ProjectBuildingRequest request = getBuildingRequest();
+        dependencies.addAll(getGraph().buildDependencyGraph(project, getFilter()).getChildren());
+      } catch (DependencyGraphBuilderException ex) {
+        getLog().warn(
+            String.format("Could not get children from project %s, it's dependencies will not be checked!",
+                project.getId()));
+      }
+    });
+
+    // build the complete set of direct+transitive dependent artifacts in all
+    // modules in the reactor
+    dependencies.parallelStream().forEach(d -> artifacts.add(d.getArtifact()));
+    getLog().info(String.format("%s: %d", INFO_DEPS_DISCOVERED, dependencies.size()));
+
+    return artifacts;
+
+    // tempting, but does not resolve dependencies after the scope in which this
+    // plugin is invoked
+    // return project.getArtifacts();
+  }
+
+  private MavenSession getSession() {
+    return session;
+  }
+
+  private void setSession(MavenSession session) {
+    this.session = session;
+  }
+
+  protected Set<MavenProject> getProjects() {
+    return projects;
+  }
+
+  protected void setProjects(final Set<MavenProject> projects) {
+    this.projects = Optional.ofNullable(projects).orElse(new HashSet<MavenProject>());
+  }
+
+  private DependencyGraphBuilder getGraph() {
+    return graph;
+  }
+
+  private void setGraph(DependencyGraphBuilder graph) {
+    this.graph = Optional.ofNullable(graph).orElse(new Maven31DependencyGraphBuilder());
+  }
+
+  private ProjectBuilder getProjectBuilder() {
+    return projectBuilder;
+  }
+
+  private void setProjectBuilder(ProjectBuilder projectBuilder) {
+    this.projectBuilder = Optional.ofNullable(projectBuilder).orElse(new DefaultProjectBuilder());
+  }
+
+  private ArtifactFilter getFilter() {
+    return filter;
+  }
+
+  private void setFilter(ArtifactFilter filter) {
+    this.filter = filter;
+  }
+
+  private Log getLog() {
+    return log;
+  }
+
+  private void setLog(Log log) {
+    this.log = log;
+  }
+
+  private ProjectBuildingRequest getBuildingRequest() {
+    return buildingRequest;
+  }
+
+  protected void setBuildingRequest(final ProjectBuildingRequest buildingRequest) {
+    this.buildingRequest = Optional.ofNullable(buildingRequest).orElse(new DefaultProjectBuildingRequest());
+  }
+}
+```

@@ -1,0 +1,19 @@
+28d27
+< import org.apache.commons.io.input.BoundedInputStream;
+204,206c203,210
+<                         BoundedInputStream bis = new BoundedInputStream( in, remainingSpace + 1 );
+<                         CountingInputStream cis = new CountingInputStream( bis );
+<                         extractFile( getSourceFile(), outputDirectory, cis,
+---
+>                         long limit = Math.min(remainingSpace + 1, ze.getSize());
+>                         CountingInputStream cis = new CountingInputStream(in);
+>                         InputStream bis = cis;
+>                         if (limit < ze.getSize() + 1) {
+>                             bis = new org.apache.commons.io.input.BoundedInputStream(cis, limit);
+>                         }
+> 
+>                         extractFile( getSourceFile(), outputDirectory, bis,
+211c215
+<                         remainingSpace -= cis.getByteCount();
+---
+>                         remainingSpace -= cis.getCount();

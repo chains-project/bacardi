@@ -290,7 +290,8 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.Projects.Get getProjectCall(Map<Option, ?> options) throws IOException {
     return dns.projects()
-        .get(this.options.getProjectId(), ""); // Added empty string for the second parameter
+        .get(this.options.getProjectId())
+        .setFields(Option.FIELDS.getString(options));
   }
 
   @Override

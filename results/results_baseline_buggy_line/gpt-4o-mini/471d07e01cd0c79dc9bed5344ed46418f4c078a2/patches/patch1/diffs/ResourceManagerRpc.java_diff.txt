@@ -1,75 +1,57 @@
-1,16d0
-< /*
-<  * Copyright 2015 Google LLC
-<  *
-<  * Licensed under the Apache License, Version 2.0 (the "License");
-<  * you may not use this file except in compliance with the License.
+6c6
 <  * You may obtain a copy of the License at
-<  *
-<  *       http://www.apache.org/licenses/LICENSE-2.0
-<  *
-<  * Unless required by applicable law or agreed to in writing, software
-<  * distributed under the License is distributed on an "AS IS" BASIS,
-<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-<  * See the License for the specific language governing permissions and
-<  * limitations under the License.
-<  */
-< 
-19,22c3,6
+---
+>  * you may obtain a copy of the License at
+19,22d18
 < import com.google.api.services.cloudresourcemanager.model.Constraint;
 < import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
 < import com.google.api.services.cloudresourcemanager.model.Policy;
 < import com.google.api.services.cloudresourcemanager.model.Project;
----
-> import com.google.cloud.resourcemanager.ProjectInfo;
-> import com.google.cloud.resourcemanager.PolicyInfo;
-> import com.google.cloud.resourcemanager.OrgPolicyInfo;
-> import com.google.cloud.resourcemanager.ConstraintInfo;
-92c76
+92c88
 <   Project create(Project project);
 ---
->   ProjectInfo create(ProjectInfo project);
-107c91
+>   com.google.cloud.resourcemanager.Project create(com.google.cloud.resourcemanager.Project project);
+107c103
 <   Project get(String projectId, Map<Option, ?> options);
 ---
->   ProjectInfo get(String projectId, Map<Option, ?> options);
-114c98
+>   com.google.cloud.resourcemanager.Project get(String projectId, Map<Option, ?> options);
+114c110
 <   Tuple<String, Iterable<Project>> list(Map<Option, ?> options);
 ---
->   Tuple<String, Iterable<ProjectInfo>> list(Map<Option, ?> options);
-131c115
+>   Tuple<String, Iterable<com.google.cloud.resourcemanager.Project>> list(Map<Option, ?> options);
+131c127
 <   Project replace(Project project);
 ---
->   ProjectInfo replace(ProjectInfo project);
-138c122
+>   com.google.cloud.resourcemanager.Project replace(com.google.cloud.resourcemanager.Project project);
+138c134
 <   Policy getPolicy(String projectId);
 ---
->   PolicyInfo getPolicy(String projectId);
-145c129
+>   com.google.cloud.resourcemanager.Policy getPolicy(String projectId);
+145c141
 <   Policy replacePolicy(String projectId, Policy newPolicy);
 ---
->   PolicyInfo replacePolicy(String projectId, PolicyInfo newPolicy);
-167c151
+>   com.google.cloud.resourcemanager.Policy replacePolicy(String projectId, com.google.cloud.resourcemanager.Policy newPolicy);
+167c163
 <   void clearOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
 ---
->   void clearOrgPolicy(String resource, OrgPolicyInfo orgPolicy) throws IOException;
-178c162
+>   void clearOrgPolicy(String resource, com.google.cloud.resourcemanager.OrgPolicy orgPolicy) throws IOException;
+178c174
 <   OrgPolicy getEffectiveOrgPolicy(String resource, String constraint) throws IOException;
 ---
->   OrgPolicyInfo getEffectiveOrgPolicy(String resource, String constraint) throws IOException;
-189c173
+>   com.google.cloud.resourcemanager.OrgPolicy getEffectiveOrgPolicy(String resource, String constraint) throws IOException;
+189c185
 <   OrgPolicy getOrgPolicy(String resource, String constraint) throws IOException;
 ---
->   OrgPolicyInfo getOrgPolicy(String resource, String constraint) throws IOException;
-196c180
+>   com.google.cloud.resourcemanager.OrgPolicy getOrgPolicy(String resource, String constraint) throws IOException;
+196c192
 <   ListResult<Constraint> listAvailableOrgPolicyConstraints(String resource, Map<Option, ?> options)
 ---
->   ListResult<ConstraintInfo> listAvailableOrgPolicyConstraints(String resource, Map<Option, ?> options)
-204c188
+>   ListResult<com.google.cloud.resourcemanager.Constraint> listAvailableOrgPolicyConstraints(String resource, Map<Option, ?> options)
+204c200
 <   ListResult<OrgPolicy> listOrgPolicies(String resource, Map<Option, ?> options) throws IOException;
 ---
->   ListResult<OrgPolicyInfo> listOrgPolicies(String resource, Map<Option, ?> options) throws IOException;
-214c198
+>   ListResult<com.google.cloud.resourcemanager.OrgPolicy> listOrgPolicies(String resource, Map<Option, ?> options) throws IOException;
+214c210
 <   OrgPolicy replaceOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
 ---
->   OrgPolicyInfo replaceOrgPolicy(String resource, OrgPolicyInfo orgPolicy) throws IOException;
+>   com.google.cloud.resourcemanager.OrgPolicy replaceOrgPolicy(String resource, com.google.cloud.resourcemanager.OrgPolicy orgPolicy) throws IOException;

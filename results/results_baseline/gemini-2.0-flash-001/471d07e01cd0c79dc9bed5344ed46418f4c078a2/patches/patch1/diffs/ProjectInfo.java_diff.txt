@@ -1,0 +1,83 @@
+146,151c146,150
+<     com.google.api.services.cloudresourcemanager.model.ResourceId toPb() {
+<       com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb =
+<           new com.google.api.services.cloudresourcemanager.model.ResourceId();
+<       resourceIdPb.setId(id);
+<       resourceIdPb.setType(type.toLowerCase());
+<       return resourceIdPb;
+---
+>     com.google.cloud.resourcemanager.v3.Project.Parent toPb() {
+>       return com.google.cloud.resourcemanager.v3.Project.Parent.newBuilder()
+>           .setId(id)
+>           .setType(type.toLowerCase())
+>           .build();
+154,155c153
+<     static ResourceId fromPb(
+<         com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb) {
+---
+>     static ResourceId fromPb(com.google.cloud.resourcemanager.v3.Project.Parent resourceIdPb) {
+392,394c390,392
+<   com.google.api.services.cloudresourcemanager.model.Project toPb() {
+<     com.google.api.services.cloudresourcemanager.model.Project projectPb =
+<         new com.google.api.services.cloudresourcemanager.model.Project();
+---
+>   com.google.cloud.resourcemanager.v3.Project toPb() {
+>     com.google.cloud.resourcemanager.v3.Project.Builder projectPb =
+>         com.google.cloud.resourcemanager.v3.Project.newBuilder();
+397c395
+<     projectPb.setLabels(labels);
+---
+>     projectPb.putAllLabels(labels);
+400c398,399
+<       projectPb.setLifecycleState(state.toString());
+---
+>       projectPb.setState(
+>           com.google.cloud.resourcemanager.v3.Project.State.valueOf(state.toString()));
+404,406c403,406
+<           DateTimeFormatter.ISO_DATE_TIME
+<               .withZone(ZoneOffset.UTC)
+<               .format(Instant.ofEpochMilli(createTimeMillis)));
+---
+>           com.google.protobuf.Timestamp.newBuilder()
+>               .setSeconds(Instant.ofEpochMilli(createTimeMillis).getEpochSecond())
+>               .setNanos(Instant.ofEpochMilli(createTimeMillis).getNano())
+>               .build());
+409c409
+<       projectPb.setParent(parent.toPb());
+---
+>       projectPb.setParent(parent.toPb().toString());
+411c411
+<     return projectPb;
+---
+>     return projectPb.build();
+414,416c414,415
+<   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.model.Project projectPb) {
+<     Builder builder =
+<         newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
+---
+>   static ProjectInfo fromPb(com.google.cloud.resourcemanager.v3.Project projectPb) {
+>     Builder builder = newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
+420,421c419,420
+<     if (projectPb.getLabels() != null) {
+<       builder.setLabels(projectPb.getLabels());
+---
+>     if (projectPb.getLabelsMap() != null) {
+>       builder.setLabels(projectPb.getLabelsMap());
+423,424c422,423
+<     if (projectPb.getLifecycleState() != null) {
+<       builder.setState(State.valueOf(projectPb.getLifecycleState()));
+---
+>     if (projectPb.getState() != null) {
+>       builder.setState(State.valueOf(projectPb.getState().toString()));
+428c427
+<           DATE_TIME_FORMATTER.parse(projectPb.getCreateTime(), Instant.FROM).toEpochMilli());
+---
+>           Instant.ofEpochSecond(projectPb.getCreateTime().getSeconds(), projectPb.getCreateTime().getNanos()).toEpochMilli());
+431c430,434
+<       builder.setParent(ResourceId.fromPb(projectPb.getParent()));
+---
+>       String parentString = projectPb.getParent();
+>       String[] parts = parentString.split("/");
+>       if (parts.length == 2) {
+>         builder.setParent(ResourceId.fromPb(com.google.cloud.resourcemanager.v3.Project.Parent.newBuilder().setType(parts[0]).setId(parts[1]).build()));
+>       }

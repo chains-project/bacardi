@@ -1,0 +1,13 @@
+26a27
+> import org.hibernate.engine.spi.SharedSessionContractImplementor;
+113a115,124
+> 
+>   @Override
+>   public void nullSafeSet(PreparedStatement preparedStatement, Object o, int i, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
+>     if (o == null) {
+>       preparedStatement.setNull(i, SQL_TYPES[0]);
+>     } else {
+>       ServiceDate serviceDate = (ServiceDate) o;
+>       preparedStatement.setString(i, serviceDate.getAsString());
+>     }
+>   }

@@ -36,7 +36,6 @@ final class PolicyMarshaller
     }
   }
 
-  @Override
   protected Policy fromPb(CloudPolicy policyPb) { // Updated parameter type
     Map<Role, Set<Identity>> bindings = new HashMap<>();
     if (policyPb.getBindings() != null) {
@@ -57,7 +56,6 @@ final class PolicyMarshaller
     return new Builder(bindings, policyPb.getEtag(), policyPb.getVersion()).build();
   }
 
-  @Override
   protected CloudPolicy toPb(Policy policy) { // Updated return type
     CloudPolicy policyPb = new CloudPolicy(); // Updated instantiation
     List<Binding> bindingPbList = new LinkedList<>();

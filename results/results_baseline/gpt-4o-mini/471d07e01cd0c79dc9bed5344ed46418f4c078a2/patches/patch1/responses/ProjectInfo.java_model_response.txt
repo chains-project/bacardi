@@ -33,8 +33,8 @@ import java.util.Objects;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.format.DateTimeFormatter;
-import com.google.api.services.cloudresourcemanager.v1.model.ResourceId as V1ResourceId; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.Project as V1Project; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.ResourceId as NewResourceId; // Updated import
+import com.google.api.services.cloudresourcemanager.v1.model.Project as NewProject; // Updated import
 
 /**
  * A Google Cloud Resource Manager project metadata object. A Project is a high-level Google Cloud
@@ -146,14 +146,14 @@ public class ProjectInfo implements Serializable {
       return Objects.hash(id, type);
     }
 
-    V1ResourceId toPb() { // Updated return type
-      V1ResourceId resourceIdPb = new V1ResourceId(); // Updated instantiation
+    NewResourceId toPb() { // Updated method return type
+      NewResourceId resourceIdPb = new NewResourceId(); // Updated instantiation
       resourceIdPb.setId(id);
       resourceIdPb.setType(type.toLowerCase());
       return resourceIdPb;
     }
 
-    static ResourceId fromPb(V1ResourceId resourceIdPb) { // Updated parameter type
+    static ResourceId fromPb(NewResourceId resourceIdPb) { // Updated method parameter type
       return new ResourceId(resourceIdPb.getId(), resourceIdPb.getType());
     }
   }
@@ -390,8 +390,8 @@ public class ProjectInfo implements Serializable {
     return new BuilderImpl(this);
   }
 
-  V1Project toPb() { // Updated return type
-    V1Project projectPb = new V1Project(); // Updated instantiation
+  NewProject toPb() { // Updated method return type
+    NewProject projectPb = new NewProject(); // Updated instantiation
     projectPb.setName(name);
     projectPb.setProjectId(projectId);
     projectPb.setLabels(labels);
@@ -411,7 +411,7 @@ public class ProjectInfo implements Serializable {
     return projectPb;
   }
 
-  static ProjectInfo fromPb(V1Project projectPb) { // Updated parameter type
+  static ProjectInfo fromPb(NewProject projectPb) { // Updated method parameter type
     Builder builder =
         newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
     if (projectPb.getName() != null && !projectPb.getName().equals("Unnamed")) {

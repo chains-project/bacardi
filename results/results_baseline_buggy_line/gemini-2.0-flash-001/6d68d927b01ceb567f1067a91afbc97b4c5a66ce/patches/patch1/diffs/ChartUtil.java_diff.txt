@@ -1,0 +1,16 @@
+7c7
+< import com.gargoylesoftware.htmlunit.ScriptResult;
+---
+> import net.sourceforge.htmlunit.corejs.javascript.NativeObject;
+35,36c35
+<             ScriptResult scriptResult = new ScriptResult(result);
+<             return scriptResult.getJavaScriptResult().toString();
+---
+>             return result != null ? result.toString() : null;
+60,62c59,60
+<                 Object scriptResult = new ScriptResult(result).getJavaScriptResult();
+<                 if (scriptResult != null) {
+<                     return scriptResult.toString();
+---
+>                 if (result != null) {
+>                     return result.toString();

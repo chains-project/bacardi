@@ -1,0 +1,134 @@
+ You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates.
+Your task is to analyze the provided code and error message, then propose a patch that can be applied to the client code to resolve the issue.
+
+ Here is the client code that is failing:
+```java
+//
+// Wire
+// Copyright (C) 2016 Wire Swiss GmbH
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see http://www.gnu.org/licenses/.
+//
+
+package com.wire.lithium.server.monitoring;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+@Api
+@Path("/status")
+@Produces(MediaType.TEXT_PLAIN)
+public class StatusResource {
+    @GET
+    @ApiOperation(value = "Status")
+    public Response statusEmpty() {
+        return Response
+                .ok()
+                .build();
+    }
+}
+
+```
+
+ the error is triggered in the following specific lines in the previous code:
+
+```java
+@Produces(MediaType.TEXT_PLAIN)
+```
+```java
+import javax.ws.rs.core.MediaType;
+```
+```java
+import javax.ws.rs.core.Response;
+```
+```java
+import javax.ws.rs.Produces;
+```
+```java
+import javax.ws.rs.GET;
+```
+```java
+@Path("/status")
+```
+```java
+import javax.ws.rs.Path;
+```
+
+
+ And here is the error message:
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[32,2] cannot find symbol
+  symbol: class Produces
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[27,24] package javax.ws.rs.core does not exist
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[28,24] package javax.ws.rs.core does not exist
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[26,19] package javax.ws.rs does not exist
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[24,19] package javax.ws.rs does not exist
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[31,2] cannot find symbol
+  symbol: class Path
+
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[25,19] package javax.ws.rs does not exist
+
+
+
+ Before proposing a fix, please analyze the error message and client code. Wrap your analysis inside <code_analysis> tags:
+
+<code_analysis>
+1. Examine the error message:
+   - Identify the specific issue related to the dependency update.
+   - Note the line number or method where the error occurs.
+   - Determine which dependency and version is causing the issue.
+
+2. Review the client code:
+   - Locate the problematic areas mentioned in the error message.
+   - Identify any related code that might be affected by the changes.
+
+3. Consider potential fixes that adhere to the following constraints:
+   - Do not change any function signatures.
+   - Only remove the @Override annotation if the method no longer overrides a method in the updated dependency version.
+   - Ensure correct imports are used, considering the newer dependency version.
+   - Avoid removing existing code unless it directly causes a compilation or functionality error.
+
+4. Plan the necessary changes to fix the issue:
+   - List the specific modifications required.
+   - Consider potential side effects of the proposed changes.
+   - Ensure the fix addresses the root cause of the error.
+</code_analysis>
+
+Based on your analysis, propose a patch to fix the issue. Your response should be a complete and compilable Java class in a fenced code block. Adhere to these guidelines:
+
+1. Do not change any function signatures.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Avoid removing any existing code unless it directly causes a compilation or functionality error.
+6. Ensure the entire class is included and that it will compile correctly. Don't use the comment "// ... (rest of the class remains unchanged)".
+
+Please provide your fixed class in the following format:
+
+```java
+// Your complete, fixed Java class here
+```
+
+Remember to focus specifically on issues related to the dependency update when proposing your fix.
+ 

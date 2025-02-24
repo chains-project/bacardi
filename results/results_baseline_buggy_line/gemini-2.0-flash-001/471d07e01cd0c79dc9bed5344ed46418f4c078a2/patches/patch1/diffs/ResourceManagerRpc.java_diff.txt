@@ -1,0 +1,59 @@
+19,22c19
+< import com.google.api.services.cloudresourcemanager.model.Constraint;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.Policy;
+< import com.google.api.services.cloudresourcemanager.model.Project;
+---
+> import com.google.cloud.resourcemanager.ResourceManagerException;
+25d21
+< import com.google.cloud.resourcemanager.ResourceManagerException;
+86a83
+> 
+92c89
+<   Project create(Project project);
+---
+>   com.google.cloud.resourcemanager.Project create(com.google.cloud.resourcemanager.Project project);
+107c104
+<   Project get(String projectId, Map<Option, ?> options);
+---
+>   com.google.cloud.resourcemanager.Project get(String projectId, Map<Option, ?> options);
+114c111
+<   Tuple<String, Iterable<Project>> list(Map<Option, ?> options);
+---
+>   Tuple<String, Iterable<com.google.cloud.resourcemanager.Project>> list(Map<Option, ?> options);
+131c128
+<   Project replace(Project project);
+---
+>   com.google.cloud.resourcemanager.Project replace(com.google.cloud.resourcemanager.Project project);
+138c135
+<   Policy getPolicy(String projectId);
+---
+>   com.google.cloud.resourcemanager.Policy getPolicy(String projectId);
+145c142
+<   Policy replacePolicy(String projectId, Policy newPolicy);
+---
+>   com.google.cloud.resourcemanager.Policy replacePolicy(String projectId, com.google.cloud.resourcemanager.Policy newPolicy);
+167c164
+<   void clearOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
+---
+>   void clearOrgPolicy(String resource, com.google.cloud.resourcemanager.OrgPolicy orgPolicy) throws IOException;
+178c175
+<   OrgPolicy getEffectiveOrgPolicy(String resource, String constraint) throws IOException;
+---
+>   com.google.cloud.resourcemanager.OrgPolicy getEffectiveOrgPolicy(String resource, String constraint) throws IOException;
+189c186
+<   OrgPolicy getOrgPolicy(String resource, String constraint) throws IOException;
+---
+>   com.google.cloud.resourcemanager.OrgPolicy getOrgPolicy(String resource, String constraint) throws IOException;
+196c193
+<   ListResult<Constraint> listAvailableOrgPolicyConstraints(String resource, Map<Option, ?> options)
+---
+>   ListResult<com.google.cloud.resourcemanager.Constraint> listAvailableOrgPolicyConstraints(String resource, Map<Option, ?> options)
+204c201
+<   ListResult<OrgPolicy> listOrgPolicies(String resource, Map<Option, ?> options) throws IOException;
+---
+>   ListResult<com.google.cloud.resourcemanager.OrgPolicy> listOrgPolicies(String resource, Map<Option, ?> options) throws IOException;
+214c211
+<   OrgPolicy replaceOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
+---
+>   com.google.cloud.resourcemanager.OrgPolicy replaceOrgPolicy(String resource, com.google.cloud.resourcemanager.OrgPolicy orgPolicy) throws IOException;

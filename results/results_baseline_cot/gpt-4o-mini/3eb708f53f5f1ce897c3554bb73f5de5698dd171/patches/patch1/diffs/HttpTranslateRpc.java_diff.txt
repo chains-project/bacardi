@@ -1,0 +1,16 @@
+24,28c24,28
+< import com.google.api.client.json.jackson2.JacksonFactory;
+< import com.google.api.services.translate.Translate;
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.api.services.translate.model.TranslationsResource;
+---
+> import com.google.api.client.json.JsonFactory; // Updated import
+> import com.google.api.services.translate.Translate; // Ensure this is the correct package
+> import com.google.api.services.translate.model.DetectionsResourceItems; // Ensure this is the correct package
+> import com.google.api.services.translate.model.LanguagesResource; // Ensure this is the correct package
+> import com.google.api.services.translate.model.TranslationsResource; // Ensure this is the correct package
+50c50
+<         new Translate.Builder(transport, new JacksonFactory(), initializer)
+---
+>         new Translate.Builder(transport, new JsonFactory(), initializer) // Updated to JsonFactory

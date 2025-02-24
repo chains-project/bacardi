@@ -15,32 +15,24 @@
 <  * limitations under the License.
 <  */
 < 
-19,21c3
+19,21d2
 < import com.google.api.services.translate.model.TranslationsResource;
 < import com.google.common.base.Function;
 < import com.google.common.base.MoreObjects;
----
-> import com.google.cloud.translate.Translate.TranslateOption;
-37,41c19,22
+37,40c18,20
 <   static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =
 <       new Function<TranslationsResource, Translation>() {
 <         @Override
 <         public Translation apply(TranslationsResource translationPb) {
-<           return Translation.fromPb(translationPb);
 ---
->   static final Function<TranslationResponse, Translation> FROM_PB_FUNCTION =
->       new Function<TranslationResponse, Translation>() {
->         public Translation apply(TranslationResponse translationResponse) {
->           return Translation.fromPb(translationResponse);
-106c87
+>   static final java.util.function.Function<com.google.cloud.translate.TranslationsResource, Translation> FROM_PB_FUNCTION =
+>       new java.util.function.Function<com.google.cloud.translate.TranslationsResource, Translation>() {
+>         public Translation apply(com.google.cloud.translate.TranslationsResource translationPb) {
+82c62
+<     return MoreObjects.toStringHelper(this)
+---
+>     return com.google.common.base.MoreObjects.toStringHelper(this)
+106c86
 <   static Translation fromPb(TranslationsResource translationPb) {
 ---
->   static Translation fromPb(TranslationResponse translationResponse) {
-108,110c89,91
-<         translationPb.getTranslatedText(),
-<         translationPb.getDetectedSourceLanguage(),
-<         translationPb.getModel());
----
->         translationResponse.getTranslatedText(),
->         translationResponse.getDetectedSourceLanguage(),
->         translationResponse.getModel());
+>   static Translation fromPb(com.google.cloud.translate.TranslationsResource translationPb) {

@@ -815,10 +815,19 @@ public class LocalResourceManagerHelper {
 the error is triggered in the following specific lines in the previous code:
 
 ```java
-synchronized Response replacePolicy(String projectId, Policy policy) {
+private final ConcurrentSkipListMap<String, Project> projects = new ConcurrentSkipListMap<>();
 ```
 ```java
-synchronized Response create(Project project) {
+private static boolean includeProject(Project project, String[] filters) {
+```
+```java
+private static Project extractFields(Project fullProject, String[] fields) {
+```
+```java
+private final Map<String, Policy> policies = new HashMap<>();
+```
+```java
+private static String checkForProjectErrors(Project project) {
 ```
 ```java
 synchronized Response replace(String projectId, Project project) {
@@ -827,7 +836,13 @@ synchronized Response replace(String projectId, Project project) {
 import com.google.api.services.cloudresourcemanager.model.Project;
 ```
 ```java
-private static Project extractFields(Project fullProject, String[] fields) {
+import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsResponse;
+```
+```java
+import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsRequest;
+```
+```java
+synchronized Response replacePolicy(String projectId, Policy policy) {
 ```
 ```java
 import com.google.api.services.cloudresourcemanager.model.Binding;
@@ -836,52 +851,18 @@ import com.google.api.services.cloudresourcemanager.model.Binding;
 import com.google.api.services.cloudresourcemanager.model.Operation;
 ```
 ```java
-private final ConcurrentSkipListMap<String, Project> projects = new ConcurrentSkipListMap<>();
-```
-```java
-private static boolean includeProject(Project project, String[] filters) {
-```
-```java
-import com.google.api.services.cloudresourcemanager.model.SetIamPolicyRequest;
-```
-```java
-import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsRequest;
-```
-```java
-private final Map<String, Policy> policies = new HashMap<>();
+synchronized Response create(Project project) {
 ```
 ```java
 import com.google.api.services.cloudresourcemanager.model.Policy;
 ```
 ```java
-private static String checkForProjectErrors(Project project) {
-```
-```java
-import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsResponse;
+import com.google.api.services.cloudresourcemanager.model.SetIamPolicyRequest;
 ```
 
 
 
  with the following error information:
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[696,57] cannot find symbol
-
-  symbol:   class Policy
-  location: class com.google.cloud.resourcemanager.testing.LocalResourceManagerHelper
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[444,32] cannot find symbol
-
-  symbol:   class Project
-  location: class com.google.cloud.resourcemanager.testing.LocalResourceManagerHelper
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[637,51] cannot find symbol
-
-  symbol:   class Project
-  location: class com.google.cloud.resourcemanager.testing.LocalResourceManagerHelper
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[28,58] package com.google.api.services.cloudresourcemanager.model does not exist
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[604,40] cannot find symbol
-
-  symbol:   class Project
-  location: class com.google.cloud.resourcemanager.testing.LocalResourceManagerHelper
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[25,58] package com.google.api.services.cloudresourcemanager.model does not exist
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[26,58] package com.google.api.services.cloudresourcemanager.model does not exist
 [ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[126,47] cannot find symbol
 
   symbol:   class Project
@@ -890,18 +871,37 @@ import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsResp
 
   symbol:   class Project
   location: class com.google.cloud.resourcemanager.testing.LocalResourceManagerHelper
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[29,58] package com.google.api.services.cloudresourcemanager.model does not exist
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[30,58] package com.google.api.services.cloudresourcemanager.model does not exist
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[604,40] cannot find symbol
+
+  symbol:   class Project
+  location: class com.google.cloud.resourcemanager.testing.LocalResourceManagerHelper
 [ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[127,29] cannot find symbol
 
   symbol:   class Policy
   location: class com.google.cloud.resourcemanager.testing.LocalResourceManagerHelper
-[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[27,58] package com.google.api.services.cloudresourcemanager.model does not exist
 [ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[388,47] cannot find symbol
 
   symbol:   class Project
   location: class com.google.cloud.resourcemanager.testing.LocalResourceManagerHelper
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[637,51] cannot find symbol
+
+  symbol:   class Project
+  location: class com.google.cloud.resourcemanager.testing.LocalResourceManagerHelper
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[28,58] package com.google.api.services.cloudresourcemanager.model does not exist
 [ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[31,58] package com.google.api.services.cloudresourcemanager.model does not exist
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[30,58] package com.google.api.services.cloudresourcemanager.model does not exist
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[696,57] cannot find symbol
+
+  symbol:   class Policy
+  location: class com.google.cloud.resourcemanager.testing.LocalResourceManagerHelper
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[25,58] package com.google.api.services.cloudresourcemanager.model does not exist
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[26,58] package com.google.api.services.cloudresourcemanager.model does not exist
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[444,32] cannot find symbol
+
+  symbol:   class Project
+  location: class com.google.cloud.resourcemanager.testing.LocalResourceManagerHelper
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[27,58] package com.google.api.services.cloudresourcemanager.model does not exist
+[ERROR] /google-cloud-java/java-resourcemanager/google-cloud-resourcemanager/src/main/java/com/google/cloud/resourcemanager/testing/LocalResourceManagerHelper.java:[29,58] package com.google.api.services.cloudresourcemanager.model does not exist
 
 
 

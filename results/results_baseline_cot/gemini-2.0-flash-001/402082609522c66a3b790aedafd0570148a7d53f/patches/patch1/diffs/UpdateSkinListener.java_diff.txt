@@ -1,0 +1,21 @@
+12d11
+< import org.spongepowered.api.Platform.Type;
+14d12
+< import org.spongepowered.api.command.CommandSource;
+16,17c14,16
+< import org.spongepowered.api.network.ChannelBuf;
+< import org.spongepowered.api.network.RawDataListener;
+---
+> import org.spongepowered.api.command.CommandSource;
+> import org.spongepowered.api.network.channel.ChannelBuf;
+> import org.spongepowered.api.network.channel.RawDataHandler;
+21c20
+< public class UpdateSkinListener implements RawDataListener {
+---
+> public class UpdateSkinListener implements RawDataHandler<RemoteConnection> {
+27,28c26,27
+<     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+<         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+---
+>     public void handlePayload(ChannelBuf data, RemoteConnection connection) {
+>         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.asReadOnlyBuf().array());

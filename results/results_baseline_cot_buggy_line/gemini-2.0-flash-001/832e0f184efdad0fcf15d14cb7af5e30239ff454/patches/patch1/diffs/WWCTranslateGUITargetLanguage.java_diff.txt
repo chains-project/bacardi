@@ -1,0 +1,7 @@
+81c81,84
+<                                         currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+---
+>                                         XEnchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get();
+>                                         if (powerEnchantment != null) {
+>                                                 currentLangMeta.addEnchant(powerEnchantment.getEnchant(), 1, false);
+>                                         }

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * you may obtain a copy of the License at
  *
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -22,13 +22,13 @@ import static java.net.HttpURLConnection.HTTP_OK;
 
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.cloudresourcemanager.model.Binding;
-import com.google.api.services.cloudresourcemanager.model.Operation;
-import com.google.api.services.cloudresourcemanager.model.Policy;
-import com.google.api.services.cloudresourcemanager.model.Project;
-import com.google.api.services.cloudresourcemanager.model.SetIamPolicyRequest;
-import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsRequest;
-import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsResponse;
+import com.google.api.services.cloudresourcemanager.v1.model.Binding;
+import com.google.api.services.cloudresourcemanager.v1.model.Operation;
+import com.google.api.services.cloudresourcemanager.v1.model.Policy;
+import com.google.api.services.cloudresourcemanager.v1.model.Project;
+import com.google.api.services.cloudresourcemanager.v1.model.SetIamPolicyRequest;
+import com.google.api.services.cloudresourcemanager.v1.model.TestIamPermissionsRequest;
+import com.google.api.services.cloudresourcemanager.v1.model.TestIamPermissionsResponse;
 import com.google.cloud.NoCredentials;
 import com.google.cloud.resourcemanager.ResourceManagerOptions;
 import com.google.common.base.Joiner;
@@ -123,8 +123,8 @@ public class LocalResourceManagerHelper {
       ImmutableSet.of('-', '\'', '"', ' ', '!');
 
   private final HttpServer server;
-  private final ConcurrentSkipListMap<String, com.google.api.services.cloudresourcemanager.model.Project> projects = new ConcurrentSkipListMap<>();
-  private final Map<String, com.google.api.services.cloudresourcemanager.model.Policy> policies = new HashMap<>();
+  private final ConcurrentSkipListMap<String, Project> projects = new ConcurrentSkipListMap<>();
+  private final Map<String, Policy> policies = new HashMap<>();
   private final int port;
 
   private static class Response {
@@ -215,7 +215,7 @@ public class LocalResourceManagerHelper {
             String requestBody =
                 decodeContent(exchange.getRequestHeaders(), exchange.getRequestBody());
             response =
-                replace(projectIdFromUri(path), jsonFactory.fromString(requestBody, com.google.api.services.cloudresourcemanager.model.Project.class));
+                replace(projectIdFromUri(path), jsonFactory.fromString(requestBody, Project.class));
             break;
           default:
             response =
@@ -235,7 +235,7 @@ public class LocalResourceManagerHelper {
   private Response handlePost(HttpExchange exchange, String path) throws IOException {
     String requestBody = decodeContent(exchange.getRequestHeaders(), exchange.getRequestBody());
     if (!path.contains(":")) {
-      return create(jsonFactory.fromString(requestBody, com.google.api.services.cloudresourcemanager.model.Project.class));
+      return create(jsonFactory.fromString(requestBody, Project.class));
     } else {
       switch (path.split(":", 2)[1]) {
         case "undelete":
@@ -273,7 +273,7 @@ public class LocalResourceManagerHelper {
       String requestMethod = exchange.getRequestMethod();
       switch (requestMethod) {
         case "GET":
-          com.google.api.services.cloudresourcemanager.model.Project project = projects.get(projectId);
+          Project project = projects.get(projectId);
           if (project == null) {
             response = Error.PERMISSION_DENIED.response("Project " + projectId + " not found.");
             break;
@@ -385,7 +385,7 @@ public class LocalResourceManagerHelper {
     return options;
   }
 
-  private static String checkForProjectErrors(com.google.api.services.cloudresourcemanager.model.Project project) {
+  private static String checkForProjectErrors(Project project) {
     if (project.getProjectId() == null) {
       return "Project ID cannot be empty.";
     }
@@ -441,7 +441,7 @@ public class LocalResourceManagerHelper {
     return value.length() >= minLength && value.length() <= maxLength;
   }
 
-  synchronized Response create(com.google.api.services.cloudresourcemanager.model.Project project) {
+  synchronized Response create(Project project) {
     String customErrorMessage = checkForProjectErrors(project);
     if (customErrorMessage != null) {
       return Error.INVALID_ARGUMENT.response(customErrorMessage);
@@ -456,7 +456,7 @@ public class LocalResourceManagerHelper {
         return Error.ALREADY_EXISTS.response(
             "A project with the same project ID (" + project.getProjectId() + ") already exists.");
       }
-      com.google.api.services.cloudresourcemanager.model.Policy emptyPolicy =
+      Policy emptyPolicy =
           new Policy()
               .setBindings(Collections.<Binding>emptyList())
               .setEtag(UUID.randomUUID().toString())
@@ -475,7 +475,7 @@ public class LocalResourceManagerHelper {
   }
 
   synchronized Response delete(String projectId) {
-    com.google.api.services.cloudresourcemanager.model.Project project = projects.get(projectId);
+    Project project = projects.get(projectId);
     if (project == null) {
       return Error.PERMISSION_DENIED.response(
           "Error when deleting " + projectId + " because the project was not found.");
@@ -490,7 +490,7 @@ public class LocalResourceManagerHelper {
   }
 
   Response get(String projectId, String[] fields) {
-    com.google.api.services.cloudresourcemanager.model.Project project = projects.get(projectId);
+    Project project = projects.get(projectId);
     if (project != null) {
       try {
         return new Response(HTTP_OK, jsonFactory.toString(extractFields(project, fields)));
@@ -514,11 +514,11 @@ public class LocalResourceManagerHelper {
     String pageToken = (String) options.get("pageToken");
     Integer pageSize = (Integer) options.get("pageSize");
     String nextPageToken = null;
-    Map<String, com.google.api.services.cloudresourcemanager.model.Project> projectsToScan = projects;
+    Map<String, Project> projectsToScan = projects;
     if (pageToken != null) {
       projectsToScan = projects.tailMap(pageToken);
     }
-    for (com.google.api.services.cloudresourcemanager.model.Project p : projectsToScan.values()) {
+    for (Project p : projectsToScan.values()) {
       if (pageSize != null && count >= pageSize) {
         nextPageToken = p.getProjectId();
         break;
@@ -566,7 +566,7 @@ public class LocalResourceManagerHelper {
     return true;
   }
 
-  private static boolean includeProject(com.google.api.services.cloudresourcemanager.model.Project project, String[] filters) {
+  private static boolean includeProject(Project project, String[] filters) {
     if (filters == null) {
       return true;
     }
@@ -601,11 +601,11 @@ public class LocalResourceManagerHelper {
     return "*".equals(filterValue) || filterValue.equals(projectValue.toLowerCase());
   }
 
-  private static com.google.api.services.cloudresourcemanager.model.Project extractFields(com.google.api.services.cloudresourcemanager.model.Project fullProject, String[] fields) {
+  private static Project extractFields(Project fullProject, String[] fields) {
     if (fields == null) {
       return fullProject;
     }
-    com.google.api.services.cloudresourcemanager.model.Project project = new com.google.api.services.cloudresourcemanager.model.Project();
+    Project project = new Project();
     for (String field : fields) {
       switch (field) {
         case "createTime":
@@ -634,8 +634,8 @@ public class LocalResourceManagerHelper {
     return project;
   }
 
-  synchronized Response replace(String projectId, com.google.api.services.cloudresourcemanager.model.Project project) {
-    com.google.api.services.cloudresourcemanager.model.Project originalProject = projects.get(projectId);
+  synchronized Response replace(String projectId, Project project) {
+    Project originalProject = projects.get(projectId);
     if (originalProject == null) {
       return Error.PERMISSION_DENIED.response(
           "Error when replacing " + projectId + " because the project was not found.");
@@ -661,7 +661,7 @@ public class LocalResourceManagerHelper {
   }
 
   synchronized Response undelete(String projectId) {
-    com.google.api.services.cloudresourcemanager.model.Project project = projects.get(projectId);
+    Project project = projects.get(projectId);
     Response response;
     if (project == null) {
       response =
@@ -681,7 +681,7 @@ public class LocalResourceManagerHelper {
   }
 
   synchronized Response getPolicy(String projectId) {
-    com.google.api.services.cloudresourcemanager.model.Policy policy = policies.get(projectId);
+    Policy policy = policies.get(projectId);
     if (policy == null) {
       return Error.PERMISSION_DENIED.response("Project " + projectId + " not found.");
     }
@@ -693,8 +693,8 @@ public class LocalResourceManagerHelper {
     }
   }
 
-  synchronized Response replacePolicy(String projectId, com.google.api.services.cloudresourcemanager.model.Policy policy) {
-    com.google.api.services.cloudresourcemanager.model.Policy originalPolicy = policies.get(projectId);
+  synchronized Response replacePolicy(String projectId, Policy policy) {
+    Policy originalPolicy = policies.get(projectId);
     if (originalPolicy == null) {
       return Error.PERMISSION_DENIED.response(
           "Error when replacing the policy for "
@@ -782,7 +782,7 @@ public class LocalResourceManagerHelper {
             || "DELETE_REQUESTED".equals(lifecycleState)
             || "DELETE_IN_PROGRESS".equals(lifecycleState),
         "Lifecycle state must be ACTIVE, DELETE_REQUESTED, or DELETE_IN_PROGRESS");
-    com.google.api.services.cloudresourcemanager.model.Project project = projects.get(checkNotNull(projectId));
+    Project project = projects.get(checkNotNull(projectId));
     if (project != null) {
       project.setLifecycleState(lifecycleState);
       return true;

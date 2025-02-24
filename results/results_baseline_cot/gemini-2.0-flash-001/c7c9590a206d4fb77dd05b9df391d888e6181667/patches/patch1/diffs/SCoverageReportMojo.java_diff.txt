@@ -1,0 +1,20 @@
+11c11
+<  * software distributed under the License is distributed on an
+---
+>  * software is distributed under the License is distributed on an
+32d31
+< import org.apache.maven.doxia.module.xhtml.decoration.render.RenderingContext;
+33a33
+> import org.apache.maven.doxia.siterenderer.Renderer;
+176a177,182
+>     /**
+>      * Site renderer.
+>      */
+>     @Parameter( defaultValue = "${component.org.apache.maven.doxia.siterenderer.Renderer}", required = true, readonly = true )
+>     private Renderer siteRenderer;
+> 
+385,386c391
+<             RenderingContext context = new RenderingContext( outputDirectory, getOutputName() + ".html" );
+<             SiteRendererSink sink = new SiteRendererSink( context );
+---
+>             SiteRendererSink sink = new SiteRendererSink( siteRenderer.createContext( project, getOutputName(), getBundle( Locale.getDefault() ) ) );

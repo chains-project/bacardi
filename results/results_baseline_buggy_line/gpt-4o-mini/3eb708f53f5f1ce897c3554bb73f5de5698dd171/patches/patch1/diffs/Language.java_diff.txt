@@ -15,18 +15,22 @@
 <  * limitations under the License.
 <  */
 < 
-19d2
+19c3,4
 < import com.google.api.services.translate.model.LanguagesResource;
-36,39c19,21
+---
+> import com.google.api.services.translate.model.LanguageList;
+> import com.google.api.services.translate.model.Language;
+36,37c21,22
 <   static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
 <       new Function<LanguagesResource, Language>() {
-<         @Override
+---
+>   static final Function<Language, Language> FROM_PB_FUNCTION =
+>       new Function<Language, Language>() {
+39c24
 <         public Language apply(LanguagesResource languagePb) {
 ---
->   static final Function<LanguagePb, Language> FROM_PB_FUNCTION =
->       new Function<LanguagePb, Language>() {
->         public Language apply(LanguagePb languagePb) {
-84c66
+>         public Language apply(Language languagePb) {
+84c69
 <   static Language fromPb(LanguagesResource languagePb) {
 ---
->   static Language fromPb(LanguagePb languagePb) {
+>   static Language fromPb(Language languagePb) {

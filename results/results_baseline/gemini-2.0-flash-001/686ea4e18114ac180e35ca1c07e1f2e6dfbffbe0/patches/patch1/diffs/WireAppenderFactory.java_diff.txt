@@ -1,0 +1,31 @@
+12c12
+< import io.dropwizard.logging.AbstractAppenderFactory;
+---
+> import io.dropwizard.logging.AppenderFactory;
+25c25,28
+< public class WireAppenderFactory<T extends DeferredProcessingAware> extends AbstractAppenderFactory<T> {
+---
+> public class WireAppenderFactory<T extends DeferredProcessingAware> implements AppenderFactory<T> {
+> 
+>     private String threshold;
+>     private List<io.dropwizard.logging.filter.FilterFactory<T>> filterFactories;
+74a78,96
+>     @Override
+>     public String getThreshold() {
+>         return threshold;
+>     }
+> 
+>     @Override
+>     public void setThreshold(String threshold) {
+>         this.threshold = threshold;
+>     }
+> 
+>     @Override
+>     public List<io.dropwizard.logging.filter.FilterFactory<T>> getFilterFactories() {
+>         return filterFactories;
+>     }
+> 
+>     @Override
+>     public void setFilterFactories(List<io.dropwizard.logging.filter.FilterFactory<T>> filterFactories) {
+>         this.filterFactories = filterFactories;
+>     }

@@ -1,0 +1,20 @@
+5c5,6
+< import org.apache.commons.codec.digest.DigestUtils;
+---
+> import org.apache.commons.codec.binary.Hex;
+> import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+9a11,13
+> import java.nio.charset.StandardCharsets;
+> import java.security.MessageDigest;
+> import java.security.NoSuchAlgorithmException;
+153c157,164
+<             return DigestUtils.md5Hex(cleanAddress(address));
+---
+>             try {
+>                 MessageDigest md = MessageDigest.getInstance(MessageDigestAlgorithms.MD5);
+>                 byte[] digest = md.digest(cleanAddress(address).getBytes(StandardCharsets.UTF_8));
+>                 return new String(Hex.encodeHex(digest));
+>             } catch (NoSuchAlgorithmException e) {
+>                 // This should never happen as MD5 is a standard algorithm
+>                 throw new RuntimeException(e);
+>             }

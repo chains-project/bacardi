@@ -1,0 +1,98 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+```java
+//
+// Wire
+// Copyright (C) 2016 Wire Swiss GmbH
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see http://www.gnu.org/licenses/.
+//
+
+package com.wire.lithium.server.monitoring;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+@Api
+@Path("/status")
+@Produces(MediaType.TEXT_PLAIN)
+public class StatusResource {
+    @GET
+    @ApiOperation(value = "Status")
+    public Response statusEmpty() {
+        return Response
+                .ok()
+                .build();
+    }
+}
+
+```
+the error is triggered in the following specific lines in the previous code:
+
+```java
+import javax.ws.rs.Produces;
+```
+```java
+import javax.ws.rs.core.Response;
+```
+```java
+import javax.ws.rs.GET;
+```
+```java
+import javax.ws.rs.Path;
+```
+```java
+@Produces(MediaType.TEXT_PLAIN)
+```
+```java
+@Path("/status")
+```
+```java
+import javax.ws.rs.core.MediaType;
+```
+
+
+
+ with the following error information:
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[26,19] package javax.ws.rs does not exist
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[28,24] package javax.ws.rs.core does not exist
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[24,19] package javax.ws.rs does not exist
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[25,19] package javax.ws.rs does not exist
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[32,2] cannot find symbol
+
+  symbol: class Produces
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[31,2] cannot find symbol
+
+  symbol: class Path
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/StatusResource.java:[27,24] package javax.ws.rs.core does not exist
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

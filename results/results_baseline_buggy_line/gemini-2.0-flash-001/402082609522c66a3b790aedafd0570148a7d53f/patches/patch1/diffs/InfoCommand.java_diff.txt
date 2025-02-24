@@ -1,0 +1,39 @@
+14c14
+< import org.spongepowered.api.command.CommandException;
+---
+> import org.spongepowered.api.command.Command;
+16,19c16,17
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+25c23
+< public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class InfoCommand implements Command, ChangeSkinCommand {
+35,37c33,35
+<     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+---
+>     public CommandResult execute(org.spongepowered.api.command.CommandCause cause, CommandContext args) {
+>         if (!(cause.getCause().root() instanceof Player)) {
+>             plugin.sendMessage(cause.getCause().root(), "no-console");
+41c39
+<         UUID uniqueId = ((Player) src).getUniqueId();
+---
+>         UUID uniqueId = ((Player) cause.getCause().root()).getUniqueId();
+53,54c51,52
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public org.spongepowered.api.command.Command.Builder buildSpec() {
+>         return org.spongepowered.api.command.Command.builder()
+56,57c54
+<                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
+<                 .build();
+---
+>                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base");

@@ -1,0 +1,17 @@
+14c14
+< import org.eclipse.jetty.server.nio.SelectChannelConnector;
+---
+> import org.eclipse.jetty.server.ServerConnector;
+24c24
+<     private final Connector httpConnector;
+---
+>     private final ServerConnector httpConnector;
+33,34c33
+<         this.server.setSendServerVersion(false);
+<         this.server.setSendDateHeader(true);
+---
+>         server.setAttribute("org.eclipse.jetty.server.Request.maxFormContentSize", 2000000);
+36c35
+<         this.httpConnector = new SelectChannelConnector();
+---
+>         this.httpConnector = new ServerConnector(server);

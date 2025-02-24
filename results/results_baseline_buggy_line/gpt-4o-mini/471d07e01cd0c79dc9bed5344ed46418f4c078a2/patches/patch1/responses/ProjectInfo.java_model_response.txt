@@ -128,16 +128,16 @@ public class ProjectInfo implements Serializable {
       return Objects.hash(id, type);
     }
 
-    com.google.api.services.cloudresourcemanager.v1.ResourceId toPb() {
-      com.google.api.services.cloudresourcemanager.v1.ResourceId resourceIdPb =
-          new com.google.api.services.cloudresourcemanager.v1.ResourceId();
+    com.google.api.services.cloudresourcemanager.v1.model.ResourceId toPb() {
+      com.google.api.services.cloudresourcemanager.v1.model.ResourceId resourceIdPb =
+          new com.google.api.services.cloudresourcemanager.v1.model.ResourceId();
       resourceIdPb.setId(id);
       resourceIdPb.setType(type.toLowerCase());
       return resourceIdPb;
     }
 
     static ResourceId fromPb(
-        com.google.api.services.cloudresourcemanager.v1.ResourceId resourceIdPb) {
+        com.google.api.services.cloudresourcemanager.v1.model.ResourceId resourceIdPb) {
       return new ResourceId(resourceIdPb.getId(), resourceIdPb.getType());
     }
   }
@@ -374,9 +374,9 @@ public class ProjectInfo implements Serializable {
     return new BuilderImpl(this);
   }
 
-  com.google.api.services.cloudresourcemanager.v1.Project toPb() {
-    com.google.api.services.cloudresourcemanager.v1.Project projectPb =
-        new com.google.api.services.cloudresourcemanager.v1.Project();
+  com.google.api.services.cloudresourcemanager.v1.model.Project toPb() {
+    com.google.api.services.cloudresourcemanager.v1.model.Project projectPb =
+        new com.google.api.services.cloudresourcemanager.v1.model.Project();
     projectPb.setName(name);
     projectPb.setProjectId(projectId);
     projectPb.setLabels(labels);
@@ -396,7 +396,7 @@ public class ProjectInfo implements Serializable {
     return projectPb;
   }
 
-  static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v1.Project projectPb) {
+  static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v1.model.Project projectPb) {
     Builder builder =
         newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
     if (projectPb.getName() != null && !projectPb.getName().equals("Unnamed")) {

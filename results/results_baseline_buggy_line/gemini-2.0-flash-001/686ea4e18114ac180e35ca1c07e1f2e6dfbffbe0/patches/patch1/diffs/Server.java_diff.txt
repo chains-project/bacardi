@@ -1,0 +1,21 @@
+47,48c47,50
+< import io.dropwizard.Application;
+< import io.dropwizard.client.JerseyClientBuilder;
+---
+> import io.dropwizard.core.Application;
+> import io.dropwizard.core.ConfiguredBundle;
+> import io.dropwizard.core.setup.Bootstrap;
+> import io.dropwizard.core.setup.Environment;
+52,53d53
+< import io.dropwizard.setup.Bootstrap;
+< import io.dropwizard.setup.Environment;
+62a63
+> import javax.ws.rs.client.ClientBuilder;
+160,164c161
+<         return new JerseyClientBuilder(env)
+<                 .using(config.getJerseyClient())
+<                 .withProvider(MultiPartFeature.class)
+<                 .withProvider(JacksonJsonProvider.class)
+<                 .build(getName());
+---
+>         return ClientBuilder.newClient();

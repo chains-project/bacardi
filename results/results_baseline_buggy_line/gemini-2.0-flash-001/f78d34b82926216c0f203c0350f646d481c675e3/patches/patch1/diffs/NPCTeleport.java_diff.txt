@@ -1,0 +1,36 @@
+3d2
+< import develop.p2p.lib.*;
+15a15
+> import java.util.Random;
+25a26,27
+>     private static final Random random = new Random();
+> 
+146a149,172
+>     private static class WaveCreator {
+>         private final double min;
+>         private final double max;
+>         private final double waveMin;
+> 
+>         public WaveCreator(double min, double max, double waveMin) {
+>             this.min = min;
+>             this.max = max;
+>             this.waveMin = waveMin;
+>         }
+> 
+>         public double get(double offset, boolean condition) {
+>             if (condition) {
+>                 return min + (max - min) * Math.abs(Math.sin(offset));
+>             } else {
+>                 return min;
+>             }
+>         }
+> 
+>         public double getStatic() {
+>             return min;
+>         }
+>     }
+> 
+159c185
+<             .get(new Random().nextInt(config.getDoubleList("npc.range").size()));
+---
+>             .get(random.nextInt(config.getDoubleList("npc.range").size()));

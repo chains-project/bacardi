@@ -1,0 +1,28 @@
+15c15
+< import org.spongepowered.api.Platform.Type;
+---
+> import org.spongepowered.api.Platform;
+17,20c17,19
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelBuf;
+< import org.spongepowered.api.network.ChannelRegistrar;
+< import org.spongepowered.api.network.RawDataListener;
+---
+> import org.spongepowered.api.network.channel.raw.RawDataChannel;
+> import org.spongepowered.api.network.channel.raw.RawDataListener;
+> import org.spongepowered.api.network.channel.ChannelRegistrar;
+22a22,23
+> import io.netty.buffer.ByteBuf;
+> 
+40,41c41
+<     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+< 
+---
+>     public void handlePayload(RawDataChannel channel, RemoteConnection connection, ByteBuf data) {
+43,44d42
+<         CheckPermMessage checkMessage = new CheckPermMessage();
+<         checkMessage.readFrom(dataInput);
+83c81
+<         permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+---
+>         permissionsResultChannel.sendTo(receiver, dataOutput::toByteArray);

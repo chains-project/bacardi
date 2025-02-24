@@ -145,8 +145,15 @@ public record Attempt(@Getter int index, @Getter FailureCategory failureCategory
 
         for (Map.Entry<String, ArrayList<String>> entry : prefixErrorsMap.entrySet()) {
             String fileName = entry.getKey();
-            ArrayList<String> prefixErrors = entry.getValue();
-            ArrayList<String> postfixErrors = postfixErrorsMap.getOrDefault(fileName, new ArrayList<>());
+            ArrayList<String> prefixErrors = new ArrayList<>(entry.getValue());
+            ArrayList<String> postfixErrors = new ArrayList<>(
+                    postfixErrorsMap.getOrDefault(fileName, new ArrayList<>()));
+
+            // Sort prefixErrors and postfixErrors by line number
+            prefixErrors.sort((e1, e2) -> Integer.compare(Integer.parseInt(e1.split(":")[0]),
+                    Integer.parseInt(e2.split(":")[0])));
+            postfixErrors.sort((e1, e2) -> Integer.compare(Integer.parseInt(e1.split(":")[0]),
+                    Integer.parseInt(e2.split(":")[0])));
 
             for (String prefixError : prefixErrors) {
                 String[] prefixParts = prefixError.split(":", 2);
@@ -154,13 +161,15 @@ public record Attempt(@Getter int index, @Getter FailureCategory failureCategory
                 String prefixMessage = prefixParts[1];
 
                 boolean isFixed = true;
-                for (String postfixError : postfixErrors) {
+                for (int i = 0; i < postfixErrors.size(); i++) {
+                    String postfixError = postfixErrors.get(i);
                     String[] postfixParts = postfixError.split(":", 2);
                     int postfixLine = Integer.parseInt(postfixParts[0]);
                     String postfixMessage = postfixParts[1];
 
                     if (Math.abs(prefixLine - postfixLine) <= 3 && prefixMessage.equals(postfixMessage)) {
                         isFixed = false;
+                        postfixErrors.remove(i); // Remove matched error from postfixErrors
                         break;
                     }
                 }
@@ -171,7 +180,6 @@ public record Attempt(@Getter int index, @Getter FailureCategory failureCategory
             }
         }
         return fixedErrorsCount;
-
     }
 
     public int processUnfixedErrors(Map<String, ArrayList<String>> prefixErrorsMap,
@@ -180,8 +188,15 @@ public record Attempt(@Getter int index, @Getter FailureCategory failureCategory
 
         for (Map.Entry<String, ArrayList<String>> entry : prefixErrorsMap.entrySet()) {
             String fileName = entry.getKey();
-            ArrayList<String> prefixErrors = entry.getValue();
-            ArrayList<String> postfixErrors = postfixErrorsMap.getOrDefault(fileName, new ArrayList<>());
+            ArrayList<String> prefixErrors = new ArrayList<>(entry.getValue());
+            ArrayList<String> postfixErrors = new ArrayList<>(
+                    postfixErrorsMap.getOrDefault(fileName, new ArrayList<>()));
+
+            // Sort prefixErrors and postfixErrors by line number
+            prefixErrors.sort((e1, e2) -> Integer.compare(Integer.parseInt(e1.split(":")[0]),
+                    Integer.parseInt(e2.split(":")[0])));
+            postfixErrors.sort((e1, e2) -> Integer.compare(Integer.parseInt(e1.split(":")[0]),
+                    Integer.parseInt(e2.split(":")[0])));
 
             for (String prefixError : prefixErrors) {
                 String[] prefixParts = prefixError.split(":", 2);
@@ -189,13 +204,15 @@ public record Attempt(@Getter int index, @Getter FailureCategory failureCategory
                 String prefixMessage = prefixParts[1];
 
                 boolean isFixed = true;
-                for (String postfixError : postfixErrors) {
+                for (int i = 0; i < postfixErrors.size(); i++) {
+                    String postfixError = postfixErrors.get(i);
                     String[] postfixParts = postfixError.split(":", 2);
                     int postfixLine = Integer.parseInt(postfixParts[0]);
                     String postfixMessage = postfixParts[1];
 
                     if (Math.abs(prefixLine - postfixLine) <= 3 && prefixMessage.equals(postfixMessage)) {
                         isFixed = false;
+                        postfixErrors.remove(i); // Remove matched error from postfixErrors
                         break;
                     }
                 }
@@ -214,34 +231,45 @@ public record Attempt(@Getter int index, @Getter FailureCategory failureCategory
 
         for (Map.Entry<String, ArrayList<String>> entry : postfixErrorsMap.entrySet()) {
             String fileName = entry.getKey();
-            ArrayList<String> postfixErrors = entry.getValue();
-            ArrayList<String> prefixErrors = prefixErrorsMap.getOrDefault(fileName, new ArrayList<>());
+            ArrayList<String> postfixErrors = new ArrayList<>(entry.getValue());
+            ArrayList<String> prefixErrors = new ArrayList<>(prefixErrorsMap.getOrDefault(fileName, new ArrayList<>()));
 
-            for (String postfixError : postfixErrors) {
-                String[] postfixParts = postfixError.split(":", 2);
-                int postfixLine = Integer.parseInt(postfixParts[0]);
-                String postfixMessage = postfixParts[1];
+            // Sort prefixErrors and postfixErrors by line number
+            prefixErrors.sort((e1, e2) -> Integer.compare(Integer.parseInt(e1.split(":")[0]),
+                    Integer.parseInt(e2.split(":")[0])));
+            postfixErrors.sort((e1, e2) -> Integer.compare(Integer.parseInt(e1.split(":")[0]),
+                    Integer.parseInt(e2.split(":")[0])));
 
-                boolean isNew = true;
-                for (String prefixError : prefixErrors) {
-                    String[] prefixParts = prefixError.split(":", 2);
-                    int prefixLine = Integer.parseInt(prefixParts[0]);
-                    String prefixMessage = prefixParts[1];
-
-                    if (Math.abs(prefixLine - postfixLine) <= 3 && postfixMessage.equals(prefixMessage)) {
-                        isNew = false;
-                        break;
-                    }
-                }
-
-                if (isNew) {
-                    newErrorsCount++;
-                }
-            }
-
-            if (prefixErrors.isEmpty()) {
+            if (prefixErrors.isEmpty() && !postfixErrors.isEmpty()) {
                 newErrorsCount += postfixErrors.size();
             }
+
+            else {
+                for (String postfixError : postfixErrors) {
+                    String[] postfixParts = postfixError.split(":", 2);
+                    int postfixLine = Integer.parseInt(postfixParts[0]);
+                    String postfixMessage = postfixParts[1];
+
+                    boolean isNew = true;
+                    for (int i = 0; i < prefixErrors.size(); i++) {
+                        String prefixError = prefixErrors.get(i);
+                        String[] prefixParts = prefixError.split(":", 2);
+                        int prefixLine = Integer.parseInt(prefixParts[0]);
+                        String prefixMessage = prefixParts[1];
+
+                        if (Math.abs(prefixLine - postfixLine) <= 3 && postfixMessage.equals(prefixMessage)) {
+                            isNew = false;
+                            prefixErrors.remove(i); // Remove matched error from prefixErrors
+                            break;
+                        }
+                    }
+
+                    if (isNew) {
+                        newErrorsCount++;
+                    }
+                }
+            }
+
         }
 
         return newErrorsCount;

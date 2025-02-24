@@ -1,0 +1,24 @@
+14a15
+> import org.hamcrest.core.AllOf;
+62c63
+<             Matchers.allOf(this.layersPushed(), this.manifestPushed())
+---
+>             new AllOf<>(Matchers.asList(this.layersPushed(), this.manifestPushed()))
+72c73
+<             Matchers.allOf(this.layersAlreadyExist(), this.manifestPushed())
+---
+>             new AllOf<>(Matchers.asList(this.layersAlreadyExist(), this.manifestPushed()))
+85d85
+<                 false,
+100d99
+<                 false,
+123c122
+<         return new StringContains(false, String.format("latest: digest: %s", this.image.digest()));
+---
+>         return new StringContains(String.format("latest: digest: %s", this.image.digest()));
+127c126
+<         return new StringContains(false, String.format("%s: Pushed", this.image.layer()));
+---
+>         return new StringContains(String.format("%s: Pushed", this.image.layer()));
+132d130
+<             false,

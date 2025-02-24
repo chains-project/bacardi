@@ -1,0 +1,45 @@
+7a8
+> import org.spongepowered.api.command.Command;
+9,10c10
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+14a15,16
+> import org.spongepowered.api.text.Text;
+> import org.spongepowered.api.command.parameter.Parameter;
+16,17c18
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import java.util.Optional;
+29,31c30,32
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+---
+>     public CommandResult execute(org.spongepowered.api.command.CommandCause cause, CommandContext args) {
+>         if (!(cause.cause().root() instanceof Player)) {
+>             plugin.sendMessage(cause, "no-console");
+35c36,42
+<         String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
+---
+>         Optional<String> skinNameOptional = args.one(Parameter.string().key("skinName").build());
+>         if (!skinNameOptional.isPresent()) {
+>             plugin.sendMessage(cause, "invalid-skin-name");
+>             return CommandResult.empty();
+>         }
+> 
+>         String skinName = skinNameOptional.get().toLowerCase().replace("skin-", "");
+39c46
+<             Player receiver = (Player) src;
+---
+>             Player receiver = (Player) cause.cause().root();
+42c49
+<             plugin.sendMessage(src, "invalid-skin-name");
+---
+>             plugin.sendMessage(cause, "invalid-skin-name");
+52c59
+<                 .arguments(string(of("skinName")))
+---
+>                 .addParameter(Parameter.string().key("skinName").build())

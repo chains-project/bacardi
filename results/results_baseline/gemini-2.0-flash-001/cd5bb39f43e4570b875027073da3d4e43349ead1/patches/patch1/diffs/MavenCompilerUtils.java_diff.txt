@@ -1,0 +1,46 @@
+11c11
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+---
+>  * is distributed under the License is distributed on an "AS IS" BASIS,
+21,22c21,29
+< import org.codehaus.plexus.util.xml.Xpp3Dom;
+< 
+---
+> import org.w3c.dom.Element;
+> import org.w3c.dom.Node;
+> import org.w3c.dom.NodeList;
+> 
+> import javax.xml.xpath.XPath;
+> import javax.xml.xpath.XPathConstants;
+> import javax.xml.xpath.XPathExpression;
+> import javax.xml.xpath.XPathExpressionException;
+> import javax.xml.xpath.XPathFactory;
+70,72c77,88
+<         if (config instanceof Xpp3Dom) {
+<             return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
+<                     .flatMap(aggregate -> stream(aggregate.getChildren("path")))
+---
+>         if (config instanceof org.w3c.dom.Element) {
+>             Element configElement = (Element) config;
+>             try {
+>                 XPathFactory xPathFactory = XPathFactory.newInstance();
+>                 XPath xpath = xPathFactory.newXPath();
+>                 XPathExpression expression = xpath.compile("./annotationProcessorPaths/path");
+>                 NodeList pathNodes = (NodeList) expression.evaluate(configElement, XPathConstants.NODESET);
+> 
+>                 return stream(0, pathNodes.getLength(), i -> i)
+>                         .mapToObj(pathNodes::item)
+>                         .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
+>                         .map(node -> (Element) node)
+83a100,102
+>             } catch (XPathExpressionException e) {
+>                 throw new RuntimeException("Error evaluating XPath expression", e);
+>             }
+99,101c118,120
+<     private static String extractChildValue(Xpp3Dom node, String name) {
+<         final Xpp3Dom child = node.getChild(name);
+<         return child == null ? "" : child.getValue();
+---
+>     private static String extractChildValue(Element node, String name) {
+>         NodeList children = node.getElementsByTagName(name);
+>         return children.getLength() > 0 ? children.item(0).getTextContent() : "";

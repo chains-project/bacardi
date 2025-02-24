@@ -69,16 +69,44 @@
 <           // Linked doc recommends polling at 5th second.
 85d63
 <           // Observed P95 latency is 11s. We probably shouldn't sleep longer than this.
-92d69
+92,113d69
 <   // reference: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
-187,192d163
+<   private static final ImmutableMap<Integer, Integer> RPC_TO_HTTP_CODES =
+<       ImmutableMap.<Integer, Integer>builder()
+<           .put(0, 200)
+<           .put(1, 499)
+<           .put(2, 500)
+<           .put(3, 400)
+<           .put(4, 504)
+<           .put(5, 404)
+<           .put(6, 409)
+<           .put(7, 403)
+<           .put(16, 401)
+<           .put(8, 429)
+<           .put(9, 400)
+<           .put(10, 409)
+<           .put(11, 400)
+<           .put(12, 501)
+<           .put(13, 500)
+<           .put(14, 503)
+<           .put(15, 500)
+<           .build();
+< 
+152,155c108
+<     Integer code = RPC_TO_HTTP_CODES.get(status.getCode());
+<     if (code == null) {
+<       code = BaseHttpServiceException.UNKNOWN_CODE;
+<     }
+---
+>     Integer code = BaseHttpServiceException.UNKNOWN_CODE;
+187,192d139
 <     // NOTE(pongad): Operation.getResponse() returns a Map<String, Object>.
 <     // 1. `(Project) finishedOp.getResponse()` doesn't work,
 <     // because JSON deserializer in execute() didn't know to create a Project object.
 <     // 2. `new Project().putAll(finishedOp.getResponse())` doesn't work either.
 <     // 64-bit integers are sent as strings in JSON,
 <     // so execute(), not knowing the type, parses it as String, not Long.
-221d191
+221d167
 <         // Service can return either 403 or 404 to signify that the project doesn't exist.
-276d245
+276d221
 <         // Service returns permission denied if policy doesn't exist.

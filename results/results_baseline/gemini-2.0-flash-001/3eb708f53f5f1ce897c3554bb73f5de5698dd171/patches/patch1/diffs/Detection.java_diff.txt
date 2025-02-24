@@ -1,0 +1,26 @@
+19c19
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+---
+> import com.google.cloud.translate.v3.Detection;
+31c31
+< public class Detection implements Serializable {
+---
+> public class LegacyDetection implements Serializable {
+38c38
+<   private Detection(String language, Float confidence) {
+---
+>   private LegacyDetection(String language, Float confidence) {
+80c80
+<     if (obj == null || !obj.getClass().equals(Detection.class)) {
+---
+>     if (obj == null || !obj.getClass().equals(LegacyDetection.class)) {
+83c83
+<     Detection other = (Detection) obj;
+---
+>     LegacyDetection other = (LegacyDetection) obj;
+87,88c87,88
+<   static Detection fromPb(DetectionsResourceItems detectionPb) {
+<     return new Detection(detectionPb.getLanguage(), detectionPb.getConfidence());
+---
+>   static LegacyDetection fromPb(Detection detectionPb) {
+>     return new LegacyDetection(detectionPb.getLanguageCode(), (float) detectionPb.getConfidence());

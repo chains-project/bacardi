@@ -1,0 +1,20 @@
+14c14
+< import org.apache.maven.surefire.api.testset.TestListResolver;
+---
+> import org.apache.maven.shared.utils.io.SelectorUtils;
+199,200c199,202
+<             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), TestListResolver.getWildcard());
+<             if (directoryScanner.scan().getClasses().contains(className)) {
+---
+>             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir));
+>                         directoryScanner.setIncludes(new String[] {SelectorUtils.ANT_HANDLER_PREFIX + "**/*.class"});
+>             directoryScanner.scan();
+>             if (Arrays.asList(directoryScanner.getIncludedFiles()).stream().anyMatch(s -> s.equals(className + ".class"))) {
+205,206c207,210
+<             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), TestListResolver.getWildcard());
+<             if (directoryScanner.scan().getClasses().contains(className)) {
+---
+>             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir));
+>                         directoryScanner.setIncludes(new String[] {SelectorUtils.ANT_HANDLER_PREFIX + "**/*.class"});
+>             directoryScanner.scan();
+>             if (Arrays.asList(directoryScanner.getIncludedFiles()).stream().anyMatch(s -> s.equals(className + ".class"))) {

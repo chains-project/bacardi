@@ -1,0 +1,73 @@
+18,21c18,21
+< import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+< import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+---
+> import com.google.cloud.resourcemanager.v3.BooleanPolicy;
+> import com.google.cloud.resourcemanager.v3.ListPolicy;
+> import com.google.cloud.resourcemanager.v3.OrgPolicy;
+> import com.google.cloud.resourcemanager.v3.RestoreDefault;
+97c97,98
+<       return new BooleanPolicy().setEnforced(enforce);
+---
+>       BooleanPolicy booleanPolicy = BooleanPolicy.newBuilder().setEnforced(enforce).build();
+>       return booleanPolicy;
+201c202
+<       return new ListPolicy()
+---
+>       ListPolicy listPolicy = ListPolicy.newBuilder()
+203,204c204,205
+<           .setAllowedValues(allowedValues)
+<           .setDeniedValues(deniedValues)
+---
+>               .addAllAllowedValues(allowedValues)
+>               .addAllDeniedValues(deniedValues)
+206c207,209
+<           .setSuggestedValue(suggestedValue);
+---
+>               .setSuggestedValue(suggestedValue)
+>               .build();
+>       return listPolicy;
+212,213c215,216
+<           listPolicy.getAllowedValues(),
+<           listPolicy.getDeniedValues(),
+---
+>           listPolicy.getAllowedValuesList(),
+>           listPolicy.getDeniedValuesList(),
+361c364
+<     OrgPolicy orgPolicyProto = new OrgPolicy();
+---
+>     OrgPolicy.Builder orgPolicyProtoBuilder = OrgPolicy.newBuilder();
+363c366
+<       orgPolicyProto.setBooleanPolicy(boolPolicy.toProtobuf());
+---
+>       orgPolicyProtoBuilder.setBooleanPolicy(boolPolicy.toProtobuf());
+365c368
+<     orgPolicyProto.setConstraint(constraint);
+---
+>     orgPolicyProtoBuilder.setConstraint(constraint);
+367c370
+<       orgPolicyProto.setListPolicy(policies.toProtobuf());
+---
+>       orgPolicyProtoBuilder.setListPolicy(policies.toProtobuf());
+369,373c372,380
+<     orgPolicyProto.setRestoreDefault(restoreDefault);
+<     orgPolicyProto.setEtag(etag);
+<     orgPolicyProto.setUpdateTime(updateTime);
+<     orgPolicyProto.setVersion(version);
+<     return orgPolicyProto;
+---
+>     if (restoreDefault != null) {
+>       orgPolicyProtoBuilder.setRestoreDefault(restoreDefault);
+>     }
+>     orgPolicyProtoBuilder.setEtag(etag);
+>     orgPolicyProtoBuilder.setUpdateTime(updateTime);
+>     if (version != null) {
+>       orgPolicyProtoBuilder.setVersion(version);
+>     }
+>     return orgPolicyProtoBuilder.build();
+384a392
+>     if (orgPolicyProtobuf.hasRestoreDefault()) {
+385a394
+>     }

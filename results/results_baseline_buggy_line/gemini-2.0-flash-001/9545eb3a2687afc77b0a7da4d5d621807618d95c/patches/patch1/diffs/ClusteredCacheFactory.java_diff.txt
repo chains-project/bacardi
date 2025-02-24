@@ -1,0 +1,19 @@
+27c27,28
+< import com.hazelcast.core.Cluster;
+---
+> import com.hazelcast.cluster.Cluster;
+> import com.hazelcast.cluster.Member;
+30d30
+< import com.hazelcast.core.Member;
+356c356
+<         return cluster == null ? System.currentTimeMillis() : cluster.getClusterTime();
+---
+>         return cluster == null ? System.currentTimeMillis() : hazelcast.getCluster().getClusterTime();
+496c496
+<             result = new HazelcastClusterNodeInfo(member, cluster.getClusterTime());
+---
+>             result = new HazelcastClusterNodeInfo(member, hazelcast.getCluster().getClusterTime());
+701,703d700
+< 
+< 
+< 

@@ -1,0 +1,26 @@
+7,12c7,13
+< import javax.annotation.Priority;
+< import javax.enterprise.context.ApplicationScoped;
+< import javax.inject.Inject;
+< import javax.mvc.locale.LocaleResolver;
+< import javax.mvc.locale.LocaleResolverContext;
+< import javax.ws.rs.core.UriInfo;
+---
+> import jakarta.annotation.Priority;
+> import jakarta.enterprise.context.ApplicationScoped;
+> import jakarta.inject.Inject;
+> import jakarta.mvc.locale.LocaleResolver;
+> import jakarta.mvc.MvcContext;
+> import jakarta.ws.rs.core.UriInfo;
+> import jakarta.ws.rs.core.Request;
+39a41,43
+>     @Inject
+>     private MvcContext mvcContext;
+> 
+41,42c45,47
+<     public Locale resolveLocale(final LocaleResolverContext context) {
+<         final String queryLang = context.getUriInfo()
+---
+>     public Locale resolveLocale() {
+>         UriInfo uriInfo = mvcContext.getUriInfo();
+>         final String queryLang = uriInfo

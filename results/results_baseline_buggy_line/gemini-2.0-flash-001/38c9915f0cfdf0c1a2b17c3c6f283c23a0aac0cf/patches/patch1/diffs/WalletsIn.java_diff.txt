@@ -1,0 +1,27 @@
+37,38c37,39
+< import org.cactoos.scalar.IoCheckedScalar;
+< import org.cactoos.scalar.SolidScalar;
+---
+> import org.cactoos.scalar.Unchecked;
+> import org.cactoos.text.Joined;
+> import org.cactoos.text.Text;
+40d40
+< import org.cactoos.text.JoinedText;
+53c53
+<     private final IoCheckedScalar<Path> path;
+---
+>     private final Unchecked<Path> path;
+103,105c103
+<         this.path = new IoCheckedScalar<>(
+<             new SolidScalar<>(pth)
+<         );
+---
+>         this.path = new Unchecked<>(pth);
+119c117
+<             new JoinedText(
+---
+>             new Joined(
+121c119
+<                 Long.toHexString(this.random.nextLong()),
+---
+>                 (Text) () -> Long.toHexString(this.random.nextLong()),

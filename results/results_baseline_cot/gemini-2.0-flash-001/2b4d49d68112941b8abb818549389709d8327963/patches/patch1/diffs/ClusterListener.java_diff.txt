@@ -1,0 +1,26 @@
+18c18,21
+< import com.hazelcast.core.Cluster;
+---
+> import com.hazelcast.cluster.Cluster;
+> import com.hazelcast.cluster.Member;
+> import com.hazelcast.cluster.MembershipEvent;
+> import com.hazelcast.cluster.MembershipListener;
+22,26c25,26
+< import com.hazelcast.core.LifecycleListener;
+< import com.hazelcast.core.Member;
+< import com.hazelcast.core.MemberAttributeEvent;
+< import com.hazelcast.core.MembershipEvent;
+< import com.hazelcast.core.MembershipListener;
+---
+> import com.hazelcast.cluster.MemberAttributeEvent;
+> import com.hazelcast.core.HazelcastInstance;
+73a74
+>     private final HazelcastInstance hazelcastInstance;
+75,77c76,78
+<     ClusterListener(final Cluster cluster) {
+< 
+<         this.cluster = cluster;
+---
+>     ClusterListener(final HazelcastInstance hazelcastInstance) {
+>         this.hazelcastInstance = hazelcastInstance;
+>         this.cluster = hazelcastInstance.getCluster();

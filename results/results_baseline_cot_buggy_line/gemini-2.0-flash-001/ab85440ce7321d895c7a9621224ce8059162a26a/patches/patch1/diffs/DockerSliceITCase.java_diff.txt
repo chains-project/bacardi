@@ -1,0 +1,29 @@
+15d14
+< import org.hamcrest.core.StringContains;
+18a18
+> import org.hamcrest.core.StringContains;
+84,85c84
+<             new StringContains(
+<                 false,
+---
+>             Matchers.containsString(
+99,100c98
+<             new StringContains(
+<                 false,
+---
+>             Matchers.containsString(
+123c121
+<         return new StringContains(false, String.format("latest: digest: %s", this.image.digest()));
+---
+>         return Matchers.containsString(String.format("latest: digest: %s", this.image.digest()));
+127c125
+<         return new StringContains(false, String.format("%s: Pushed", this.image.layer()));
+---
+>         return Matchers.containsString(String.format("%s: Pushed", this.image.layer()));
+131,134c129
+<         return new StringContains(
+<             false,
+<             String.format("%s: Layer already exists", this.image.layer())
+<         );
+---
+>         return Matchers.containsString(String.format("%s: Layer already exists", this.image.layer()));

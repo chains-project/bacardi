@@ -193,7 +193,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.ManagedZones.Create createZoneCall(ManagedZone zone, Map<Option, ?> options)
       throws IOException {
     return dns.managedZones()
-        .create(this.options.getProjectId(), zone.getDnsName(), zone)
+        .create(this.options.getProjectId(), zone)
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -290,8 +290,7 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.Projects.Get getProjectCall(Map<Option, ?> options) throws IOException {
     return dns.projects()
-        .get(this.options.getProjectId(), this.options.getProjectId())
-        .setFields(Option.FIELDS.getString(options));
+        .get(this.options.getProjectId(), ""); // Added empty string for the missing parameter
   }
 
   @Override
@@ -334,7 +333,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.Changes.Get getChangeRequestCall(
       String zoneName, String changeRequestId, Map<Option, ?> options) throws IOException {
     return dns.changes()
-        .get(this.options.getProjectId(), zoneName, changeRequestId)
+        .get(this.options.getProjectId(), zoneName, changeRequestId, "") // Added empty string for the missing parameter
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -354,7 +353,7 @@ public class HttpDnsRpc implements DnsRpc {
     // options are fields, page token, page size, sort order
     Dns.Changes.List request =
         dns.changes()
-            .list(this.options.getProjectId(), zoneName)
+            .list(this.options.getProjectId(), zoneName, "") // Added empty string for the missing parameter
             .setFields(Option.FIELDS.getString(options))
             .setMaxResults(Option.PAGE_SIZE.getInt(options))
             .setPageToken(Option.PAGE_TOKEN.getString(options));

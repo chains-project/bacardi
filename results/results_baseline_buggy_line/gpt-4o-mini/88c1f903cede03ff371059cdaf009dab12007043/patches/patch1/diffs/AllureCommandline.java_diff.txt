@@ -35,20 +35,20 @@
 <         } catch (ZipException e) {
 <             throw new IOException(e);
 ---
->         try (ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(file.toPath()))) {
->             ZipEntry entry;
->             while ((entry = zipInputStream.getNextEntry()) != null) {
->                 File outputFile = new File(getInstallationDirectory().toAbsolutePath().toString(), entry.getName());
->                 if (entry.isDirectory()) {
->                     outputFile.mkdirs();
+>         try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(file.toPath()))) {
+>             ZipEntry zipEntry;
+>             while ((zipEntry = zis.getNextEntry()) != null) {
+>                 File newFile = new File(getInstallationDirectory().toAbsolutePath().toString(), zipEntry.getName());
+>                 if (zipEntry.isDirectory()) {
+>                     newFile.mkdirs();
 >                 } else {
->                     try (FileOutputStream fos = new FileOutputStream(outputFile)) {
+>                     try (FileOutputStream fos = new FileOutputStream(newFile)) {
 >                         byte[] buffer = new byte[1024];
 >                         int len;
->                         while ((len = zipInputStream.read(buffer)) > 0) {
+>                         while ((len = zis.read(buffer)) > 0) {
 >                             fos.write(buffer, 0, len);
 >                         }
 >                     }
 >                 }
->                 zipInputStream.closeEntry();
+>                 zis.closeEntry();
 >             }

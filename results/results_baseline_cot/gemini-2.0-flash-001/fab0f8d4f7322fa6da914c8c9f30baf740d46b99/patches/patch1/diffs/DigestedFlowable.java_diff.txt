@@ -1,0 +1,22 @@
+11a12
+> import java.nio.charset.StandardCharsets;
+15,16d15
+< import org.cactoos.io.BytesOf;
+< import org.cactoos.text.HexOf;
+57c56
+<                 new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+---
+>                 new Digest.Sha256(bytesToHex(sha.digest()))
+69a69,80
+> 
+>     private static String bytesToHex(byte[] hash) {
+>         StringBuilder hexString = new StringBuilder(2 * hash.length);
+>         for (byte b : hash) {
+>             String hex = Integer.toHexString(0xff & b);
+>             if (hex.length() == 1) {
+>                 hexString.append('0');
+>             }
+>             hexString.append(hex);
+>         }
+>         return hexString.toString();
+>     }

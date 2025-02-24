@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * you may obtain a copy of the License at
  *
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -22,6 +22,13 @@ import static java.net.HttpURLConnection.HTTP_OK;
 
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.cloudresourcemanager.model.Binding;
+import com.google.api.services.cloudresourcemanager.model.Operation;
+import com.google.api.services.cloudresourcemanager.model.Policy;
+import com.google.api.services.cloudresourcemanager.model.Project;
+import com.google.api.services.cloudresourcemanager.model.SetIamPolicyRequest;
+import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsRequest;
+import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsResponse;
 import com.google.cloud.NoCredentials;
 import com.google.cloud.resourcemanager.ResourceManagerOptions;
 import com.google.common.base.Joiner;
@@ -116,7 +123,7 @@ public class LocalResourceManagerHelper {
       ImmutableSet.of('-', '\'', '"', ' ', '!');
 
   private final HttpServer server;
-  private final ConcurrentSkipListMap<String, Project> projects = new ConcurrentSkipListMap<>();
+  private final ConcurrentSkipListMap<String, com.google.api.services.cloudresourcemanager.model.Project> projects = new ConcurrentSkipListMap<>();
   private final Map<String, Policy> policies = new HashMap<>();
   private final int port;
 
@@ -208,7 +215,7 @@ public class LocalResourceManagerHelper {
             String requestBody =
                 decodeContent(exchange.getRequestHeaders(), exchange.getRequestBody());
             response =
-                replace(projectIdFromUri(path), jsonFactory.fromString(requestBody, Project.class));
+                replace(projectIdFromUri(path), jsonFactory.fromString(requestBody, com.google.api.services.cloudresourcemanager.model.Project.class));
             break;
           default:
             response =
@@ -228,7 +235,7 @@ public class LocalResourceManagerHelper {
   private Response handlePost(HttpExchange exchange, String path) throws IOException {
     String requestBody = decodeContent(exchange.getRequestHeaders(), exchange.getRequestBody());
     if (!path.contains(":")) {
-      return create(jsonFactory.fromString(requestBody, Project.class));
+      return create(jsonFactory.fromString(requestBody, com.google.api.services.cloudresourcemanager.model.Project.class));
     } else {
       switch (path.split(":", 2)[1]) {
         case "undelete":
@@ -266,7 +273,7 @@ public class LocalResourceManagerHelper {
       String requestMethod = exchange.getRequestMethod();
       switch (requestMethod) {
         case "GET":
-          Project project = projects.get(projectId);
+          com.google.api.services.cloudresourcemanager.model.Project project = projects.get(projectId);
           if (project == null) {
             response = Error.PERMISSION_DENIED.response("Project " + projectId + " not found.");
             break;
@@ -378,7 +385,7 @@ public class LocalResourceManagerHelper {
     return options;
   }
 
-  private static String checkForProjectErrors(Project project) {
+  private static String checkForProjectErrors(com.google.api.services.cloudresourcemanager.model.Project project) {
     if (project.getProjectId() == null) {
       return "Project ID cannot be empty.";
     }
@@ -434,7 +441,7 @@ public class LocalResourceManagerHelper {
     return value.length() >= minLength && value.length() <= maxLength;
   }
 
-  synchronized Response create(Project project) {
+  synchronized Response create(com.google.api.services.cloudresourcemanager.model.Project project) {
     String customErrorMessage = checkForProjectErrors(project);
     if (customErrorMessage != null) {
       return Error.INVALID_ARGUMENT.response(customErrorMessage);
@@ -468,7 +475,7 @@ public class LocalResourceManagerHelper {
   }
 
   synchronized Response delete(String projectId) {
-    Project project = projects.get(projectId);
+    com.google.api.services.cloudresourcemanager.model.Project project = projects.get(projectId);
     if (project == null) {
       return Error.PERMISSION_DENIED.response(
           "Error when deleting " + projectId + " because the project was not found.");
@@ -483,7 +490,7 @@ public class LocalResourceManagerHelper {
   }
 
   Response get(String projectId, String[] fields) {
-    Project project = projects.get(projectId);
+    com.google.api.services.cloudresourcemanager.model.Project project = projects.get(projectId);
     if (project != null) {
       try {
         return new Response(HTTP_OK, jsonFactory.toString(extractFields(project, fields)));
@@ -507,11 +514,11 @@ public class LocalResourceManagerHelper {
     String pageToken = (String) options.get("pageToken");
     Integer pageSize = (Integer) options.get("pageSize");
     String nextPageToken = null;
-    Map<String, Project> projectsToScan = projects;
+    Map<String, com.google.api.services.cloudresourcemanager.model.Project> projectsToScan = projects;
     if (pageToken != null) {
       projectsToScan = projects.tailMap(pageToken);
     }
-    for (Project p : projectsToScan.values()) {
+    for (com.google.api.services.cloudresourcemanager.model.Project p : projectsToScan.values()) {
       if (pageSize != null && count >= pageSize) {
         nextPageToken = p.getProjectId();
         break;
@@ -559,7 +566,7 @@ public class LocalResourceManagerHelper {
     return true;
   }
 
-  private static boolean includeProject(Project project, String[] filters) {
+  private static boolean includeProject(com.google.api.services.cloudresourcemanager.model.Project project, String[] filters) {
     if (filters == null) {
       return true;
     }
@@ -594,11 +601,11 @@ public class LocalResourceManagerHelper {
     return "*".equals(filterValue) || filterValue.equals(projectValue.toLowerCase());
   }
 
-  private static Project extractFields(Project fullProject, String[] fields) {
+  private static com.google.api.services.cloudresourcemanager.model.Project extractFields(com.google.api.services.cloudresourcemanager.model.Project fullProject, String[] fields) {
     if (fields == null) {
       return fullProject;
     }
-    Project project = new Project();
+    com.google.api.services.cloudresourcemanager.model.Project project = new com.google.api.services.cloudresourcemanager.model.Project();
     for (String field : fields) {
       switch (field) {
         case "createTime":
@@ -627,8 +634,8 @@ public class LocalResourceManagerHelper {
     return project;
   }
 
-  synchronized Response replace(String projectId, Project project) {
-    Project originalProject = projects.get(projectId);
+  synchronized Response replace(String projectId, com.google.api.services.cloudresourcemanager.model.Project project) {
+    com.google.api.services.cloudresourcemanager.model.Project originalProject = projects.get(projectId);
     if (originalProject == null) {
       return Error.PERMISSION_DENIED.response(
           "Error when replacing " + projectId + " because the project was not found.");
@@ -644,6 +651,7 @@ public class LocalResourceManagerHelper {
     project.setLifecycleState(originalProject.getLifecycleState());
     project.setCreateTime(originalProject.getCreateTime());
     project.setProjectNumber(originalProject.getProjectNumber());
+    // replace cannot fail because both this method and removeProject are synchronized
     projects.replace(projectId, project);
     try {
       return new Response(HTTP_OK, jsonFactory.toString(project));
@@ -653,7 +661,7 @@ public class LocalResourceManagerHelper {
   }
 
   synchronized Response undelete(String projectId) {
-    Project project = projects.get(projectId);
+    com.google.api.services.cloudresourcemanager.model.Project project = projects.get(projectId);
     Response response;
     if (project == null) {
       response =
@@ -774,7 +782,7 @@ public class LocalResourceManagerHelper {
             || "DELETE_REQUESTED".equals(lifecycleState)
             || "DELETE_IN_PROGRESS".equals(lifecycleState),
         "Lifecycle state must be ACTIVE, DELETE_REQUESTED, or DELETE_IN_PROGRESS");
-    Project project = projects.get(checkNotNull(projectId));
+    com.google.api.services.cloudresourcemanager.model.Project project = projects.get(checkNotNull(projectId));
     if (project != null) {
       project.setLifecycleState(lifecycleState);
       return true;
@@ -791,191 +799,9 @@ public class LocalResourceManagerHelper {
    * @return true if the project was successfully deleted, false if the project didn't exist
    */
   public synchronized boolean removeProject(String projectId) {
+    // Because this method is synchronized, any code that relies on non-atomic read/write operations
+    // should not fail if that code is also synchronized.
     policies.remove(checkNotNull(projectId));
     return projects.remove(projectId) != null;
-  }
-
-  // Stub classes to replace missing external dependency classes
-
-  public static class Project {
-    private String projectId;
-    private String lifecycleState;
-    private Long projectNumber;
-    private String createTime;
-    private String name;
-    private Map<String, String> labels;
-    private String parent;
-
-    public String getProjectId() {
-      return projectId;
-    }
-
-    public Project setProjectId(String projectId) {
-      this.projectId = projectId;
-      return this;
-    }
-
-    public String getLifecycleState() {
-      return lifecycleState;
-    }
-
-    public Project setLifecycleState(String lifecycleState) {
-      this.lifecycleState = lifecycleState;
-      return this;
-    }
-
-    public Long getProjectNumber() {
-      return projectNumber;
-    }
-
-    public Project setProjectNumber(Long projectNumber) {
-      this.projectNumber = projectNumber;
-      return this;
-    }
-
-    public String getCreateTime() {
-      return createTime;
-    }
-
-    public Project setCreateTime(String createTime) {
-      this.createTime = createTime;
-      return this;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public Project setName(String name) {
-      this.name = name;
-      return this;
-    }
-
-    public Map<String, String> getLabels() {
-      return labels;
-    }
-
-    public Project setLabels(Map<String, String> labels) {
-      this.labels = labels;
-      return this;
-    }
-
-    public String getParent() {
-      return parent;
-    }
-
-    public Project setParent(String parent) {
-      this.parent = parent;
-      return this;
-    }
-  }
-
-  public static class Binding {
-    // Minimal stub for Binding.
-  }
-
-  public static class Policy {
-    private List<Binding> bindings;
-    private String etag;
-    private int version;
-
-    public List<Binding> getBindings() {
-      return bindings;
-    }
-
-    public Policy setBindings(List<Binding> bindings) {
-      this.bindings = bindings;
-      return this;
-    }
-
-    public String getEtag() {
-      return etag;
-    }
-
-    public Policy setEtag(String etag) {
-      this.etag = etag;
-      return this;
-    }
-
-    public int getVersion() {
-      return version;
-    }
-
-    public Policy setVersion(int version) {
-      this.version = version;
-      return this;
-    }
-  }
-
-  public static class Operation {
-    private boolean done;
-    private String name;
-    private Object response;
-
-    public boolean isDone() {
-      return done;
-    }
-
-    public Operation setDone(boolean done) {
-      this.done = done;
-      return this;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public Operation setName(String name) {
-      this.name = name;
-      return this;
-    }
-
-    public Object getResponse() {
-      return response;
-    }
-
-    public Operation setResponse(Object response) {
-      this.response = response;
-      return this;
-    }
-  }
-
-  public static class SetIamPolicyRequest {
-    private Policy policy;
-
-    public Policy getPolicy() {
-      return policy;
-    }
-
-    public SetIamPolicyRequest setPolicy(Policy policy) {
-      this.policy = policy;
-      return this;
-    }
-  }
-
-  public static class TestIamPermissionsRequest {
-    private List<String> permissions;
-
-    public List<String> getPermissions() {
-      return permissions;
-    }
-
-    public TestIamPermissionsRequest setPermissions(List<String> permissions) {
-      this.permissions = permissions;
-      return this;
-    }
-  }
-
-  public static class TestIamPermissionsResponse {
-    private List<String> permissions;
-
-    public List<String> getPermissions() {
-      return permissions;
-    }
-
-    public TestIamPermissionsResponse setPermissions(List<String> permissions) {
-      this.permissions = permissions;
-      return this;
-    }
   }
 }

@@ -137,31 +137,13 @@ public class HttpTranslateRpc implements TranslateRpc {
 the error is triggered in the following specific lines in the previous code:
 
 ```java
-List<List<DetectionsResourceItems>> detections =
-```
-```java
-public List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap) {
-```
-```java
-private final Translate translate;
-```
-```java
-public List<List<DetectionsResourceItems>> detect(List<String> texts) {
-```
-```java
-List<LanguagesResource> languages =
+return languages != null ? languages : ImmutableList.<LanguagesResource>of();
 ```
 ```java
 import com.google.api.services.translate.model.LanguagesResource;
 ```
 ```java
-return languages != null ? languages : ImmutableList.<LanguagesResource>of();
-```
-```java
-List<TranslationsResource> translations =
-```
-```java
-return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
+List<LanguagesResource> languages =
 ```
 ```java
 import com.google.api.services.translate.model.TranslationsResource;
@@ -170,19 +152,37 @@ import com.google.api.services.translate.model.TranslationsResource;
 new Translate.Builder(transport, new JacksonFactory(), initializer)
 ```
 ```java
-new Function<TranslationsResource, TranslationsResource>() {
+import com.google.api.services.translate.Translate;
 ```
 ```java
-import com.google.api.services.translate.model.DetectionsResourceItems;
+List<TranslationsResource> translations =
 ```
 ```java
 public List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap) {
 ```
 ```java
+return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
+```
+```java
+private final Translate translate;
+```
+```java
+import com.google.api.services.translate.model.DetectionsResourceItems;
+```
+```java
+public List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap) {
+```
+```java
+public List<List<DetectionsResourceItems>> detect(List<String> texts) {
+```
+```java
 public TranslationsResource apply(TranslationsResource translationsResource) {
 ```
 ```java
-import com.google.api.services.translate.Translate;
+new Function<TranslationsResource, TranslationsResource>() {
+```
+```java
+List<List<DetectionsResourceItems>> detections =
 ```
 ```java
 translations != null ? translations : ImmutableList.<TranslationsResource>of(),
@@ -191,32 +191,23 @@ translations != null ? translations : ImmutableList.<TranslationsResource>of(),
 
 
  with the following error information:
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[71,17] cannot find symbol
-
-  symbol:   class DetectionsResourceItems
-  location: class com.google.cloud.translate.spi.v2.HttpTranslateRpc
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[80,15] cannot find symbol
-
-  symbol:   class LanguagesResource
-  location: class com.google.cloud.translate.spi.v2.HttpTranslateRpc
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[42,17] cannot find symbol
-
-  symbol:   class Translate
-  location: class com.google.cloud.translate.spi.v2.HttpTranslateRpc
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[69,20] cannot find symbol
-
-  symbol:   class DetectionsResourceItems
-  location: class com.google.cloud.translate.spi.v2.HttpTranslateRpc
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[82,12] cannot find symbol
-
-  symbol:   class LanguagesResource
-  location: class com.google.cloud.translate.spi.v2.HttpTranslateRpc
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[27,47] package com.google.api.services.translate.model does not exist
 [ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[92,61] cannot find symbol
 
   symbol:   class LanguagesResource
   location: class com.google.cloud.translate.spi.v2.HttpTranslateRpc
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[27,47] package com.google.api.services.translate.model does not exist
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[82,12] cannot find symbol
+
+  symbol:   class LanguagesResource
+  location: class com.google.cloud.translate.spi.v2.HttpTranslateRpc
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[28,47] package com.google.api.services.translate.model does not exist
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[50,22] package Translate does not exist
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[25,41] package com.google.api.services.translate does not exist
 [ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[104,12] cannot find symbol
+
+  symbol:   class TranslationsResource
+  location: class com.google.cloud.translate.spi.v2.HttpTranslateRpc
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[99,15] cannot find symbol
 
   symbol:   class TranslationsResource
   location: class com.google.cloud.translate.spi.v2.HttpTranslateRpc
@@ -224,21 +215,30 @@ translations != null ? translations : ImmutableList.<TranslationsResource>of(),
 
   symbol:   class DetectionsResourceItems
   location: class com.google.cloud.translate.spi.v2.HttpTranslateRpc
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[28,47] package com.google.api.services.translate.model does not exist
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[50,22] package Translate does not exist
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[116,24] cannot find symbol
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[42,17] cannot find symbol
 
-  symbol:   class TranslationsResource
+  symbol:   class Translate
   location: class com.google.cloud.translate.spi.v2.HttpTranslateRpc
 [ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[26,47] package com.google.api.services.translate.model does not exist
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[99,15] cannot find symbol
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[80,15] cannot find symbol
 
-  symbol:   class TranslationsResource
+  symbol:   class LanguagesResource
+  location: class com.google.cloud.translate.spi.v2.HttpTranslateRpc
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[69,20] cannot find symbol
+
+  symbol:   class DetectionsResourceItems
   location: class com.google.cloud.translate.spi.v2.HttpTranslateRpc
 [ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[118,47] cannot find symbol
 
   symbol: class TranslationsResource
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[25,41] package com.google.api.services.translate does not exist
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[116,24] cannot find symbol
+
+  symbol:   class TranslationsResource
+  location: class com.google.cloud.translate.spi.v2.HttpTranslateRpc
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[71,17] cannot find symbol
+
+  symbol:   class DetectionsResourceItems
+  location: class com.google.cloud.translate.spi.v2.HttpTranslateRpc
 [ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/spi/v2/HttpTranslateRpc.java:[115,64] cannot find symbol
 
   symbol:   class TranslationsResource

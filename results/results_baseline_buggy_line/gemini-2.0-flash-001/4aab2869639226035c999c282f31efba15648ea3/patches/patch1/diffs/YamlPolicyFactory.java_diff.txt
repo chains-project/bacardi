@@ -1,0 +1,26 @@
+7a8
+> import com.artipie.asto.Storage;
+9c10
+< import com.artipie.asto.factory.Storages;
+---
+> import com.artipie.asto.factory.StorageFactory;
+11a13
+> import java.util.Map;
+40a43,46
+>             final Storage storage = new StorageFactory().newStorage(
+>                 sub.string("type"),
+>                 Yaml.createYamlInput(sub.toString()).readYamlMapping().asMap(). естество(String.class, Object.class)
+>             );
+42,46c48
+<                 new BlockingStorage(
+<                     new Storages().newStorage(
+<                         sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
+<                     )
+<                 )
+---
+>                 new BlockingStorage(storage)
+51a54,57
+> 
+>     private static <K, V> Map<K, V> естество(final Class<K> kType, final Class<V> vType, final Map<?, ?> input) {
+>         return (Map<K, V>) input;
+>     }

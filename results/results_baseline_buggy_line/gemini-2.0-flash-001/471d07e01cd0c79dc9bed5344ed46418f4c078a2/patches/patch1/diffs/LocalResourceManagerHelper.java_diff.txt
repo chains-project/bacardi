@@ -1,0 +1,132 @@
+25,31d24
+< import com.google.api.services.cloudresourcemanager.model.Binding;
+< import com.google.api.services.cloudresourcemanager.model.Operation;
+< import com.google.api.services.cloudresourcemanager.model.Policy;
+< import com.google.api.services.cloudresourcemanager.model.Project;
+< import com.google.api.services.cloudresourcemanager.model.SetIamPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsRequest;
+< import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsResponse;
+39a33,39
+> import com.google.resourcemanager.v3.Binding;
+> import com.google.resourcemanager.v3.Project;
+> import com.google.resourcemanager.v3.Policy;
+> import com.google.resourcemanager.v3.TestIamPermissionsResponse;
+> import com.google.resourcemanager.v3.SetIamPolicyRequest;
+> import com.google.resourcemanager.v3.TestIamPermissionsRequest;
+> import com.google.longrunning.Operation;
+238c238
+<       return create(jsonFactory.fromString(requestBody, Project.class));
+---
+>       response = create(jsonFactory.fromString(requestBody, Project.class));
+285c285
+<                     jsonFactory.toString(new Operation().setDone(true).setResponse(project)));
+---
+>                     jsonFactory.toString(new Operation().setDone(true).setResponse(com.google.protobuf.Any.pack(project))));
+401,402c401,402
+<     if (project.getName() != null) {
+<       for (char c : project.getName().toCharArray()) {
+---
+>     if (project.getDisplayName() != null) {
+>       for (char c : project.getDisplayName().toCharArray()) {
+449,454c449,451
+<       project.setLifecycleState("ACTIVE");
+<       project.setProjectNumber(Math.abs(PROJECT_NUMBER_GENERATOR.nextLong() % Long.MAX_VALUE));
+<       project.setCreateTime(
+<           DateTimeFormatter.ISO_DATE_TIME
+<               .withZone(ZoneOffset.UTC)
+<               .format(Instant.ofEpochMilli(System.currentTimeMillis())));
+---
+>       project = project.toBuilder().setState(Project.State.ACTIVE).build();
+>       project = project.toBuilder().setProjectNumber(Math.abs(PROJECT_NUMBER_GENERATOR.nextLong() % Long.MAX_VALUE)).build();
+>       project = project.toBuilder().setCreateTime(com.google.protobuf.Timestamp.newBuilder().setSeconds(System.currentTimeMillis()/1000).build()).build();
+460,463c457,459
+<           new Policy()
+<               .setBindings(Collections.<Binding>emptyList())
+<               .setEtag(UUID.randomUUID().toString())
+<               .setVersion(0);
+---
+>           Policy.newBuilder()
+>               .setVersion(0)
+>               .build();
+483c479
+<     if (!project.getLifecycleState().equals("ACTIVE")) {
+---
+>     if (!project.getState().equals(Project.State.ACTIVE)) {
+487c483
+<       project.setLifecycleState("DELETE_REQUESTED");
+---
+>       project = project.toBuilder().setState(Project.State.DELETE_REQUESTED).build();
+581c577
+<         if (!satisfiesFilter(project.getName(), filterEntry[1])) {
+---
+>         if (!satisfiesFilter(project.getDisplayName(), filterEntry[1])) {
+608c604
+<     Project project = new Project();
+---
+>     Project.Builder project = Project.newBuilder();
+615c611
+<           project.setLabels(fullProject.getLabels());
+---
+>           project.putAllLabels(fullProject.getLabels());
+618c614
+<           project.setLifecycleState(fullProject.getLifecycleState());
+---
+>           project.setState(fullProject.getState());
+621c617
+<           project.setName(fullProject.getName());
+---
+>           project.setDisplayName(fullProject.getDisplayName());
+634c630
+<     return project;
+---
+>     return project.build();
+642c638
+<     } else if (!originalProject.getLifecycleState().equals("ACTIVE")) {
+---
+>     } else if (!originalProject.getState().equals(Project.State.ACTIVE)) {
+650,653c646,649
+<     project.setProjectId(projectId);
+<     project.setLifecycleState(originalProject.getLifecycleState());
+<     project.setCreateTime(originalProject.getCreateTime());
+<     project.setProjectNumber(originalProject.getProjectNumber());
+---
+>     project = project.toBuilder().setProjectId(projectId).build();
+>     project = project.toBuilder().setState(originalProject.getState()).build();
+>     project = project.toBuilder().setCreateTime(originalProject.getCreateTime()).build();
+>     project = project.toBuilder().setProjectNumber(originalProject.getProjectNumber()).build();
+670c666
+<     } else if (!project.getLifecycleState().equals("DELETE_REQUESTED")) {
+---
+>     } else if (!project.getState().equals(Project.State.DELETE_REQUESTED)) {
+677c673
+<       project.setLifecycleState("ACTIVE");
+---
+>       project = project.toBuilder().setState(Project.State.ACTIVE).build();
+711,712c707,708
+<     policy.setEtag(UUID.randomUUID().toString());
+<     policy.setVersion(originalPolicy.getVersion());
+---
+>     policy = policy.toBuilder().setEtag(UUID.randomUUID().toString()).build();
+>     policy = policy.toBuilder().setVersion(originalPolicy.getVersion()).build();
+729c725
+<           jsonFactory.toString(new TestIamPermissionsResponse().setPermissions(permissions)));
+---
+>           jsonFactory.toString(TestIamPermissionsResponse.newBuilder().addAllPermissions(permissions).build()));
+787c783,797
+<       project.setLifecycleState(lifecycleState);
+---
+>       Project.State state;
+>       switch (lifecycleState) {
+>         case "ACTIVE":
+>           state = Project.State.ACTIVE;
+>           break;
+>         case "DELETE_REQUESTED":
+>           state = Project.State.DELETE_REQUESTED;
+>           break;
+>         case "DELETE_IN_PROGRESS":
+>           state = Project.State.DELETE_IN_PROGRESS;
+>           break;
+>         default:
+>           throw new IllegalArgumentException("Invalid lifecycle state: " + lifecycleState);
+>       }
+>       project = project.toBuilder().setState(state).build();

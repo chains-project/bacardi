@@ -17,10 +17,10 @@ package io.qameta.allure.maven;
 
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.File;
 import java.io.IOException;
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -37,6 +37,7 @@ import org.apache.maven.shared.transfer.artifact.resolve.ArtifactResult;
 import org.apache.maven.shared.transfer.dependencies.resolve.DependencyResolver;
 import org.apache.maven.shared.transfer.dependencies.resolve.DependencyResolverException;
 
+import java.io.InputStream;
 import java.net.Authenticator;
 import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
@@ -214,13 +215,14 @@ public class AllureCommandline {
     }
 
     private void unpack(final File file) throws IOException {
-        try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(file.toPath()))) {
+        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(file))) {
             ZipEntry zipEntry;
             while ((zipEntry = zis.getNextEntry()) != null) {
                 File newFile = new File(getInstallationDirectory().toAbsolutePath().toString(), zipEntry.getName());
                 if (zipEntry.isDirectory()) {
                     newFile.mkdirs();
                 } else {
+                    new File(newFile.getParent()).mkdirs();
                     try (FileOutputStream fos = new FileOutputStream(newFile)) {
                         byte[] buffer = new byte[1024];
                         int len;

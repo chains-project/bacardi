@@ -18,7 +18,7 @@ package com.google.cloud.resourcemanager;
 import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
 import com.google.api.services.cloudresourcemanager.model.Constraint;
 import com.google.api.services.cloudresourcemanager.model.ListConstraint;
-import com.google.api.services.cloudresourcemanager.model.Policy; // Updated import
+import com.google.api.services.cloudresourcemanager.model.Policy;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.Objects;
@@ -68,10 +68,18 @@ public class ConstraintInfo {
       this.supportsUnder = supportsUnder;
     }
 
+    /**
+     * The Google Cloud Console tries to default to a configuration that matches the value specified
+     * in this Constraint.
+     */
     String getSuggestedValue() {
       return suggestedValue;
     }
 
+    /**
+     * Indicates whether subtrees of Cloud Resource Manager resource hierarchy can be used in
+     * Policy.allowed_values and Policy.denied_values.
+     */
     Boolean getSupportsUnder() {
       return supportsUnder;
     }
@@ -108,6 +116,7 @@ public class ConstraintInfo {
     }
   }
 
+  /** Builder for {@code ConstraintInfo}. */
   static class Builder {
     private BooleanConstraint booleanConstraint;
     private String constraintDefault;
@@ -181,30 +190,37 @@ public class ConstraintInfo {
     this.version = builder.version;
   }
 
+  /** Returns the boolean constraint to check whether the constraint is enforced or not. */
   public BooleanConstraint getBooleanConstraint() {
     return booleanConstraint;
   }
 
+  /** Returns the default behavior of the constraint. */
   public String getConstraintDefault() {
     return constraintDefault;
   }
 
+  /** Returns the detailed description of the constraint. */
   public String getDescription() {
     return description;
   }
 
+  /** Returns the human readable name of the constraint. */
   public String getDisplayName() {
     return displayName;
   }
 
+  /** Returns the listConstraintInfo. */
   public Constraints getConstraints() {
     return constraints;
   }
 
+  /** Returns the globally unique name of the constraint. */
   public String getName() {
     return name;
   }
 
+  /** Returns the version of the Constraint. Default version is 0. */
   public Integer getVersion() {
     return version;
   }
@@ -231,10 +247,12 @@ public class ConstraintInfo {
         booleanConstraint, constraintDefault, description, displayName, constraints, name, version);
   }
 
+  /** Returns a builder for the {@link ConstraintInfo} object. */
   public static Builder newBuilder(String name) {
     return new Builder(name);
   }
 
+  /** Returns a builder for the {@link ConstraintInfo} object. */
   public Builder toBuilder() {
     return new Builder(this);
   }

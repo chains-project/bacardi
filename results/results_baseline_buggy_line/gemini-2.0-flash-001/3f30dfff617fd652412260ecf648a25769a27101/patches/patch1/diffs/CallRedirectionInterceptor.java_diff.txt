@@ -1,0 +1,34 @@
+4,12c4,10
+< import org.apache.deltaspike.core.api.provider.BeanProvider;
+< 
+< import javax.annotation.Priority;
+< import javax.enterprise.context.Dependent;
+< import javax.enterprise.inject.Instance;
+< import javax.inject.Inject;
+< import javax.interceptor.AroundInvoke;
+< import javax.interceptor.Interceptor;
+< import javax.interceptor.InvocationContext;
+---
+> import jakarta.annotation.Priority;
+> import jakarta.enterprise.context.Dependent;
+> import jakarta.enterprise.inject.Instance;
+> import jakarta.inject.Inject;
+> import jakarta.interceptor.AroundInvoke;
+> import jakarta.interceptor.Interceptor;
+> import jakarta.interceptor.InvocationContext;
+15a14
+> import jakarta.enterprise.inject.spi.CDI;
+30c29,30
+<         if (invocationTargetManager.get().isAlternativeEnabled(javaClass)) {
+---
+>         InvocationTargetManager manager = invocationTargetManager.get();
+>         if (manager.isAlternativeEnabled(javaClass)) {
+32c32
+<         } else if (invocationTargetManager.get().isMockEnabled(javaClass)) {
+---
+>         } else if (manager.isMockEnabled(javaClass)) {
+42,43c42
+<         Object alternative = BeanProvider
+<                 .getContextualReference(invocationTargetManager.get().alternativeFor(javaClass));
+---
+>         Object alternative = CDI.current().select(invocationTargetManager.get().alternativeFor(javaClass)).get();

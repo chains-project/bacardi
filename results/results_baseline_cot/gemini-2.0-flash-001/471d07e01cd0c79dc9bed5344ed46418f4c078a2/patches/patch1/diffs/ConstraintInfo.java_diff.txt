@@ -1,0 +1,23 @@
+18d17
+< import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
+20d18
+< import com.google.api.services.cloudresourcemanager.model.ListConstraint;
+23a22,23
+> import com.google.cloud.resourcemanager.model.BooleanConstraint;
+> import com.google.cloud.resourcemanager.model.ListConstraint;
+115c115,118
+<       return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
+---
+>       ListConstraint listConstraint = new ListConstraint();
+>       listConstraint.setSuggestedValue(suggestedValue);
+>       listConstraint.setSupportsUnder(supportsUnder);
+>       return listConstraint;
+282c285,286
+<     builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint());
+---
+>     builder.setBooleanConstraint(
+>         (com.google.cloud.resourcemanager.model.BooleanConstraint) constraintProtobuf.getBooleanConstraint());
+287c291
+<       builder.setConstraints(Constraints.fromProtobuf(constraintProtobuf.getListConstraint()));
+---
+>       builder.setConstraints(Constraints.fromProtobuf((ListConstraint) constraintProtobuf.getListConstraint()));

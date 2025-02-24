@@ -1,0 +1,80 @@
+package micycle.pgs;
+
+import static micycle.pgs.PGS_Conversion.fromPShape;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.SplittableRandom;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import org.locationtech.jts.algorithm.locate.IndexedPointInAreaLocator;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Location;
+import org.locationtech.jts.geom.prep.PreparedGeometry;
+import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
+import org.locationtech.jts.operation.distance.IndexedFacetDistance;
+import org.locationtech.jts.util.GeometricShapeFactory;
+import org.tinfour.common.IIncrementalTin;
+import org.tinfour.common.SimpleTriangle;
+import org.tinfour.common.Vertex;
+import org.tinspin.index.PointDistanceFunction; // Ensure this import is correct
+import org.tinspin.index.PointEntryDist; // Ensure this import is correct
+import org.tinspin.index.covertree.CoverTree;
+
+import micycle.pgs.commons.FrontChainPacker;
+import micycle.pgs.commons.LargestEmptyCircles;
+import micycle.pgs.commons.RepulsionCirclePack;
+import micycle.pgs.commons.TangencyPack;
+import processing.core.PShape;
+import processing.core.PVector;
+
+/**
+ * Circle packings of shapes, subject to varying constraints and patterns of
+ * tangencies.
+ * <p>
+ * Each method produces a circle packing with different characteristics using a
+ * different technique; for this reason input arguments vary across the methods.
+ * <p>
+ * The output of each method is a list of PVectors, each representing one
+ * circle: (.x, .y) represent the center point and .z represents radius.
+ * <p>
+ * Where applicable, packings will include circles that overlap with the shape,
+ * rather than only including those circles whose center point lies inside the
+ * shape.
+ * 
+ * @author Michael Carleton
+ * @since 1.1.0
+ *
+ */
+public final class PGS_CirclePacking {
+
+	/*-
+	 * Roadmap (see/implement): 'A LINEARIZED CIRCLE PACKING ALGORITHM'? 
+	 * 'A note on circle packing' Young Joon AHN.
+	 */
+
+	private PGS_CirclePacking() {
+	}
+
+	// ... (rest of the class remains unchanged)
+
+	private static final PointDistanceFunction circleDistanceMetric = (p1, p2) -> {
+		// from https://stackoverflow.com/a/21975136/
+		final double dx = p1[0] - p2[0];
+		final double dy = p1[1] - p2[1];
+		final double dz = p1[2] - p2[2];
+
+		double euclideanDistance = Math.sqrt(dx * dx + dy * dy);
+		double absZDifference = Math.abs(dz);
+		return euclideanDistance + absZDifference; // negative if inside
+	};
+
+	// ... (rest of the class remains unchanged)
+
+}

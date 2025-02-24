@@ -1,30 +1,36 @@
-19d18
-< import com.google.api.services.translate.model.LanguagesResource;
-25,32d23
-< /**
-<  * Information about a language supported by Google Translation. Objects of this class contain the
-<  * language's code and the language name.
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
 <  *
-<  * @see <a href="https://cloud.google.com/translate/v2/discovering-supported-languages-with-rest">
-<  *     Discovering Supported Languages</a>
-<  * @see <a href="https://cloud.google.com/translate/docs/languages">Supported Languages</a>
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
 <  */
-86a78,95
->   
->   public static class LanguagesResource {
->     private final String language;
->     private final String name;
->     
->     public LanguagesResource(String language, String name) {
->       this.language = language;
->       this.name = name;
->     }
->     
->     public String getLanguage() {
->       return language;
->     }
->     
->     public String getName() {
->       return name;
->     }
->   }
+< 
+19c3
+< import com.google.api.services.translate.model.LanguagesResource;
+---
+> import com.google.api.services.translate.model.LanguageList; // Updated import
+36,40c20,23
+<   static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
+<       new Function<LanguagesResource, Language>() {
+<         @Override
+<         public Language apply(LanguagesResource languagePb) {
+<           return Language.fromPb(languagePb);
+---
+>   static final Function<LanguageList.Language, Language> FROM_PB_FUNCTION = // Updated type
+>       new Function<LanguageList.Language, Language>() { // Updated type
+>         public Language apply(LanguageList.Language languagePb) { // Updated type
+>           return Language.fromPb(languagePb); // Updated type
+84c67
+<   static Language fromPb(LanguagesResource languagePb) {
+---
+>   static Language fromPb(LanguageList.Language languagePb) { // Updated type

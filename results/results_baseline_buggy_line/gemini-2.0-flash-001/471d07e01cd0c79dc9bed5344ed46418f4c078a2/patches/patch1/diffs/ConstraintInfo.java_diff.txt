@@ -1,0 +1,38 @@
+18,20c18,20
+< import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
+< import com.google.api.services.cloudresourcemanager.model.Constraint;
+< import com.google.api.services.cloudresourcemanager.model.ListConstraint;
+---
+> import com.google.cloud.resourcemanager.v3.Constraint;
+> import com.google.cloud.resourcemanager.v3.Constraint.BooleanConstraint;
+> import com.google.cloud.resourcemanager.v3.Constraint.ListConstraint;
+115c115
+<       return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
+---
+>       return ListConstraint.newBuilder().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder).build();
+267c267,268
+<     Constraint constraintProto = new Constraint();
+---
+>     Constraint.Builder constraintProto = Constraint.newBuilder();
+>     if (booleanConstraint != null) {
+268a270,271
+>     }
+>     if (constraintDefault != null) {
+269a273,274
+>     }
+>     if (description != null) {
+270a276,277
+>     }
+>     if (displayName != null) {
+271a279
+>     }
+274a283
+>     if (name != null) {
+275a285,286
+>     }
+>     if (version != null) {
+277c288,289
+<     return constraintProto;
+---
+>     }
+>     return constraintProto.build();

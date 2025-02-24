@@ -1,0 +1,156 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+```java
+package com.github.games647.changeskin.sponge.command;
+
+import com.github.games647.changeskin.core.model.UserPreference;
+import com.github.games647.changeskin.core.model.skin.SkinModel;
+import com.github.games647.changeskin.core.shared.SkinFormatter;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.github.games647.changeskin.sponge.PomData;
+import com.google.inject.Inject;
+
+import java.util.Optional;
+import java.util.UUID;
+
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandException;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.spec.CommandExecutor;
+import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.serializer.TextSerializers;
+
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+
+    @Inject
+    private ChangeSkinSponge plugin;
+
+    @Inject
+    private SkinFormatter formatter;
+
+
+    @Override
+    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+        if (!(src instanceof Player)) {
+            plugin.sendMessage(src, "no-console");
+            return CommandResult.empty();
+        }
+
+        UUID uniqueId = ((Player) src).getUniqueId();
+        Task.builder().async()
+                .execute(() -> {
+                    UserPreference preferences = plugin.getCore().getStorage().getPreferences(uniqueId);
+                    Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).submit(plugin);
+                })
+                .submit(plugin);
+
+        return CommandResult.success();
+    }
+
+    @Override
+    public CommandSpec buildSpec() {
+        return CommandSpec.builder()
+                .executor(this)
+                .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
+                .build();
+    }
+
+    private void sendSkinDetails(UUID uuid, UserPreference preference) {
+        Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
+        if (optPlayer.isPresent()) {
+            Player player = optPlayer.get();
+
+            Optional<SkinModel> optSkin = preference.getTargetSkin();
+            if (optSkin.isPresent()) {
+                String template = plugin.getCore().getMessage("skin-info");
+                String formatted = formatter.apply(template, optSkin.get());
+
+                Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
+                player.sendMessage(text);
+            } else {
+                plugin.sendMessage(player, "skin-not-found");
+            }
+        }
+    }
+}
+
+```
+the error is triggered in the following specific lines in the previous code:
+
+```java
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+```
+```java
+import org.spongepowered.api.command.spec.CommandExecutor;
+```
+```java
+import org.spongepowered.api.text.serializer.TextSerializers;
+```
+```java
+import org.spongepowered.api.command.CommandException;
+```
+```java
+import org.spongepowered.api.text.Text;
+```
+```java
+public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+```
+```java
+import org.spongepowered.api.command.args.CommandContext;
+```
+```java
+import org.spongepowered.api.command.CommandSource;
+```
+```java
+import org.spongepowered.api.command.spec.CommandSpec;
+```
+```java
+public CommandSpec buildSpec() {
+```
+
+
+
+ with the following error information:
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/InfoCommand.java:[25,37] cannot find symbol
+
+  symbol: class CommandExecutor
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/InfoCommand.java:[18,42] package org.spongepowered.api.command.spec does not exist
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/InfoCommand.java:[23,45] package org.spongepowered.api.text.serializer does not exist
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/InfoCommand.java:[14,37] cannot find symbol
+
+  symbol:   class CommandException
+  location: package org.spongepowered.api.command
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/InfoCommand.java:[22,34] package org.spongepowered.api.text does not exist
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/InfoCommand.java:[35,34] cannot find symbol
+
+  symbol:   class CommandSource
+  location: class com.github.games647.changeskin.sponge.command.InfoCommand
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/InfoCommand.java:[17,42] package org.spongepowered.api.command.args does not exist
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/InfoCommand.java:[16,37] cannot find symbol
+
+  symbol:   class CommandSource
+  location: package org.spongepowered.api.command
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/InfoCommand.java:[19,42] package org.spongepowered.api.command.spec does not exist
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/InfoCommand.java:[53,12] cannot find symbol
+
+  symbol:   class CommandSpec
+  location: class com.github.games647.changeskin.sponge.command.InfoCommand
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

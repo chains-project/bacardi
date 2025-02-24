@@ -1,0 +1,10 @@
+10c10
+<  * copies of the Software, and to permit persons to whom the Software is
+---
+>  * copies of the Software, and to permit persons to whom the software is
+239c239,241
+<             GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).status;
+---
+>             GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
+>             GHCompare.Comparison comparison = compare.get();
+>             GHCompare.Status status = comparison.getStatus();

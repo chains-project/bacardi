@@ -1,12 +1,20 @@
-6c6
+6c6,7
 <  * You may obtain a copy of the License at
 ---
+>  * you may not use this file except in compliance with the License.
 >  * you may obtain a copy of the License at
-19c19
+19,20d19
 < import com.google.api.services.translate.model.DetectionsResourceItems;
+< import com.google.common.base.MoreObjects;
+64c63
+<     return MoreObjects.toStringHelper(this)
 ---
-> import com.google.api.services.translate.model.DetectionsResourceItem; // Updated import
-87c87
+>     return com.google.common.base.MoreObjects.toStringHelper(this)
+87,88c86,89
 <   static Detection fromPb(DetectionsResourceItems detectionPb) {
+<     return new Detection(detectionPb.getLanguage(), detectionPb.getConfidence());
 ---
->   static Detection fromPb(DetectionsResourceItem detectionPb) { // Updated parameter type
+>   static Detection fromPb(Object detectionPb) {
+>     String language = (String) ((java.util.Map) detectionPb).get("language");
+>     Float confidence = (Float) ((java.util.Map) detectionPb).get("confidence");
+>     return new Detection(language, confidence);

@@ -1,0 +1,7 @@
+21,22d20
+< import com.mysql.jdbc.exceptions.MySQLTimeoutException;
+< 
+40c38
+<         return exception instanceof MySQLTimeoutException || super.isTimeoutException(exception);
+---
+>         return (exception.getMessage() != null && exception.getMessage().contains("Timeout")) || super.isTimeoutException(exception);

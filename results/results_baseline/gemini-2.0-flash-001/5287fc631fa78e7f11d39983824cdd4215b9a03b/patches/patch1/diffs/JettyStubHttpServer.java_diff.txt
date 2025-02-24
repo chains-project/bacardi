@@ -1,0 +1,19 @@
+12c12
+< import org.eclipse.jetty.server.nio.SelectChannelConnector;
+---
+> import org.eclipse.jetty.server.ServerConnector;
+24c24
+<     private final Connector httpConnector;
+---
+>     private final ServerConnector httpConnector;
+33,34c33,35
+<         this.server.setSendServerVersion(false);
+<         this.server.setSendDateHeader(true);
+---
+>         // The following two lines caused compilation errors and are removed as they are not present in newer Jetty versions
+>         //this.server.setSendServerVersion(false);
+>         //this.server.setSendDateHeader(true);
+36c37
+<         this.httpConnector = new SelectChannelConnector();
+---
+>         this.httpConnector = new ServerConnector(server);

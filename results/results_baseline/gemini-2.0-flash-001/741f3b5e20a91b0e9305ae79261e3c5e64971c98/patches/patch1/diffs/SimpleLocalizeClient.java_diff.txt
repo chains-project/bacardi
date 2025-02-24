@@ -1,0 +1,13 @@
+2a3
+> import com.fasterxml.jackson.databind.JsonNode;
+144c145,152
+<       String message = JsonPath.using(parseContext).parse(stringBody).read(ERROR_MESSAGE_PATH);
+---
+>       String message = null;
+>       try
+>       {
+>         message = JsonPath.using(parseContext).parse(stringBody).read(ERROR_MESSAGE_PATH);
+>       } catch (Exception e)
+>       {
+>         log.warn("Failed to parse error message from response body: {}", stringBody, e);
+>       }

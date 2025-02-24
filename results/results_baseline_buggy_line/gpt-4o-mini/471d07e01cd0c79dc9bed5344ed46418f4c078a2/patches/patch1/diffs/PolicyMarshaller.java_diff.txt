@@ -17,23 +17,31 @@
 < 
 19d2
 < import com.google.api.services.cloudresourcemanager.model.Binding;
-23a7,8
-> import com.google.api.services.cloudresourcemanager.v1.model.Binding; // Updated import
-> import com.google.api.services.cloudresourcemanager.v1.model.Policy as CloudPolicy; // Updated import
-37c22
+37c20
 <     extends Marshaller<com.google.api.services.cloudresourcemanager.model.Policy> {
 ---
->     extends Marshaller<CloudPolicy> { // Updated type parameter
-54,55c39
+>     extends Marshaller<Policy> {
+54,55c37
 <   @Override
 <   protected Policy fromPb(com.google.api.services.cloudresourcemanager.model.Policy policyPb) {
 ---
->   protected Policy fromPb(CloudPolicy policyPb) { // Updated parameter type
-75,78c59,60
+>   protected Policy fromPb(com.google.cloud.resourcemanager.Policy policyPb) {
+58c40
+<       for (Binding bindingPb : policyPb.getBindings()) {
+---
+>       for (com.google.cloud.resourcemanager.Binding bindingPb : policyPb.getBindings()) {
+75,79c57,60
 <   @Override
 <   protected com.google.api.services.cloudresourcemanager.model.Policy toPb(Policy policy) {
 <     com.google.api.services.cloudresourcemanager.model.Policy policyPb =
 <         new com.google.api.services.cloudresourcemanager.model.Policy();
+<     List<Binding> bindingPbList = new LinkedList<>();
 ---
->   protected CloudPolicy toPb(Policy policy) { // Updated return type
->     CloudPolicy policyPb = new CloudPolicy(); // Updated instantiation
+>   protected com.google.cloud.resourcemanager.Policy toPb(Policy policy) {
+>     com.google.cloud.resourcemanager.Policy policyPb =
+>         new com.google.cloud.resourcemanager.Policy();
+>     List<com.google.cloud.resourcemanager.Binding> bindingPbList = new LinkedList<>();
+81c62
+<       Binding bindingPb = new Binding();
+---
+>       com.google.cloud.resourcemanager.Binding bindingPb = new com.google.cloud.resourcemanager.Binding();

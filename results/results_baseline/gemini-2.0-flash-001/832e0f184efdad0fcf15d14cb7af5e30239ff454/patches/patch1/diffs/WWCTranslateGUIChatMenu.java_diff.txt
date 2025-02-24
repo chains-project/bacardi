@@ -1,0 +1,14 @@
+71c71,74
+<                                         outgoingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+---
+>                                         XEnchantment ench = XEnchantment.matchXEnchantment("power").get();
+>                                         if (ench != null) {
+>                                                 outgoingChatMeta.addEnchant(ench.getEnchant(), 1, false);
+>                                         }
+93c96,99
+<                                 incomingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+---
+>                                 XEnchantment ench = XEnchantment.matchXEnchantment("power").get();
+>                                         if (ench != null) {
+>                                                 incomingChatMeta.addEnchant(ench.getEnchant(), 1, false);
+>                                         }

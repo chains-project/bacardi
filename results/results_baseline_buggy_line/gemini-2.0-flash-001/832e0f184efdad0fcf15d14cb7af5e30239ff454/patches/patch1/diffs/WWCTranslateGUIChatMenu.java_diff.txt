@@ -1,0 +1,16 @@
+6a7
+> import org.bukkit.enchantments.Enchantment;
+71c72,75
+<                                         outgoingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+---
+>                                         Enchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get().getEnchant();
+>                                         if (powerEnchantment != null) {
+>                                                 outgoingChatMeta.addEnchant(powerEnchantment, 1, false);
+>                                         }
+93c97,100
+<                                 incomingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+---
+>                                         Enchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get().getEnchant();
+>                                         if (powerEnchantment != null) {
+>                                                 incomingChatMeta.addEnchant(powerEnchantment, 1, false);
+>                                         }

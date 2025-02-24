@@ -5,8 +5,6 @@ import com.google.cloud.Identity;
 import com.google.cloud.Policy;
 import com.google.cloud.Policy.Marshaller;
 import com.google.cloud.Role;
-import com.google.api.services.cloudresourcemanager.v1.model.Binding; // Updated import
-import com.google.api.services.cloudresourcemanager.v1.model.Policy as CloudPolicy; // Updated import
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -20,7 +18,7 @@ import java.util.Set;
 /** @deprecated v3 GAPIC client of ResourceManager is now available */
 @Deprecated
 final class PolicyMarshaller
-    extends Marshaller<CloudPolicy> { // Updated type parameter
+    extends Marshaller<Policy> {
 
   static final PolicyMarshaller INSTANCE = new PolicyMarshaller();
 
@@ -37,10 +35,10 @@ final class PolicyMarshaller
     }
   }
 
-  protected Policy fromPb(CloudPolicy policyPb) { // Updated parameter type
+  protected Policy fromPb(com.google.cloud.resourcemanager.Policy policyPb) {
     Map<Role, Set<Identity>> bindings = new HashMap<>();
     if (policyPb.getBindings() != null) {
-      for (Binding bindingPb : policyPb.getBindings()) {
+      for (com.google.cloud.resourcemanager.Binding bindingPb : policyPb.getBindings()) {
         bindings.put(
             Role.of(bindingPb.getRole()),
             ImmutableSet.copyOf(
@@ -57,11 +55,12 @@ final class PolicyMarshaller
     return new Builder(bindings, policyPb.getEtag(), policyPb.getVersion()).build();
   }
 
-  protected CloudPolicy toPb(Policy policy) { // Updated return type
-    CloudPolicy policyPb = new CloudPolicy(); // Updated instantiation
-    List<Binding> bindingPbList = new LinkedList<>();
+  protected com.google.cloud.resourcemanager.Policy toPb(Policy policy) {
+    com.google.cloud.resourcemanager.Policy policyPb =
+        new com.google.cloud.resourcemanager.Policy();
+    List<com.google.cloud.resourcemanager.Binding> bindingPbList = new LinkedList<>();
     for (Map.Entry<Role, Set<Identity>> binding : policy.getBindings().entrySet()) {
-      Binding bindingPb = new Binding();
+      com.google.cloud.resourcemanager.Binding bindingPb = new com.google.cloud.resourcemanager.Binding();
       bindingPb.setRole(binding.getKey().getValue());
       bindingPb.setMembers(
           Lists.transform(

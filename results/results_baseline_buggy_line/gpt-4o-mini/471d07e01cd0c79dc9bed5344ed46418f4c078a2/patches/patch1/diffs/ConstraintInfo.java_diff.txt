@@ -1,69 +1,38 @@
-18d17
-< import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
-37d35
+35,38c35,37
+<   static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+<       new Function<Constraint, ConstraintInfo>() {
 <         @Override
-44d41
+<         public ConstraintInfo apply(Constraint protobuf) {
+---
+>   static final Function<com.google.api.services.cloudresourcemanager.model.Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+>       new Function<com.google.api.services.cloudresourcemanager.model.Constraint, ConstraintInfo>() {
+>         public ConstraintInfo apply(com.google.api.services.cloudresourcemanager.model.Constraint protobuf) {
+42,45c41,43
+<   static final Function<ConstraintInfo, Constraint> TO_PROTOBUF_FUNCTION =
+<       new Function<ConstraintInfo, Constraint>() {
 <         @Override
-50c47
-<   private BooleanConstraint booleanConstraint;
+<         public Constraint apply(ConstraintInfo constraintInfo) {
 ---
->   private Object booleanConstraint; // Changed to Object to avoid dependency issues
-72,75d68
-<     /**
-<      * The Google Cloud Console tries to default to a configuration that matches the value specified
-<      * in this Constraint.
-<      */
-80,83d72
-<     /**
-<      * Indicates whether subtrees of Cloud Resource Manager resource hierarchy can be used in
-<      * Policy.allowed_values and Policy.denied_values.
-<      */
-88d76
+>   static final Function<ConstraintInfo, com.google.api.services.cloudresourcemanager.model.Constraint> TO_PROTOBUF_FUNCTION =
+>       new Function<ConstraintInfo, com.google.api.services.cloudresourcemanager.model.Constraint>() {
+>         public com.google.api.services.cloudresourcemanager.model.Constraint apply(ConstraintInfo constraintInfo) {
+88d85
 <     @Override
-96d83
+96d92
 <     @Override
-101d87
+101d96
 <     @Override
-123d108
-<   /** Builder for {@code ConstraintInfo}. */
-125c110
-<     private BooleanConstraint booleanConstraint;
----
->     private Object booleanConstraint; // Changed to Object to avoid dependency issues
-147c132
-<     Builder setBooleanConstraint(BooleanConstraint booleanConstraint) {
----
->     Builder setBooleanConstraint(Object booleanConstraint) { // Changed to Object
-197,198c182
-<   /** Returns the boolean constraint to check whether the constraint is enforced or not. */
-<   public BooleanConstraint getBooleanConstraint() {
----
->   public Object getBooleanConstraint() { // Changed to Object
-202d185
-<   /** Returns the default behavior of the constraint. */
-207d189
-<   /** Returns the detailed description of the constraint. */
-212d193
-<   /** Returns the human readable name of the constraint. */
-217d197
-<   /** Returns the listConstraintInfo. */
-222d201
-<   /** Returns the globally unique name of the constraint. */
-227d205
-<   /** Returns the version of the Constraint. Default version is 0. */
-232d209
+232d226
 <   @Override
-250d226
+250d243
 <   @Override
-256d231
-<   /** Returns a builder for the {@link ConstraintInfo} object. */
-261d235
-<   /** Returns a builder for the {@link ConstraintInfo} object. */
-268c242
-<     constraintProto.setBooleanConstraint(booleanConstraint);
+266,267c259,260
+<   Constraint toProtobuf() {
+<     Constraint constraintProto = new Constraint();
 ---
->     constraintProto.setBooleanConstraint(booleanConstraint); // Changed to Object
-282c256
-<     builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint());
+>   com.google.api.services.cloudresourcemanager.model.Constraint toProtobuf() {
+>     com.google.api.services.cloudresourcemanager.model.Constraint constraintProto = new com.google.api.services.cloudresourcemanager.model.Constraint();
+280c273
+<   static ConstraintInfo fromProtobuf(Constraint constraintProtobuf) {
 ---
->     builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint()); // Changed to Object
+>   static ConstraintInfo fromProtobuf(com.google.api.services.cloudresourcemanager.model.Constraint constraintProtobuf) {
