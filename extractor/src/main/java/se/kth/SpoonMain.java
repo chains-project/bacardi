@@ -41,10 +41,6 @@ public class SpoonMain {
         JApiCmpArchive breakingArchive = new JApiCmpArchive(jarFileBreaking, "v2");
         List<JApiClass> classs = jarArchiveComparator.compare(preArchive, breakingArchive);
 
-
-        System.out.println("Class size japicompare: " + classs.size());
-
-
         JarFile jarFile = new JarFile(jarFileBreaking);
         int s = jarFile.size();
 

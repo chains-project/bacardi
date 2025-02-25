@@ -9,6 +9,7 @@ import se.kth.japicmp_analyzer.ApiChange;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -29,7 +30,7 @@ public class BasePromptApiDiffTemplate extends AbstractPromptTemplate {
             String classCode = Files.readString(Path.of(promptModel.getClassInfo()));
             return """
                     the following client code fails:
-                                        
+                    
                     ```java
                     %s
                     ```
@@ -42,6 +43,8 @@ public class BasePromptApiDiffTemplate extends AbstractPromptTemplate {
 
     @Override
     public String errorLog() {
+
+        Set<String> apiDiffUnique = new HashSet<>();
 
         String errorInformation = """
                 """;
@@ -61,15 +64,18 @@ public class BasePromptApiDiffTemplate extends AbstractPromptTemplate {
 
             Set<ApiChange> apiChangeSet = detectedFileWithErrors.getApiChanges();
 
-            System.out.println(ConstructType.getAsCausingConstructs(detectedFileWithErrors.getCodeElement()));
-
             String constructType = ConstructType.getAsCausingConstructs(detectedFileWithErrors.getCodeElement());
 
             for (ApiChange apiChange : apiChangeSet) {
 
                 String apiChangeInfo = """
-                        %s %s has been %s in the new version of the dependency.
-                        """.formatted(constructType,apiChange.getElement(), apiChange.getAction().toString());
+                             %s %s has been %s in the new version of the dependency.
+                        """.formatted(ConstructType.getConstruct(apiChange.getCategory()), apiChange.getElement(), apiChange.getAction().toString());
+
+                if (apiDiffUnique.contains(apiChangeInfo)) {
+                    continue;
+                }
+                apiDiffUnique.add(apiChangeInfo);
                 apiDiff = apiDiff.concat(apiChangeInfo);
             }
         }
@@ -96,7 +102,7 @@ public class BasePromptApiDiffTemplate extends AbstractPromptTemplate {
                  %s
                  %s
                  %s
-
+                
                  propose a patch that can be applied to the code to fix the issue.
                  Return only a complete and compilable class in a fenced code block.
                  Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.

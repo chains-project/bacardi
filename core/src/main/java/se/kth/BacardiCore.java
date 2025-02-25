@@ -236,34 +236,33 @@ public class BacardiCore {
                                         setupPipeline.getNewVersion()));
                         String prompt = generatePrompt.generatePrompt();
                         log.info("Waiting for response...");
-
                         // save the prompt to a file for each file with errors
                         try {
                             Path promptPath = storeInfo.copyContentToFile("prompts/%s_prompt.txt".formatted(fileName),
                                     prompt);
-                            String model_response = generatePrompt.callPythonScript(PYTHON_SCRIPT, promptPath);
-//                            String model_response = "response";
-                            // save model model_response to a file
-                            storeInfo.copyContentToFile("responses/%s_model_response.txt".formatted(fileName),
-                                    model_response);
-                            String onlyCodeResponse = generatePrompt.extractContentFromModelResponse(model_response);
-                            storeInfo.copyContentToFile("responses/%s_response.txt".formatted(fileName),
-                                    onlyCodeResponse);
-                            // save the updated file
-                            Path updatedFile = storeInfo.copyContentToFile("updated/%s".formatted(fileName),
-                                    onlyCodeResponse);
-                            Path target = Path.of(absolutePathToBuggyClass);
-                            Path originalFile = storeInfo.copyContentToFile("original/%s".formatted(fileName),
-                                    Files.readString(target));
-                            // execute the diff command
-                            boolean isDiff = storeInfo.executeDiffCommand(originalFile.toAbsolutePath().toString(),
-                                    updatedFile.toAbsolutePath().toString(),
-                                    storeInfo.getPatchFolder().resolve("diffs/%s_diff.txt".formatted(fileName)));
-                            isDifferent.add(isDiff);
-                            // replace original file with updated file
-                            if (isDiff) {
-                                Files.copy(updatedFile, target, StandardCopyOption.REPLACE_EXISTING);
-                            }
+//                            String model_response = generatePrompt.callPythonScript(PYTHON_SCRIPT, promptPath);
+////                            String model_response = "response";
+//                            // save model model_response to a file
+//                            storeInfo.copyContentToFile("responses/%s_model_response.txt".formatted(fileName),
+//                                    model_response);
+//                            String onlyCodeResponse = generatePrompt.extractContentFromModelResponse(model_response);
+//                            storeInfo.copyContentToFile("responses/%s_response.txt".formatted(fileName),
+//                                    onlyCodeResponse);
+//                            // save the updated file
+//                            Path updatedFile = storeInfo.copyContentToFile("updated/%s".formatted(fileName),
+//                                    onlyCodeResponse);
+//                            Path target = Path.of(absolutePathToBuggyClass);
+//                            Path originalFile = storeInfo.copyContentToFile("original/%s".formatted(fileName),
+//                                    Files.readString(target));
+//                            // execute the diff command
+//                            boolean isDiff = storeInfo.executeDiffCommand(originalFile.toAbsolutePath().toString(),
+//                                    updatedFile.toAbsolutePath().toString(),
+//                                    storeInfo.getPatchFolder().resolve("diffs/%s_diff.txt".formatted(fileName)));
+//                            isDifferent.add(isDiff);
+//                            // replace original file with updated file
+//                            if (isDiff) {
+//                                Files.copy(updatedFile, target, StandardCopyOption.REPLACE_EXISTING);
+//                            }
                         } catch (Exception e) {
                             errorModelResponse.set(true);
                             log.error("Error saving prompt to file. {}", e.getMessage());

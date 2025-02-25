@@ -95,7 +95,7 @@ public class GeneratePrompt {
             }
             int exitCode = process.waitFor();
             if (exitCode == 0) {
-                System.out.println("Script executed successfully:");
+                log.info("Script executed successfully:");
             } else {
                 System.err.println("Script failed with exit code: " + exitCode);
                 System.err.println(errors.toString());

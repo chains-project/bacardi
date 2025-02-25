@@ -120,6 +120,12 @@ public class DirectFailuresScan extends CtScanner {
     @Override
     public <T> void visitCtTypeReference(CtTypeReference<T> reference) {
 //        this.collectExecutedElements(reference.getDeclaration());
+        String fullyQualifiedName = SpoonFullyQualifiedNameExtractor.getFullyQualifiedName(reference);
+        apiChanges.stream().filter(apiChange -> apiChange.getLongName().equals(fullyQualifiedName)).forEach(apiChange -> {
+            matchedApiChanges.add(apiChange);
+            this.collectExecutedElements(reference.getDeclaration());
+            addCtElementToApiChangeMap(reference, apiChange);
+        });
         super.visitCtTypeReference(reference);
     }
 

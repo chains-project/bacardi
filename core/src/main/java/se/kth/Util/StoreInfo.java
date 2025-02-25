@@ -116,11 +116,11 @@ public class StoreInfo {
 
             // Check the exit code for success
             if (exitCode == 0) {
-                System.out.println("Files compared successfully.");
+                log.info("Files compared successfully.");
             } else if (exitCode == 1) {
-                System.out.println("Files differ. Differences saved to: " + outputFile);
+                log.info("Files differ. Differences saved to: {}", outputFile);
             } else {
-                System.err.println("Error while executing the diff command. Exit code: " + exitCode);
+                log.error("Error while executing the diff command. Exit code: {}", exitCode);
             }
             // return if the file is empty or not
             return Files.size(outputFile) > 0;

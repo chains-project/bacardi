@@ -14,10 +14,7 @@ import spoon.reflect.declaration.CtElement;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 public class SpoonConstructExtractor {
@@ -48,6 +45,10 @@ public class SpoonConstructExtractor {
 
         Set<ApiChange> apiChanges = this.japicmpAnalyzer.getAllChanges(classes);
 
+        apiChanges.forEach(apiChange -> {
+            log.info("ApiChange: {},{},{}", apiChange.getElement(), apiChange.getLongName(), apiChange.getCategory().toString());
+        });
+
         final var detectedFiles = getStringDetectedFileWithErrorsMap(classNamesJapicmp, apiChanges);
 
         return detectedFiles;
@@ -56,16 +57,13 @@ public class SpoonConstructExtractor {
     public static Path getDirectFilePath(String filePath, String projectPath) {
 
 
-        String[] partes = projectPath.split("/");
-        String nombreCarpeta = partes[partes.length - 1]; // Última parte del path
+        String[] split = projectPath.split("/");
+        String folderName = split[split.length - 1];
+        String cFile = filePath.replaceFirst("^/" + folderName, "");
 
-        // Eliminar la parte duplicada del archivo
-        String archivoLimpio = filePath.replaceFirst("^/" + nombreCarpeta, "");
+        Path absolutePath = Paths.get(projectPath, cFile);
 
-        // Construir la ruta completa
-        Path rutaCompleta = Paths.get(projectPath, archivoLimpio);
-
-        return rutaCompleta;
+        return absolutePath;
 
 
     }
@@ -96,10 +94,19 @@ public class SpoonConstructExtractor {
                     d.setErrorInfo(errorInfo);
                 });
 
+
                 if (detectedFiles.containsKey(key)) {
-                    detectedFiles.get(key).addAll(detectedElements);
+                    if (detectedElements.isEmpty()) {
+                        detectedFiles.get(key).add(new DetectedFileWithErrors(errorInfo));
+                    } else {
+                        detectedFiles.get(key).addAll(detectedElements);
+                    }
                 } else {
-                    detectedFiles.put(key, detectedElements);
+                    if (detectedElements.isEmpty()) {
+                        detectedFiles.put(key, new HashSet<>(Set.of(new DetectedFileWithErrors(errorInfo))));
+                    } else {
+                        detectedFiles.put(key, detectedElements);
+                    }
                 }
             });
         });
