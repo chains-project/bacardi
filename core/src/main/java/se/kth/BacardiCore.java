@@ -143,8 +143,7 @@ public class BacardiCore {
                     log.info("Unknown failure category.");
             }
 
-            Attempt attempt = new Attempt(attempts, failureCategory, storeInfo.getPatchFolder().toString(),
-                    failureCategory == FailureCategory.BUILD_SUCCESS);
+            Attempt attempt = new Attempt(attempts, failureCategory, storeInfo.getPatchFolder().toString(), failureCategory == FailureCategory.BUILD_SUCCESS);
 
             log.info("Attempt: {}", attempt);
             result.getAttempts().add(attempt);
@@ -175,8 +174,7 @@ public class BacardiCore {
         // failure category and create a new branch
         if (previousFailureCategory != failureCategory) {
             previousFailureCategory = failureCategory;
-            gitManager.newBranch(
-                    Constants.BRANCH_DIRECT_COMPILATION_FAILURE + "_%s".formatted(result.getAttempts().size()));
+            gitManager.newBranch(Constants.BRANCH_DIRECT_COMPILATION_FAILURE + "_%s".formatted(result.getAttempts().size()));
         }
         DockerBuild dockerBuild = setupPipeline.getDockerBuild();
         AtomicBoolean errorModelResponse = new AtomicBoolean(false);
@@ -194,14 +192,12 @@ public class BacardiCore {
         Path logFile = setupPipeline.getLogFilePath();
 
         // Repair with llm
-        RepairDirectFailures repairDirectFailures = new RepairDirectFailures(setupPipeline.getDockerBuild(),
-                setupPipeline);
+        RepairDirectFailures repairDirectFailures = new RepairDirectFailures(setupPipeline.getDockerBuild(), setupPipeline);
 
         ArrayList<Boolean> isDifferent = new ArrayList<>();
         FailureCategory category;
         try {
-            Map<String, Set<DetectedFileWithErrors>> listOfFilesWithErrors = getListOfFilesWithErrors(
-                    repairDirectFailures);
+            Map<String, Set<DetectedFileWithErrors>> listOfFilesWithErrors = getListOfFilesWithErrors(repairDirectFailures);
 
             if (listOfFilesWithErrors.isEmpty()) {
                 log.info("No constructs found in the direct compilation failure.");
@@ -230,39 +226,29 @@ public class BacardiCore {
                         String fileName = key.substring(key.lastIndexOf("/") + 1);
                         // create all structure for save information
 
-                        GeneratePrompt generatePrompt = new GeneratePrompt(promptPipeline,
-                                new PromptModel(absolutePathToBuggyClass, value, setupPipeline.getLibraryName(),
-                                        setupPipeline.getBaseVersion(),
-                                        setupPipeline.getNewVersion()));
+                        GeneratePrompt generatePrompt = new GeneratePrompt(promptPipeline, new PromptModel(absolutePathToBuggyClass, value, setupPipeline.getLibraryName(), setupPipeline.getBaseVersion(), setupPipeline.getNewVersion()));
                         String prompt = generatePrompt.generatePrompt();
                         log.info("Waiting for response...");
                         // save the prompt to a file for each file with errors
                         try {
-                            Path promptPath = storeInfo.copyContentToFile("prompts/%s_prompt.txt".formatted(fileName),
-                                    prompt);
-//                            String model_response = generatePrompt.callPythonScript(PYTHON_SCRIPT, promptPath);
-////                            String model_response = "response";
-//                            // save model model_response to a file
-//                            storeInfo.copyContentToFile("responses/%s_model_response.txt".formatted(fileName),
-//                                    model_response);
-//                            String onlyCodeResponse = generatePrompt.extractContentFromModelResponse(model_response);
-//                            storeInfo.copyContentToFile("responses/%s_response.txt".formatted(fileName),
-//                                    onlyCodeResponse);
-//                            // save the updated file
-//                            Path updatedFile = storeInfo.copyContentToFile("updated/%s".formatted(fileName),
-//                                    onlyCodeResponse);
-//                            Path target = Path.of(absolutePathToBuggyClass);
-//                            Path originalFile = storeInfo.copyContentToFile("original/%s".formatted(fileName),
-//                                    Files.readString(target));
-//                            // execute the diff command
-//                            boolean isDiff = storeInfo.executeDiffCommand(originalFile.toAbsolutePath().toString(),
-//                                    updatedFile.toAbsolutePath().toString(),
-//                                    storeInfo.getPatchFolder().resolve("diffs/%s_diff.txt".formatted(fileName)));
-//                            isDifferent.add(isDiff);
-//                            // replace original file with updated file
-//                            if (isDiff) {
-//                                Files.copy(updatedFile, target, StandardCopyOption.REPLACE_EXISTING);
-//                            }
+                            Path promptPath = storeInfo.copyContentToFile("prompts/%s_prompt.txt".formatted(fileName), prompt);
+                            String model_response = generatePrompt.callPythonScript(PYTHON_SCRIPT, promptPath);
+//                            String model_response = "response";
+                            // save model model_response to a file
+                            storeInfo.copyContentToFile("responses/%s_model_response.txt".formatted(fileName), model_response);
+                            String onlyCodeResponse = generatePrompt.extractContentFromModelResponse(model_response);
+                            storeInfo.copyContentToFile("responses/%s_response.txt".formatted(fileName), onlyCodeResponse);
+                            // save the updated file
+                            Path updatedFile = storeInfo.copyContentToFile("updated/%s".formatted(fileName), onlyCodeResponse);
+                            Path target = Path.of(absolutePathToBuggyClass);
+                            Path originalFile = storeInfo.copyContentToFile("original/%s".formatted(fileName), Files.readString(target));
+                            // execute the diff command
+                            boolean isDiff = storeInfo.executeDiffCommand(originalFile.toAbsolutePath().toString(), updatedFile.toAbsolutePath().toString(), storeInfo.getPatchFolder().resolve("diffs/%s_diff.txt".formatted(fileName)));
+                            isDifferent.add(isDiff);
+                            // replace original file with updated file
+                            if (isDiff) {
+                                Files.copy(updatedFile, target, StandardCopyOption.REPLACE_EXISTING);
+                            }
                         } catch (Exception e) {
                             errorModelResponse.set(true);
                             log.error("Error saving prompt to file. {}", e.getMessage());
@@ -275,26 +261,20 @@ public class BacardiCore {
                 }
 
                 if (isDifferent.contains(true)) {
-                    gitManager.commitAllChanges(
-                            "Direct compilation failure repair attempt %s".formatted(result.getAttempts().size()));
+                    gitManager.commitAllChanges("Direct compilation failure repair attempt %s".formatted(result.getAttempts().size()));
                     // copy the file to docker image
                     try {
-                        String dockerImage = dockerBuild.copyFolderToDockerImage(setupPipeline.getDockerImage(),
-                                setupPipeline.getClientFolder().toString());
+                        String dockerImage = dockerBuild.copyFolderToDockerImage(setupPipeline.getDockerImage(), setupPipeline.getClientFolder().toString());
                         setupPipeline.setDockerImage(dockerImage);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
 //                     reproduce the build
                     Path logFilePath = storeInfo.getPatchFolder().resolve("output.log");
-                    dockerBuild.reproduce(setupPipeline.getDockerImage(), FailureCategory.COMPILATION_FAILURE,
-                            setupPipeline.getClientFolder(), logFilePath);
+                    dockerBuild.reproduce(setupPipeline.getDockerImage(), FailureCategory.COMPILATION_FAILURE, setupPipeline.getClientFolder(), logFilePath);
                     setupPipeline.setLogFilePath(logFilePath);
-                    RepairDirectFailures rebuildDirectFailures = new RepairDirectFailures(
-                            setupPipeline.getDockerBuild(),
-                            setupPipeline);
-                    Map<String, Set<DetectedFileWithErrors>> listOfPostFixFilesWithErrors = getListOfFilesWithErrors(
-                            rebuildDirectFailures);
+                    RepairDirectFailures rebuildDirectFailures = new RepairDirectFailures(setupPipeline.getDockerBuild(), setupPipeline);
+                    Map<String, Set<DetectedFileWithErrors>> listOfPostFixFilesWithErrors = getListOfFilesWithErrors(rebuildDirectFailures);
                     StoreInfo postFixstoreInfo = new StoreInfo(setupPipeline, storeInfo.getPatchFolder());
                     postFixstoreInfo.storeFilesErrors("postfix", listOfPostFixFilesWithErrors);
 
@@ -315,9 +295,7 @@ public class BacardiCore {
 
     }
 
-    public Map<String, Set<DetectedFileWithErrors>> getListOfFilesWithErrors(RepairDirectFailures
-                                                                                     repairDirectFailures)
-            throws IOException {
+    public Map<String, Set<DetectedFileWithErrors>> getListOfFilesWithErrors(RepairDirectFailures repairDirectFailures) throws IOException {
 
         PromptPipeline promptPipeLine = PIPELINE;
 
@@ -334,18 +312,15 @@ public class BacardiCore {
         // Create a branch for the java version incompatibility repair
         gitManager.newBranch(Constants.BRANCH_JAVA_VERSION_INCOMPATIBILITY);
 
-        JavaVersionInformation javaVersionInformation = new JavaVersionInformation(
-                setupPipeline.getLogFilePath().toFile());
-        JavaVersionInfo javaVersionInfo = javaVersionInformation.analyse(setupPipeline.getLogFilePath().toString(),
-                project.toAbsolutePath().toString());
+        JavaVersionInformation javaVersionInformation = new JavaVersionInformation(setupPipeline.getLogFilePath().toFile());
+        JavaVersionInfo javaVersionInfo = javaVersionInformation.analyse(setupPipeline.getLogFilePath().toString(), project.toAbsolutePath().toString());
 
         JavaVersionIncompatibility incompatibility = javaVersionInfo.getIncompatibility();
         String newJavaVersion = javaVersionInfo.getIncompatibility().mapVersions(incompatibility.wrongVersion());
 
         LogUtils.logWithBox(log, "Starting Java version incompatibility repair.");
 
-        RepairJavaVersionIncompatibility repairJavaVersionIncompatibility = new RepairJavaVersionIncompatibility(
-                javaVersionInfo, project, isBump);
+        RepairJavaVersionIncompatibility repairJavaVersionIncompatibility = new RepairJavaVersionIncompatibility(javaVersionInfo, project, isBump);
 
         actualImage = repairJavaVersionIncompatibility.repair(setupPipeline);
         setupPipeline.setDockerImage(actualImage);
@@ -396,8 +371,7 @@ public class BacardiCore {
 
             WerrorInfo werrorInfo = werrorInformation.analyzeWerror(setupPipeline.getClientFolder().toString());
 
-            RepairWError repairWError = new RepairWError(project, isBump, setupPipeline.getDockerImage(),
-                    setupPipeline);
+            RepairWError repairWError = new RepairWError(project, isBump, setupPipeline.getDockerImage(), setupPipeline);
 
             if (repairWError.isWerrorJavaVersionIncompatibilityError(logFile.toAbsolutePath().toString())) {
                 // find all pom files with werror
