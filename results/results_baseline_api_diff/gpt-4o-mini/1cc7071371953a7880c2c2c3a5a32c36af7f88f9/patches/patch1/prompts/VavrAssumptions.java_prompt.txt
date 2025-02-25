@@ -1,0 +1,714 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+
+```java
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ *
+ * Copyright 2017-2022 the original author or authors.
+ */
+package org.assertj.vavr.api;
+
+import io.vavr.Lazy;
+import io.vavr.collection.Map;
+import io.vavr.collection.Multimap;
+import io.vavr.collection.Seq;
+import io.vavr.collection.Set;
+import io.vavr.control.Either;
+import io.vavr.control.Option;
+import io.vavr.control.Try;
+import io.vavr.control.Validation;
+import org.assertj.core.internal.bytebuddy.ByteBuddy;
+import org.assertj.core.internal.bytebuddy.TypeCache;
+import org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey;
+import org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeValidation;
+import org.assertj.core.internal.bytebuddy.implementation.Implementation;
+import org.assertj.core.internal.bytebuddy.implementation.MethodDelegation;
+import org.assertj.core.internal.bytebuddy.implementation.auxiliary.AuxiliaryType;
+import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.RuntimeType;
+import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall;
+import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This;
+import org.assertj.core.util.CheckReturnValue;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.Callable;
+
+import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any;
+import static org.assertj.core.util.Arrays.array;
+import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrategy;
+
+public class VavrAssumptions {
+
+    /**
+     * This NamingStrategy takes the original class's name and adds a suffix to distinguish it.
+     * The default is ByteBuddy but for debugging purposes, it makes sense to add AssertJ as a name.
+     */
+    private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(TypeValidation.DISABLED)
+            .with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
+
+    private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
+
+    private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
+
+    private static final class AssumptionMethodInterceptor {
+
+        @RuntimeType
+        public static Object intercept(@This AbstractVavrAssert<?, ?> assertion, @SuperCall Callable<Object> proxy) throws Exception {
+            try {
+                Object result = proxy.call();
+                if (result != assertion && result instanceof AbstractVavrAssert) {
+                    final AbstractVavrAssert<?, ?> assumption = asAssumption((AbstractVavrAssert<?, ?>) result);
+                    return assumption.withAssertionState(assertion);
+                }
+                return result;
+            } catch (AssertionError e) {
+                throw assumptionNotMet(e);
+            }
+        }
+    }
+
+    /**
+     * Creates a new instance of <code>{@link EitherAssert}</code> assumption.
+     *
+     * @param <LEFT>  type of the left value contained in the {@link Either}.
+     * @param <RIGHT> type of the right value contained in the {@link Either}.
+     * @param actual  the actual value.
+     * @return the created assumption for assertion object.
+     */
+    @CheckReturnValue
+    @SuppressWarnings("unchecked")
+    public static <LEFT, RIGHT> EitherAssert<LEFT, RIGHT> assumeThat(Either<LEFT, RIGHT> actual) {
+        return asAssumption(EitherAssert.class, Either.class, actual);
+    }
+
+    /**
+     * Creates a new instance of <code>{@link LazyAssert}</code> assumption.
+     *
+     * @param <VALUE>    type of the value contained in the {@link Lazy}.
+     * @param actual the actual value.
+     * @return the created assumption for assertion object.
+     */
+    @CheckReturnValue
+    @SuppressWarnings("unchecked")
+    public static <VALUE> LazyAssert<VALUE> assumeThat(Lazy<VALUE> actual) {
+        return asAssumption(LazyAssert.class, Lazy.class, actual);
+    }
+
+    /**
+     * Creates a new instance of <code>{@link MapAssert}</code> assumption.
+     *
+     * @param <K>    the type of keys in the map.
+     * @param <V>    the type of values in the map.
+     * @param actual the actual value.
+     * @return the created assumption for assertion object.
+     */
+    @CheckReturnValue
+    @SuppressWarnings("unchecked")
+    public static <K, V> MapAssert<K, V> assumeThat(Map<K, V> actual) {
+        return asAssumption(MapAssert.class, Map.class, actual);
+    }
+
+    /**
+     * Creates a new instance of <code>{@link MultimapAssert}</code> assumption.
+     *
+     * @param <K>    the type of keys in the multimap.
+     * @param <V>    the type of values in the multimap.
+     * @param actual the actual value.
+     * @return the created assumption for assertion object.
+     */
+    @CheckReturnValue
+    @SuppressWarnings("unchecked")
+    public static <K, V> MultimapAssert<K, V> assumeThat(Multimap<K, V> actual) {
+        return asAssumption(MultimapAssert.class, Multimap.class, actual);
+    }
+
+    /**
+     * Creates a new instance of <code>{@link OptionAssert}</code> assumption.
+     *
+     * @param <VALUE> type of the value contained in the {@link Option}.
+     * @param actual  the actual value.
+     * @return the created assumption for assertion object.
+     */
+    @CheckReturnValue
+    @SuppressWarnings("unchecked")
+    public static <VALUE> OptionAssert<VALUE> assumeThat(Option<VALUE> actual) {
+        return asAssumption(OptionAssert.class, Option.class, actual);
+    }
+
+    /**
+     * Creates a new instance of <code>{@link SetAssert}</code> assumption.
+     *
+     * @param <ELEMENT> type of elements contained in the {@link Set}.
+     * @param actual  the actual value.
+     * @return the created assumption for assertion object.
+     */
+    @CheckReturnValue
+    @SuppressWarnings("unchecked")
+    public static <ELEMENT> SetAssert<ELEMENT> assumeThat(Set<ELEMENT> actual) {
+        return asAssumption(SetAssert.class, Set.class, actual);
+    }
+
+    /**
+     * Creates a new instance of <code>{@link SeqAssert}</code> assumption.
+     *
+     * @param <ELEMENT> type of elements contained in the {@link Seq}.
+     * @param actual  the actual value.
+     * @return the created assumption for assertion object.
+     */
+    @CheckReturnValue
+    @SuppressWarnings("unchecked")
+    public static <ELEMENT> SeqAssert<ELEMENT> assumeThat(Seq<ELEMENT> actual) {
+        return asAssumption(SeqAssert.class, Seq.class, actual);
+    }
+
+    /**
+     * Creates a new instance of <code>{@link TryAssert}</code> assumption.
+     *
+     * @param <VALUE> type of the value contained in the {@link io.vavr.control.Try}.
+     * @param actual    the actual value.
+     * @return the created assumption for assertion object.
+     */
+    @CheckReturnValue
+    @SuppressWarnings("unchecked")
+    public static <VALUE> TryAssert<VALUE> assumeThat(Try<VALUE> actual) {
+        return asAssumption(TryAssert.class, Try.class, actual);
+    }
+
+    /**
+     * Creates a new instance of <code>{@link ValidationAssert}</code> assumption.
+     *
+     * @param <INVALID> type of the value in the case of the invalid {@link Validation}.
+     * @param <VALID>   type of the value in the case of the valid {@link Validation}.
+     * @param actual  the actual value.
+     * @return the created assumption for assertion object.
+     */
+    @CheckReturnValue
+    @SuppressWarnings("unchecked")
+    public static <INVALID, VALID> ValidationAssert<INVALID, VALID> assumeThat(Validation<INVALID, VALID> actual) {
+        return asAssumption(ValidationAssert.class, Validation.class, actual);
+    }
+
+    private static <ASSERTION, ACTUAL> ASSERTION asAssumption(Class<ASSERTION> assertionType,
+                                                              Class<ACTUAL> actualType,
+                                                              Object actual) {
+        return asAssumption(assertionType, array(actualType), array(actual));
+    }
+
+    private static <ASSERTION> ASSERTION asAssumption(Class<ASSERTION> assertionType,
+                                                      Class<?>[] constructorTypes,
+                                                      Object... constructorParams) {
+        try {
+            Class<? extends ASSERTION> type = createAssumptionClass(assertionType);
+            Constructor<? extends ASSERTION> constructor = type.getConstructor(constructorTypes);
+            return constructor.newInstance(constructorParams);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            throw new RuntimeException("Cannot create assumption instance", e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass) {
+        SimpleKey cacheKey = new SimpleKey(assertClass);
+        return (Class<ASSERTION>) CACHE.findOrInsert(VavrAssumptions.class.getClassLoader(),
+                cacheKey,
+                () -> generateAssumptionClass(assertClass));
+    }
+
+    private static <ASSERTION> Class<? extends ASSERTION> generateAssumptionClass(Class<ASSERTION> assertionType) {
+        return BYTE_BUDDY.subclass(assertionType)
+                .method(any())
+                .intercept(ASSUMPTION)
+                .make()
+                .load(VavrAssumptions.class.getClassLoader(), classLoadingStrategy(assertionType))
+                .getLoaded();
+    }
+
+    private static RuntimeException assumptionNotMet(AssertionError assertionError) throws ReflectiveOperationException {
+        Class<?> assumptionClass = getAssumptionClass("org.junit.AssumptionViolatedException");
+        if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
+
+        assumptionClass = getAssumptionClass("org.opentest4j.TestAbortedException");
+        if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
+
+        assumptionClass = getAssumptionClass("org.testng.SkipException");
+        if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
+
+        throw new IllegalStateException("Assumptions require JUnit, opentest4j or TestNG on the classpath");
+    }
+
+    private static Class<?> getAssumptionClass(String className) {
+        try {
+            return Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+    }
+
+    private static RuntimeException assumptionNotMet(Class<?> exceptionClass,
+                                                     AssertionError e) throws ReflectiveOperationException {
+        return (RuntimeException) exceptionClass.getConstructor(String.class, Throwable.class)
+                .newInstance("assumption was not met due to: " + e.getMessage(), e);
+    }
+
+    // for method that change the object under test (e.g. extracting)
+    private static AbstractVavrAssert<?, ?> asAssumption(AbstractVavrAssert<?, ?> assertion) {
+        // @format:off
+        Object actual = assertion.actual();
+        if (assertion instanceof LazyAssert) return asAssumption(LazyAssert.class, Lazy.class, actual);
+        if (assertion instanceof EitherAssert) return asAssumption(EitherAssert.class, Either.class, actual);
+        if (assertion instanceof MapAssert) return asAssumption(MapAssert.class, Map.class, actual);
+        if (assertion instanceof OptionAssert) return asAssumption(OptionAssert.class, Option.class, actual);
+        if (assertion instanceof SeqAssert) return asAssumption(SeqAssert.class, Seq.class, actual);
+        if (assertion instanceof TryAssert) return asAssumption(TryAssert.class, Try.class, actual);
+        if (assertion instanceof ValidationAssert) return asAssumption(ValidationAssert.class, Validation.class, actual);
+        // @format:on
+        // should not arrive here
+        throw new IllegalArgumentException("Unsupported assumption creation for " + assertion.getClass());
+    }
+
+}
+
+```
+
+ with the following error information:
+[ERROR] /assertj-vavr/src/main/java/org/assertj/vavr/api/VavrAssumptions.java:[223,25] cannot find symbol
+  symbol:   method any()
+  location: class org.assertj.vavr.api.VavrAssumptions
+
+[ERROR] /assertj-vavr/src/main/java/org/assertj/vavr/api/VavrAssumptions.java:[51,51] package AuxiliaryType.NamingStrategy does not exist
+
+[ERROR] /assertj-vavr/src/main/java/org/assertj/vavr/api/VavrAssumptions.java:[223,25] cannot find symbol
+  symbol:   method any()
+  location: class org.assertj.vavr.api.VavrAssumptions
+
+[ERROR] /assertj-vavr/src/main/java/org/assertj/vavr/api/VavrAssumptions.java:[53,26] cannot find symbol
+  symbol:   class Implementation
+  location: class org.assertj.vavr.api.VavrAssumptions
+
+[ERROR] /assertj-vavr/src/main/java/org/assertj/vavr/api/VavrAssumptions.java:[50,26] cannot find symbol
+  symbol:   class ByteBuddy
+  location: class org.assertj.vavr.api.VavrAssumptions
+
+[ERROR] /assertj-vavr/src/main/java/org/assertj/vavr/api/VavrAssumptions.java:[50,26] cannot find symbol
+  symbol:   class ByteBuddy
+  location: class org.assertj.vavr.api.VavrAssumptions
+
+[ERROR] /assertj-vavr/src/main/java/org/assertj/vavr/api/VavrAssumptions.java:[40,58] package org.assertj.core.internal.bytebuddy.matcher does not exist
+
+
+The error is caused by a change in the API of the dependency. The new library version includes the following changes:
+Method org.assertj.core.internal.bytebuddy.asm.AsmVisitorWrapper$ForDeclaredMethods.method(org.assertj.core.internal.bytebuddy.matcher.ElementMatcher,org.assertj.core.internal.bytebuddy.asm.AsmVisitorWrapper$ForDeclaredMethods$MethodVisitorWrapper[]) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.DynamicType$Builder.method(org.assertj.core.internal.bytebuddy.matcher.ElementMatcher) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.DynamicType$Builder$AbstractBase.method(org.assertj.core.internal.bytebuddy.matcher.ElementMatcher) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.MemberSubstitution.method(org.assertj.core.internal.bytebuddy.matcher.ElementMatcher) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.AsmVisitorWrapper$ForDeclaredMethods.method(org.assertj.core.internal.bytebuddy.matcher.ElementMatcher,java.util.List) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Transformer$ForAdvice.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$PoolStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.ByteBuddy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice$AssignReturned$Factory.with(org.assertj.core.internal.bytebuddy.asm.Advice$AssignReturned$Handler$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Listener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.ByteBuddy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Configurable.with(java.security.ProtectionDomain) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Factory$UsingReflection.with(java.util.List) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$CircularityLock) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Redefining.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy$Listener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InjectionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.FieldAccessor$FieldLocation$Absolute.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.FieldLocator$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine.with(org.assertj.core.internal.bytebuddy.ByteBuddy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$PoolStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default.with(java.security.ProtectionDomain) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$DescriptionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$FallbackStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.ClassWriterStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InstallationListener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Transformer$ForAdvice.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$LocationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$DescriptionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$TypeStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.Implementation$Context$Default$AccessorMethodDelegation.with(org.assertj.core.internal.bytebuddy.implementation.MethodAccessorFactory$AccessType) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$TransformerDecorator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(org.assertj.core.internal.bytebuddy.implementation.bytecode.StackManipulation,java.lang.reflect.Type) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Listener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Factory$UsingReflection.with(org.assertj.core.internal.bytebuddy.build.Plugin$Factory$UsingReflection$ArgumentResolver[]) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(org.assertj.core.internal.bytebuddy.description.enumeration.EnumerationDescription[]) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(org.assertj.core.internal.bytebuddy.description.type.TypeDescription[]) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InstallationListener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Default.with(org.assertj.core.internal.bytebuddy.ByteBuddy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$PoolStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Dispatcher$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.MemberSubstitution$Substitution$Chain.with(org.assertj.core.internal.bytebuddy.implementation.bytecode.assign.Assigner,org.assertj.core.internal.bytebuddy.implementation.bytecode.assign.Assigner$Typing) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.MemberSubstitution.with(org.assertj.core.internal.bytebuddy.asm.MemberSubstitution$TypePoolResolver) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$ClassFileBufferStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InitializationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionListenable$WithoutBatchStrategy.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy$BatchAllocator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.implementation.attribute.AnnotationValueFilter$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Default.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$TypeStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$ClassFileBufferStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$WarmupStrategy.with(java.util.Collection) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default$InjectionDispatcher.with(java.security.ProtectionDomain) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Redefining.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy$DiscoveryStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.ByteBuddy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(java.lang.Object[]) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default$InjectionDispatcher.with(org.assertj.core.internal.bytebuddy.dynamic.loading.PackageDefinitionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$TransformerDecorator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(org.assertj.core.internal.bytebuddy.implementation.bytecode.StackManipulation,org.assertj.core.internal.bytebuddy.description.type.TypeDefinition) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.ClassFileVersion) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.Implementation$Context$Default$FieldSetterDelegation.with(org.assertj.core.internal.bytebuddy.implementation.MethodAccessorFactory$AccessType) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice$AssignReturned$Factory.with(java.lang.Class,java.util.List) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$FallbackStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine.with(org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$WarmupStrategy$NoOp.with(java.util.Collection) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(java.util.List) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$LocationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$FallbackStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Redefining.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy$BatchAllocator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$CircularityLock) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$LocationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$TransformerDecorator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default.with(org.assertj.core.internal.bytebuddy.dynamic.loading.PackageDefinitionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy$Default.with(org.assertj.core.internal.bytebuddy.implementation.attribute.MethodAttributeAppender$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$WarmupStrategy$Enabled.with(java.util.Collection) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Listener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice$AssignReturned$Factory.with(java.lang.Class,org.assertj.core.internal.bytebuddy.asm.Advice$AssignReturned$Handler[]) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.implementation.auxiliary.AuxiliaryType$NamingStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionListenable.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy$Listener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.dynamic.VisibilityBridgeStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.FieldAccessor$FieldLocation$Relative.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.FieldLocator$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Listener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.FieldAccessor$FieldLocation.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.FieldLocator$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$CircularityLock) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$PoolStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$TypeStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice$WithCustomMapping.with(org.assertj.core.internal.bytebuddy.asm.Advice$PostProcessor$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InjectionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.Implementation$Context$Default$DelegationRecord.with(org.assertj.core.internal.bytebuddy.implementation.MethodAccessorFactory$AccessType) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$DescriptionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$LambdaInstrumentationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default$WrappingDispatcher.with(org.assertj.core.internal.bytebuddy.dynamic.loading.PackageDefinitionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InitializationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeValidation) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.MemberSubstitution.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$LocationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Default.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Listener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$LambdaInstrumentationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$TypeStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Default.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Dispatcher$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InjectionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$PoolStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.Implementation$Context$Default$FieldGetterDelegation.with(org.assertj.core.internal.bytebuddy.implementation.MethodAccessorFactory$AccessType) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$ClassFileBufferStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Default.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$PoolStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.implementation.attribute.AnnotationRetention) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionListenable$WithImplicitDiscoveryStrategy.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy$DiscoveryStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$LambdaInstrumentationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.NamingStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Default.with(org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default$WrappingDispatcher.with(java.security.ProtectionDomain) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.implementation.Implementation$Context$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InitializationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(org.assertj.core.internal.bytebuddy.utility.JavaConstant[]) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InstallationListener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Configurable.with(org.assertj.core.internal.bytebuddy.dynamic.loading.PackageDefinitionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(org.assertj.core.internal.bytebuddy.implementation.MethodCall$ArgumentLoader$Factory[]) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.InstrumentedType$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$TypeStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Transformer$ForAdvice.with(org.assertj.core.internal.bytebuddy.implementation.bytecode.assign.Assigner) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any() has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation.to(java.lang.Object,org.assertj.core.internal.bytebuddy.description.type.TypeDefinition) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation$WithCustomProperties.to(java.lang.Object,org.assertj.core.internal.bytebuddy.description.type.TypeDefinition,org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation.to(java.lang.Object,java.lang.reflect.Type,java.lang.String,org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice.to(java.lang.Class,java.lang.Class,org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice$WithCustomMapping.to(java.lang.Class) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation.to(java.lang.Object,java.lang.reflect.Type,java.lang.String) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation$WithCustomProperties.to(java.lang.Object,org.assertj.core.internal.bytebuddy.description.type.TypeDefinition,java.lang.String) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice$WithCustomMapping.to(org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice$WithCustomMapping.to(java.lang.Class,java.lang.Class,org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice$WithCustomMapping.to(org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.description.type.TypeDescription) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.bytecode.assign.TypeCasting.to(org.assertj.core.internal.bytebuddy.description.type.TypeDefinition) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation$WithCustomProperties.to(java.lang.Object,java.lang.reflect.Type,java.lang.String) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice.to(org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.asm.Advice$PostProcessor$Factory,org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator,java.util.List,org.assertj.core.internal.bytebuddy.asm.Advice$Delegator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation.to(java.lang.Object) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation$WithCustomProperties.to(org.assertj.core.internal.bytebuddy.description.type.TypeDescription) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation.to(java.lang.Object,org.assertj.core.internal.bytebuddy.description.type.TypeDefinition,java.lang.String) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation.to(java.lang.Object,org.assertj.core.internal.bytebuddy.description.type.TypeDefinition,java.lang.String,org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation.to(org.assertj.core.internal.bytebuddy.description.type.TypeDescription) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice.to(java.lang.Class) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation$WithCustomProperties.to(java.lang.Object) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation$WithCustomProperties.to(java.lang.Object,java.lang.reflect.Type,java.lang.String,org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation$WithCustomProperties.to(java.lang.Object,java.lang.reflect.Type,org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice.to(org.assertj.core.internal.bytebuddy.description.type.TypeDescription) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice.to(org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.asm.Advice$PostProcessor$Factory,org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator,java.util.List,org.assertj.core.internal.bytebuddy.asm.Advice$Delegator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice.to(org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation$WithCustomProperties.to(java.lang.Object,java.lang.reflect.Type) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation.to(java.lang.Class) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation.to(java.lang.Object,java.lang.reflect.Type) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice.to(org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation$WithCustomProperties.to(java.lang.Object,org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice$WithCustomMapping.to(java.lang.Class,org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation.to(java.lang.Object,java.lang.reflect.Type,org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation.to(java.lang.Object,java.lang.String) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation$WithCustomProperties.to(java.lang.Object,java.lang.String,org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation.to(java.lang.Object,org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation$WithCustomProperties.to(java.lang.Class) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation.to(java.lang.Object,java.lang.String,org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice.to(org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.description.type.TypeDescription) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice.to(java.lang.Class,java.lang.Class) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation$WithCustomProperties.to(java.lang.Object,java.lang.String) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation$WithCustomProperties.to(java.lang.Object,org.assertj.core.internal.bytebuddy.description.type.TypeDefinition) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice.to(java.lang.Class,org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice$WithCustomMapping.to(org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation.to(java.lang.Object,org.assertj.core.internal.bytebuddy.description.type.TypeDefinition,org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation$WithCustomProperties.to(java.lang.Object,org.assertj.core.internal.bytebuddy.description.type.TypeDefinition,java.lang.String,org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice$WithCustomMapping.to(java.lang.Class,java.lang.Class) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Transformer$ForAdvice.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$PoolStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.ByteBuddy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice$AssignReturned$Factory.with(org.assertj.core.internal.bytebuddy.asm.Advice$AssignReturned$Handler$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Listener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.ByteBuddy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Configurable.with(java.security.ProtectionDomain) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Factory$UsingReflection.with(java.util.List) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$CircularityLock) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Redefining.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy$Listener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InjectionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.FieldAccessor$FieldLocation$Absolute.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.FieldLocator$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine.with(org.assertj.core.internal.bytebuddy.ByteBuddy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$PoolStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default.with(java.security.ProtectionDomain) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$DescriptionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$FallbackStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.ClassWriterStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InstallationListener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Transformer$ForAdvice.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$LocationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$DescriptionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$TypeStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.Implementation$Context$Default$AccessorMethodDelegation.with(org.assertj.core.internal.bytebuddy.implementation.MethodAccessorFactory$AccessType) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$TransformerDecorator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(org.assertj.core.internal.bytebuddy.implementation.bytecode.StackManipulation,java.lang.reflect.Type) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Listener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Factory$UsingReflection.with(org.assertj.core.internal.bytebuddy.build.Plugin$Factory$UsingReflection$ArgumentResolver[]) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(org.assertj.core.internal.bytebuddy.description.enumeration.EnumerationDescription[]) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(org.assertj.core.internal.bytebuddy.description.type.TypeDescription[]) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InstallationListener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Default.with(org.assertj.core.internal.bytebuddy.ByteBuddy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$PoolStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Dispatcher$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.MemberSubstitution$Substitution$Chain.with(org.assertj.core.internal.bytebuddy.implementation.bytecode.assign.Assigner,org.assertj.core.internal.bytebuddy.implementation.bytecode.assign.Assigner$Typing) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.MemberSubstitution.with(org.assertj.core.internal.bytebuddy.asm.MemberSubstitution$TypePoolResolver) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$ClassFileBufferStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InitializationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionListenable$WithoutBatchStrategy.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy$BatchAllocator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.implementation.attribute.AnnotationValueFilter$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Default.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$TypeStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$ClassFileBufferStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$WarmupStrategy.with(java.util.Collection) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default$InjectionDispatcher.with(java.security.ProtectionDomain) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Redefining.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy$DiscoveryStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.ByteBuddy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(java.lang.Object[]) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default$InjectionDispatcher.with(org.assertj.core.internal.bytebuddy.dynamic.loading.PackageDefinitionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$TransformerDecorator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(org.assertj.core.internal.bytebuddy.implementation.bytecode.StackManipulation,org.assertj.core.internal.bytebuddy.description.type.TypeDefinition) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.ClassFileVersion) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.Implementation$Context$Default$FieldSetterDelegation.with(org.assertj.core.internal.bytebuddy.implementation.MethodAccessorFactory$AccessType) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice$AssignReturned$Factory.with(java.lang.Class,java.util.List) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$FallbackStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine.with(org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$WarmupStrategy$NoOp.with(java.util.Collection) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(java.util.List) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$LocationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$FallbackStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Redefining.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy$BatchAllocator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$CircularityLock) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$LocationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$TransformerDecorator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default.with(org.assertj.core.internal.bytebuddy.dynamic.loading.PackageDefinitionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy$Default.with(org.assertj.core.internal.bytebuddy.implementation.attribute.MethodAttributeAppender$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$WarmupStrategy$Enabled.with(java.util.Collection) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Listener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice$AssignReturned$Factory.with(java.lang.Class,org.assertj.core.internal.bytebuddy.asm.Advice$AssignReturned$Handler[]) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.implementation.auxiliary.AuxiliaryType$NamingStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionListenable.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy$Listener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.dynamic.VisibilityBridgeStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.FieldAccessor$FieldLocation$Relative.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.FieldLocator$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Listener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.FieldAccessor$FieldLocation.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.FieldLocator$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$CircularityLock) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$PoolStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$TypeStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice$WithCustomMapping.with(org.assertj.core.internal.bytebuddy.asm.Advice$PostProcessor$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InjectionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.Implementation$Context$Default$DelegationRecord.with(org.assertj.core.internal.bytebuddy.implementation.MethodAccessorFactory$AccessType) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$DescriptionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$LambdaInstrumentationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default$WrappingDispatcher.with(org.assertj.core.internal.bytebuddy.dynamic.loading.PackageDefinitionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InitializationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeValidation) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.MemberSubstitution.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$LocationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Default.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Listener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$LambdaInstrumentationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$TypeStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Default.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Dispatcher$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InjectionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$PoolStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.Implementation$Context$Default$FieldGetterDelegation.with(org.assertj.core.internal.bytebuddy.implementation.MethodAccessorFactory$AccessType) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$ClassFileBufferStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Default.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$PoolStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.implementation.attribute.AnnotationRetention) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionListenable$WithImplicitDiscoveryStrategy.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy$DiscoveryStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$LambdaInstrumentationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.NamingStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Default.with(org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default$WrappingDispatcher.with(java.security.ProtectionDomain) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.implementation.Implementation$Context$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InitializationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(org.assertj.core.internal.bytebuddy.utility.JavaConstant[]) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InstallationListener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Configurable.with(org.assertj.core.internal.bytebuddy.dynamic.loading.PackageDefinitionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(org.assertj.core.internal.bytebuddy.implementation.MethodCall$ArgumentLoader$Factory[]) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.InstrumentedType$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$TypeStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Transformer$ForAdvice.with(org.assertj.core.internal.bytebuddy.implementation.bytecode.assign.Assigner) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Transformer$ForAdvice.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$PoolStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.ByteBuddy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice$AssignReturned$Factory.with(org.assertj.core.internal.bytebuddy.asm.Advice$AssignReturned$Handler$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Listener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.ByteBuddy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Configurable.with(java.security.ProtectionDomain) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Factory$UsingReflection.with(java.util.List) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$CircularityLock) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Redefining.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy$Listener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InjectionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.FieldAccessor$FieldLocation$Absolute.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.FieldLocator$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine.with(org.assertj.core.internal.bytebuddy.ByteBuddy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$PoolStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default.with(java.security.ProtectionDomain) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$DescriptionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$FallbackStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.ClassWriterStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InstallationListener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Transformer$ForAdvice.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$LocationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$DescriptionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$TypeStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.Implementation$Context$Default$AccessorMethodDelegation.with(org.assertj.core.internal.bytebuddy.implementation.MethodAccessorFactory$AccessType) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$TransformerDecorator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(org.assertj.core.internal.bytebuddy.implementation.bytecode.StackManipulation,java.lang.reflect.Type) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Listener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Factory$UsingReflection.with(org.assertj.core.internal.bytebuddy.build.Plugin$Factory$UsingReflection$ArgumentResolver[]) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(org.assertj.core.internal.bytebuddy.description.enumeration.EnumerationDescription[]) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(org.assertj.core.internal.bytebuddy.description.type.TypeDescription[]) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InstallationListener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Default.with(org.assertj.core.internal.bytebuddy.ByteBuddy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$PoolStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Dispatcher$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.MemberSubstitution$Substitution$Chain.with(org.assertj.core.internal.bytebuddy.implementation.bytecode.assign.Assigner,org.assertj.core.internal.bytebuddy.implementation.bytecode.assign.Assigner$Typing) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.MemberSubstitution.with(org.assertj.core.internal.bytebuddy.asm.MemberSubstitution$TypePoolResolver) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$ClassFileBufferStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InitializationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionListenable$WithoutBatchStrategy.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy$BatchAllocator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.implementation.attribute.AnnotationValueFilter$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Default.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$TypeStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$ClassFileBufferStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$WarmupStrategy.with(java.util.Collection) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default$InjectionDispatcher.with(java.security.ProtectionDomain) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Redefining.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy$DiscoveryStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.ByteBuddy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(java.lang.Object[]) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default$InjectionDispatcher.with(org.assertj.core.internal.bytebuddy.dynamic.loading.PackageDefinitionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$TransformerDecorator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(org.assertj.core.internal.bytebuddy.implementation.bytecode.StackManipulation,org.assertj.core.internal.bytebuddy.description.type.TypeDefinition) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.ClassFileVersion) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.Implementation$Context$Default$FieldSetterDelegation.with(org.assertj.core.internal.bytebuddy.implementation.MethodAccessorFactory$AccessType) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice$AssignReturned$Factory.with(java.lang.Class,java.util.List) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$FallbackStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine.with(org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$WarmupStrategy$NoOp.with(java.util.Collection) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(java.util.List) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$LocationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$FallbackStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Redefining.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy$BatchAllocator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$CircularityLock) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$LocationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$TransformerDecorator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default.with(org.assertj.core.internal.bytebuddy.dynamic.loading.PackageDefinitionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy$Default.with(org.assertj.core.internal.bytebuddy.implementation.attribute.MethodAttributeAppender$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$WarmupStrategy$Enabled.with(java.util.Collection) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Listener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice$AssignReturned$Factory.with(java.lang.Class,org.assertj.core.internal.bytebuddy.asm.Advice$AssignReturned$Handler[]) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.implementation.auxiliary.AuxiliaryType$NamingStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionListenable.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy$Listener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.dynamic.VisibilityBridgeStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.FieldAccessor$FieldLocation$Relative.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.FieldLocator$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Listener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.FieldAccessor$FieldLocation.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.FieldLocator$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$CircularityLock) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$PoolStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$TypeStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.Advice$WithCustomMapping.with(org.assertj.core.internal.bytebuddy.asm.Advice$PostProcessor$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InjectionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.Implementation$Context$Default$DelegationRecord.with(org.assertj.core.internal.bytebuddy.implementation.MethodAccessorFactory$AccessType) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$DescriptionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$LambdaInstrumentationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default$WrappingDispatcher.with(org.assertj.core.internal.bytebuddy.dynamic.loading.PackageDefinitionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InitializationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeValidation) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.asm.MemberSubstitution.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$LocationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Default.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Listener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$LambdaInstrumentationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$TypeStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Default.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Dispatcher$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InjectionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$PoolStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.Implementation$Context$Default$FieldGetterDelegation.with(org.assertj.core.internal.bytebuddy.implementation.MethodAccessorFactory$AccessType) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$ClassFileBufferStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Default.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$PoolStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.implementation.attribute.AnnotationRetention) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionListenable$WithImplicitDiscoveryStrategy.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy$DiscoveryStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$Delegator.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$LambdaInstrumentationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.NamingStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Default.with(org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default$WrappingDispatcher.with(java.security.ProtectionDomain) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.implementation.Implementation$Context$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InitializationStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(org.assertj.core.internal.bytebuddy.utility.JavaConstant[]) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$InstallationListener) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.with(org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Configurable.with(org.assertj.core.internal.bytebuddy.dynamic.loading.PackageDefinitionStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.implementation.MethodCall.with(org.assertj.core.internal.bytebuddy.implementation.MethodCall$ArgumentLoader$Factory[]) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.ByteBuddy.with(org.assertj.core.internal.bytebuddy.dynamic.scaffold.InstrumentedType$Factory) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine.with(org.assertj.core.internal.bytebuddy.build.Plugin$Engine$TypeStrategy) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Transformer$ForAdvice.with(org.assertj.core.internal.bytebuddy.implementation.bytecode.assign.Assigner) has been removed in the new version of the dependency.
+Method org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any() has been removed in the new version of the dependency.
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Oxverride annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

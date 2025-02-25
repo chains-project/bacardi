@@ -1,0 +1,16 @@
+16c16
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+---
+> import static org.spongepowered.api.command.parameter.Parameter.string;
+35c35
+<         String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
+---
+>         String skinName = args.<String>getOne("skinName").orElse("").toLowerCase().replace("skin-", "");
+40c40
+<             Task.builder().async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+---
+>             Task.builder().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+52c52
+<                 .arguments(string(of("skinName")))
+---
+>                 .arguments(string())

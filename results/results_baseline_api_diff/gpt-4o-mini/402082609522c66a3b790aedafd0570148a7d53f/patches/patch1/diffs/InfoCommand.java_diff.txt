@@ -1,0 +1,28 @@
+13d12
+< import org.spongepowered.api.Sponge;
+17,18d15
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+25c22
+< public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class InfoCommand implements ChangeSkinCommand {
+33,34d29
+< 
+<     @Override
+42,43c37
+<         Task.builder().async()
+<                 .execute(() -> {
+---
+>         Task.builder().execute(() -> {
+46,47c40
+<                 })
+<                 .submit(plugin);
+---
+>         }).submit(plugin);
+52d44
+<     @Override
+61c53
+<         Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
+---
+>         Optional<Player> optPlayer = plugin.getServer().getPlayer(uuid);

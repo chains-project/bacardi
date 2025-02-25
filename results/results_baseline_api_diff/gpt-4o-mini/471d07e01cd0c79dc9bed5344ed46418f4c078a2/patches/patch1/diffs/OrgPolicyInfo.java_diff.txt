@@ -1,0 +1,49 @@
+18,21c18,21
+< import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+< import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+---
+> import com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy;
+> import com.google.api.services.cloudresourcemanager.v3.model.ListPolicy;
+> import com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy;
+> import com.google.api.services.cloudresourcemanager.v3.model.RestoreDefault;
+55d54
+<   private String etag;
+125c124
+<     private final List<java.lang.String> deniedValues;
+---
+>     private final List<String> deniedValues;
+202d200
+<           .setAllValues(allValues)
+223d220
+<     private String etag;
+234d230
+<       this.etag = info.etag;
+251,255d246
+<     Builder setEtag(String etag) {
+<       this.etag = etag;
+<       return this;
+<     }
+< 
+284d274
+<     this.etag = builder.etag;
+301,305d290
+<   /** Returns the etag value of policy. */
+<   public String getEtag() {
+<     return etag;
+<   }
+< 
+337d321
+<         && Objects.equals(etag, policyInfo.etag)
+347c331
+<         boolPolicy, constraint, etag, policies, restoreDefault, updateTime, version);
+---
+>         boolPolicy, constraint, policies, restoreDefault, updateTime, version);
+365d348
+<     orgPolicyProto.setConstraint(constraint);
+369,370d351
+<     orgPolicyProto.setRestoreDefault(restoreDefault);
+<     orgPolicyProto.setEtag(etag);
+386d366
+<     builder.setEtag(orgPolicyProtobuf.getEtag());

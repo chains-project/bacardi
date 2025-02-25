@@ -1,0 +1,256 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+
+```java
+package io.simplelocalize.cli.client;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.Option;
+import io.simplelocalize.cli.client.dto.DownloadRequest;
+import io.simplelocalize.cli.client.dto.DownloadableFile;
+import io.simplelocalize.cli.client.dto.ExportResponse;
+import io.simplelocalize.cli.client.dto.UploadRequest;
+import io.simplelocalize.cli.exception.ApiRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.time.Duration;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import static io.simplelocalize.cli.TemplateKeys.LANGUAGE_TEMPLATE_KEY;
+import static io.simplelocalize.cli.TemplateKeys.NAMESPACE_TEMPLATE_KEY;
+
+public class SimpleLocalizeClient
+{
+
+  private static final String ERROR_MESSAGE_PATH = "$.msg";
+  private final HttpClient httpClient;
+  private final SimpleLocalizeHttpRequestFactory httpRequestFactory;
+  private final SimpleLocalizeUriFactory uriFactory;
+
+  private final Logger log = LoggerFactory.getLogger(SimpleLocalizeClient.class);
+  private final ObjectMapper objectMapper;
+
+  public SimpleLocalizeClient(String baseUrl, String apiKey)
+  {
+
+    Objects.requireNonNull(baseUrl);
+    Objects.requireNonNull(apiKey);
+    this.uriFactory = new SimpleLocalizeUriFactory(baseUrl);
+    this.httpRequestFactory = new SimpleLocalizeHttpRequestFactory(apiKey);
+    this.objectMapper = new ObjectMapper();
+    this.httpClient = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofMinutes(5))
+            .build();
+  }
+
+  public static SimpleLocalizeClient create(String baseUrl, String apiKey)
+  {
+    return new SimpleLocalizeClient(baseUrl, apiKey);
+  }
+
+  public void uploadKeys(Collection<String> keys) throws IOException, InterruptedException
+  {
+    URI uri = uriFactory.buildSendKeysURI();
+    HttpRequest httpRequest = httpRequestFactory.createSendKeysRequest(uri, keys);
+    HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+    throwOnError(httpResponse);
+    int keysProcessed = JsonPath.read(httpResponse.body(), "$.data.uniqueKeysProcessed");
+    log.info("Successfully uploaded {} keys", keysProcessed);
+  }
+
+  public void uploadFile(UploadRequest uploadRequest) throws IOException, InterruptedException
+  {
+    Path uploadPath = uploadRequest.getPath();
+    log.info("Uploading {}", uploadPath);
+    URI uri = uriFactory.buildUploadUri(uploadRequest);
+    HttpRequest httpRequest = httpRequestFactory.createUploadFileRequest(uri, uploadRequest);
+    HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+    throwOnError(httpResponse);
+  }
+
+  public List<DownloadableFile> fetchDownloadableFiles(DownloadRequest downloadRequest) throws IOException, InterruptedException
+  {
+    log.info("Preparing files to download");
+    URI downloadUri = uriFactory.buildDownloadUri(downloadRequest);
+    HttpRequest httpRequest = httpRequestFactory.createGetRequest(downloadUri).build();
+    HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+    throwOnError(httpResponse);
+    String body = httpResponse.body();
+    ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
+    return exportResponse.getFiles();
+  }
+
+  public void downloadFile(DownloadableFile downloadableFile, String downloadPathTemplate)
+  {
+    Optional<DownloadableFile> optionalDownloadableFile = Optional.of(downloadableFile);
+    String downloadPath = downloadPathTemplate
+            .replace(NAMESPACE_TEMPLATE_KEY, optionalDownloadableFile.map(DownloadableFile::getNamespace).orElse(""))
+            .replace(LANGUAGE_TEMPLATE_KEY, optionalDownloadableFile.map(DownloadableFile::getLanguage).orElse(""));
+    String url = downloadableFile.getUrl();
+    HttpRequest httpRequest = httpRequestFactory.createGetRequest(URI.create(url)).build();
+    Path savePath = Path.of(downloadPath);
+    try
+    {
+      Path parentDirectory = savePath.getParent();
+      if (parentDirectory != null)
+      {
+        Files.createDirectories(parentDirectory);
+      }
+      log.info("Downloading {}", savePath);
+      httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofFile(savePath, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING));
+    } catch (IOException e)
+    {
+      log.error("Download failed: {}", savePath, e);
+    } catch (InterruptedException e)
+    {
+      log.error("Download interrupted: {}", savePath, e);
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  public int validateGate() throws IOException, InterruptedException
+  {
+    URI validateUri = uriFactory.buildValidateGateUri();
+    HttpRequest httpRequest = httpRequestFactory.createGetRequest(validateUri).build();
+    HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+    throwOnError(httpResponse);
+    String json = httpResponse.body();
+    Boolean passed = JsonPath.read(json, "$.data.passed");
+    String message = JsonPath.read(json, "$.data.message");
+    int status = JsonPath.read(json, "$.data.status");
+    log.info("Gate result: {} (status: {}, message: {})", passed, status, message);
+    return status;
+  }
+
+  private void throwOnError(HttpResponse<?> httpResponse)
+  {
+    if (httpResponse.statusCode() != 200)
+    {
+      com.jayway.jsonpath.Configuration parseContext = com.jayway.jsonpath.Configuration
+              .defaultConfiguration()
+              .addOptions(Option.SUPPRESS_EXCEPTIONS);
+
+      Object responseBody = httpResponse.body();
+      String stringBody = safeCastHttpBodyToString(responseBody);
+      String message = JsonPath.using(parseContext).parse(stringBody).read(ERROR_MESSAGE_PATH);
+      if (message == null)
+      {
+        message = "Unknown error, HTTP Status: " + httpResponse.statusCode();
+      }
+      log.error("Request failed: {}", message);
+      throw new ApiRequestException(message, httpResponse);
+    }
+  }
+
+  private String safeCastHttpBodyToString(Object responseBody)
+  {
+    if (responseBody instanceof byte[])
+    {
+      return new String((byte[]) responseBody);
+    } else if (responseBody instanceof String)
+    {
+      return (String) responseBody;
+    }
+    return "";
+  }
+
+
+}
+
+```
+
+ with the following error information:
+[ERROR] /simplelocalize-cli/src/main/java/io/simplelocalize/cli/client/SimpleLocalizeClient.java:[88,49] cannot access com.fasterxml.jackson.core.exc.StreamReadException
+  class file for com.fasterxml.jackson.core.exc.StreamReadException not found
+
+
+The error is caused by a change in the API of the dependency. The new library version includes the following changes:
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.net.URL,com.fasterxml.jackson.databind.JavaType) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(com.fasterxml.jackson.core.JsonParser,java.lang.Class) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(byte[],com.fasterxml.jackson.core.type.TypeReference) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.io.InputStream,java.lang.Class) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.io.File,com.fasterxml.jackson.databind.JavaType) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.net.URL,com.fasterxml.jackson.core.type.TypeReference) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectReader.readValue(java.io.DataInput,java.lang.Class) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectReader.readValue(java.lang.String) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(com.fasterxml.jackson.core.JsonParser,com.fasterxml.jackson.databind.JavaType) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.io.File,com.fasterxml.jackson.core.type.TypeReference) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.net.URL,java.lang.Class) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(byte[],int,int,com.fasterxml.jackson.databind.JavaType) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectReader.readValue(byte[],int,int,java.lang.Class) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.io.Reader,com.fasterxml.jackson.core.type.TypeReference) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectReader.readValue(java.io.Reader,java.lang.Class) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(com.fasterxml.jackson.core.JsonParser,com.fasterxml.jackson.core.type.TypeReference) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(byte[],int,int,java.lang.Class) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.io.InputStream,com.fasterxml.jackson.core.type.TypeReference) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.lang.String,java.lang.Class) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectReader.readValue(java.lang.String,java.lang.Class) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectReader.readValue(byte[],java.lang.Class) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(com.fasterxml.jackson.core.JsonParser,com.fasterxml.jackson.core.type.ResolvedType) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.lang.String,com.fasterxml.jackson.databind.JavaType) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.io.InputStream,com.fasterxml.jackson.databind.JavaType) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.io.Reader,com.fasterxml.jackson.databind.JavaType) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.io.File,java.lang.Class) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(byte[],int,int,com.fasterxml.jackson.core.type.TypeReference) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.io.Reader,java.lang.Class) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(byte[],java.lang.Class) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.io.Reader,java.lang.Class) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(com.fasterxml.jackson.core.JsonParser,com.fasterxml.jackson.databind.JavaType) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.net.URL,java.lang.Class) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.net.URL,com.fasterxml.jackson.databind.JavaType) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(byte[],com.fasterxml.jackson.databind.JavaType) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.net.URL,com.fasterxml.jackson.core.type.TypeReference) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(com.fasterxml.jackson.core.JsonParser,java.lang.Class) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(byte[],com.fasterxml.jackson.core.type.TypeReference) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(byte[],int,int,com.fasterxml.jackson.databind.JavaType) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(com.fasterxml.jackson.core.JsonParser,com.fasterxml.jackson.core.type.ResolvedType) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectReader.readValue(java.net.URL,java.lang.Class) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.lang.String,com.fasterxml.jackson.core.type.TypeReference) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.io.File,com.fasterxml.jackson.databind.JavaType) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.lang.String,java.lang.Class) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.io.File,com.fasterxml.jackson.core.type.TypeReference) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectReader.readValue(java.lang.String) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.io.Reader,com.fasterxml.jackson.core.type.TypeReference) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.lang.String,com.fasterxml.jackson.core.type.TypeReference) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.io.InputStream,com.fasterxml.jackson.databind.JavaType) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.lang.String,com.fasterxml.jackson.databind.JavaType) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.io.File,java.lang.Class) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(byte[],com.fasterxml.jackson.databind.JavaType) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.io.InputStream,java.lang.Class) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectReader.readValue(java.io.InputStream,java.lang.Class) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(byte[],int,int,java.lang.Class) has been removed in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(com.fasterxml.jackson.core.JsonParser,com.fasterxml.jackson.core.type.TypeReference) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(byte[],java.lang.Class) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectReader.readValue(com.fasterxml.jackson.databind.JsonNode,java.lang.Class) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.io.InputStream,com.fasterxml.jackson.core.type.TypeReference) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(byte[],int,int,com.fasterxml.jackson.core.type.TypeReference) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectMapper.readValue(java.io.Reader,com.fasterxml.jackson.databind.JavaType) has been added in the new version of the dependency.
+Method com.fasterxml.jackson.databind.ObjectReader.readValue(java.io.File,java.lang.Class) has been added in the new version of the dependency.
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Oxverride annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

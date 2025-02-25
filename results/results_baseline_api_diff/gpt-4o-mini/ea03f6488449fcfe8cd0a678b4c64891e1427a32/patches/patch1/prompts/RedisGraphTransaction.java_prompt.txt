@@ -1,0 +1,719 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+
+```java
+package com.redislabs.redisgraph.impl.api;
+
+import com.redislabs.redisgraph.RedisGraph;
+import com.redislabs.redisgraph.ResultSet;
+import com.redislabs.redisgraph.impl.Utils;
+import com.redislabs.redisgraph.impl.graph_cache.RedisGraphCaches;
+import com.redislabs.redisgraph.impl.resultset.ResultSetImpl;
+import redis.clients.jedis.Builder;
+import redis.clients.jedis.BuilderFactory;
+import redis.clients.jedis.Client;
+import redis.clients.jedis.Response;
+import redis.clients.jedis.Transaction;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * This class is extending Jedis Transaction
+ */
+public class RedisGraphTransaction extends Transaction
+        implements com.redislabs.redisgraph.RedisGraphTransaction, RedisGraphCacheHolder {
+
+    private final RedisGraph redisGraph;
+    private RedisGraphCaches caches;
+
+    public RedisGraphTransaction(Client client, RedisGraph redisGraph) {
+        // init as in Jedis
+        super(client);
+
+        this.redisGraph = redisGraph;
+    }
+
+    /**
+     * Execute a Cypher query.
+     * @param graphId a graph to perform the query on
+     * @param query Cypher query
+     * @return a response which builds the result set with the query answer.
+     */
+    @Override
+    public Response<ResultSet> query(String graphId, String query) {
+        client.sendCommand(RedisGraphCommand.QUERY, graphId, query, Utils.COMPACT_STRING);
+        return getResponse(new Builder<ResultSet>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public ResultSet build(Object o) {
+                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+            }
+        });
+    }
+
+    /**
+     * Execute a Cypher read-oly query.
+     * @param graphId a graph to perform the query on
+     * @param query Cypher query
+     * @return a response which builds the result set with the query answer.
+     */
+    @Override
+    public Response<ResultSet> readOnlyQuery(String graphId, String query) {
+        client.sendCommand(RedisGraphCommand.RO_QUERY, graphId, query, Utils.COMPACT_STRING);
+        return getResponse(new Builder<ResultSet>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public ResultSet build(Object o) {
+                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+            }
+        });
+    }
+
+    /**
+     * Execute a Cypher query with timeout.
+     *
+     * NOTE: timeout is simply sent to DB. Socket timeout will not be changed.
+     * @param graphId a graph to perform the query on
+     * @param query Cypher query
+     * @param timeout
+     * @return a response which builds the result set with the query answer.
+     */
+    @Override
+    public Response<ResultSet> query(String graphId, String query, long timeout) {
+        client.sendCommand(RedisGraphCommand.QUERY, graphId, query, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING,
+                Long.toString(timeout));
+        return getResponse(new Builder<ResultSet>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public ResultSet build(Object o) {
+                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+            }
+        });
+    }
+
+    /**
+     * Execute a Cypher read-only query with timeout.
+     *
+     * NOTE: timeout is simply sent to DB. Socket timeout will not be changed.
+     * @param graphId a graph to perform the query on
+     * @param query Cypher query
+     * @param timeout
+     * @return a response which builds the result set with the query answer.
+     */
+    @Override
+    public Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout) {
+        client.sendCommand(RedisGraphCommand.RO_QUERY, graphId, query, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING,
+                Long.toString(timeout));
+        return getResponse(new Builder<ResultSet>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public ResultSet build(Object o) {
+                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+            }
+        });
+    }
+
+    /**
+     * Execute a Cypher query with arguments
+     *
+     * @param graphId a graph to perform the query on
+     * @param query Cypher query
+     * @param args
+     * @return response with a result set
+     * @deprecated use {@link #query(String, String, Map)} instead.
+     */
+    @Deprecated
+    @Override
+    public Response<ResultSet> query(String graphId, String query, Object... args) {
+        String preparedQuery = Utils.prepareQuery(query, args);
+        client.sendCommand(RedisGraphCommand.QUERY, graphId, preparedQuery, Utils.COMPACT_STRING);
+        return getResponse(new Builder<ResultSet>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public ResultSet build(Object o) {
+                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+            }
+        });
+    }
+
+    /**
+     * Executes a cypher query with parameters.
+     * @param graphId a graph to perform the query on.
+     * @param query Cypher query.
+     * @param params parameters map.
+     * @return a response which builds the result set with the query answer.
+     */
+    @Override
+    public Response<ResultSet> query(String graphId, String query, Map<String, Object> params) {
+        String preparedQuery = Utils.prepareQuery(query, params);
+        client.sendCommand(RedisGraphCommand.QUERY, graphId, preparedQuery, Utils.COMPACT_STRING);
+        return getResponse(new Builder<ResultSet>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public ResultSet build(Object o) {
+                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+            }
+        });
+    }
+
+    /**
+     * Executes a cypher read-only query with parameters.
+     * @param graphId a graph to perform the query on.
+     * @param query Cypher query.
+     * @param params parameters map.
+     * @return a response which builds the result set with the query answer.
+     */
+    @Override
+    public Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params) {
+        String preparedQuery = Utils.prepareQuery(query, params);
+        client.sendCommand(RedisGraphCommand.RO_QUERY, graphId, preparedQuery, Utils.COMPACT_STRING);
+        return getResponse(new Builder<ResultSet>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public ResultSet build(Object o) {
+                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+            }
+        });
+    }
+
+    /**
+     * Executes a cypher query with parameters and timeout.
+     *
+     * NOTE: timeout is simply sent to DB. Socket timeout will not be changed.
+     * @param graphId a graph to perform the query on.
+     * @param query Cypher query.
+     * @param params parameters map.
+     * @param timeout
+     * @return a response which builds the result set with the query answer.
+     */
+    @Override
+    public Response<ResultSet> query(String graphId, String query, Map<String, Object> params, long timeout) {
+        String preparedQuery = Utils.prepareQuery(query, params);
+        client.sendCommand(RedisGraphCommand.QUERY, graphId, preparedQuery, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING,
+                Long.toString(timeout));
+        return getResponse(new Builder<ResultSet>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public ResultSet build(Object o) {
+                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+            }
+        });
+    }
+
+    /**
+     * Executes a cypher read-only query with parameters and timeout.
+     *
+     * NOTE: timeout is simply sent to DB. Socket timeout will not be changed.
+     * @param graphId a graph to perform the query on.
+     * @param query Cypher query.
+     * @param params parameters map.
+     * @param timeout
+     * @return a response which builds the result set with the query answer.
+     */
+    @Override
+    public Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params, long timeout) {
+        String preparedQuery = Utils.prepareQuery(query, params);
+        client.sendCommand(RedisGraphCommand.RO_QUERY, graphId, preparedQuery, Utils.COMPACT_STRING,
+                Utils.TIMEOUT_STRING, Long.toString(timeout));
+        return getResponse(new Builder<ResultSet>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public ResultSet build(Object o) {
+                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+            }
+        });
+    }
+
+    /**
+     * Invokes stored procedures without arguments, in multi/exec context
+     * @param graphId a graph to perform the query on
+     * @param procedure procedure name to invoke
+     * @return response with result set with the procedure data
+     */
+    public Response<ResultSet> callProcedure(String graphId, String procedure) {
+        return callProcedure(graphId, procedure, Utils.DUMMY_LIST, Utils.DUMMY_MAP);
+    }
+
+    /**
+     * Invokes stored procedure with arguments, in multi/exec context
+     * @param graphId a graph to perform the query on
+     * @param procedure procedure name to invoke
+     * @param args procedure arguments
+     * @return response with result set with the procedure data
+     */
+    public Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args) {
+        return callProcedure(graphId, procedure, args, Utils.DUMMY_MAP);
+    }
+
+    /**
+     * Invoke a stored procedure, in multi/exec context
+     * @param graphId a graph to perform the query on
+     * @param procedure - procedure to execute
+     * @param args - procedure arguments
+     * @param kwargs - procedure output arguments
+     * @return response with result set with the procedure data
+     */
+    public Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args,
+            Map<String, List<String>> kwargs) {
+        String preparedProcedure = Utils.prepareProcedure(procedure, args, kwargs);
+        return query(graphId, preparedProcedure);
+    }
+
+    /**
+     * Deletes the entire graph, in multi/exec context
+     * @param graphId graph to delete
+     * @return response with the deletion running time statistics
+     */
+    public Response<String> deleteGraph(String graphId) {
+        client.sendCommand(RedisGraphCommand.DELETE, graphId);
+        Response<String> response = getResponse(BuilderFactory.STRING);
+        caches.removeGraphCache(graphId);
+        return response;
+    }
+
+    @Override
+    public void setRedisGraphCaches(RedisGraphCaches caches) {
+        this.caches = caches;
+    }
+
+}
+
+```
+
+ with the following error information:
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphTransaction.java:[126,9] cannot find symbol
+  symbol:   variable client
+  location: class com.redislabs.redisgraph.impl.api.RedisGraphTransaction
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphTransaction.java:[102,9] cannot find symbol
+  symbol:   variable client
+  location: class com.redislabs.redisgraph.impl.api.RedisGraphTransaction
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphTransaction.java:[60,16] cannot find symbol
+  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
+  location: class com.redislabs.redisgraph.impl.api.RedisGraphTransaction
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphTransaction.java:[265,9] cannot find symbol
+  symbol:   variable client
+  location: class com.redislabs.redisgraph.impl.api.RedisGraphTransaction
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphTransaction.java:[104,16] cannot find symbol
+  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
+  location: class com.redislabs.redisgraph.impl.api.RedisGraphTransaction
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphTransaction.java:[59,9] cannot find symbol
+  symbol:   variable client
+  location: class com.redislabs.redisgraph.impl.api.RedisGraphTransaction
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphTransaction.java:[127,16] cannot find symbol
+  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
+  location: class com.redislabs.redisgraph.impl.api.RedisGraphTransaction
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphTransaction.java:[166,9] cannot find symbol
+  symbol:   variable client
+  location: class com.redislabs.redisgraph.impl.api.RedisGraphTransaction
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphTransaction.java:[215,16] cannot find symbol
+  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
+  location: class com.redislabs.redisgraph.impl.api.RedisGraphTransaction
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphTransaction.java:[189,9] cannot find symbol
+  symbol:   variable client
+  location: class com.redislabs.redisgraph.impl.api.RedisGraphTransaction
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphTransaction.java:[80,9] cannot find symbol
+  symbol:   variable client
+  location: class com.redislabs.redisgraph.impl.api.RedisGraphTransaction
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphTransaction.java:[191,16] cannot find symbol
+  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
+  location: class com.redislabs.redisgraph.impl.api.RedisGraphTransaction
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphTransaction.java:[42,16] cannot find symbol
+  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
+  location: class com.redislabs.redisgraph.impl.api.RedisGraphTransaction
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphTransaction.java:[146,9] cannot find symbol
+  symbol:   variable client
+  location: class com.redislabs.redisgraph.impl.api.RedisGraphTransaction
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphTransaction.java:[147,16] cannot find symbol
+  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
+  location: class com.redislabs.redisgraph.impl.api.RedisGraphTransaction
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphTransaction.java:[167,16] cannot find symbol
+  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
+  location: class com.redislabs.redisgraph.impl.api.RedisGraphTransaction
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphTransaction.java:[20,8] com.redislabs.redisgraph.impl.api.RedisGraphTransaction is not abstract and does not override abstract method execGetResponse() in com.redislabs.redisgraph.RedisGraphTransaction
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphTransaction.java:[213,9] cannot find symbol
+  symbol:   variable client
+  location: class com.redislabs.redisgraph.impl.api.RedisGraphTransaction
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphTransaction.java:[41,9] cannot find symbol
+  symbol:   variable client
+  location: class com.redislabs.redisgraph.impl.api.RedisGraphTransaction
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphTransaction.java:[266,37] cannot find symbol
+  symbol:   method getResponse(redis.clients.jedis.Builder<java.lang.String>)
+  location: class com.redislabs.redisgraph.impl.api.RedisGraphTransaction
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphTransaction.java:[20,8] com.redislabs.redisgraph.impl.api.RedisGraphTransaction is not abstract and does not override abstract method execGetResponse() in com.redislabs.redisgraph.RedisGraphTransaction
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphTransaction.java:[20,8] com.redislabs.redisgraph.impl.api.RedisGraphTransaction is not abstract and does not override abstract method execGetResponse() in com.redislabs.redisgraph.RedisGraphTransaction
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/RedisGraphTransaction.java:[82,16] cannot find symbol
+  symbol:   method getResponse(<anonymous redis.clients.jedis.Builder<com.redislabs.redisgraph.ResultSet>>)
+  location: class com.redislabs.redisgraph.impl.api.RedisGraphTransaction
+
+
+The error is caused by a change in the API of the dependency. The new library version includes the following changes:
+Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedisCluster.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.JedisCluster.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.ShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.commands.ProtocolCommand,redis.clients.jedis.args.Rawable) has been added in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
+Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.PipelineBase.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.PipelineBase.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
+Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedisCluster.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.JedisCluster.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.ShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.commands.ProtocolCommand,redis.clients.jedis.args.Rawable) has been added in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
+Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.PipelineBase.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.PipelineBase.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Queable.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedisCluster.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.JedisCluster.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.ShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.commands.ProtocolCommand,redis.clients.jedis.args.Rawable) has been added in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
+Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.PipelineBase.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.PipelineBase.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Queable.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedisCluster.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.JedisCluster.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.ShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.commands.ProtocolCommand,redis.clients.jedis.args.Rawable) has been added in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
+Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.PipelineBase.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.PipelineBase.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Queable.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedisCluster.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.JedisCluster.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.ShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.commands.ProtocolCommand,redis.clients.jedis.args.Rawable) has been added in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
+Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.PipelineBase.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.PipelineBase.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Queable.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedisCluster.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.JedisCluster.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.ShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.commands.ProtocolCommand,redis.clients.jedis.args.Rawable) has been added in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
+Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.PipelineBase.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.PipelineBase.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
+Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedisCluster.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.JedisCluster.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.ShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.commands.ProtocolCommand,redis.clients.jedis.args.Rawable) has been added in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
+Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.PipelineBase.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.PipelineBase.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Queable.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Queable.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedisCluster.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.JedisCluster.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.ShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.commands.ProtocolCommand,redis.clients.jedis.args.Rawable) has been added in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
+Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.PipelineBase.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.PipelineBase.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Queable.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Queable.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedisCluster.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.JedisCluster.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.ShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.commands.ProtocolCommand,redis.clients.jedis.args.Rawable) has been added in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
+Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.PipelineBase.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.PipelineBase.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
+Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedisCluster.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.JedisCluster.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.ShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.commands.ProtocolCommand,redis.clients.jedis.args.Rawable) has been added in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
+Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.PipelineBase.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.PipelineBase.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
+Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedisCluster.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.JedisCluster.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.ShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.BinaryShardedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Connection.sendCommand(redis.clients.jedis.commands.ProtocolCommand,redis.clients.jedis.args.Rawable) has been added in the new version of the dependency.
+Method redis.clients.jedis.TransactionBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
+Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.PipelineBase.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Jedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.PipelineBase.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.Protocol.sendCommand(redis.clients.jedis.util.RedisOutputStream,redis.clients.jedis.CommandArguments) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(java.lang.String,redis.clients.jedis.commands.ProtocolCommand,java.lang.String[]) has been added in the new version of the dependency.
+Method redis.clients.jedis.MultiKeyPipelineBase.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.BinaryJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been removed in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(byte[],redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.sendCommand(redis.clients.jedis.commands.ProtocolCommand,byte[][]) has been added in the new version of the dependency.
+Method redis.clients.jedis.UnifiedJedis.sendCommand(redis.clients.jedis.commands.ProtocolCommand) has been added in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Queable.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Queable.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Queable.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Pipeline.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+Method redis.clients.jedis.Queable.getResponse(redis.clients.jedis.Builder) has been removed in the new version of the dependency.
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Oxverride annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

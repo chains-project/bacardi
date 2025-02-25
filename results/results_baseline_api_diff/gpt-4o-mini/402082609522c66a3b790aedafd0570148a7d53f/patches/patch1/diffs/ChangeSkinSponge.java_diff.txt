@@ -1,0 +1,19 @@
+53d52
+<     //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
+63d61
+<         //load config and database
+79d76
+<         //command and event register
+89,90c86
+<         //incoming channel
+<         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
+---
+>         ChannelRegistrar channelReg = Sponge.getEventManager();
+95,96c91,92
+<         updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
+<         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
+---
+>         updateChannel.addListener(injector.getInstance(UpdateSkinListener.class));
+>         permChannel.addListener(injector.getInstance(CheckPermissionListener.class));
+114d109
+<         //disallow - not whitelisted or blacklisted

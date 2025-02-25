@@ -1,0 +1,7 @@
+17a18
+> import org.codehaus.plexus.logging.console.ConsoleLogger;
+37c38,39
+<         getContainer().getLoggerManager().setThreshold( Logger.LEVEL_DEBUG );
+---
+>         Logger logger = new ConsoleLogger(Logger.LEVEL_DEBUG, "test");
+>         getContainer().getLoggerManager().setLogger(logger);
