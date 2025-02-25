@@ -93,7 +93,7 @@ public class ConstructType {
                 yield "Constructor";    // Constructor
 
             default: {
-                System.out.println("Error: " + apiUse);
+//                System.out.println("Error: " + apiUse);
                 yield apiUse;
             }
         };

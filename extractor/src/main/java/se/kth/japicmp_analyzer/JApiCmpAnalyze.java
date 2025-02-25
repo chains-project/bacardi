@@ -52,13 +52,14 @@ public class JApiCmpAnalyze {
             jApiClasses.iterator().forEachRemaining(jApiClass1 -> {
 
                 jApiClass1.getCompatibilityChanges().forEach(j -> {
+
                     if (jApiClass1.getChangeStatus().equals(JApiChangeStatus.NEW)) {
                         libraryChanges.add(
                                 new ApiChange()
                                         .setAction(ApiChangeType.ADD)
                                         .setModifier(jApiClass1.getNewClass().get().getModifiers())
                                         .setElement(jApiClass1.getNewClass().get().getName())
-                                        .setCategory(j.getType().toString())
+                                        .setCategory(jApiClass1.getCompatibilityChanges())
                                         .setName(jApiClass1.getNewClass().get().getSimpleName())
                                         .setNewVersion(newApi)
                                         .setOldVersion(oldApi)
@@ -71,7 +72,7 @@ public class JApiCmpAnalyze {
                                         .setAction(ApiChangeType.REMOVE)
                                         .setModifier(jApiClass1.getOldClass().get().getModifiers())
                                         .setElement(jApiClass1.getOldClass().get().getName())
-                                        .setCategory(j.getType().toString())
+                                        .setCategory(jApiClass1.getCompatibilityChanges())
                                         .setName(jApiClass1.getOldClass().get().getSimpleName())
                                         .setNewVersion(newApi)
                                         .setOldVersion(oldApi)
@@ -90,7 +91,7 @@ public class JApiCmpAnalyze {
                                         .setModifier(jApiConstructor.getNewConstructor().get().getModifiers())
                                         .setReturnType(jApiConstructor.getName())
                                         .setElement(jApiConstructor.getNewConstructor().get().getLongName())
-                                        .setCategory(jApiConstructor.getCompatibilityChanges().toString())
+                                        .setCategory(jApiConstructor.getCompatibilityChanges())
                                         .setName(jApiConstructor.getName())
                                         .setNewVersion(newApi)
                                         .setOldVersion(oldApi)
@@ -103,7 +104,7 @@ public class JApiCmpAnalyze {
                                         .setModifier(jApiConstructor.getOldConstructor().get().getModifiers())
                                         .setReturnType(jApiConstructor.getName())
                                         .setElement(jApiConstructor.getOldConstructor().get().getLongName())
-                                        .setCategory(jApiConstructor.getCompatibilityChanges().toString())
+                                        .setCategory(jApiConstructor.getCompatibilityChanges())
                                         .setName(jApiConstructor.getName())
                                         .setNewVersion(newApi)
                                         .setOldVersion(oldApi)
@@ -114,6 +115,7 @@ public class JApiCmpAnalyze {
 
                 //get methods
                 jApiClass1.getMethods().forEach(jApiMethod -> {
+
                     String longName = jApiMethod.getjApiClass().getFullyQualifiedName() + "." + jApiMethod.getName();
                     if (jApiMethod.getChangeStatus().equals(JApiChangeStatus.NEW)) {
                         libraryChanges.add(
@@ -122,7 +124,7 @@ public class JApiCmpAnalyze {
                                         .setModifier(jApiMethod.getNewMethod().get().getModifiers())
                                         .setReturnType(this.getReturnType(jApiMethod.getNewMethod().get().getSignature()))
                                         .setElement(jApiMethod.getNewMethod().get().getLongName())
-                                        .setCategory(jApiMethod.getCompatibilityChanges().toString())
+                                        .setCategory(jApiMethod.getCompatibilityChanges())
                                         .setName(jApiMethod.getName())
                                         .setNewVersion(newApi)
                                         .setOldVersion(oldApi)
@@ -135,7 +137,7 @@ public class JApiCmpAnalyze {
                                         .setModifier(jApiMethod.getOldMethod().get().getModifiers())
                                         .setReturnType(this.getReturnType(jApiMethod.getOldMethod().get().getSignature()))
                                         .setElement(jApiMethod.getOldMethod().get().getLongName())
-                                        .setCategory(jApiMethod.getCompatibilityChanges().toString())
+                                        .setCategory(jApiMethod.getCompatibilityChanges())
                                         .setName(jApiMethod.getName())
                                         .setNewVersion(newApi)
                                         .setOldVersion(oldApi)
@@ -149,7 +151,7 @@ public class JApiCmpAnalyze {
                                         .setModifier(jApiMethod.getOldMethod().get().getModifiers())
                                         .setReturnType(this.getReturnType(jApiMethod.getOldMethod().get().getSignature()))
                                         .setElement(jApiMethod.getOldMethod().get().getLongName())
-                                        .setCategory(jApiMethod.getCompatibilityChanges().toString())
+                                        .setCategory(jApiMethod.getCompatibilityChanges())
                                         .setName(jApiMethod.getName())
                                         .setNewVersion(newApi)
                                         .setOldVersion(oldApi)
@@ -161,7 +163,7 @@ public class JApiCmpAnalyze {
                                         .setModifier(jApiMethod.getNewMethod().get().getModifiers())
                                         .setReturnType(this.getReturnType(jApiMethod.getNewMethod().get().getSignature()))
                                         .setElement(jApiMethod.getNewMethod().get().getLongName())
-                                        .setCategory(jApiMethod.getCompatibilityChanges().toString())
+                                        .setCategory(jApiMethod.getCompatibilityChanges())
                                         .setName(jApiMethod.getName())
                                         .setNewVersion(newApi)
                                         .setOldVersion(oldApi)

@@ -67,10 +67,20 @@ public class BasePromptApiDiffTemplate extends AbstractPromptTemplate {
             String constructType = ConstructType.getAsCausingConstructs(detectedFileWithErrors.getCodeElement());
 
             for (ApiChange apiChange : apiChangeSet) {
+                String changeStatus = "";
+
+                if (apiChange.getCategory().isEmpty()) {
+                    changeStatus = constructType;
+                } else {
+                    changeStatus = ConstructType.getConstruct(apiChange.getCategory().getFirst().getType().toString());
+                }
+
+
+
 
                 String apiChangeInfo = """
                              %s %s has been %s in the new version of the dependency.
-                        """.formatted(ConstructType.getConstruct(apiChange.getCategory()), apiChange.getElement(), apiChange.getAction().toString());
+                        """.formatted(changeStatus, apiChange.getElement(), apiChange.getAction().toString());
 
                 if (apiDiffUnique.contains(apiChangeInfo)) {
                     continue;

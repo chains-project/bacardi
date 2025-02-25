@@ -45,10 +45,6 @@ public class SpoonConstructExtractor {
 
         Set<ApiChange> apiChanges = this.japicmpAnalyzer.getAllChanges(classes);
 
-        apiChanges.forEach(apiChange -> {
-            log.info("ApiChange: {},{},{}", apiChange.getElement(), apiChange.getLongName(), apiChange.getCategory().toString());
-        });
-
         final var detectedFiles = getStringDetectedFileWithErrorsMap(classNamesJapicmp, apiChanges);
 
         return detectedFiles;
