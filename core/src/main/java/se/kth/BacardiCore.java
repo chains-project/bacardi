@@ -223,7 +223,8 @@ public class BacardiCore {
                         log.info("No errors found for: {}", key);
                     } else {
 
-                        if (value.stream().filter(f -> !f.getApiChanges().isEmpty()).toList().isEmpty()) {
+                        if (PIPELINE.equals(PromptPipeline.BASELINE_API_DIFF) &&
+                                value.stream().filter(f -> !f.getApiChanges().isEmpty()).toList().isEmpty()) {
                             return FailureCategory.NOT_APIDIFF;
 
                         }
