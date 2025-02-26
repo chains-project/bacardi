@@ -1,4 +1,3 @@
-```java
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
@@ -450,4 +449,3 @@ public class NisAppConfig {
 		return new SynchronizedMosaicIdCache(new DefaultMosaicIdCache());
 	}
 }
-```
