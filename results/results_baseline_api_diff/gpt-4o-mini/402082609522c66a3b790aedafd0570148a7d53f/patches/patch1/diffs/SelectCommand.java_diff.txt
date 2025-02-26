@@ -1,16 +1,19 @@
-16c16
+10,11c10
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+16c15
 < import static org.spongepowered.api.command.args.GenericArguments.string;
 ---
 > import static org.spongepowered.api.command.parameter.Parameter.string;
-35c35
-<         String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
+19c18
+< public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
 ---
->         String skinName = args.<String>getOne("skinName").orElse("").toLowerCase().replace("skin-", "");
-40c40
+> public class SelectCommand implements ChangeSkinCommand {
+40c39
 <             Task.builder().async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
 ---
 >             Task.builder().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
-52c52
-<                 .arguments(string(of("skinName")))
----
->                 .arguments(string())
+48d46
+<     @Override

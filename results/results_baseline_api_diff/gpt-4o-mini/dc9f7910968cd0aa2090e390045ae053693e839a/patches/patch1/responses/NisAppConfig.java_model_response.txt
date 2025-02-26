@@ -108,9 +108,12 @@ public class NisAppConfig {
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
 		final ClassicConfiguration configuration = new ClassicConfiguration();
-		configuration.setDataSource(this.dataSource());
-		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
-		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
+		configuration.setDataSource(
+			prop.getProperty("jdbc.url"),
+			prop.getProperty("jdbc.username"),
+			prop.getProperty("jdbc.password")
+		);
+		configuration.setLocations(prop.getProperty("flyway.locations"));
 		configuration.setValidateOnMigrate(Boolean.parseBoolean(prop.getProperty("flyway.validate")));
 
 		final Flyway flyway = new Flyway(configuration);

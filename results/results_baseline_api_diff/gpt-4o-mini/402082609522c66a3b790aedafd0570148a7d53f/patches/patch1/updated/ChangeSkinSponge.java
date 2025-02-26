@@ -24,12 +24,12 @@ import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GameInitializationEvent;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
-import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
-import org.spongepowered.api.network.ChannelRegistrar;
-import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.event.lifecycle.GameInitializationEvent;
+import org.spongepowered.api.event.lifecycle.GamePreInitializationEvent;
+import org.spongepowered.api.event.lifecycle.GameStoppingEvent;
+import org.spongepowered.api.network.channel.RawDataChannel;
+import org.spongepowered.api.network.channel.ChannelRegistrar;
+import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
 import static com.github.games647.changeskin.core.message.CheckPermMessage.CHECK_PERM_CHANNEL;
@@ -83,17 +83,17 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
 
         Sponge.getEventManager().registerListeners(this, injector.getInstance(LoginListener.class));
 
-        ChannelRegistrar channelReg = Sponge.getEventManager();
+        ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
         String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
         String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
         RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
-        updateChannel.addListener(injector.getInstance(UpdateSkinListener.class));
-        permChannel.addListener(injector.getInstance(CheckPermissionListener.class));
+        updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
+        permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
     }
 
     @Listener
-    public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
+    public void onShutdown(GameStoppingEvent stoppingServerEvent) {
         core.close();
     }
 

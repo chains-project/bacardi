@@ -1,4 +1,66 @@
-237c237
-<       Set<Property> standard = super.getProperties(type);
+1,7d0
+< /**
+<  * Copyright (c) 2012 to original author or authors
+<  * All rights reserved. This program and the accompanying materials
+<  * are made available under the terms of the Eclipse Public License v1.0
+<  * which accompanies this distribution, and is available at
+<  * http://www.eclipse.org/legal/epl-v10.html
+<  */
+22a16
+> import org.yaml.snakeyaml.DumperOptions;
+29,35d22
+< /**
+<  * YAML model representer.
+<  *
+<  * @author jvanzyl
+<  * @author bentmann
+<  * @since 0.7
+<  */
+37a25
+>     super(new DumperOptions());
+50d37
+<       // "pomFile" is not a part of POM http://maven.apache.org/xsd/maven-4.0.0.xsd
+64d50
+<       //skip optional if it is false
+66d51
+<       //skip type if it is jar
+70d54
+<       //skip extensions if it is false
+72d55
+<       //skip inherited if it is true
+94d76
+< 
+123c105
+<           if (isList) { // check for eventual list construction
 ---
->       Set<Property> standard = PropertyUtils.getProperties(type);
+>           if (isList) {
+168,169d149
+<   // Model elements order {
+<   //TODO move to polyglot-common, or to org.apache.maven:maven-model
+198,199d177
+<           //"repositories",
+<           //"pluginRepositories",
+212d189
+<   //}
+214,216d190
+<   /*
+<    * Change the default order. Important data goes first.
+<    */
+218,219c192
+<   protected Set<Property> getProperties(Class<? extends Object> type)
+<           throws IntrospectionException {
+---
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+235,236c208
+<   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+<           throws IntrospectionException {
+---
+>   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+251d222
+<       // important go first
+258d228
+<       // all the rest
+268c238
+<       return 0;// compare further
+---
+>       return 0;

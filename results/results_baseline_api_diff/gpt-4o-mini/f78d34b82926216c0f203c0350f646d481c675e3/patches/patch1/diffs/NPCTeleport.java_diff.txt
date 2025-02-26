@@ -1,17 +1,13 @@
+3c3
+< import develop.p2p.lib.*;
+---
+> import tokyo.peya.lib.*;
 107,111d106
 <                     float head = ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f;
 < 
 <                     if (head < 0)
 <                         head *= 2;
 < 
-114c109
-<                     connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) head));
----
->                     connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f));
-117c112
-<                     float finalHead = head;
----
->                     float finalHead = ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f;
 161c156
 <         WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
 ---

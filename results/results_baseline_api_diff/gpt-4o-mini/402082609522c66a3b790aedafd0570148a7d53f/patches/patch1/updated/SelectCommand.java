@@ -7,8 +7,7 @@ import com.google.inject.Inject;
 
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.args.CommandContext;
-import org.spongepowered.api.command.spec.CommandExecutor;
+import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
@@ -16,7 +15,7 @@ import org.spongepowered.api.scheduler.Task;
 import static org.spongepowered.api.command.parameter.Parameter.string;
 import static org.spongepowered.api.text.Text.of;
 
-public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
+public class SelectCommand implements ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
 
@@ -32,7 +31,7 @@ public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
             return CommandResult.empty();
         }
 
-        String skinName = args.<String>getOne("skinName").orElse("").toLowerCase().replace("skin-", "");
+        String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
 
         try {
             int targetId = Integer.parseInt(skinName);
@@ -45,11 +44,10 @@ public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
         return CommandResult.success();
     }
 
-    @Override
     public CommandSpec buildSpec() {
         return CommandSpec.builder()
                 .executor(this)
-                .arguments(string())
+                .arguments(string(of("skinName")))
                 .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
                 .build();
     }

@@ -7,8 +7,8 @@ import java.util.logging.Logger;
 import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import jakarta.mvc.locale.LocaleResolver;
-import jakarta.mvc.locale.LocaleResolverContext;
+import jakarta.mvc.locale.LocaleResolver; // Updated import
+import jakarta.mvc.locale.LocaleResolverContext; // Updated import
 import javax.ws.rs.core.UriInfo;
 
 /**

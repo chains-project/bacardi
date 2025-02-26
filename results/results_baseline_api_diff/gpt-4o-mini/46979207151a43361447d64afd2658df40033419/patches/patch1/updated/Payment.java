@@ -126,21 +126,8 @@ public class Payment implements ToString2
     public String toString() {
         final ToStringStrategy2 strategy = new ToStringStrategy2() {
             @Override
-            public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
-                return buffer.append(object.getClass().getSimpleName()).append(" [");
-            }
-
-            @Override
-            public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
-                return buffer.append("]");
-            }
-
-            @Override
-            public StringBuilder appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean isSet) {
-                if (isSet) {
-                    buffer.append(fieldName).append("=").append(value).append(", ");
-                }
-                return buffer;
+            public String toString(ObjectLocator locator, Object object) {
+                return object.toString();
             }
         };
         final StringBuilder buffer = new StringBuilder();

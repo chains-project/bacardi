@@ -1,6 +1,6 @@
 package de.gwdg.metadataqa.marc;
 
-import de.gwdg.metadataqa.api.json.JsonBranch;
+import de.gwdg.metadataqa.api.json.JsonBranch; // This import will be removed
 import de.gwdg.metadataqa.api.model.pathcache.JsonPathCache;
 import de.gwdg.metadataqa.api.model.XmlFieldInstance;
 import de.gwdg.metadataqa.api.schema.MarcJsonSchema;
@@ -64,36 +64,36 @@ public class MarcFactory {
 
   public static BibliographicRecord create(JsonPathCache cache, MarcVersion version) {
     var marcRecord = new Marc21Record();
-    for (JsonBranch branch : schema.getPaths()) {
-      if (branch.getParent() != null)
+    for (String path : schema.getPaths()) { // Changed from JsonBranch to String
+      if (path.getParent() != null) // Adjusted to work with String
         continue;
-      switch (branch.getLabel()) {
+      switch (path.getLabel()) { // Adjusted to work with String
         case "leader":
-          marcRecord.setLeader(new Leader(extractFirst(cache, branch)));
+          marcRecord.setLeader(new Leader(extractFirst(cache, path))); // Adjusted to work with String
           break;
         case "001":
-          marcRecord.setControl001(new Control001(extractFirst(cache, branch)));
+          marcRecord.setControl001(new Control001(extractFirst(cache, path))); // Adjusted to work with String
           break;
         case "003":
-          marcRecord.setControl003(new Control003(extractFirst(cache, branch)));
+          marcRecord.setControl003(new Control003(extractFirst(cache, path))); // Adjusted to work with String
           break;
         case "005":
-          marcRecord.setControl005(new Control005(extractFirst(cache, branch), marcRecord));
+          marcRecord.setControl005(new Control005(extractFirst(cache, path), marcRecord)); // Adjusted to work with String
           break;
         case "006":
           marcRecord.setControl006(
-            new Control006(extractFirst(cache, branch), marcRecord));
+            new Control006(extractFirst(cache, path), marcRecord)); // Adjusted to work with String
           break;
         case "007":
           marcRecord.setControl007(
-            new Control007(extractFirst(cache, branch), marcRecord));
+            new Control007(extractFirst(cache, path), marcRecord)); // Adjusted to work with String
           break;
         case "008":
           marcRecord.setControl008(
-            new Control008(extractFirst(cache, branch), marcRecord));
+            new Control008(extractFirst(cache, path), marcRecord)); // Adjusted to work with String
           break;
         default:
-          JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getLabel());
+          JSONArray fieldInstances = (JSONArray) cache.getFragment(path.getJsonPath()); // Adjusted to work with String
           for (var fieldInsanceNr = 0; fieldInsanceNr < fieldInstances.size(); fieldInsanceNr++) {
             var fieldInstance = (Map) fieldInstances.get(fieldInsanceNr);
             var field = MapToDatafield.parse(fieldInstance, version);
@@ -101,7 +101,7 @@ public class MarcFactory {
               marcRecord.addDataField(field);
               field.setMarcRecord(marcRecord);
             } else {
-              marcRecord.addUnhandledTags(branch.getLabel());
+              marcRecord.addUnhandledTags(path.getLabel()); // Adjusted to work with String
             }
           }
           break;
@@ -310,8 +310,8 @@ public class MarcFactory {
     return field;
   }
 
-  private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
-    List<XmlFieldInstance> instances = cache.get(branch.getLabel());
+  private static List<String> extractList(JsonPathCache cache, String path) { // Changed from JsonBranch to String
+    List<XmlFieldInstance> instances = cache.get(path); // Adjusted to work with String
     List<String> values = new ArrayList<>();
     if (instances != null)
       for (XmlFieldInstance instance : instances)
@@ -319,8 +319,8 @@ public class MarcFactory {
     return values;
   }
 
-  private static String extractFirst(JsonPathCache cache, JsonBranch branch) {
-    List<String> list = extractList(cache, branch);
+  private static String extractFirst(JsonPathCache cache, String path) { // Changed from JsonBranch to String
+    List<String> list = extractList(cache, path); // Adjusted to work with String
     if (!list.isEmpty())
       return list.get(0);
     return null;
@@ -469,6 +469,7 @@ public class MarcFactory {
     Record marc4jRecord = new RecordImpl();
     String id = null;
     for (PicaLine line : lines) {
+      // String tag = schema.containsKey(line.getQualifiedTag()) ? line.getQualifiedTag() : line.getTag();
       DataFieldImpl df = new DataFieldImpl(line.getQualifiedTag(), ' ', ' ');
       for (PicaSubfield picaSubfield : line.getSubfields()) {
         df.addSubfield(new SubfieldImpl(picaSubfield.getCode().charAt(0), picaSubfield.getValue()));

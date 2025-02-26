@@ -64,15 +64,26 @@ public final class YamlPolicyFactory implements PolicyFactory {
   symbol:   class Storages
   location: class com.artipie.security.policy.YamlPolicyFactory
 
+[ERROR] /http/src/main/java/com/artipie/security/policy/YamlPolicyFactory.java:[9,32] cannot find symbol
+  symbol:   class Storages
+  location: package com.artipie.asto.factory
+
+[ERROR] /http/src/main/java/com/artipie/security/policy/YamlPolicyFactory.java:[43,25] cannot find symbol
+  symbol:   class Storages
+  location: class com.artipie.security.policy.YamlPolicyFactory
+
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
-Method com.artipie.asto.s3.S3StorageFactory.newStorage(com.artipie.asto.factory.StorageConfig) has been removed in the new version of the dependency.
-Method com.artipie.asto.etcd.EtcdStorageFactory.newStorage(com.artipie.asto.factory.StorageConfig) has been removed in the new version of the dependency.
-Method com.artipie.asto.fs.FileStorageFactory.newStorage(com.artipie.asto.factory.StorageConfig) has been removed in the new version of the dependency.
-Method com.artipie.asto.factory.Storages.newStorage(java.lang.String,com.amihaiemil.eoyaml.YamlMapping) has been removed in the new version of the dependency.
-Method com.artipie.asto.factory.StorageFactory.newStorage(com.artipie.asto.factory.StorageConfig) has been removed in the new version of the dependency.
-Method com.artipie.asto.fs.FileStorageFactory.newStorage(com.artipie.asto.factory.Config) has been added in the new version of the dependency.
-Method com.artipie.asto.factory.StorageFactory.newStorage(com.artipie.asto.factory.Config) has been added in the new version of the dependency.
+     Method com.artipie.asto.factory.StorageFactory.newStorage(com.artipie.asto.factory.StorageConfig) has been removed in the new version of the dependency.
+     Method com.artipie.asto.factory.Storages.newStorage(java.lang.String,com.amihaiemil.eoyaml.YamlMapping) has been removed in the new version of the dependency.
+     Method com.artipie.asto.s3.S3StorageFactory.newStorage(com.artipie.asto.factory.StorageConfig) has been removed in the new version of the dependency.
+     Method com.artipie.asto.etcd.EtcdStorageFactory.newStorage(com.artipie.asto.factory.StorageConfig) has been removed in the new version of the dependency.
+     Method com.artipie.asto.fs.FileStorageFactory.newStorage(com.artipie.asto.factory.StorageConfig) has been removed in the new version of the dependency.
+     METHOD_ADDED_TO_PUBLIC_CLASS com.artipie.asto.fs.FileStorageFactory.newStorage(com.artipie.asto.factory.Config) has been added in the new version of the dependency.
+     Method com.artipie.asto.factory.StorageFactory.newStorage(com.artipie.asto.factory.Config) has been added in the new version of the dependency.
+     Constructor com.artipie.asto.factory.Storages() has been removed in the new version of the dependency.
+     Constructor com.artipie.asto.factory.Storages(java.util.Map) has been removed in the new version of the dependency.
+     Class com.artipie.asto.factory.Storages has been removed in the new version of the dependency.
 
 
 

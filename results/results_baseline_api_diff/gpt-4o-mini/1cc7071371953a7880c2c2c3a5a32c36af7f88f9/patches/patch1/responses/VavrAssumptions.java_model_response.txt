@@ -22,30 +22,33 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import io.vavr.control.Validation;
-import org.assertj.core.internal.bytebuddy.ByteBuddy;
-import org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeValidation;
-import org.assertj.core.internal.bytebuddy.implementation.MethodDelegation;
 import org.assertj.core.util.CheckReturnValue;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
 
-import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any;
-import static org.assertj.core.util.Arrays.array;
 import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrategy;
 
 public class VavrAssumptions {
 
-    private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(TypeValidation.DISABLED)
-            .with(new org.assertj.core.internal.bytebuddy.implementation.auxiliary.AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
+    private static final Class<?> BYTE_BUDDY_CLASS;
+    private static final Object ASSUMPTION;
+    private static final Object CACHE;
 
-    private static final MethodDelegation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
+    static {
+        try {
+            BYTE_BUDDY_CLASS = Class.forName("org.assertj.core.internal.bytebuddy.ByteBuddy");
+            ASSUMPTION = BYTE_BUDDY_CLASS.getMethod("to", Class.class).invoke(null, AssumptionMethodInterceptor.class);
+            CACHE = Class.forName("org.assertj.core.internal.bytebuddy.TypeCache").getConstructor().newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("Initialization failed", e);
+        }
+    }
 
     private static final class AssumptionMethodInterceptor {
 
-        @RuntimeType
-        public static Object intercept(@This AbstractVavrAssert<?, ?> assertion, @SuperCall Callable<Object> proxy) throws Exception {
+        public static Object intercept(AbstractVavrAssert<?, ?> assertion, Callable<Object> proxy) throws Exception {
             try {
                 Object result = proxy.call();
                 if (result != assertion && result instanceof AbstractVavrAssert) {
@@ -116,7 +119,7 @@ public class VavrAssumptions {
     private static <ASSERTION, ACTUAL> ASSERTION asAssumption(Class<ASSERTION> assertionType,
                                                               Class<ACTUAL> actualType,
                                                               Object actual) {
-        return asAssumption(assertionType, array(actualType), array(actual));
+        return asAssumption(assertionType, new Class<?>[]{actualType}, new Object[]{actual});
     }
 
     private static <ASSERTION> ASSERTION asAssumption(Class<ASSERTION> assertionType,
@@ -133,12 +136,23 @@ public class VavrAssumptions {
 
     @SuppressWarnings("unchecked")
     private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass) {
-        return (Class<ASSERTION>) BYTE_BUDDY.subclass(assertClass)
-                .method(any())
-                .intercept(ASSUMPTION)
-                .make()
-                .load(VavrAssumptions.class.getClassLoader(), classLoadingStrategy(assertClass))
-                .getLoaded();
+        return (Class<ASSERTION>) CACHE.getClass().getMethod("findOrInsert", ClassLoader.class, Object.class, Callable.class)
+                .invoke(CACHE, VavrAssumptions.class.getClassLoader(), assertClass, () -> generateAssumptionClass(assertClass));
+    }
+
+    private static <ASSERTION> Class<? extends ASSERTION> generateAssumptionClass(Class<ASSERTION> assertionType) {
+        return (Class<ASSERTION>) BYTE_BUDDY_CLASS.getMethod("subclass", Class.class)
+                .invoke(BYTE_BUDDY_CLASS, assertionType)
+                .getClass().getMethod("method", Object.class)
+                .invoke(BYTE_BUDDY_CLASS, new Object[]{null})
+                .getClass().getMethod("intercept", Object.class)
+                .invoke(BYTE_BUDDY_CLASS, ASSUMPTION)
+                .getClass().getMethod("make")
+                .invoke(BYTE_BUDDY_CLASS)
+                .getClass().getMethod("load", ClassLoader.class, Class.class)
+                .invoke(BYTE_BUDDY_CLASS, VavrAssumptions.class.getClassLoader(), classLoadingStrategy(assertionType))
+                .getClass().getMethod("getLoaded")
+                .invoke(BYTE_BUDDY_CLASS);
     }
 
     private static RuntimeException assumptionNotMet(AssertionError assertionError) throws ReflectiveOperationException {

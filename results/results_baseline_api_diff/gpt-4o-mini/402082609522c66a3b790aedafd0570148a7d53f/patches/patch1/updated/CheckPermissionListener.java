@@ -14,29 +14,28 @@ import java.util.UUID;
 
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
 import org.spongepowered.api.network.channel.ChannelBuf;
-import org.spongepowered.api.network.channel.ChannelRegistrar;
-import org.spongepowered.api.network.raw.RawDataListener;
-import org.spongepowered.api.network.RemoteConnection;
+import org.spongepowered.api.network.channel.packet.PacketDispatcher;
+import org.spongepowered.api.network.EngineConnection;
 
 import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
 import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
 
-public class CheckPermissionListener implements RawDataListener {
+public class CheckPermissionListener {
 
     private final ChangeSkinSponge plugin;
-    private final org.spongepowered.api.network.channel.raw.RawDataChannel permissionsResultChannel;
+    private final RawPlayDataChannel permissionsResultChannel;
 
     @Inject
-    CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+    CheckPermissionListener(ChangeSkinSponge plugin, PacketDispatcher packetDispatcher) {
         this.plugin = plugin;
 
         String combinedName = new NamespaceKey(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL).getCombinedName();
-        permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
+        permissionsResultChannel = packetDispatcher.getOrCreateRaw(plugin, combinedName);
     }
 
-    @Override
-    public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+    public void handlePayload(ChannelBuf data, EngineConnection connection, Type side) {
 
         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
         CheckPermMessage checkMessage = new CheckPermMessage();

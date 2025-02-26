@@ -211,12 +211,8 @@ class ModelRepresenter extends Representer {
 		  "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
   //}
 
-  /*
-   * Change the default order. Important data goes first.
-   */
   @Override
-  protected Set<Property> getProperties(Class<? extends Object> type)
-          throws IntrospectionException {
+  protected Set<Property> getProperties(Class<? extends Object> type) {
     if (type.isAssignableFrom(Model.class)) {
       return sortTypeWithOrder(type, ORDER_MODEL);
     } else if (type.isAssignableFrom(Developer.class)) {
@@ -232,9 +228,8 @@ class ModelRepresenter extends Representer {
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
-          throws IntrospectionException {
-      Set<Property> standard = PropertyUtils.getProperties(type);
+  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+      Set<Property> standard = super.getProperties(type);
       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
       sorted.addAll(standard);
       return sorted;

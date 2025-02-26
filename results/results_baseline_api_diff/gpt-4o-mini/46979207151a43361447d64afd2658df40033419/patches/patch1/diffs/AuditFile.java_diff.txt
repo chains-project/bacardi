@@ -1,12 +1,46 @@
-18c18
+18d17
 < import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
----
-> import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
-178c178
+178c177,195
 <         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
 ---
->         final ToStringStrategy2 strategy = new DefaultToStringStrategy();
-400c400
+>         final ToStringStrategy2 strategy = new ToStringStrategy2() {
+>             @Override
+>             public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+>                 return buffer.append(object.getClass().getSimpleName()).append(" [");
+>             }
+> 
+>             @Override
+>             public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+>                 return buffer.append("]");
+>             }
+> 
+>             @Override
+>             public StringBuilder appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object fieldValue, boolean isSet) {
+>                 if (isSet) {
+>                     buffer.append(fieldName).append("=").append(fieldValue).append(", ");
+>                 }
+>                 return buffer;
+>             }
+>         };
+405c422,440
 <             final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
 ---
->             final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+>             final ToStringStrategy2 strategy = new ToStringStrategy2() {
+>                 @Override
+>                 public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+>                     return buffer.append(object.getClass().getSimpleName()).append(" [");
+>                 }
+> 
+>                 @Override
+>                 public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+>                     return buffer.append("]");
+>                 }
+> 
+>                 @Override
+>                 public StringBuilder appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object fieldValue, boolean isSet) {
+>                     if (isSet) {
+>                         buffer.append(fieldName).append("=").append(fieldValue).append(", ");
+>                     }
+>                     return buffer;
+>                 }
+>             };

@@ -1,13 +1,32 @@
-17,20c17,19
+17,21c17,20
 < import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
 < import org.spongepowered.api.network.ChannelBuf;
 < import org.spongepowered.api.network.ChannelRegistrar;
 < import org.spongepowered.api.network.RawDataListener;
+< import org.spongepowered.api.network.RemoteConnection;
 ---
+> import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
 > import org.spongepowered.api.network.channel.ChannelBuf;
-> import org.spongepowered.api.network.channel.ChannelRegistrar;
-> import org.spongepowered.api.network.raw.RawDataListener;
+> import org.spongepowered.api.network.channel.packet.PacketDispatcher;
+> import org.spongepowered.api.network.EngineConnection;
+26c25
+< public class CheckPermissionListener implements RawDataListener {
+---
+> public class CheckPermissionListener {
 29c28
 <     private final RawDataChannel permissionsResultChannel;
 ---
->     private final org.spongepowered.api.network.channel.raw.RawDataChannel permissionsResultChannel;
+>     private final RawPlayDataChannel permissionsResultChannel;
+32c31
+<     CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+---
+>     CheckPermissionListener(ChangeSkinSponge plugin, PacketDispatcher packetDispatcher) {
+36c35
+<         permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
+---
+>         permissionsResultChannel = packetDispatcher.getOrCreateRaw(plugin, combinedName);
+39,40c38
+<     @Override
+<     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+---
+>     public void handlePayload(ChannelBuf data, EngineConnection connection, Type side) {

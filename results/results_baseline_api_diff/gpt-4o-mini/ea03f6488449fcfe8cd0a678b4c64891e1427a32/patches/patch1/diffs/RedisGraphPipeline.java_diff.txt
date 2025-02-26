@@ -1,9 +1,15 @@
-12a13
-> import redis.clients.jedis.commands.ProtocolCommand;
-25d25
-< 
-255a256,259
-> 
->     private <T> Response<T> getResponse(Builder<T> builder) {
->         return super.getResponse(builder);
->     }
+4,6d3
+< import redis.clients.jedis.commands.BasicRedisPipeline;
+< import redis.clients.jedis.commands.BinaryRedisPipeline;
+< import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
+8,10d4
+< import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;
+< import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
+< import redis.clients.jedis.commands.RedisPipeline;
+21,24c15
+<         MultiKeyBinaryRedisPipeline,
+<         MultiKeyCommandsPipeline, ClusterPipeline,
+<         BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
+<         BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
+---
+>         ClusterPipeline, ScriptingCommandsPipeline, Closeable {

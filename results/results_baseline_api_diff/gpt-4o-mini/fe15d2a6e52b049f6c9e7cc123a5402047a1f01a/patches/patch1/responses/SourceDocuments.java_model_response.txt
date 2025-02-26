@@ -229,6 +229,92 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *             &lt;/complexContent&gt;
  *           &lt;/complexType&gt;
  *         &lt;/element&gt;
+ *         &lt;element name="WorkingDocuments" minOccurs="0"&gt;
+ *           &lt;complexType&gt;
+ *             &lt;complexContent&gt;
+ *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                 &lt;sequence&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}NumberOfEntries"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TotalDebit"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TotalCredit"/&gt;
+ *                   &lt;element name="WorkDocument" maxOccurs="unbounded" minOccurs="0"&gt;
+ *                     &lt;complexType&gt;
+ *                       &lt;complexContent&gt;
+ *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                           &lt;sequence&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}DocumentNumber"/&gt;
+ *                             &lt;element name="DocumentStatus"&gt;
+ *                               &lt;complexType&gt;
+ *                                 &lt;complexContent&gt;
+ *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                                     &lt;sequence&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}WorkStatus"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}WorkStatusDate"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Reason" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SourceID"/&gt;
+ *                                     &lt;/sequence&gt;
+ *                                   &lt;/restriction&gt;
+ *                                 &lt;/complexContent&gt;
+ *                               &lt;/complexType&gt;
+ *                             &lt;/element&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Hash"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}HashControl" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Period" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}WorkDate"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}WorkType"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SourceID"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}EACCode" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SystemEntryDate"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}CustomerID"/&gt;
+ *                             &lt;element name="Line" maxOccurs="unbounded"&gt;
+ *                               &lt;complexType&gt;
+ *                                 &lt;complexContent&gt;
+ *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                                     &lt;sequence&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}LineNumber"/&gt;
+ *                                       &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}ProductCode"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}ProductDescription"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Quantity"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}UnitOfMeasure"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}UnitPrice"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Description"/&gt;
+ *                                       &lt;choice&gt;
+ *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}DebitAmount"/&gt;
+ *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}CreditAmount"/&gt;
+ *                                       &lt;/choice&gt;
+ *                                       &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Tax" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxExemptionReason" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SettlementAmount" minOccurs="0"/&gt;
+ *                                     &lt;/sequence&gt;
+ *                                   &lt;/restriction&gt;
+ *                                 &lt;/complexContent&gt;
+ *                               &lt;/complexType&gt;
+ *                             &lt;/element&gt;
+ *                             &lt;element name="DocumentTotals"&gt;
+ *                               &lt;complexType&gt;
+ *                                 &lt;complexContent&gt;
+ *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                                     &lt;sequence&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxPayable"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}NetTotal"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}GrossTotal"/&gt;
+ *                                       &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Currency" minOccurs="0"/&gt;
+ *                                     &lt;/sequence&gt;
+ *                                   &lt;/restriction&gt;
+ *                                 &lt;/complexContent&gt;
+ *                               &lt;/complexType&gt;
+ *                             &lt;/element&gt;
+ *                           &lt;/sequence&gt;
+ *                         &lt;/restriction&gt;
+ *                       &lt;/complexContent&gt;
+ *                     &lt;/complexType&gt;
+ *                   &lt;/element&gt;
+ *                 &lt;/sequence&gt;
+ *               &lt;/restriction&gt;
+ *             &lt;/complexContent&gt;
+ *           &lt;/complexType&gt;
+ *         &lt;/element&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
@@ -450,7 +536,7 @@ public class SourceDocuments implements ToString2
      *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}DebitAmount"/&gt;
      *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}CreditAmount"/&gt;
      *                             &lt;/choice&gt;
-     *                             &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementTax" minOccurs="0"/&gt;
+     *                             &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Tax" minOccurs="0"/&gt;
      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxExemptionReason" minOccurs="0"/&gt;
      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SettlementAmount" minOccurs="0"/&gt;
      *                           &lt;/sequence&gt;
@@ -1340,254 +1426,4 @@ public class SourceDocuments implements ToString2
                  *     {@link String }
                  *     
                  */
-                public String getSourceID() {
-                    return sourceID;
-                }
-
-                /**
-                 * Sets the value of the sourceID property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link String }
-                 *     
-                 */
-                public void setSourceID(String value) {
-                    this.sourceID = value;
-                }
-
-                @Override
-                public String toString() {
-                    final ToStringStrategy2 strategy = new ToStringStrategy2() {
-                        @Override
-                        public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
-                            return buffer.append(object.getClass().getSimpleName()).append(" [");
-                        }
-
-                        @Override
-                        public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
-                            return buffer.append("]");
-                        }
-
-                        @Override
-                        public StringBuilder appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object fieldValue, boolean isSet) {
-                            if (isSet) {
-                                buffer.append(fieldName).append("=").append(fieldValue).append(", ");
-                            }
-                            return buffer;
-                        }
-                    };
-                    final StringBuilder buffer = new StringBuilder();
-                    append(null, buffer, strategy);
-                    return buffer.toString();
-                }
-
-                @Override
-                public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                    strategy.appendStart(locator, this, buffer);
-                    appendFields(locator, buffer, strategy);
-                    strategy.appendEnd(locator, this, buffer);
-                    return buffer;
-                }
-
-                @Override
-                public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                    {
-                        String theWorkStatus;
-                        theWorkStatus = this.getWorkStatus();
-                        strategy.appendField(locator, this, "workStatus", buffer, theWorkStatus, (this.workStatus!= null));
-                    }
-                    {
-                        XMLGregorianCalendar theWorkStatusDate;
-                        theWorkStatusDate = this.getWorkStatusDate();
-                        strategy.appendField(locator, this, "workStatusDate", buffer, theWorkStatusDate, (this.workStatusDate!= null));
-                    }
-                    {
-                        String theReason;
-                        theReason = this.getReason();
-                        strategy.appendField(locator, this, "reason", buffer, theReason, (this.reason!= null));
-                    }
-                    {
-                        String theSourceID;
-                        theSourceID = this.getSourceID();
-                        strategy.appendField(locator, this, "sourceID", buffer, theSourceID, (this.sourceID!= null));
-                    }
-                    return buffer;
-                }
-
-            }
-
-
-            /**
-             * <p>Java class for anonymous complex type.
-             * 
-             * <p>The following schema fragment specifies the expected content contained within this class.
-             * 
-             * <pre>
-             * &lt;complexType&gt;
-             *   &lt;complexContent&gt;
-             *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-             *       &lt;sequence&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxPayable"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}NetTotal"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}GrossTotal"/&gt;
-             *         &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Currency" minOccurs="0"/&gt;
-             *       &lt;/sequence&gt;
-             *     &lt;/restriction&gt;
-             *   &lt;/complexContent&gt;
-             * &lt;/complexType&gt;
-             * </pre>
-             * 
-             * 
-             */
-            @XmlAccessorType(XmlAccessType.FIELD)
-            @XmlType(name = "", propOrder = {
-                "taxPayable",
-                "netTotal",
-                "grossTotal",
-                "currency"
-            })
-            public static class DocumentTotals implements ToString2
-            {
-
-                @XmlElement(name = "TaxPayable", required = true)
-                protected BigDecimal taxPayable;
-                @XmlElement(name = "NetTotal", required = true)
-                protected BigDecimal netTotal;
-                @XmlElement(name = "GrossTotal", required = true)
-                protected BigDecimal grossTotal;
-                @XmlElement(name = "Currency")
-                protected Currency currency;
-
-                /**
-                 * Gets the value of the taxPayable property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
-                public BigDecimal getTaxPayable() {
-                    return taxPayable;
-                }
-
-                /**
-                 * Sets the value of the taxPayable property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
-                public void setTaxPayable(BigDecimal value) {
-                    this.taxPayable = value;
-                }
-
-                /**
-                 * Gets the value of the netTotal property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
-                public BigDecimal getNetTotal() {
-                    return netTotal;
-                }
-
-                /**
-                 * Sets the value of the netTotal property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
-                public void setNetTotal(BigDecimal value) {
-                    this.netTotal = value;
-                }
-
-                /**
-                 * Gets the value of the grossTotal property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
-                public BigDecimal getGrossTotal() {
-                    return grossTotal;
-                }
-
-                /**
-                 * Sets the value of the grossTotal property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link BigDecimal }
-                 *     
-                 */
-                public void setGrossTotal(BigDecimal value) {
-                    this.grossTotal = value;
-                }
-
-                /**
-                 * Gets the value of the currency property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link Currency }
-                 *     
-                 */
-                public Currency getCurrency() {
-                    return currency;
-                }
-
-                /**
-                 * Sets the value of the currency property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link Currency }
-                 *     
-                 */
-                public void setCurrency(Currency value) {
-                    this.currency = value;
-                }
-
-                @Override
-                public String toString() {
-                    final ToStringStrategy2 strategy = new ToStringStrategy2() {
-                        @Override
-                        public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
-                            return buffer.append(object.getClass().getSimpleName()).append(" [");
-                        }
-
-                        @Override
-                        public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
-                            return buffer.append("]");
-                        }
-
-                        @Override
-                        public StringBuilder appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object fieldValue, boolean isSet) {
-                            if (isSet) {
-                                buffer.append(fieldName).append("=").append(fieldValue).append(", ");
-                            }
-                            return buffer;
-                        }
-                    };
-                    final StringBuilder buffer = new StringBuilder();
-                    append(null, buffer, strategy);
-                    return buffer.toString();
-                }
-
-                @Override
-                public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                    strategy.appendStart(locator, this, buffer);
-                    appendFields(locator, buffer, strategy);
-                    strategy.appendEnd(locator, this, buffer);
-                    return buffer;
-                }
-
-                @Override
-                public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy)
+                public String get

@@ -13,10 +13,9 @@ import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.network.ChannelBuf;
+import org.spongepowered.api.network.channel.ChannelBuf;
 import org.spongepowered.api.network.RemoteConnection;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.scheduler.TaskExecutorService;
 
 public class UpdateSkinListener {
 
@@ -32,8 +31,7 @@ public class UpdateSkinListener {
         Optional<Player> receiver = Sponge.getServer().getPlayer(playerName);
         if (receiver.isPresent()) {
             Runnable skinUpdater = new SkinApplier(plugin, (CommandSource) connection, receiver.get(), null, false);
-            TaskExecutorService scheduler = Sponge.getScheduler().getTaskExecutor();
-            scheduler.submit(skinUpdater);
+            Task.builder().execute(skinUpdater).submit(plugin.getScheduler());
         }
     }
 }

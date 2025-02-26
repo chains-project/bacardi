@@ -4,7 +4,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
@@ -233,7 +232,25 @@ public class SupplierAddressStructure implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
+        final ToStringStrategy2 strategy = new ToStringStrategy2() {
+            @Override
+            public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+                return buffer.append(object.getClass().getSimpleName()).append(" [");
+            }
+
+            @Override
+            public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+                return buffer.append("]");
+            }
+
+            @Override
+            public StringBuilder appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean isSet) {
+                if (isSet) {
+                    buffer.append(fieldName).append("=").append(value).append(", ");
+                }
+                return buffer;
+            }
+        };
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();

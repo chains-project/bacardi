@@ -1,6 +1,6 @@
 package ml.peya.plugins.Detect;
 
-import develop.p2p.lib.*;
+import tokyo.peya.lib.*;
 import ml.peya.plugins.DetectClasses.*;
 import ml.peya.plugins.Enum.*;
 import ml.peya.plugins.*;
@@ -106,10 +106,10 @@ public class NPCTeleport
 
                     NPC.setLocation(n, target);
                     connection.sendPacket(new PacketPlayOutEntityTeleport(target));
-                    connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f));
+                    connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) head));
 
                     NPC.setArmor(player, target, arm);
-                    float finalHead = ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f;
+                    float finalHead = head;
                     new BukkitRunnable()
                     {
                         @Override

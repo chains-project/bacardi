@@ -213,6 +213,8 @@ public class BacardiCore {
                 storeInfo.storeFilesErrors("prefix", listOfFilesWithErrors);
 
                 for (Map.Entry<String, Set<DetectedFileWithErrors>> entry : listOfFilesWithErrors.entrySet()) {
+
+
                     String key = entry.getKey();
                     Set<DetectedFileWithErrors> value = entry.getValue();
                     log.info("File: {}", key);
@@ -220,6 +222,11 @@ public class BacardiCore {
                     if (value.isEmpty()) {
                         log.info("No errors found for: {}", key);
                     } else {
+
+                        if (value.stream().filter(f -> !f.getApiChanges().isEmpty()).toList().isEmpty()) {
+                            return FailureCategory.NOT_APIDIFF;
+
+                        }
 
                         // if there are errors, generate a prompt for the file and execute the repair
                         String absolutePathToBuggyClass = getAbsolutePath(setupPipeline, key);

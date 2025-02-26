@@ -1,15 +1,15 @@
-17d16
+16,17c16
+< import org.spongepowered.api.network.ChannelBuf;
 < import org.spongepowered.api.network.RawDataListener;
-19a19
-> import org.spongepowered.api.scheduler.TaskExecutorService;
-21c21
+---
+> import org.spongepowered.api.network.channel.ChannelBuf;
+21c20
 < public class UpdateSkinListener implements RawDataListener {
 ---
 > public class UpdateSkinListener {
-26d25
+26d24
 <     @Override
-36c35,36
+36c34
 <             Task.builder().execute(skinUpdater).submit(plugin);
 ---
->             TaskExecutorService scheduler = Sponge.getScheduler().getTaskExecutor();
->             scheduler.submit(skinUpdater);
+>             Task.builder().execute(skinUpdater).submit(plugin.getScheduler());

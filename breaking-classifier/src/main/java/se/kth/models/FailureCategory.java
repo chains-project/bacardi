@@ -39,5 +39,5 @@ public enum FailureCategory {
     MISSING_API_DIFF, /*
      * Only for repair purposes
      */
-    WITH_API_DIFF, BUILD_SUCCESS
+    WITH_API_DIFF, NOT_APIDIFF, BUILD_SUCCESS
 }
