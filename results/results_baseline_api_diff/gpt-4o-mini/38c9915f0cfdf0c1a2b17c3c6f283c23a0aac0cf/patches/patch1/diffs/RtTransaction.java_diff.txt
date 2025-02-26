@@ -1,0 +1,184 @@
+1,23d0
+< /*
+<  * The MIT License (MIT)
+<  *
+<  * Copyright (c) 2018-2023 Yegor Bugayenko
+<  *
+<  * Permission is hereby granted, free of charge, to any person obtaining a copy
+<  * of this software and associated documentation files (the "Software"), to deal
+<  * in the Software without restriction, including without limitation the rights
+<  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+<  *
+<  * The above copyright notice and this permission notice shall be included
+<  * in all copies or substantial portions of the Software.
+<  *
+<  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+<  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+<  * SOFTWARE.
+<  */
+35d11
+< import org.cactoos.scalar.IoCheckedScalar;
+37,38c13
+< import org.cactoos.scalar.StickyScalar;
+< import org.cactoos.scalar.UncheckedScalar;
+---
+> import org.cactoos.scalar.Unchecked;
+43d17
+< import org.cactoos.text.UncheckedText;
+88c62
+<     private final IoCheckedScalar<String> transaction;
+---
+>     private final String transaction;
+95,97c69
+<         this.transaction = new IoCheckedScalar<>(
+<             new StickyScalar<>(
+<                 () -> {
+---
+>         this.transaction = trnsct;
+99,101c71
+<                         new TrimmedText(
+<                             new TextOf(trnsct)
+<                         ).asString().isEmpty()
+---
+>             new TextOf(trnsct).asString().isEmpty()
+103c73
+<                         throw new IOException(
+---
+>             throw new IllegalArgumentException(
+113c83
+<                         throw new IOException(
+---
+>             throw new IllegalArgumentException(
+121,124d90
+<                     return trnsct;
+<                 }
+<             )
+<         );
+130,131c96
+<         final String ident = new UncheckedText(
+<             new IoCheckedScalar<>(
+---
+>         final String ident = new Unchecked<>(
+133c98
+<                     0, new SplitText(this.transaction.value(), ";")
+---
+>                 0, new SplitText(this.transaction, ";")
+135,136c100
+<             ).value()
+<         ).asString();
+---
+>         ).value();
+139c103
+<                 new UncheckedText(
+---
+>                 new Unchecked<>(
+155,156c119
+<             new UncheckedText(
+<                 new IoCheckedScalar<>(
+---
+>             new Unchecked<>(
+158c121
+<                         1, new SplitText(this.transaction.value(), ";")
+---
+>                     1, new SplitText(this.transaction, ";")
+160,161c123
+<                 ).value()
+<             ).asString(),
+---
+>             ).value(),
+168,169c130
+<         final String amnt = new UncheckedText(
+<             new IoCheckedScalar<>(
+---
+>         final String amnt = new Unchecked<>(
+171c132
+<                     2, new SplitText(this.transaction.value(), ";")
+---
+>                 2, new SplitText(this.transaction, ";")
+173,174c134
+<             ).value()
+<         ).asString();
+---
+>         ).value();
+177c137
+<                 new UncheckedText(
+---
+>                 new Unchecked<>(
+192,193c152
+<         final String prefix = new UncheckedText(
+<             new IoCheckedScalar<>(
+---
+>         final String prefix = new Unchecked<>(
+196c155
+<                     3, new SplitText(this.transaction.value(), ";")
+---
+>                 3, new SplitText(this.transaction, ";")
+198,199c157
+<             ).value()
+<         ).asString();
+---
+>         ).value();
+212,213c170
+<         final String bnf = new UncheckedText(
+<             new IoCheckedScalar<>(
+---
+>         final String bnf = new Unchecked<>(
+216c173
+<                     4, new SplitText(this.transaction.value(), ";")
+---
+>                 4, new SplitText(this.transaction, ";")
+218,219c175
+<             ).value()
+<         ).asString();
+---
+>         ).value();
+222c178
+<                 new UncheckedText(
+---
+>                 new Unchecked<>(
+236,237c192
+<         final String dtls = new UncheckedText(
+<             new IoCheckedScalar<>(
+---
+>         final String dtls = new Unchecked<>(
+240c195
+<                     5, new SplitText(this.transaction.value(), ";")
+---
+>                 5, new SplitText(this.transaction, ";")
+242,243c197
+<             ).value()
+<         ).asString();
+---
+>         ).value();
+246c200
+<                 new UncheckedText(
+---
+>                 new Unchecked<>(
+260,261c214
+<         final String sign = new UncheckedText(
+<             new IoCheckedScalar<>(
+---
+>         final String sign = new Unchecked<>(
+264c217
+<                     6, new SplitText(this.transaction.value(), ";")
+---
+>                 6, new SplitText(this.transaction, ";")
+266,267c219
+<             ).value()
+<         ).asString();
+---
+>         ).value();
+272c224
+<                 new UncheckedText(
+---
+>                 new Unchecked<>(
+286c238
+<         return new UncheckedScalar<>(this.transaction).value();
+---
+>         return this.transaction;

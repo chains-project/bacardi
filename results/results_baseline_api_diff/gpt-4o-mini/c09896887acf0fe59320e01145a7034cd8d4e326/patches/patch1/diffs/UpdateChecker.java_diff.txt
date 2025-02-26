@@ -1,0 +1,50 @@
+1,24d0
+< /*
+<  * The MIT License
+<  *
+<  * Copyright 2018 CloudBees, Inc.
+<  *
+<  * Permission is hereby granted, free of charge, to any person obtaining a copy
+<  * of this software and associated documentation files (the "Software"), to deal
+<  * in the Software without restriction, including without limitation the rights
+<  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+<  *
+<  * The above copyright notice and this permission notice shall be included in
+<  * all copies or substantial portions of the Software.
+<  *
+<  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+<  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+<  * THE SOFTWARE.
+<  */
+< 
+41a18
+> import org.kohsuke.github.GHRepository;
+82c59
+<             return o.version.compareTo(version);
+---
+>             return o.version.compareTo(o.version);
+149,155d125
+<                 // TODO may still be useful to select MRP versions targeted to an origin branch.
+<                 // (For example, select the latest backport from a stable branch rather than trunk.)
+<                 // The problem is that we cannot then guarantee that the POM has been flattened
+<                 // (this is only guaranteed for repositories which *may* produce incrementals),
+<                 // and loadGitHubCommit will not work for nonflattened POMs from reactor submodules:
+<                 // it would have to be made more complicated to resolve the parent POM(s),
+<                 // or we would need to switch the implementation to use Maven/Aether resolution APIs.
+181d150
+<                 // Not bothering to exclude timestamped snapshots for now, since we are working with release repositories anyway.
+239c208,209
+<             GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).status;
+---
+>             GHRepository repository = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo);
+>             GHCompare.Status status = repository.compare(branch, ghc.hash).getStatus();
+245,247d214
+<         // TODO check behavior when the comparison is huge (too many commits or too large diff)
+<         // and perhaps fall back to cloning into a temp dir and pulling all PR refs https://gist.github.com/piscisaureus/3342247
+<         // Currently https://developer.github.com/v4/object/commit/ does no better than this.

@@ -1,0 +1,38 @@
+12,17c12,17
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.View;
+< import javax.mvc.binding.BindingResult;
+< import javax.mvc.binding.ParamError;
+< import javax.mvc.security.CsrfProtected;
+---
+> import jakarta.mvc.Controller;
+> import jakarta.mvc.Models;
+> import jakarta.mvc.View;
+> import jakarta.mvc.binding.BindingResult;
+> import jakarta.mvc.binding.ParamError;
+> import jakarta.mvc.security.CsrfProtected;
+44,46d43
+<     private BindingResult validationResult;
+< 
+<     @Inject
+90d86
+<     //@ValidateOnExecution(type = ExecutableType.NONE)
+94,96c90,92
+<         if (validationResult.isFailed()) {
+<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
+<             validationResult.getAllErrors()
+---
+>         if (form.getValidationResult().isFailed()) {
+>             AlertMessage alert = AlertMessage.danger("Validation violations!");
+>             form.getValidationResult().getAllErrors()
+138,140c134,136
+<         if (validationResult.isFailed()) {
+<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
+<             validationResult.getAllErrors()
+---
+>         if (form.getValidationResult().isFailed()) {
+>             AlertMessage alert = AlertMessage.danger("Validation violations!");
+>             form.getValidationResult().getAllErrors()
+164d159
+<     //@CsrfProtected

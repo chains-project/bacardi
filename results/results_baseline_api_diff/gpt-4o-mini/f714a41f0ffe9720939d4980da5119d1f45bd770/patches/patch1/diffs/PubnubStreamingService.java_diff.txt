@@ -1,0 +1,46 @@
+11,15c11,13
+< import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
+< import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
+< import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
+< import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
+< import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
+---
+> import com.pubnub.api.models.consumer.pubsub.objects.PNMembership;
+> import com.pubnub.api.models.consumer.pubsub.objects.PNMessageResult;
+> import com.pubnub.api.models.consumer.pubsub.objects.PNPresenceEventResult;
+17d14
+< import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
+40,41c37
+<     PNConfiguration pnConfiguration = new PNConfiguration();
+<     pnConfiguration.setSubscribeKey(publicKey);
+---
+>     PNConfiguration pnConfiguration = new PNConfiguration(publicKey);
+59c55
+<                     //              e.onComplete();
+---
+>                     e.onComplete();
+61c57
+<                     //              e.onError(pnStatus.getErrorData().getThrowable());
+---
+>                     e.onError(pnStatus.getErrorData().getThrowable());
+89c85
+<                 public void signal(PubNub pubnub, PNSignalResult pnSignalResult) {
+---
+>                 public void signal(PubNub pubnub, Object pnSignalResult) {
+94c90
+<                 public void user(PubNub pubnub, PNUserResult pnUserResult) {
+---
+>                 public void user(PubNub pubnub, Object pnUserResult) {
+99c95
+<                 public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
+---
+>                 public void space(PubNub pubnub, Object pnSpaceResult) {
+104c100
+<                 public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
+---
+>                 public void membership(PubNub pubnub, PNMembership pnMembershipResult) {
+109,110c105
+<                 public void messageAction(
+<                     PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
+---
+>                 public void messageAction(PubNub pubnub, Object pnMessageActionResult) {
