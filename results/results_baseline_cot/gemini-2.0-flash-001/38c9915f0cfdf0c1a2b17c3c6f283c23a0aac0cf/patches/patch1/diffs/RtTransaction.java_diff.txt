@@ -1,0 +1,131 @@
+10,11c10
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+---
+>  * copies, and to permit persons to do so, subject to the following conditions:
+21,22c20,21
+<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+<  * SOFTWARE.
+---
+>  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+>  * THE SOFTWARE.
+33,38c32,36
+< import org.cactoos.iterable.LengthOf;
+< import org.cactoos.list.ListOf;
+< import org.cactoos.scalar.IoCheckedScalar;
+< import org.cactoos.scalar.ItemAt;
+< import org.cactoos.scalar.StickyScalar;
+< import org.cactoos.scalar.UncheckedScalar;
+---
+> import org.cactoos.iterable.IterableOf;
+> import org.cactoos.iterable.Mapped;
+> import org.cactoos.scalar.IoChecked;
+> import org.cactoos.scalar.Sticky;
+> import org.cactoos.scalar.Unchecked;
+40c38
+< import org.cactoos.text.SplitText;
+---
+> import org.cactoos.text.Split;
+42c40
+< import org.cactoos.text.TrimmedText;
+---
+> import org.cactoos.text.Trimmed;
+44a43,44
+> import java.util.Iterator;
+> import java.util.ArrayList;
+88c88
+<     private final IoCheckedScalar<String> transaction;
+---
+>     private final IoChecked<String> transaction;
+95,96c95,96
+<         this.transaction = new IoCheckedScalar<>(
+<             new StickyScalar<>(
+---
+>         this.transaction = new IoChecked<>(
+>             new Sticky<>(
+99c99
+<                         new TrimmedText(
+---
+>                         new Trimmed(
+108,110c108,112
+<                         new ListOf<>(
+<                             new SplitText(trnsct, ";")
+<                         );
+---
+>                         new ArrayList<>();
+>                     final Iterator<Text> iterator = new Split(trnsct, ";").iterator();
+>                     while (iterator.hasNext()) {
+>                         pieces.add(iterator.next());
+>                     }
+112c114
+<                     if (new LengthOf(pieces).intValue() != 7) {
+---
+>                     if (pieces.size() != 7) {
+131,133c133,135
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     0, new SplitText(this.transaction.value(), ";")
+---
+>             new IoChecked<>(
+>                 new org.cactoos.scalar.ItemAt<>(
+>                     0, new IterableOf<>(new Split(this.transaction.value(), ";"))
+156,158c158,160
+<                 new IoCheckedScalar<>(
+<                     new ItemAt<>(
+<                         1, new SplitText(this.transaction.value(), ";")
+---
+>                 new IoChecked<>(
+>                     new org.cactoos.scalar.ItemAt<>(
+>                         1, new IterableOf<>(new Split(this.transaction.value(), ";"))
+169,171c171,173
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     2, new SplitText(this.transaction.value(), ";")
+---
+>             new IoChecked<>(
+>                 new org.cactoos.scalar.ItemAt<>(
+>                     2, new IterableOf<>(new Split(this.transaction.value(), ";"))
+193,194c195,196
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+---
+>             new IoChecked<>(
+>                 new org.cactoos.scalar.ItemAt<>(
+196c198
+<                     3, new SplitText(this.transaction.value(), ";")
+---
+>                     3, new IterableOf<>(new Split(this.transaction.value(), ";"))
+213,214c215,216
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+---
+>             new IoChecked<>(
+>                 new org.cactoos.scalar.ItemAt<>(
+216c218
+<                     4, new SplitText(this.transaction.value(), ";")
+---
+>                     4, new IterableOf<>(new Split(this.transaction.value(), ";"))
+237,238c239,240
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+---
+>             new IoChecked<>(
+>                 new org.cactoos.scalar.ItemAt<>(
+240c242
+<                     5, new SplitText(this.transaction.value(), ";")
+---
+>                     5, new IterableOf<>(new Split(this.transaction.value(), ";"))
+261,262c263,264
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+---
+>             new IoChecked<>(
+>                 new org.cactoos.scalar.ItemAt<>(
+264c266
+<                     6, new SplitText(this.transaction.value(), ";")
+---
+>                     6, new IterableOf<>(new Split(this.transaction.value(), ";"))
+286c288
+<         return new UncheckedScalar<>(this.transaction).value();
+---
+>         return new Unchecked<>(this.transaction).value();

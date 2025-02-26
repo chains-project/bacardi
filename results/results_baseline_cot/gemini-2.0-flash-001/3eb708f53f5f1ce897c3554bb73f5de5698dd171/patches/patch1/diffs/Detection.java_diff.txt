@@ -1,0 +1,10 @@
+19c19
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+---
+> import com.google.cloud.translate.v3.DetectLanguageResponse;
+87,88c87,88
+<   static Detection fromPb(DetectionsResourceItems detectionPb) {
+<     return new Detection(detectionPb.getLanguage(), detectionPb.getConfidence());
+---
+>   static Detection fromPb(DetectLanguageResponse.LanguageDetection detectionPb) {
+>     return new Detection(detectionPb.getLanguageCode(), detectionPb.getConfidence());

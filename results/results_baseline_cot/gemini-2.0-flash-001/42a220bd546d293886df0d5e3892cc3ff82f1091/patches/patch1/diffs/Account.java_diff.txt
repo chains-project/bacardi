@@ -1,0 +1,18 @@
+5c5,7
+< import org.apache.commons.codec.digest.DigestUtils;
+---
+> import org.apache.commons.codec.binary.Hex;
+> import java.security.MessageDigest;
+> import java.security.NoSuchAlgorithmException;
+49c51,59
+<             this.usernameMd5 = DigestUtils.md5Hex(username);
+---
+>             try {
+>                 MessageDigest md = MessageDigest.getInstance("MD5");
+>                 md.update(username.getBytes());
+>                 byte[] digest = md.digest();
+>                 this.usernameMd5 = new String(Hex.encodeHex(digest));
+>             } catch (NoSuchAlgorithmException e) {
+>                 // This should never happen as MD5 is a standard algorithm
+>                 throw new RuntimeException(e);
+>             }

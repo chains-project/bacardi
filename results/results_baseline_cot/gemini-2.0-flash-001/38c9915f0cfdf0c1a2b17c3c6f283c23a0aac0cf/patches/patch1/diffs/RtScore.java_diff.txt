@@ -1,0 +1,35 @@
+10c10
+<  * copies of the Software, and to permit persons to whom the Software is
+---
+>  * copies of this software, and to permit persons to whom the Software is
+21,22c21,22
+<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+<  * SOFTWARE.
+---
+>  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+>  * THE SOFTWARE.
+25a26
+> import java.util.Iterator;
+27c28,29
+< import org.cactoos.iterable.LengthOf;
+---
+> import org.cactoos.scalar.LengthOf;
+> import org.cactoos.scalar.Unchecked;
+52,53c54,67
+<         return new LengthOf(other.suffixes()).intValue()
+<             - new LengthOf(this.sfxs).intValue();
+---
+>         final Iterable<Text> otherSuffixes = other.suffixes();
+>         final Iterator<Text> iterator = this.sfxs.iterator();
+>         int thisLength = 0;
+>         while (iterator.hasNext()) {
+>             iterator.next();
+>             thisLength++;
+>         }
+>         final Iterator<Text> otherIterator = otherSuffixes.iterator();
+>         int otherLength = 0;
+>         while (otherIterator.hasNext()) {
+>             otherIterator.next();
+>             otherLength++;
+>         }
+>         return otherLength - thisLength;

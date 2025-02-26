@@ -1,0 +1,21 @@
+19,21c19,22
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.api.services.translate.model.TranslationsResource;
+---
+> import com.google.cloud.translate.Detection;
+> import com.google.cloud.translate.Language;
+> import com.google.cloud.translate.Translate.TranslateOption;
+> import com.google.cloud.translate.Translation;
+59c60
+<   List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap);
+---
+>   List<Language> listSupportedLanguages(Map<Option, ?> optionMap);
+67c68
+<   List<List<DetectionsResourceItems>> detect(List<String> texts);
+---
+>   List<List<Detection>> detect(List<String> texts);
+77c78
+<   List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap);
+---
+>   List<Translation> translate(List<String> texts, Map<Option, ?> optionMap);

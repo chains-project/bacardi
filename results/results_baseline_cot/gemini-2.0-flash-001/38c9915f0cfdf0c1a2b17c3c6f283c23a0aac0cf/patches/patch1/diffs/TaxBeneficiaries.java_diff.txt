@@ -1,0 +1,21 @@
+10,11c10
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+---
+>  * copies, and to permit persons to do so, subject to the following conditions:
+21,22c20,21
+<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+<  * SOFTWARE.
+---
+>  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+>  * THE SOFTWARE.
+29,30c28,29
+< import org.cactoos.iterable.LengthOf;
+< import org.cactoos.iterable.Sorted;
+---
+> import org.cactoos.list.LengthOf;
+> import org.cactoos.scalar.Unchecked;
+49c48
+<                 n -> new LengthOf(n.score().suffixes()).intValue() >= 16,
+---
+>                 n -> new Unchecked<>(new LengthOf(n.score().suffixes())).value() >= 16,

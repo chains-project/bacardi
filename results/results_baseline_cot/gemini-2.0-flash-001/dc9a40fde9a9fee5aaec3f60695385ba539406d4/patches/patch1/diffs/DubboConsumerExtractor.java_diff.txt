@@ -1,0 +1,11 @@
+10a11,12
+> import java.util.concurrent.CompletableFuture;
+> 
+43c45
+<             RpcContext.getContext().setFuture(asyncRpcResult);
+---
+>             RpcContext.getContext().setFuture(asyncRpcResult.getResponseFuture());
+45c47
+<             FutureContext.getContext().setCompatibleFuture(asyncRpcResult);
+---
+>             FutureContext.getContext().setCompatibleFuture(asyncRpcResult.getResponseFuture());
