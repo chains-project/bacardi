@@ -25,8 +25,8 @@ public class SpoonUtilities {
     /**
      * The Spoon model.
      */
-    private final CtModel model;
-    private final Client client;
+    private CtModel model;
+    private Client client;
     private String pipeline;
 
     public SpoonUtilities(Client client) {
@@ -34,8 +34,7 @@ public class SpoonUtilities {
        /*
         @TODO: implement the case for MavenLauncher
         */
-
-        this.model = client.createModel();
+//        this.model = client.createModel();
     }
 
     /**
@@ -57,6 +56,7 @@ public class SpoonUtilities {
      * @return The element.
      */
     public Set<CtElement> localizeElementFromTheClientApplicationCode(int lineNumber, String fileName) {
+
         List<CtElement> result = model.filterChildren(element ->
                 shouldBeIgnored(element)
                         && element.getPosition().isValidPosition()
@@ -91,7 +91,9 @@ public class SpoonUtilities {
                 .findFirst();
     }
 
+
     public Set<CtElement> localizeErrorInfoElements(ErrorInfo errorInfo) {
+
         // Get all elements from the client application code
         Set<CtElement> rootElement = this.localizeElementFromTheClientApplicationCode(
                 Integer.parseInt(errorInfo.getClientLinePosition()),
@@ -108,38 +110,39 @@ public class SpoonUtilities {
                 .filter(element -> checkIfAnyConstructIsCalledFromLibrary(element, changedClassnames))
                 .toList();
 
-        Optional<CtElement> optional =   tmp.stream()
+        Optional<CtElement> optional = tmp.stream()
                 .filter(ctElement -> !elements.contains(ctElement.getParent()))
                 .findFirst();
 
-        System.out.println("Optional: " + optional);
-
         //create relation between the elements and the api changes
         DirectFailuresScan scanner = new DirectFailuresScan(apiChanges);
-        for (CtElement element : tmp) {
+        for (CtElement element : optional.map(List::of).orElse(tmp)) {
             element.accept(scanner);
         }
 
+        //get the matched api changes
         Map<CtElement, Set<ApiChange>> matchedApiChangesMap = scanner.getMatchedApiChangesMap();
 
         Set<DetectedFileWithErrors> detectedFileWithErrors = new HashSet<>();
 
         matchedApiChangesMap.forEach((k, v) -> {
 
-            v.forEach(apC->{
-                v.addAll(apiChanges.stream().filter(apiChange -> apiChange.getName().equals(apC.getName())).toList());
+
+            List<ApiChange> apiC = new ArrayList<>(v);
+
+            v.forEach(apC -> {
+                apiC.addAll(apiChanges.stream().filter(apiChange -> apiChange.getName().equals(apC.getName())).toList());
             });
 
+            if (v.isEmpty()) {
+                matchedApiChangesMap.get(k).addAll(new HashSet<>());
+            } else {
+                v.addAll(apiC);
+            }
             DetectedFileWithErrors ctElement = new DetectedFileWithErrors(v, k);
 
             detectedFileWithErrors.add(ctElement);
 
-            String a = SpoonFullyQualifiedNameExtractor.getFullyQualifiedName(k);
-            System.out.println("FULL: " + a);
-            System.out.println("K:  " + k);
-            v.forEach(apiChange -> {
-                System.out.println(apiChange.getLongName());
-            });
         });
 
 
@@ -247,4 +250,5 @@ public class SpoonUtilities {
         int numberOfLines = lines.length;
         return element.getPosition().getEndLine() - numberOfLines + 1;
     }
+
 }

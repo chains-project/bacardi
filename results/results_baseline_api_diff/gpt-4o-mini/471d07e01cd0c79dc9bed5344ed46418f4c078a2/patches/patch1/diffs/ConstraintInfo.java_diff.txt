@@ -1,0 +1,134 @@
+18,20c18,19
+< import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
+< import com.google.api.services.cloudresourcemanager.model.Constraint;
+< import com.google.api.services.cloudresourcemanager.model.ListConstraint;
+---
+> import com.google.api.services.cloudresourcemanager.v3.model.ListPolicy;
+> import com.google.api.services.cloudresourcemanager.v3.model.Policy;
+35,36c34,35
+<   static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+<       new Function<Constraint, ConstraintInfo>() {
+---
+>   static final Function<Policy, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+>       new Function<Policy, ConstraintInfo>() {
+38c37
+<         public ConstraintInfo apply(Constraint protobuf) {
+---
+>         public ConstraintInfo apply(Policy protobuf) {
+42,43c41,42
+<   static final Function<ConstraintInfo, Constraint> TO_PROTOBUF_FUNCTION =
+<       new Function<ConstraintInfo, Constraint>() {
+---
+>   static final Function<ConstraintInfo, Policy> TO_PROTOBUF_FUNCTION =
+>       new Function<ConstraintInfo, Policy>() {
+45c44
+<         public Constraint apply(ConstraintInfo constraintInfo) {
+---
+>         public Policy apply(ConstraintInfo constraintInfo) {
+50c49
+<   private BooleanConstraint booleanConstraint;
+---
+>   private ListPolicy listPolicy;
+114,115c113,114
+<     ListConstraint toProtobuf() {
+<       return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
+---
+>     ListPolicy toProtobuf() {
+>       return new ListPolicy().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
+118,119c117,118
+<     static Constraints fromProtobuf(ListConstraint listConstraint) {
+<       return new Constraints(listConstraint.getSuggestedValue(), listConstraint.getSupportsUnder());
+---
+>     static Constraints fromProtobuf(ListPolicy listPolicy) {
+>       return new Constraints(listPolicy.getSuggestedValue(), listPolicy.getSupportsUnder());
+125c124
+<     private BooleanConstraint booleanConstraint;
+---
+>     private ListPolicy listPolicy;
+138c137
+<       this.booleanConstraint = info.booleanConstraint;
+---
+>       this.listPolicy = info.listPolicy;
+147,148c146,147
+<     Builder setBooleanConstraint(BooleanConstraint booleanConstraint) {
+<       this.booleanConstraint = booleanConstraint;
+---
+>     Builder setListPolicy(ListPolicy listPolicy) {
+>       this.listPolicy = listPolicy;
+188c187
+<     this.booleanConstraint = builder.booleanConstraint;
+---
+>     this.listPolicy = builder.listPolicy;
+197,199c196,198
+<   /** Returns the boolean constraint to check whether the constraint is enforced or not. */
+<   public BooleanConstraint getBooleanConstraint() {
+<     return booleanConstraint;
+---
+>   /** Returns the listPolicy to check whether the constraint is enforced or not. */
+>   public ListPolicy getListPolicy() {
+>     return listPolicy;
+217c216
+<   /** Returns the listConstraintInfo. */
+---
+>   /** Returns the constraints. */
+241c240
+<     return Objects.equals(booleanConstraint, that.booleanConstraint)
+---
+>     return Objects.equals(listPolicy, that.listPolicy)
+253c252
+<         booleanConstraint, constraintDefault, description, displayName, constraints, name, version);
+---
+>         listPolicy, constraintDefault, description, displayName, constraints, name, version);
+266,271c265,270
+<   Constraint toProtobuf() {
+<     Constraint constraintProto = new Constraint();
+<     constraintProto.setBooleanConstraint(booleanConstraint);
+<     constraintProto.setConstraintDefault(constraintDefault);
+<     constraintProto.setDescription(description);
+<     constraintProto.setDisplayName(displayName);
+---
+>   Policy toProtobuf() {
+>     Policy policyProto = new Policy();
+>     policyProto.setListPolicy(listPolicy);
+>     policyProto.setConstraintDefault(constraintDefault);
+>     policyProto.setDescription(description);
+>     policyProto.setDisplayName(displayName);
+273c272
+<       constraintProto.setListConstraint(constraints.toProtobuf());
+---
+>       policyProto.setListPolicy(constraints.toProtobuf());
+275,287c274,286
+<     constraintProto.setName(name);
+<     constraintProto.setVersion(version);
+<     return constraintProto;
+<   }
+< 
+<   static ConstraintInfo fromProtobuf(Constraint constraintProtobuf) {
+<     Builder builder = newBuilder(constraintProtobuf.getName());
+<     builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint());
+<     builder.setConstraintDefault(constraintProtobuf.getConstraintDefault());
+<     builder.setDescription(constraintProtobuf.getDescription());
+<     builder.setDisplayName(constraintProtobuf.getDisplayName());
+<     if (constraintProtobuf.getListConstraint() != null) {
+<       builder.setConstraints(Constraints.fromProtobuf(constraintProtobuf.getListConstraint()));
+---
+>     policyProto.setName(name);
+>     policyProto.setVersion(version);
+>     return policyProto;
+>   }
+> 
+>   static ConstraintInfo fromProtobuf(Policy policyProtobuf) {
+>     Builder builder = newBuilder(policyProtobuf.getName());
+>     builder.setListPolicy(policyProtobuf.getListPolicy());
+>     builder.setConstraintDefault(policyProtobuf.getConstraintDefault());
+>     builder.setDescription(policyProtobuf.getDescription());
+>     builder.setDisplayName(policyProtobuf.getDisplayName());
+>     if (policyProtobuf.getListPolicy() != null) {
+>       builder.setConstraints(Constraints.fromProtobuf(policyProtobuf.getListPolicy()));
+289,292c288
+<     if (constraintProtobuf.getName() != null && !constraintProtobuf.getName().equals("Unnamed")) {
+<       builder.setName(constraintProtobuf.getName());
+<     }
+<     builder.setVersion(constraintProtobuf.getVersion());
+---
+>     builder.setVersion(policyProtobuf.getVersion());

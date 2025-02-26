@@ -1,12 +1,14 @@
 package se.kth.japicmp_analyzer;
 
-import java.lang.reflect.Modifier;
-import java.util.Objects;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import japicmp.model.JApiCompatibilityChange;
 import lombok.experimental.Accessors;
 import se.kth.spoon.ApiMetadata;
+
+import java.lang.reflect.Modifier;
+import java.util.List;
+import java.util.Objects;
 
 @lombok.Setter
 @lombok.Getter
@@ -18,7 +20,7 @@ public class ApiChange {
     private ApiChangeType action;
     private String longName;
 
-    private String category;
+    private List<JApiCompatibilityChange> category;
     private String description;
     private String name;
     private ApiMetadata newVersion;
@@ -38,7 +40,7 @@ public class ApiChange {
     }
 
     public String toDiffString() {
-        if(this.action.equals(ApiChangeType.REMOVE)) {
+        if (this.action.equals(ApiChangeType.REMOVE)) {
             return "-- " + this.getCompleteValue();
         } else {
             return "++ " + this.getCompleteValue();
@@ -53,20 +55,31 @@ public class ApiChange {
         return Modifier.toString(this.modifier) + " " + this.returnType + " " + this.element;
     }
 
+    public boolean isSame(ApiChange apiChange) {
+        return this.getCompleteValue().equals(apiChange.getCompleteValue());
+    }
+
     @Override
-    public boolean equals(Object that) {
-        if (this == that) return true;
-        if (that == null || getClass() != that.getClass()) return false;
-        ApiChange thatLibraryChange = (ApiChange) that;
-        return this.element.equals(thatLibraryChange.element)
-                && this.action.equals(thatLibraryChange.action)
-                && this.category.equals(thatLibraryChange.category)
-                && this.name.equals(thatLibraryChange.name);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ApiChange that = (ApiChange) o;
+        return Objects.equals(modifier, that.modifier)
+                && Objects.equals(returnType, that.returnType)
+                && Objects.equals(element, that.element)
+                && Objects.equals(action, that.action)
+                && Objects.equals(longName, that.longName)
+                && Objects.equals(category, that.category)
+                && Objects.equals(description, that.description)
+                && Objects.equals(name, that.name)
+                && Objects.equals(newVersion, that.newVersion)
+                && Objects.equals(oldVersion, that.oldVersion);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(element, action, category, name);
+        return Objects.hash(modifier, returnType, element, action, longName, category, description, name, newVersion, oldVersion);
     }
+
 }
 

@@ -1,0 +1,75 @@
+package io.zold.api;
+
+import io.zold.api.Copies.Copy;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import org.cactoos.iterable.IterableEnvelope;
+import org.cactoos.iterable.IterableOf;
+import org.cactoos.iterable.Joined;
+import org.cactoos.iterable.Mapped;
+import org.cactoos.iterable.IterableOf;
+
+public final class Copies extends IterableEnvelope<Copy> {
+
+    Copies(final long id, final Iterable<Remote> remotes) {
+        super(() -> copies(id, remotes));
+    }
+
+    private static Iterable<Copy> copies(final long id,
+        final Iterable<Remote> remotes) throws IOException {
+        final List<Copy> copies = new ArrayList<>(10);
+        for (final Remote remote : remotes) {
+            final Wallet wallet = remote.pull(id);
+            boolean updated = false;
+            for (int idx = 0; idx < copies.size(); idx += 1) {
+                final Copy copy = copies.get(idx);
+                if (Copies.equalWallets(copies.get(idx).wallet(), wallet)) {
+                    copies.set(idx, copy.with(remote));
+                    updated = true;
+                }
+            }
+            if (!updated) {
+                copies.add(new Copy(wallet, remote));
+            }
+        }
+        return new IterableOf<>(copies);
+    }
+
+    private static boolean equalWallets(final Wallet first,
+        final Wallet second) throws IOException {
+        return first.id() == second.id() && first.ledger().size() == second.ledger().size();
+    }
+
+    static final class Copy implements Comparable<Copy> {
+
+        private final Wallet wlt;
+        private final Iterable<Remote> remotes;
+
+        Copy(final Wallet wallet, final Remote... remotes) {
+            this(wallet, new IterableOf<>(remotes));
+        }
+
+        Copy(final Wallet wallet, final Iterable<Remote> remotes) {
+            this.wlt = wallet;
+            this.remotes = remotes;
+        }
+
+        public Copy with(final Remote remote) {
+            return new Copy(this.wallet(), new Joined<>(remote, this.remotes));
+        }
+
+        public Wallet wallet() {
+            return this.wlt;
+        }
+
+        public Score score() {
+            return new Score.Summed(new Mapped<>(Remote::score, this.remotes));
+        }
+
+        @Override
+        public int compareTo(final Copy other) {
+            return this.score().compareTo(other.score());
+        }
+    }
+}

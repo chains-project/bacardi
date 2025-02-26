@@ -1,0 +1,15 @@
+10,12c10,12
+< import javax.mvc.locale.LocaleResolver;
+< import javax.mvc.locale.LocaleResolverContext;
+< import javax.ws.rs.core.UriInfo;
+---
+> import jakarta.mvc.locale.LocaleResolverContext;
+> import jakarta.mvc.locale.LocaleResolver;
+> import jakarta.ws.rs.core.UriInfo;
+42,44c42,43
+<         final String queryLang = context.getUriInfo()
+<                 .getQueryParameters()
+<                 .getFirst("lang");
+---
+>         final UriInfo uriInfo = context.getUriInfo();
+>         final String queryLang = uriInfo.getQueryParameters().getFirst("lang");

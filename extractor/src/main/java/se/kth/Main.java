@@ -23,7 +23,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        String benchmark = "/Users/frank/Documents/Work/PHD/BUMP/bump/data/benchmark/%s.json".formatted("0abf7148300f40a1da0538ab060552bca4a2f1d8");
+        String benchmark = "/Users/frank/Documents/Work/PHD/BUMP/bump/data/benchmark/%s.json".formatted("500d9c021d34b307b1a70d3f29fb7f9b5ab9d1a6");
 
         File jsonFile = new File(benchmark);
 
@@ -75,9 +75,18 @@ public class Main {
 
             Map<String, Set<DetectedFileWithErrors>> fileWithErrorsMap = causingConstructExtractor.extractCausingConstructs();
 
+            if(fileWithErrorsMap.isEmpty()) {
+                System.out.println("No errors detected");
+                return;
+            }
+
             fileWithErrorsMap.forEach((key, value) -> {
                 System.out.println("Key: " + key);
                 value.forEach(detectedFileWithErrors -> {
+                    if(detectedFileWithErrors.getExecutedElements() == null) {
+                        System.out.println("No executed elements detected");
+                        return;
+                    }
 
                     detectedFileWithErrors.getExecutedElements().forEach(executedElement -> {
                         System.out.println("Executed element: " + executedElement);
@@ -89,6 +98,8 @@ public class Main {
                         System.out.println("Api change: " + apiChange.toDiffString());
                     });
 
+                    System.out.println("-------------------------------------------------");
+                    System.out.println(detectedFileWithErrors.getErrorInfo().getErrorMessage());
 
                 });
             });

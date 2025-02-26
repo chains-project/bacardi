@@ -21,19 +21,13 @@ import se.kth.spoon.Client;
 import se.kth.spoon.SpoonUtilities;
 
 import javax.xml.stream.XMLStreamException;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 import static se.kth.Util.Constants.PIPELINE;
-import static se.kth.Util.FileUtils.readFromBinary;
 
 public class RepairDirectFailures {
 
@@ -61,6 +55,7 @@ public class RepairDirectFailures {
                 Set<DetectedFileWithErrors> detectedFileWithErrors = new HashSet<>();
                 value.forEach(errorInfo -> {
                     detectedFileWithErrors.add(new DetectedFileWithErrors(errorInfo));
+
                 });
                 detectedFiles.put(key, detectedFileWithErrors);
             });
@@ -97,8 +92,7 @@ public class RepairDirectFailures {
         // Setting the classpath
         client.setClasspath(List.of(oldJarPath));
         // Extracting the results from the client folder
-        SpoonUtilities spoonResults = new SpoonUtilities(
-                client);
+        SpoonUtilities spoonResults = new SpoonUtilities(client);
         // Extracting the constructs that caused the failure
         SpoonConstructExtractor causingConstructExtractor = new SpoonConstructExtractor(errorLog, japicmpAnalyzer,
                 spoonResults, PIPELINE.toString());
@@ -108,8 +102,8 @@ public class RepairDirectFailures {
 
     public Path generateDependencyTree(Path treeFile, String dockerImage, String projectPath) {
 
-        String[] command = { "/bin/sh", "-c",
-                "mvn dependency:3.7.0:tree -DoutputType=json -Dverbose=true -DoutputFile=tree.json" };
+        String[] command = {"/bin/sh", "-c",
+                "mvn dependency:3.7.0:tree -DoutputType=json -Dverbose=true -DoutputFile=tree.json"};
 
         String containerId = dockerBuild.startSpinningContainer(dockerImage);
 

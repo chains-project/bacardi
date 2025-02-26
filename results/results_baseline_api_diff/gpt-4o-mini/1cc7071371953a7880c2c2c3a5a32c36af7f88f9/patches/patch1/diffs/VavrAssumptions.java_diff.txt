@@ -1,0 +1,159 @@
+24,33d23
+< import org.assertj.core.internal.bytebuddy.ByteBuddy;
+< import org.assertj.core.internal.bytebuddy.TypeCache;
+< import org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey;
+< import org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeValidation;
+< import org.assertj.core.internal.bytebuddy.implementation.Implementation;
+< import org.assertj.core.internal.bytebuddy.implementation.MethodDelegation;
+< import org.assertj.core.internal.bytebuddy.implementation.auxiliary.AuxiliaryType;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.RuntimeType;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This;
+40,41d29
+< import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any;
+< import static org.assertj.core.util.Arrays.array;
+46,51c34,36
+<     /**
+<      * This NamingStrategy takes the original class's name and adds a suffix to distinguish it.
+<      * The default is ByteBuddy but for debugging purposes, it makes sense to add AssertJ as a name.
+<      */
+<     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(TypeValidation.DISABLED)
+<             .with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
+---
+>     private static final Class<?> BYTE_BUDDY_CLASS;
+>     private static final Object ASSUMPTION;
+>     private static final Object CACHE;
+53,55c38,46
+<     private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
+< 
+<     private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
+---
+>     static {
+>         try {
+>             BYTE_BUDDY_CLASS = Class.forName("org.assertj.core.internal.bytebuddy.ByteBuddy");
+>             ASSUMPTION = BYTE_BUDDY_CLASS.getMethod("to", Class.class).invoke(null, AssumptionMethodInterceptor.class);
+>             CACHE = Class.forName("org.assertj.core.internal.bytebuddy.TypeCache").getConstructor().newInstance();
+>         } catch (Exception e) {
+>             throw new RuntimeException("Initialization failed", e);
+>         }
+>     }
+59,60c50
+<         @RuntimeType
+<         public static Object intercept(@This AbstractVavrAssert<?, ?> assertion, @SuperCall Callable<Object> proxy) throws Exception {
+---
+>         public static Object intercept(AbstractVavrAssert<?, ?> assertion, Callable<Object> proxy) throws Exception {
+74,81d63
+<     /**
+<      * Creates a new instance of <code>{@link EitherAssert}</code> assumption.
+<      *
+<      * @param <LEFT>  type of the left value contained in the {@link Either}.
+<      * @param <RIGHT> type of the right value contained in the {@link Either}.
+<      * @param actual  the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+88,94d69
+<     /**
+<      * Creates a new instance of <code>{@link LazyAssert}</code> assumption.
+<      *
+<      * @param <VALUE>    type of the value contained in the {@link Lazy}.
+<      * @param actual the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+101,108d75
+<     /**
+<      * Creates a new instance of <code>{@link MapAssert}</code> assumption.
+<      *
+<      * @param <K>    the type of keys in the map.
+<      * @param <V>    the type of values in the map.
+<      * @param actual the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+115,122d81
+<     /**
+<      * Creates a new instance of <code>{@link MultimapAssert}</code> assumption.
+<      *
+<      * @param <K>    the type of keys in the multimap.
+<      * @param <V>    the type of values in the multimap.
+<      * @param actual the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+129,135d87
+<     /**
+<      * Creates a new instance of <code>{@link OptionAssert}</code> assumption.
+<      *
+<      * @param <VALUE> type of the value contained in the {@link Option}.
+<      * @param actual  the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+142,148d93
+<     /**
+<      * Creates a new instance of <code>{@link SetAssert}</code> assumption.
+<      *
+<      * @param <ELEMENT> type of elements contained in the {@link Set}.
+<      * @param actual  the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+155,161d99
+<     /**
+<      * Creates a new instance of <code>{@link SeqAssert}</code> assumption.
+<      *
+<      * @param <ELEMENT> type of elements contained in the {@link Seq}.
+<      * @param actual  the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+168,174d105
+<     /**
+<      * Creates a new instance of <code>{@link TryAssert}</code> assumption.
+<      *
+<      * @param <VALUE> type of the value contained in the {@link io.vavr.control.Try}.
+<      * @param actual    the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+181,188d111
+<     /**
+<      * Creates a new instance of <code>{@link ValidationAssert}</code> assumption.
+<      *
+<      * @param <INVALID> type of the value in the case of the invalid {@link Validation}.
+<      * @param <VALID>   type of the value in the case of the valid {@link Validation}.
+<      * @param actual  the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+198c121
+<         return asAssumption(assertionType, array(actualType), array(actual));
+---
+>         return asAssumption(assertionType, new Class<?>[]{actualType}, new Object[]{actual});
+215,218c138,139
+<         SimpleKey cacheKey = new SimpleKey(assertClass);
+<         return (Class<ASSERTION>) CACHE.findOrInsert(VavrAssumptions.class.getClassLoader(),
+<                 cacheKey,
+<                 () -> generateAssumptionClass(assertClass));
+---
+>         return (Class<ASSERTION>) CACHE.getClass().getMethod("findOrInsert", ClassLoader.class, Object.class, Callable.class)
+>                 .invoke(CACHE, VavrAssumptions.class.getClassLoader(), assertClass, () -> generateAssumptionClass(assertClass));
+222,227c143,154
+<         return BYTE_BUDDY.subclass(assertionType)
+<                 .method(any())
+<                 .intercept(ASSUMPTION)
+<                 .make()
+<                 .load(VavrAssumptions.class.getClassLoader(), classLoadingStrategy(assertionType))
+<                 .getLoaded();
+---
+>         return (Class<ASSERTION>) BYTE_BUDDY_CLASS.getMethod("subclass", Class.class)
+>                 .invoke(BYTE_BUDDY_CLASS, assertionType)
+>                 .getClass().getMethod("method", Object.class)
+>                 .invoke(BYTE_BUDDY_CLASS, new Object[]{null})
+>                 .getClass().getMethod("intercept", Object.class)
+>                 .invoke(BYTE_BUDDY_CLASS, ASSUMPTION)
+>                 .getClass().getMethod("make")
+>                 .invoke(BYTE_BUDDY_CLASS)
+>                 .getClass().getMethod("load", ClassLoader.class, Class.class)
+>                 .invoke(BYTE_BUDDY_CLASS, VavrAssumptions.class.getClassLoader(), classLoadingStrategy(assertionType))
+>                 .getClass().getMethod("getLoaded")
+>                 .invoke(BYTE_BUDDY_CLASS);
+257d183
+<     // for method that change the object under test (e.g. extracting)
+259d184
+<         // @format:off
+268,269d192
+<         // @format:on
+<         // should not arrive here

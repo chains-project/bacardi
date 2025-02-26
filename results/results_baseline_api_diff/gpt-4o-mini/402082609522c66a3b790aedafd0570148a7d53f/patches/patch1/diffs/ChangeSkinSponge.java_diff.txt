@@ -1,0 +1,28 @@
+27,32c27,32
+< import org.spongepowered.api.event.game.state.GameInitializationEvent;
+< import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+< import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelRegistrar;
+< import org.spongepowered.api.plugin.Plugin;
+---
+> import org.spongepowered.api.event.lifecycle.GameInitializationEvent;
+> import org.spongepowered.api.event.lifecycle.GamePreInitializationEvent;
+> import org.spongepowered.api.event.lifecycle.GameStoppingEvent;
+> import org.spongepowered.api.network.channel.RawDataChannel;
+> import org.spongepowered.api.network.channel.ChannelRegistrar;
+> import org.spongepowered.plugin.PluginContainer;
+53d52
+<     //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
+63d61
+<         //load config and database
+79d76
+<         //command and event register
+89d85
+<         //incoming channel
+100c96
+<     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
+---
+>     public void onShutdown(GameStoppingEvent stoppingServerEvent) {
+114d109
+<         //disallow - not whitelisted or blacklisted

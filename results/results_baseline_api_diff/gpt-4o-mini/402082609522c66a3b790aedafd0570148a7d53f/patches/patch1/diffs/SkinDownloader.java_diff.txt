@@ -1,0 +1,20 @@
+9d8
+< import org.spongepowered.api.command.CommandSource;
+16d14
+<     private final CommandSource invoker;
+19,20c17
+<     public SkinDownloader(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, UUID targetUUID
+<             , boolean keepSkin) {
+---
+>     public SkinDownloader(ChangeSkinSponge plugin, Player receiver, UUID targetUUID, boolean keepSkin) {
+24d20
+<         this.invoker = invoker;
+30c26
+<         Runnable skinUpdater = new SkinApplier(plugin, invoker, receiver, skinData, keepSkin);
+---
+>         Runnable skinUpdater = new SkinApplier(plugin, receiver, skinData, keepSkin);
+36c32,33
+<         plugin.sendMessage(invoker, id);
+---
+>         // Assuming invoker is no longer needed as CommandSource has been removed
+>         plugin.sendMessage(receiver, id);

@@ -1,0 +1,44 @@
+14d13
+< import org.spongepowered.api.command.CommandException;
+17,19c16,17
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.Command;
+22,23c20
+< import org.spongepowered.api.text.Text;
+< import org.spongepowered.api.text.serializer.TextSerializers;
+---
+> import net.kyori.adventure.text.Component;
+33d29
+< 
+35c31
+<     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+---
+>     public CommandResult execute(CommandSource src, CommandContext args) {
+38c34
+<             return CommandResult.empty();
+---
+>             return CommandResult.success();
+42,43c38
+<         Task.builder().async()
+<                 .execute(() -> {
+---
+>         Task.builder().execute(() -> {
+46,47c41
+<                 })
+<                 .submit(plugin);
+---
+>         }).submit(plugin);
+52d45
+<     @Override
+54c47
+<         return CommandSpec.builder()
+---
+>         return Command.builder()
+70c63
+<                 Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
+---
+>                 Component text = Component.text(formatted);

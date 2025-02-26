@@ -1,0 +1,12 @@
+85,87d84
+<         // It is expected that this will never occur due to all Configuration instances of all plugins being provided as
+<         // XML document. If this happens to occur on very old plugin versions, we can safely add the type support and
+<         // simply return an empty set.
+100,101c97,100
+<         final Xpp3Dom child = node.getChild(name);
+<         return child == null ? "" : child.getValue();
+---
+>         return stream(node.getChildren()).filter(child -> name.equals(child.getName()))
+>                 .findFirst()
+>                 .map(Xpp3Dom::getValue)
+>                 .orElse("");

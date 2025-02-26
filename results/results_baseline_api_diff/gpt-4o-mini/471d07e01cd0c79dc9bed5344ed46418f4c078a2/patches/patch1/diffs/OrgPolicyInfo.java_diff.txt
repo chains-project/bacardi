@@ -1,0 +1,129 @@
+18,23d17
+< import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+< import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+< import com.google.common.base.Function;
+< import com.google.common.base.MoreObjects;
+38,52d31
+<   static final Function<OrgPolicy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
+<       new Function<OrgPolicy, OrgPolicyInfo>() {
+<         @Override
+<         public OrgPolicyInfo apply(OrgPolicy protobuf) {
+<           return OrgPolicyInfo.fromProtobuf(protobuf);
+<         }
+<       };
+<   static final Function<OrgPolicyInfo, OrgPolicy> TO_PROTOBUF_FUNCTION =
+<       new Function<OrgPolicyInfo, OrgPolicy>() {
+<         @Override
+<         public OrgPolicy apply(OrgPolicyInfo orgPolicyInfo) {
+<           return orgPolicyInfo.toProtobuf();
+<         }
+<       };
+< 
+57d35
+<   private RestoreDefault restoreDefault;
+96,101c74,75
+<     BooleanPolicy toProtobuf() {
+<       return new BooleanPolicy().setEnforced(enforce);
+<     }
+< 
+<     static BoolPolicy fromProtobuf(BooleanPolicy booleanPolicy) {
+<       return new BoolPolicy(booleanPolicy.getEnforced());
+---
+>     static BoolPolicy fromProtobuf(Boolean enforce) {
+>       return new BoolPolicy(enforce);
+107,119d80
+<    *
+<    * <p>ListPolicy can define specific values and subtrees of Cloud Resource Manager resource
+<    * hierarchy (Organizations, Folders, Projects) that are allowed or denied by setting the
+<    * allowedValues and deniedValues fields. This is achieved by using the under: and optional is:
+<    * prefixes. The under: prefix denotes resource subtree values. The is: prefix is used to denote
+<    * specific values, and is required only if the value contains a ":". Values prefixed with "is:"
+<    * are treated the same as values with no prefix. Ancestry subtrees must be in one of the
+<    * following formats: - "projects/", e.g. "projects/tokyo-rain-123" - "folders/", e.g.
+<    * "folders/1234" - "organizations/", e.g. "organizations/1234" The supportsUnder field of the
+<    * associated Constraint defines whether ancestry prefixes can be used. You can set allowedValues
+<    * and deniedValues in the same Policy if allValues is ALL_VALUES_UNSPECIFIED. ALLOW or DENY are
+<    * used to allow or deny all values. If allValues is set to either ALLOW or DENY, allowedValues
+<    * and deniedValues must be unset.
+125c86
+<     private final List<java.lang.String> deniedValues;
+---
+>     private final List<String> deniedValues;
+199,216d159
+< 
+<     ListPolicy toProtobuf() {
+<       return new ListPolicy()
+<           .setAllValues(allValues)
+<           .setAllowedValues(allowedValues)
+<           .setDeniedValues(deniedValues)
+<           .setInheritFromParent(inheritFromParent)
+<           .setSuggestedValue(suggestedValue);
+<     }
+< 
+<     static Policies fromProtobuf(ListPolicy listPolicy) {
+<       return new Policies(
+<           listPolicy.getAllValues(),
+<           listPolicy.getAllowedValues(),
+<           listPolicy.getDeniedValues(),
+<           listPolicy.getInheritFromParent(),
+<           listPolicy.getSuggestedValue());
+<     }
+225d167
+<     private RestoreDefault restoreDefault;
+236d177
+<       this.restoreDefault = info.restoreDefault;
+261,265d201
+<     Builder setRestoreDefault(RestoreDefault restoreDefault) {
+<       this.restoreDefault = restoreDefault;
+<       return this;
+<     }
+< 
+286d221
+<     this.restoreDefault = builder.restoreDefault;
+311,315d245
+<   /** Restores the default behavior of the constraint. */
+<   public RestoreDefault getRestoreDefault() {
+<     return restoreDefault;
+<   }
+< 
+339d268
+<         && Objects.equals(restoreDefault, policyInfo.restoreDefault)
+347c276
+<         boolPolicy, constraint, etag, policies, restoreDefault, updateTime, version);
+---
+>         boolPolicy, constraint, etag, policies, updateTime, version);
+359,390d287
+< 
+<   OrgPolicy toProtobuf() {
+<     OrgPolicy orgPolicyProto = new OrgPolicy();
+<     if (boolPolicy != null) {
+<       orgPolicyProto.setBooleanPolicy(boolPolicy.toProtobuf());
+<     }
+<     orgPolicyProto.setConstraint(constraint);
+<     if (policies != null) {
+<       orgPolicyProto.setListPolicy(policies.toProtobuf());
+<     }
+<     orgPolicyProto.setRestoreDefault(restoreDefault);
+<     orgPolicyProto.setEtag(etag);
+<     orgPolicyProto.setUpdateTime(updateTime);
+<     orgPolicyProto.setVersion(version);
+<     return orgPolicyProto;
+<   }
+< 
+<   static OrgPolicyInfo fromProtobuf(OrgPolicy orgPolicyProtobuf) {
+<     Builder builder = newBuilder();
+<     if (orgPolicyProtobuf.getBooleanPolicy() != null) {
+<       builder.setBoolPolicy(BoolPolicy.fromProtobuf(orgPolicyProtobuf.getBooleanPolicy()));
+<     }
+<     builder.setConstraint(orgPolicyProtobuf.getConstraint());
+<     if (orgPolicyProtobuf.getListPolicy() != null) {
+<       builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getListPolicy()));
+<     }
+<     builder.setRestoreDefault(orgPolicyProtobuf.getRestoreDefault());
+<     builder.setEtag(orgPolicyProtobuf.getEtag());
+<     builder.setUpdateTime(orgPolicyProtobuf.getUpdateTime());
+<     builder.setVersion(orgPolicyProtobuf.getVersion());
+<     return builder.build();
+<   }

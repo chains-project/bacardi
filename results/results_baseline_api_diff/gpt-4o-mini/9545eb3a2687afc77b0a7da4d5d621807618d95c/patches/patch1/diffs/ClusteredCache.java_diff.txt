@@ -1,0 +1,60 @@
+1,15d0
+< /*
+<  * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+20,21c5,6
+< import com.hazelcast.core.IMap;
+< import com.hazelcast.core.MapEvent;
+---
+> import com.hazelcast.map.IMap;
+> import com.hazelcast.map.MapEvent;
+23c8
+< import com.hazelcast.monitor.LocalMapStats;
+---
+> import com.hazelcast.map.LocalMapStats;
+45,48d29
+< /**
+<  * Clustered implementation of the Cache interface using Hazelcast.
+<  *
+<  */
+55,57d35
+<     /**
+<      * The map is used for distributed operations such as get, put, etc.
+<      */
+62,64d39
+<     /**
+<      * Used to limit the amount of duplicate warnings logged.
+<      */
+68,73d42
+<     /**
+<      * Create a new cache using the supplied named cache as the actual cache implementation
+<      *
+<      * @param name a name for the cache, which should be unique per vm.
+<      * @param cache the cache implementation
+<      */
+225d193
+<         // Instances are likely all loaded by the same class loader. For resource usage optimization, let's test just one, not all.
+316,324d283
+<     /**
+<      * Clustered caches should not contain instances of classes that are provided by Openfire plugins. These will cause
+<      * issues related to class loading when the providing plugin is reloaded. This method verifies if an instance is
+<      * loaded by a plugin class loader, and logs a warning to the log files when it is. The amount of warnings logged is
+<      * limited by a time interval.
+<      *
+<      * @param o the instance for which to verify the class loader
+<      * @see <a href="https://github.com/igniterealtime/openfire-hazelcast-plugin/issues/74">Issue #74: Warn against usage of plugin-provided classes in Hazelcast</a>
+<      */
+329d287
+<             // Try to determine what plugin loaded the offending class.

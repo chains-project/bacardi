@@ -14,7 +14,8 @@ import java.util.List;
 @lombok.EqualsAndHashCode
 
 public class Client {
-    private final Path sourcePath;
+    private Path sourcePath;
+    private Path currentFile;
 
     private List<Path> classpath = Collections.emptyList();
 
@@ -22,7 +23,7 @@ public class Client {
         this.sourcePath = sourcePath;
     }
 
-    public CtModel createModel() {
+    public CtModel createModel(Path sourcePath) {
 
         Launcher launcher;
 
@@ -31,7 +32,6 @@ public class Client {
             launcher = new MavenLauncher(sourcePath.toString(), MavenLauncher.SOURCE_TYPE.ALL_SOURCE, new String[0]);
         } else {
             launcher = new Launcher();
-            launcher.getEnvironment().setComplianceLevel(11);
             launcher.addInputResource(sourcePath.toString());
         }
 
@@ -41,6 +41,8 @@ public class Client {
         launcher.getEnvironment().setIgnoreSyntaxErrors(true);
         // Ignore duplicate declarations
         launcher.getEnvironment().setIgnoreDuplicateDeclarations(true);
+        launcher.getEnvironment().setAutoImports(true);
+//
 
         String[] cp = classpath.stream().map(p -> p.toAbsolutePath().toString()).toList().toArray(new String[0]);
         launcher.getEnvironment().setSourceClasspath(cp);
@@ -48,6 +50,5 @@ public class Client {
 
     }
 
-
-
 }
+
