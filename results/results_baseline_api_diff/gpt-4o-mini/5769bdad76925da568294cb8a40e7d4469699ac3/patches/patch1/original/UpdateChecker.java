@@ -1,4 +1,27 @@
-```java
+/*
+ * The MIT License
+ *
+ * Copyright 2018 CloudBees, Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 package io.jenkins.tools.incrementals.lib;
 
 import java.io.FileNotFoundException;
@@ -16,7 +39,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.kohsuke.github.GHCompare;
 import org.kohsuke.github.GitHub;
-import org.kohsuke.github.GHRepository;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -57,7 +79,7 @@ public final class UpdateChecker {
         /** Sort by version descending. */
         @Override public int compareTo(VersionAndRepo o) {
             assert o.groupId.equals(groupId) && o.artifactId.equals(artifactId);
-            return o.version.compareTo(o.version);
+            return o.version.compareTo(version);
         }
         /** @return for example: {@code https://repo/net/nowhere/lib/1.23/} */
         public String baseURL() {
@@ -124,6 +146,13 @@ public final class UpdateChecker {
                 }
             } else {
                 log.info("Does not seem to be an incremental release, so accepting");
+                // TODO may still be useful to select MRP versions targeted to an origin branch.
+                // (For example, select the latest backport from a stable branch rather than trunk.)
+                // The problem is that we cannot then guarantee that the POM has been flattened
+                // (this is only guaranteed for repositories which *may* produce incrementals),
+                // and loadGitHubCommit will not work for nonflattened POMs from reactor submodules:
+                // it would have to be made more complicated to resolve the parent POM(s),
+                // or we would need to switch the implementation to use Maven/Aether resolution APIs.
                 return candidate;
             }
         }
@@ -149,6 +178,7 @@ public final class UpdateChecker {
             Element versionsE = theElement(doc, "versions", mavenMetadataURL);
             NodeList versionEs = versionsE.getElementsByTagName("version");
             for (int i = 0; i < versionEs.getLength(); i++) {
+                // Not bothering to exclude timestamped snapshots for now, since we are working with release repositories anyway.
                 r.add(new VersionAndRepo(groupId, artifactId, new ComparableVersion(versionEs.item(i).getTextContent()), repo));
             }
         }
@@ -206,13 +236,15 @@ public final class UpdateChecker {
      */
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
-            GHRepository repository = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo);
-            GHCompare.Status status = repository.compare(branch, ghc.hash).getStatus();
+            GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).status;
             return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
         } catch (FileNotFoundException x) {
             // For example, that branch does not exist in this repository.
             return false;
         }
+        // TODO check behavior when the comparison is huge (too many commits or too large diff)
+        // and perhaps fall back to cloning into a temp dir and pulling all PR refs https://gist.github.com/piscisaureus/3342247
+        // Currently https://developer.github.com/v4/object/commit/ does no better than this.
     }
 
     private static Element theElement(Document doc, String tagName, String url) throws Exception {
@@ -246,4 +278,3 @@ public final class UpdateChecker {
     }
 
 }
-```

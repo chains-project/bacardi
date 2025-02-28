@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class BasePromptApiDiffTemplate extends AbstractPromptTemplate {
@@ -72,10 +73,9 @@ public class BasePromptApiDiffTemplate extends AbstractPromptTemplate {
                 if (apiChange.getCategory().isEmpty()) {
                     changeStatus = constructType;
                 } else {
-                    changeStatus = ConstructType.getConstruct(apiChange.getCategory().getFirst().getType().toString());
+                    String type = ConstructType.getConstruct(apiChange.getCategory().getFirst().getType().toString());
+                    changeStatus = Objects.requireNonNullElse(type, constructType);
                 }
-
-
 
 
                 String apiChangeInfo = """

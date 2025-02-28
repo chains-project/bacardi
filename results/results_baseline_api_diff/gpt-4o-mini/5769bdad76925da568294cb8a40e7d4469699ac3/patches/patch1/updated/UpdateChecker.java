@@ -1,4 +1,3 @@
-```java
 package io.jenkins.tools.incrementals.lib;
 
 import java.io.FileNotFoundException;
@@ -246,4 +245,3 @@ public final class UpdateChecker {
     }
 
 }
-```
