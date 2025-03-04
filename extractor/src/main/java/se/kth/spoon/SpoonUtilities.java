@@ -116,7 +116,7 @@ public class SpoonUtilities {
 
         //create relation between the elements and the api changes
         DirectFailuresScan scanner = new DirectFailuresScan(apiChanges);
-        for (CtElement element : optional.map(List::of).orElse(tmp)) {
+        for (CtElement element : tmp) {
             element.accept(scanner);
         }
 

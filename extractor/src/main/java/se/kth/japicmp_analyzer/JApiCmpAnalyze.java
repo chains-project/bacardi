@@ -84,7 +84,8 @@ public class JApiCmpAnalyze {
                 jApiClass1.getConstructors().forEach(jApiConstructor -> {
                     String longName = jApiConstructor.getjApiClass().getFullyQualifiedName() + "." + jApiConstructor.getName();
 
-                    if (jApiConstructor.getChangeStatus().equals(JApiChangeStatus.NEW)) {
+                    if (jApiConstructor.getChangeStatus().equals(JApiChangeStatus.NEW)
+                            || jApiConstructor.getChangeStatus().equals(JApiChangeStatus.MODIFIED)) {
                         libraryChanges.add(
                                 new ApiChange()
                                         .setAction(ApiChangeType.ADD)
@@ -97,7 +98,8 @@ public class JApiCmpAnalyze {
                                         .setOldVersion(oldApi)
                                         .setLongName(longName)
                         );
-                    } else if (jApiConstructor.getChangeStatus().equals(JApiChangeStatus.REMOVED)) {
+                    } else if (jApiConstructor.getChangeStatus().equals(JApiChangeStatus.REMOVED)
+                            || jApiConstructor.getChangeStatus().equals(JApiChangeStatus.MODIFIED)) {
                         libraryChanges.add(
                                 new ApiChange()
                                         .setAction(ApiChangeType.REMOVE)

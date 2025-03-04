@@ -58,6 +58,10 @@ public class ConstructType {
                  "METHOD_NOW_ABSTRACT",
                  "METHOD_RETURN_TYPE_CHANGED",
                  "METHOD_ADDED_TO_PUBLIC_CLASS",
+                 "METHOD_DEFAULT_ADDED_IN_IMPLEMENTED_INTERFACE",
+                 "METHOD_ABSTRACT_ADDED_IN_IMPLEMENTED_INTERFACE",
+                 "METHOD_ABSTRACT_ADDED_IN_SUPERCLASS",
+                 "METHOD_NO_LONGER_THROWS_CHECKED_EXCEPTION",
                  "METHOD_REMOVED_IN_SUPERCLASS":
                 yield "Method";
             case "FIELD_REMOVED",
@@ -68,6 +72,7 @@ public class ConstructType {
                  "ANNOTATION_DEPRECATED_ADDED",
                  "FIELD_TYPE_CHANGED",
                  "FIELD_STATIC_AND_OVERRIDES_STATIC",
+                 "FIELD_REMOVED_IN_SUPERCLASS",
                  "FIELD_GENERICS_CHANGED":
                 yield "Field";
             case "CLASS_LESS_ACCESSIBLE",
@@ -92,9 +97,7 @@ public class ConstructType {
                 yield "Interface";
             case "CONSTRUCTOR_REMOVED":
                 yield "Constructor";    // Constructor
-            case "METHOD_NO_LONGER_THROWS_CHECKED_EXCEPTION": {
-                yield null;
-            }
+
             default: {
 //                System.out.println("Error: " + apiUse);
                 yield apiUse;

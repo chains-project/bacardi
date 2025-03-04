@@ -49,7 +49,9 @@ public class DirectFailuresScan extends CtScanner {
     @Override
     public <T> void visitCtInvocation(CtInvocation<T> invocation) {
         String fullyQualifiedName = SpoonFullyQualifiedNameExtractor.getFullyQualifiedName(invocation);
-        apiChanges.stream().filter(apiChange -> apiChange.getLongName().equals(fullyQualifiedName)).forEach(apiChange -> {
+        apiChanges.stream().filter(apiChange ->
+                apiChange.getLongName().equals(fullyQualifiedName)
+                        || apiChange.getElement().equals(fullyQualifiedName)).forEach(apiChange -> {
             matchedApiChanges.add(apiChange);
             this.collectExecutedElements(invocation.getExecutable());
             addCtElementToApiChangeMap(invocation.getExecutable(), apiChange);
@@ -60,7 +62,13 @@ public class DirectFailuresScan extends CtScanner {
     @Override
     public <T> void visitCtConstructorCall(CtConstructorCall<T> constructorCall) {
         String fullyQualifiedName = SpoonFullyQualifiedNameExtractor.getFullyQualifiedName(constructorCall);
-        apiChanges.stream().filter(apiChange -> apiChange.getLongName().equals(fullyQualifiedName)).forEach(apiChange -> {
+        if (fullyQualifiedName.equals("org.yaml.snakeyaml.constructor.Constructor(java.lang.Class)")) {
+            apiChanges.forEach(apiChange -> {
+                System.out.println("Api Change: " + apiChange.getLongName());
+            });
+        }
+        apiChanges.stream().filter(apiChange -> apiChange.getLongName().equals(fullyQualifiedName)
+                || apiChange.getElement().equals(fullyQualifiedName)).forEach(apiChange -> {
             matchedApiChanges.add(apiChange);
             this.collectExecutedElements(constructorCall.getExecutable());
             addCtElementToApiChangeMap(constructorCall, apiChange);

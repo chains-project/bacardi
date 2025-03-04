@@ -18,7 +18,7 @@ public class SpoonFullyQualifiedNameExtractor {
         return getFullyQualifiedName(ctInvocation.getExecutable());
     }
 
-    public static String getFullyQualifiedName(CtConstructorCall<?> ctConstructorCall) {
+        public static String getFullyQualifiedName(CtConstructorCall<?> ctConstructorCall) {
         return getFullyQualifiedName(ctConstructorCall.getExecutable());
     }
 
@@ -30,7 +30,7 @@ public class SpoonFullyQualifiedNameExtractor {
             if (typeReference == null) {
                 return ctExecutableReference.getSignature();
             }
-            return typeReference.getQualifiedName() + "." + ctExecutableReference.getSimpleName();
+                return typeReference.getQualifiedName() + "." + ctExecutableReference.getSimpleName();
         }
     }
 

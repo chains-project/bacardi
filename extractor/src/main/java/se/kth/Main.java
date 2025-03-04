@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import se.kth.failure_detection.DetectedFileWithErrors;
+import se.kth.japicmp_analyzer.ApiChange;
 import se.kth.japicmp_analyzer.JApiCmpAnalyze;
 import se.kth.models.MavenErrorLog;
 import se.kth.spoon.ApiMetadata;
@@ -23,7 +24,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        String benchmark = "/Users/frank/Documents/Work/PHD/BUMP/bump/data/benchmark/%s.json".formatted("500d9c021d34b307b1a70d3f29fb7f9b5ab9d1a6");
+        String benchmark = "/Users/frank/Documents/Work/PHD/BUMP/bump/data/benchmark/%s.json".formatted("b2edf635da83fd076262a41751c6f773c17f3b76");
 
         File jsonFile = new File(benchmark);
 
@@ -70,6 +71,11 @@ public class Main {
             SpoonUtilities spoonResults = new SpoonUtilities(
                     client
             );
+
+            for (ApiChange allChange : japicmpAnalyzer.getAllChanges(japicmpAnalyzer.getChanges())) {
+                System.out.println(allChange.getElement());
+            }
+
 
             SpoonConstructExtractor causingConstructExtractor = new SpoonConstructExtractor(errorLog, japicmpAnalyzer, spoonResults,"pipeline");
 
