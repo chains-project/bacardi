@@ -216,7 +216,7 @@ public class Bump {
                 String breakingImage = e.breakingUpdateReproductionCommand.replace("docker run ", "");
 
                 // get jar from container for previous version
-                PromptPipeline[] pipeline = {PromptPipeline.BASELINE_API_DIFF};
+                PromptPipeline[] pipeline = {PromptPipeline.BASELINE_API_DIFF,PromptPipeline.BASELINE_API_DIFF_BUGGY};
                 if (Arrays.asList(pipeline).contains(PIPELINE)) {
                     getProjectData(preBreakingImage, dockerBuild, clientFolder, null, null, prevoiusJarInContainerPath);
                 }

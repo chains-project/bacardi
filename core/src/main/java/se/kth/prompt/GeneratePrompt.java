@@ -57,6 +57,11 @@ public class GeneratePrompt {
                 promptTemplate = new BasePromptApiDiffTemplate();
                 promptTemplate.setPromptModel(promptModel);
                 break;
+            case BASELINE_API_DIFF_BUGGY:
+                log.info("Baseline API diff buggy pipeline not implemented yet");
+                promptTemplate = new BasePromptApiDiffBuggyLineTemplate();
+                promptTemplate.setPromptModel(promptModel);
+                break;
             case FIX_YOU:
                 promptTemplate = new FixYouPromptTemplate();
                 promptTemplate.setPromptModel(promptModel);

@@ -62,11 +62,7 @@ public class DirectFailuresScan extends CtScanner {
     @Override
     public <T> void visitCtConstructorCall(CtConstructorCall<T> constructorCall) {
         String fullyQualifiedName = SpoonFullyQualifiedNameExtractor.getFullyQualifiedName(constructorCall);
-        if (fullyQualifiedName.equals("org.yaml.snakeyaml.constructor.Constructor(java.lang.Class)")) {
-            apiChanges.forEach(apiChange -> {
-                System.out.println("Api Change: " + apiChange.getLongName());
-            });
-        }
+
         apiChanges.stream().filter(apiChange -> apiChange.getLongName().equals(fullyQualifiedName)
                 || apiChange.getElement().equals(fullyQualifiedName)).forEach(apiChange -> {
             matchedApiChanges.add(apiChange);
@@ -149,20 +145,19 @@ public class DirectFailuresScan extends CtScanner {
 
     @Override
     public <T> void visitCtAnnotationMethod(CtAnnotationMethod<T> annotationMethod) {
-        System.out.println("Annotation Method: " + annotationMethod.toString());
+
         super.visitCtAnnotationMethod(annotationMethod);
     }
 
     @Override
     public <T> void visitCtAnnotationFieldAccess(CtAnnotationFieldAccess<T> annotationFieldAccess) {
-        System.out.println("Annotation Filed: " + annotationFieldAccess.toString());
+
         super.visitCtAnnotationFieldAccess(annotationFieldAccess);
     }
 
     @Override
     public <A extends Annotation> void visitCtAnnotationType(CtAnnotationType<A> annotationType) {
         super.visitCtAnnotationType(annotationType);
-        System.out.println("Annotation Type: " + annotationType.toString());
     }
 
     @Override

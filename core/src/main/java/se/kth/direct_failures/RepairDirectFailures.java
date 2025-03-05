@@ -228,4 +228,36 @@ public class RepairDirectFailures {
         return "";
     }
 
+    public Map<String, Set<DetectedFileWithErrors>> extractConstructsFromDirectFailuresWithBuggyLine() {
+
+        try {
+            Map<String, Set<DetectedFileWithErrors>> constructsList = extractConstructsFromDirectFailures();
+            Map<String, Set<DetectedFileWithErrors>> detectedFiles = buggyLinePipeLine();
+
+            constructsList.forEach((key, value) -> {
+                if (detectedFiles.containsKey(key)) {
+                    //all files with buggy line
+                    Set<DetectedFileWithErrors> detectedFileSet = detectedFiles.get(key);
+                    //for each error info inside constructs
+                    value.forEach(errorInfo -> {
+                        detectedFileSet.forEach(d -> {
+                            if (d.getErrorInfo().getErrorMessage().equals(errorInfo.getErrorInfo().getErrorMessage())) {
+                                errorInfo.setLineInCode(d.getLineInCode());
+                            }
+                        });
+                    });
+                }
+
+            });
+
+
+            return constructsList;
+
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
+    }
 }
