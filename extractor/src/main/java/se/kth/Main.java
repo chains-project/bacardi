@@ -24,7 +24,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        String benchmark = "/Users/frank/Documents/Work/PHD/BUMP/bump/data/benchmark/%s.json".formatted("b2edf635da83fd076262a41751c6f773c17f3b76");
+        String benchmark = "/Users/frank/Documents/Work/PHD/BUMP/bump/data/benchmark/%s.json".formatted("c7c9590a206d4fb77dd05b9df391d888e6181667");
 
         File jsonFile = new File(benchmark);
 
@@ -73,7 +73,7 @@ public class Main {
             );
 
             for (ApiChange allChange : japicmpAnalyzer.getAllChanges(japicmpAnalyzer.getChanges())) {
-                System.out.println(allChange.getElement());
+                System.out.println(allChange.getElement()+"  "+ allChange.getCategory().toString());
             }
 
 
