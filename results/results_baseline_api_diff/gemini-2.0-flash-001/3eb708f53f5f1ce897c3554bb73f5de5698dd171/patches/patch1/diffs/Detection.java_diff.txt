@@ -1,0 +1,8 @@
+19d18
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+87,88c86,87
+<   static Detection fromPb(DetectionsResourceItems detectionPb) {
+<     return new Detection(detectionPb.getLanguage(), detectionPb.getConfidence());
+---
+>   static Detection fromPb(com.google.api.services.translate.v3.model.DetectedLanguage detectionPb) {
+>     return new Detection(detectionPb.getLanguageCode(), detectionPb.getConfidence().floatValue());

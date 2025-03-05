@@ -1,0 +1,20 @@
+16,17d15
+< import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector;
+< import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+21a20,21
+> import org.assertj.core.internal.bytebuddy.dynamic.loading.InjectionClassLoader;
+> 
+29,32c29,32
+<     static ClassLoadingStrategy<ClassLoader> classLoadingStrategy(Class<?> assertClass) {
+<         if (ClassInjector.UsingReflection.isAvailable()) {
+<             return ClassLoadingStrategy.Default.INJECTION;
+<         } else if (ClassInjector.UsingLookup.isAvailable() && PRIVATE_LOOKUP_IN != null) {
+---
+>     static InjectionClassLoader.Strategy classLoadingStrategy(Class<?> assertClass) {
+>         if (InjectionClassLoader.UsingReflection.isAvailable()) {
+>             return InjectionClassLoader.Strategy.REFLECTION;
+>         } else if (InjectionClassLoader.UsingLookup.isAvailable() && PRIVATE_LOOKUP_IN != null) {
+34c34
+<                 return ClassLoadingStrategy.UsingLookup.of(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));
+---
+>                 return InjectionClassLoader.Strategy.LOOKUP;

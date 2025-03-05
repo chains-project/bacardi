@@ -1,0 +1,19 @@
+11a12
+> import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+13c14
+< import org.spongepowered.api.event.network.ClientConnectionEvent;
+---
+> import org.spongepowered.api.event.network.ServerSideConnectionEvent;
+29c30
+<     public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
+---
+>     public void onPlayerPreLogin(ServerSideConnectionEvent.Auth preLoginEvent) {
+31c32,33
+<         GameProfile profile = preLoginEvent.getProfile();
+---
+>         ServerPlayer player = preLoginEvent.getPlayer();
+>         GameProfile profile = player.getProfile();
+45c47
+<             String playerName = profile.getName().get();
+---
+>             String playerName = profile.getName().orElse(null);

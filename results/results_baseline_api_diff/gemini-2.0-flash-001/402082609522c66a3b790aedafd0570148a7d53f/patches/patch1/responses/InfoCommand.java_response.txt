@@ -1,0 +1,75 @@
+package com.github.games647.changeskin.sponge.command;
+
+import com.github.games647.changeskin.core.model.UserPreference;
+import com.github.games647.changeskin.core.model.skin.SkinModel;
+import com.github.games647.changeskin.core.shared.SkinFormatter;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.github.games647.changeskin.sponge.PomData;
+import com.google.inject.Inject;
+import net.kyori.adventure.text.Component;
+
+import java.util.Optional;
+import java.util.UUID;
+
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.exception.CommandException;
+import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.command.CommandCause;
+
+public class InfoCommand implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
+
+    @Inject
+    private ChangeSkinSponge plugin;
+
+    @Inject
+    private SkinFormatter formatter;
+
+
+    @Override
+    public CommandResult execute(CommandCause cause, CommandContext args) throws CommandException {
+        if (!(cause.root() instanceof ServerPlayer)) {
+            plugin.sendMessage(cause, "no-console");
+            return CommandResult.empty();
+        }
+
+        UUID uniqueId = ((ServerPlayer) cause.root()).uniqueId();
+        Sponge.asyncScheduler().submit(Task.builder().plugin(plugin)
+                .execute(() -> {
+                    UserPreference preferences = plugin.getCore().getStorage().getPreferences(uniqueId);
+                    Sponge.server().scheduler().submit(Task.builder().plugin(plugin).execute(() -> sendSkinDetails(uniqueId, preferences)).build());
+                })
+                .build());
+
+        return CommandResult.success();
+    }
+
+    @Override
+    public Command.Builder buildSpec() {
+        return Command.builder()
+                .executor(this)
+                .addPermission(PomData.ARTIFACT_ID + ".command.skininfo.base");
+    }
+
+    private void sendSkinDetails(UUID uuid, UserPreference preference) {
+        Optional<ServerPlayer> optPlayer = Sponge.server().player(uuid);
+        if (optPlayer.isPresent()) {
+            ServerPlayer player = optPlayer.get();
+
+            Optional<SkinModel> optSkin = preference.getTargetSkin();
+            if (optSkin.isPresent()) {
+                String template = plugin.getCore().getMessage("skin-info");
+                String formatted = formatter.apply(template, optSkin.get());
+
+                Component text = net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize(formatted);
+                player.sendMessage(text);
+            } else {
+                plugin.sendMessage(player, "skin-not-found");
+            }
+        }
+    }
+}

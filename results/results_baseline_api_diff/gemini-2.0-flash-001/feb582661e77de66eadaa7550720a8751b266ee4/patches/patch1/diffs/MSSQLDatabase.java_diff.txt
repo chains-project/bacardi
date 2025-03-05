@@ -1,0 +1,7 @@
+3a4
+> import liquibase.database.Database;
+18c19,20
+<         ExecutorService.getInstance().getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+---
+>         Database database = this;
+>         ExecutorService.getExecutor(this.getLiquibaseCatalogName(), database).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));

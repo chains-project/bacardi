@@ -1,0 +1,63 @@
+7a8
+> import org.spongepowered.api.command.Command;
+9,12c10,11
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.CommandExecutor;
+14a14,21
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.parameter.Parameter;
+> import java.util.Arrays;
+> import java.util.List;
+> import java.util.Optional;
+> import org.spongepowered.api.service.permission.PermissionDescription;
+> import org.spongepowered.api.service.permission.PermissionService;
+> import org.spongepowered.api.Sponge;
+16c23
+< public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class InvalidateCommand implements CommandExecutor {
+26,28c33,35
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+---
+>     public CommandResult execute(org.spongepowered.api.command.CommandCause cause, CommandContext args) throws CommandException {
+>         if (!(cause.cause().root() instanceof Player)) {
+>             plugin.sendMessage(cause, "no-console");
+32c39
+<         Player receiver = (Player) src;
+---
+>         Player receiver = (Player) cause.cause().root();
+37,42c44,61
+<     @Override
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+<                 .executor(this)
+<                 .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base")
+<                 .build();
+---
+>     public Command.Builder buildSpec() {
+>          Command.Builder builder = Command.builder();
+> 
+>         Optional<PermissionService> permissionService = Sponge.serviceProvider().provide(PermissionService.class);
+>         if (permissionService.isPresent()) {
+>             permissionService.get().newDescriptionBuilder(plugin)
+>                     .id(PomData.ARTIFACT_ID + ".command.skinupdate.base")
+>                     .description(org.spongepowered.api.text.Text.of("Allows the user to execute the skin update command."))
+>                     .register();
+> 
+>             builder.permission(PomData.ARTIFACT_ID + ".command.skinupdate.base");
+>         } else {
+>             builder.permission(PomData.ARTIFACT_ID + ".command.skinupdate.base");
+>         }
+> 
+>         builder.executor(this);
+> 
+>         return builder;
+43a63
+> 

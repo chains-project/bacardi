@@ -1,0 +1,104 @@
+18,21c18,20
+< import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+< import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+---
+> import com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy;
+> import com.google.api.services.cloudresourcemanager.v3.model.ListPolicy;
+> import com.google.api.services.cloudresourcemanager.v3.model.Policy;
+38,39c37,38
+<   static final Function<OrgPolicy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
+<       new Function<OrgPolicy, OrgPolicyInfo>() {
+---
+>   static final Function<OrgPolicyInfo, Policy> TO_PROTOBUF_FUNCTION =
+>       new Function<OrgPolicyInfo, Policy>() {
+41,42c40,41
+<         public OrgPolicyInfo apply(OrgPolicy protobuf) {
+<           return OrgPolicyInfo.fromProtobuf(protobuf);
+---
+>         public Policy apply(OrgPolicyInfo orgPolicyInfo) {
+>           return orgPolicyInfo.toProtobuf();
+45,46c44,45
+<   static final Function<OrgPolicyInfo, OrgPolicy> TO_PROTOBUF_FUNCTION =
+<       new Function<OrgPolicyInfo, OrgPolicy>() {
+---
+>   static final Function<Policy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
+>       new Function<Policy, OrgPolicyInfo>() {
+48,49c47,48
+<         public OrgPolicy apply(OrgPolicyInfo orgPolicyInfo) {
+<           return orgPolicyInfo.toProtobuf();
+---
+>         public OrgPolicyInfo apply(Policy protobuf) {
+>           return OrgPolicyInfo.fromProtobuf(protobuf);
+57d55
+<   private RestoreDefault restoreDefault;
+97c95,97
+<       return new BooleanPolicy().setEnforced(enforce);
+---
+>       BooleanPolicy booleanPolicy = new BooleanPolicy();
+>       booleanPolicy.setEnforced(enforce);
+>       return booleanPolicy;
+201,206c201,207
+<       return new ListPolicy()
+<           .setAllValues(allValues)
+<           .setAllowedValues(allowedValues)
+<           .setDeniedValues(deniedValues)
+<           .setInheritFromParent(inheritFromParent)
+<           .setSuggestedValue(suggestedValue);
+---
+>       ListPolicy listPolicy = new ListPolicy();
+>       listPolicy.setAllValues(allValues);
+>       listPolicy.setAllowedValues(allowedValues);
+>       listPolicy.setDeniedValues(deniedValues);
+>       listPolicy.setInheritFromParent(inheritFromParent);
+>       listPolicy.setSuggestedValue(suggestedValue);
+>       return listPolicy;
+225d225
+<     private RestoreDefault restoreDefault;
+236d235
+<       this.restoreDefault = info.restoreDefault;
+261,265d259
+<     Builder setRestoreDefault(RestoreDefault restoreDefault) {
+<       this.restoreDefault = restoreDefault;
+<       return this;
+<     }
+< 
+286d279
+<     this.restoreDefault = builder.restoreDefault;
+311,315d303
+<   /** Restores the default behavior of the constraint. */
+<   public RestoreDefault getRestoreDefault() {
+<     return restoreDefault;
+<   }
+< 
+339d326
+<         && Objects.equals(restoreDefault, policyInfo.restoreDefault)
+346,347c333
+<     return Objects.hash(
+<         boolPolicy, constraint, etag, policies, restoreDefault, updateTime, version);
+---
+>     return Objects.hash(boolPolicy, constraint, etag, policies, updateTime, version);
+360,361c346,347
+<   OrgPolicy toProtobuf() {
+<     OrgPolicy orgPolicyProto = new OrgPolicy();
+---
+>   Policy toProtobuf() {
+>     Policy orgPolicyProto = new Policy();
+365c351
+<     orgPolicyProto.setConstraint(constraint);
+---
+>     orgPolicyProto.setEtag(etag);
+369,370d354
+<     orgPolicyProto.setRestoreDefault(restoreDefault);
+<     orgPolicyProto.setEtag(etag);
+376c360
+<   static OrgPolicyInfo fromProtobuf(OrgPolicy orgPolicyProtobuf) {
+---
+>   static OrgPolicyInfo fromProtobuf(Policy orgPolicyProtobuf) {
+381c365
+<     builder.setConstraint(orgPolicyProtobuf.getConstraint());
+---
+>     builder.setConstraint(orgPolicyProtobuf.getName());
+385d368
+<     builder.setRestoreDefault(orgPolicyProtobuf.getRestoreDefault());

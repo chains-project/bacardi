@@ -1,0 +1,11 @@
+30c30,31
+< import org.cactoos.collection.CollectionOf;
+---
+> import java.util.stream.Collectors;
+> import java.util.stream.StreamSupport;
+91,93c92
+<         return first.id() == second.id() && new CollectionOf<>(
+<             first.ledger()
+<         ).size() == new CollectionOf<>(second.ledger()).size();
+---
+>         return first.id() == second.id() && StreamSupport.stream(first.ledger().spliterator(), false).collect(Collectors.toList()).size() == StreamSupport.stream(second.ledger().spliterator(), false).collect(Collectors.toList()).size();

@@ -1,0 +1,20 @@
+12d11
+< import redis.clients.jedis.Client;
+13a13
+> import redis.clients.jedis.JedisPooled;
+142c142
+<         Client client = jedis.getClient();
+---
+>         redis.clients.jedis.commands.RedisBinaryCommands client = jedis;
+144,145c144,145
+<         client.getOne();
+<         RedisGraphTransaction transaction = new RedisGraphTransaction(client, this);
+---
+>         ((JedisPooled)jedis).getClient().getOne();
+>         RedisGraphTransaction transaction = new RedisGraphTransaction(jedis.getClient(), this);
+157,158c157,158
+<         Client client = jedis.getClient();
+<         RedisGraphPipeline pipeline = new RedisGraphPipeline(client, this);
+---
+>         redis.clients.jedis.commands.RedisBinaryCommands client = jedis;
+>         RedisGraphPipeline pipeline = new RedisGraphPipeline(jedis.getClient(), this);

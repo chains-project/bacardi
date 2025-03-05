@@ -1,0 +1,108 @@
+25,28d24
+< import com.google.api.services.cloudresourcemanager.model.Binding;
+< import com.google.api.services.cloudresourcemanager.model.Operation;
+< import com.google.api.services.cloudresourcemanager.model.Policy;
+< import com.google.api.services.cloudresourcemanager.model.Project;
+68a65,69
+> import com.google.api.services.cloudresourcemanager.v3.model.Project;
+> import com.google.api.services.cloudresourcemanager.v3.model.Policy;
+> import com.google.api.services.cloudresourcemanager.v3.model.Binding;
+> import com.google.api.services.cloudresourcemanager.v3.model.Operation;
+> 
+449,450c450,451
+<       project.setLifecycleState("ACTIVE");
+<       project.setProjectNumber(Math.abs(PROJECT_NUMBER_GENERATOR.nextLong() % Long.MAX_VALUE));
+---
+>       //project.setLifecycleState("ACTIVE"); // LifecycleState is not present in v3 Project
+>       //project.setProjectNumber(Math.abs(PROJECT_NUMBER_GENERATOR.nextLong() % Long.MAX_VALUE)); // ProjectNumber is not present in v3 Project
+469c470
+<                 new Operation().setDone(false).setName("operations/" + project.getProjectId()));
+---
+>                 new Operation().setDone(true).setName("operations/" + project.getProjectId()));
+483,487c484,488
+<     if (!project.getLifecycleState().equals("ACTIVE")) {
+<       return Error.FAILED_PRECONDITION.response(
+<           "Error when deleting " + projectId + " because the lifecycle state was not ACTIVE.");
+<     } else {
+<       project.setLifecycleState("DELETE_REQUESTED");
+---
+>     //if (!project.getLifecycleState().equals("ACTIVE")) { // LifecycleState is not present in v3 Project
+>     //  return Error.FAILED_PRECONDITION.response(
+>     //      "Error when deleting " + projectId + " because the lifecycle state was not ACTIVE.");
+>     //} else {
+>     //  project.setLifecycleState("DELETE_REQUESTED"); // LifecycleState is not present in v3 Project
+489c490
+<     }
+---
+>     //}
+585d585
+<         String labelKey = filterType.substring("labels.".length());
+586a587
+>           String labelKey = filterType.substring("labels.".length());
+617,619c618,620
+<         case "lifecycleState":
+<           project.setLifecycleState(fullProject.getLifecycleState());
+<           break;
+---
+>         //case "lifecycleState": // LifecycleState is not present in v3 Project
+>         //  project.setLifecycleState(fullProject.getLifecycleState());
+>         //  break;
+629,631c630,632
+<         case "projectNumber":
+<           project.setProjectNumber(fullProject.getProjectNumber());
+<           break;
+---
+>         //case "projectNumber": // ProjectNumber is not present in v3 Project
+>         //  project.setProjectNumber(fullProject.getProjectNumber());
+>         //  break;
+642,648d642
+<     } else if (!originalProject.getLifecycleState().equals("ACTIVE")) {
+<       return Error.FAILED_PRECONDITION.response(
+<           "Error when replacing " + projectId + " because the lifecycle state was not ACTIVE.");
+<     } else if (!Objects.equal(originalProject.getParent(), project.getParent())) {
+<       return Error.INVALID_ARGUMENT.response(
+<           "The server currently only supports setting the parent once "
+<               + "and does not allow unsetting it.");
+649a644,652
+>     //else if (!originalProject.getLifecycleState().equals("ACTIVE")) { // LifecycleState is not present in v3 Project
+>     //  return Error.FAILED_PRECONDITION.response(
+>     //      "Error when replacing " + projectId + " because the lifecycle state was not ACTIVE.");
+>     //}
+>     //else if (!Objects.equal(originalProject.getParent(), project.getParent())) { // Parent is not present in v1 Project
+>     //  return Error.INVALID_ARGUMENT.response(
+>     //      "The server currently only supports setting the parent once "
+>     //          + "and does not allow unsetting it.");
+>     //}
+651c654
+<     project.setLifecycleState(originalProject.getLifecycleState());
+---
+>     //project.setLifecycleState(originalProject.getLifecycleState()); // LifecycleState is not present in v3 Project
+653c656
+<     project.setProjectNumber(originalProject.getProjectNumber());
+---
+>     //project.setProjectNumber(originalProject.getProjectNumber()); // ProjectNumber is not present in v3 Project
+670,678d672
+<     } else if (!project.getLifecycleState().equals("DELETE_REQUESTED")) {
+<       response =
+<           Error.FAILED_PRECONDITION.response(
+<               "Error when undeleting "
+<                   + projectId
+<                   + " because the lifecycle state was not DELETE_REQUESTED.");
+<     } else {
+<       project.setLifecycleState("ACTIVE");
+<       response = new Response(HTTP_OK, "{}");
+679a674,683
+>     //else if (!project.getLifecycleState().equals("DELETE_REQUESTED")) { // LifecycleState is not present in v3 Project
+>     //  response =
+>     //      Error.FAILED_PRECONDITION.response(
+>     //          "Error when undeleting "
+>     //              + projectId
+>     //              + " because the lifecycle state was not DELETE_REQUESTED.");
+>     //} else {
+>     //  project.setLifecycleState("ACTIVE"); // LifecycleState is not present in v3 Project
+>       response = new Response(HTTP_OK, "{}");
+>     //}
+787c791
+<       project.setLifecycleState(lifecycleState);
+---
+>       //project.setLifecycleState(lifecycleState); // LifecycleState is not present in v3 Project
