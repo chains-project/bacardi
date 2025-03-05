@@ -1,0 +1,53 @@
+3d2
+< import com.flowpowered.math.vector.Vector3d;
+12,13d10
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.data.key.Keys;
+17,18c14,18
+< import org.spongepowered.api.world.Location;
+< import org.spongepowered.api.world.World;
+---
+> import org.spongepowered.api.world.server.ServerLocation;
+> import org.spongepowered.api.world.server.ServerWorld;
+> import org.spongepowered.api.service.permission.Subject;
+> 
+> import org.spongepowered.math.vector.Vector3d;
+23c23
+<     private final CommandSource invoker;
+---
+>     private final Subject invoker;
+26c26
+<     public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
+---
+>     public SkinApplier(ChangeSkinSponge plugin, Subject invoker, Player receiver, SkinModel targetSkin
+84,85c84
+<         receiver.offer(Keys.VANISH, true);
+<         receiver.offer(Keys.VANISH, false);
+---
+>         receiver.simulateVanishing();
+91,92c90,91
+<                 .displayName(receiver.getDisplayNameData().displayName().get())
+<                 .latency(receiver.getConnection().getLatency())
+---
+>                 .displayName(receiver.displayName().get())
+>                 .latency(receiver.connection().latency())
+94,95c93,94
+<                 .gameMode(receiver.getGameModeData().type().get())
+<                 .profile(receiver.getProfile())
+---
+>                 .gameMode(receiver.gameMode().get())
+>                 .profile(receiver.profile())
+98,101c97,100
+<         Location<World> oldLocation = receiver.getLocation();
+<         Vector3d rotation = receiver.getRotation();
+<         World receiverWorld = receiver.getWorld();
+<         Sponge.getServer().getWorlds()
+---
+>         ServerLocation oldLocation = receiver.location();
+>         Vector3d rotation = receiver.rotation();
+>         ServerWorld receiverWorld = receiver.world();
+>         Sponge.server().worldManager().worlds()
+106c105
+<                     receiver.setLocation(world.getSpawnLocation());
+---
+>                     receiver.setLocation(world.spawnLocation());

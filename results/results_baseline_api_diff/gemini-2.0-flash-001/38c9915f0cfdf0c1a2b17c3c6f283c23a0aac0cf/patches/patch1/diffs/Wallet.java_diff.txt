@@ -1,0 +1,80 @@
+18c18
+<  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+---
+>  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+30c30,33
+< import org.cactoos.collection.Filtered;
+---
+> import java.util.ArrayList;
+> import java.util.Iterator;
+> import java.util.List;
+> import java.util.function.Predicate;
+36d38
+< import org.cactoos.scalar.CheckedScalar;
+38d39
+< import org.cactoos.scalar.UncheckedScalar;
+40d40
+< import org.cactoos.text.SplitText;
+201,202c201,202
+<             return new CheckedScalar<>(
+<                 () -> Long.parseUnsignedLong(
+---
+>             try {
+>                 return Long.parseUnsignedLong(
+204c204
+<                         new SplitText(
+---
+>                         new org.cactoos.text.Split(
+211,213c211,214
+<                 ),
+<                 e -> new IOException(e)
+<             ).value();
+---
+>                 );
+>             } catch (final Exception e) {
+>                 throw new IOException(e);
+>             }
+247,262c248,265
+<             final Iterable<Transaction> candidates = new Filtered<>(
+<                 incoming -> new Filtered<>(
+<                     origin -> new UncheckedScalar<>(
+<                         new Or(
+<                             () -> incoming.equals(origin),
+<                             () -> incoming.id() == origin.id()
+<                                 && incoming.bnf().equals(origin.bnf()),
+<                             () -> incoming.id() == origin.id()
+<                                 && incoming.amount() < 0L,
+<                             () -> incoming.prefix().equals(origin.prefix())
+<                         )
+<                     ).value(),
+<                     ledger
+<                 ).isEmpty(),
+<                 other.ledger()
+<             );
+---
+>             final List<Transaction> filteredCandidates = new ArrayList<>();
+>             for (final Transaction incoming : other.ledger()) {
+>                 boolean found = false;
+>                 for (final Transaction origin : ledger) {
+>                     if (incoming.equals(origin)
+>                         || (incoming.id() == origin.id()
+>                         && incoming.bnf().equals(origin.bnf()))
+>                         || (incoming.id() == origin.id()
+>                         && incoming.amount() < 0L)
+>                         || incoming.prefix().equals(origin.prefix())) {
+>                         found = true;
+>                         break;
+>                     }
+>                 }
+>                 if (!found) {
+>                     filteredCandidates.add(incoming);
+>                 }
+>             }
+265c268
+<                 new Joined<Transaction>(ledger, candidates)
+---
+>                 new Joined<Transaction>(ledger, new IterableOf<>(filteredCandidates))
+275c278
+<                         new SplitText(
+---
+>                         new org.cactoos.text.Split(

@@ -1,0 +1,19 @@
+9c9,11
+< import com.artipie.asto.factory.Storages;
+---
+> import com.artipie.asto.factory.Config;
+> import com.artipie.asto.factory.StorageFactory;
+> import com.artipie.asto.fs.FileStorageFactory;
+41,46c43,45
+<             return new YamlPolicy(
+<                 new BlockingStorage(
+<                     new Storages().newStorage(
+<                         sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
+<                     )
+<                 )
+---
+>             final Config storageConfig = new Config.Yaml(Yaml.createYamlInput(sub.toString()).readYamlMapping());
+>             final BlockingStorage blockingStorage = new BlockingStorage(
+>                 new FileStorageFactory().newStorage(storageConfig)
+47a47
+>             return new YamlPolicy(blockingStorage);

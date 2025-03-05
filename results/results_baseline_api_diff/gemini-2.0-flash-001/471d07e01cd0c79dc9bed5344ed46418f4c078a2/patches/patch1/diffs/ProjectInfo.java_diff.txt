@@ -1,0 +1,40 @@
+146,148c146,148
+<     com.google.api.services.cloudresourcemanager.model.ResourceId toPb() {
+<       com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb =
+<           new com.google.api.services.cloudresourcemanager.model.ResourceId();
+---
+>     com.google.api.services.cloudresourcemanager.v3.model.ResourceId toPb() {
+>       com.google.api.services.cloudresourcemanager.v3.model.ResourceId resourceIdPb =
+>           new com.google.api.services.cloudresourcemanager.v3.model.ResourceId();
+155c155
+<         com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb) {
+---
+>         com.google.api.services.cloudresourcemanager.v3.model.ResourceId resourceIdPb) {
+392,394c392,394
+<   com.google.api.services.cloudresourcemanager.model.Project toPb() {
+<     com.google.api.services.cloudresourcemanager.model.Project projectPb =
+<         new com.google.api.services.cloudresourcemanager.model.Project();
+---
+>   com.google.api.services.cloudresourcemanager.v3.model.Project toPb() {
+>     com.google.api.services.cloudresourcemanager.v3.model.Project projectPb =
+>         new com.google.api.services.cloudresourcemanager.v3.model.Project();
+398d397
+<     projectPb.setProjectNumber(projectNumber);
+409c408
+<       projectPb.setParent(parent.toPb());
+---
+>       projectPb.setParent(parent.toPb().toString());
+414c413
+<   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.model.Project projectPb) {
+---
+>   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) {
+431c430,436
+<       builder.setParent(ResourceId.fromPb(projectPb.getParent()));
+---
+>       String parentString = projectPb.getParent();
+>       String[] parts = parentString.split("/");
+>       if (parts.length >= 2) {
+>         String type = parts[parts.length - 2];
+>         String id = parts[parts.length - 1];
+>         builder.setParent(ResourceId.of(id, type));
+>       }

@@ -1,0 +1,150 @@
+29a30
+> import java.util.Arrays;
+31a33,34
+> import java.util.stream.Collectors;
+> import org.cactoos.Scalar;
+33,38c36,39
+< import org.cactoos.iterable.LengthOf;
+< import org.cactoos.list.ListOf;
+< import org.cactoos.scalar.IoCheckedScalar;
+< import org.cactoos.scalar.ItemAt;
+< import org.cactoos.scalar.StickyScalar;
+< import org.cactoos.scalar.UncheckedScalar;
+---
+> import org.cactoos.iterable.IterableOf;
+> import org.cactoos.scalar.IoChecked;
+> import org.cactoos.scalar.Sticky;
+> import org.cactoos.scalar.Unchecked;
+40d40
+< import org.cactoos.text.SplitText;
+42c42
+< import org.cactoos.text.TrimmedText;
+---
+> import org.cactoos.text.Trimmed;
+88c88
+<     private final IoCheckedScalar<String> transaction;
+---
+>     private final IoChecked<String> transaction;
+95,97c95,97
+<         this.transaction = new IoCheckedScalar<>(
+<             new StickyScalar<>(
+<                 () -> {
+---
+>         this.transaction = new IoChecked<>(
+>             new Sticky<>(
+>                 (Scalar<String>) () -> {
+99c99
+<                         new TrimmedText(
+---
+>                         new Trimmed(
+108,110c108,110
+<                         new ListOf<>(
+<                             new SplitText(trnsct, ";")
+<                         );
+---
+>                         Arrays.stream(trnsct.split(";"))
+>                             .map(TextOf::new)
+>                             .collect(Collectors.toList());
+112c112
+<                     if (new LengthOf(pieces).intValue() != 7) {
+---
+>                     if (pieces.size() != 7) {
+131,134c131,137
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     0, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>             new IoChecked<>(
+>                 (Scalar<Text>) () -> new IterableOf<>(
+>                     Arrays.asList(this.transaction.value().split(";"))
+>                         .stream()
+>                         .map(TextOf::new)
+>                         .collect(Collectors.toList())
+>                 ).iterator().next()
+156,159c159,165
+<                 new IoCheckedScalar<>(
+<                     new ItemAt<>(
+<                         1, new SplitText(this.transaction.value(), ";")
+<                     )
+---
+>                 new IoChecked<>(
+>                     (Scalar<Text>) () -> new IterableOf<>(
+>                         Arrays.asList(this.transaction.value().split(";"))
+>                             .stream()
+>                             .map(TextOf::new)
+>                             .collect(Collectors.toList())
+>                     ).iterator().next()
+169,172c175,181
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     2, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>             new IoChecked<>(
+>                 (Scalar<Text>) () -> new IterableOf<>(
+>                     Arrays.asList(this.transaction.value().split(";"))
+>                         .stream()
+>                         .map(TextOf::new)
+>                         .collect(Collectors.toList())
+>                 ).iterator().next()
+193,197c202,208
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+<                     3, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>             new IoChecked<>(
+>                 (Scalar<Text>) () -> new IterableOf<>(
+>                     Arrays.asList(this.transaction.value().split(";"))
+>                         .stream()
+>                         .map(TextOf::new)
+>                         .collect(Collectors.toList())
+>                 ).iterator().skip(3).next()
+213,217c224,230
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+<                     4, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>             new IoChecked<>(
+>                 (Scalar<Text>) () -> new IterableOf<>(
+>                     Arrays.asList(this.transaction.value().split(";"))
+>                         .stream()
+>                         .map(TextOf::new)
+>                         .collect(Collectors.toList())
+>                 ).iterator().skip(4).next()
+237,241c250,256
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+<                     5, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>             new IoChecked<>(
+>                 (Scalar<Text>) () -> new IterableOf<>(
+>                     Arrays.asList(this.transaction.value().split(";"))
+>                         .stream()
+>                         .map(TextOf::new)
+>                         .collect(Collectors.toList())
+>                 ).iterator().skip(5).next()
+261,265c276,282
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+<                     6, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>             new IoChecked<>(
+>                 (Scalar<Text>) () -> new IterableOf<>(
+>                     Arrays.asList(this.transaction.value().split(";"))
+>                         .stream()
+>                         .map(TextOf::new)
+>                         .collect(Collectors.toList())
+>                 ).iterator().skip(6).next()
+286c303
+<         return new UncheckedScalar<>(this.transaction).value();
+---
+>         return new Unchecked<>(this.transaction).value();

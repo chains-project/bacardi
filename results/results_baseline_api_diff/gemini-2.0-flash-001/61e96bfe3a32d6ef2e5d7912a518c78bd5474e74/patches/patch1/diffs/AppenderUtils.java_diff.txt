@@ -1,0 +1,42 @@
+22c22,24
+< import ch.qos.logback.core.encoder.EncoderBase;
+---
+> import ch.qos.logback.core.encoder.Encoder;
+> import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
+> import ch.qos.logback.core.Layout;
+36a39
+> import java.nio.charset.Charset;
+51c54
+<   public static class LogMessageEncoder extends EncoderBase<LogMessage> {
+---
+>   public static class LogMessageEncoder extends LayoutWrappingEncoder<LogMessage> {
+57a61,65
+>     public void start() {
+>       super.start();
+>     }
+> 
+>     @Override
+69c77
+<     public void doEncode(LogMessage logMessage) throws IOException {
+---
+>     public byte[] encode(LogMessage logMessage) {
+73,74c81,83
+<       } catch (TException e) {
+<         throw new IOException(e);
+---
+>         return new byte[0]; // Return an empty byte array as the message is directly written to the output stream
+>       } catch (TException | IOException e) {
+>         throw new RuntimeException(e);
+78a88,97
+>     public byte[] headerBytes() {
+>       return null;
+>     }
+> 
+>     @Override
+>     public byte[] footerBytes() {
+>       return null;
+>     }
+> 
+>     @Override
+104a124
+>     encoder.setCharset(Charset.defaultCharset());

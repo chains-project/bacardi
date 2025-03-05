@@ -1,0 +1,30 @@
+5a6
+> import org.bukkit.enchantments.Enchantment;
+73c74,77
+<                                         currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+---
+>                                         Enchantment ench = XEnchantment.matchXEnchantment("power").get().getEnchant();
+>                                         if (ench != null) {
+>                                                 currentLangMeta.addEnchant(ench, 1, false);
+>                                         }
+76c80,83
+<                                         currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+---
+>                                         Enchantment ench = XEnchantment.matchXEnchantment("power").get().getEnchant();
+>                                         if (ench != null) {
+>                                                 currentLangMeta.addEnchant(ench, 1, false);
+>                                         }
+120a128
+>                                 Enchantment ench = XEnchantment.matchXEnchantment("power").get().getEnchant();
+122c130,132
+<                                         skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+---
+>                                         if (ench != null) {
+>                                                 skipSourceMeta.addEnchant(ench, 1, false);
+>                                         }
+125c135,137
+<                                         skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+---
+>                                         if (ench != null) {
+>                                                 skipSourceMeta.addEnchant(ench, 1, false);
+>                                         }

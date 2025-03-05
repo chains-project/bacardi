@@ -1,0 +1,36 @@
+15a16
+> import org.yaml.snakeyaml.DumperOptions;
+17a19
+> import org.yaml.snakeyaml.introspector.PropertyUtils;
+36a39,40
+>   private PropertyUtils propertyUtils;
+> 
+37a42
+>     super(new DumperOptions());
+44a50,52
+>     this.propertyUtils = new PropertyUtils();
+>     this.propertyUtils.setSkipMissingProperties(true);
+>     setPropertyUtils(this.propertyUtils);
+217,220c225
+<   @Override
+<   protected Set<Property> getProperties(Class<? extends Object> type)
+<           throws IntrospectionException {
+<     if (type.isAssignableFrom(Model.class)) {
+---
+>   protected Set<Property> getProperties(Class<? extends Object> type) throws IntrospectionException {
+222,232d226
+<     } else if (type.isAssignableFrom(Developer.class)) {
+<       return sortTypeWithOrder(type, ORDER_DEVELOPER);
+<     } else if (type.isAssignableFrom(Contributor.class)) {
+<       return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
+<     }  else if (type.isAssignableFrom(Dependency.class)) {
+<       return sortTypeWithOrder(type, ORDER_DEPENDENCY);
+<     }  else if (type.isAssignableFrom(Plugin.class)) {
+<       return sortTypeWithOrder(type, ORDER_PLUGIN);
+<     } else {
+<       return super.getProperties(type);
+<     }
+237c231
+<       Set<Property> standard = super.getProperties(type);
+---
+>       Set<Property> standard = propertyUtils.getProperties(type);

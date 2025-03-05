@@ -1,0 +1,90 @@
+23,25c23,25
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.api.services.translate.model.TranslationsResource;
+---
+> import com.google.api.services.translate.model.Detection;
+> import com.google.api.services.translate.model.Language;
+> import com.google.api.services.translate.model.Translation;
+43c43
+<   private static final Function<List<DetectionsResourceItems>, Detection>
+---
+>   private static final Function<List<Detection>, com.google.cloud.translate.Detection>
+45c45
+<           new Function<List<DetectionsResourceItems>, Detection>() {
+---
+>           new Function<List<Detection>, com.google.cloud.translate.Detection>() {
+47,48c47,48
+<             public Detection apply(List<DetectionsResourceItems> detectionPb) {
+<               return Detection.fromPb(detectionPb.get(0));
+---
+>             public com.google.cloud.translate.Detection apply(List<Detection> detectionPb) {
+>               return com.google.cloud.translate.Detection.fromPb(detectionPb.get(0));
+58c58
+<   public List<Language> listSupportedLanguages(final LanguageListOption... options) {
+---
+>   public List<com.google.cloud.translate.Language> listSupportedLanguages(final LanguageListOption... options) {
+62c62
+<               new Callable<List<LanguagesResource>>() {
+---
+>               new Callable<List<Language>>() {
+64c64
+<                 public List<LanguagesResource> call() {
+---
+>                 public List<Language> call() {
+71c71
+<           Language.FROM_PB_FUNCTION);
+---
+>           com.google.cloud.translate.Language.FROM_PB_FUNCTION);
+78c78
+<   public List<Detection> detect(final List<String> texts) {
+---
+>   public List<com.google.cloud.translate.Detection> detect(final List<String> texts) {
+80c80
+<       List<List<DetectionsResourceItems>> detectionsPb =
+---
+>       List<List<Detection>> detectionsPb =
+82c82
+<               new Callable<List<List<DetectionsResourceItems>>>() {
+---
+>               new Callable<List<List<Detection>>>() {
+84c84
+<                 public List<List<DetectionsResourceItems>> call() {
+---
+>                 public List<List<Detection>> call() {
+91c91
+<       Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
+---
+>       Iterator<List<Detection>> detectionIterator = detectionsPb.iterator();
+94c94
+<         List<DetectionsResourceItems> detectionPb = detectionIterator.next();
+---
+>         List<Detection> detectionPb = detectionIterator.next();
+107c107
+<   public List<Detection> detect(String... texts) {
+---
+>   public List<com.google.cloud.translate.Detection> detect(String... texts) {
+112c112
+<   public Detection detect(String text) {
+---
+>   public com.google.cloud.translate.Detection detect(String text) {
+117c117
+<   public List<Translation> translate(final List<String> texts, final TranslateOption... options) {
+---
+>   public List<com.google.cloud.translate.Translation> translate(final List<String> texts, final TranslateOption... options) {
+121c121
+<               new Callable<List<TranslationsResource>>() {
+---
+>               new Callable<List<Translation>>() {
+123c123
+<                 public List<TranslationsResource> call() {
+---
+>                 public List<Translation> call() {
+130c130
+<           Translation.FROM_PB_FUNCTION);
+---
+>           com.google.cloud.translate.Translation.FROM_PB_FUNCTION);
+137c137
+<   public Translation translate(String text, TranslateOption... options) {
+---
+>   public com.google.cloud.translate.Translation translate(String text, TranslateOption... options) {

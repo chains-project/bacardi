@@ -1,0 +1,15 @@
+30c30
+< import org.cactoos.scalar.IoCheckedScalar;
+---
+> import org.cactoos.scalar.Checked;
+66,67c66,67
+<         return new IoCheckedScalar<>(
+<             new Reduced<>(
+---
+>         return new Checked<>(
+>             () -> new Reduced<>(
+73c73,74
+<             )
+---
+>             ).value(),
+>             IOException::new

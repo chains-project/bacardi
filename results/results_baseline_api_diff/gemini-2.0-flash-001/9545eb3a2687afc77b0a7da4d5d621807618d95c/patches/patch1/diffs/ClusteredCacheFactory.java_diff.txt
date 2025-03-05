@@ -1,0 +1,40 @@
+18a19,20
+> import com.hazelcast.cluster.Cluster;
+> import com.hazelcast.cluster.Member;
+22,23d23
+< import com.hazelcast.config.MaxSizeConfig;
+< import com.hazelcast.config.MemberAttributeConfig;
+27d26
+< import com.hazelcast.core.Cluster;
+30d28
+< import com.hazelcast.core.Member;
+73a72
+> import com.hazelcast.config.MaxSizeConfig;
+193,195c192,193
+<                 final MemberAttributeConfig memberAttributeConfig = config.getMemberAttributeConfig();
+<                 memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
+<                 memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
+---
+>                 config.getMemberAttributeConfig().setAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
+>                 config.getMemberAttributeConfig().setAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
+288c286
+<             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+---
+>             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig().setSize(hazelcastMaxCacheSizeInMegaBytes).setMaxSizePolicy(MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+356c354
+<         return cluster == null ? System.currentTimeMillis() : cluster.getClusterTime();
+---
+>         return cluster == null ? System.currentTimeMillis() : hazelcast.getCluster().getClusterTime();
+496c494
+<             result = new HazelcastClusterNodeInfo(member, cluster.getClusterTime());
+---
+>             result = new HazelcastClusterNodeInfo(member, hazelcast.getCluster().getClusterTime());
+656c654,655
+<         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
+---
+>         String attribute = member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE);
+>         return NodeID.getInstance(attribute.getBytes(StandardCharsets.UTF_8));
+701,703d699
+< 
+< 
+< 

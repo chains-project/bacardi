@@ -1,0 +1,11 @@
+4d3
+< import ch.qos.logback.classic.Logger;
+17a17,18
+> import org.slf4j.Logger;
+> import org.junit.jupiter.api.Assertions;
+112,113c113,114
+<         logger.setLevel(Level.INFO);
+<         logger.addAppender(mockLogAppender);
+---
+>         ((ch.qos.logback.classic.Logger) logger).setLevel(Level.INFO);
+>         ((ch.qos.logback.classic.Logger) logger).addAppender(mockLogAppender);
