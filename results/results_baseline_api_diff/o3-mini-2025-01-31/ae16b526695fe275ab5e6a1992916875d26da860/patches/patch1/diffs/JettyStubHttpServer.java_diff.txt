@@ -1,0 +1,28 @@
+9a10,13
+> import org.eclipse.jetty.server.ServerConnector;
+> import org.eclipse.jetty.server.HttpConnectionFactory;
+> import org.eclipse.jetty.server.HttpConfiguration;
+> import org.eclipse.jetty.util.thread.QueuedThreadPool;
+13,15d16
+< import org.eclipse.jetty.server.Connector;
+< import org.eclipse.jetty.server.nio.SelectChannelConnector;
+< 
+24c25
+<     private final Connector httpConnector;
+---
+>     private final ServerConnector httpConnector;
+32,34c33,38
+<         this.server = new Server();
+<         this.server.setSendServerVersion(false);
+<         this.server.setSendDateHeader(true);
+---
+>         QueuedThreadPool threadPool = new QueuedThreadPool();
+>         this.server = new Server(threadPool);
+>         
+>         HttpConfiguration httpConfig = new HttpConfiguration();
+>         httpConfig.setSendServerVersion(false);
+>         httpConfig.setSendDateHeader(true);
+36c40
+<         this.httpConnector = new SelectChannelConnector();
+---
+>         this.httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));

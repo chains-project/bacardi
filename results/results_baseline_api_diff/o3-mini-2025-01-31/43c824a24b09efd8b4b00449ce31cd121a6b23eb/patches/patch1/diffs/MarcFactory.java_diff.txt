@@ -1,0 +1,43 @@
+3d2
+< import de.gwdg.metadataqa.api.json.JsonBranch;
+67c66,67
+<     for (JsonBranch branch : schema.getPaths()) {
+---
+>     for (var obj : schema.getPaths()) {
+>       JsonBranch branch = new JsonBranch(obj.toString());
+84,85c84
+<           marcRecord.setControl006(
+<             new Control006(extractFirst(cache, branch), marcRecord));
+---
+>           marcRecord.setControl006(new Control006(extractFirst(cache, branch), marcRecord));
+88,89c87
+<           marcRecord.setControl007(
+<             new Control007(extractFirst(cache, branch), marcRecord));
+---
+>           marcRecord.setControl007(new Control007(extractFirst(cache, branch), marcRecord));
+92,93c90
+<           marcRecord.setControl008(
+<             new Control008(extractFirst(cache, branch), marcRecord));
+---
+>           marcRecord.setControl008(new Control008(extractFirst(cache, branch), marcRecord));
+484a482,501
+>   
+>   private static class JsonBranch {
+>     private final String label;
+> 
+>     public JsonBranch(String label) {
+>       this.label = label;
+>     }
+> 
+>     public String getLabel() {
+>       return label;
+>     }
+> 
+>     public Object getParent() {
+>       return null;
+>     }
+> 
+>     public String getJsonPath() {
+>       return label;
+>     }
+>   }

@@ -1,0 +1,38 @@
+20d19
+< import com.google.cloud.pubsublite.PublishMetadata;
+25d23
+< import com.google.cloud.pubsublite.internal.wire.PubsubContext.Framework;
+33c31,32
+<   private static final Framework FRAMEWORK = Framework.of("KAFKA_CONNECT");
+---
+>   private static final PubsubContext.Framework FRAMEWORK =
+>       PubsubContext.Framework.of("KAFKA_CONNECT");
+35,36c34
+<   @Override
+<   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
+---
+>   public Publisher<Void> newPublisher(Map<String, String> params) {
+39,46c37,40
+<     TopicPath topic =
+<         TopicPath.newBuilder()
+<             .setProject(
+<                 ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
+<                     .project())
+<             .setLocation(CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
+<             .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
+<             .build();
+---
+>     TopicPath topic = TopicPath.of(
+>         ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value()).project(),
+>         CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()),
+>         TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()));
+48,54c42
+<     builder.setPublisherFactory(
+<         partition ->
+<             SinglePartitionPublisherBuilder.newBuilder()
+<                 .setTopic(topic)
+<                 .setPartition(partition)
+<                 .setContext(PubsubContext.of(FRAMEWORK))
+<                 .build());
+---
+>     // The custom publisher factory is no longer needed because PartitionPublisherFactory has been removed.

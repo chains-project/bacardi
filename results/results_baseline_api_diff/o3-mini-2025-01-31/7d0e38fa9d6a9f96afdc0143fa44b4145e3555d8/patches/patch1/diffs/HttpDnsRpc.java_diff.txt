@@ -1,0 +1,64 @@
+150c150,151
+<         applyChangeRequestCall(zoneName, change, options).queue(batch, toJsonCallback(callback));
+---
+>         applyChangeRequestCall(zoneName, change, options)
+>             .queue(batch, toJsonCallback(callback));
+203d203
+<       // todo this can cause misleading report of a failure, intended to be fixed within #924
+211c211
+<         .create(this.options.getProjectId(), zone)
+---
+>         .create(this.options.getProjectId(), zone.getName(), zone)
+217d216
+<     // just fields option
+232c231
+<         .get(this.options.getProjectId(), zoneName)
+---
+>         .get(this.options.getProjectId(), zoneName, "")
+238d236
+<     // fields, page token, page size
+247a246,249
+>     String dnsName = Option.DNS_NAME.getString(options);
+>     if (dnsName == null) {
+>       dnsName = "";
+>     }
+249c251
+<         .list(this.options.getProjectId())
+---
+>         .list(this.options.getProjectId(), dnsName)
+252d253
+<         .setDnsName(Option.DNS_NAME.getString(options))
+271c272
+<     return dns.managedZones().delete(this.options.getProjectId(), zoneName);
+---
+>     return dns.managedZones().delete(this.options.getProjectId(), zoneName, "");
+287d287
+<     // options are fields, page token, dns name, type
+289c289
+<         .list(this.options.getProjectId(), zoneName)
+---
+>         .list(this.options.getProjectId(), zoneName, "")
+308c308
+<         .get(this.options.getProjectId())
+---
+>         .get(this.options.getProjectId(), "")
+325c325
+<         .create(this.options.getProjectId(), zoneName, changeRequest)
+---
+>         .create(this.options.getProjectId(), zoneName, "", changeRequest)
+340d339
+<           // the change id was not found, but the zone exists
+343d341
+<         // the zone does not exist, so throw an exception
+352c350
+<         .get(this.options.getProjectId(), zoneName, changeRequestId)
+---
+>         .get(this.options.getProjectId(), zoneName, "", changeRequestId)
+369d366
+<     // options are fields, page token, page size, sort order
+372c369
+<             .list(this.options.getProjectId(), zoneName)
+---
+>             .list(this.options.getProjectId(), zoneName, "")
+377d373
+<       // todo check and change if more sorting options are implemented, issue #604

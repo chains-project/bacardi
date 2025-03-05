@@ -1,0 +1,28 @@
+15a16
+> import org.yaml.snakeyaml.DumperOptions;
+37a39
+>     super(new DumperOptions());
+169d170
+<   //TODO move to polyglot-common, or to org.apache.maven:maven-model
+198,199d198
+<           //"repositories",
+<           //"pluginRepositories",
+218,219c217
+<   protected Set<Property> getProperties(Class<? extends Object> type)
+<           throws IntrospectionException {
+---
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+235,236c233,234
+<   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+<           throws IntrospectionException {
+---
+>   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+>     try {
+240a239,241
+>     } catch (IntrospectionException e) {
+>       throw new RuntimeException(e);
+>     }
+268c269
+<       return 0;// compare further
+---
+>       return 0;

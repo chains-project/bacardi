@@ -1,0 +1,55 @@
+27a28
+> import com.google.api.services.cloudresourcemanager.v3.model.Project;
+146,151c147,148
+<     com.google.api.services.cloudresourcemanager.model.ResourceId toPb() {
+<       com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb =
+<           new com.google.api.services.cloudresourcemanager.model.ResourceId();
+<       resourceIdPb.setId(id);
+<       resourceIdPb.setType(type.toLowerCase());
+<       return resourceIdPb;
+---
+>     String toPb() {
+>       return type.toLowerCase() + "/" + id;
+154,156c151,157
+<     static ResourceId fromPb(
+<         com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb) {
+<       return new ResourceId(resourceIdPb.getId(), resourceIdPb.getType());
+---
+>     static ResourceId fromPb(String parentPb) {
+>       String[] parts = parentPb.split("/", 2);
+>       if (parts.length == 2) {
+>         return new ResourceId(parts[1], parts[0]);
+>       } else {
+>         return new ResourceId(parentPb, "");
+>       }
+392,394c393,394
+<   com.google.api.services.cloudresourcemanager.model.Project toPb() {
+<     com.google.api.services.cloudresourcemanager.model.Project projectPb =
+<         new com.google.api.services.cloudresourcemanager.model.Project();
+---
+>   com.google.api.services.cloudresourcemanager.v3.model.Project toPb() {
+>     Project projectPb = new Project();
+398d397
+<     projectPb.setProjectNumber(projectNumber);
+400c399
+<       projectPb.setLifecycleState(state.toString());
+---
+>       projectPb.setState(state.toString());
+404,405c403
+<           DateTimeFormatter.ISO_DATE_TIME
+<               .withZone(ZoneOffset.UTC)
+---
+>           DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneOffset.UTC)
+414,416c412,413
+<   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.model.Project projectPb) {
+<     Builder builder =
+<         newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
+---
+>   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) {
+>     Builder builder = newBuilder(projectPb.getProjectId());
+423,424c420,421
+<     if (projectPb.getLifecycleState() != null) {
+<       builder.setState(State.valueOf(projectPb.getLifecycleState()));
+---
+>     if (projectPb.getState() != null) {
+>       builder.setState(State.valueOf(projectPb.getState()));

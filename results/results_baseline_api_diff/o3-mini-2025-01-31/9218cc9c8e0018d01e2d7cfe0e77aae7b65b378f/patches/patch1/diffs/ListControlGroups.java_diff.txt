@@ -1,0 +1,30 @@
+37,44c37,42
+< import javax.validation.Validator;
+< import javax.validation.constraints.NotBlank;
+< import javax.validation.constraints.NotEmpty;
+< import javax.validation.constraints.NotNull;
+< import javax.validation.metadata.BeanDescriptor;
+< import javax.validation.metadata.ConstraintDescriptor;
+< import javax.validation.metadata.ElementDescriptor;
+< 
+---
+> import jakarta.validation.Validator;
+> import jakarta.validation.constraints.NotBlank;
+> import jakarta.validation.constraints.NotEmpty;
+> import jakarta.validation.constraints.NotNull;
+> import jakarta.validation.metadata.BeanDescriptor;
+> import jakarta.validation.metadata.ConstraintDescriptor;
+133c131
+<                         ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+---
+>                         jakarta.validation.metadata.PropertyDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+165d162
+< 
+185,187c182,184
+<                                                         .createControlGroup(view.newChildId()
+<                                                                         , new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name)
+<                                                                         , objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
+---
+>                                                         .createControlGroup(view.newChildId(),
+>                                                                         new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name),
+>                                                                         objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);

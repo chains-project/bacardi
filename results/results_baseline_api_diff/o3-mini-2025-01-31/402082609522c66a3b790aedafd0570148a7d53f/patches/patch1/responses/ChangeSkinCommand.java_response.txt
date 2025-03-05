@@ -1,0 +1,12 @@
+package com.github.games647.changeskin.sponge.command;
+
+@FunctionalInterface
+public interface ChangeSkinCommand {
+
+    CommandSpec buildSpec();
+
+    public static class CommandSpec {
+        public CommandSpec() {
+        }
+    }
+}

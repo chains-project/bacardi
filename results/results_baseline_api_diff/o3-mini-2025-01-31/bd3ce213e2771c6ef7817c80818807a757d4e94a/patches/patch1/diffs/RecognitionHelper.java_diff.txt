@@ -1,0 +1,16 @@
+6c6,11
+< import java.nio.file.*;
+---
+> import java.io.Writer;
+> import java.nio.charset.StandardCharsets;
+> import java.nio.file.FileVisitOption;
+> import java.nio.file.Files;
+> import java.nio.file.Paths;
+> import java.nio.file.StandardOpenOption;
+241,242c246,248
+<                         ObjectWriter writer = mapper.writer();
+<                         writer.writeValue(segmentListFile, dataList);
+---
+>             try (Writer fileWriter = Files.newBufferedWriter(segmentListFile.toPath(), StandardCharsets.UTF_8)) {
+>                 mapper.writeValue(fileWriter, dataList);
+>             }

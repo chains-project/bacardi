@@ -1,0 +1,41 @@
+17a18
+> import com.artipie.http.auth.AuthUser;
+30a32
+> import java.util.Optional;
+43,51d44
+< /**
+<  * Tests for {@link DockerSlice}.
+<  * Authentication & authorization tests.
+<  *
+<  * @since 0.8
+<  * @checkstyle ClassDataAbstractionCouplingCheck (500 lines)
+<  * @todo #434:30min test `shouldReturnForbiddenWhenUserHasNoRequiredPermissionOnSecondManifestPut`
+<  *  fails in github actions, locally it works fine. Figure out what is the problem and fix it.
+<  */
+353c346
+<                             .map(user -> new Authentication.User(user.name()))
+---
+>                             .map(user -> new AuthUserImpl(user.name()))
+376a370,391
+> 
+>     /**
+>      * Simple implementation of AuthUser for testing purposes.
+>      */
+>     private static final class AuthUserImpl implements AuthUser {
+> 
+>         private final String username;
+> 
+>         AuthUserImpl(final String username) {
+>             this.username = username;
+>         }
+> 
+>         @Override
+>         public String username() {
+>             return this.username;
+>         }
+> 
+>         @Override
+>         public String toString() {
+>             return this.username;
+>         }
+>     }
