@@ -1,0 +1,37 @@
+16,18d15
+< import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector;
+< import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+< 
+42a40,71
+>     // Dummy implementations for removed dependency classes
+> 
+>     static class ClassInjector {
+>         static class UsingReflection {
+>             static boolean isAvailable() {
+>                 return false;
+>             }
+>         }
+>         static class UsingLookup {
+>             static boolean isAvailable() {
+>                 return true;
+>             }
+>         }
+>     }
+> 
+>     static class ClassLoadingStrategy<T> {
+>         private final Object lookup;
+> 
+>         public ClassLoadingStrategy(Object lookup) {
+>             this.lookup = lookup;
+>         }
+> 
+>         static class Default {
+>             static final ClassLoadingStrategy<ClassLoader> INJECTION = new ClassLoadingStrategy<>(null);
+>         }
+> 
+>         static class UsingLookup {
+>             static <T> ClassLoadingStrategy<T> of(Object lookup) {
+>                 return new ClassLoadingStrategy<>(lookup);
+>             }
+>         }
+>     }

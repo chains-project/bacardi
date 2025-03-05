@@ -1,0 +1,23 @@
+6,8c6,8
+< 
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.text.serializer.TextSerializers;
+---
+> import net.kyori.adventure.audience.Audience;
+> import net.kyori.adventure.text.Component;
+> import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+12c12
+<     private final CommandSource invoker;
+---
+>     private final Audience invoker;
+14c14
+<     public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandSource invoker) {
+---
+>     public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, Audience invoker) {
+16d15
+< 
+22c21,22
+<         invoker.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage));
+---
+>         Component message = LegacyComponentSerializer.legacyAmpersand().deserialize(localeMessage);
+>         invoker.sendMessage(message);

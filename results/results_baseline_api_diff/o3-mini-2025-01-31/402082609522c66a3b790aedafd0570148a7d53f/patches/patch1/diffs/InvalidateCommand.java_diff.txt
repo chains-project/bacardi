@@ -1,0 +1,43 @@
+6a7
+> import java.util.Optional;
+7a9
+> import org.spongepowered.api.command.Command;
+9,12c11,13
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.parameter.CommandContext;
+21c22
+<     InvalidateCommand(ChangeSkinSponge plugin) {
+---
+>     public InvalidateCommand(ChangeSkinSponge plugin) {
+26,29c27,31
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+<             return CommandResult.empty();
+---
+>     public CommandResult execute(CommandContext context) throws CommandException {
+>         Optional<Player> optionalPlayer = context.cause().first(Player.class);
+>         if (!optionalPlayer.isPresent()) {
+>             plugin.sendMessage(context.cause().root(), "no-console");
+>             return CommandResult.builder().successCount(0).build();
+31,34c33,35
+< 
+<         Player receiver = (Player) src;
+<         Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
+<         return CommandResult.success();
+---
+>         Player receiver = optionalPlayer.get();
+>         Task.builder().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
+>         return CommandResult.builder().successCount(1).build();
+38,39c39,40
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command buildSpec() {
+>         return Command.builder()

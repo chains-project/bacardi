@@ -1,0 +1,33 @@
+25,31c25,31
+< import com.google.api.services.cloudresourcemanager.model.Binding;
+< import com.google.api.services.cloudresourcemanager.model.Operation;
+< import com.google.api.services.cloudresourcemanager.model.Policy;
+< import com.google.api.services.cloudresourcemanager.model.Project;
+< import com.google.api.services.cloudresourcemanager.model.SetIamPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsRequest;
+< import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsResponse;
+---
+> import com.google.api.services.cloudresourcemanager.v3.model.Binding;
+> import com.google.api.services.cloudresourcemanager.v3.model.Operation;
+> import com.google.api.services.cloudresourcemanager.v3.model.Policy;
+> import com.google.api.services.cloudresourcemanager.v3.model.Project;
+> import com.google.api.services.cloudresourcemanager.v3.model.SetIamPolicyRequest;
+> import com.google.api.services.cloudresourcemanager.v3.model.TestIamPermissionsRequest;
+> import com.google.api.services.cloudresourcemanager.v3.model.TestIamPermissionsResponse;
+285c285
+<                     jsonFactory.toString(new Operation().setDone(true).setResponse(project)));
+---
+>                     jsonFactory.toString(new Operation().setDone(true).setName("operations/" + project.getProjectId()).setResponse(project)));
+450c450
+<       project.setProjectNumber(Math.abs(PROJECT_NUMBER_GENERATOR.nextLong() % Long.MAX_VALUE));
+---
+>       // Removed setProjectNumber due to updated dependency removal
+629,631d628
+<         case "projectNumber":
+<           project.setProjectNumber(fullProject.getProjectNumber());
+<           break;
+653,654c650
+<     project.setProjectNumber(originalProject.getProjectNumber());
+<     // replace cannot fail because both this method and removeProject are synchronized
+---
+>     // Removed setProjectNumber call due to dependency update.

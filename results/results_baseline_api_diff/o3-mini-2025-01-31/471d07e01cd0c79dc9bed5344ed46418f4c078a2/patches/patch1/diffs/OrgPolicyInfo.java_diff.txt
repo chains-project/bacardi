@@ -1,0 +1,142 @@
+18,21c18
+< import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+< import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+---
+> import com.google.api.services.cloudresourcemanager.v3.model.Policy;
+109,119c106
+<    * hierarchy (Organizations, Folders, Projects) that are allowed or denied by setting the
+<    * allowedValues and deniedValues fields. This is achieved by using the under: and optional is:
+<    * prefixes. The under: prefix denotes resource subtree values. The is: prefix is used to denote
+<    * specific values, and is required only if the value contains a ":". Values prefixed with "is:"
+<    * are treated the same as values with no prefix. Ancestry subtrees must be in one of the
+<    * following formats: - "projects/", e.g. "projects/tokyo-rain-123" - "folders/", e.g.
+<    * "folders/1234" - "organizations/", e.g. "organizations/1234" The supportsUnder field of the
+<    * associated Constraint defines whether ancestry prefixes can be used. You can set allowedValues
+<    * and deniedValues in the same Policy if allValues is ALL_VALUES_UNSPECIFIED. ALLOW or DENY are
+<    * used to allow or deny all values. If allValues is set to either ALLOW or DENY, allowedValues
+<    * and deniedValues must be unset.
+---
+>    * hierarchy (Organizations, Folders, Projects) that are allowed or denied.
+125c112
+<     private final List<java.lang.String> deniedValues;
+---
+>     private final List<String> deniedValues;
+390a378,493
+> 
+>   public static class OrgPolicy extends Policy {
+>     private BooleanPolicy booleanPolicy;
+>     private ListPolicy listPolicy;
+>     private RestoreDefault restoreDefault;
+> 
+>     public OrgPolicy() {
+>       super();
+>     }
+> 
+>     public OrgPolicy setBooleanPolicy(BooleanPolicy bp) {
+>       this.booleanPolicy = bp;
+>       return this;
+>     }
+> 
+>     public BooleanPolicy getBooleanPolicy() {
+>       return this.booleanPolicy;
+>     }
+> 
+>     public OrgPolicy setListPolicy(ListPolicy lp) {
+>       this.listPolicy = lp;
+>       return this;
+>     }
+> 
+>     public ListPolicy getListPolicy() {
+>       return this.listPolicy;
+>     }
+> 
+>     public OrgPolicy setRestoreDefault(RestoreDefault rd) {
+>       this.restoreDefault = rd;
+>       return this;
+>     }
+> 
+>     public RestoreDefault getRestoreDefault() {
+>       return this.restoreDefault;
+>     }
+> 
+>     public OrgPolicy setConstraint(String constraint) {
+>       this.set("constraint", constraint);
+>       return this;
+>     }
+> 
+>     public String getConstraint() {
+>       Object value = this.get("constraint");
+>       return value == null ? null : value.toString();
+>     }
+>   }
+> 
+>   public static class BooleanPolicy {
+>     private Boolean enforced;
+> 
+>     public BooleanPolicy setEnforced(Boolean enforced) {
+>       this.enforced = enforced;
+>       return this;
+>     }
+> 
+>     public Boolean getEnforced() {
+>       return enforced;
+>     }
+>   }
+> 
+>   public static class ListPolicy {
+>     private String allValues;
+>     private List<String> allowedValues;
+>     private List<String> deniedValues;
+>     private Boolean inheritFromParent;
+>     private String suggestedValue;
+> 
+>     public ListPolicy setAllValues(String allValues) {
+>       this.allValues = allValues;
+>       return this;
+>     }
+> 
+>     public ListPolicy setAllowedValues(List<String> allowedValues) {
+>       this.allowedValues = allowedValues;
+>       return this;
+>     }
+> 
+>     public ListPolicy setDeniedValues(List<String> deniedValues) {
+>       this.deniedValues = deniedValues;
+>       return this;
+>     }
+> 
+>     public ListPolicy setInheritFromParent(Boolean inheritFromParent) {
+>       this.inheritFromParent = inheritFromParent;
+>       return this;
+>     }
+> 
+>     public ListPolicy setSuggestedValue(String suggestedValue) {
+>       this.suggestedValue = suggestedValue;
+>       return this;
+>     }
+> 
+>     public String getAllValues() {
+>       return allValues;
+>     }
+> 
+>     public List<String> getAllowedValues() {
+>       return allowedValues;
+>     }
+> 
+>     public List<String> getDeniedValues() {
+>       return deniedValues;
+>     }
+> 
+>     public Boolean getInheritFromParent() {
+>       return inheritFromParent;
+>     }
+> 
+>     public String getSuggestedValue() {
+>       return suggestedValue;
+>     }
+>   }
+> 
+>   public static class RestoreDefault {
+>   }

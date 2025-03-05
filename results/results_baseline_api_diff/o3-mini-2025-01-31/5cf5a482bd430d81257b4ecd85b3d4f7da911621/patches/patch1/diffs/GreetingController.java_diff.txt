@@ -1,0 +1,28 @@
+6,12c6,12
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.UriRef;
+< import javax.mvc.binding.BindingResult;
+< import javax.mvc.binding.MvcBinding;
+< import javax.mvc.binding.ParamError;
+< import javax.mvc.security.CsrfProtected;
+---
+> import jakarta.mvc.Controller;
+> import jakarta.mvc.Models;
+> import jakarta.mvc.UriRef;
+> import jakarta.mvc.Message;
+> import jakarta.mvc.binding.BindingResult;
+> import jakarta.mvc.binding.MvcBinding;
+> import jakarta.mvc.security.CsrfProtected;
+19,22d18
+< /**
+<  *
+<  * @author hantsy
+<  */
+54,56c50,51
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+<                         alert.addError(t.getParamName(), "", t.getMessage());
+---
+>                     .forEach((Message error) -> {
+>                         alert.addError("", "", error.getMessage());

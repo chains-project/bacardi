@@ -1,0 +1,29 @@
+19d18
+< import com.google.api.services.translate.model.TranslationsResource;
+111a111,136
+> 
+>   /**
+>    * Dummy wrapper to adapt to the new dependency. In the new version of the API, the
+>    * com.google.api.services.translate.model.TranslationsResource class has been removed.
+>    * This adapter wraps a {@code com.google.api.services.translate.v3.model.Translation} instance.
+>    */
+>   public static class TranslationsResource {
+>     private final com.google.api.services.translate.v3.model.Translation v3Translation;
+> 
+>     public TranslationsResource(com.google.api.services.translate.v3.model.Translation v3Translation) {
+>       this.v3Translation = v3Translation;
+>     }
+> 
+>     public String getTranslatedText() {
+>       return v3Translation.getTranslatedText();
+>     }
+> 
+>     public String getDetectedSourceLanguage() {
+>       // The new API does not support detected source language; return null.
+>       return null;
+>     }
+> 
+>     public String getModel() {
+>       return v3Translation.getModel();
+>     }
+>   }

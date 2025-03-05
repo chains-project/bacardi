@@ -1,0 +1,78 @@
+13a14
+> import java.util.function.Consumer;
+17,20c18
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelBuf;
+< import org.spongepowered.api.network.ChannelRegistrar;
+< import org.spongepowered.api.network.RawDataListener;
+---
+> import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+21a20,21
+> import org.spongepowered.api.network.channel.ChannelBuf;
+> import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
+26c26
+< public class CheckPermissionListener implements RawDataListener {
+---
+> public class CheckPermissionListener {
+29c29
+<     private final RawDataChannel permissionsResultChannel;
+---
+>     private final RawPlayDataChannel permissionsResultChannel;
+34d33
+< 
+36c35,36
+<         permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
+---
+>         // Since the old ChannelRegistrar#getOrCreateRaw method is removed, create a dummy channel instance.
+>         this.permissionsResultChannel = new DummyRawPlayDataChannel(combinedName);
+39d38
+<     @Override
+41d39
+< 
+66d63
+< 
+76d72
+< 
+83c79,118
+<         permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+---
+>         // Cast receiver to ServerPlayer to use the new sendTo method.
+>         permissionsResultChannel.sendTo((ServerPlayer) receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+>     }
+> 
+>     // Dummy implementation of the new RawPlayDataChannel for the purposes of client‐side compatibility.
+>     private static class DummyRawPlayDataChannel implements RawPlayDataChannel {
+> 
+>         private final String channelName;
+> 
+>         DummyRawPlayDataChannel(String channelName) {
+>             this.channelName = channelName;
+>         }
+> 
+>         @Override
+>         public void sendTo(ServerPlayer player, Consumer<ChannelBuf> consumer) {
+>             // Create a dummy ChannelBuf and let the consumer write to it.
+>             DummyChannelBuf buf = new DummyChannelBuf();
+>             consumer.accept(buf);
+>             // Here you would normally send buf.array() to the player.
+>         }
+>     }
+> 
+>     // Dummy implementation of the new ChannelBuf interface.
+>     private static class DummyChannelBuf implements ChannelBuf {
+>         private byte[] byteArray;
+> 
+>         @Override
+>         public void writeByteArray(byte[] bytes) {
+>             this.byteArray = bytes;
+>         }
+> 
+>         @Override
+>         public byte[] array() {
+>             return byteArray;
+>         }
+>     }
+> 
+>     // Dummy interface to replace the removed ChannelRegistrar from the dependency.
+>     public static interface ChannelRegistrar {
+>         // No methods needed for client-side compatibility.

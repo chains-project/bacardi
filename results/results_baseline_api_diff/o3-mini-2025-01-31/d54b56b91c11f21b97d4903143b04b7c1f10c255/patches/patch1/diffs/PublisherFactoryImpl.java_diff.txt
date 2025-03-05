@@ -1,0 +1,16 @@
+20d19
+< import com.google.cloud.pubsublite.PublishMetadata;
+44c43,44
+<             .setLocation(CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
+---
+>             .setLocation(
+>                 CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
+53d52
+<                 .setContext(PubsubContext.of(FRAMEWORK))
+55c54,57
+<     return builder.build();
+---
+>     return (Publisher<PublishMetadata>) builder.build();
+>   }
+> 
+>   public static final class PublishMetadata {

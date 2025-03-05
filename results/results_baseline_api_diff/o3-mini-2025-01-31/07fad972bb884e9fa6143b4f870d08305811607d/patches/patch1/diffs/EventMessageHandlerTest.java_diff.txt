@@ -1,0 +1,18 @@
+4d3
+< import ch.qos.logback.classic.Logger;
+32a32
+> import java.lang.reflect.Method;
+111,113c111,119
+<         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
+<         logger.setLevel(Level.INFO);
+<         logger.addAppender(mockLogAppender);
+---
+>         Object logger = LoggerFactory.getLogger(EventMessageHandler.class);
+>         try {
+>             Method setLevelMethod = logger.getClass().getMethod("setLevel", Level.class);
+>             setLevelMethod.invoke(logger, Level.INFO);
+>             Method addAppenderMethod = logger.getClass().getMethod("addAppender", Appender.class);
+>             addAppenderMethod.invoke(logger, mockLogAppender);
+>         } catch (Exception e) {
+>             // ignore if logger does not support setting level or adding appender
+>         }

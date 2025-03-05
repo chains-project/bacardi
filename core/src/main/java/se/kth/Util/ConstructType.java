@@ -62,7 +62,6 @@ public class ConstructType {
                  "METHOD_ABSTRACT_ADDED_IN_IMPLEMENTED_INTERFACE",
                  "METHOD_ABSTRACT_ADDED_IN_SUPERCLASS",
                  "METHOD_NO_LONGER_THROWS_CHECKED_EXCEPTION",
-                 "METHOD_NOW_THROWS_CHECKED_EXCEPTION",
                  "METHOD_REMOVED_IN_SUPERCLASS":
                 yield "Method";
             case "FIELD_REMOVED",

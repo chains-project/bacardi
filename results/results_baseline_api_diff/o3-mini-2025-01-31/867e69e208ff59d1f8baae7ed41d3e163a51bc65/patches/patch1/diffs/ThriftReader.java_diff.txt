@@ -1,0 +1,14 @@
+23d22
+< import org.apache.thrift.transport.TFramedTransport;
+25a25
+> import org.apache.thrift.transport.layered.TFramedTransport;
+63c63
+<   // The framed framedTransport.
+---
+>   // The framed transport.
+80,81c80,81
+<     this.framedTransport = new TFramedTransport(new TIOStreamTransport(this
+<         .byteOffsetInputStream), maxMessageSize);
+---
+>     TFramedTransport.Factory transportFactory = new TFramedTransport.Factory(maxMessageSize);
+>     this.framedTransport = transportFactory.getTransport(new TIOStreamTransport(this.byteOffsetInputStream));

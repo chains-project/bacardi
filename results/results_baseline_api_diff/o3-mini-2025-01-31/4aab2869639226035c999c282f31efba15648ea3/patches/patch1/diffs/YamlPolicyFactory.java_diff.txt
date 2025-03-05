@@ -1,0 +1,18 @@
+7a8
+> import com.amihaiemil.eoyaml.YamlMapping;
+9c10,11
+< import com.artipie.asto.factory.Storages;
+---
+> import com.artipie.asto.factory.Config;
+> import com.artipie.asto.factory.StorageFactory;
+40a43,44
+>             final YamlMapping storageMapping = Yaml.createYamlInput(sub.toString()).readYamlMapping();
+>             final Config cfg = new Config(sub.string("type"), storageMapping);
+42,46c46
+<                 new BlockingStorage(
+<                     new Storages().newStorage(
+<                         sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
+<                     )
+<                 )
+---
+>                 new BlockingStorage(StorageFactory.newStorage(cfg))

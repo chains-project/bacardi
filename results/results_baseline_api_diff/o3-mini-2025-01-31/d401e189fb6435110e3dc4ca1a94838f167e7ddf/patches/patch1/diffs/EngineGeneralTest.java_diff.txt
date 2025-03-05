@@ -1,0 +1,2032 @@
+1,15d0
+< /*
+<  * Copyright 2014 Feedzai
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+19,21c4
+< import ch.qos.logback.classic.Logger;
+< import com.feedzai.commons.sql.abstraction.ddl.AlterColumn;
+< import com.feedzai.commons.sql.abstraction.ddl.DbColumn;
+---
+> import ch.qos.logback.classic.LoggerContext;
+23d5
+< import com.feedzai.commons.sql.abstraction.ddl.DbColumnType;
+24a7
+> import com.feedzai.commons.sql.abstraction.ddl.AlterColumn;
+26c9,10
+< import com.feedzai.commons.sql.abstraction.dml.Expression;
+---
+> import com.feedzai.commons.sql.abstraction.ddl.DbColumn;
+> import com.feedzai.commons.sql.abstraction.ddl.DbSequence;
+33d16
+< import com.feedzai.commons.sql.abstraction.dml.dialect.Dialect;
+37,38d19
+< import com.feedzai.commons.sql.abstraction.engine.AbstractDatabaseEngine;
+< import com.feedzai.commons.sql.abstraction.engine.ConnectionResetException;
+41,42c22
+< import com.feedzai.commons.sql.abstraction.engine.DatabaseEngineRuntimeException;
+< import com.feedzai.commons.sql.abstraction.exceptions.DatabaseEngineUniqueConstraintViolationException;
+---
+> import com.feedzai.commons.sql.abstraction.engine.DatabaseEngineUniqueConstraintViolationException;
+46a27
+> import com.feedzai.commons.sql.abstraction.engine.ConnectionResetException;
+48,49c29,30
+< import com.feedzai.commons.sql.abstraction.engine.impl.cockroach.SkipTestCockroachDB;
+< import com.feedzai.commons.sql.abstraction.engine.testconfig.BlobTest;
+---
+> import com.feedzai.commons.sql.abstraction.engine.impl.TestEntity;
+> import com.feedzai.commons.sql.abstraction.engine.EngineTestUtils;
+53c34,38
+< import com.google.common.collect.ImmutableSet;
+---
+> import com.feedzai.commons.sql.abstraction.engine.testconfig.BlobTest;
+> import com.feedzai.commons.sql.abstraction.engine.configuration.PdbProperties;
+> import com.feedzai.commons.sql.abstraction.util.StringUtils;
+> import java.io.ByteArrayOutputStream;
+> import java.io.ObjectOutputStream;
+54a40,52
+> import java.util.Collection;
+> import java.util.List;
+> import java.util.Map;
+> import java.util.HashMap;
+> import java.util.LinkedHashMap;
+> import java.util.Arrays;
+> import java.util.Properties;
+> import java.util.UUID;
+> import java.util.concurrent.CountDownLatch;
+> import java.util.concurrent.ThreadLocalRandom;
+> import java.util.concurrent.atomic.AtomicReference;
+> import java.util.stream.Collectors;
+> import java.util.stream.IntStream;
+59a58
+> import org.assertj.core.api.Assertions;
+60a60
+> import org.junit.Assume;
+68,86d67
+< 
+< import java.io.ByteArrayOutputStream;
+< import java.io.ObjectOutputStream;
+< import java.sql.Connection;
+< import java.util.Arrays;
+< import java.util.Collection;
+< import java.util.HashMap;
+< import java.util.LinkedHashMap;
+< import java.util.List;
+< import java.util.Map;
+< import java.util.Properties;
+< import java.util.UUID;
+< import java.util.concurrent.CountDownLatch;
+< import java.util.concurrent.ThreadLocalRandom;
+< import java.util.concurrent.atomic.AtomicReference;
+< import java.util.stream.Collectors;
+< import java.util.stream.IntStream;
+< 
+< import static com.feedzai.commons.sql.abstraction.ddl.DbColumnConstraint.NOT_NULL;
+94,138c75,110
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.L;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.all;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.avg;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.between;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.caseWhen;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.cast;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.ceiling;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.coalesce;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.column;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.concat;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.count;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.createView;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.dbColumn;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.dbEntity;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.dbFk;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.delete;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.div;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.dropPK;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.entry;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.eq;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.f;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.floor;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.in;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.k;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.like;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.lit;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.lower;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.max;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.min;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.mod;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.neq;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.notBetween;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.notIn;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.or;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.select;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.stddev;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.stringAgg;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.sum;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.table;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.udf;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.union;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.update;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.upper;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.values;
+< import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.with;
+---
+> import static com.feedzai.commons.sql.abstraction.dml.K.k;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.all;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.cast;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.caseWhen;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.ceiling;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.coalesce;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.column;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.concat;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.count;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.createView;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.dbColumn;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.delete;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.div;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.dropPK;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.entry;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.eq;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.f;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.floor;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.in;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.lit;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.like;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.lower;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.max;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.min;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.mod;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.neq;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.notBetween;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.notIn;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.or;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.select;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.stddev;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.stringAgg;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.sum;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.table;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.update;
+> import static com.feedzai.commons.sql.abstraction.dml.SqlBuilder.upper;
+146,161c118
+< import static org.assertj.core.api.Assertions.assertThat;
+< import static org.assertj.core.api.Assertions.assertThatCode;
+< import static org.junit.Assert.assertArrayEquals;
+< import static org.junit.Assert.assertEquals;
+< import static org.junit.Assert.assertFalse;
+< import static org.junit.Assert.assertNotNull;
+< import static org.junit.Assert.assertNull;
+< import static org.junit.Assert.assertTrue;
+< import static org.junit.Assert.fail;
+< import static org.junit.Assume.assumeFalse;
+< import static org.junit.Assume.assumeTrue;
+< 
+< /**
+<  * @author Rui Vilao (rui.vilao@feedzai.com)
+<  * @since 2.0.0
+<  */
+---
+> 
+165,167d121
+< 
+<     private static final double DELTA = 1e-7;
+< 
+181c135,136
+<         ((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.TRACE);
+---
+>         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+>         loggerContext.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME).setLevel(Level.TRACE);
+214d168
+<                 .pkFields("COL1")
+253c207
+<             assertEquals("", "Entity 'TEST' is already defined", e.getMessage());
+---
+>             org.junit.Assert.assertEquals("", "Entity 'TEST' is already defined", e.getMessage());
+388,389c342,343
+<         assertTrue("COL1 exists", query.get(0).containsKey("COL1"));
+<         assertEquals("COL1 ok?", 2, (int) query.get(0).get("COL1").toInt());
+---
+>         org.junit.Assert.assertTrue("COL1 exists", query.get(0).containsKey("COL1"));
+>         org.junit.Assert.assertEquals("COL1 ok?", 2, (int) query.get(0).get("COL1").toInt());
+391,392c345,346
+<         assertTrue("COL2 exists", query.get(0).containsKey("COL2"));
+<         assertFalse("COL2 ok?", query.get(0).get("COL2").toBoolean());
+---
+>         org.junit.Assert.assertTrue("COL2 exists", query.get(0).containsKey("COL2"));
+>         org.junit.Assert.assertFalse("COL2 ok?", query.get(0).get("COL2").toBoolean());
+394,395c348,349
+<         assertTrue("COL3 exists", query.get(0).containsKey("COL3"));
+<         assertEquals("COL3 ok?", 2D, query.get(0).get("COL3").toDouble(), 0);
+---
+>         org.junit.Assert.assertTrue("COL3 exists", query.get(0).containsKey("COL3"));
+>         org.junit.Assert.assertEquals("COL3 ok?", 2D, query.get(0).get("COL3").toDouble(), 0);
+397,398c351,352
+<         assertTrue("COL4 exists", query.get(0).containsKey("COL4"));
+<         assertEquals("COL4 ok?", 3L, (long) query.get(0).get("COL4").toLong());
+---
+>         org.junit.Assert.assertTrue("COL4 exists", query.get(0).containsKey("COL4"));
+>         org.junit.Assert.assertEquals("COL4 ok?", 3L, (long) query.get(0).get("COL4").toLong());
+400,401c354,355
+<         assertTrue("COL5 exists", query.get(0).containsKey("COL5"));
+<         assertEquals("COL5  ok?", "ADEUS", query.get(0).get("COL5").toString());
+---
+>         org.junit.Assert.assertTrue("COL5 exists", query.get(0).containsKey("COL5"));
+>         org.junit.Assert.assertEquals("COL5  ok?", "ADEUS", query.get(0).get("COL5").toString());
+408,409c362
+<         EntityEntry entry = entry().set("COL1", 2).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS")
+<                 .build();
+---
+>         EntityEntry entry = entry().set("COL1", 2).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS").build();
+415,416c368,369
+<         assertTrue("COL1 exists", query.get(0).containsKey("COL1"));
+<         assertEquals("COL1 ok?", 2, (int) query.get(0).get("COL1").toInt());
+---
+>         org.junit.Assert.assertTrue("COL1 exists", query.get(0).containsKey("COL1"));
+>         org.junit.Assert.assertEquals("COL1 ok?", 2, (int) query.get(0).get("COL1").toInt());
+418,419c371,372
+<         assertTrue("COL2 exists", query.get(0).containsKey("COL2"));
+<         assertFalse("COL2 ok?", query.get(0).get("COL2").toBoolean());
+---
+>         org.junit.Assert.assertTrue("COL2 exists", query.get(0).containsKey("COL2"));
+>         org.junit.Assert.assertFalse("COL2 ok?", query.get(0).get("COL2").toBoolean());
+421,422c374,375
+<         assertTrue("COL3 exists", query.get(0).containsKey("COL3"));
+<         assertEquals("COL3 ok?", 2D, query.get(0).get("COL3").toDouble(), 0);
+---
+>         org.junit.Assert.assertTrue("COL3 exists", query.get(0).containsKey("COL3"));
+>         org.junit.Assert.assertEquals("COL3 ok?", 2D, query.get(0).get("COL3").toDouble(), 0);
+424,425c377,378
+<         assertTrue("COL4 exists", query.get(0).containsKey("COL4"));
+<         assertEquals("COL4 ok?", 3L, (long) query.get(0).get("COL4").toLong());
+---
+>         org.junit.Assert.assertTrue("COL4 exists", query.get(0).containsKey("COL4"));
+>         org.junit.Assert.assertEquals("COL4 ok?", 3L, (long) query.get(0).get("COL4").toLong());
+427,428c380,381
+<         assertTrue("COL5 exists", query.get(0).containsKey("COL5"));
+<         assertEquals("COL5  ok?", "ADEUS", query.get(0).get("COL5").toString());
+---
+>         org.junit.Assert.assertTrue("COL5 exists", query.get(0).containsKey("COL5"));
+>         org.junit.Assert.assertEquals("COL5  ok?", "ADEUS", query.get(0).get("COL5").toString());
+444,445c397
+<         EntityEntry entry = entry().set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS")
+<                 .build();
+---
+>         EntityEntry entry = entry().set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS").build();
+460,461c412,413
+<         assertTrue("COL1 exists", query.get(0).containsKey("COL1"));
+<         assertEquals("COL1 ok?", 1, (int) query.get(0).get("COL1").toInt());
+---
+>         org.junit.Assert.assertTrue("COL1 exists", query.get(0).containsKey("COL1"));
+>         org.junit.Assert.assertEquals("COL1 ok?", 1, (int) query.get(0).get("COL1").toInt());
+463,464c415,416
+<         assertTrue("COL2 exists", query.get(0).containsKey("COL2"));
+<         assertFalse("COL2 ok?", query.get(0).get("COL2").toBoolean());
+---
+>         org.junit.Assert.assertTrue("COL2 exists", query.get(0).containsKey("COL2"));
+>         org.junit.Assert.assertFalse("COL2 ok?", query.get(0).get("COL2").toBoolean());
+466,467c418,419
+<         assertTrue("COL3 exists", query.get(0).containsKey("COL3"));
+<         assertEquals("COL3 ok?", 2D, query.get(0).get("COL3").toDouble(), 0);
+---
+>         org.junit.Assert.assertTrue("COL3 exists", query.get(0).containsKey("COL3"));
+>         org.junit.Assert.assertEquals("COL3 ok?", 2D, query.get(0).get("COL3").toDouble(), 0);
+469,470c421,422
+<         assertTrue("COL4 exists", query.get(0).containsKey("COL4"));
+<         assertEquals("COL4 ok?", 3L, (long) query.get(0).get("COL4").toLong());
+---
+>         org.junit.Assert.assertTrue("COL4 exists", query.get(0).containsKey("COL4"));
+>         org.junit.Assert.assertEquals("COL4 ok?", 3L, (long) query.get(0).get("COL4").toLong());
+472,473c424,425
+<         assertTrue("COL5 exists", query.get(0).containsKey("COL5"));
+<         assertEquals("COL5  ok?", "ADEUS", query.get(0).get("COL5").toString());
+---
+>         org.junit.Assert.assertTrue("COL5 exists", query.get(0).containsKey("COL5"));
+>         org.junit.Assert.assertEquals("COL5  ok?", "ADEUS", query.get(0).get("COL5").toString());
+480,481c432
+<         EntityEntry entry = entry().set("COL1", 1).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS")
+<                 .build();
+---
+>         EntityEntry entry = entry().set("COL1", 1).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS").build();
+488,490c439,441
+<         assertNotNull("result is not null", res);
+<         assertTrue("COL1 exists", res.containsKey("COL1"));
+<         assertEquals("COL1 ok?", 1, (int) res.get("COL1").toInt());
+---
+>         org.junit.Assert.assertNotNull("result is not null", res);
+>         org.junit.Assert.assertTrue("COL1 exists", res.containsKey("COL1"));
+>         org.junit.Assert.assertEquals("COL1 ok?", 1, (int) res.get("COL1").toInt());
+492,493c443,444
+<         assertTrue("COL2 exists", res.containsKey("COL2"));
+<         assertFalse("COL2 ok?", res.get("COL2").toBoolean());
+---
+>         org.junit.Assert.assertTrue("COL2 exists", res.containsKey("COL2"));
+>         org.junit.Assert.assertFalse("COL2 ok?", res.get("COL2").toBoolean());
+495,496c446,447
+<         assertTrue("COL3 exists", res.containsKey("COL3"));
+<         assertEquals("COL3 ok?", 2D, res.get("COL3").toDouble(), 0);
+---
+>         org.junit.Assert.assertTrue("COL3 exists", res.containsKey("COL3"));
+>         org.junit.Assert.assertEquals("COL3 ok?", 2D, res.get("COL3").toDouble(), 0);
+498,499c449,450
+<         assertTrue("COL4 exists", res.containsKey("COL4"));
+<         assertEquals("COL4 ok?", 3L, (long) res.get("COL4").toLong());
+---
+>         org.junit.Assert.assertTrue("COL4 exists", res.containsKey("COL4"));
+>         org.junit.Assert.assertEquals("COL4 ok?", 3L, (long) res.get("COL4").toLong());
+501,502c452,453
+<         assertTrue("COL5 exists", res.containsKey("COL5"));
+<         assertEquals("COL5  ok?", "ADEUS", res.get("COL5").toString());
+---
+>         org.junit.Assert.assertTrue("COL5 exists", res.containsKey("COL5"));
+>         org.junit.Assert.assertEquals("COL5  ok?", "ADEUS", res.get("COL5").toString());
+504c455
+<         assertNull("no more data to consume?", it.next());
+---
+>         org.junit.Assert.assertNull("no more data to consume?", it.next());
+506,507c457,458
+<         assertTrue("result set is closed?", it.isClosed());
+<         assertNull("next on a closed result set must return null", it.next());
+---
+>         org.junit.Assert.assertTrue("result set is closed?", it.isClosed());
+>         org.junit.Assert.assertNull("next on a closed result set must return null", it.next());
+509d459
+<         // calling close on a closed result set has no effect.
+519c469
+<         assertNull("result is null", it.next());
+---
+>         org.junit.Assert.assertNull("result is null", it.next());
+521c471
+<         assertNull("no more data to consume?", it.next());
+---
+>         org.junit.Assert.assertNull("no more data to consume?", it.next());
+523,524c473,474
+<         assertTrue("result set is closed?", it.isClosed());
+<         assertNull("next on a closed result set must return null", it.next());
+---
+>         org.junit.Assert.assertTrue("result set is closed?", it.isClosed());
+>         org.junit.Assert.assertNull("next on a closed result set must return null", it.next());
+526d475
+<         // calling close on a closed result set has no effect.
+530,537d478
+<     /**
+<      * Tests that an iterator created in a try-with-resources' resource specification header is automatically closed
+<      * once the block is exited from.
+<      *
+<      * @throws Exception If an unexpected error occurs.
+<      *
+<      * @since 2.1.12
+<      */
+556c497
+<             assertFalse(
+---
+>             org.junit.Assert.assertFalse(
+562c503
+<         assertTrue(
+---
+>         org.junit.Assert.assertTrue(
+575,576c516
+<             EntityEntry entry = entry().set("COL1", 2).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS")
+<                     .build();
+---
+>             EntityEntry entry = entry().set("COL1", 2).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS").build();
+580,581c520
+<             entry = entry().set("COL1", 3).set("COL2", true).set("COL3", 3D).set("COL4", 4L).set("COL5", "OLA")
+<                     .build();
+---
+>             entry = entry().set("COL1", 3).set("COL2", true).set("COL3", 3D).set("COL4", 4L).set("COL5", "OLA").build();
+596,598c535,536
+<         // 1st
+<         assertTrue("COL1 exists", query.get(0).containsKey("COL1"));
+<         assertEquals("COL1 ok?", 2, (int) query.get(0).get("COL1").toInt());
+---
+>         org.junit.Assert.assertTrue("COL1 exists", query.get(0).containsKey("COL1"));
+>         org.junit.Assert.assertEquals("COL1 ok?", 2, (int) query.get(0).get("COL1").toInt());
+600,601c538,539
+<         assertTrue("COL2 exists", query.get(0).containsKey("COL2"));
+<         assertFalse("COL2 ok?", query.get(0).get("COL2").toBoolean());
+---
+>         org.junit.Assert.assertTrue("COL2 exists", query.get(0).containsKey("COL2"));
+>         org.junit.Assert.assertFalse("COL2 ok?", query.get(0).get("COL2").toBoolean());
+603,604c541,542
+<         assertTrue("COL3 exists", query.get(0).containsKey("COL3"));
+<         assertEquals("COL3 ok?", 2D, query.get(0).get("COL3").toDouble(), 0);
+---
+>         org.junit.Assert.assertTrue("COL3 exists", query.get(0).containsKey("COL3"));
+>         org.junit.Assert.assertEquals("COL3 ok?", 2D, query.get(0).get("COL3").toDouble(), 0);
+606,607c544,545
+<         assertTrue("COL4 exists", query.get(0).containsKey("COL4"));
+<         assertEquals("COL4 ok?", 3L, (long) query.get(0).get("COL4").toLong());
+---
+>         org.junit.Assert.assertTrue("COL4 exists", query.get(0).containsKey("COL4"));
+>         org.junit.Assert.assertEquals("COL4 ok?", 3L, (long) query.get(0).get("COL4").toLong());
+609,610c547,548
+<         assertTrue("COL5 exists", query.get(0).containsKey("COL5"));
+<         assertEquals("COL5  ok?", "ADEUS", query.get(0).get("COL5").toString());
+---
+>         org.junit.Assert.assertTrue("COL5 exists", query.get(0).containsKey("COL5"));
+>         org.junit.Assert.assertEquals("COL5  ok?", "ADEUS", query.get(0).get("COL5").toString());
+612c550,551
+<         // 2nd
+---
+>         org.junit.Assert.assertTrue("COL1 exists", query.get(1).containsKey("COL1"));
+>         org.junit.Assert.assertEquals("COL1 ok?", 3, (int) query.get(1).get("COL1").toInt());
+614,615c553,554
+<         assertTrue("COL1 exists", query.get(1).containsKey("COL1"));
+<         assertEquals("COL1 ok?", 3, (int) query.get(1).get("COL1").toInt());
+---
+>         org.junit.Assert.assertTrue("COL2 exists", query.get(1).containsKey("COL2"));
+>         org.junit.Assert.assertTrue("COL2 ok?", query.get(1).get("COL2").toBoolean());
+617,618c556,557
+<         assertTrue("COL2 exists", query.get(1).containsKey("COL2"));
+<         assertTrue("COL2 ok?", query.get(1).get("COL2").toBoolean());
+---
+>         org.junit.Assert.assertTrue("COL3 exists", query.get(1).containsKey("COL3"));
+>         org.junit.Assert.assertEquals("COL3 ok?", 3D, query.get(1).get("COL3").toDouble(), 0);
+620,621c559,560
+<         assertTrue("COL3 exists", query.get(1).containsKey("COL3"));
+<         assertEquals("COL3 ok?", 3D, query.get(1).get("COL3").toDouble(), 0);
+---
+>         org.junit.Assert.assertTrue("COL4 exists", query.get(1).containsKey("COL4"));
+>         org.junit.Assert.assertEquals("COL4 ok?", 4L, (long) query.get(1).get("COL4").toLong());
+623,627c562,563
+<         assertTrue("COL4 exists", query.get(1).containsKey("COL4"));
+<         assertEquals("COL4 ok?", 4L, (long) query.get(1).get("COL4").toLong());
+< 
+<         assertTrue("COL5 exists", query.get(1).containsKey("COL5"));
+<         assertEquals("COL5  ok?", "OLA", query.get(1).get("COL5").toString());
+---
+>         org.junit.Assert.assertTrue("COL5 exists", query.get(1).containsKey("COL5"));
+>         org.junit.Assert.assertEquals("COL5  ok?", "OLA", query.get(1).get("COL5").toString());
+634,635c570
+<         EntityEntry entry = entry().set("COL1", 2).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS")
+<                 .build();
+---
+>         EntityEntry entry = entry().set("COL1", 2).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS").build();
+639,640c574
+<         entry = entry().set("COL1", 3).set("COL2", true).set("COL3", 3D).set("COL4", 4L).set("COL5", "OLA")
+<                 .build();
+---
+>         entry = entry().set("COL1", 3).set("COL2", true).set("COL3", 3D).set("COL4", 4L).set("COL5", "OLA").build();
+644d577
+<         // autocommit set to true.
+647d579
+< 
+650,698c582,612
+<         // 1st
+<         assertTrue("COL1 exists", query.get(0).containsKey("COL1"));
+<         assertEquals("COL1 ok?", 2, (int) query.get(0).get("COL1").toInt());
+< 
+<         assertTrue("COL2 exists", query.get(0).containsKey("COL2"));
+<         assertFalse("COL2 ok?", query.get(0).get("COL2").toBoolean());
+< 
+<         assertTrue("COL3 exists", query.get(0).containsKey("COL3"));
+<         assertEquals("COL3 ok?", 2D, query.get(0).get("COL3").toDouble(), 0);
+< 
+<         assertTrue("COL4 exists", query.get(0).containsKey("COL4"));
+<         assertEquals("COL4 ok?", 3L, (long) query.get(0).get("COL4").toLong());
+< 
+<         assertTrue("COL5 exists", query.get(0).containsKey("COL5"));
+<         assertEquals("COL5  ok?", "ADEUS", query.get(0).get("COL5").toString());
+< 
+<         // 2nd
+< 
+<         assertTrue("COL1 exists", query.get(1).containsKey("COL1"));
+<         assertEquals("COL1 ok?", 3, (int) query.get(1).get("COL1").toInt());
+< 
+<         assertTrue("COL2 exists", query.get(1).containsKey("COL2"));
+<         assertTrue("COL2 ok?", query.get(1).get("COL2").toBoolean());
+< 
+<         assertTrue("COL3 exists", query.get(1).containsKey("COL3"));
+<         assertEquals("COL3 ok?", 3D, query.get(1).get("COL3").toDouble(), 0);
+< 
+<         assertTrue("COL4 exists", query.get(1).containsKey("COL4"));
+<         assertEquals("COL4 ok?", 4L, (long) query.get(1).get("COL4").toLong());
+< 
+<         assertTrue("COL5 exists", query.get(1).containsKey("COL5"));
+<         assertEquals("COL5  ok?", "OLA", query.get(1).get("COL5").toString());
+<     }
+< 
+<     /**
+<      * Tests that on a rollback situation, the prepared statement batches are cleared.
+<      *
+<      * The steps performed on this test are:
+<      * <ol>
+<      *     <li>Add batch to transaction and purposely fail to flush</li>
+<      *     <li>Ensure the existence of the Exception and rollback transaction</li>
+<      *     <li>Flush again successfully and ensure that the DB table doesn't have any rows</li>
+<      * </ol>
+<      *
+<      * This is a regression test.
+<      *
+<      * @throws DatabaseEngineException If there is a problem on {@link DatabaseEngine} operations.
+<      * @since 2.1.12
+<      */
+---
+>         org.junit.Assert.assertTrue("COL1 exists", query.get(0).containsKey("COL1"));
+>         org.junit.Assert.assertEquals("COL1 ok?", 2, (int) query.get(0).get("COL1").toInt());
+> 
+>         org.junit.Assert.assertTrue("COL2 exists", query.get(0).containsKey("COL2"));
+>         org.junit.Assert.assertFalse("COL2 ok?", query.get(0).get("COL2").toBoolean());
+> 
+>         org.junit.Assert.assertTrue("COL3 exists", query.get(0).containsKey("COL3"));
+>         org.junit.Assert.assertEquals("COL3 ok?", 2D, query.get(0).get("COL3").toDouble(), 0);
+> 
+>         org.junit.Assert.assertTrue("COL4 exists", query.get(0).containsKey("COL4"));
+>         org.junit.Assert.assertEquals("COL4 ok?", 3L, (long) query.get(0).get("COL4").toLong());
+> 
+>         org.junit.Assert.assertTrue("COL5 exists", query.get(0).containsKey("COL5"));
+>         org.junit.Assert.assertEquals("COL5  ok?", "ADEUS", query.get(0).get("COL5").toString());
+> 
+>         org.junit.Assert.assertTrue("COL1 exists", query.get(1).containsKey("COL1"));
+>         org.junit.Assert.assertEquals("COL1 ok?", 3, (int) query.get(1).get("COL1").toInt());
+> 
+>         org.junit.Assert.assertTrue("COL2 exists", query.get(1).containsKey("COL2"));
+>         org.junit.Assert.assertTrue("COL2 ok?", query.get(1).get("COL2").toBoolean());
+> 
+>         org.junit.Assert.assertTrue("COL3 exists", query.get(1).containsKey("COL3"));
+>         org.junit.Assert.assertEquals("COL3 ok?", 3D, query.get(1).get("COL3").toDouble(), 0);
+> 
+>         org.junit.Assert.assertTrue("COL4 exists", query.get(1).containsKey("COL4"));
+>         org.junit.Assert.assertEquals("COL4 ok?", 4L, (long) query.get(1).get("COL4").toLong());
+> 
+>         org.junit.Assert.assertTrue("COL5 exists", query.get(1).containsKey("COL5"));
+>         org.junit.Assert.assertEquals("COL5  ok?", "OLA", query.get(1).get("COL5").toString());
+>     }
+> 
+708c622
+<         new MockUp<AbstractDatabaseEngine>() {
+---
+>         new MockUp<com.feedzai.commons.sql.abstraction.engine.AbstractDatabaseEngine>() {
+728c642
+<             fail("Was expecting the flush operation to fail");
+---
+>             org.junit.Assert.fail("Was expecting the flush operation to fail");
+737,738c651
+<         // Ensure we had an exception and therefore we didn't insert anything on the DB and that we cleared the batches.
+<         assertNotNull("DB returned exception when flushing", expectedException);
+---
+>         org.junit.Assert.assertNotNull("DB returned exception when flushing", expectedException);
+749,751c662
+<         // Previously, we rolled back the transaction; now we are trying the flush an empty transaction.
+<         // Therefore, we shouldn't have any rows on the table.
+<         assertEquals("There are no rows on table TEST", 0, query.size());
+---
+>         org.junit.Assert.assertEquals("There are no rows on table TEST", 0, query.size());
+775c686
+<             assertEquals("arrays are equal?", d, query.get(0).get("COL2").<double[]>toBlob()[i++], 0D);
+---
+>             org.junit.Assert.assertEquals("arrays are equal?", d, query.get(0).get("COL2").<double[]>toBlob()[i++], 0D);
+797c708
+<         assertEquals("number of rows ok?", 5, query.size());
+---
+>         org.junit.Assert.assertEquals("number of rows ok?", 5, query.size());
+820c731
+<         assertEquals("number of rows ok?", limit, query.size());
+---
+>         org.junit.Assert.assertEquals("number of rows ok?", limit, query.size());
+822c733
+<             assertEquals("Check correct row", i, query.get(j).get("COL1").toInt().intValue());
+---
+>             org.junit.Assert.assertEquals("Check correct row", i, query.get(j).get("COL1").toInt().intValue());
+858c769
+<         assertEquals("number of rows ok?", limit, query.size());
+---
+>         org.junit.Assert.assertEquals("number of rows ok?", limit, query.size());
+860,861c771,772
+<             assertEquals("Check correct row col1", 19 - i, query.get(j).get("COL1").toInt().intValue());
+<             assertEquals("Check correct row col6", i + 1, query.get(j).get("COL6").toInt().intValue());
+---
+>             org.junit.Assert.assertEquals("Check correct row col1", 19 - i, query.get(j).get("COL1").toInt().intValue());
+>             org.junit.Assert.assertEquals("Check correct row col6", i + 1, query.get(j).get("COL6").toInt().intValue());
+916c827
+<         assertEquals("number of rows ok?", limit, query.size());
+---
+>         org.junit.Assert.assertEquals("number of rows ok?", limit, query.size());
+918,919c829,830
+<         assertEquals("Check correct row col2", "D", query.get(0).get("COL2").toString());
+<         assertEquals("Check correct row col2", "E", query.get(1).get("COL2").toString());
+---
+>         org.junit.Assert.assertEquals("Check correct row col2", "D", query.get(0).get("COL2").toString());
+>         org.junit.Assert.assertEquals("Check correct row col2", "E", query.get(1).get("COL2").toString());
+922c833
+<         assertEquals("number of rows ok?", limit, query.size());
+---
+>         org.junit.Assert.assertEquals("number of rows ok?", limit, query.size());
+924,925c835,836
+<         assertEquals("Check correct row col2", "D", query.get(0).get("COL2").toString());
+<         assertEquals("Check correct row col2", "C", query.get(1).get("COL2").toString());
+---
+>         org.junit.Assert.assertEquals("Check correct row col2", "D", query.get(0).get("COL2").toString());
+>         org.junit.Assert.assertEquals("Check correct row col2", "C", query.get(1).get("COL2").toString());
+959c870
+<         assertEquals("number of rows ok?", limit, query.size());
+---
+>         org.junit.Assert.assertEquals("number of rows ok?", limit, query.size());
+961,962c872,873
+<             assertEquals("Check correct row col1", 19 - i, query.get(j).get("COL1").toInt().intValue());
+<             assertEquals("Check correct row col6", i + 1, query.get(j).get("COL6").toInt().intValue());
+---
+>             org.junit.Assert.assertEquals("Check correct row col1", 19 - i, query.get(j).get("COL1").toInt().intValue());
+>             org.junit.Assert.assertEquals("Check correct row col6", i + 1, query.get(j).get("COL6").toInt().intValue());
+998c909
+<         assertEquals("number of rows ok?", 0, query.size());
+---
+>         org.junit.Assert.assertEquals("number of rows ok?", 0, query.size());
+1033c944
+<         assertEquals("number of rows ok?", 19, query.size());
+---
+>         org.junit.Assert.assertEquals("number of rows ok?", 19, query.size());
+1037c948
+<         assertEquals("number of rows ok?", 19, query.size());
+---
+>         org.junit.Assert.assertEquals("number of rows ok?", 19, query.size());
+1071c982
+<         assertEquals("number of rows ok?", 20 - offset, query.size());
+---
+>         org.junit.Assert.assertEquals("number of rows ok?", 20 - offset, query.size());
+1073c984
+<             assertEquals("Check correct row 1", i, query.get(j).get("COL1").toInt().intValue());
+---
+>             org.junit.Assert.assertEquals("Check correct row 1", i, query.get(j).get("COL1").toInt().intValue());
+1077c988
+<         assertEquals("number of rows ok?", 20 - offset, query.size());
+---
+>         org.junit.Assert.assertEquals("number of rows ok?", 20 - offset, query.size());
+1079c990
+<             assertEquals("Check correct row 6", offset + 1 + j, query.get(j).get("COL6").toInt().intValue());
+---
+>             org.junit.Assert.assertEquals("Check correct row 6", offset + 1 + j, query.get(j).get("COL6").toInt().intValue());
+1101c1012
+<         assertEquals("result ok?", 3.0276503540974917D, query.get(0).get("STDDEV").toDouble(), 0.0001D);
+---
+>         org.junit.Assert.assertEquals("result ok?", 3.0276503540974917D, query.get(0).get("STDDEV").toDouble(), 0.0001D);
+1122c1033
+<         assertEquals("result ok?", 45, (int) query.get(0).get("SUM").toInt());
+---
+>         org.junit.Assert.assertEquals("result ok?", 45, (int) query.get(0).get("SUM").toInt());
+1143c1054
+<         assertEquals("result ok?", 10, (int) query.get(0).get("COUNT").toInt());
+---
+>         org.junit.Assert.assertEquals("result ok?", 10, (int) query.get(0).get("COUNT").toInt());
+1164c1075
+<         assertEquals("result ok?", 4.5D, query.get(0).get("AVG").toDouble(), 0);
+---
+>         org.junit.Assert.assertEquals("result ok?", 4.5D, query.get(0).get("AVG").toDouble(), 0);
+1185c1096
+<         assertEquals("result ok?", 9, (int) query.get(0).get("MAX").toInt());
+---
+>         org.junit.Assert.assertEquals("result ok?", 9, (int) query.get(0).get("MAX").toInt());
+1206c1117
+<         assertEquals("result ok?", 0, (int) query.get(0).get("MIN").toInt());
+---
+>         org.junit.Assert.assertEquals("result ok?", 0, (int) query.get(0).get("MIN").toInt());
+1228c1139
+<         assertEquals("result ok?", 2.0, query.get(0).get("FLOOR").toDouble(), DELTA);
+---
+>         org.junit.Assert.assertEquals("result ok?", 2.0, query.get(0).get("FLOOR").toDouble(), 1E-7);
+1250c1161
+<         assertEquals("result ok?", 3.0, query.get(0).get("CEILING").toDouble(), DELTA);
+---
+>         org.junit.Assert.assertEquals("result ok?", 3.0, query.get(0).get("CEILING").toDouble(), 1E-7);
+1272c1183
+<         assertEquals("", 0.5D, query.get(0).get("DIV").toDouble(), 0);
+---
+>         org.junit.Assert.assertEquals("", 0.5D, query.get(0).get("DIV").toDouble(), 0);
+1279c1190
+<         assertEquals("constant ok?", 1, (int) query.get(0).get("constant").toInt());
+---
+>         org.junit.Assert.assertEquals("constant ok?", 1, (int) query.get(0).get("constant").toInt());
+1293c1204
+<             assertEquals("exception ok?", "You have to define the entity name", de.getMessage());
+---
+>             org.junit.Assert.assertEquals("exception ok?", "You have to define the entity name", de.getMessage());
+1309c1220
+<             assertEquals("exception ok?", "You have to define the entity name", de.getMessage());
+---
+>             org.junit.Assert.assertEquals("exception ok?", "You have to define the entity name", de.getMessage());
+1325c1236
+<             assertEquals("exception ok?", "Entity name '0123456789012345678901234567891' exceeds the maximum number of characters (30)", de.getMessage());
+---
+>             org.junit.Assert.assertEquals("exception ok?", "Entity name '0123456789012345678901234567891' exceeds the maximum number of characters (30)", de.getMessage());
+1341c1252
+<             assertEquals("exception ok?", "Column in entity 'entname' must have a name", de.getMessage());
+---
+>             org.junit.Assert.assertEquals("exception ok?", "Column in entity 'entname' must have a name", de.getMessage());
+1357c1268
+<             assertEquals("exception ok?", "You can only define one auto incremented column", de.getMessage());
+---
+>             org.junit.Assert.assertEquals("exception ok?", "You can only define one auto incremented column", de.getMessage());
+1379c1290
+<         assertEquals("ret ok?", new Long(1), persist);
+---
+>         org.junit.Assert.assertEquals("ret ok?", new Long(1), persist);
+1399c1310
+<         assertEquals("ret ok?", new Long(1), persist);
+---
+>         org.junit.Assert.assertEquals("ret ok?", new Long(1), persist);
+1407c1318
+<         assertEquals("ret ok?", new Long(2), persist);
+---
+>         org.junit.Assert.assertEquals("ret ok?", new Long(2), persist);
+1430c1341
+<             assertEquals("ret ok?", new Long(1), persist);
+---
+>             org.junit.Assert.assertEquals("ret ok?", new Long(1), persist);
+1438c1349
+<             assertEquals("ret ok?", new Long(2), persist);
+---
+>             org.junit.Assert.assertEquals("ret ok?", new Long(2), persist);
+1448,1453d1358
+<     /**
+<      * Tests that when persisting an entity in table that does not contain any auto generated values, the
+<      * {@link DatabaseEngine#persist(String, EntityEntry)} method returns {@code null}.
+<      *
+<      * @throws DatabaseEngineException If any error occurs.
+<      */
+1460,1461c1365
+<             // Set the two columns as fields of primary key, so they belong to the generated keys.
+<             .pkFields(ImmutableSet.of("COL1", "COL2"))
+---
+>             .pkFields(java.util.Collections.unmodifiableSet(new java.util.HashSet<String>(java.util.Arrays.asList("COL1", "COL2"))))
+1471c1375
+<         assertThat(this.engine.persist("TEST", ee))
+---
+>         org.assertj.core.api.Assertions.assertThat(this.engine.persist("TEST", ee))
+1476,1479d1379
+<     /**
+<      * Tests that when trying to add {@link DbEntity} with multiple columns with auto incremented values, the
+<      * {@link DatabaseEngine#addEntity(DbEntity)} method throws a {@link DatabaseEngineException}.
+<      */
+1488c1388
+<         assertThatCode(() -> this.engine.addEntity(entity))
+---
+>         org.assertj.core.api.Assertions.assertThatCode(() -> this.engine.addEntity(entity))
+1518c1418
+<             assertTrue("tx active?", engine.isTransactionActive());
+---
+>             org.junit.Assert.assertTrue("tx active?", engine.isTransactionActive());
+1522c1422
+<             assertFalse("tx active?", engine.isTransactionActive());
+---
+>             org.junit.Assert.assertFalse("tx active?", engine.isTransactionActive());
+1524c1424
+<             assertEquals("ret 0?", 0, engine.query(select(all()).from(table("TEST"))).size());
+---
+>             org.junit.Assert.assertEquals("ret 0?", 0, engine.query(select(all()).from(table("TEST"))).size());
+1539c1439
+<         assertNotNull(removeEntity);
+---
+>         org.junit.Assert.assertNotNull(removeEntity);
+1548c1448
+<         assertNull(removeEntity);
+---
+>         org.junit.Assert.assertNull(removeEntity);
+1663,1665c1563
+<     @Category(SkipTestCockroachDB.class)
+<     // unimplemented in CockroachDB: views do not currently support * expressions
+<     // https://github.com/cockroachdb/cockroach/issues/10028
+---
+>     @Category(com.feedzai.commons.sql.abstraction.engine.impl.cockroach.SkipTestCockroachDB.class)
+1677,1679c1575
+<     @Category(SkipTestCockroachDB.class)
+<     // unimplemented in CockroachDB: views do not currently support * expressions
+<     // https://github.com/cockroachdb/cockroach/issues/10028
+---
+>     @Category(com.feedzai.commons.sql.abstraction.engine.impl.cockroach.SkipTestCockroachDB.class)
+1721,1725d1616
+<     /**
+<      * Tests that the {@link SqlBuilder#in(Expression, Expression) IN} clause with a value filters a row correctly.
+<      *
+<      * @throws DatabaseEngineException If a DB error occurs, thus failing the test.
+<      */
+1728c1619
+<         runInClauseTest(in(column("COL1"), L((k(1)))));
+---
+>         runInClauseTest(in(column("COL1"), SqlBuilder.L((k(1)))));
+1731,1735d1621
+<     /**
+<      * Tests that the {@link SqlBuilder#in(Expression, Expression) IN} clause with SELECT filters a row correctly.
+<      *
+<      * @throws DatabaseEngineException If a DB error occurs, thus failing the test.
+<      */
+1744,1752d1629
+<     /**
+<      * Tests that the {@link SqlBuilder#in(Expression, Expression) IN} clause with values filters a row correctly,
+<      * when many values are provided.
+<      * <p>
+<      * This is a regression test for Oracle, which only supports up to 1000 values in IN clauses; the test uses
+<      * 20000 values.
+<      *
+<      * @throws DatabaseEngineException If a DB error occurs, thus failing the test.
+<      */
+1755c1632
+<         final List<Expression> numExprs = IntStream.rangeClosed(-19998, 1)
+---
+>         final List<com.feedzai.commons.sql.abstraction.dml.Expression> numExprs = IntStream.rangeClosed(-19998, 1)
+1759c1636
+<         runInClauseTest(in(column("COL1"), L(numExprs)));
+---
+>         runInClauseTest(in(column("COL1"), SqlBuilder.L(numExprs)));
+1762,1767d1638
+<     /**
+<      * Tests that the {@link SqlBuilder#notIn(Expression, Expression) (Expression, Expression) negated IN} clause
+<      * with a value filters a row correctly.
+<      *
+<      * @throws DatabaseEngineException If a DB error occurs, thus failing the test.
+<      */
+1770c1641
+<         runInClauseTest(notIn(column("COL1"), L((k(2)))));
+---
+>         runInClauseTest(notIn(column("COL1"), SqlBuilder.L((k(2)))));
+1773,1777d1643
+<     /**
+<      * Tests that the {@link SqlBuilder#notIn(Expression, Expression) negated IN} clause with SELECT filters a row correctly.
+<      *
+<      * @throws DatabaseEngineException If a DB error occurs, thus failing the test.
+<      */
+1786,1794d1651
+<     /**
+<      * Tests that the {@link SqlBuilder#notIn(Expression, Expression) negated IN} clause with a value filters a row
+<      * correctly, when many values are provided.
+<      * <p>
+<      * This is a regression test for Oracle, which only supports up to 1000 values in IN clauses; the test uses
+<      * 20000 values.
+<      *
+<      * @throws DatabaseEngineException If a DB error occurs, thus failing the test.
+<      */
+1797c1654
+<         final List<Expression> numExprs = IntStream.rangeClosed(2, 20001)
+---
+>         final List<com.feedzai.commons.sql.abstraction.dml.Expression> numExprs = IntStream.rangeClosed(2, 20001)
+1801c1658
+<         runInClauseTest(notIn(column("COL1"), L(numExprs)));
+---
+>         runInClauseTest(notIn(column("COL1"), SqlBuilder.L(numExprs)));
+1804,1820c1661
+<     /**
+<      * Common code to run IN clause tests.
+<      * <p>
+<      * This creates 2 entries in the database:
+<      * <table>
+<      *     <tr><td>COL1</td><td>COL5</td></tr>
+<      *     <tr><td>1</td><td>s1</td></tr>
+<      *     <tr><td>2</td><td>s2</td></tr>
+<      * </table>
+<      * <p>
+<      * The verifications expect the provided {@code whereInExpression} to filter the entries such that only the first
+<      * one is returned.
+<      *
+<      * @param whereInExpression The {@link Expression} to use in the WHERE clause of the query.
+<      * @throws DatabaseEngineException If a DB error occurs.
+<      */
+<     private void runInClauseTest(final Expression whereInExpression) throws DatabaseEngineException {
+---
+>     private void runInClauseTest(final com.feedzai.commons.sql.abstraction.dml.Expression whereInExpression) throws DatabaseEngineException {
+1832c1673
+<         assertThat(results)
+---
+>         org.assertj.core.api.Assertions.assertThat(results)
+1871c1712
+<         assertEquals(1, rows.size());
+---
+>         org.junit.Assert.assertEquals(1, rows.size());
+1904c1745
+<         assertEquals(1, rows.size());
+---
+>         org.junit.Assert.assertEquals(1, rows.size());
+1946,1947d1786
+< 
+< 
+1961,1965c1800,1804
+<         assertEquals("Result must be 22", new Integer(22), result.get("int").toInt());
+<         assertEquals("Result must be '22'", "22", result.get("string").toString());
+<         assertEquals("Result must be true", true, result.get("bool").toBoolean());
+<         assertEquals("Result must be 22.0", new Double(22), result.get("double").toDouble());
+<         assertEquals("Result must be 22", new Long(22), result.get("long").toLong());
+---
+>         org.junit.Assert.assertEquals("Result must be 22", new Integer(22), result.get("int").toInt());
+>         org.junit.Assert.assertEquals("Result must be '22'", "22", result.get("string").toString());
+>         org.junit.Assert.assertEquals("Result must be true", true, result.get("bool").toBoolean());
+>         org.junit.Assert.assertEquals("Result must be 22.0", new Double(22), result.get("double").toDouble());
+>         org.junit.Assert.assertEquals("Result must be 22", new Long(22), result.get("long").toLong());
+1989d1827
+<         // test CAST when writing values
+1997d1834
+<         // test CAST when reading values
+2008,2019c1845,1849
+<         assertEquals("The value of COL_INT cast to string must be '123'", "123", result.get("COL_INT_string").toString());
+<         assertEquals("The value of COL_STRING cast to int must be 321", new Integer(321), result.get("COL_STRING_int").toInt());
+<         assertEquals("The value of COL_CAST_INT must be 3211", Integer.valueOf(3211), result.get("COL_CAST_INT").toInt());
+<         assertEquals("The value of COL_CAST_STRING must be '1233'", "1233", result.get("COL_CAST_STRING").toString());
+< 
+<         /*
+<          Until now the test only really checks if the CAST doesn't cause any errors because
+<           - when writing values into the DB it automatically casts into the column data type
+<           - when reading values from the DB, the test reads the results from the ResultColumn as the desired type
+<          Even if we used a function, it is likely the DB would try to cast the parameters to the expected type.
+<          To effectively test if CAST works, we need to check if DB sorting considers the column a string or a number.
+<          */
+---
+>         org.junit.Assert.assertEquals("The value of COL_INT cast to string must be '123'", "123", result.get("COL_INT_string").toString());
+>         org.junit.Assert.assertEquals("The value of COL_STRING cast to int must be 321", new Integer(321), result.get("COL_STRING_int").toInt());
+>         org.junit.Assert.assertEquals("The value of COL_CAST_INT must be 3211", Integer.valueOf(3211), result.get("COL_CAST_INT").toInt());
+>         org.junit.Assert.assertEquals("The value of COL_CAST_STRING must be '1233'", "1233", result.get("COL_CAST_STRING").toString());
+> 
+2029c1859
+<         assertEquals("sorting should have considered the sort column as a number (123 < 1000)", "123", firstResult);
+---
+>         org.junit.Assert.assertEquals("sorting should have considered the sort column as a number (123 < 1000)", "123", firstResult);
+2035c1865
+<         assertEquals("sorting should have considered the sort column as a string (1000 < 123)", "1000", firstResult);
+---
+>         org.junit.Assert.assertEquals("sorting should have considered the sort column as a string (1000 < 123)", "1000", firstResult);
+2038,2042d1867
+<     /**
+<      * Check if exception is thrown when trying to cast for an unsupported type.
+<      *
+<      * @throws DatabaseEngineException If something goes wrong executing the query.
+<      */
+2050c1875
+<         assumeFalse("MySQL doesn't support WITH", engine.getDialect() == Dialect.MYSQL);
+---
+>         Assume.assumeFalse("MySQL doesn't support WITH", engine.getDialect() == com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.Dialect.MYSQL);
+2063c1888
+<         final With with = with("friends", select(all())
+---
+>         final With with = With.with("friends", select(all())
+2072c1897
+<         assertEquals("Name must be 'manuel'", "manuel", result.get(0).get("name").toString());
+---
+>         org.junit.Assert.assertEquals("Name must be 'manuel'", "manuel", result.get(0).get("name").toString());
+2077c1902
+<         assumeFalse("MySQL doesn't support WITH", engine.getDialect() == Dialect.MYSQL);
+---
+>         Assume.assumeFalse("MySQL doesn't support WITH", engine.getDialect() == com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.Dialect.MYSQL);
+2091c1916
+<                 with("friends",
+---
+>                 With.with("friends",
+2101,2104c1926,1929
+<         assertEquals("Name must be 'ana'", "ana", result.get(0).get("name").toString());
+<         assertEquals("Name must be 'manuel'", "manuel", result.get(1).get("name").toString());
+<         assertEquals("Name must be 'rita'", "rita", result.get(2).get("name").toString());
+<         assertEquals("Name must be 'rui'", "rui", result.get(3).get("name").toString());
+---
+>         org.junit.Assert.assertEquals("Name must be 'ana'", "ana", result.get(0).get("name").toString());
+>         org.junit.Assert.assertEquals("Name must be 'manuel'", "manuel", result.get(1).get("name").toString());
+>         org.junit.Assert.assertEquals("Name must be 'rita'", "rita", result.get(2).get("name").toString());
+>         org.junit.Assert.assertEquals("Name must be 'rui'", "rui", result.get(3).get("name").toString());
+2109c1934
+<         assumeFalse("MySQL doesn't support WITH", engine.getDialect() == Dialect.MYSQL);
+---
+>         Assume.assumeFalse("MySQL doesn't support WITH", engine.getDialect() == com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.Dialect.MYSQL);
+2123c1948
+<                 with("friendsA",
+---
+>                 With.with("friendsA",
+2133c1958
+<                         union(select(all()).from(table("friendsA")),
+---
+>                         SqlBuilder.union(select(all()).from(table("friendsA")),
+2143,2146c1968,1971
+<         assertEquals("Name must be 'ana'", "ana", resultSorted.get(0));
+<         assertEquals("Name must be 'manuel'", "manuel", resultSorted.get(1));
+<         assertEquals("Name must be 'rita'", "rita", resultSorted.get(2));
+<         assertEquals("Name must be 'rui'", "rui", resultSorted.get(3));
+---
+>         org.junit.Assert.assertEquals("Name must be 'ana'", "ana", resultSorted.get(0));
+>         org.junit.Assert.assertEquals("Name must be 'manuel'", "manuel", resultSorted.get(1));
+>         org.junit.Assert.assertEquals("Name must be 'rita'", "rita", resultSorted.get(2));
+>         org.junit.Assert.assertEquals("Name must be 'rui'", "rui", resultSorted.get(3));
+2166,2167c1991,1992
+<         assertEquals("COL5 must be LOL", "LOL", result.get(0).get("case").toString());
+<         assertEquals("COL5 must be LOL", "LOL", result.get(3).get("case").toString());
+---
+>         org.junit.Assert.assertEquals("COL5 must be LOL", "LOL", result.get(0).get("case").toString());
+>         org.junit.Assert.assertEquals("COL5 must be LOL", "LOL", result.get(3).get("case").toString());
+2188,2191c2013,2016
+<         assertEquals("COL5 must be LOL", "LOL", result.get(0).get("case").toString());
+<         assertEquals("COL5 must be ROFL", "ROFL", result.get(1).get("case").toString());
+<         assertEquals("COL5 must be ROFL", "ROFL", result.get(2).get("case").toString());
+<         assertEquals("COL5 must be LOL", "LOL", result.get(3).get("case").toString());
+---
+>         org.junit.Assert.assertEquals("COL5 must be LOL", "LOL", result.get(0).get("case").toString());
+>         org.junit.Assert.assertEquals("COL5 must be ROFL", "ROFL", result.get(1).get("case").toString());
+>         org.junit.Assert.assertEquals("COL5 must be ROFL", "ROFL", result.get(2).get("case").toString());
+>         org.junit.Assert.assertEquals("COL5 must be LOL", "LOL", result.get(3).get("case").toString());
+2215,2219c2040,2044
+<         assertEquals("COL5 must be LOL", "LOL", result.get(0).get("case").toString());
+<         assertEquals("COL5 must be ROFL", "ROFL", result.get(1).get("case").toString());
+<         assertEquals("COL5 must be ROFL", "ROFL", result.get(2).get("case").toString());
+<         assertEquals("COL5 must be LOL", "LOL", result.get(3).get("case").toString());
+<         assertEquals("COL5 must be KEK", "KEK", result.get(4).get("case").toString());
+---
+>         org.junit.Assert.assertEquals("COL5 must be LOL", "LOL", result.get(0).get("case").toString());
+>         org.junit.Assert.assertEquals("COL5 must be ROFL", "ROFL", result.get(1).get("case").toString());
+>         org.junit.Assert.assertEquals("COL5 must be ROFL", "ROFL", result.get(2).get("case").toString());
+>         org.junit.Assert.assertEquals("COL5 must be LOL", "LOL", result.get(3).get("case").toString());
+>         org.junit.Assert.assertEquals("COL5 must be KEK", "KEK", result.get(4).get("case").toString());
+2226,2230c2051,2055
+<         assertEquals("teste.teste", result.get(0).get("concat").toString());
+<         assertEquals("xpto.xpto", result.get(1).get("concat").toString());
+<         assertEquals("xpto.xpto", result.get(2).get("concat").toString());
+<         assertEquals("teste.teste", result.get(3).get("concat").toString());
+<         assertEquals("pomme de terre.pomme de terre", result.get(4).get("concat").toString());
+---
+>         org.junit.Assert.assertEquals("teste.teste", result.get(0).get("concat").toString());
+>         org.junit.Assert.assertEquals("xpto.xpto", result.get(1).get("concat").toString());
+>         org.junit.Assert.assertEquals("xpto.xpto", result.get(2).get("concat").toString());
+>         org.junit.Assert.assertEquals("teste.teste", result.get(3).get("concat").toString());
+>         org.junit.Assert.assertEquals("pomme de terre.pomme de terre", result.get(4).get("concat").toString());
+2237,2241c2062,2066
+<         assertEquals("testeteste", result.get(0).get("concat").toString());
+<         assertEquals("xptoxpto", result.get(1).get("concat").toString());
+<         assertEquals("xptoxpto", result.get(2).get("concat").toString());
+<         assertEquals("testeteste", result.get(3).get("concat").toString());
+<         assertEquals("pomme de terrepomme de terre", result.get(4).get("concat").toString());
+---
+>         org.junit.Assert.assertEquals("testeteste", result.get(0).get("concat").toString());
+>         org.junit.Assert.assertEquals("xptoxpto", result.get(1).get("concat").toString());
+>         org.junit.Assert.assertEquals("xptoxpto", result.get(2).get("concat").toString());
+>         org.junit.Assert.assertEquals("testeteste", result.get(3).get("concat").toString());
+>         org.junit.Assert.assertEquals("pomme de terrepomme de terre", result.get(4).get("concat").toString());
+2248c2073
+<         assertEquals("lol,rofl", result.get(0).get("concat").toString());
+---
+>         org.junit.Assert.assertEquals("lol,rofl", result.get(0).get("concat").toString());
+2255c2080
+<         assertEquals("lolnoprofl", result.get(0).get("concat").toString());
+---
+>         org.junit.Assert.assertEquals("lolnoprofl", result.get(0).get("concat").toString());
+2262,2266c2087,2091
+<         assertEquals("testetesteteste", result.get(0).get("concat").toString());
+<         assertEquals("xptoxptoxpto", result.get(1).get("concat").toString());
+<         assertEquals("xptoxptoxpto", result.get(2).get("concat").toString());
+<         assertEquals("testetesteteste", result.get(3).get("concat").toString());
+<         assertEquals("pomme de terrepomme de terrepomme de terre", result.get(4).get("concat").toString());
+---
+>         org.junit.Assert.assertEquals("testetesteteste", result.get(0).get("concat").toString());
+>         org.junit.Assert.assertEquals("xptoxptoxpto", result.get(1).get("concat").toString());
+>         org.junit.Assert.assertEquals("xptoxptoxpto", result.get(2).get("concat").toString());
+>         org.junit.Assert.assertEquals("testetesteteste", result.get(3).get("concat").toString());
+>         org.junit.Assert.assertEquals("pomme de terrepomme de terrepomme de terre", result.get(4).get("concat").toString());
+2269,2276c2094
+<     /**
+<      * Runs a concat query on the test dataset, given a delimiter.
+<      *
+<      * @param delimiter the delimiter used in concat.
+<      * @return the result set.
+<      * @throws DatabaseEngineException if an issue when querying arises.
+<      */
+<     private List<Map<String, ResultColumn>> queryConcat(final Expression delimiter) throws DatabaseEngineException {
+---
+>     private List<Map<String, ResultColumn>> queryConcat(final com.feedzai.commons.sql.abstraction.dml.Expression delimiter) throws DatabaseEngineException {
+2307,2322d2124
+<     /**
+<      * Reproduces an issue when using CASE ... WHEN expressions in SqlServer and MySql.
+<      * <p>
+<      * Since we don't have the type information for a column that is generated from the result of a WHEN expression,
+<      * we need to rely on the user calling one of the ResultColumn.toXXX methods to understand what the user is
+<      * expecting. In the case of ResultColumn.toBoolean(), we're first checking if the result is of boolean type,
+<      * as happens normally when the driver knows that the column is of type boolean, but then we also try to parse the
+<      * underlying database boolean representation. This is necessary because in WHEN expressions, the driver doesn't
+<      * know the expected return type.
+<      * <p>
+<      * I also tried to fix this using {@code cast(1 as BIT)}, which seemed more appropriate because we would be hinting
+<      * the driver about the type, but it's not possible to follow this approach in MySql because we cannot cast to
+<      * tinyint(1), which is the native type for booleans in MySql.
+<      *
+<      * @throws DatabaseEngineException propagate
+<      */
+2340,2343c2142,2145
+<         assertFalse("COL2 should be false", result.get(0).get("COL2").toBoolean());
+<         assertFalse("COL5_NOT_NULL should be false", result.get(0).get("COL5_NOT_NULL").toBoolean());
+<         assertTrue("COL2 should be true", result.get(1).get("COL2").toBoolean());
+<         assertTrue("COL5_NOT_NULL should be true", result.get(1).get("COL5_NOT_NULL").toBoolean());
+---
+>         org.junit.Assert.assertFalse("COL2 should be false", result.get(0).get("COL2").toBoolean());
+>         org.junit.Assert.assertFalse("COL5_NOT_NULL should be false", result.get(0).get("COL5_NOT_NULL").toBoolean());
+>         org.junit.Assert.assertTrue("COL2 should be true", result.get(1).get("COL2").toBoolean());
+>         org.junit.Assert.assertTrue("COL5_NOT_NULL should be true", result.get(1).get("COL5_NOT_NULL").toBoolean());
+2361c2163
+<         final Collection<Expression> queries = Arrays.stream(letters)
+---
+>         final Collection<com.feedzai.commons.sql.abstraction.dml.Expression> queries = Arrays.stream(letters)
+2368c2170
+<         final Expression query = union(queries);
+---
+>         final com.feedzai.commons.sql.abstraction.dml.Expression query = SqlBuilder.union(queries);
+2371c2173
+<         assertEquals("Must return 4 results due to distinct property", 4, result.size());
+---
+>         org.junit.Assert.assertEquals("Must return 4 results due to distinct property", 4, result.size());
+2378,2381c2180,2183
+<         assertEquals("COL5 must be a", "a", resultSorted.get(0));
+<         assertEquals("COL5 must be b", "b", resultSorted.get(1));
+<         assertEquals("COL5 must be c", "c", resultSorted.get(2));
+<         assertEquals("COL5 must be d", "d", resultSorted.get(3));
+---
+>         org.junit.Assert.assertEquals("COL5 must be a", "a", resultSorted.get(0));
+>         org.junit.Assert.assertEquals("COL5 must be b", "b", resultSorted.get(1));
+>         org.junit.Assert.assertEquals("COL5 must be c", "c", resultSorted.get(2));
+>         org.junit.Assert.assertEquals("COL5 must be d", "d", resultSorted.get(3));
+2399c2201
+<         final Collection<Expression> queries = Arrays.stream(ids)
+---
+>         final Collection<com.feedzai.commons.sql.abstraction.dml.Expression> queries = Arrays.stream(ids)
+2406c2208
+<         final Expression query = union(queries).all();
+---
+>         final com.feedzai.commons.sql.abstraction.dml.Expression query = SqlBuilder.union(queries).all();
+2409c2211
+<         assertEquals("Must return 5 results", 5, result.size());
+---
+>         org.junit.Assert.assertEquals("Must return 5 results", 5, result.size());
+2416,2420c2218,2222
+<         assertEquals("COL5 must be a", "a", resultSorted.get(0));
+<         assertEquals("COL5 must be b", "b", resultSorted.get(1));
+<         assertEquals("COL5 must be c", "c", resultSorted.get(2));
+<         assertEquals("COL5 must be d", "d", resultSorted.get(3));
+<         assertEquals("COL5 must be d", "d", resultSorted.get(4));
+---
+>         org.junit.Assert.assertEquals("COL5 must be a", "a", resultSorted.get(0));
+>         org.junit.Assert.assertEquals("COL5 must be b", "b", resultSorted.get(1));
+>         org.junit.Assert.assertEquals("COL5 must be c", "c", resultSorted.get(2));
+>         org.junit.Assert.assertEquals("COL5 must be d", "d", resultSorted.get(3));
+>         org.junit.Assert.assertEquals("COL5 must be d", "d", resultSorted.get(4));
+2426c2228
+<                 values("id", "name")
+---
+>                 Values.values("id", "name")
+2444,2452c2246,2254
+<         assertEquals("id must be 1", new Integer(1), ids.get(0));
+<         assertEquals("id must be 2", new Integer(2), ids.get(1));
+<         assertEquals("id must be 3", new Integer(3), ids.get(2));
+<         assertEquals("id must be 4", new Integer(4), ids.get(3));
+< 
+<         assertEquals("name must be 'ana'", "ana", names.get(0));
+<         assertEquals("name must be 'fred'", "fred", names.get(1));
+<         assertEquals("name must be 'manuel'", "manuel", names.get(2));
+<         assertEquals("name must be 'rita'", "rita", names.get(3));
+---
+>         org.junit.Assert.assertEquals("id must be 1", new Integer(1), ids.get(0));
+>         org.junit.Assert.assertEquals("id must be 2", new Integer(2), ids.get(1));
+>         org.junit.Assert.assertEquals("id must be 3", new Integer(3), ids.get(2));
+>         org.junit.Assert.assertEquals("id must be 4", new Integer(4), ids.get(3));
+> 
+>         org.junit.Assert.assertEquals("name must be 'ana'", "ana", names.get(0));
+>         org.junit.Assert.assertEquals("name must be 'fred'", "fred", names.get(1));
+>         org.junit.Assert.assertEquals("name must be 'manuel'", "manuel", names.get(2));
+>         org.junit.Assert.assertEquals("name must be 'rita'", "rita", names.get(3));
+2455c2257
+<     @Test(expected = DatabaseEngineRuntimeException.class)
+---
+>     @Test(expected = com.feedzai.commons.sql.abstraction.engine.DatabaseEngineRuntimeException.class)
+2458c2260
+<                 values()
+---
+>                 Values.values()
+2465,2466c2267,2268
+<         } catch (DatabaseEngineRuntimeException e) {
+<             assertEquals("Values requires aliases to avoid ambiguous columns names.", e.getMessage());
+---
+>         } catch (com.feedzai.commons.sql.abstraction.engine.DatabaseEngineRuntimeException e) {
+>             org.junit.Assert.assertEquals("Values requires aliases to avoid ambiguous columns names.", e.getMessage());
+2473c2275
+<         final Values values = values("long", "uuid");
+---
+>         final Values values = Values.values("long", "uuid");
+2480d2281
+<         // If it crashes, the test will fail.
+2548,2549c2349
+<         assertEquals("result ok?", 2, (int) query.get(0).get("MODULO").toInt());
+< 
+---
+>         org.junit.Assert.assertEquals("result ok?", 2, (int) query.get(0).get("MODULO").toInt());
+2568,2571c2368,2371
+<         assertEquals("result ok?", 1000, (long) query.get(0).get("timestamp").toLong());
+<         assertEquals("result ok?", 1, (int) query.get(0).get("first").toInt());
+<         assertEquals("result ok?", 2L, (long) query.get(0).get("second").toLong());
+<         assertEquals("result ok?", 3.0, query.get(0).get("third").toDouble(), 0.0);
+---
+>         org.junit.Assert.assertEquals("result ok?", 1000, (long) query.get(0).get("timestamp").toLong());
+>         org.junit.Assert.assertEquals("result ok?", 1, (int) query.get(0).get("first").toInt());
+>         org.junit.Assert.assertEquals("result ok?", 2L, (long) query.get(0).get("second").toLong());
+>         org.junit.Assert.assertEquals("result ok?", 3.0, query.get(0).get("third").toDouble(), 0.0);
+2668d2467
+<         // check to see if TEST has changed
+2675,2680c2474,2478
+<         //check if only the 1st and the 5th were changed.
+<         assertEquals("update1", result.get(0).get("COL5").toString());
+<         assertEquals("xpto", result.get(1).get("COL5").toString());
+<         assertEquals("xpto", result.get(2).get("COL5").toString());
+<         assertEquals("teste", result.get(3).get("COL5").toString());
+<         assertEquals("update2", result.get(4).get("COL5").toString());
+---
+>         org.junit.Assert.assertEquals("update1", result.get(0).get("COL5").toString());
+>         org.junit.Assert.assertEquals("xpto", result.get(1).get("COL5").toString());
+>         org.junit.Assert.assertEquals("xpto", result.get(2).get("COL5").toString());
+>         org.junit.Assert.assertEquals("teste", result.get(3).get("COL5").toString());
+>         org.junit.Assert.assertEquals("update2", result.get(4).get("COL5").toString());
+2721c2519
+<         assertEquals(2, rowsDeleted);
+---
+>         org.junit.Assert.assertEquals(2, rowsDeleted);
+2741,2742c2539,2540
+<         assertEquals("col1 ok?", 1, (int) res.get(0).get("COL1").toInt());
+<         assertTrue("col2 ok?", res.get(0).get("COL2").toBoolean());
+---
+>         org.junit.Assert.assertEquals("col1 ok?", 1, (int) res.get(0).get("COL1").toInt());
+>         org.junit.Assert.assertTrue("col2 ok?", res.get(0).get("COL2").toBoolean());
+2762,2763c2560,2561
+<         assertEquals("col1 ok?", 2, (int) res.get(0).get("COL1").toInt());
+<         assertTrue("col2 ok?", res.get(0).get("COL2").toBoolean());
+---
+>         org.junit.Assert.assertEquals("col1 ok?", 2, (int) res.get(0).get("COL1").toInt());
+>         org.junit.Assert.assertTrue("col2 ok?", res.get(0).get("COL2").toBoolean());
+2781,2787c2579,2585
+<         final Map<String, DbColumnType> metaMap = new LinkedHashMap<>();
+<         metaMap.put("COL1", INT);
+<         metaMap.put("COL2", BOOLEAN);
+<         metaMap.put("COL3", DOUBLE);
+<         metaMap.put("COL4", LONG);
+<         metaMap.put("COL5", STRING);
+<         metaMap.put("COL6", BLOB);
+---
+>         final Map<String, DbColumnConstraint> metaMap = new LinkedHashMap<>();
+>         metaMap.put("COL1", null);
+>         metaMap.put("COL2", null);
+>         metaMap.put("COL3", null);
+>         metaMap.put("COL4", null);
+>         metaMap.put("COL5", null);
+>         metaMap.put("COL6", null);
+2789c2587
+<         assertEquals("meta ok?", metaMap, engine.getMetadata("TEST"));
+---
+>         org.junit.Assert.assertEquals("meta ok?", metaMap, engine.getMetadata("TEST"));
+2794c2592
+<         assertTrue("get metadata on table that does not exist is empty", engine.getMetadata("TableThatDoesNotExist").isEmpty());
+---
+>         org.junit.Assert.assertTrue("get metadata on table that does not exist is empty", engine.getMetadata("TableThatDoesNotExist").isEmpty());
+2810c2608
+<         assertEquals("Testing sql injection", 0, result.size());
+---
+>         org.junit.Assert.assertEquals("Testing sql injection", 0, result.size());
+2829,2830c2627,2628
+<         assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+<         assertEquals(new BlobTest(1, "name"), result.get(0).get("COL2").<BlobTest>toBlob());
+---
+>         org.junit.Assert.assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+>         org.junit.Assert.assertEquals(new BlobTest(1, "name"), result.get(0).get("COL2").<BlobTest>toBlob());
+2847,2848c2645,2646
+<         assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+<         assertEquals(updBlob, result.get(0).get("COL2").<BlobTest>toBlob());
+---
+>         org.junit.Assert.assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+>         org.junit.Assert.assertEquals(updBlob, result.get(0).get("COL2").<BlobTest>toBlob());
+2860,2861c2658,2659
+<         assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+<         assertEquals(new BlobTest(1, "name"), result.get(0).get("COL2").<BlobTest>toBlob());
+---
+>         org.junit.Assert.assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+>         org.junit.Assert.assertEquals(new BlobTest(1, "name"), result.get(0).get("COL2").<BlobTest>toBlob());
+2874,2875c2672,2673
+<         assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+<         assertEquals(updBlob, result.get(0).get("COL2").<BlobTest>toBlob());
+---
+>         org.junit.Assert.assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+>         org.junit.Assert.assertEquals(updBlob, result.get(0).get("COL2").<BlobTest>toBlob());
+2888d2685
+<         // 10 mb
+2902,2903c2699,2700
+<         assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+<         assertArrayEquals(bb, result.get(0).get("COL2").toBlob());
+---
+>         org.junit.Assert.assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+>         org.junit.Assert.assertArrayEquals(bb, result.get(0).get("COL2").toBlob());
+2919,2920c2716,2717
+<         assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+<         assertArrayEquals(bb2, result.get(0).get("COL2").toBlob());
+---
+>         org.junit.Assert.assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+>         org.junit.Assert.assertArrayEquals(bb2, result.get(0).get("COL2").toBlob());
+2946,2947c2743,2744
+<         assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+<         assertEquals(bigString, result.get(0).get("COL2").<String>toBlob());
+---
+>         org.junit.Assert.assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+>         org.junit.Assert.assertEquals(bigString, result.get(0).get("COL2").<String>toBlob());
+2967,2968c2764,2765
+<         assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+<         assertEquals(bigString, result.get(0).get("COL2").<String>toBlob());
+---
+>         org.junit.Assert.assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+>         org.junit.Assert.assertEquals(bigString, result.get(0).get("COL2").<String>toBlob());
+2981,2988c2778,2784
+<         engine.addEntity(entity
+<                 .build());
+<         Map<String, DbColumnType> test = engine.getMetadata("TEST");
+<         assertEquals(INT, test.get("COL1"));
+<         assertEquals(BOOLEAN, test.get("COL2"));
+<         assertEquals(DOUBLE, test.get("USER"));
+<         assertEquals(LONG, test.get("COL4"));
+<         assertEquals(STRING, test.get("COL5"));
+---
+>         engine.addEntity(entity.build());
+>         Map<String, DbColumnConstraint> test = engine.getMetadata("TEST");
+>         org.junit.Assert.assertEquals(INT, test.get("COL1"));
+>         org.junit.Assert.assertEquals(BOOLEAN, test.get("COL2"));
+>         org.junit.Assert.assertEquals(DOUBLE, test.get("USER"));
+>         org.junit.Assert.assertEquals(LONG, test.get("COL4"));
+>         org.junit.Assert.assertEquals(STRING, test.get("COL5"));
+2996,2997c2792
+<         engine.updateEntity(entity
+<                 .build());
+---
+>         engine.updateEntity(entity.build());
+2999d2793
+<         // as the fields were removed the entity mapping ignores the fields.
+3004d2797
+< 
+3006,3008c2799,2801
+<         assertEquals(INT, test.get("COL1"));
+<         assertEquals(LONG, test.get("COL4"));
+<         assertEquals(STRING, test.get("COL5"));
+---
+>         org.junit.Assert.assertEquals(INT, test.get("COL1"));
+>         org.junit.Assert.assertEquals(LONG, test.get("COL4"));
+>         org.junit.Assert.assertEquals(STRING, test.get("COL5"));
+3011,3012c2804
+<         engine.updateEntity(entity
+<                 .build());
+---
+>         engine.updateEntity(entity.build());
+3019,3023c2811,2815
+<         assertEquals(INT, test.get("COL1"));
+<         assertEquals(LONG, test.get("COL4"));
+<         assertEquals(STRING, test.get("COL5"));
+<         assertEquals(BLOB, test.get("COL6"));
+<         assertEquals(DOUBLE, test.get("COL7"));
+---
+>         org.junit.Assert.assertEquals(INT, test.get("COL1"));
+>         org.junit.Assert.assertEquals(LONG, test.get("COL4"));
+>         org.junit.Assert.assertEquals(STRING, test.get("COL5"));
+>         org.junit.Assert.assertEquals(BLOB, test.get("COL6"));
+>         org.junit.Assert.assertEquals(DOUBLE, test.get("COL7"));
+3029d2820
+<         // First drop-create
+3039,3044c2830,2835
+<         Map<String, DbColumnType> test = engine.getMetadata("TEST");
+<         assertEquals(INT, test.get("COL1"));
+<         assertEquals(BOOLEAN, test.get("COL2"));
+<         assertEquals(DOUBLE, test.get("USER"));
+<         assertEquals(LONG, test.get("COL4"));
+<         assertEquals(STRING, test.get("COL5"));
+---
+>         Map<String, DbColumnConstraint> test = engine.getMetadata("TEST");
+>         org.junit.Assert.assertEquals(INT, test.get("COL1"));
+>         org.junit.Assert.assertEquals(BOOLEAN, test.get("COL2"));
+>         org.junit.Assert.assertEquals(DOUBLE, test.get("USER"));
+>         org.junit.Assert.assertEquals(LONG, test.get("COL4"));
+>         org.junit.Assert.assertEquals(STRING, test.get("COL5"));
+3046d2836
+<         // Clone the connection with the create now.
+3061,3062d2850
+<         // as the fields were removed the entity mapping ignores the fields.
+<         System.out.println("> " + engine2.getMetadata("TEST"));
+3067d2854
+< 
+3069,3071c2856,2858
+<         assertEquals(INT, test.get("COL1"));
+<         assertEquals(LONG, test.get("COL4"));
+<         assertEquals(STRING, test.get("COL5"));
+---
+>         org.junit.Assert.assertEquals(INT, test.get("COL1"));
+>         org.junit.Assert.assertEquals(LONG, test.get("COL4"));
+>         org.junit.Assert.assertEquals(STRING, test.get("COL5"));
+3081,3086c2868,2873
+<         assertEquals(INT, test.get("COL1"));
+<         assertEquals(LONG, test.get("COL4"));
+<         assertEquals(STRING, test.get("COL5"));
+<         assertEquals(BLOB, test.get("COL6"));
+<         assertEquals(DOUBLE, test.get("COL7"));
+< 
+---
+>         org.junit.Assert.assertEquals(INT, test.get("COL1"));
+>         org.junit.Assert.assertEquals(LONG, test.get("COL4"));
+>         org.junit.Assert.assertEquals(STRING, test.get("COL5"));
+>         org.junit.Assert.assertEquals(BLOB, test.get("COL6"));
+>         org.junit.Assert.assertEquals(DOUBLE, test.get("COL7"));
+>         engine2.close();
+3089,3092d2875
+<     /**
+<      * Tests that {@link AbstractDatabaseEngine#updateEntity(DbEntity)} with a "none" schema policy
+<      * still creates the in-memory {@link MappedEntity} with the prepared statements for the entities.
+<      */
+3123c2906
+<             fail("Should throw an exception if trying to persist an entity before calling addEntity/updateEntity a first time");
+---
+>             org.junit.Assert.fail("Should throw an exception if trying to persist an entity before calling addEntity/updateEntity a first time");
+3125c2908
+<             assertTrue("Should fail because the entity is still unknown to this DatabaseEngine instance",
+---
+>             org.junit.Assert.assertTrue("Should fail because the entity is still unknown to this DatabaseEngine instance",
+3131c2914
+<         assertTrue("DatabaseEngine should be aware of the entity even with a NONE schema policy.", schemaNoneEngine.containsEntity(entity.getName()));
+---
+>         org.junit.Assert.assertTrue("DatabaseEngine should be aware of the entity even with a NONE schema policy.", schemaNoneEngine.containsEntity(entity.getName()));
+3133d2915
+<         // Persist the entry and make sure it was successful
+3137c2919
+<         assertEquals("There should be only one entry in the table.", 1, result.size());
+---
+>         org.junit.Assert.assertEquals("There should be only one entry in the table.", 1, result.size());
+3141,3145c2923,2927
+<         assertEquals("COL1 was successfully inserted", 1, resultEntry.get("COL1").toInt().intValue());
+<         assertEquals("COL2 was successfully inserted", true, resultEntry.get("COL2").toBoolean());
+<         assertEquals("COL3 was successfully inserted", 1.0, resultEntry.get("COL3").toDouble(), 0);
+<         assertEquals("COL4 was successfully inserted", 1L, resultEntry.get("COL4").toLong().longValue());
+<         assertEquals("COL5 was successfully inserted", "1", resultEntry.get("COL5").toString());
+---
+>         org.junit.Assert.assertEquals("COL1 was successfully inserted", 1, resultEntry.get("COL1").toInt().intValue());
+>         org.junit.Assert.assertEquals("COL2 was successfully inserted", true, resultEntry.get("COL2").toBoolean());
+>         org.junit.Assert.assertEquals("COL3 was successfully inserted", 1.0, resultEntry.get("COL3").toDouble(), 0);
+>         org.junit.Assert.assertEquals("COL4 was successfully inserted", 1L, resultEntry.get("COL4").toLong().longValue());
+>         org.junit.Assert.assertEquals("COL5 was successfully inserted", "1", resultEntry.get("COL5").toString());
+3148,3151d2929
+<     /**
+<      * Tests that {@link AbstractDatabaseEngine#updateEntity(DbEntity)} with a "none" schema policy
+<      * doesn't execute DDL.
+<      */
+3172c2950
+<             fail("Should have failed because updateEntity with schema policy NONE doesn't execute DDL");
+---
+>             org.junit.Assert.fail("Should have failed because updateEntity with schema policy NONE doesn't execute DDL");
+3174d2951
+<             // Should fail because because updateEntity with schema policy NONE doesn't execute DDL
+3193,3198c2970,2975
+<         Map<String, DbColumnType> test = engine.getMetadata("TEST");
+<         assertEquals(INT, test.get("COL1"));
+<         assertEquals(BOOLEAN, test.get("COL2"));
+<         assertEquals(DOUBLE, test.get("COL3"));
+<         assertEquals(LONG, test.get("COL4"));
+<         assertEquals(STRING, test.get("COL5"));
+---
+>         Map<String, DbColumnConstraint> test = engine.getMetadata("TEST");
+>         org.junit.Assert.assertEquals(INT, test.get("COL1"));
+>         org.junit.Assert.assertEquals(BOOLEAN, test.get("COL2"));
+>         org.junit.Assert.assertEquals(DOUBLE, test.get("COL3"));
+>         org.junit.Assert.assertEquals(LONG, test.get("COL4"));
+>         org.junit.Assert.assertEquals(STRING, test.get("COL5"));
+3205,3206c2982
+<         engine.updateEntity(entity
+<                 .build());
+---
+>         engine.updateEntity(entity.build());
+3209,3211c2985,2987
+<         assertEquals(INT, test.get("COL1"));
+<         assertEquals(LONG, test.get("COL4"));
+<         assertEquals(STRING, test.get("COL5"));
+---
+>         org.junit.Assert.assertEquals(INT, test.get("COL1"));
+>         org.junit.Assert.assertEquals(LONG, test.get("COL4"));
+>         org.junit.Assert.assertEquals(STRING, test.get("COL5"));
+3217,3218c2993
+<         engine.updateEntity(entity
+<                 .build());
+---
+>         engine.updateEntity(entity.build());
+3221,3225c2996,3000
+<         assertEquals(INT, test.get("COL1"));
+<         assertEquals(LONG, test.get("COL4"));
+<         assertEquals(STRING, test.get("COL5"));
+<         assertEquals(BLOB, test.get("COL6"));
+<         assertEquals(DOUBLE, test.get("COL7"));
+---
+>         org.junit.Assert.assertEquals(INT, test.get("COL1"));
+>         org.junit.Assert.assertEquals(LONG, test.get("COL4"));
+>         org.junit.Assert.assertEquals(STRING, test.get("COL5"));
+>         org.junit.Assert.assertEquals(BLOB, test.get("COL6"));
+>         org.junit.Assert.assertEquals(DOUBLE, test.get("COL7"));
+3249,3254c3024,3029
+<         Map<String, DbColumnType> test = engine.getMetadata("TEST");
+<         assertEquals(INT, test.get("COL1"));
+<         assertEquals(BOOLEAN, test.get("COL2"));
+<         assertEquals(DOUBLE, test.get("COL3"));
+<         assertEquals(LONG, test.get("COL4"));
+<         assertEquals(STRING, test.get("COL5"));
+---
+>         Map<String, DbColumnConstraint> test = engine.getMetadata("TEST");
+>         org.junit.Assert.assertEquals(INT, test.get("COL1"));
+>         org.junit.Assert.assertEquals(BOOLEAN, test.get("COL2"));
+>         org.junit.Assert.assertEquals(DOUBLE, test.get("COL3"));
+>         org.junit.Assert.assertEquals(LONG, test.get("COL4"));
+>         org.junit.Assert.assertEquals(STRING, test.get("COL5"));
+3264,3266c3039,3041
+<         assertEquals(INT, test.get("COL1"));
+<         assertEquals(LONG, test.get("COL4"));
+<         assertEquals(STRING, test.get("COL5"));
+---
+>         org.junit.Assert.assertEquals(INT, test.get("COL1"));
+>         org.junit.Assert.assertEquals(LONG, test.get("COL4"));
+>         org.junit.Assert.assertEquals(STRING, test.get("COL5"));
+3275,3279c3050,3054
+<         assertEquals(INT, test.get("COL1"));
+<         assertEquals(LONG, test.get("COL4"));
+<         assertEquals(STRING, test.get("COL5"));
+<         assertEquals(BLOB, test.get("COL6"));
+<         assertEquals(DOUBLE, test.get("COL7"));
+---
+>         org.junit.Assert.assertEquals(INT, test.get("COL1"));
+>         org.junit.Assert.assertEquals(LONG, test.get("COL4"));
+>         org.junit.Assert.assertEquals(STRING, test.get("COL5"));
+>         org.junit.Assert.assertEquals(BLOB, test.get("COL6"));
+>         org.junit.Assert.assertEquals(DOUBLE, test.get("COL7"));
+3291d3065
+< 
+3298,3300c3072,3073
+<         assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+<         System.out.println(result.get(0).get("COL2"));
+<         assertNull(result.get(0).get("COL2").toString());
+---
+>         org.junit.Assert.assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+>         org.junit.Assert.assertNull(result.get(0).get("COL2").toString());
+3303d3075
+< 
+3330,3332c3102,3103
+< 
+<         assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+<         assertEquals(initialClob, result.get(0).get("COL2").toString());
+---
+>         org.junit.Assert.assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+>         org.junit.Assert.assertEquals(initialClob, result.get(0).get("COL2").toString());
+3343,3344c3114,3115
+<         assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+<         assertEquals(updateClob, result.get(0).get("COL2").toString());
+---
+>         org.junit.Assert.assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+>         org.junit.Assert.assertEquals(updateClob, result.get(0).get("COL2").toString());
+3367,3368c3138,3139
+<         assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+<         assertEquals(initialClob, result.get(0).get("COL2").toString());
+---
+>         org.junit.Assert.assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+>         org.junit.Assert.assertEquals(initialClob, result.get(0).get("COL2").toString());
+3379,3380c3150,3151
+<         assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+<         assertEquals(updateClob, result.get(0).get("COL2").toString());
+---
+>         org.junit.Assert.assertEquals("CENINHAS", result.get(0).get("COL1").toString());
+>         org.junit.Assert.assertEquals(updateClob, result.get(0).get("COL2").toString());
+3392d3162
+< 
+3410d3179
+< 
+3421c3190
+<             assertTrue(stringResultColumnMap.get("COL2").toString().endsWith(stringResultColumnMap.get("COL1").toString()));
+---
+>             org.junit.Assert.assertTrue(stringResultColumnMap.get("COL2").toString().endsWith(stringResultColumnMap.get("COL1").toString()));
+3436c3205
+<                 .addColumn(STM_NAME, STRING, NOT_NULL)
+---
+>                 .addColumn(STM_NAME, STRING, DbColumnConstraint.NOT_NULL)
+3468,3469c3237
+<             System.out.println(stringResultColumnMap);
+<             assertTrue("Assert Stream Name with id", stringResultColumnMap.get(STM_NAME).toString().endsWith(stringResultColumnMap.get(STM_ID).toString()));
+---
+>             org.junit.Assert.assertTrue(stringResultColumnMap.get(STM_NAME).toString().endsWith(stringResultColumnMap.get(STM_ID).toString()));
+3482d3249
+< 
+3493d3259
+< 
+3504,3505c3270
+<             System.out.println(stringResultColumnMap);
+<             assertTrue(stringResultColumnMap.get("COL2").toString().endsWith(stringResultColumnMap.get("COL1").toString()));
+---
+>             org.junit.Assert.assertTrue(stringResultColumnMap.get("COL2").toString().endsWith(stringResultColumnMap.get("COL1").toString()));
+3522c3287
+<         assertTrue("Test truncate query empty?", test.isEmpty());
+---
+>         org.junit.Assert.assertTrue("Test truncate query empty?", test.isEmpty());
+3531d3295
+<         // Drop tables for sanity.
+3534d3297
+<         // Create the "old" table.
+3543d3305
+<         // Rename it
+3547,3550c3309,3311
+<         // Check whether the schema matches
+<         final Map<String, DbColumnType> metaMap = new LinkedHashMap<>();
+<         metaMap.put("timestamp", INT);
+<         assertEquals("Metamap ok?", metaMap, engine.getMetadata(newName));
+---
+>         final Map<String, DbColumnConstraint> metaMap = new LinkedHashMap<>();
+>         metaMap.put("timestamp", null);
+>         org.junit.Assert.assertEquals("Metamap ok?", metaMap, engine.getMetadata(newName));
+3552d3312
+<         // Check the data
+3554c3314
+<         assertEquals("Count ok?", 1, resultSet.size());
+---
+>         org.junit.Assert.assertEquals("Count ok?", 1, resultSet.size());
+3556c3316
+<         assertEquals("Content ok?", 20, (int) resultSet.get(0).get("timestamp").toInt());
+---
+>         org.junit.Assert.assertEquals("Content ok?", 20, (int) resultSet.get(0).get("timestamp").toInt());
+3561,3565d3320
+<     /**
+<      * Drops a list of tables silently (i.e. if it fails, it will just keep on).
+<      *
+<      * @param tables The tables that we want to drop.
+<      */
+3571d3325
+<                 // ignore
+3589c3343
+<             select(all()).from(table("TEST")).where(like(udf("lower", column("COL5")), k("%teste%")))
+---
+>             select(all()).from(table("TEST")).where(like(SqlBuilder.udf("lower", column("COL5")), k("%teste%")))
+3591,3594c3345,3347
+<         assertEquals(3, query.size());
+<         query = engine.query(select(all()).from(table("TEST")).where(like(udf("lower", column("COL5")), k("%tt%"))));
+<         assertEquals(1, query.size());
+< 
+---
+>         org.junit.Assert.assertEquals(3, query.size());
+>         query = engine.query(select(all()).from(table("TEST")).where(like(SqlBuilder.udf("lower", column("COL5")), k("%tt%"))));
+>         org.junit.Assert.assertEquals(1, query.size());
+3612,3615c3365,3367
+<         assertEquals("col1 ok?", 1, (int) test.get(0).get("COL1").toInt());
+<         assertTrue("col2 ok?", test.get(0).get("COL2").toBoolean());
+<         assertEquals("col4 ok?", 1L, (long) test.get(0).get("COL4").toLong());
+< 
+---
+>         org.junit.Assert.assertEquals("col1 ok?", 1, (int) test.get(0).get("COL1").toInt());
+>         org.junit.Assert.assertTrue("col2 ok?", test.get(0).get("COL2").toBoolean());
+>         org.junit.Assert.assertEquals("col4 ok?", 1L, (long) test.get(0).get("COL4").toLong());
+3633c3385
+<         assertEquals("col4 ok?", 1L, (long) test.get(0).get("COL4").toLong());
+---
+>         org.junit.Assert.assertEquals("col4 ok?", 1L, (long) test.get(0).get("COL4").toLong());
+3638c3390
+<         assertEquals("col4 ok?", 2L, (long) test.get(1).get("COL4").toLong());
+---
+>         org.junit.Assert.assertEquals("col4 ok?", 2L, (long) test.get(1).get("COL4").toLong());
+3640c3392,3393
+<         engine.persist("TEST", entry().set("COL1", 1).set("COL2", true).build());
+---
+>         engine.persist("TEST", entry().set("COL1", 1).set("COL2", true)
+>                 .build());
+3642c3395
+<         assertEquals("col4 ok?", 3L, (long) test.get(2).get("COL4").toLong());
+---
+>         org.junit.Assert.assertEquals("col4 ok?", 3L, (long) test.get(2).get("COL4").toLong());
+3647c3400
+<         assertEquals("col4 ok?", 4L, (long) test.get(3).get("COL4").toLong());
+---
+>         org.junit.Assert.assertEquals("col4 ok?", 4L, (long) test.get(3).get("COL4").toLong());
+3652c3405
+<         assertEquals("col4 ok?", 5L, (long) test.get(4).get("COL4").toLong());
+---
+>         org.junit.Assert.assertEquals("col4 ok?", 5L, (long) test.get(4).get("COL4").toLong());
+3657c3410
+<         assertEquals("col4 ok?", 6L, (long) test.get(5).get("COL4").toLong());
+---
+>         org.junit.Assert.assertEquals("col4 ok?", 6L, (long) test.get(5).get("COL4").toLong());
+3662c3415
+<         assertEquals("col4 ok?", 7L, (long) test.get(6).get("COL4").toLong());
+---
+>         org.junit.Assert.assertEquals("col4 ok?", 7L, (long) test.get(6).get("COL4").toLong());
+3667c3420
+<         assertEquals("col4 ok?", 8L, (long) test.get(7).get("COL4").toLong());
+---
+>         org.junit.Assert.assertEquals("col4 ok?", 8L, (long) test.get(7).get("COL4").toLong());
+3670,3674d3422
+<     /**
+<      * Creates a {@link DbEntity} with 5 columns to be used in the tests.
+<      *
+<      * @throws DatabaseEngineException If something goes wrong creating the entity.
+<      */
+3688,3692d3435
+<     /**
+<      * Creates a {@link DbEntity} with 5 columns being the first the primary key to be used in the tests.
+<      *
+<      * @throws DatabaseEngineException If something goes wrong creating the entity.
+<      */
+3727c3470
+<                 .addFk(dbFk()
+---
+>                 .addFk(SqlBuilder.dbFk()
+3732c3475
+<                         dbFk()
+---
+>                         SqlBuilder.dbFk()
+3759,3761c3502,3504
+<         assertEquals("Resultset must have only one result", 1, query.size());
+<         assertEquals("COL1 must be 1", 1, query.get(0).get("COL1").toInt().intValue());
+<         assertEquals("COL5 must be teste", "teste", query.get(0).get("COL5").toString());
+---
+>         org.junit.Assert.assertEquals("Resultset must have only one result", 1, query.size());
+>         org.junit.Assert.assertEquals("COL1 must be 1", 1, query.get(0).get("COL1").toInt().intValue());
+>         org.junit.Assert.assertEquals("COL5 must be teste", "teste", query.get(0).get("COL5").toString());
+3794,3796c3537,3539
+<         assertEquals("Resultset must have only one result", 1, query.size());
+<         assertEquals("COL1 must be 1", 1, query.get(0).get("COL1").toInt().intValue());
+<         assertEquals("COL5 must be teste", "teste", query.get(0).get("COL5").toString());
+---
+>         org.junit.Assert.assertEquals("Resultset must have only one result", 1, query.size());
+>         org.junit.Assert.assertEquals("COL1 must be 1", 1, query.get(0).get("COL1").toInt().intValue());
+>         org.junit.Assert.assertEquals("COL5 must be teste", "teste", query.get(0).get("COL5").toString());
+3829,3833c3572,3576
+<         assertEquals("Resultset must have only one result", 2, query.size());
+<         assertEquals("COL1 must be 1", 1, query.get(0).get("COL1").toInt().intValue());
+<         assertEquals("COL5 must be teste", "teste", query.get(0).get("COL5").toString());
+<         assertEquals("COL1 must be 1", 4, query.get(1).get("COL1").toInt().intValue());
+<         assertEquals("COL5 must be teste", "tesTte", query.get(1).get("COL5").toString());
+---
+>         org.junit.Assert.assertEquals("Resultset must have only one result", 2, query.size());
+>         org.junit.Assert.assertEquals("COL1 must be 1", 1, query.get(0).get("COL1").toInt().intValue());
+>         org.junit.Assert.assertEquals("COL5 must be teste", "teste", query.get(0).get("COL5").toString());
+>         org.junit.Assert.assertEquals("COL1 must be 1", 4, query.get(1).get("COL1").toInt().intValue());
+>         org.junit.Assert.assertEquals("COL5 must be teste", "tesTte", query.get(1).get("COL5").toString());
+3856,3860c3599,3603
+<         assertEquals("Resultset must have only 2 results", 2, query.size());
+<         assertEquals("COL1 must be 1", 1, query.get(0).get("COL1").toInt().intValue());
+<         assertEquals("COL5 must be TESTE,teste", "TESTE,teste", query.get(0).get("agg").toString());
+<         assertEquals("COL1 must be 2", 2, query.get(1).get("COL1").toInt().intValue());
+<         assertEquals("COL5 must be TeStE,tesTte", "TeStE,tesTte", query.get(1).get("agg").toString());
+---
+>         org.junit.Assert.assertEquals("Resultset must have only 2 results", 2, query.size());
+>         org.junit.Assert.assertEquals("COL1 must be 1", 1, query.get(0).get("COL1").toInt().intValue());
+>         org.junit.Assert.assertEquals("COL5 must be TESTE,teste", "TESTE,teste", query.get(0).get("agg").toString());
+>         org.junit.Assert.assertEquals("COL1 must be 2", 2, query.get(1).get("COL1").toInt().intValue());
+>         org.junit.Assert.assertEquals("COL5 must be TeStE,tesTte", "TeStE,tesTte", query.get(1).get("agg").toString());
+3883,3887c3626,3630
+<         assertEquals("Resultset must have only 2 results", 2, query.size());
+<         assertEquals("COL1 must be 1", 1, query.get(0).get("COL1").toInt().intValue());
+<         assertEquals("COL5 must be TESTE;teste", "TESTE;teste", query.get(0).get("agg").toString());
+<         assertEquals("COL1 must be 2", 2, query.get(1).get("COL1").toInt().intValue());
+<         assertEquals("COL5 must be TeStE;tesTte", "TeStE;tesTte", query.get(1).get("agg").toString());
+---
+>         org.junit.Assert.assertEquals("Resultset must have only 2 results", 2, query.size());
+>         org.junit.Assert.assertEquals("COL1 must be 1", 1, query.get(0).get("COL1").toInt().intValue());
+>         org.junit.Assert.assertEquals("COL5 must be TESTE;teste", "TESTE;teste", query.get(0).get("agg").toString());
+>         org.junit.Assert.assertEquals("COL1 must be 2", 2, query.get(1).get("COL1").toInt().intValue());
+>         org.junit.Assert.assertEquals("COL5 must be TeStE;tesTte", "TeStE;tesTte", query.get(1).get("agg").toString());
+3892c3635
+<         assumeTrue("This test is only valid for engines that support StringAggDistinct",
+---
+>         Assume.assumeTrue("This test is only valid for engines that support StringAggDistinct",
+3913,3917c3656,3660
+<         assertEquals("Resultset must have only 2 results", 2, query.size());
+<         assertEquals("COL1 must be 1", 1, query.get(0).get("COL1").toInt().intValue());
+<         assertEquals("COL5 must be teste", "teste", query.get(0).get("agg").toString());
+<         assertEquals("COL1 must be 2", 2, query.get(1).get("COL1").toInt().intValue());
+<         assertEquals("COL5 must be TeStE,tesTte", "TeStE,tesTte", query.get(1).get("agg").toString());
+---
+>         org.junit.Assert.assertEquals("Resultset must have only 2 results", 2, query.size());
+>         org.junit.Assert.assertEquals("COL1 must be 1", 1, query.get(0).get("COL1").toInt().intValue());
+>         org.junit.Assert.assertEquals("COL5 must be teste", "teste", query.get(0).get("agg").toString());
+>         org.junit.Assert.assertEquals("COL1 must be 2", 2, query.get(1).get("COL1").toInt().intValue());
+>         org.junit.Assert.assertEquals("COL5 must be TeStE,tesTte", "TeStE,tesTte", query.get(1).get("agg").toString());
+3940,3944c3683,3687
+<         assertEquals("Resultset must have only 2 results", 2, query.size());
+<         assertEquals("COL1 must be 1", 1, query.get(0).get("COL1").toInt().intValue());
+<         assertEquals("COL5 must be 1,1", "1,1", query.get(0).get("agg").toString());
+<         assertEquals("COL1 must be 2", 2, query.get(1).get("COL1").toInt().intValue());
+<         assertEquals("COL5 must be 2,2", "2,2", query.get(1).get("agg").toString());
+---
+>         org.junit.Assert.assertEquals("Resultset must have only 2 results", 2, query.size());
+>         org.junit.Assert.assertEquals("COL1 must be 1", 1, query.get(0).get("COL1").toInt().intValue());
+>         org.junit.Assert.assertEquals("COL5 must be 1,1", "1,1", query.get(0).get("agg").toString());
+>         org.junit.Assert.assertEquals("COL1 must be 2", 2, query.get(1).get("COL1").toInt().intValue());
+>         org.junit.Assert.assertEquals("COL5 must be 2,2", "2,2", query.get(1).get("agg").toString());
+3948c3691
+<     @Category(SkipTestCockroachDB.class)
+---
+>     @Category(com.feedzai.commons.sql.abstraction.engine.impl.cockroach.SkipTestCockroachDB.class)
+3965c3708
+<     @Category(SkipTestCockroachDB.class)
+---
+>     @Category(com.feedzai.commons.sql.abstraction.engine.impl.cockroach.SkipTestCockroachDB.class)
+3995,3996c3738
+<         engine.executeUpdate(new AlterColumn(table("TEST"), new DbColumn.Builder().name("COL1").type(DbColumnType.INT).addConstraint(DbColumnConstraint
+<                 .NOT_NULL)
+---
+>         engine.executeUpdate(new AlterColumn(table("TEST"), new DbColumn.Builder().name("COL1").type(com.feedzai.commons.sql.abstraction.ddl.DbColumnType.INT).addConstraint(DbColumnConstraint.NOT_NULL)
+4001c3743
+<     @Category(SkipTestCockroachDB.class)
+---
+>     @Category(com.feedzai.commons.sql.abstraction.engine.impl.cockroach.SkipTestCockroachDB.class)
+4015c3757
+<         engine.executeUpdate(new AlterColumn(table("TEST"), dbColumn().name("COL1").type(DbColumnType.STRING)
+---
+>         engine.executeUpdate(new AlterColumn(table("TEST"), dbColumn().name("COL1").type(com.feedzai.commons.sql.abstraction.ddl.DbColumnType.STRING)
+4036c3778
+<         assertEquals("Check size of records", 1, test.size());
+---
+>         org.junit.Assert.assertEquals("Check size of records", 1, test.size());
+4038,4042c3780,3783
+<         assertEquals("Check COL1", 10, record.get("COL1").toInt().intValue());
+<         assertEquals("Check COL2", false, record.get("COL2").toBoolean());
+<         assertEquals("Check COL3", 2.2d, record.get("COL3").toDouble(), 0);
+<         assertEquals("Check COL4", 3L, record.get("COL4").toLong().longValue());
+< 
+---
+>         org.junit.Assert.assertEquals("Check COL1", 10, record.get("COL1").toInt().intValue());
+>         org.junit.Assert.assertEquals("Check COL2", false, record.get("COL2").toBoolean());
+>         org.junit.Assert.assertEquals("Check COL3", 2.2d, record.get("COL3").toDouble(), 0);
+>         org.junit.Assert.assertEquals("Check COL4", 3L, record.get("COL4").toLong().longValue());
+4045,4047c3786,3788
+<                 .addColumn("COL5", STRING, new K("mantorras"), NOT_NULL)
+<                 .addColumn("COL6", BOOLEAN, new K(true), NOT_NULL)
+<                 .addColumn("COL7", INT, new K(7), NOT_NULL)
+---
+>                 .addColumn("COL5", STRING, new K("mantorras"), DbColumnConstraint.NOT_NULL)
+>                 .addColumn("COL6", BOOLEAN, new K(true), DbColumnConstraint.NOT_NULL)
+>                 .addColumn("COL7", INT, new K(7), DbColumnConstraint.NOT_NULL)
+4060c3801
+<         assertEquals("Check size of records", 1, test.size());
+---
+>         org.junit.Assert.assertEquals("Check size of records", 1, test.size());
+4062,4068c3803,3809
+<         assertEquals("Check COL1", 10, record.get("COL1").toInt().intValue());
+<         assertEquals("Check COL2", false, record.get("COL2").toBoolean());
+<         assertEquals("Check COL3", 2.2d, record.get("COL3").toDouble(), 1e-9);
+<         assertEquals("Check COL4", 3L, record.get("COL4").toLong().longValue());
+<         assertEquals("Check COL5", "mantorras", record.get("COL5").toString());
+<         assertEquals("Check COL6", true, record.get("COL6").toBoolean());
+<         assertEquals("Check COL7", 7, record.get("COL7").toInt().intValue());
+---
+>         org.junit.Assert.assertEquals("Check COL1", 10, record.get("COL1").toInt().intValue());
+>         org.junit.Assert.assertEquals("Check COL2", false, record.get("COL2").toBoolean());
+>         org.junit.Assert.assertEquals("Check COL3", 2.2d, record.get("COL3").toDouble(), 1e-9);
+>         org.junit.Assert.assertEquals("Check COL4", 3L, record.get("COL4").toLong().longValue());
+>         org.junit.Assert.assertEquals("Check COL5", "mantorras", record.get("COL5").toString());
+>         org.junit.Assert.assertEquals("Check COL6", true, record.get("COL6").toBoolean());
+>         org.junit.Assert.assertEquals("Check COL7", 7, record.get("COL7").toInt().intValue());
+4078c3819
+<                         .addColumn("COL2", BOOLEAN, new K(false), NOT_NULL)
+---
+>                         .addColumn("COL2", BOOLEAN, new K(false), DbColumnConstraint.NOT_NULL)
+4088,4091c3829,3832
+<         assertEquals("", 1, row.get("COL1").toInt().intValue());
+<         assertFalse("", row.get("COL2").toBoolean());
+<         assertEquals("", 2.2d, row.get("COL3").toDouble(), 0D);
+<         assertEquals("", 3L, row.get("COL4").toLong().longValue());
+---
+>         org.junit.Assert.assertEquals("", 1, row.get("COL1").toInt().intValue());
+>         org.junit.Assert.assertFalse("", row.get("COL2").toBoolean());
+>         org.junit.Assert.assertEquals("", 2.2d, row.get("COL3").toDouble(), 0D);
+>         org.junit.Assert.assertEquals("", 3L, row.get("COL4").toLong().longValue());
+4098c3839
+<         assertEquals("text is uppercase", "OLA", engine.query(select(upper(column("COL5")).alias("RES")).from(table("TEST"))).get(0).get("RES").toString());
+---
+>         org.junit.Assert.assertEquals("text is uppercase", "OLA", engine.query(select(upper(column("COL5")).alias("RES")).from(table("TEST"))).get(0).get("RES").toString());
+4105c3846
+<         assertEquals("text is lowercase", "ola", engine.query(select(lower(column("COL5")).alias("RES")).from(table("TEST"))).get(0).get("RES").toString());
+---
+>         org.junit.Assert.assertEquals("text is lowercase", "ola", engine.query(select(lower(column("COL5")).alias("RES")).from(table("TEST"))).get(0).get("RES").toString());
+4112c3853
+<         assertEquals("text is uppercase", "ola", engine.query(select(f("LOWER", column("COL5")).alias("RES")).from(table("TEST"))).get(0).get("RES")
+---
+>         org.junit.Assert.assertEquals("text is uppercase", "ola", engine.query(select(f("LOWER", column("COL5")).alias("RES")).from(table("TEST"))).get(0).get("RES")
+4128c3869
+<         assertEquals("entry's hashCode() matches map's hashCode()", map.hashCode(), entry.hashCode());
+---
+>         org.junit.Assert.assertEquals("entry's hashCode() matches map's hashCode()", map.hashCode(), entry.hashCode());
+4131,4137d3871
+<     /**
+<      * Tests that creating a {@link DatabaseEngine} using try-with-resources will close the engine
+<      * (and thus the underlying connection to the database) once the block is exited from.
+<      *
+<      * @throws Exception if something goes wrong while checking if the connection of the engine is closed.
+<      * @since 2.1.12
+<      */
+4140c3874
+<         final AtomicReference<Connection> connReference = new AtomicReference<>();
+---
+>         final AtomicReference<java.sql.Connection> connReference = new AtomicReference<>();
+4144c3878
+<             assertFalse("close() method should not be called within the try-with-resources block, for an existing DatabaseEngine",
+---
+>             org.junit.Assert.assertFalse("close() method should not be called within the try-with-resources block, for an existing DatabaseEngine",
+4148c3882
+<         assertTrue("close() method should be called after exiting try-with-resources block, for an existing DatabaseEngine",
+---
+>         org.junit.Assert.assertTrue("close() method should be called after exiting try-with-resources block, for an existing DatabaseEngine",
+4153c3887
+<             assertFalse("close() method should not be called within the try-with-resources block, for a DatabaseEngine created in the block",
+---
+>             org.junit.Assert.assertFalse("close() method should not be called within the try-with-resources block, for a DatabaseEngine created in the block",
+4157c3891
+<         assertTrue("close() method should be called after exiting try-with-resources block, for a DatabaseEngine created in the block",
+---
+>         org.junit.Assert.assertTrue("close() method should be called after exiting try-with-resources block, for a DatabaseEngine created in the block",
+4159d3892
+< 
+4162,4171d3894
+<     /**
+<      * Test that closing a database engine a 'create-drop' policy with multiple entities closes all insert statements
+<      * associated with each entity, regardless of the schema policy used.
+<      *
+<      * Each entity is associated with 3 prepared statements. This test ensures that 3 PSs per entity are closed.
+<      *
+<      * @throws DatabaseEngineException  If something goes wrong while adding an entity to the engine.
+<      * @throws DatabaseFactoryException If the database engine class specified in the properties does not exist.
+<      * @since 2.1.13
+<      */
+4176d3898
+<         // Force the schema policy to be 'create-drop'
+4183d3904
+<         // Force invocation counting to start here
+4191d3911
+< 
+4194,4199d3913
+<     /**
+<      * Assesses whether the current row count is incremented if the .next()/.nextResult()
+<      * methods are called in the iterator.
+<      *
+<      * @throws DatabaseEngineException If a database access error happens.
+<      */
+4204d3917
+<         // Create 4 entries
+4211c3924
+<         assertEquals("The current row count should be 0 if the iteration hasn't started", 0, resultIterator.getCurrentRowCount());
+---
+>         org.junit.Assert.assertEquals("The current row count should be 0 if the iteration hasn't started", 0, resultIterator.getCurrentRowCount());
+4213d3925
+<         // If the .next() method is called once then the current row count should be updated to 1
+4216c3928
+<         assertEquals("The current row count is equal to 1", 1,resultIterator.getCurrentRowCount());
+---
+>         org.junit.Assert.assertEquals("The current row count is equal to 1", 1, resultIterator.getCurrentRowCount());
+4218,4219d3929
+<         // If for the same iterator the .nextResult() method is called 3 additional
+<         // times then the current row count should be updated to 4
+4224c3934
+<         assertEquals("The current row count is equal to 4", 4, resultIterator.getCurrentRowCount());
+---
+>         org.junit.Assert.assertEquals("The current row count is equal to 4", 4, resultIterator.getCurrentRowCount());
+4227,4233d3936
+<     /**
+<      * Tests that a {@link com.feedzai.commons.sql.abstraction.dml.K constant expression} with an enum value behaves
+<      * as if the enum is a string (obtained from {@link Enum#name()}, both when persisting an entry and when using
+<      * the enum value for filtering in a WHERE clause.
+<      *
+<      * @throws DatabaseEngineException If something goes wrong creating the test entity or persisting entries.
+<      */
+4238d3940
+<         // should fail here if enum is not supported, or it will just put garbage, which will be detected later
+4249c3951
+<         assertThat(results)
+---
+>         org.assertj.core.api.Assertions.assertThat(results)
+4258,4268d3959
+<     /**
+<      * Tests that when inserting duplicated entries in a table the right exception is returned.
+<      *
+<      * The steps performed on this test are:
+<      * <ol>
+<      *     <li>Add duplicated entries in a transaction and fail to persist</li>
+<      *     <li>Ensure the exception is a {@link DatabaseEngineUniqueConstraintViolationException}</li>
+<      * </ol>
+<      *
+<      * @throws DatabaseEngineException If there is a problem on {@link DatabaseEngine} operations.
+<      */
+4280d3970
+<         // Add the same entry twice (repeated value for COL1, id)
+4282c3972
+<         assertThatCode(() -> engine.persist("TEST", entry))
+---
+>         org.assertj.core.api.Assertions.assertThatCode(() -> engine.persist("TEST", entry))
+4290,4300d3979
+<     /**
+<      * Tests that on a duplicated batch entry situation the right exception is returned.
+<      *
+<      * The steps performed on this test are:
+<      * <ol>
+<      *     <li>Add duplicated batch entries to transaction and fail to flush</li>
+<      *     <li>Ensure the exception is a {@link DatabaseEngineUniqueConstraintViolationException}</li>
+<      * </ol>
+<      *
+<      * @throws DatabaseEngineException If there is a problem on {@link DatabaseEngine} operations.
+<      */
+4312d3990
+<         // Add the same entry twice (repeated value for COL1, id)
+4316,4317c3994
+<         // Flush the duplicated entries and check the exception
+<         assertThatCode(() -> engine.flush())
+---
+>         org.assertj.core.api.Assertions.assertThatCode(() -> engine.flush())
+4325,4327d4001
+<     /**
+<      * An enum for tests.
+<      */

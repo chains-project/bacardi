@@ -1,0 +1,74 @@
+1,18d0
+< /**
+<  * Copyright (C) 2014 Premium Minds.
+<  *
+<  * This file is part of wicket-crudifier.
+<  *
+<  * wicket-crudifier is free software: you can redistribute it and/or modify it under
+<  * the terms of the GNU Lesser General Public License as published by the Free
+<  * Software Foundation, either version 3 of the License, or (at your option) any
+<  * later version.
+<  *
+<  * wicket-crudifier is distributed in the hope that it will be useful, but WITHOUT ANY
+<  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+<  * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+<  * details.
+<  *
+<  * You should have received a copy of the GNU Lesser General Public License
+<  * along with wicket-crudifier. If not, see <http://www.gnu.org/licenses/>.
+<  */
+37,43c19,25
+< import javax.validation.Validator;
+< import javax.validation.constraints.NotBlank;
+< import javax.validation.constraints.NotEmpty;
+< import javax.validation.constraints.NotNull;
+< import javax.validation.metadata.BeanDescriptor;
+< import javax.validation.metadata.ConstraintDescriptor;
+< import javax.validation.metadata.ElementDescriptor;
+---
+> 
+> import jakarta.validation.Validator;
+> import jakarta.validation.constraints.NotBlank;
+> import jakarta.validation.constraints.NotEmpty;
+> import jakarta.validation.constraints.NotNull;
+> import jakarta.validation.metadata.BeanDescriptor;
+> import jakarta.validation.metadata.ConstraintDescriptor;
+133,135c115,117
+<                         ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+<                         if(constraintDescriptor!=null){
+<                                 Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
+---
+>                         jakarta.validation.metadata.PropertyDescriptor propertyDesc = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+>                         if (propertyDesc != null) {
+>                                 Set<ConstraintDescriptor<?>> constraintsSet = propertyDesc.getConstraintDescriptors();
+155,156c137,140
+<                                                 if(objectProperty.type.isEnum()) typesControlGroup = EnumControlGroup.class;
+<                                                 else typesControlGroup = ObjectChoiceControlGroup.class;
+---
+>                                                 if (objectProperty.type.isEnum())
+>                                                         typesControlGroup = EnumControlGroup.class;
+>                                                 else
+>                                                         typesControlGroup = ObjectChoiceControlGroup.class;
+161c145,146
+<                                         controlGroup = (AbstractControlGroup<?>) constructor.newInstance(view.newChildId(), new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name));
+---
+>                                         controlGroup = (AbstractControlGroup<?>) constructor.newInstance(view.newChildId(),
+>                                                         new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name));
+165d149
+< 
+183,187c167,170
+<                                         controlGroup = controlGroupProviders
+<                                                         .get(objectProperty.type)
+<                                                         .createControlGroup(view.newChildId()
+<                                                                         , new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name)
+<                                                                         , objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
+---
+>                                         controlGroup = controlGroupProviders.get(objectProperty.type)
+>                                                         .createControlGroup(view.newChildId(),
+>                                                                         new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name),
+>                                                                         objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
+226c209,210
+<                         if(type.isAssignableFrom(mapType)) return typesControlGroups.get(mapType);
+---
+>                         if (type.isAssignableFrom(mapType))
+>                                 return typesControlGroups.get(mapType);

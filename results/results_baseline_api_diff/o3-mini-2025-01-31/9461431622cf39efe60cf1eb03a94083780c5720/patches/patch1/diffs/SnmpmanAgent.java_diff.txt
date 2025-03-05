@@ -1,0 +1,26 @@
+62c62
+<     private final List<ManagedObject> groups = new ArrayList<>();
+---
+>     private final List<Object> groups = new ArrayList<>();
+266c266
+<                     ManagedObject mo = server.lookup(new DefaultMOQuery(scope, false));
+---
+>                     Object mo = server.lookup(new DefaultMOQuery(scope, false));
+357c357
+<                 ManagedObject other = server.lookup(new DefaultMOQuery(contextScope, false));
+---
+>                 Object other = server.lookup(new DefaultMOQuery(contextScope, false));
+389c389,391
+<             final SortedMap<MOScope, ManagedObject> reg = server.getRegistry();
+---
+>             final SortedMap<?, ?> rawRegistry = (SortedMap<?, ?>) server.getRegistry();
+>             @SuppressWarnings("unchecked")
+>             final SortedMap<Object, Object> reg = (SortedMap<Object, Object>) rawRegistry;
+440c442
+<         ManagedObject query;
+---
+>         Object query;
+489c491
+<         for (final ManagedObject mo : groups) {
+---
+>         for (final Object mo : groups) {

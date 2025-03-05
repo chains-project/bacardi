@@ -1,0 +1,96 @@
+1,16d0
+< /*
+<  * Copyright (C) 2007-2009 Jive Software. All rights reserved.
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+22d5
+< import com.hazelcast.config.MaxSizeConfig;
+27c10,11
+< import com.hazelcast.core.Cluster;
+---
+> import com.hazelcast.config.EvictionConfig;
+> import com.hazelcast.cluster.Cluster;
+30c14
+< import com.hazelcast.core.Member;
+---
+> import com.hazelcast.cluster.Member;
+75,80d58
+< /**
+<  * CacheFactory implementation to use when using Hazelcast in cluster mode.
+<  *
+<  * @author Tom Evans
+<  * @author Gaston Dombiak
+<  */
+194,195c172,173
+<                 memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
+<                 memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
+---
+>                 memberAttributeConfig.setAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
+>                 memberAttributeConfig.setAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
+288c266,269
+<             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+---
+>             EvictionConfig evictionConfig = new EvictionConfig();
+>             evictionConfig.setMaximumSizePolicy(EvictionConfig.MaxSizePolicy.USED_HEAP_SIZE);
+>             evictionConfig.setSize(hazelcastMaxCacheSizeInMegaBytes);
+>             dynamicConfig.setEvictionConfig(evictionConfig);
+294d274
+<         // TODO: Better genericize this method in CacheFactoryStrategy so we can stop suppressing this warning
+378d357
+< 
+432d410
+<             // Asynchronously execute the task on the other cluster members
+466d443
+<         // Check that the requested member was found
+468d444
+<             // Asynchronously execute the task on the target member
+514d489
+<             // Create the cacheStats map if necessary.
+522,524d496
+<                 // The following information is published:
+<                 // current size, max size, num elements, cache
+<                 // hits, cache misses.
+533d504
+<             // Publish message
+548d518
+<         // TODO: Update CacheFactoryStrategy so the signature is getLock(final Serializable key, Cache<Serializable, Serializable> cache)
+553,561d522
+<     /**
+<      * ClusterTasks that are executed should not be provided by a plugin. These will cause issues related to class
+<      * loading when the providing plugin is reloaded. This method verifies if an instance of a task is
+<      * loaded by a plugin class loader, and logs a warning to the log files when it is. The amount of warnings logged is
+<      * limited by a time interval.
+<      *
+<      * @param o the instance for which to verify the class loader
+<      * @see <a href="https://github.com/igniterealtime/openfire-hazelcast-plugin/issues/74">Issue #74: Warn against usage of plugin-provided classes in Hazelcast</a>
+<      */
+566d526
+<             // Try to determine what plugin loaded the offending class.
+583c543
+<             pluginClassLoaderWarnings.put(o.getClass().getName(), Instant.now()); // Note that this Instant is unused.
+---
+>             pluginClassLoaderWarnings.put(o.getClass().getName(), Instant.now());
+656c616,617
+<         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
+---
+>         String nodeIdStr = (String) member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE);
+>         return NodeID.getInstance(nodeIdStr.getBytes(StandardCharsets.UTF_8));
+684,685d644
+<             // Add a listener at the ultimate end of the list of all listeners, to detect that left-cluster event handling
+<             // has been invoked for all before proceeding.
+701,703d659
+< 
+< 
+< 

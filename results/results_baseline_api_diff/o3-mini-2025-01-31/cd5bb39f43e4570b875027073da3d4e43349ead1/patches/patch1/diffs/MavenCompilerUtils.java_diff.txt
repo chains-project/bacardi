@@ -1,0 +1,10 @@
+21c21
+< import org.codehaus.plexus.util.xml.Xpp3Dom;
+---
+> import org.apache.maven.plugin.descriptor.Xpp3Dom;
+100,101c100,101
+<         final Xpp3Dom child = node.getChild(name);
+<         return child == null ? "" : child.getValue();
+---
+>         Xpp3Dom[] children = node.getChildren(name);
+>         return (children == null || children.length == 0) ? "" : children[0].getValue();

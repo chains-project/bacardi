@@ -1,0 +1,82 @@
+7a8
+> import com.pubnub.api.UserId;
+11,17c12,13
+< import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
+< import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
+< import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
+< import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
+< import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
+< import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
+< import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
+---
+> import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
+> import com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult;
+28d23
+< /** Created by Lukas Zaoralek on 14.11.17. */
+40c35
+<     PNConfiguration pnConfiguration = new PNConfiguration();
+---
+>     PNConfiguration pnConfiguration = new PNConfiguration(new UserId(publicKey));
+54,57c49
+<                   LOG.debug(
+<                       "PubNub status: {} {}",
+<                       pnStatusCategory.toString(),
+<                       pnStatus.getStatusCode());
+---
+>                   LOG.debug("PubNub status: {} {}", pnStatusCategory.toString(), pnStatus.getStatusCode());
+66,67c58,63
+<                 public void message(PubNub pubNub, PNMessageResult pnMessageResult) {
+<                   String channelName = pnMessageResult.getChannel();
+---
+>                 public void message(PubNub pubNub, Object pnMessageEvent) {
+>                   try {
+>                     // Assume the event is a Map containing "channel" and "message" keys.
+>                     @SuppressWarnings("unchecked")
+>                     Map<String, Object> messageMap = (Map<String, Object>) pnMessageEvent;
+>                     String channelName = (String) messageMap.get("channel");
+69c65
+<                   LOG.debug("PubNub Message: {}", pnMessageResult.toString());
+---
+>                     LOG.debug("PubNub Message: {}", pnMessageEvent.toString());
+71,76c67
+<                     JsonNode jsonMessage = null;
+<                     try {
+<                       jsonMessage = mapper.readTree(pnMessageResult.getMessage().toString());
+<                     } catch (IOException ex) {
+<                       ex.printStackTrace();
+<                     }
+---
+>                       JsonNode jsonMessage = mapper.readTree(messageMap.get("message").toString());
+80a72,75
+>                   } catch (IOException ex) {
+>                     ex.printStackTrace();
+>                   } catch (Exception ex) {
+>                     ex.printStackTrace();
+82,95d76
+< 
+<                 @Override
+<                 public void presence(PubNub pubNub, PNPresenceEventResult pnPresenceEventResult) {
+<                   LOG.debug("PubNub presence: {}", pnPresenceEventResult.toString());
+<                 }
+< 
+<                 @Override
+<                 public void signal(PubNub pubnub, PNSignalResult pnSignalResult) {
+<                   LOG.debug("PubNub signal: {}", pnSignalResult.toString());
+<                 }
+< 
+<                 @Override
+<                 public void user(PubNub pubnub, PNUserResult pnUserResult) {
+<                   LOG.debug("PubNub user: {}", pnUserResult.toString());
+99,100c80,81
+<                 public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
+<                   LOG.debug("PubNub space: {}", pnSpaceResult.toString());
+---
+>                 public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
+>                   LOG.debug("PubNub file: {}", pnFileEventResult.toString());
+107,112d87
+< 
+<                 @Override
+<                 public void messageAction(
+<                     PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
+<                   LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
+<                 }

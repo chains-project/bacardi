@@ -1,0 +1,45 @@
+package com.github.games647.changeskin.sponge.command;
+
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.github.games647.changeskin.sponge.PomData;
+import com.github.games647.changeskin.sponge.task.SkinInvalidator;
+import com.google.inject.Inject;
+import java.util.Optional;
+
+import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandExecutor;
+import org.spongepowered.api.command.exception.CommandException;
+import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
+
+public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
+
+    private final ChangeSkinSponge plugin;
+
+    @Inject
+    public InvalidateCommand(ChangeSkinSponge plugin) {
+        this.plugin = plugin;
+    }
+
+    @Override
+    public CommandResult execute(CommandContext context) throws CommandException {
+        Optional<Player> optionalPlayer = context.cause().first(Player.class);
+        if (!optionalPlayer.isPresent()) {
+            plugin.sendMessage(context.cause().root(), "no-console");
+            return CommandResult.builder().successCount(0).build();
+        }
+        Player receiver = optionalPlayer.get();
+        Task.builder().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
+        return CommandResult.builder().successCount(1).build();
+    }
+
+    @Override
+    public Command buildSpec() {
+        return Command.builder()
+                .executor(this)
+                .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base")
+                .build();
+    }
+}

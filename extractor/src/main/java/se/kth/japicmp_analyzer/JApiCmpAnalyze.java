@@ -83,9 +83,7 @@ public class JApiCmpAnalyze {
 
                 jApiClass1.getConstructors().forEach(jApiConstructor -> {
                     String longName = jApiConstructor.getjApiClass().getFullyQualifiedName() + "." + jApiConstructor.getName();
-                    if(longName.contains("org.apache.maven.doxia.siterenderer.RenderingContext")){
-                        System.out.println(jApiConstructor.getChangeStatus());
-                    }
+
                     if (jApiConstructor.getChangeStatus().equals(JApiChangeStatus.NEW)
                             || jApiConstructor.getChangeStatus().equals(JApiChangeStatus.MODIFIED)) {
                         libraryChanges.add(
