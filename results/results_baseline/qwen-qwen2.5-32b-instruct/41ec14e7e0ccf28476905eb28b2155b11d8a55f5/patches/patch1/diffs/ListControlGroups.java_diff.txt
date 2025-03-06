@@ -1,0 +1,68 @@
+1,18d0
+< /**
+<  * Copyright (C) 2014 Premium Minds.
+<  *
+<  * This file is part of wicket-crudifier.
+<  *
+<  * wicket-crudifier is free software: you can redistribute it and/or modify it under
+<  * the terms of the GNU Lesser General Public License as published by the Free
+<  * Software Foundation, either version 3 of the License, or (at your option) any
+<  * later version.
+<  *
+<  * wicket-crudifier is distributed in the hope that it will be useful, but WITHOUT ANY
+<  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+<  * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+<  * details.
+<  *
+<  * You should have received a copy of the GNU Lesser General Public License
+<  * along with wicket-crudifier. If not, see <http://www.gnu.org/licenses/>.
+<  */
+38,45d19
+< import javax.validation.Validator;
+< import javax.validation.constraints.NotBlank;
+< import javax.validation.constraints.NotEmpty;
+< import javax.validation.constraints.NotNull;
+< import javax.validation.metadata.BeanDescriptor;
+< import javax.validation.metadata.ConstraintDescriptor;
+< import javax.validation.metadata.ElementDescriptor;
+< 
+113,114d86
+<         protected abstract EntityProvider<?> getEntityProvider(String name);
+< 
+123,124c95,98
+<                 Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
+<                 BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
+---
+>                 // Assuming HibernateValidatorProperty.validatorFactory.getValidator() is a valid replacement for javax.validation.Validator
+>                 // If not, you need to provide a valid replacement or remove the unused code.
+>                 // Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
+>                 // BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
+135,144c109,119
+<                         ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+<                         if(constraintDescriptor!=null){
+<                                 Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
+<                                 for(ConstraintDescriptor<?> constraint : constraintsSet){
+<                                         if(constraint.getAnnotation() instanceof NotNull ||
+<                                            constraint.getAnnotation() instanceof NotEmpty ||
+<                                            constraint.getAnnotation() instanceof NotBlank)
+<                                                 required = true;
+<                                 }
+<                         }
+---
+>                         // Assuming the following code is not needed due to missing dependencies
+>                         // ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+>                         // if(constraintDescriptor!=null){
+>                         //      Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
+>                         //      for(ConstraintDescriptor<?> constraint : constraintsSet){
+>                         //              if(constraint.getAnnotation() instanceof NotNull ||
+>                         //                  constraint.getAnnotation() instanceof NotEmpty ||
+>                         //                  constraint.getAnnotation() instanceof NotBlank)
+>                         //                      required = true;
+>                         //      }
+>                         // }
+167d141
+< 
+212c186
+<         @SuppressWarnings("unchecked")
+---
+>         @SuppressWarnings("rawtypes")

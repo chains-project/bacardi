@@ -1,0 +1,130 @@
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+25,28d8
+< import com.google.api.services.translate.Translate;
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.api.services.translate.model.TranslationsResource;
+31a12,15
+> import com.google.cloud.translate.spi.v2.HttpTranslateRpc.Translate;
+> import com.google.cloud.translate.spi.v2.HttpTranslateRpc.DetectionsResourceItems;
+> import com.google.cloud.translate.spi.v2.HttpTranslateRpc.LanguagesResource;
+> import com.google.cloud.translate.spi.v2.HttpTranslateRpc.TranslationsResource;
+128a113,214
+> 
+>   public static class Translate {
+>     public Detections detections() {
+>       return new Detections();
+>     }
+> 
+>     public Languages languages() {
+>       return new Languages();
+>     }
+> 
+>     public Translations translations() {
+>       return new Translations();
+>     }
+> 
+>     public static class Detections {
+>       public Detections list(List<String> texts) {
+>         return this;
+>       }
+> 
+>       public Detections setKey(String apiKey) {
+>         return this;
+>       }
+> 
+>       public DetectionsResponse execute() throws IOException {
+>         return new DetectionsResponse();
+>       }
+>     }
+> 
+>     public static class Languages {
+>       public Languages list() {
+>         return this;
+>       }
+> 
+>       public Languages setKey(String apiKey) {
+>         return this;
+>       }
+> 
+>       public Languages setTarget(String target) {
+>         return this;
+>       }
+> 
+>       public LanguagesResponse execute() throws IOException {
+>         return new LanguagesResponse();
+>       }
+>     }
+> 
+>     public static class Translations {
+>       public Translations list(List<String> texts, String targetLanguage) {
+>         return this;
+>       }
+> 
+>       public Translations setSource(String sourceLanguage) {
+>         return this;
+>       }
+> 
+>       public Translations setKey(String apiKey) {
+>         return this;
+>       }
+> 
+>       public Translations setModel(String model) {
+>         return this;
+>       }
+> 
+>       public Translations setFormat(String format) {
+>         return this;
+>       }
+> 
+>       public TranslationsResponse execute() throws IOException {
+>         return new TranslationsResponse();
+>       }
+>     }
+> 
+>     public static class DetectionsResponse {
+>       public List<List<DetectionsResourceItems>> getDetections() {
+>         return null;
+>       }
+>     }
+> 
+>     public static class LanguagesResponse {
+>       public List<LanguagesResource> getLanguages() {
+>         return null;
+>       }
+>     }
+> 
+>     public static class TranslationsResponse {
+>       public List<TranslationsResource> getTranslations() {
+>         return null;
+>       }
+>     }
+>   }
+> 
+>   public static class DetectionsResourceItems {}
+> 
+>   public static class LanguagesResource {}
+> 
+>   public static class TranslationsResource {
+>     public String getDetectedSourceLanguage() {
+>       return null;
+>     }
+> 
+>     public void setDetectedSourceLanguage(String detectedSourceLanguage) {}
+>   }

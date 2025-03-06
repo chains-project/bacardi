@@ -24,7 +24,9 @@ public class Constants {
 
     public static final String LLM = dotenv.get("LLM", "gtp4o-mini");
 
-    public static final String OUTPUT_PATH = dotenv.get("OUTPUT_PATH", System.getProperty("user.dir") + "/output") + "/" + LLM;
+    //    public static final String OUTPUT_PATH = dotenv.get("OUTPUT_PATH", System.getProperty("user.dir") + "/output") + "/" + LLM;
+    public static final String OUTPUT_PATH = dotenv.get("OUTPUT_PATH", System.getProperty("user.dir") + "/output") + "/" + (LLM.contains("/") ? LLM.replace("/", "-") : LLM);
+
 
     public static final PromptPipeline PIPELINE = PromptPipeline
             .fromString(dotenv.get("PIPELINE", PromptPipeline.BASELINE.toString()));

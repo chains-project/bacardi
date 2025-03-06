@@ -1,0 +1,100 @@
+25,27d24
+< import com.artipie.http.rq.RequestLine;
+< import com.artipie.http.rq.RqMethod;
+< import com.artipie.http.rs.RsStatus;
+194,214d190
+<         return Stream.of(new Basic(), new Bearer()).flatMap(AuthTest::setups);
+<     }
+< 
+<     /**
+<      * Create manifest content.
+<      *
+<      * @return Manifest content.
+<      */
+<     private Flowable<ByteBuffer> manifest() {
+<         final byte[] content = "config".getBytes();
+<         final Blob config = this.docker.repo(new RepoName.Valid("my-alpine")).layers()
+<             .put(new TrustedBlobSource(content))
+<             .toCompletableFuture().join();
+<         final byte[] data = String.format(
+<             "{\"config\":{\"digest\":\"%s\"},\"layers\":[],\"mediaType\":\"my-type\"}",
+<             config.digest().string()
+<         ).getBytes();
+<         return Flowable.just(ByteBuffer.wrap(data));
+<     }
+< 
+<     private static Stream<Arguments> setups(final Method method) {
+217c193
+<                 method,
+---
+>                 new Basic(),
+222,279c198,200
+<                 method,
+<                 new RequestLine(RqMethod.HEAD, "/v2/my-alpine/manifests/1"),
+<                 "repository:my-alpine:pull"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.GET, "/v2/my-alpine/manifests/2"),
+<                 "repository:my-alpine:pull"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.PUT, "/v2/my-alpine/manifests/latest"),
+<                 "repository:my-alpine:push"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.PUT, "/v2/my-alpine/manifests/latest"),
+<                 "repository:my-alpine:overwrite"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.GET, "/v2/my-alpine/tags/list"),
+<                 "repository:my-alpine:pull"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.HEAD, "/v2/my-alpine/blobs/sha256:123"),
+<                 "repository:my-alpine:pull"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.GET, "/v2/my-alpine/blobs/sha256:012345"),
+<                 "repository:my-alpine:pull"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.POST, "/v2/my-alpine/blobs/uploads/"),
+<                 "repository:my-alpine:push"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.PATCH, "/v2/my-alpine/blobs/uploads/123"),
+<                 "repository:my-alpine:push"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.PUT, "/v2/my-alpine/blobs/uploads/12345"),
+<                 "repository:my-alpine:push"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.GET, "/v2/my-alpine/blobs/uploads/112233"),
+<                 "repository:my-alpine:pull"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.GET, "/v2/_catalog"),
+<                 "registry:catalog:*"
+---
+>                 new Bearer(),
+>                 new RequestLine(RqMethod.GET, "/v2/"),
+>                 "registry:base:*"
+351,354c272
+<                         Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
+<                             .filter(user -> token.equals(token(user)))
+<                             .map(user -> new Authentication.User(user.name()))
+<                             .findFirst()
+---
+>                         token.equals(token(TestAuthentication.ALICE)) ? TestAuthentication.ALICE : null

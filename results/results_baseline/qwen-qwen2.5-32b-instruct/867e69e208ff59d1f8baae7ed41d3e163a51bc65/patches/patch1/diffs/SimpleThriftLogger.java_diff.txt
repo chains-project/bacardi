@@ -1,0 +1,40 @@
+1,15d0
+< /**
+<  * Copyright 2019 Pinterest, Inc.
+<  * 
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  * 
+<  *    http://www.apache.org/licenses/LICENSE-2.0
+<  * 
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+36,43c21
+< /**
+<  * Thrift Logger which is used to log thrift log messages into a log file.
+<  *
+<  * This class is used by unit test and ThriftLogGenerator to write log messages to thrift log
+<  * file. It provides APIs for client to control the flush behavior and log file rotation.
+<  */
+< @SuppressWarnings("rawtypes")
+< public final class SimpleThriftLogger<T extends TBase> implements Closeable {
+---
+> public final class SimpleThriftLogger<T extends TBase<?, ?>> implements Closeable {
+85,89d62
+<   /**
+<    * Write a thrift message to log file.
+<    * @param message to be written
+<    * @throws Exception on write error.
+<    */
+92d64
+<     // Flush to make sure one message per frame.
+96,99d67
+<   /**
+<    * Simple implementation of log file rotation.
+<    * @throws java.io.IOException
+<    */

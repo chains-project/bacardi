@@ -1,0 +1,66 @@
+12,17d11
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.View;
+< import javax.mvc.binding.BindingResult;
+< import javax.mvc.binding.ParamError;
+< import javax.mvc.security.CsrfProtected;
+20,30c14,23
+< import javax.ws.rs.BeanParam;
+< import javax.ws.rs.DELETE;
+< import javax.ws.rs.FormParam;
+< import javax.ws.rs.GET;
+< import javax.ws.rs.POST;
+< import javax.ws.rs.PUT;
+< import javax.ws.rs.Path;
+< import javax.ws.rs.PathParam;
+< import javax.ws.rs.core.Response;
+< import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+< import org.eclipse.krazo.engine.Viewable;
+---
+> import jakarta.ws.rs.BeanParam;
+> import jakarta.ws.rs.DELETE;
+> import jakarta.ws.rs.FormParam;
+> import jakarta.ws.rs.GET;
+> import jakarta.ws.rs.POST;
+> import jakarta.ws.rs.PUT;
+> import jakarta.ws.rs.Path;
+> import jakarta.ws.rs.PathParam;
+> import jakarta.ws.rs.core.Response;
+> import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
+33d25
+< @Controller
+41c33
+<     private Models models;
+---
+>     private jakarta.mvc.Models models;
+44c36
+<     private BindingResult validationResult;
+---
+>     private jakarta.mvc.binding.BindingResult validationResult;
+53d44
+<     @View("tasks.xhtml")
+71c62
+<     public Viewable taskDetails(@PathParam("id") @NotNull Long id) {
+---
+>     public String taskDetails(@PathParam("id") @NotNull Long id) {
+76c67
+<         return new Viewable("details.xhtml");
+---
+>         return "details.xhtml";
+89,90d79
+<     @CsrfProtected
+<     //@ValidateOnExecution(type = ExecutableType.NONE)
+119c108
+<     public Viewable edit(@PathParam("id") Long id) {
+---
+>     public String edit(@PathParam("id") Long id) {
+129c118
+<         return new Viewable("edit.xhtml");
+---
+>         return "edit.xhtml";
+133,134d121
+<     @Path("{id}")
+<     @CsrfProtected
+164d150
+<     //@CsrfProtected

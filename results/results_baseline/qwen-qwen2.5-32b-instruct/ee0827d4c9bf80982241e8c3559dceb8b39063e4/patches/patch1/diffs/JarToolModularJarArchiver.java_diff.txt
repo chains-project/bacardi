@@ -1,0 +1,22 @@
+31,32d30
+< import java.util.Enumeration;
+< import java.util.List;
+41c39
+< import org.apache.commons.io.output.NullPrintStream;
+---
+> import org.apache.commons.io.output.NullOutputStream;
+123c121
+<             // no need to update the JAR archive
+---
+>             // no need to update the JAR file
+230,233d227
+<         //
+<         // [1] There are some exceptions (such as when the main class
+<         // is updated) but we need at least empty directory
+<         // to ensure it will work in all cases.
+300c294
+<             PrintStream nullPrintStream = NullPrintStream.NULL_PRINT_STREAM;
+---
+>             PrintStream nullPrintStream = new PrintStream( new NullOutputStream() );
+310d303
+< 

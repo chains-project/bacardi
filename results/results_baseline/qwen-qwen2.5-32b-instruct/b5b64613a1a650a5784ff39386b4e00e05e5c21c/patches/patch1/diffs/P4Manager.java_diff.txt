@@ -1,0 +1,10 @@
+7a8
+> import hudson.model.ItemGroup;
+12a14
+> import org.jenkinsci.plugins.p4.workspace.Workspace;
+44c46,48
+<                 ClientHelper perforceClient = new ClientHelper(credentials, buildListener, clientString, StandardCharsets.UTF_8.toString());
+---
+>                 ItemGroup itemGroup = (ItemGroup) build.getProject();
+>                 Workspace workspace = new Workspace(clientString);
+>                 ClientHelper perforceClient = new ClientHelper(itemGroup, clientString, buildListener, workspace);

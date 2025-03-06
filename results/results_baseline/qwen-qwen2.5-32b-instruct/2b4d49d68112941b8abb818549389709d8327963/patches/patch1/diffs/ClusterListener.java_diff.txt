@@ -1,0 +1,207 @@
+1,15d0
+< /*
+<  * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+18,19c3,4
+< import com.hazelcast.core.Cluster;
+< import com.hazelcast.core.EntryListener;
+---
+> import com.hazelcast.core.HazelcastInstance;
+> import com.hazelcast.core.IMap;
+21d5
+< import com.hazelcast.core.LifecycleEvent.LifecycleState;
+60c44
+<     private final Cluster cluster;
+---
+>     private final HazelcastInstance cluster;
+66c50
+<      * up (e.g. changing caches implementations) is done before destroying the plugin.
+---
+>      * up (e.g. local cache backups to be stabilized) is done before destroying the plugin.
+75c59
+<     ClusterListener(final Cluster cluster) {
+---
+>     ClusterListener(final HazelcastInstance cluster) {
+78c62
+<         for (final Member member : cluster.getMembers()) {
+---
+>         for (final Member member : cluster.getCluster().getMembers()) {
+80c64
+<                     new HazelcastClusterNodeInfo(member, cluster.getClusterTime()));
+---
+>                     new HazelcastClusterNodeInfo(member, cluster.getCluster().getClusterTime()));
+95,151c79,81
+<     @SuppressWarnings("unchecked")
+<     private boolean isDone() {
+<         return done;
+<     }
+< 
+<     synchronized void joinCluster() {
+<         if (!isDone()) { // already joined
+<             return;
+<         }
+< 
+<         // Trigger events
+<         clusterMember = true;
+<         seniorClusterMember = isSeniorClusterMember();
+< 
+<         ClusterManager.fireJoinedCluster(false);
+< 
+<         if (seniorClusterMember) {
+<             ClusterManager.fireMarkedAsSeniorClusterMember();
+<         }
+< 
+<         waitForClusterCacheToBeInstalled();
+< 
+<         // Let the other nodes know that we joined the cluster
+<         logger.debug("Done joining the cluster. Now proceed informing other nodes that we joined the cluster.");
+<         CacheFactory.doClusterTask(new NewClusterMemberJoinedTask());
+< 
+<         logger.info("Joined cluster. XMPPServer node={}, Hazelcast UUID={}, seniorClusterMember={}",
+<             new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), seniorClusterMember});
+<         done = false;
+<     }
+< 
+<     boolean isSeniorClusterMember() {
+<         // first cluster member is the oldest
+<         final Iterator<Member> members = cluster.getMembers().iterator();
+<         return members.next().getUuid().equals(cluster.getLocalMember().getUuid());
+<     }
+< 
+<     private synchronized void leaveCluster() {
+<         if (isDone()) { // not a cluster member
+<             return;
+<         }
+<         clusterMember = false;
+<         final boolean wasSeniorClusterMember = seniorClusterMember;
+<         seniorClusterMember = false;
+< 
+<         // Trigger event. Wait until the listeners have processed the event. Caches will be populated
+<         // again with local content.
+<         ClusterManager.fireLeftCluster();
+< 
+<         if (!XMPPServer.getInstance().isShuttingDown()) {
+<             // Remove traces of directed presences sent from local entities to handlers that no longer exist
+<             // At this point c2s sessions are gone from the routing table so we can identify expired sessions
+<             XMPPServer.getInstance().getPresenceUpdateHandler().removedExpiredPresences();
+<         }
+<         logger.info("Left cluster. XMPPServer node={}, Hazelcast UUID={}, wasSeniorClusterMember={}",
+<             new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), wasSeniorClusterMember});
+<         done = true;
+---
+>     @SuppressWarnings("WeakerAccess")
+>     public List<ClusterNodeInfo> getClusterNodesInfo() {
+>         return new ArrayList<>(clusterNodesInfo.values());
+160d89
+<         // local member only
+162,163d90
+<         if (event.getMember().localMember()) { // We left and re-joined the cluster
+<             joinCluster();
+164a92,93
+>         if (event.getMember().localMember()) {
+>             joinCluster();
+166,186c95,97
+<             if (wasSenior && !isSenior) {
+<                 logger.warn("Recovering from split-brain; firing leftCluster()/joinedCluster() events");
+<                 ClusteredCacheFactory.fireLeftClusterAndWaitToComplete(Duration.ofSeconds(30));
+<                 logger.debug("Firing joinedCluster() event");
+<                 ClusterManager.fireJoinedCluster(false);
+< 
+<                 try {
+<                     logger.debug("Postponing notification of other nodes for 30 seconds. This allows all local leave/join processing to be finished and local cache backups to be stabilized before receiving events from other nodes.");
+<                     Thread.sleep(30000L);
+<                 } catch (InterruptedException e) {
+<                     logger.warn("30 Second wait was interrupted.", e);
+<                 }
+< 
+<                 // The following line was intended to wait until all local handling finishes before informing other
+<                 // nodes. However that proved to be insufficient. Hence the 30 second default wait in the lines above.
+<                 // TODO Instead of the 30 second wait, we should look (and then wait) for some trigger or event that signifies that local handling has completed and caches have stabilized.
+<                 waitForClusterCacheToBeInstalled();
+< 
+<                 // Let the other nodes know that we joined the cluster
+<                 logger.debug("Done joining the cluster in split brain recovery. Now proceed informing other nodes that we joined the cluster.");
+<                 CacheFactory.doClusterTask(new NewClusterMemberJoinedTask());
+---
+>             if (!seniorClusterMember && isSeniorClusterMember()) {
+>                 seniorClusterMember = true;
+>                 ClusterManager.fireMarkedAsSeniorClusterMember();
+190c101
+<                 new HazelcastClusterNodeInfo(event.getMember(), cluster.getClusterTime()));
+---
+>                 new HazelcastClusterNodeInfo(event.getMember(), cluster.getCluster().getClusterTime()));
+196,197c107
+<      * be using the 'default' strategy instead of the 'hazelcast' strategy, which leads to cluster tasks being silently
+<      * discarded.
+---
+>      * be using the 'default' strategy instead of the 'hazelcast' strategy.
+200,201d109
+<      *
+<      * @return Boolean indicating whether the clustered cache was actually observed to be installed.
+256,258c164,213
+<     @SuppressWarnings("WeakerAccess")
+<     public List<ClusterNodeInfo> getClusterNodesInfo() {
+<         return new ArrayList<>(clusterNodesInfo.values());
+---
+>     private boolean isSeniorClusterMember() {
+>         // first cluster member is the oldest
+>         final Iterator<Member> members = cluster.getCluster().getMembers().iterator();
+>         return members.next().getUuid().equals(cluster.getCluster().getLocalMember().getUuid());
+>     }
+> 
+>     synchronized void joinCluster() {
+>         if (!isDone()) { // already joined
+>             return;
+>         }
+> 
+>         // Trigger events
+>         clusterMember = true;
+>         seniorClusterMember = isSeniorClusterMember();
+> 
+>         ClusterManager.fireJoinedCluster(false);
+> 
+>         if (seniorClusterMember) {
+>             ClusterManager.fireMarkedAsSeniorClusterMember();
+>         }
+> 
+>         waitForClusterCacheToBeInstalled();
+> 
+>         // Let the other nodes know that we joined the cluster
+>         logger.debug("Done joining the cluster in split brain recovery. Now proceed informing other nodes that we joined the cluster.");
+>         CacheFactory.doClusterTask(new NewClusterMemberJoinedTask());
+>     }
+> 
+>     synchronized void leaveCluster() {
+>         if (isDone()) { // not a cluster member
+>             return;
+>         }
+>         clusterMember = false;
+>         final boolean wasSeniorClusterMember = seniorClusterMember;
+>         seniorClusterMember = false;
+> 
+>         // Trigger event that a node left the cluster
+>         ClusterManager.fireLeftCluster(ClusteredCacheFactory.getNodeID(cluster.getCluster().getLocalMember()).toByteArray());
+> 
+>         if (!seniorClusterMember && isSeniorClusterMember()) {
+>             seniorClusterMember = true;
+>             ClusterManager.fireMarkedAsSeniorClusterMember();
+>         }
+> 
+>         // Remove traces of directed presences sent from local entities to handlers that no longer exist.
+>         // At this point c2s sessions are gone from the routing table so we can identify expired sessions
+>         XMPPServer.getInstance().getPresenceUpdateHandler().removedExpiredPresences();
+>         logger.info("Left cluster. XMPPServer node={}, Hazelcast UUID={}, wasSeniorClusterMember={}",
+>                 new Object[]{ClusteredCacheFactory.getNodeID(cluster.getCluster().getLocalMember()), cluster.getCluster().getLocalMember().getUuid(), wasSeniorClusterMember});
+>         done = true;

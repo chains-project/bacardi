@@ -1,0 +1,85 @@
+1,15d0
+< /*
+<  * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+21,23c6,10
+< import com.hazelcast.core.MapEvent;
+< import com.hazelcast.map.listener.MapListener;
+< import com.hazelcast.monitor.LocalMapStats;
+---
+> import com.hazelcast.map.impl.MapEvent;
+> import com.hazelcast.map.impl.operation.MapListener;
+> import com.hazelcast.nio.serialization.DataSerializable;
+> import com.hazelcast.spi.impl.NodeEngine;
+> import com.hazelcast.spi.impl.operationexecutor.OperationExecutor;
+43c30
+< import java.util.concurrent.TimeUnit;
+---
+> import java.util.stream.Collectors;
+63,68d49
+<      * Used to limit the amount of duplicate warnings logged.
+<      */
+<     private Instant lastPluginClassLoaderWarning = Instant.EPOCH;
+<     private final Duration pluginClassLoaderWarningSupression = Duration.ofHours(1);
+< 
+<     /**
+85,86c66
+<     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode)
+<     {
+---
+>     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode) {
+92c72
+<                     logger.trace("Processing map evicted event of node '{}'", eventNodeId);
+---
+>                     logger.trace("Processing map evicted event of node '{}' for key '{}'", eventNodeId, event.getKey());
+192c172
+<         final LocalMapStats stats = map.getLocalMapStats();
+---
+>         final com.hazelcast.map.impl.operation.MapStats stats = map.getLocalMapStats();
+257,258c237,238
+<         final LocalMapStats stats = map.getLocalMapStats();
+<         return stats.getOwnedEntryMemoryCost() + stats.getBackupEntryMemoryCost();
+---
+>         final com.hazelcast.map.impl.operation.MapStats stats = map.getLocalMapStats();
+>         return stats.getOwnedEntryCount() + stats.getBackupEntryCount();
+267,271d246
+<     public void setMaxCacheSize(int i) {
+<         setMaxCacheSize((long) i);
+<     }
+< 
+<     @Override
+276,285d250
+<     @Override
+<     public long getMaxLifetime() {
+<         return CacheFactory.getMaxCacheLifetime(getName());
+<     }
+< 
+<     @Override
+<     public void setMaxLifetime(final long maxLifetime) {
+<         CacheFactory.setMaxLifetimeProperty(getName(), maxLifetime);
+<     }
+< 
+299c264
+<                 result = map.tryLock(key, timeout, TimeUnit.MILLISECONDS);
+---
+>                 result = map.tryLock(key, timeout, java.util.concurrent.TimeUnit.MILLISECONDS);
+318,320c283
+<      * issues related to class loading when the providing plugin is reloaded. This method verifies if an instance is
+<      * loaded by a plugin class loader, and logs a warning to the log files when it is. The amount of warnings logged is
+<      * limited by a time interval.
+---
+>      * issues related to class loading when the providing plugin is reloaded. The plugin implementation should be modified.
+323d285
+<      * @see <a href="https://github.com/igniterealtime/openfire-hazelcast-plugin/issues/74">Issue #74: Warn against usage of plugin-provided classes in Hazelcast</a>

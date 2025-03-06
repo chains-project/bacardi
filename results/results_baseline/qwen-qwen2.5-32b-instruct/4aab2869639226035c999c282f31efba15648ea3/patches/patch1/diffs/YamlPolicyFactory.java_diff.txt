@@ -1,0 +1,20 @@
+8a9,11
+> import com.artipie.asto.fs.FsStorage;
+> import com.artipie.asto.memory.MemoryStorage;
+> import com.artipie.asto.Storage;
+41,47c44,50
+<             return new YamlPolicy(
+<                 new BlockingStorage(
+<                     new Storages().newStorage(
+<                         sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
+<                     )
+<                 )
+<             );
+---
+>             final Storage storage;
+>             if ("fs".equals(sub.string("type"))) {
+>                 storage = new FsStorage(sub.string("path"));
+>             } else {
+>                 storage = new MemoryStorage();
+>             }
+>             return new YamlPolicy(new BlockingStorage(storage));

@@ -13,9 +13,8 @@ class OpenRouterModels:
         self.prompt = prompt
         self.include_reasoning = True
 
-
         load_dotenv()
-        self.provider = os.getenv("OPENROUTER_PROVIDER",None)
+        self.provider = os.getenv("OPENROUTER_PROVIDER", None)
         self.provider_args = {
             "allow_fallbacks": False,
         }
@@ -71,6 +70,10 @@ class OpenRouterModels:
             "deepseek/deepseek-chat": {
                 "prompt": 0.14,
                 "completion": 0.28,
+            },
+            "qwen/qwen2.5-32b-instruct": {
+                "prompt": 0.79,
+                "completion": 0.79,
             },
         }
 

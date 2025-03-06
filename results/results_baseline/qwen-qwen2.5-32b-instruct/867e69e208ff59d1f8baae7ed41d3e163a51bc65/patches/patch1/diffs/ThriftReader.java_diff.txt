@@ -1,0 +1,9 @@
+37c37
+< public class ThriftReader<T extends TBase> implements Closeable {
+---
+> public class ThriftReader<T extends TBase<?, ?>> implements Closeable {
+80,81c80
+<     this.framedTransport = new TFramedTransport(new TIOStreamTransport(this
+<         .byteOffsetInputStream), maxMessageSize);
+---
+>     this.framedTransport = new TFramedTransport(new TIOStreamTransport(this.byteOffsetInputStream), maxMessageSize);

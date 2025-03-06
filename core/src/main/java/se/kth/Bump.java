@@ -31,7 +31,7 @@ public class Bump {
     private final static String CLIENT_PATH = PROJECTS_PATH;
 
     static Map<String, Result> resultsMap = new ConcurrentHashMap<>();
-    private final static String JSON_PATH = OUTPUT_PATH + String.format("/result_repair_%s.json", LLM);
+    private final static String JSON_PATH = OUTPUT_PATH + String.format("/result_repair_%s.json", (LLM.contains("/") ? LLM.replace("/", "-") : LLM));
 
     public static void main(String[] args) {
 
@@ -216,7 +216,7 @@ public class Bump {
                 String breakingImage = e.breakingUpdateReproductionCommand.replace("docker run ", "");
 
                 // get jar from container for previous version
-                PromptPipeline[] pipeline = {PromptPipeline.BASELINE_API_DIFF,PromptPipeline.BASELINE_API_DIFF_BUGGY};
+                PromptPipeline[] pipeline = {PromptPipeline.BASELINE_API_DIFF, PromptPipeline.BASELINE_API_DIFF_BUGGY};
                 if (Arrays.asList(pipeline).contains(PIPELINE)) {
                     getProjectData(preBreakingImage, dockerBuild, clientFolder, null, null, prevoiusJarInContainerPath);
                 }

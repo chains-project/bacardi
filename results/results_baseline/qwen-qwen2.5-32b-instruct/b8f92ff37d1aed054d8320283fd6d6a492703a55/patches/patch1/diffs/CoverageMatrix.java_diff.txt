@@ -1,0 +1,29 @@
+15c15,16
+< import org.jacoco.core.runtime.WildcardMatcher;
+---
+> import org.apache.maven.surefire.api.util.WildcardMatcher;
+> import org.apache.maven.surefire.api.util.ScanResult;
+100,104d100
+<                                                         // We also want to ignore test classes if they coverTests is not set
+<                                                         if (!config.isCoverTests() && testClasses.contains(element.getClassName())) {
+<                                                                 continue;
+<                                                         }
+< 
+199,200c195,199
+<             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), TestListResolver.getWildcard());
+<             if (directoryScanner.scan().getClasses().contains(className)) {
+---
+>                         DirectoryScanner directoryScanner = new DirectoryScanner();
+>                         directoryScanner.setIncludes(new String[]{"**/*.class"});
+>                         directoryScanner.setBasedir(new File(dir));
+>                         directoryScanner.scan();
+>                         if (directoryScanner.getIncludedFiles().stream().anyMatch(file -> file.endsWith(className.replace(".", "/") + ".class"))) {
+205,206c204,208
+<             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), TestListResolver.getWildcard());
+<             if (directoryScanner.scan().getClasses().contains(className)) {
+---
+>                         DirectoryScanner directoryScanner = new DirectoryScanner();
+>                         directoryScanner.setIncludes(new String[]{"**/*.class"});
+>                         directoryScanner.setBasedir(new File(dir));
+>                         directoryScanner.scan();
+>                         if (directoryScanner.getIncludedFiles().stream().anyMatch(file -> file.endsWith(className.replace(".", "/") + ".class"))) {

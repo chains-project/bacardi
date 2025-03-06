@@ -1,0 +1,73 @@
+package com.github.games647.changeskin.sponge.command;
+
+import com.github.games647.changeskin.core.model.UserPreference;
+import com.github.games647.changeskin.core.model.skin.SkinModel;
+import com.github.games647.changeskin.core.shared.SkinFormatter;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.github.games647.changeskin.sponge.PomData;
+
+import java.util.Optional;
+import java.util.UUID;
+
+import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.command.CommandCompletion;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.serializer.TextSerializers;
+
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+
+    private final ChangeSkinSponge plugin;
+    private final SkinFormatter formatter;
+
+    public InfoCommand(ChangeSkinSponge plugin, SkinFormatter formatter) {
+        this.plugin = plugin;
+        this.formatter = formatter;
+    }
+
+    @Override
+    public CommandResult execute(CommandCause src, CommandCompletion args) {
+        if (!(src.source() instanceof Player)) {
+            plugin.sendMessage(src.source(), "no-console");
+            return CommandResult.empty();
+        }
+
+        UUID uniqueId = ((Player) src.source()).uniqueId();
+        Task.builder().execute(() -> {
+            UserPreference preferences = plugin.getCore().getStorage().getPreferences(uniqueId);
+            Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).submit(plugin);
+        }).submit(plugin);
+
+        return CommandResult.success();
+    }
+
+    @Override
+    public CommandSpec buildSpec() {
+        return CommandSpec.builder()
+                .executor(this)
+                .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
+                .build();
+    }
+
+    private void sendSkinDetails(UUID uuid, UserPreference preference) {
+        Optional<Player> optPlayer = Sponge.server().player(uuid);
+        if (optPlayer.isPresent()) {
+            Player player = optPlayer.get();
+
+            Optional<SkinModel> optSkin = preference.getTargetSkin();
+            if (optSkin.isPresent()) {
+                String template = plugin.getCore().getMessage("skin-info");
+                String formatted = formatter.apply(template, optSkin.get());
+
+                Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
+                player.sendMessage(text);
+            } else {
+                plugin.sendMessage(player, "skin-not-found");
+            }
+        }
+    }
+}

@@ -1,0 +1,58 @@
+```java
+package com.example.web;
+
+import java.util.logging.Logger;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
+import java.util.Set;
+
+/**
+ *
+ * @author hantsy
+ */
+@Path("greeting")
+@RequestScoped
+public class GreetingController {
+
+    @Inject
+    private Validator validator;
+
+    @Inject
+    private Logger log;
+
+    @Inject
+    private AlertMessage flashMessage;
+
+    @GET
+    public String get() {
+        return "greeting.xhtml";
+    }
+
+    @POST
+    public Response post(
+            @FormParam("greeting")
+            @NotBlank String greeting) {
+        Set<ConstraintViolation<String>> violations = validator.validate(greeting);
+        if (!violations.isEmpty()) {
+            AlertMessage alert = AlertMessage.danger("Validation voilations!");
+            violations.forEach(violation -> {
+                alert.addError("greeting", "", violation.getMessage());
+            });
+            log.info("mvc binding failed.");
+            return Response.status(Response.Status.BAD_REQUEST).entity(alert).build();
+        }
+
+        log.info("redirect to greeting page.");
+        flashMessage.notify(AlertMessage.Type.success, "Message:" + greeting);
+        return Response.seeOther(java.net.URI.create("greeting")).build();
+    }
+
+}
+```

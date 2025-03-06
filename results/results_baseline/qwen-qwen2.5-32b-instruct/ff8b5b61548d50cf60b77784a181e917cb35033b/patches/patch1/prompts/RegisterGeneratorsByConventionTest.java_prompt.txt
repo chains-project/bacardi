@@ -1,0 +1,98 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+
+```java
+package com.pholser.junit.quickcheck.internal.generator;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+
+import com.pholser.junit.quickcheck.generator.GenerationStatus;
+import com.pholser.junit.quickcheck.generator.Generator;
+import com.pholser.junit.quickcheck.internal.ParameterTypeContext;
+import com.pholser.junit.quickcheck.internal.generator.conventiontestclasses.Convention;
+import com.pholser.junit.quickcheck.internal.generator.conventiontestclasses.GeneratesOtherTypes;
+import com.pholser.junit.quickcheck.internal.generator.conventiontestclasses.NotAGenerator;
+import com.pholser.junit.quickcheck.random.SourceOfRandomness;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+@RunWith(MockitoJUnitRunner.class)
+public class RegisterGeneratorsByConventionTest {
+    private GeneratorRepository repo;
+    @Mock private SourceOfRandomness random;
+    @Mock private GenerationStatus generationStatus;
+
+    @Before
+    public void setupRepository() {
+        repo = new GeneratorRepository(random);
+    }
+
+    @Test
+    public void canGenerateValues() {
+        Generator<?> generator =
+            repo.generatorFor(ParameterTypeContext.forClass(Convention.class));
+
+        assertNotNull(generator);
+        assertThat(
+            generator.generate(random, generationStatus),
+            instanceOf(Convention.class));
+    }
+
+    @Test
+    public void classNameFollowsConventionButNotAGenerator() {
+        assertThatNoGeneratorCanBeFound(NotAGenerator.class);
+    }
+
+    @Test
+    public void noValueTypeMatch() {
+        assertThatNoGeneratorCanBeFound(GeneratesOtherTypes.class);
+    }
+
+    @Test
+    public void notAClassFollowingNamingConvention() {
+        assertThatNoGeneratorCanBeFound(this.getClass());
+    }
+
+    private void assertThatNoGeneratorCanBeFound(Class<?> valueClass) {
+        IllegalArgumentException ex =
+            assertThrows(
+                IllegalArgumentException.class,
+                () -> repo.generatorFor(
+                    ParameterTypeContext.forClass(valueClass)));
+
+        assertThat(
+            ex.getMessage(),
+            containsString(
+                "Cannot find generator for " + valueClass.getName()));
+    }
+}
+
+```
+
+ with the following error information:
+[ERROR] /junit-quickcheck/core/src/test/java/com/pholser/junit/quickcheck/internal/generator/RegisterGeneratorsByConventionTest.java:[22,10] cannot find symbol
+  symbol: class MockitoJUnitRunner
+
+[ERROR] /junit-quickcheck/core/src/test/java/com/pholser/junit/quickcheck/internal/generator/RegisterGeneratorsByConventionTest.java:[20,27] package org.mockito.runners does not exist
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

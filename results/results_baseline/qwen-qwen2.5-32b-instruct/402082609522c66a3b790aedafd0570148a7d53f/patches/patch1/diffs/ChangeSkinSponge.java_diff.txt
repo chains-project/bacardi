@@ -1,0 +1,47 @@
+20,21c20,21
+< import org.slf4j.Logger;
+< import org.spongepowered.api.Platform.Type;
+---
+> import org.spongepowered.api.Game;
+> import org.spongepowered.api.Platform;
+24,25d23
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.config.ConfigDir;
+30d27
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+32a30
+> import org.spongepowered.api.text.Text;
+33a32
+> import org.spongepowered.api.util.event.annotation.Listener;
+42c41
+< public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
+---
+> public class ChangeSkinSponge implements PlatformPlugin<org.spongepowered.api.command.CommandSource> {
+45c44
+<     private final Logger logger;
+---
+>     private final org.slf4j.Logger logger;
+55c54
+<     ChangeSkinSponge(Logger logger, @ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
+---
+>     ChangeSkinSponge(org.slf4j.Logger logger, @org.spongepowered.api.config.ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
+93,96c92,93
+<         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
+<         RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
+<         updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
+<         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
+---
+>         channelReg.getOrCreateRawChannel(updateChannelName).subscribe(listener -> listener.register(this, injector.getInstance(UpdateSkinListener.class)));
+>         channelReg.getOrCreateRawChannel(permissionChannelName).subscribe(listener -> listener.register(this, injector.getInstance(CheckPermissionListener.class)));
+109c106
+<     public boolean hasSkinPermission(CommandSource invoker, UUID uuid, boolean sendMessage) {
+---
+>     public boolean hasSkinPermission(org.spongepowered.api.command.CommandSource invoker, UUID uuid, boolean sendMessage) {
+137c134
+<     public Logger getLog() {
+---
+>     public org.slf4j.Logger getLog() {
+142c139
+<     public void sendMessage(CommandSource receiver, String key) {
+---
+>     public void sendMessage(org.spongepowered.api.command.CommandSource receiver, String key) {

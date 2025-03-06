@@ -1,0 +1,98 @@
+37d36
+< import quickfix.SessionFactory;
+45d43
+< import quickfix.mina.message.FIXProtocolCodecFactory;
+82c80
+<             MessageFactory messageFactory) throws ConfigError {
+---
+>             LogFactory logFactory, MessageFactory messageFactory) throws ConfigError {
+89c87
+<             LogFactory logFactory, MessageFactory messageFactory) throws ConfigError {
+---
+>             MessageFactory messageFactory) throws ConfigError {
+118c116
+<                 log.info("Listening for connections at {} for session(s) {}", address, socketDescriptor.getAcceptedSessions().keySet());
+---
+>                 log.info("Listening for connections on {}", address);
+136d133
+<         sslFilter.setUseClientMode(false);
+159,160c156,157
+<             } catch (FieldConvertError e) {
+<                 throw new ConfigError(e);
+---
+>             } catch (FieldConvertError ex) {
+>                 throw new ConfigError(ex);
+170c167
+<         if (settings.isSetting(sessionID, Acceptor.SETTING_SOCKET_ACCEPT_PROTOCOL)) {
+---
+>         if (settings.isSetting(sessionID, SessionFactory.SETTING_CONNECTION_TYPE)) {
+173c170
+<                         sessionID, Acceptor.SETTING_SOCKET_ACCEPT_PROTOCOL));
+---
+>                         sessionID, SessionFactory.SETTING_CONNECTION_TYPE));
+182,183c179,180
+<         if (getSettings().isSetting(sessionID, SSLSupport.SETTING_USE_SSL)
+<                 && getSettings().getBool(sessionID, SSLSupport.SETTING_USE_SSL)) {
+---
+>         if (settings.isSetting(sessionID, SSLSupport.SETTING_USE_SSL)
+>                 && settings.getBool(sessionID, SSLSupport.SETTING_USE_SSL)) {
+186c183
+<                 sslConfig = SSLSupport.getSslConfig(getSettings(), sessionID);
+---
+>                 sslConfig = SSLSupport.getSslConfig(settings, sessionID);
+275,325d271
+<     private static class AcceptorSocketDescriptor {
+<         private final SocketAddress address;
+<         private final boolean useSSL;
+<         private final SSLConfig sslConfig;
+<         private final Map<SessionID, Session> acceptedSessions = new HashMap<>();
+< 
+<         public AcceptorSocketDescriptor(SocketAddress address, boolean useSSL, SSLConfig sslConfig) {
+<             this.address = address;
+<             this.useSSL = useSSL;
+<             this.sslConfig = sslConfig;
+<         }
+< 
+<         public void acceptSession(Session session) {
+<             acceptedSessions.put(session.getSessionID(), session);
+<         }
+< 
+<         public Map<SessionID, Session> getAcceptedSessions() {
+<             return Collections.unmodifiableMap(acceptedSessions);
+<         }
+< 
+<         public SocketAddress getAddress() {
+<             return address;
+<         }
+< 
+<         public boolean isUseSSL() {
+<             return useSSL;
+<         }
+< 
+<         public SSLConfig getSslConfig() {
+<             return sslConfig;
+<         }
+<     }
+< 
+<     public Collection<IoAcceptor> getEndpoints() {
+<         return ioAcceptors.values();
+<     }
+< 
+<     public Map<SessionID, SocketAddress> getAcceptorAddresses() {
+<         Map<SessionID, SocketAddress> sessionIdToAddressMap = new HashMap<>();
+<         for (AcceptorSocketDescriptor descriptor : socketDescriptorForAddress.values()) {
+<             for (SessionID sessionID : descriptor.getAcceptedSessions().keySet()) {
+<                 sessionIdToAddressMap.put(sessionID, descriptor.getAddress());
+<             }
+<         }
+<         return sessionIdToAddressMap;
+<     }
+< 
+<     public void setSessionProvider(SocketAddress address, AcceptorSessionProvider provider) {
+<         sessionProviders.put(address, provider);
+<     }
+< 
+326a273
+> 
+371d317
+< 

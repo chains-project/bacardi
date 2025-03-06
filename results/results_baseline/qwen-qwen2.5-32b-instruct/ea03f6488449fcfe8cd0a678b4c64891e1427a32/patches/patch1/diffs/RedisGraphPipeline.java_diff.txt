@@ -1,0 +1,169 @@
+8,10d7
+< import redis.clients.jedis.Builder;
+< import redis.clients.jedis.BuilderFactory;
+< import redis.clients.jedis.Client;
+12a10,12
+> import redis.clients.jedis.commands.PipelinedCommand;
+> import redis.clients.jedis.params.QueryParams;
+> import redis.clients.jedis.util.SafeEncoder;
+25,27c25
+< 
+<     public RedisGraphPipeline(Client client, RedisGraph redisGraph){
+<         super.setClient(client);
+---
+>     public RedisGraphPipeline(RedisGraph redisGraph){
+39,46c37
+<         client.sendCommand(RedisGraphCommand.QUERY, graphId, query, Utils.COMPACT_STRING);
+<         return getResponse(new Builder<ResultSet>() {
+<             @SuppressWarnings("unchecked")
+<             @Override
+<             public ResultSet build(Object o) {
+<                 return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+<             }
+<         });
+---
+>         return query(graphId, query, null, 0);
+57,148c48
+<         client.sendCommand(RedisGraphCommand.RO_QUERY, graphId, query, Utils.COMPACT_STRING);
+<         return getResponse(new Builder<ResultSet>() {
+<             @SuppressWarnings("unchecked")
+<             @Override
+<             public ResultSet build(Object o) {
+<                 return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+<             }
+<         });
+<     }
+< 
+<     /**
+<      * Execute a Cypher query with timeout.
+<      *
+<      * NOTE: timeout is simply sent to DB. Socket timeout will not be changed.
+<      * @param graphId a graph to perform the query on
+<      * @param query Cypher query
+<      * @param timeout
+<      * @return a response which builds the result set with the query answer.
+<      */
+<     @Override
+<     public Response<ResultSet> query(String graphId, String query, long timeout) {
+<         client.sendCommand(RedisGraphCommand.QUERY, graphId, query, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING,
+<                 Long.toString(timeout));
+<         return getResponse(new Builder<ResultSet>() {
+<             @SuppressWarnings("unchecked")
+<             @Override
+<             public ResultSet build(Object o) {
+<                 return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+<             }
+<         });
+<     }
+< 
+<     /**
+<      * Execute a Cypher read-only query with timeout.
+<      *
+<      * NOTE: timeout is simply sent to DB. Socket timeout will not be changed.
+<      * @param graphId a graph to perform the query on
+<      * @param query Cypher query
+<      * @param timeout
+<      * @return a response which builds the result set with the query answer.
+<      */
+<     @Override
+<     public Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout) {
+<         client.sendCommand(RedisGraphCommand.RO_QUERY, graphId, query, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING,
+<                 Long.toString(timeout));
+<         return getResponse(new Builder<ResultSet>() {
+<             @SuppressWarnings("unchecked")
+<             @Override
+<             public ResultSet build(Object o) {
+<                 return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+<             }
+<         });
+<     }
+< 
+<     /**
+<      * Executes a cypher query with parameters.
+<      * @param graphId a graph to perform the query on.
+<      * @param query Cypher query.
+<      * @param params parameters map.
+<      * @return  a response which builds the result set with the query answer.
+<      */
+<     @Override
+<     public Response<ResultSet> query(String graphId, String query, Map<String, Object> params) {
+<         String preparedQuery = Utils.prepareQuery(query, params);
+<         client.sendCommand(RedisGraphCommand.QUERY, graphId, preparedQuery, Utils.COMPACT_STRING);
+<         return getResponse(new Builder<ResultSet>() {
+<             @SuppressWarnings("unchecked")
+<             @Override
+<             public ResultSet build(Object o) {
+<                 return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+<             }
+<         });
+<     }
+< 
+<     /**
+<      * Executes a cypher read-only query with parameters.
+<      * @param graphId a graph to perform the query on.
+<      * @param query Cypher query.
+<      * @param params parameters map.
+<      * @return  a response which builds the result set with the query answer.
+<      */
+<     @Override
+<     public Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params) {
+<         String preparedQuery = Utils.prepareQuery(query, params);
+<         client.sendCommand(RedisGraphCommand.RO_QUERY, graphId, preparedQuery, Utils.COMPACT_STRING);
+<         return getResponse(new Builder<ResultSet>() {
+<             @SuppressWarnings("unchecked")
+<             @Override
+<             public ResultSet build(Object o) {
+<                 return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+<             }
+<         });
+---
+>         return readOnlyQuery(graphId, query, null, 0);
+165,168c65,66
+<         client.sendCommand(RedisGraphCommand.QUERY, graphId, preparedQuery, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING,
+<                 Long.toString(timeout));
+<         return getResponse(new Builder<ResultSet>() {
+<             @SuppressWarnings("unchecked")
+---
+>         Response<ResultSet> response = new Response<>();
+>         response.set(new PipelinedCommand<>(response, this, new Builder<ResultSet>() {
+173c71,72
+<         });
+---
+>         }, SafeEncoder.encode(graphId), SafeEncoder.encode(preparedQuery), SafeEncoder.encode(Utils.COMPACT_STRING), SafeEncoder.encode(Utils.TIMEOUT_STRING), SafeEncoder.encode(Long.toString(timeout))));
+>         return response;
+190,194c89,90
+<         client.sendCommand(RedisGraphCommand.RO_QUERY, graphId, preparedQuery, Utils.COMPACT_STRING,
+<                 Utils.TIMEOUT_STRING,
+<                 Long.toString(timeout));
+<         return getResponse(new Builder<ResultSet>() {
+<             @SuppressWarnings("unchecked")
+---
+>         Response<ResultSet> response = new Response<>();
+>         response.set(new PipelinedCommand<>(response, this, new Builder<ResultSet>() {
+199c95,96
+<         });
+---
+>         }, SafeEncoder.encode(graphId), SafeEncoder.encode(preparedQuery), SafeEncoder.encode(Utils.COMPACT_STRING), SafeEncoder.encode(Utils.TIMEOUT_STRING), SafeEncoder.encode(Long.toString(timeout))));
+>         return response;
+223d119
+< 
+235c131,138
+<         return query(graphId, preparedProcedure);
+---
+>         Response<ResultSet> response = new Response<>();
+>         response.set(new PipelinedCommand<>(response, this, new Builder<ResultSet>() {
+>             @Override
+>             public ResultSet build(Object o) {
+>                 return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+>             }
+>         }, SafeEncoder.encode(graphId), SafeEncoder.encode(preparedProcedure)));
+>         return response;
+237d139
+< 
+245,247c147,148
+< 
+<         client.sendCommand(RedisGraphCommand.DELETE, graphId);
+<         Response<String> response =  getResponse(BuilderFactory.STRING);
+---
+>         Response<String> response = new Response<>();
+>         response.set(new PipelinedCommand<>(response, this, BuilderFactory.STRING, SafeEncoder.encode(RedisGraphCommand.DELETE), SafeEncoder.encode(graphId)));

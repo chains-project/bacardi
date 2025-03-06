@@ -1,0 +1,35 @@
+12,17c12,13
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.View;
+< import javax.mvc.binding.BindingResult;
+< import javax.mvc.binding.ParamError;
+< import javax.mvc.security.CsrfProtected;
+---
+> import javax.mvc.engine.ViewEngine;
+> import javax.mvc.security.Csrf;
+33d28
+< @Controller
+41c36
+<     private Models models;
+---
+>     private ViewEngine models;
+44c39
+<     private BindingResult validationResult;
+---
+>     private javax.mvc.binding.BindingResult validationResult;
+53d47
+<     @View("tasks.xhtml")
+89,90c83
+<     @CsrfProtected
+<     //@ValidateOnExecution(type = ExecutableType.NONE)
+---
+>     @Csrf
+134c127
+<     @CsrfProtected
+---
+>     @Csrf
+164c157
+<     //@CsrfProtected
+---
+>     @Csrf

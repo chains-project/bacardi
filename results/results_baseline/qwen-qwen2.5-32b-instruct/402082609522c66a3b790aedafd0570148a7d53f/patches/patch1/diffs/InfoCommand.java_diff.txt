@@ -1,0 +1,49 @@
+8d7
+< import com.google.inject.Inject;
+13,14c12,13
+< import org.spongepowered.api.Sponge;
+< import org.spongepowered.api.command.CommandException;
+---
+> import org.spongepowered.api.command.CommandCause;
+> import org.spongepowered.api.command.CommandCompletion;
+17,18d15
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+27,31c24,25
+<     @Inject
+<     private ChangeSkinSponge plugin;
+< 
+<     @Inject
+<     private SkinFormatter formatter;
+---
+>     private final ChangeSkinSponge plugin;
+>     private final SkinFormatter formatter;
+32a27,30
+>     public InfoCommand(ChangeSkinSponge plugin, SkinFormatter formatter) {
+>         this.plugin = plugin;
+>         this.formatter = formatter;
+>     }
+35,37c33,35
+<     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+---
+>     public CommandResult execute(CommandCause src, CommandCompletion args) {
+>         if (!(src.source() instanceof Player)) {
+>             plugin.sendMessage(src.source(), "no-console");
+41,43c39,40
+<         UUID uniqueId = ((Player) src).getUniqueId();
+<         Task.builder().async()
+<                 .execute(() -> {
+---
+>         UUID uniqueId = ((Player) src.source()).uniqueId();
+>         Task.builder().execute(() -> {
+46,47c43
+<                 })
+<                 .submit(plugin);
+---
+>         }).submit(plugin);
+61c57
+<         Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
+---
+>         Optional<Player> optPlayer = Sponge.server().player(uuid);

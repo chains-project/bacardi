@@ -1,0 +1,6 @@
+44c44,46
+<         dfos.write( data, offset, length );
+---
+>         byte[] subArray = new byte[length];
+>         System.arraycopy(data, offset, subArray, 0, length);
+>         dfos.write(subArray);

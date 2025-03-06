@@ -1,0 +1,79 @@
+1,15d0
+< /*
+<  * Copyright 2020 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+18,21c3,6
+< import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+< import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+---
+> import com.google.cloud.resourcemanager.v3.BooleanPolicy;
+> import com.google.cloud.resourcemanager.v3.ListPolicy;
+> import com.google.cloud.resourcemanager.v3.OrgPolicy;
+> import com.google.cloud.resourcemanager.v3.RestoreDefault;
+61d45
+<   /** Used For boolean Constraints, whether to enforce the Constraint or not. */
+105,120d88
+<   /**
+<    * The organization ListPolicy object.
+<    *
+<    * <p>ListPolicy can define specific values and subtrees of Cloud Resource Manager resource
+<    * hierarchy (Organizations, Folders, Projects) that are allowed or denied by setting the
+<    * allowedValues and deniedValues fields. This is achieved by using the under: and optional is:
+<    * prefixes. The under: prefix denotes resource subtree values. The is: prefix is used to denote
+<    * specific values, and is required only if the value contains a ":". Values prefixed with "is:"
+<    * are treated the same as values with no prefix. Ancestry subtrees must be in one of the
+<    * following formats: - "projects/", e.g. "projects/tokyo-rain-123" - "folders/", e.g.
+<    * "folders/1234" - "organizations/", e.g. "organizations/1234" The supportsUnder field of the
+<    * associated Constraint defines whether ancestry prefixes can be used. You can set allowedValues
+<    * and deniedValues in the same Policy if allValues is ALL_VALUES_UNSPECIFIED. ALLOW or DENY are
+<    * used to allow or deny all values. If allValues is set to either ALLOW or DENY, allowedValues
+<    * and deniedValues must be unset.
+<    */
+125c93
+<     private final List<java.lang.String> deniedValues;
+---
+>     private final List<String> deniedValues;
+142d109
+<     /** Returns all the Values state of this policy. */
+147d113
+<     /** Returns the list of allowed values of this resource */
+152d117
+<     /** Returns the list of denied values of this resource. */
+157d121
+<     /** Returns the inheritance behavior for this Policy */
+162d125
+<     /** Returns the suggested value of this policy. */
+219d181
+<   /** Builder for {@code OrganizationPolicyInfo}. */
+291d252
+<   /** Returns the boolean constraint to check whether the constraint is enforced or not. */
+296d256
+<   /** Returns the name of the Constraint. */
+301d260
+<   /** Returns the etag value of policy. */
+306d264
+<   /** Return the policies. */
+311d268
+<   /** Restores the default behavior of the constraint. */
+316d272
+<   /** Returns the updated timestamp of policy. */
+321d276
+<   /** Returns the version of the Policy, Default version is 0. */
+350d304
+<   /** Returns a builder for the {@link OrgPolicyInfo} object. */
+355d308
+<   /** Returns a builder for the {@link OrgPolicyInfo} object. */
