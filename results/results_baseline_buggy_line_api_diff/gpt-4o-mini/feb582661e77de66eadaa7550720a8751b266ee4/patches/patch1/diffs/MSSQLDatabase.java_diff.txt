@@ -1,0 +1,6 @@
+18c18,20
+<         ExecutorService.getInstance().getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+---
+>         String catalogName = this.getLiquibaseCatalogName();
+>         String schemaName = this.getLiquibaseSchemaName();
+>         ExecutorService.getInstance().getExecutor(catalogName, this).execute(new DropStoredProcedureStatement(catalogName, schemaName));

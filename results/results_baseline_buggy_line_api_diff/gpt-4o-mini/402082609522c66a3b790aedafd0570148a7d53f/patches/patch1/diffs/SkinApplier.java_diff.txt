@@ -1,0 +1,27 @@
+12,13d11
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.data.key.Keys;
+23d20
+<     private final CommandSource invoker;
+26c23
+<     public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
+---
+>     public SkinApplier(ChangeSkinSponge plugin, Player receiver, SkinModel targetSkin
+31d27
+<         this.invoker = invoker;
+42,43c38,39
+<         if (invoker instanceof Player) {
+<             UUID uniqueId = ((Player) invoker).getUniqueId();
+---
+>         if (receiver.isOnline()) {
+>             UUID uniqueId = receiver.getUniqueId();
+65c61,62
+<         plugin.sendMessage(invoker, "skin-changed");
+---
+>         // Assuming invoker is no longer needed
+>         // plugin.sendMessage(invoker, "skin-changed");
+70c67,68
+<         plugin.sendMessage(invoker, key);
+---
+>         // Assuming invoker is no longer needed
+>         // plugin.sendMessage(invoker, key);

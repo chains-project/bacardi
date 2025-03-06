@@ -1,0 +1,86 @@
+18,21c18,21
+< import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+< import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+---
+> import com.google.api.services.cloudresourcemanager.v3.model.Policy;
+> import com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy;
+> import com.google.api.services.cloudresourcemanager.v3.model.ListPolicy;
+> import com.google.api.services.cloudresourcemanager.v3.model.RestoreDefault;
+38,39c38,39
+<   static final Function<OrgPolicy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
+<       new Function<OrgPolicy, OrgPolicyInfo>() {
+---
+>   static final Function<Policy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
+>       new Function<Policy, OrgPolicyInfo>() {
+41c41
+<         public OrgPolicyInfo apply(OrgPolicy protobuf) {
+---
+>         public OrgPolicyInfo apply(Policy protobuf) {
+45,46c45,46
+<   static final Function<OrgPolicyInfo, OrgPolicy> TO_PROTOBUF_FUNCTION =
+<       new Function<OrgPolicyInfo, OrgPolicy>() {
+---
+>   static final Function<OrgPolicyInfo, Policy> TO_PROTOBUF_FUNCTION =
+>       new Function<OrgPolicyInfo, Policy>() {
+48c48
+<         public OrgPolicy apply(OrgPolicyInfo orgPolicyInfo) {
+---
+>         public Policy apply(OrgPolicyInfo orgPolicyInfo) {
+57d56
+<   private RestoreDefault restoreDefault;
+125c124
+<     private final List<java.lang.String> deniedValues;
+---
+>     private final List<String> deniedValues;
+202d200
+<           .setAllValues(allValues)
+205d202
+<           .setInheritFromParent(inheritFromParent)
+211c208
+<           listPolicy.getAllValues(),
+---
+>           null,
+214c211
+<           listPolicy.getInheritFromParent(),
+---
+>           null,
+225d221
+<     private RestoreDefault restoreDefault;
+236d231
+<       this.restoreDefault = info.restoreDefault;
+261,265d255
+<     Builder setRestoreDefault(RestoreDefault restoreDefault) {
+<       this.restoreDefault = restoreDefault;
+<       return this;
+<     }
+< 
+286d275
+<     this.restoreDefault = builder.restoreDefault;
+311,315d299
+<   /** Restores the default behavior of the constraint. */
+<   public RestoreDefault getRestoreDefault() {
+<     return restoreDefault;
+<   }
+< 
+339d322
+<         && Objects.equals(restoreDefault, policyInfo.restoreDefault)
+347c330
+<         boolPolicy, constraint, etag, policies, restoreDefault, updateTime, version);
+---
+>         boolPolicy, constraint, etag, policies, updateTime, version);
+360,361c343,344
+<   OrgPolicy toProtobuf() {
+<     OrgPolicy orgPolicyProto = new OrgPolicy();
+---
+>   Policy toProtobuf() {
+>     Policy orgPolicyProto = new Policy();
+369d351
+<     orgPolicyProto.setRestoreDefault(restoreDefault);
+376c358
+<   static OrgPolicyInfo fromProtobuf(OrgPolicy orgPolicyProtobuf) {
+---
+>   static OrgPolicyInfo fromProtobuf(Policy orgPolicyProtobuf) {
+385d366
+<     builder.setRestoreDefault(orgPolicyProtobuf.getRestoreDefault());

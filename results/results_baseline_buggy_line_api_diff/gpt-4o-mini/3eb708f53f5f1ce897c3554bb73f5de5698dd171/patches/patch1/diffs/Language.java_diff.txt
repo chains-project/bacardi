@@ -1,0 +1,19 @@
+19c19
+< import com.google.api.services.translate.model.LanguagesResource;
+---
+> import com.google.api.services.translate.v3.model.Language as V3Language;
+36,39c36,38
+<   static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
+<       new Function<LanguagesResource, Language>() {
+<         @Override
+<         public Language apply(LanguagesResource languagePb) {
+---
+>   static final Function<V3Language, Language> FROM_PB_FUNCTION =
+>       new Function<V3Language, Language>() {
+>         public Language apply(V3Language languagePb) {
+84,85c83,84
+<   static Language fromPb(LanguagesResource languagePb) {
+<     return new Language(languagePb.getLanguage(), languagePb.getName());
+---
+>   static Language fromPb(V3Language languagePb) {
+>     return new Language(languagePb.getLanguageCode(), languagePb.getDisplayName());

@@ -1,0 +1,52 @@
+23d22
+< import org.spongepowered.api.command.CommandManager;
+27,31c26,28
+< import org.spongepowered.api.event.game.state.GameInitializationEvent;
+< import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+< import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelRegistrar;
+---
+> import org.spongepowered.api.event.lifecycle.GameInitializationEvent;
+> import org.spongepowered.api.event.lifecycle.GameStoppingEvent;
+> import org.spongepowered.api.network.ChannelBinding;
+32a30
+> import org.spongepowered.api.text.Text;
+53d50
+<     //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
+77,78d73
+<         CommandManager cmdManager = Sponge.getCommandManager();
+< 
+80,84c75,79
+<         cmdManager.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+<         cmdManager.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+<         cmdManager.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+<         cmdManager.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+<         cmdManager.register(this, injector.getInstance(InvalidateCommand.class)
+---
+>         Sponge.getCommandManager().register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+>         Sponge.getCommandManager().register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+>         Sponge.getCommandManager().register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+>         Sponge.getCommandManager().register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+>         Sponge.getCommandManager().register(this, injector.getInstance(InvalidateCommand.class)
+90,94c85,86
+<         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
+<         String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
+<         String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
+<         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
+<         RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
+---
+>         ChannelBinding.RawDataChannel updateChannel = Sponge.getChannelRegistrar().getOrCreateRaw(this, new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName());
+>         ChannelBinding.RawDataChannel permChannel = Sponge.getChannelRegistrar().getOrCreateRaw(this, new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName());
+100c92
+<     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
+---
+>     public void onShutdown(GameStoppingEvent stoppingServerEvent) {
+143c135
+<         String message = core.getMessage(key);
+---
+>         Text message = core.getMessage(key);
+145c137
+<             receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
+---
+>             receiver.sendMessage(message);

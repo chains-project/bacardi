@@ -1,0 +1,16 @@
+3a4,5
+> import org.flywaydb.core.api.configuration.Configuration;
+> import org.flywaydb.core.api.configuration.ClassicConfiguration;
+108,109c110,115
+<                 final org.flywaydb.core.Flyway flyway = new Flyway();
+<                 flyway.setDataSource(this.dataSource());
+---
+>                 Configuration configuration = new ClassicConfiguration();
+>                 configuration.setDataSource(prop.getProperty("jdbc.url"), prop.getProperty("jdbc.username"), prop.getProperty("jdbc.password"));
+>                 configuration.setLocations(prop.getProperty("flyway.locations").split(","));
+>                 configuration.setValidateOnMigrate(Boolean.parseBoolean(prop.getProperty("flyway.validate")));
+> 
+>                 final Flyway flyway = new Flyway(configuration);
+111,112d116
+<                 flyway.setLocations(prop.getProperty("flyway.locations"));
+<                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));

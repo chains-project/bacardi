@@ -1,0 +1,11 @@
+30c30,37
+<         if (ClassInjector.UsingReflection.isAvailable()) {
+---
+>         boolean isReflectionAvailable = false;
+>         try {
+>             isReflectionAvailable = ClassInjector.UsingReflection.isAvailable();
+>         } catch (NoClassDefFoundError e) {
+>             // ClassInjector is not available, handle gracefully
+>         }
+> 
+>         if (isReflectionAvailable) {

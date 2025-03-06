@@ -72,9 +72,7 @@ public class Main {
                     client
             );
 
-            for (ApiChange allChange : japicmpAnalyzer.getAllChanges(japicmpAnalyzer.getChanges())) {
-                System.out.println(allChange.getElement());
-            }
+
 
 
             SpoonConstructExtractor causingConstructExtractor = new SpoonConstructExtractor(errorLog, japicmpAnalyzer, spoonResults,"pipeline");

@@ -1,0 +1,119 @@
+1,15d0
+< /*
+<  * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+18,26c3,10
+< import com.hazelcast.core.Cluster;
+< import com.hazelcast.core.EntryListener;
+< import com.hazelcast.core.LifecycleEvent;
+< import com.hazelcast.core.LifecycleEvent.LifecycleState;
+< import com.hazelcast.core.LifecycleListener;
+< import com.hazelcast.core.Member;
+< import com.hazelcast.core.MemberAttributeEvent;
+< import com.hazelcast.core.MembershipEvent;
+< import com.hazelcast.core.MembershipListener;
+---
+> import com.hazelcast.cluster.Cluster;
+> import com.hazelcast.cluster.EntryListener;
+> import com.hazelcast.cluster.LifecycleEvent;
+> import com.hazelcast.cluster.LifecycleEvent.LifecycleState;
+> import com.hazelcast.cluster.Member;
+> import com.hazelcast.cluster.MemberAttributeEvent;
+> import com.hazelcast.cluster.MembershipEvent;
+> import com.hazelcast.cluster.MembershipListener;
+63,67d46
+<     /**
+<      * Flag that indicates if the listener has done all clean up work when noticed that the
+<      * cluster has been stopped. This will force Openfire to wait until all clean
+<      * up (e.g. changing caches implementations) is done before destroying the plugin.
+<      */
+69,71d47
+<     /**
+<      * Flag that indicates if we've joined a cluster or not
+<      */
+76d51
+< 
+89d63
+<                 // Keep track of the listener that we added to the cache
+101c75
+<         if (!isDone()) { // already joined
+---
+>         if (!isDone()) {
+105d78
+<         // Trigger events
+117d89
+<         // Let the other nodes know that we joined the cluster
+127d98
+<         // first cluster member is the oldest
+133c104
+<         if (isDone()) { // not a cluster member
+---
+>         if (isDone()) {
+140,141d110
+<         // Trigger event. Wait until the listeners have processed the event. Caches will be populated
+<         // again with local content.
+145,146d113
+<             // Remove traces of directed presences sent from local entities to handlers that no longer exist
+<             // At this point c2s sessions are gone from the routing table so we can identify expired sessions
+154d120
+<     @Override
+160d125
+<         // local member only
+162c127
+<         if (event.getMember().localMember()) { // We left and re-joined the cluster
+---
+>         if (event.getMember().localMember()) {
+164d128
+< 
+173c137
+<                     logger.debug("Postponing notification of other nodes for 30 seconds. This allows all local leave/join processing to be finished and local cache backups to be stabilized before receiving events from other nodes.");
+---
+>                     logger.debug("Postponing notification of other nodes for 30 seconds.");
+179,181d142
+<                 // The following line was intended to wait until all local handling finishes before informing other
+<                 // nodes. However that proved to be insufficient. Hence the 30 second default wait in the lines above.
+<                 // TODO Instead of the 30 second wait, we should look (and then wait) for some trigger or event that signifies that local handling has completed and caches have stabilized.
+184d144
+<                 // Let the other nodes know that we joined the cluster
+193,202d152
+<     /**
+<      * Blocks the current thread until the cluster cache is guaranteed to support clustering. This is especially useful
+<      * for executing cluster tasks immediately after joining. If this wait is not performed, the cache factory may still
+<      * be using the 'default' strategy instead of the 'hazelcast' strategy, which leads to cluster tasks being silently
+<      * discarded.
+<      *
+<      * The method will keep trying this for 10 minutes. After that the thread is released regardless of the result.
+<      *
+<      * @return Boolean indicating whether the clustered cache was actually observed to be installed.
+<      */
+219c169
+<                 logger.warn("Cache factory was not swapped to '{}', but still remains '{}' after a 10 minute wait. Cluster join is not guaranteed to have completed.", ClusteredCacheFactory.PLUGIN_NAME, CacheFactory.getPluginName());
+---
+>                 logger.warn("Cache factory was not swapped to '{}', but still remains '{}' after a 10 minute wait.", ClusteredCacheFactory.PLUGIN_NAME, CacheFactory.getPluginName());
+227d176
+<     @Override
+236d184
+<             // This node may have realized that it got kicked out of the cluster
+239d186
+<             // Trigger event that a node left the cluster
+247,248d193
+<             // Remove traces of directed presences sent from local entities to handlers that no longer exist.
+<             // At this point c2s sessions are gone from the routing table so we can identify expired sessions
+251d195
+<         // Delete nodeID instance (release from memory)
+261d204
+<     @Override
+270d212
+<     @Override
