@@ -1,0 +1,23 @@
+9a10
+> import java.nio.ByteBuffer;
+10a12
+> import java.util.UUID;
+14d15
+< import org.spongepowered.api.command.CommandSource;
+19a21
+> import org.spongepowered.api.scheduler.TaskExecutorService;
+28c30,33
+<         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+---
+>         byte[] rawData = new byte[data.available()];
+>         data.readBytes(rawData);
+> 
+>         ByteArrayDataInput dataInput = ByteStreams.newDataInput(rawData);
+35,36c40,43
+<             Runnable skinUpdater = new SkinApplier(plugin, (CommandSource) connection, receiver.get(), null, false);
+<             Task.builder().execute(skinUpdater).submit(plugin);
+---
+>             Player player = receiver.get();
+>             TaskExecutorService taskExecutorService = Sponge.getServer().getScheduler().createSyncExecutor(plugin);
+>             Runnable skinUpdater = new SkinApplier(plugin, player.getCommandSource().orElse(null), player, null, false);
+>             taskExecutorService.execute(skinUpdater);

@@ -1,0 +1,45 @@
+11a12
+> import org.spongepowered.api.command.Command;
+12a14
+> import org.spongepowered.api.command.parameter.CommandContext;
+14,17c16,17
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.args.GenericArguments;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommonParameters;
+> import org.spongepowered.api.command.CommandSpec;
+19a20
+> import org.spongepowered.api.text.Text;
+21,23c22
+< import static org.spongepowered.api.command.args.GenericArguments.flags;
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import java.util.Optional;
+50c49,56
+<         String targetSkin = args.<String>getOne("skin").get();
+---
+>         Optional<String> targetSkinOptional = args.one(Text.of("skin"), String.class);
+> 
+>         if (!targetSkinOptional.isPresent()) {
+>             plugin.sendMessage(src, "invalid-skin-name");
+>             return CommandResult.empty();
+>         }
+> 
+>         String targetSkin = targetSkinOptional.get();
+57a64
+>             try {
+67a75,78
+>             } catch (IllegalArgumentException ex) {
+>                 plugin.sendMessage(src, "invalid-uuid");
+>                 return CommandResult.empty();
+>             }
+79,81c90,91
+<                 .arguments(
+<                         string(of("skin")),
+<                         flags().flag("keep").buildWith(GenericArguments.none()))
+---
+>                 .addParameter(org.spongepowered.api.command.parameter.Parameter.string().key("skin").build())
+>                 .addFlag(org.spongepowered.api.command.parameter.Flag.builder().alias("keep").build())

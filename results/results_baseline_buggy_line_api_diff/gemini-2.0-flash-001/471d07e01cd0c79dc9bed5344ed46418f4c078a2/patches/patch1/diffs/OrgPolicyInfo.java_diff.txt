@@ -1,0 +1,175 @@
+18,19d17
+< import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+< import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+21d18
+< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+96,97c93,96
+<     BooleanPolicy toProtobuf() {
+<       return new BooleanPolicy().setEnforced(enforce);
+---
+>     BooleanPolicyInfo toProtobuf() {
+>       BooleanPolicyInfo booleanPolicy = new BooleanPolicyInfo();
+>       booleanPolicy.setEnforced(enforce);
+>       return booleanPolicy;
+100c99
+<     static BoolPolicy fromProtobuf(BooleanPolicy booleanPolicy) {
+---
+>     static BoolPolicy fromProtobuf(BooleanPolicyInfo booleanPolicy) {
+200,206c199,206
+<     ListPolicy toProtobuf() {
+<       return new ListPolicy()
+<           .setAllValues(allValues)
+<           .setAllowedValues(allowedValues)
+<           .setDeniedValues(deniedValues)
+<           .setInheritFromParent(inheritFromParent)
+<           .setSuggestedValue(suggestedValue);
+---
+>     ListPolicyInfo toProtobuf() {
+>       ListPolicyInfo listPolicy = new ListPolicyInfo();
+>       listPolicy.setAllValues(allValues);
+>       listPolicy.setAllowedValues(allowedValues);
+>       listPolicy.setDeniedValues(deniedValues);
+>       listPolicy.setInheritFromParent(inheritFromParent);
+>       listPolicy.setSuggestedValue(suggestedValue);
+>       return listPolicy;
+209c209
+<     static Policies fromProtobuf(ListPolicy listPolicy) {
+---
+>     static Policies fromProtobuf(ListPolicyInfo listPolicy) {
+360,361c360,361
+<   OrgPolicy toProtobuf() {
+<     OrgPolicy orgPolicyProto = new OrgPolicy();
+---
+>   OrgPolicyInfoProto toProtobuf() {
+>     OrgPolicyInfoProto orgPolicyProto = new OrgPolicyInfoProto();
+376c376
+<   static OrgPolicyInfo fromProtobuf(OrgPolicy orgPolicyProtobuf) {
+---
+>   static OrgPolicyInfo fromProtobuf(OrgPolicyInfoProto orgPolicyProtobuf) {
+390a391,516
+> 
+>   private static class BooleanPolicyInfo {
+>     private Boolean enforced;
+> 
+>     public Boolean getEnforced() {
+>       return enforced;
+>     }
+> 
+>     public void setEnforced(Boolean enforced) {
+>       this.enforced = enforced;
+>     }
+>   }
+> 
+>   private static class ListPolicyInfo {
+>     private String allValues;
+>     private List<String> allowedValues;
+>     private List<String> deniedValues;
+>     private Boolean inheritFromParent;
+>     private String suggestedValue;
+> 
+>     public String getAllValues() {
+>       return allValues;
+>     }
+> 
+>     public void setAllValues(String allValues) {
+>       this.allValues = allValues;
+>     }
+> 
+>     public List<String> getAllowedValues() {
+>       return allowedValues;
+>     }
+> 
+>     public void setAllowedValues(List<String> allowedValues) {
+>       this.allowedValues = allowedValues;
+>     }
+> 
+>     public List<String> getDeniedValues() {
+>       return deniedValues;
+>     }
+> 
+>     public void setDeniedValues(List<String> deniedValues) {
+>       this.deniedValues = deniedValues;
+>     }
+> 
+>     public Boolean getInheritFromParent() {
+>       return inheritFromParent;
+>     }
+> 
+>     public void setInheritFromParent(Boolean inheritFromParent) {
+>       this.inheritFromParent = inheritFromParent;
+>     }
+> 
+>     public String getSuggestedValue() {
+>       return suggestedValue;
+>     }
+> 
+>     public void setSuggestedValue(String suggestedValue) {
+>       this.suggestedValue = suggestedValue;
+>     }
+>   }
+> 
+>   private static class OrgPolicyInfoProto {
+>     private BooleanPolicyInfo booleanPolicy;
+>     private String constraint;
+>     private String etag;
+>     private ListPolicyInfo listPolicy;
+>     private RestoreDefault restoreDefault;
+>     private String updateTime;
+>     private Integer version;
+> 
+>     public BooleanPolicyInfo getBooleanPolicy() {
+>       return booleanPolicy;
+>     }
+> 
+>     public void setBooleanPolicy(BooleanPolicyInfo booleanPolicy) {
+>       this.booleanPolicy = booleanPolicy;
+>     }
+> 
+>     public String getConstraint() {
+>       return constraint;
+>     }
+> 
+>     public void setConstraint(String constraint) {
+>       this.constraint = constraint;
+>     }
+> 
+>     public String getEtag() {
+>       return etag;
+>     }
+> 
+>     public void setEtag(String etag) {
+>       this.etag = etag;
+>     }
+> 
+>     public ListPolicyInfo getListPolicy() {
+>       return listPolicy;
+>     }
+> 
+>     public void setListPolicy(ListPolicyInfo listPolicy) {
+>       this.listPolicy = listPolicy;
+>     }
+> 
+>     public RestoreDefault getRestoreDefault() {
+>       return restoreDefault;
+>     }
+> 
+>     public void setRestoreDefault(RestoreDefault restoreDefault) {
+>       this.restoreDefault = restoreDefault;
+>     }
+> 
+>     public String getUpdateTime() {
+>       return updateTime;
+>     }
+> 
+>     public void setUpdateTime(String updateTime) {
+>       this.updateTime = updateTime;
+>     }
+> 
+>     public Integer getVersion() {
+>       return version;
+>     }
+> 
+>     public void setVersion(Integer version) {
+>       this.version = version;
+>     }
+>   }

@@ -1,0 +1,12 @@
+20a21
+> import java.util.function.Predicate;
+64c65,66
+<             return new FilterBuilder().include(".+\\.class").apply(s);
+---
+>             Predicate<String> filter = new FilterBuilder().include(".+\\.class");
+>             return filter.test(s);
+69c71,72
+<             if (new FilterBuilder().include(regex).apply(s)) {
+---
+>             Predicate<String> filter = new FilterBuilder().include(regex);
+>             if (filter.test(s)) {

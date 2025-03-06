@@ -1,0 +1,50 @@
+18,19c18,22
+< import com.hazelcast.core.Cluster;
+< import com.hazelcast.core.EntryListener;
+---
+> import com.hazelcast.cluster.Cluster;
+> import com.hazelcast.cluster.MembershipEvent;
+> import com.hazelcast.cluster.MembershipListener;
+> import com.hazelcast.cluster.Member;
+> import com.hazelcast.cluster.MemberAttributeEvent;
+22,26d24
+< import com.hazelcast.core.LifecycleListener;
+< import com.hazelcast.core.Member;
+< import com.hazelcast.core.MemberAttributeEvent;
+< import com.hazelcast.core.MembershipEvent;
+< import com.hazelcast.core.MembershipListener;
+46a45
+> import com.hazelcast.core.EntryListener;
+52c51
+< public class ClusterListener implements MembershipListener, LifecycleListener {
+---
+> public class ClusterListener implements MembershipListener, com.hazelcast.core.LifecycleListener {
+161,162c160,162
+<         final NodeID nodeID = ClusteredCacheFactory.getNodeID(event.getMember());
+<         if (event.getMember().localMember()) { // We left and re-joined the cluster
+---
+>         final Member member = event.getMember();
+>         final NodeID nodeID = ClusteredCacheFactory.getNodeID(member);
+>         if (member.localMember()) { // We left and re-joined the cluster
+190c190
+<                 new HazelcastClusterNodeInfo(event.getMember(), cluster.getClusterTime()));
+---
+>                 new HazelcastClusterNodeInfo(member, cluster.getClusterTime()));
+232c232,233
+<         final NodeID nodeID = ClusteredCacheFactory.getNodeID(event.getMember());
+---
+>         final Member member = event.getMember();
+>         final NodeID nodeID = ClusteredCacheFactory.getNodeID(member);
+234c235
+<         if (event.getMember().localMember()) {
+---
+>         if (member.localMember()) {
+274,276c275,278
+<         final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));
+<         clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(event.getMember()),
+<                 new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));
+---
+>         final Member member = event.getMember();
+>         final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(member));
+>         clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(member),
+>                 new HazelcastClusterNodeInfo(member, priorNodeInfo.getJoinedTime()));

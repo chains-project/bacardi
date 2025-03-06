@@ -1,0 +1,45 @@
+10,11c10
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+---
+>  * copies of the Software, and to permit persons to do so, subject to the following conditions:
+37,40c36,38
+< import org.cactoos.scalar.IoCheckedScalar;
+< import org.cactoos.scalar.SolidScalar;
+< import org.cactoos.text.FormattedText;
+< import org.cactoos.text.JoinedText;
+---
+> import org.cactoos.scalar.Unchecked;
+> import org.cactoos.text.Text;
+> import org.cactoos.text.TextOf;
+53c51
+<     private final IoCheckedScalar<Path> path;
+---
+>     private final Scalar<Path> path;
+103,105c101
+<         this.path = new IoCheckedScalar<>(
+<             new SolidScalar<>(pth)
+<         );
+---
+>         this.path = pth;
+118,119c114,115
+<         final Path wpth = this.path.value().resolve(
+<             new JoinedText(
+---
+>         final Path wpth = new Unchecked<>(this.path).value().resolve(
+>             String.join(
+123c119
+<             ).asString()
+---
+>             )
+128c124,125
+<                     new FormattedText(
+---
+>                     new TextOf(
+>                         String.format(
+131a129
+>                     )
+156c154
+<                 new Filtered<>(this.filter, new Directory(this.path.value()))
+---
+>                 new Filtered<>(this.filter, new Directory(new Unchecked<>(this.path).value()))

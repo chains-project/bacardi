@@ -1,0 +1,39 @@
+package com.github.games647.changeskin.sponge.task;
+
+import com.github.games647.changeskin.core.model.auth.Account;
+import com.github.games647.changeskin.core.shared.task.SharedUploader;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import java.util.concurrent.TimeUnit;
+
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.service.permission.Subject;
+
+public class SkinUploader extends SharedUploader {
+
+    private final ChangeSkinSponge plugin;
+    private final Subject invoker;
+
+    public SkinUploader(ChangeSkinSponge plugin, Subject invoker, Account owner, String url) {
+        super(plugin.getCore(), owner, url);
+
+        this.plugin = plugin;
+        this.invoker = invoker;
+    }
+
+    @Override
+    public void sendMessageInvoker(String key) {
+        if (invoker instanceof Player) {
+            plugin.sendMessage((Player) invoker, key);
+        } else {
+            plugin.getCore().sendMessage(null, key);
+        }
+    }
+
+    @Override
+    protected void scheduleChangeTask(String oldSkinUrl) {
+        Runnable task = new SkinChanger(plugin, owner, url, oldSkinUrl, invoker);
+        Task.builder().delay(1, TimeUnit.MINUTES).execute(task).async().submit(plugin);
+    }
+}

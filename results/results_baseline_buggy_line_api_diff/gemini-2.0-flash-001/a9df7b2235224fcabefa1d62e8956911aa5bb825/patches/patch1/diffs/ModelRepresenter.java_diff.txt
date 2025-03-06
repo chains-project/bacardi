@@ -1,0 +1,31 @@
+24a25,27
+> import java.beans.Introspector;
+> import java.beans.BeanInfo;
+> import java.beans.PropertyDescriptor;
+218,219c221,222
+<   protected Set<Property> getProperties(Class<? extends Object> type)
+<           throws IntrospectionException {
+---
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+>     try {
+232a236,238
+>     } catch (IntrospectionException e) {
+>       throw new YAMLException(e);
+>     }
+237c243
+<       Set<Property> standard = super.getProperties(type);
+---
+>       Set<Property> standard = getPropertySet(type);
+242a249,260
+>   private Set<Property> getPropertySet(Class<? extends Object> type) throws IntrospectionException {
+>     BeanInfo beanInfo = Introspector.getBeanInfo(type);
+>     PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
+>     Set<Property> properties = new HashSet<>();
+>     for (PropertyDescriptor pd : propertyDescriptors) {
+>       if (pd.getReadMethod() != null && pd.getWriteMethod() != null) {
+>         properties.add(new Property(pd));
+>       }
+>     }
+>     return properties;
+>   }
+> 

@@ -1,0 +1,33 @@
+12,17c12,18
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.View;
+< import javax.mvc.binding.BindingResult;
+< import javax.mvc.binding.ParamError;
+< import javax.mvc.security.CsrfProtected;
+---
+> import jakarta.mvc.Controller;
+> import jakarta.mvc.Models;
+> import jakarta.mvc.View;
+> import jakarta.mvc.binding.BindingResult;
+> import java.util.Set;
+> import jakarta.validation.ConstraintViolation;
+> import jakarta.mvc.security.CsrfProtected;
+96,100c97,98
+<             validationResult.getAllErrors()
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+<                         alert.addError(t.getParamName(), "", t.getMessage());
+<                     });
+---
+>             Set<ConstraintViolation<?>> errors = validationResult.getConstraintViolations();
+>             errors.forEach(t -> alert.addError(t.getPropertyPath().toString(), "", t.getMessage()));
+140,144c138,139
+<             validationResult.getAllErrors()
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+<                         alert.addError(t.getParamName(), "", t.getMessage());
+<                     });
+---
+>             Set<ConstraintViolation<?>> errors = validationResult.getConstraintViolations();
+>             errors.forEach(t -> alert.addError(t.getPropertyPath().toString(), "", t.getMessage()));

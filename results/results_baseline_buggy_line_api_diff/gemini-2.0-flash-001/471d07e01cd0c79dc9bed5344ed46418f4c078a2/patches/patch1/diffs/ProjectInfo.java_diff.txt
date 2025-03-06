@@ -1,0 +1,60 @@
+11c11
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+---
+>  * is distributed under the License is distributed on an "AS IS" BASIS,
+146,148c146,148
+<     com.google.api.services.cloudresourcemanager.model.ResourceId toPb() {
+<       com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb =
+<           new com.google.api.services.cloudresourcemanager.model.ResourceId();
+---
+>     com.google.api.services.cloudresourcemanager.v3.model.ResourceId toPb() {
+>       com.google.api.services.cloudresourcemanager.v3.model.ResourceId resourceIdPb =
+>           new com.google.api.services.cloudresourcemanager.v3.model.ResourceId();
+155c155
+<         com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb) {
+---
+>         com.google.api.services.cloudresourcemanager.v3.model.ResourceId resourceIdPb) {
+392,394c392,394
+<   com.google.api.services.cloudresourcemanager.model.Project toPb() {
+<     com.google.api.services.cloudresourcemanager.model.Project projectPb =
+<         new com.google.api.services.cloudresourcemanager.model.Project();
+---
+>   com.google.api.services.cloudresourcemanager.v3.model.Project toPb() {
+>     com.google.api.services.cloudresourcemanager.v3.model.Project projectPb =
+>         new com.google.api.services.cloudresourcemanager.v3.model.Project();
+398c398,400
+<     projectPb.setProjectNumber(projectNumber);
+---
+>     if (projectNumber != null) {
+>       projectPb.setDisplayName(projectNumber.toString());
+>     }
+400c402
+<       projectPb.setLifecycleState(state.toString());
+---
+>       projectPb.setState(state.toString());
+409c411
+<       projectPb.setParent(parent.toPb());
+---
+>       projectPb.setParent(parent.toPb().toString());
+414c416
+<   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.model.Project projectPb) {
+---
+>   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) {
+416c418
+<         newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
+---
+>         newBuilder(projectPb.getProjectId()).setProjectNumber(Long.valueOf(projectPb.getDisplayName()));
+423,424c425,426
+<     if (projectPb.getLifecycleState() != null) {
+<       builder.setState(State.valueOf(projectPb.getLifecycleState()));
+---
+>     if (projectPb.getState() != null) {
+>       builder.setState(State.valueOf(projectPb.getState()));
+431c433,437
+<       builder.setParent(ResourceId.fromPb(projectPb.getParent()));
+---
+>       String parentString = projectPb.getParent();
+>       String[] parts = parentString.split("/");
+>       String type = parts[0];
+>       String id = parts[1];
+>       builder.setParent(ResourceId.of(id, type));
