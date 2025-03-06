@@ -1,0 +1,19 @@
+5c5,6
+< import org.apache.commons.codec.digest.DigestUtils;
+---
+> import java.security.MessageDigest;
+> import java.security.NoSuchAlgorithmException;
+49c50,60
+<             this.usernameMd5 = DigestUtils.md5Hex(username);
+---
+>             try {
+>                 MessageDigest md = MessageDigest.getInstance("MD5");
+>                 byte[] digest = md.digest(username.getBytes());
+>                 StringBuilder sb = new StringBuilder();
+>                 for (byte b : digest) {
+>                     sb.append(String.format("%02x", b));
+>                 }
+>                 this.usernameMd5 = sb.toString();
+>             } catch (NoSuchAlgorithmException e) {
+>                 throw new RuntimeException("MD5 algorithm not found", e);
+>             }

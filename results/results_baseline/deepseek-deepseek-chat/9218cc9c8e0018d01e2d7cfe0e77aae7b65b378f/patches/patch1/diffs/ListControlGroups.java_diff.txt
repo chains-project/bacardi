@@ -1,0 +1,30 @@
+37,43d36
+< import javax.validation.Validator;
+< import javax.validation.constraints.NotBlank;
+< import javax.validation.constraints.NotEmpty;
+< import javax.validation.constraints.NotNull;
+< import javax.validation.metadata.BeanDescriptor;
+< import javax.validation.metadata.ConstraintDescriptor;
+< import javax.validation.metadata.ElementDescriptor;
+121,122c114,115
+<                 Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
+<                 BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
+---
+>                 javax.validation.Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
+>                 javax.validation.metadata.BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
+133c126
+<                         ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+---
+>                         javax.validation.metadata.ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+135,139c128,132
+<                                 Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
+<                                 for(ConstraintDescriptor<?> constraint : constraintsSet){
+<                                         if(constraint.getAnnotation() instanceof NotNull ||
+<                                            constraint.getAnnotation() instanceof NotEmpty ||
+<                                            constraint.getAnnotation() instanceof NotBlank)
+---
+>                                 Set<javax.validation.metadata.ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
+>                                 for(javax.validation.metadata.ConstraintDescriptor<?> constraint : constraintsSet){
+>                                         if(constraint.getAnnotation() instanceof javax.validation.constraints.NotNull ||
+>                                            constraint.getAnnotation() instanceof javax.validation.constraints.NotEmpty ||
+>                                            constraint.getAnnotation() instanceof javax.validation.constraints.NotBlank)

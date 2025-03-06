@@ -1,0 +1,39 @@
+package com.example;
+
+import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+
+@ApplicationScoped
+public class MvcEventListener {
+
+    @Inject
+    Logger LOGGER;
+
+    private void onControllerMatched(@Observes Object event) {
+        LOGGER.info(() -> "Controller matched for " + event.toString());
+    }
+
+    private void onViewEngineSelected(@Observes Object event) {
+        LOGGER.info(() -> "View engine: " + event.toString());
+    }
+
+    private void onAfterControllerEvent(@Observes Object event) {
+        LOGGER.info(() -> "AfterControllerEvent:: " + event.toString());
+    }
+
+    private void onAfterProcessViewEvent(@Observes Object event) {
+        LOGGER.info(() -> "AfterProcessViewEvent:: " + event.toString());
+    }
+    
+    private void onControllerRedirectEvent(@Observes Object event) {
+        LOGGER.info(() -> "ControllerRedirectEvent:: " + event.toString());
+    }
+
+    @PostConstruct
+    private void init() {
+        LOGGER.config(() -> this.getClass().getSimpleName() + " created");
+    }
+}

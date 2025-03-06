@@ -1,0 +1,36 @@
+8,12d7
+< import javax.mvc.event.AfterControllerEvent;
+< import javax.mvc.event.AfterProcessViewEvent;
+< import javax.mvc.event.BeforeControllerEvent;
+< import javax.mvc.event.BeforeProcessViewEvent;
+< import javax.mvc.event.ControllerRedirectEvent;
+20,21c15,16
+<     private void onControllerMatched(@Observes BeforeControllerEvent event) {
+<         LOGGER.info(() -> "Controller matched for " + event.getUriInfo().getRequestUri());
+---
+>     private void onControllerMatched(@Observes Object event) {
+>         LOGGER.info(() -> "Controller matched for " + event.toString());
+24,25c19,20
+<     private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
+<         LOGGER.info(() -> "View engine: " + event.getEngine());
+---
+>     private void onViewEngineSelected(@Observes Object event) {
+>         LOGGER.info(() -> "View engine: " + event.toString());
+28,29c23,24
+<     private void onAfterControllerEvent(@Observes AfterControllerEvent event) {
+<         LOGGER.info(() -> "AfterControllerEvent:: " + event.getResourceInfo());
+---
+>     private void onAfterControllerEvent(@Observes Object event) {
+>         LOGGER.info(() -> "AfterControllerEvent:: " + event.toString());
+32,33c27,28
+<     private void onAfterProcessViewEvent(@Observes AfterProcessViewEvent event) {
+<         LOGGER.info(() -> "AfterProcessViewEvent:: " + event);
+---
+>     private void onAfterProcessViewEvent(@Observes Object event) {
+>         LOGGER.info(() -> "AfterProcessViewEvent:: " + event.toString());
+36,37c31,32
+<      private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
+<         LOGGER.info(() -> "ControllerRedirectEvent:: " + event);
+---
+>     private void onControllerRedirectEvent(@Observes Object event) {
+>         LOGGER.info(() -> "ControllerRedirectEvent:: " + event.toString());

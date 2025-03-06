@@ -1,0 +1,34 @@
+37a38
+>     super(new org.yaml.snakeyaml.DumperOptions());
+94d94
+< 
+168,169d167
+<   // Model elements order {
+<   //TODO move to polyglot-common, or to org.apache.maven:maven-model
+198,199d195
+<           //"repositories",
+<           //"pluginRepositories",
+212d207
+<   //}
+214,219c209,210
+<   /*
+<    * Change the default order. Important data goes first.
+<    */
+<   @Override
+<   protected Set<Property> getProperties(Class<? extends Object> type)
+<           throws IntrospectionException {
+---
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+>     try {
+232a224,226
+>     } catch (IntrospectionException e) {
+>       throw new RuntimeException(e);
+>     }
+251d244
+<       // important go first
+258d250
+<       // all the rest
+268c260
+<       return 0;// compare further
+---
+>       return 0;

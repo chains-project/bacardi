@@ -1,0 +1,8 @@
+12a13,14
+> import org.jenkinsci.plugins.p4.workspace.Workspace;
+> import org.jenkinsci.plugins.p4.workspace.StaticWorkspaceImpl;
+44c46,47
+<                 ClientHelper perforceClient = new ClientHelper(credentials, buildListener, clientString, StandardCharsets.UTF_8.toString());
+---
+>                 Workspace workspace = new StaticWorkspaceImpl(clientString, false, null, null);
+>                 ClientHelper perforceClient = new ClientHelper(build.getParent(), credentials, buildListener, workspace);

@@ -1,0 +1,125 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+
+```java
+/*
+ * Copyright (c) 2012 - 2016 Jadler contributors
+ * This program is made available under the terms of the MIT License.
+ */
+package net.jadler.stubbing.server.jetty;
+
+import net.jadler.RequestManager;
+import net.jadler.stubbing.server.StubHttpServer;
+import org.eclipse.jetty.server.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.Validate;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.nio.SelectChannelConnector;
+
+
+/**
+ * Default stub http server implementation using Jetty as an http server.
+ */
+public class JettyStubHttpServer implements StubHttpServer {
+
+    private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
+    private final Server server;
+    private final Connector httpConnector;
+
+    public JettyStubHttpServer() {
+        this(0);
+    }
+    
+
+    public JettyStubHttpServer(final int port) {
+        this.server = new Server();
+        this.server.setSendServerVersion(false);
+        this.server.setSendDateHeader(true);
+        
+        this.httpConnector = new SelectChannelConnector();
+        this.httpConnector.setPort(port);
+        server.addConnector(this.httpConnector);
+    }
+    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void registerRequestManager(final RequestManager ruleProvider) {
+        Validate.notNull(ruleProvider, "ruleProvider cannot be null");
+
+        server.setHandler(new JadlerHandler(ruleProvider));
+    }
+    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void start() throws Exception {
+        logger.debug("starting jetty");
+        server.start();
+        logger.debug("jetty started");
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void stop() throws Exception {
+        logger.debug("stopping jetty");
+        server.stop();
+        logger.debug("jetty stopped");
+    }
+    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getPort() {
+        return httpConnector.getLocalPort();
+    }
+}
+```
+
+ with the following error information:
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[36,33] error: cannot find symbol
+  symbol:   class SelectChannelConnector
+  location: class JettyStubHttpServer
+
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[37,26] error: cannot find symbol
+  symbol:   method setPort(int)
+  location: variable httpConnector of type Connector
+
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[80,28] error: cannot find symbol
+  symbol:   method getLocalPort()
+  location: variable httpConnector of type Connector
+
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[33,19] error: cannot find symbol
+  symbol:   method setSendServerVersion(boolean)
+  location: variable server of type Server
+
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[34,19] error: cannot find symbol
+  symbol:   method setSendDateHeader(boolean)
+  location: variable server of type Server
+
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[14,35] error: package org.eclipse.jetty.server.nio does not exist
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 
