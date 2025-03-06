@@ -1,0 +1,46 @@
+1,18d0
+< /**
+<  * Copyright (C) 2014 Premium Minds.
+<  *
+<  * This file is part of wicket-crudifier.
+<  *
+<  * wicket-crudifier is free software: you can redistribute it and/or modify it under
+<  * the terms of the GNU Lesser General Public License as published by the Free
+<  * Software Foundation, either version 3 of the License, or (at your option) any
+<  * later version.
+<  *
+<  * wicket-crudifier is distributed in the hope that it will be useful, but WITHOUT ANY
+<  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+<  * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+<  * details.
+<  *
+<  * You should have received a copy of the GNU Lesser General Public License
+<  * along with wicket-crudifier. If not, see <http://www.gnu.org/licenses/>.
+<  */
+21a4
+> import java.lang.reflect.Method;
+27d9
+< import org.apache.commons.beanutils.PropertyUtils;
+62,64d43
+< 
+< 
+< 
+65a45
+> 
+104,108c84,93
+<                 for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
+<                         if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
+<                                         !properties.contains(descriptor.getName()) &&
+<                                         !descriptor.getName().equals("class"))
+<                                 properties.add(descriptor.getName());
+---
+>                 for(Method method : modelClass.getMethods()) {
+>                         String name = method.getName();
+>                         if (name.startsWith("get") && name.length() > 3 && Character.isUpperCase(name.charAt(3))) {
+>                                 String propertyName = name.substring(3);
+>                                 propertyName = Character.toLowerCase(propertyName.charAt(0)) + propertyName.substring(1);
+>                                 if(!entitySettings.getHiddenFields().contains(propertyName) &&
+>                                                 !properties.contains(propertyName) &&
+>                                                 !propertyName.equals("class"))
+>                                         properties.add(propertyName);
+>                         }

@@ -1,0 +1,53 @@
+4,17c4,13
+< import javax.enterprise.context.RequestScoped;
+< import javax.inject.Inject;
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.UriRef;
+< import javax.mvc.binding.BindingResult;
+< import javax.mvc.binding.MvcBinding;
+< import javax.mvc.binding.ParamError;
+< import javax.mvc.security.CsrfProtected;
+< import javax.validation.constraints.NotBlank;
+< import javax.ws.rs.FormParam;
+< import javax.ws.rs.GET;
+< import javax.ws.rs.POST;
+< import javax.ws.rs.Path;
+---
+> import jakarta.enterprise.context.RequestScoped;
+> import jakarta.inject.Inject;
+> import jakarta.mvc.Controller;
+> import jakarta.mvc.Models;
+> import jakarta.mvc.security.CsrfProtected;
+> import jakarta.validation.constraints.NotBlank;
+> import jakarta.ws.rs.FormParam;
+> import jakarta.ws.rs.GET;
+> import jakarta.ws.rs.POST;
+> import jakarta.ws.rs.Path;
+29,31d24
+<     BindingResult bindingResult;
+< 
+<     @Inject
+46c39
+<     @UriRef("greeting-post")
+---
+>     @CsrfProtected
+49d41
+<             @MvcBinding
+51c43,44
+<         if (bindingResult.isFailed()) {
+---
+>         // Assuming BindingResult is no longer available, we directly check the greeting for validation.
+>         if (greeting == null || greeting.trim().isEmpty()) {
+53,57c46
+<             bindingResult.getAllErrors()
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+<                         alert.addError(t.getParamName(), "", t.getMessage());
+<                     });
+---
+>             alert.addError("greeting", "", "Greeting cannot be blank");
+59c48
+<             log.info("mvc binding failed.");
+---
+>             log.info("Validation failed.");

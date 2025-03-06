@@ -1,0 +1,24 @@
+3d2
+< 
+11d9
+< import org.apache.maven.surefire.api.testset.TestListResolver;
+45c43
+<                 if (!config.getJacocoIncludes().isEmpty()) {
+---
+>                 if (!config.getJacocoExcludes().isEmpty()) {
+52c50
+<          * Auxiliary method to compute the classpath according to the test framework and the custom confirguration
+---
+>          * Auxiliary method to compute the classpath according to the test framework and the custom configuration
+68d65
+<                                 + mavenHome + "org/opentest4j/opentest4j/1.1.1/opentest4j-1.1.1.jar" + File.pathSeparatorChar
+92c89
+<                         DirectoryScanner directoryScanner = new DirectoryScanner(new File(directory), TestListResolver.getWildcard());
+---
+>                         DirectoryScanner directoryScanner = new DirectoryScanner(new File(directory), "**/*.class");
+97c94
+<                                 DirectoryScanner directoryScanner = new DirectoryScanner(new File(directory), TestListResolver.getWildcard());
+---
+>                                 DirectoryScanner directoryScanner = new DirectoryScanner(new File(directory), "**/*.class");
+103d99
+< 

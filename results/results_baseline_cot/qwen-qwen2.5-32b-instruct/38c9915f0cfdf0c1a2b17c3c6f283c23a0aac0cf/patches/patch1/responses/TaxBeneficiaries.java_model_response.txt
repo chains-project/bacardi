@@ -1,0 +1,53 @@
+<code_analysis>
+1. Examine the error message:
+   - The error indicates that the class `LengthOf` cannot be found in the package `org.cactoos.iterable`.
+   - The error occurs at line 29, where `LengthOf` is used to check the length of the suffixes of the score of a `Remote` object.
+   - This suggests that the `LengthOf` class has been removed or renamed in the updated version of the `org.cactoos` dependency.
+
+2. Review the client code:
+   - The problematic area is the instantiation of `LengthOf` to check the length of the suffixes of the score of a `Remote` object.
+   - The `LengthOf` class is used to determine if the length of the suffixes is greater than or equal to 16.
+
+3. Consider potential fixes:
+   - Since `LengthOf` is no longer available, we need to find an alternative way to check the length of the suffixes.
+   - We can directly use the `size()` method of the `suffixes` collection to check its length.
+
+4. Plan the necessary changes:
+   - Replace the usage of `LengthOf` with a direct call to the `size()` method of the `suffixes` collection.
+   - Ensure that the rest of the class remains unchanged to maintain its original functionality.
+</code_analysis>
+
+```java
+package io.zold.api;
+
+import java.util.Comparator;
+import org.cactoos.iterable.Filtered;
+import org.cactoos.iterable.IterableEnvelope;
+import org.cactoos.iterable.Sorted;
+
+/**
+ * {@link Remote} nodes that should receive taxes.
+ *
+ * @since 1.0
+ */
+public final class TaxBeneficiaries extends IterableEnvelope<Remote> {
+
+    /**
+     * Ctor.
+     *
+     * @param nodes Remote nodes to select from.
+     */
+    public TaxBeneficiaries(final Iterable<Remote> nodes) {
+        super(() -> new Sorted<>(
+            Comparator.comparing(Remote::score),
+            new Filtered<>(
+                // @checkstyle MagicNumberCheck (1 line)
+                n -> n.score().suffixes().size() >= 16,
+                nodes
+            )
+        ));
+    }
+}
+```
+
+This fix replaces the usage of the `LengthOf` class with a direct call to the `size()` method of the `suffixes` collection, which should resolve the compilation error caused by the dependency update.

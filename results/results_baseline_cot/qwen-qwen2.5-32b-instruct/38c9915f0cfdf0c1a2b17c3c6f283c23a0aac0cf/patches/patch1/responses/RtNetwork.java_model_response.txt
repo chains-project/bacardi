@@ -1,0 +1,81 @@
+<code_analysis>
+1. Examine the error message:
+   - The error indicates that the class `IoCheckedScalar` cannot be found in the package `org.cactoos.scalar`.
+   - This suggests that the class `IoCheckedScalar` has been removed or moved in the updated dependency version.
+
+2. Review the client code:
+   - The problematic area is in the `pull` method where `IoCheckedScalar` is used.
+   - The `IoCheckedScalar` class is used to handle an `IOException` that might be thrown during the execution of the `Reduced` operation.
+
+3. Consider potential fixes:
+   - Since `IoCheckedScalar` is not available, we need to find an alternative way to handle the `IOException`.
+   - We can use a try-catch block to handle the exception directly within the `pull` method.
+
+4. Plan the necessary changes:
+   - Replace the usage of `IoCheckedScalar` with a try-catch block to handle the `IOException`.
+   - Ensure that the `IOException` is properly handled and the method signature remains unchanged.
+</code_analysis>
+
+```java
+package io.zold.api;
+
+import java.io.IOException;
+import java.util.Iterator;
+import org.cactoos.iterable.Mapped;
+import org.cactoos.iterable.Sorted;
+import org.cactoos.scalar.Reduced;
+
+/**
+ * Network implementation.
+ *
+ * @since 0.1
+ * @todo #5:30min We must figure out how to 'load' some network. Loading the
+ *  network will be loading a local JSON file that contains data on all
+ *  remote nodes that we know about; we must have a pre configured set of
+ *  remote nodes built in too. See whitepaper for details.
+ */
+public final class RtNetwork implements Network {
+
+    /**
+     * {@link Remote} nodes.
+     */
+    private final Iterable<Remote> nodes;
+
+    /**
+     * Constructor.
+     * @param remotes Remotes of the network
+     */
+    RtNetwork(final Iterable<Remote> remotes) {
+        this.nodes =  remotes;
+    }
+
+    @Override
+    public void push(final Wallet wallet) {
+        this.nodes.forEach(
+            remote -> remote.push(wallet)
+        );
+    }
+
+    @Override
+    public Wallet pull(final long id) throws IOException {
+        try {
+            return new Reduced<>(
+                Wallet::merge,
+                new Mapped<>(
+                    c -> c::wallet,
+                    new Sorted<>(new Copies(id, this))
+                )
+            ).value();
+        } catch (final Exception ex) {
+            throw new IOException("Failed to pull wallet", ex);
+        }
+    }
+
+    @Override
+    public Iterator<Remote> iterator() {
+        return this.nodes.iterator();
+    }
+}
+```
+
+This solution replaces the use of `IoCheckedScalar` with a try-catch block to handle the `IOException` directly within the `pull` method. This approach ensures that the method signature remains unchanged and the exception is properly handled.

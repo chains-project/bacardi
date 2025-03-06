@@ -1,0 +1,100 @@
+<code_analysis>
+The error messages indicate that several classes and packages are missing or have been moved in the updated version of the Sponge dependency. The missing classes and packages include `CommandManager`, `GameInitializationEvent`, `GamePreInitializationEvent`, `GameStoppingServerEvent`, `ChannelRegistrar`, and `CommandSource`. Additionally, the `Plugin` annotation is missing. These changes suggest that the API has been refactored, and the new version of the dependency has different class and package structures.
+
+To fix these issues, the following changes are necessary:
+- Update the imports to reflect the new package structure.
+- Adjust the class references to match the new API.
+- Remove or update annotations that are no longer valid in the new version.
+</code_analysis>
+
+```java
+package com.github.games647.changeskin.sponge;
+
+import com.github.games647.changeskin.core.ChangeSkinCore;
+import com.github.games647.changeskin.core.PlatformPlugin;
+import com.github.games647.changeskin.core.message.NamespaceKey;
+import com.github.games647.changeskin.sponge.bungee.CheckPermissionListener;
+import com.github.games647.changeskin.sponge.bungee.UpdateSkinListener;
+import com.github.games647.changeskin.sponge.command.InfoCommand;
+import com.github.games647.changeskin.sponge.command.InvalidateCommand;
+import com.github.games647.changeskin.sponge.command.SelectCommand;
+import com.github.games647.changeskin.sponge.command.SetCommand;
+import com.github.games647.changeskin.sponge.command.UploadCommand;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Singleton;
+
+import java.nio.file.Path;
+import java.util.UUID;
+
+import org.spongepowered.api.Game;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandManager;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GameInitializationEvent;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+import org.spongepowered.api.network.ChannelBinding;
+import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.serializer.TextSerializers;
+import org.spongepowered.api.util.event.annotation.Listener;
+
+import static com.github.games647.changeskin.core.message.CheckPermMessage.CHECK_PERM_CHANNEL;
+import static com.github.games647.changeskin.core.message.SkinUpdateMessage.UPDATE_SKIN_CHANNEL;
+import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
+
+@Singleton
+public class ChangeSkinSponge implements PlatformPlugin<org.spongepowered.api.command.CommandSource> {
+
+    private final Path dataFolder;
+    private final org.slf4j.Logger logger;
+    private final Injector injector;
+
+    private final ChangeSkinCore core = new ChangeSkinCore(this);
+    private final SpongeSkinAPI api = new SpongeSkinAPI(this);
+
+    private boolean initialized;
+
+    @Inject
+    ChangeSkinSponge(org.slf4j.Logger logger, @org.spongepowered.api.config.path.ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
+        this.dataFolder = dataFolder;
+        this.logger = logger;
+        this.injector = injector.createChildInjector(binder -> binder.bind(ChangeSkinCore.class).toInstance(core));
+    }
+
+    @Listener
+    public void onPreInit(GamePreInitializationEvent preInitEvent) {
+        //load config and database
+        try {
+            core.load(true);
+            initialized = true;
+        } catch (Exception ex) {
+            logger.error("Error initializing plugin. Disabling...", ex);
+        }
+    }
+
+    @Listener
+    public void onInit(GameInitializationEvent initEvent) {
+        if (!initialized)
+            return;
+
+        CommandManager cmdManager = Sponge.getCommandManager();
+
+        //command and event register
+        cmdManager.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+        cmdManager.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+        cmdManager.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+        cmdManager.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+        cmdManager.register(this, injector.getInstance(InvalidateCommand.class)
+                .buildSpec(), "skininvalidate", "skin-invalidate");
+
+        Sponge.getEventManager().registerListeners(this, injector.getInstance(LoginListener.class));
+
+        //incoming channel
+        PluginContainer pluginContainer = Sponge.getPluginManager().fromInstance(this).get();
+        ChannelBinding.RawDataChannel updateChannel = Sponge.getGame().getEventManager().getChannelBuilder(pluginContainer, byte[].class)
+                .name(new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName())
+                .id(new NamespaceKey(ARTIFACT杧
+
+

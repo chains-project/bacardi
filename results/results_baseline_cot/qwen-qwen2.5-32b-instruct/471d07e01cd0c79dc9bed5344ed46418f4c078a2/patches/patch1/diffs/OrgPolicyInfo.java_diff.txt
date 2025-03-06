@@ -1,0 +1,195 @@
+1,15d0
+< /*
+<  * Copyright 2020 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+18,21c3,6
+< import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+< import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+---
+> import com.google.cloud.resourcemanager.v3.model.BooleanPolicy;
+> import com.google.cloud.resourcemanager.v3.model.ListPolicy;
+> import com.google.cloud.resourcemanager.v3.model.OrgPolicy;
+> import com.google.cloud.resourcemanager.v3.model.RestoreDefault;
+30,32d14
+<  * <p>Defines a Cloud Organization Policy which specifies constraints for configurations of Cloud
+<  * Platform resources.
+<  *
+41,42c23,24
+<         public OrgPolicyInfo apply(OrgPolicy protobuf) {
+<           return OrgPolicyInfo.fromProtobuf(protobuf);
+---
+>         public OrgPolicyInfo apply(OrgPolicy orgPolicy) {
+>           return OrgPolicyInfo.fromProtobuf(orgPolicy);
+53c35
+<   private BoolPolicy boolPolicy;
+---
+>   private BooleanPolicy boolPolicy;
+61,62c43
+<   /** Used For boolean Constraints, whether to enforce the Constraint or not. */
+<   static class BoolPolicy {
+---
+>   public static class BoolPolicy {
+105,121c86
+<   /**
+<    * The organization ListPolicy object.
+<    *
+<    * <p>ListPolicy can define specific values and subtrees of Cloud Resource Manager resource
+<    * hierarchy (Organizations, Folders, Projects) that are allowed or denied by setting the
+<    * allowedValues and deniedValues fields. This is achieved by using the under: and optional is:
+<    * prefixes. The under: prefix denotes resource subtree values. The is: prefix is used to denote
+<    * specific values, and is required only if the value contains a ":". Values prefixed with "is:"
+<    * are treated the same as values with no prefix. Ancestry subtrees must be in one of the
+<    * following formats: - "projects/", e.g. "projects/tokyo-rain-123" - "folders/", e.g.
+<    * "folders/1234" - "organizations/", e.g. "organizations/1234" The supportsUnder field of the
+<    * associated Constraint defines whether ancestry prefixes can be used. You can set allowedValues
+<    * and deniedValues in the same Policy if allValues is ALL_VALUES_UNSPECIFIED. ALLOW or DENY are
+<    * used to allow or deny all values. If allValues is set to either ALLOW or DENY, allowedValues
+<    * and deniedValues must be unset.
+<    */
+<   static class Policies {
+---
+>   public static class Policies {
+125c90
+<     private final List<java.lang.String> deniedValues;
+---
+>     private final List<String> deniedValues;
+142d106
+<     /** Returns all the Values state of this policy. */
+147d110
+<     /** Returns the list of allowed values of this resource */
+152d114
+<     /** Returns the list of denied values of this resource. */
+157d118
+<     /** Returns the inheritance behavior for this Policy */
+162d122
+<     /** Returns the suggested value of this policy. */
+219,221c179,180
+<   /** Builder for {@code OrganizationPolicyInfo}. */
+<   static class Builder {
+<     private BoolPolicy boolPolicy;
+---
+>   public static class Builder {
+>     private BooleanPolicy boolPolicy;
+241c200
+<     Builder setBoolPolicy(BoolPolicy boolPolicy) {
+---
+>     Builder setBoolPolicy(BooleanPolicy boolPolicy) {
+280a240,247
+>   private BooleanPolicy boolPolicy;
+>   private String constraint;
+>   private String etag;
+>   private Policies policies;
+>   private RestoreDefault restoreDefault;
+>   private String updateTime;
+>   private Integer version;
+> 
+291,292c258,274
+<   /** Returns the boolean constraint to check whether the constraint is enforced or not. */
+<   public BoolPolicy getBoolPolicy() {
+---
+>   public static Function<OrgPolicy, OrgPolicyInfo> fromProtobufFunction() {
+>     return OrgPolicyInfo::fromProtobuf;
+>   }
+> 
+>   public static Function<OrgPolicyInfo, OrgPolicy> toProtobufFunction() {
+>     return OrgPolicyInfo::toProtobuf;
+>   }
+> 
+>   public static Builder newBuilder() {
+>     return new Builder();
+>   }
+> 
+>   public Builder toBuilder() {
+>     return new Builder(this);
+>   }
+> 
+>   public BooleanPolicy getBoolPolicy() {
+296d277
+<   /** Returns the name of the Constraint. */
+301d281
+<   /** Returns the etag value of policy. */
+306d285
+<   /** Return the policies. */
+311d289
+<   /** Restores the default behavior of the constraint. */
+316d293
+<   /** Returns the updated timestamp of policy. */
+321d297
+<   /** Returns the version of the Policy, Default version is 0. */
+334,341c310,317
+<     OrgPolicyInfo policyInfo = (OrgPolicyInfo) o;
+<     return Objects.equals(boolPolicy, policyInfo.boolPolicy)
+<         && Objects.equals(constraint, policyInfo.constraint)
+<         && Objects.equals(etag, policyInfo.etag)
+<         && Objects.equals(policies, policyInfo.policies)
+<         && Objects.equals(restoreDefault, policyInfo.restoreDefault)
+<         && Objects.equals(updateTime, policyInfo.updateTime)
+<         && Objects.equals(version, policyInfo.version);
+---
+>     OrgPolicyInfo that = (OrgPolicyInfo) o;
+>     return Objects.equals(boolPolicy, that.boolPolicy)
+>         && Objects.equals(constraint, that.constraint)
+>         && Objects.equals(etag, that.etag)
+>         && Objects.equals(policies, that.policies)
+>         && Objects.equals(restoreDefault, that.restoreDefault)
+>         && Objects.equals(updateTime, that.updateTime)
+>         && Objects.equals(version, that.version);
+350,352c326,329
+<   /** Returns a builder for the {@link OrgPolicyInfo} object. */
+<   public static Builder newBuilder() {
+<     return new Builder();
+---
+>   public static OrgPolicyInfo fromProtobuf(OrgPolicy orgPolicyProtobuf) {
+>     Builder builder = newBuilder();
+>     if (orgPolicyProtobuf.getBooleanPolicy() != null) {
+>       builder.setBoolPolicy(BoolPolicy.fromProtobuf(orgPolicyProtobuf.getBooleanPolicy()));
+354,357c331,339
+< 
+<   /** Returns a builder for the {@link OrgPolicyInfo} object. */
+<   public Builder toBuilder() {
+<     return new Builder(this);
+---
+>     builder.setConstraint(orgPolicyProtobuf.getConstraint());
+>     if (orgPolicyProtobuf.getListPolicy() != null) {
+>       builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getListPolicy()));
+>     }
+>     builder.setRestoreDefault(orgPolicyProtobuf.getRestoreDefault());
+>     builder.setEtag(orgPolicyProtobuf.getEtag());
+>     builder.setUpdateTime(orgPolicyProtobuf.getUpdateTime());
+>     builder.setVersion(orgPolicyProtobuf.getVersion());
+>     return builder.build();
+360c342
+<   OrgPolicy toProtobuf() {
+---
+>   public OrgPolicy toProtobuf() {
+375,390d356
+< 
+<   static OrgPolicyInfo fromProtobuf(OrgPolicy orgPolicyProtobuf) {
+<     Builder builder = newBuilder();
+<     if (orgPolicyProtobuf.getBooleanPolicy() != null) {
+<       builder.setBoolPolicy(BoolPolicy.fromProtobuf(orgPolicyProtobuf.getBooleanPolicy()));
+<     }
+<     builder.setConstraint(orgPolicyProtobuf.getConstraint());
+<     if (orgPolicyProtobuf.getListPolicy() != null) {
+<       builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getListPolicy()));
+<     }
+<     builder.setRestoreDefault(orgPolicyProtobuf.getRestoreDefault());
+<     builder.setEtag(orgPolicyProtobuf.getEtag());
+<     builder.setUpdateTime(orgPolicyProtobuf.getUpdateTime());
+<     builder.setVersion(orgPolicyProtobuf.getVersion());
+<     return builder.build();
+<   }

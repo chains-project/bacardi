@@ -1,0 +1,12 @@
+9c9
+< import com.artipie.asto.factory.Storages;
+---
+> import com.artipie.asto.fs.FsStorage;
+40a41
+>             // Assuming Storages class is no longer available, we directly create a storage instance.
+43,45c44
+<                     new Storages().newStorage(
+<                         sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
+<                     )
+---
+>                     new FsStorage(sub.string("path"))

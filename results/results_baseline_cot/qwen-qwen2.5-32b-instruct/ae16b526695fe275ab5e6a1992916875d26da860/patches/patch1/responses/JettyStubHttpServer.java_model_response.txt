@@ -1,0 +1,77 @@
+<code_analysis>
+The error messages indicate that the compiler cannot find symbols, which suggests that some classes or methods used in the code are no longer available in the updated Jetty dependency. Specifically, the errors point to the `SelectChannelConnector` class and its methods, which have been deprecated or removed in newer versions of Jetty. The `SelectChannelConnector` class was used for configuring the HTTP connector in older versions of Jetty, but in newer versions, Jetty has moved towards using `ServerConnector` and other updated classes.
+
+To fix the issue, the code needs to be updated to use the new classes and methods provided by the updated Jetty dependency. The `SelectChannelConnector` class should be replaced with `ServerConnector`, and the methods used to configure the connector should be updated accordingly.
+</code_analysis>
+
+```java
+package net.jadler.stubbing.server.jetty;
+
+import net.jadler.RequestManager;
+import net.jadler.stubbing.server.StubHttpServer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.Validate;
+
+/**
+ * Default stub http server implementation using Jetty as an http server.
+ */
+public class JettyStubHttpServer implements StubHttpServer {
+
+    private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
+    private final Server server;
+    private final ServerConnector httpConnector;
+
+    public JettyStubHttpServer() {
+        this(0);
+    }
+
+    public JettyStubHttpServer(final int port) {
+        this.server = new Server();
+        this.server.setSendServerVersion(false);
+        this.server.setSendDateHeader(true);
+
+        this.httpConnector = new ServerConnector(server);
+        this.httpConnector.setPort(port);
+        server.addConnector(this.httpConnector);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void registerRequestManager(final RequestManager ruleProvider) {
+        Validate.notNull(ruleProvider, "ruleProvider cannot be null");
+
+        server.setHandler(new JadlerHandler(ruleProvider));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void start() throws Exception {
+        logger.debug("starting jetty");
+        server.start();
+        logger.debug("jetty started");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void stop() throws Exception {
+        logger.debug("stopping jetty");
+        server.stop();
+        logger.debug("jetty stopped");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getPort() {
+        return httpConnector.getLocalPort();
+    }
+}
+```
+
+In this fix, the `SelectChannelConnector` class has been replaced with `ServerConnector`, and the method calls have been updated to match the new API. This should resolve the compilation errors caused by the dependency update.

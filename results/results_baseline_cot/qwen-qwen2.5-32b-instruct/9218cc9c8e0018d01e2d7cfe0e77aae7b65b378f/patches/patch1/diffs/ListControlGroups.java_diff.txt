@@ -1,0 +1,94 @@
+1,18d0
+< /**
+<  * Copyright (C) 2014 Premium Minds.
+<  *
+<  * This file is part of wicket-crudifier.
+<  *
+<  * wicket-crudifier is free software: you can redistribute it and/or modify it under
+<  * the terms of the GNU Lesser General Public License as published by the Free
+<  * Software Foundation, either version 3 of the License, or (at your option) any
+<  * later version.
+<  *
+<  * wicket-crudifier is distributed in the hope that it will be useful, but WITHOUT ANY
+<  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+<  * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+<  * details.
+<  *
+<  * You should have received a copy of the GNU Lesser General Public License
+<  * along with wicket-crudifier. If not, see <http://www.gnu.org/licenses/>.
+<  */
+36a19
+> 
+37a21
+> import javax.validation.Validation;
+41,43d24
+< import javax.validation.metadata.BeanDescriptor;
+< import javax.validation.metadata.ConstraintDescriptor;
+< import javax.validation.metadata.ElementDescriptor;
+48a30
+> 
+85,86d66
+<                 typesControlGroups.put(Boolean.class, CheckboxControlGroup.class);
+<                 typesControlGroups.put(boolean.class, CheckboxControlGroup.class);
+111,112d90
+<         protected abstract EntityProvider<?> getEntityProvider(String name);
+< 
+119,123c97,99
+<                 Set<String> properties = getPropertiesByOrder(modelClass);
+< 
+<                 Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
+<                 BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
+<                 for(String property : properties){
+---
+>         Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+>         // BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
+>         for(String property : getPropertiesByOrder(modelClass)){
+133,142c109,118
+<                         ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+<                         if(constraintDescriptor!=null){
+<                                 Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
+<                                 for(ConstraintDescriptor<?> constraint : constraintsSet){
+<                                         if(constraint.getAnnotation() instanceof NotNull ||
+<                                            constraint.getAnnotation() instanceof NotEmpty ||
+<                                            constraint.getAnnotation() instanceof NotBlank)
+<                                                 required = true;
+<                                 }
+<                         }
+---
+>             // ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+>             // if(constraintDescriptor!=null){
+>             //     Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
+>             //     for(ConstraintDescriptor<?> constraint : constraintsSet){
+>             //         if(constraint.getAnnotation() instanceof NotNull ||
+>             //            constraint.getAnnotation() instanceof NotEmpty ||
+>             //            constraint.getAnnotation() instanceof NotBlank)
+>             //             required = true;
+>             //     }
+>             // }
+153c129
+<                                         Class<? extends Panel> typesControlGroup = getControlGroupByType(objectProperty.type);
+---
+>                     Class<? extends AbstractControlGroup> typesControlGroup = getControlGroupByType(objectProperty.type);
+165d140
+< 
+223a199,208
+>     public Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap(){
+>         return typesControlGroups;
+>     }
+> 
+>     @SuppressWarnings("rawtypes")
+>     public Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> getControlGroupProviders(){
+>         return this.controlGroupProviders;
+>     }
+> 
+>     @SuppressWarnings("rawtypes")
+245,253d229
+< 
+<         @SuppressWarnings("rawtypes")
+<         public Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap(){
+<                 return typesControlGroups;
+<         }
+<         
+<         public Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> getControlGroupProviders(){
+<                 return this.controlGroupProviders;
+<         }

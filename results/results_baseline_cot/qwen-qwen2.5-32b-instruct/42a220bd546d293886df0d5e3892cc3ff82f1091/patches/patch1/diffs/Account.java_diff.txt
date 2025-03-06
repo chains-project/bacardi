@@ -1,0 +1,31 @@
+5c5,6
+< import org.apache.commons.codec.digest.DigestUtils;
+---
+> import java.security.MessageDigest;
+> import java.security.NoSuchAlgorithmException;
+44,45c45
+<          *                 automatically runs {@code DigestUtils.md5Hex}
+<          *                 on the string passed to it.
+---
+>          *                 automatically runs an MD5 hash on the string passed to it.
+49c49
+<             this.usernameMd5 = DigestUtils.md5Hex(username);
+---
+>             this.usernameMd5 = computeMD5(username);
+58a59,74
+>         }
+> 
+>         private String computeMD5(String input) {
+>             try {
+>                 MessageDigest md = MessageDigest.getInstance("MD5");
+>                 byte[] messageDigest = md.digest(input.getBytes());
+>                 StringBuilder hexString = new StringBuilder();
+>                 for (byte b : messageDigest) {
+>                     String hex = Integer.toHexString(0xff & b);
+>                     if (hex.length() == 1) hexString.append('0');
+>                     hexString.append(hex);
+>                 }
+>                 return hexString.toString();
+>             } catch (NoSuchAlgorithmException e) {
+>                 throw new RuntimeException("MD5 algorithm not found", e);
+>             }

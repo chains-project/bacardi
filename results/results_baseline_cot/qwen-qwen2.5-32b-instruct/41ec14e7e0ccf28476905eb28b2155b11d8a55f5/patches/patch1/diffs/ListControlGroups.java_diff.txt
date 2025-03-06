@@ -1,0 +1,100 @@
+1,18d0
+< /**
+<  * Copyright (C) 2014 Premium Minds.
+<  *
+<  * This file is part of wicket-crudifier.
+<  *
+<  * wicket-crudifier is free software: you can redistribute it and/or modify it under
+<  * the terms of the GNU Lesser General Public License as published by the Free
+<  * Software Foundation, either version 3 of the License, or (at your option) any
+<  * later version.
+<  *
+<  * wicket-crudifier is distributed in the hope that it will be useful, but WITHOUT ANY
+<  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+<  * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+<  * details.
+<  *
+<  * You should have received a copy of the GNU Lesser General Public License
+<  * along with wicket-crudifier. If not, see <http://www.gnu.org/licenses/>.
+<  */
+39,40d20
+< import javax.validation.constraints.NotBlank;
+< import javax.validation.constraints.NotEmpty;
+46d25
+< import org.apache.commons.beanutils.PropertyUtils;
+59c38
+<         private static final long serialVersionUID = 7205285700113097720L;
+---
+>     private static final long serialVersionUID = 7205285700114011405L;
+96,114d74
+<         private Set<String> getPropertiesByOrder(Class<?> modelClass) {
+<                 Set<String> properties = new LinkedHashSet<String>();
+< 
+<                 for(String property : entitySettings.getOrderOfFields()){
+<                         if(!entitySettings.getHiddenFields().contains(property))
+<                                 properties.add(property);
+<                 }
+<                 for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
+<                         if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
+<                            !properties.contains(descriptor.getName()) &&
+<                            !descriptor.getName().equals("class"))
+<                                 properties.add(descriptor.getName());
+<                 }
+< 
+<                 return properties;
+<         }
+< 
+<         protected abstract EntityProvider<?> getEntityProvider(String name);
+< 
+126c86
+<                         PropertyDescriptor descriptor;
+---
+>             PropertyDescriptor descriptor = null;
+128c88
+<                                 descriptor = PropertyUtils.getPropertyDescriptor(getModel().getObject(), property);
+---
+>                 descriptor = PropertyDescriptorUtils.getPropertyDescriptor(getModel().getObject(), property);
+139,141c99
+<                                         if(constraint.getAnnotation() instanceof NotNull ||
+<                                            constraint.getAnnotation() instanceof NotEmpty ||
+<                                            constraint.getAnnotation() instanceof NotBlank)
+---
+>                     if(constraint.getAnnotation() instanceof NotNull)
+155c113
+<                                         Class<? extends Panel> typesControlGroup = getControlGroupByType(objectProperty.type);
+---
+>                     Class<? extends AbstractControlGroup> typesControlGroup = getControlGroupByType(objectProperty.type);
+167d124
+< 
+194,204c151
+<                         } catch (SecurityException e) {
+<                                 throw new RuntimeException(e);
+<                         } catch (NoSuchMethodException e) {
+<                                 throw new RuntimeException(e);
+<                         } catch (IllegalArgumentException e) {
+<                                 throw new RuntimeException(e);
+<                         } catch (InstantiationException e) {
+<                                 throw new RuntimeException(e);
+<                         } catch (IllegalAccessException e) {
+<                                 throw new RuntimeException(e);
+<                         } catch (InvocationTargetException e) {
+---
+>             } catch (SecurityException | NoSuchMethodException | IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+255a203,219
+> 
+>     private Set<String> getPropertiesByOrder(Class<?> modelClass) {
+>         Set<String> properties = new LinkedHashSet<String>();
+> 
+>         for(String property : entitySettings.getOrderOfFields()){
+>             if(!entitySettings.getHiddenFields().contains(property))
+>                 properties.add(property);
+>         }
+>         for(PropertyDescriptor descriptor : PropertyDescriptorUtils.getPropertyDescriptors(modelClass)){
+>             if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
+>                !properties.contains(descriptor.getName()) &&
+>                !descriptor.getName().equals("class"))
+>                 properties.add(descriptor.getName());
+>         }
+> 
+>         return properties;
+>     }

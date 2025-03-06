@@ -1,0 +1,174 @@
+1,12d0
+< /*
+<  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+<  * the License. You may obtain a copy of the License at
+<  *
+<  * http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+<  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+<  * specific language governing permissions and limitations under the License.
+<  *
+<  * Copyright 2017-2022 the original author or authors.
+<  */
+24,34c12,17
+< import org.assertj.core.internal.bytebuddy.ByteBuddy;
+< import org.assertj.core.internal.bytebuddy.TypeCache;
+< import org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey;
+< import org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeValidation;
+< import org.assertj.core.internal.bytebuddy.implementation.Implementation;
+< import org.assertj.core.internal.bytebuddy.implementation.MethodDelegation;
+< import org.assertj.core.internal.bytebuddy.implementation.auxiliary.AuxiliaryType;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.RuntimeType;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This;
+< import org.assertj.core.util.CheckReturnValue;
+---
+> import net.bytebuddy.ByteBuddy;
+> import net.bytebuddy.dynamic.scaffold.TypeValidation;
+> import net.bytebuddy.implementation.Implementation;
+> import net.bytebuddy.implementation.bind.annotation.RuntimeType;
+> import net.bytebuddy.implementation.bind.annotation.SuperCall;
+> import net.bytebuddy.matcher.ElementMatchers;
+38c21
+< import java.util.concurrent.Callable;
+---
+> import java.util.Arrays;
+40,42c23
+< import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any;
+< import static org.assertj.core.util.Arrays.array;
+< import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrategy;
+---
+> import static net.bytebuddy.matcher.ElementMatchers.any;
+48d28
+<      * The default is ByteBuddy but for debugging purposes, it makes sense to add AssertJ as a name.
+51c31
+<             .with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
+---
+>             .with(new net.bytebuddy.implementation.auxiliary.AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
+53c33
+<     private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
+---
+>     private static final Implementation ASSUMPTION = net.bytebuddy.implementation.MethodDelegation.to(AssumptionMethodInterceptor.class);
+55c35
+<     private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
+---
+>     private static final net.bytebuddy.pool.TypePool.TypeCache<net.bytebuddy.pool.TypeCache.SimpleKey> CACHE = new net.bytebuddy.pool.TypePool.Default().withCache(new net.bytebuddy.pool.TypePool.Default.Cache.Simple<net.bytebuddy.pool.TypeCache.SimpleKey>());
+60,61c40
+<         public static Object intercept(@This AbstractVavrAssert<?, ?> assertion, @SuperCall Callable<Object> proxy) throws Exception {
+<             try {
+---
+>         public static Object intercept(@net.bytebuddy.implementation.bind.annotation.This Object thisInstance, @SuperCall Callable<Object> proxy) throws Exception {
+63c42
+<                 if (result != assertion && result instanceof AbstractVavrAssert) {
+---
+>             if (result != thisInstance && result instanceof AbstractVavrAssert) {
+65c44
+<                     return assumption.withAssertionState(assertion);
+---
+>                 return assumption.withAssertionState((AbstractVavrAssert<?, ?>) thisInstance);
+68,70d46
+<             } catch (AssertionError e) {
+<                 throw assumptionNotMet(e);
+<             }
+82d57
+<     @CheckReturnValue
+95d69
+<     @CheckReturnValue
+109d82
+<     @CheckReturnValue
+123d95
+<     @CheckReturnValue
+136d107
+<     @CheckReturnValue
+143,155d113
+<      * Creates a new instance of <code>{@link SetAssert}</code> assumption.
+<      *
+<      * @param <ELEMENT> type of elements contained in the {@link Set}.
+<      * @param actual  the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+<     @CheckReturnValue
+<     @SuppressWarnings("unchecked")
+<     public static <ELEMENT> SetAssert<ELEMENT> assumeThat(Set<ELEMENT> actual) {
+<         return asAssumption(SetAssert.class, Set.class, actual);
+<     }
+< 
+<     /**
+162d119
+<     @CheckReturnValue
+175d131
+<     @CheckReturnValue
+189d144
+<     @CheckReturnValue
+198c153
+<         return asAssumption(assertionType, array(actualType), array(actual));
+---
+>         return asAssumption(assertionType, new Class<?>[]{actualType}, new Object[]{actual});
+215,218c170,171
+<         SimpleKey cacheKey = new SimpleKey(assertClass);
+<         return (Class<ASSERTION>) CACHE.findOrInsert(VavrAssumptions.class.getClassLoader(),
+<                 cacheKey,
+<                 () -> generateAssumptionClass(assertClass));
+---
+>         net.bytebuddy.pool.TypeCache.SimpleKey cacheKey = new net.bytebuddy.pool.TypeCache.SimpleKey(assertClass);
+>         return (Class<ASSERTION>) CACHE.findOrInsert(cacheKey, () -> generateAssumptionClass(assertClass));
+226c179
+<                 .load(VavrAssumptions.class.getClassLoader(), classLoadingStrategy(assertionType))
+---
+>                 .load(VavrAssumptions.class.getClassLoader())
+230c183
+<     private static RuntimeException assumptionNotMet(AssertionError assertionError) throws ReflectiveOperationException {
+---
+>     private static RuntimeException assumptionNotMet(AssertionError e) {
+232c185
+<         if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
+---
+>         if (assumptionClass != null) return assumptionNotMet(assumptionClass, e);
+235c188
+<         if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
+---
+>         if (assumptionClass != null) return assumptionNotMet(assumptionClass, e);
+238c191
+<         if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
+---
+>         if (assumptionClass != null) return assumptionNotMet(assumptionClass, e);
+251,252c204
+<     private static RuntimeException assumptionNotMet(Class<?> exceptionClass,
+<                                                      AssertionError e) throws ReflectiveOperationException {
+---
+>     private static RuntimeException assumptionNotMet(Class<?> exceptionClass, AssertionError e) throws ReflectiveOperationException {
+257d208
+<     // for method that change the object under test (e.g. extracting)
+259d209
+<         // @format:off
+261,269c211,227
+<         if (assertion instanceof LazyAssert) return asAssumption(LazyAssert.class, Lazy.class, actual);
+<         if (assertion instanceof EitherAssert) return asAssumption(EitherAssert.class, Either.class, actual);
+<         if (assertion instanceof MapAssert) return asAssumption(MapAssert.class, Map.class, actual);
+<         if (assertion instanceof OptionAssert) return asAssumption(OptionAssert.class, Option.class, actual);
+<         if (assertion instanceof SeqAssert) return asAssumption(SeqAssert.class, Seq.class, actual);
+<         if (assertion instanceof TryAssert) return asAssumption(TryAssert.class, Try.class, actual);
+<         if (assertion instanceof ValidationAssert) return asAssumption(ValidationAssert.class, Validation.class, actual);
+<         // @format:on
+<         // should not arrive here
+---
+>         if (actual instanceof Either) {
+>             return asAssumption(EitherAssert.class, Either.class, actual);
+>         } else if (actual instanceof Lazy) {
+>             return asAssumption(LazyAssert.class, Lazy.class, actual);
+>         } else if (actual instanceof Map) {
+>             return asAssumption(MapAssert.class, Map.class, actual);
+>         } else if (actual instanceof Multimap) {
+>             return asAssumption(MultimapAssert.class, Multimap.class, actual);
+>         } else if (actual instanceof Option) {
+>             return asAssumption(OptionAssert.class, Option.class, actual);
+>         } else if (actual instanceof Seq) {
+>             return asAssumption(SeqAssert.class, Seq.class, actual);
+>         } else if (actual instanceof Try) {
+>             return asAssumption(TryAssert.class, Try.class, actual);
+>         } else if (actual instanceof Validation) {
+>             return asAssumption(ValidationAssert.class, Validation.class, actual);
+>         }
+272d229
+< 

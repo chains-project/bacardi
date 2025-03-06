@@ -1,0 +1,122 @@
+<code_analysis>
+1. The error message indicates that the `ScriptResult` class cannot be found, and the `com.gargoylesoftware.htmlunit` package does not exist. This suggests that the `htmlunit` dependency has been updated or removed, and the `ScriptResult` class is no longer available.
+
+2. The client code uses `ScriptResult` in two methods: `getChartDataById` and `getDataOfOnlyChartOnPageWithGivenToolAttribute`. The `ScriptResult` class is used to handle the result of JavaScript execution.
+
+3. The `com.gargoylesoftware.htmlunit` package is imported but not used in the code, which suggests it might be a leftover from a previous version of the dependency.
+
+4. To fix the issue, we need to:
+   - Remove the unused import for `com.gargoylesoftware.htmlunit.ScriptResult`.
+   - Replace the usage of `ScriptResult` with a direct cast or method call that retrieves the JavaScript result from the `Object` returned by `pageObject.executeScript`.
+</code_analysis>
+
+```java
+package io.jenkins.plugins.coverage.util;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.WebElement;
+
+import org.jenkinsci.test.acceptance.po.PageObject;
+
+/**
+ * Charts are displayed one multiple PageObjects. This util provides some helper methods to deal with charts.
+ */
+@SuppressWarnings("hideutilityclassconstructor")
+// TODO: Move this code to ATH so we can reuse it from other plugins
+public class ChartUtil {
+    private static final int MAX_ATTEMPTS = 5;
+
+    /**
+     * Returns a chart's data by its id.
+     *
+     * @param pageObject
+     *         which contains chart
+     * @param elementId
+     *         of chart
+     *
+     * @return data as json
+     */
+    public static String getChartDataById(final PageObject pageObject, final String elementId) {
+        if (isChartDisplayedByElementId(pageObject, elementId)) {
+            Object result = pageObject.executeScript(String.format(
+                    "delete(window.Array.prototype.toJSON) %n"
+                            + "return JSON.stringify(echarts.getInstanceByDom(document.getElementById(\"%s\")).getOption())",
+                    elementId));
+            return result.toString();
+        }
+        return null;
+    }
+
+    /**
+     * Returns data of only chart with given tool attribute value on page.
+     *
+     * @param pageObject
+     *         which contains only one chart with given tool attribute value
+     * @param toolAttribute
+     *         value in div tag of chart
+     *
+     * @return data as json
+     */
+    public static String getDataOfOnlyChartOnPageWithGivenToolAttribute(final PageObject pageObject,
+            final String toolAttribute) {
+        if (isChartDisplayedByDivToolAttribute(pageObject, toolAttribute)) {
+            for (int i = 0; i < MAX_ATTEMPTS; i++) {
+                Object result = pageObject.executeScript(String.format(
+                        "delete(window.Array.prototype.toJSON) %n"
+                                + "return JSON.stringify(echarts.getInstanceByDom(document.querySelector(\"div[tool='%s']\")).getOption())",
+                        toolAttribute));
+                if (result != null) {
+                    return result.toString();
+                }
+                pageObject.elasticSleep(1000);
+            }
+        }
+        throw new java.util.NoSuchElementException("Found no trend chart with ID '" + toolAttribute + "'");
+    }
+
+    /**
+     * Returns if chart is displayed.
+     *
+     * @param pageObject
+     *         which contains chart
+     * @param elementId
+     *         of chart
+     *
+     * @return if chart is displayed
+     */
+    public static boolean isChartDisplayedByElementId(final PageObject pageObject, final String elementId) {
+        try {
+            WebElement chart = pageObject.find(By.id(elementId));
+            return chart != null && chart.isDisplayed();
+        }
+        catch (NoSuchElementException exception) {
+            return false;
+        }
+    }
+
+    /**
+     * Returns if a chart with given tool attribute in div tag is displayed.
+     *
+     * @param pageObject
+     *         which contains chart
+     * @param toolAttribute
+     *         of div tag of chart
+     *
+     * @return if chart is displayed
+     */
+    public static boolean isChartDisplayedByDivToolAttribute(final PageObject pageObject, final String toolAttribute) {
+        try {
+            WebElement chart = pageObject.find(By.cssSelector("div[tool='" + toolAttribute + "']"));
+            return chart != null && chart.isDisplayed();
+        }
+        catch (NoSuchElementException exception) {
+            return false;
+        }
+
+    }
+
+}
+```
+
+In this fix, the `ScriptResult` class is no longer used, and the `Object` returned by `pageObject.executeScript` is directly cast to a string. The unused import for `com.gargoylesoftware.htmlunit.ScriptResult` has been removed. This should resolve the compilation errors related to the dependency update.

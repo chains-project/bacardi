@@ -1,0 +1,57 @@
+1,7d0
+< /**
+<  * Copyright (c) 2012 to original author or authors
+<  * All rights reserved. This program and the accompanying materials
+<  * are made available under the terms of the Eclipse Public License v1.0
+<  * which accompanies this distribution, and is available at
+<  * http://www.eclipse.org/legal/epl-v10.html
+<  */
+94d86
+< 
+108d99
+<         String childName = child.getName();
+111,112c102,103
+<         int childNameLength = childName.length();
+<         if ("reportPlugins".equals(childName)) {
+---
+>         int childNameLength = child.getName().length();
+>         if ("reportPlugins".equals(child.getName())) {
+114,117c105,108
+<         } else if (childNameLength > 3 && childName.endsWith("ies")) {
+<           singularName = childName.substring(0, childNameLength - 3);
+<         } else if (childNameLength > 1 && childName.endsWith("s")) {
+<           singularName = childName.substring(0, childNameLength - 1);
+---
+>         } else if (childNameLength > 3 && child.getName().endsWith("ies")) {
+>           singularName = child.getName().substring(0, childNameLength - 3);
+>         } else if (childNameLength > 1 && child.getName().endsWith("s")) {
+>           singularName = child.getName().substring(0, childNameLength - 1);
+135c126
+<         map.put(childName, childValue);
+---
+>         map.put(child.getName(), childValue);
+214,230c205,206
+<   /*
+<    * Change the default order. Important data goes first.
+<    */
+<   @Override
+<   protected Set<Property> getProperties(Class<? extends Object> type)
+<           throws IntrospectionException {
+<     if (type.isAssignableFrom(Model.class)) {
+<       return sortTypeWithOrder(type, ORDER_MODEL);
+<     } else if (type.isAssignableFrom(Developer.class)) {
+<       return sortTypeWithOrder(type, ORDER_DEVELOPER);
+<     } else if (type.isAssignableFrom(Contributor.class)) {
+<       return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
+<     }  else if (type.isAssignableFrom(Dependency.class)) {
+<       return sortTypeWithOrder(type, ORDER_DEPENDENCY);
+<     }  else if (type.isAssignableFrom(Plugin.class)) {
+<       return sortTypeWithOrder(type, ORDER_PLUGIN);
+<     } else {
+---
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+>     try {
+231a208,210
+>     } catch (IntrospectionException e) {
+>       // Handle the exception as needed, e.g., log it or rethrow as a RuntimeException
+>       throw new RuntimeException("Failed to get properties for type: " + type.getName(), e);

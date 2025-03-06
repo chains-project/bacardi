@@ -1,0 +1,124 @@
+1,15d0
+< /*
+<  * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+22,23c7,8
+< import com.hazelcast.map.listener.MapListener;
+< import com.hazelcast.monitor.LocalMapStats;
+---
+> import com.hazelcast.map.LocalMapStats;
+> import com.hazelcast.map.impl.MapEventImpl;
+42,43d26
+< import java.util.concurrent.ConcurrentHashMap;
+< import java.util.concurrent.TimeUnit;
+45,48d27
+< /**
+<  * Clustered implementation of the Cache interface using Hazelcast.
+<  *
+<  */
+55,57d33
+<     /**
+<      * The map is used for distributed operations such as get, put, etc.
+<      */
+62,73d37
+<     /**
+<      * Used to limit the amount of duplicate warnings logged.
+<      */
+<     private Instant lastPluginClassLoaderWarning = Instant.EPOCH;
+<     private final Duration pluginClassLoaderWarningSupression = Duration.ofHours(1);
+< 
+<     /**
+<      * Create a new cache using the supplied named cache as the actual cache implementation
+<      *
+<      * @param name a name for the cache, which should be unique per vm.
+<      * @param cache the cache implementation
+<      */
+80c44
+<     void addEntryListener(final MapListener listener) {
+---
+>     void addEntryListener(final EntryListener<K, V> listener) {
+85,86c49
+<     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode)
+<     {
+---
+>     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues) {
+89,90c52,53
+<             public void mapEvicted(MapEvent event) {
+<                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+---
+>             public void mapEvicted(EntryEvent event) {
+>                 if (includeValues || !event.getMember().localMember()) {
+92c55
+<                     logger.trace("Processing map evicted event of node '{}'", eventNodeId);
+---
+>                     logger.trace("Processing map evicted event of node '{}' for key '{}'", eventNodeId, event.getKey());
+98,99c61,62
+<             public void mapCleared(MapEvent event) {
+<                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+---
+>             public void mapCleared(EntryEvent event) {
+>                 if (includeValues || !event.getMember().localMember()) {
+108c71
+<                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+---
+>                 if (includeValues || !event.getMember().localMember()) {
+117c80
+<                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+---
+>                 if (includeValues || !event.getMember().localMember()) {
+126c89
+<                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+---
+>                 if (includeValues || !event.getMember().localMember()) {
+135c98
+<                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
+---
+>                 if (includeValues || !event.getMember().localMember()) {
+145c108
+<         logger.debug("Added new clustered cache entry listener (including values: {}, includeEventsFromLocalNode: {}) using ID: '{}'", includeValues, includeEventsFromLocalNode, listenerId);
+---
+>         logger.debug("Added new clustered cache entry listener (including values: {}, includeEventsFromLocalNode: {}) using ID: '{}'", includeValues, includeValues, listenerId);
+267,271d229
+<     public void setMaxCacheSize(int i) {
+<         setMaxCacheSize((long) i);
+<     }
+< 
+<     @Override
+276,285d233
+<     @Override
+<     public long getMaxLifetime() {
+<         return CacheFactory.getMaxCacheLifetime(getName());
+<     }
+< 
+<     @Override
+<     public void setMaxLifetime(final long maxLifetime) {
+<         CacheFactory.setMaxLifetimeProperty(getName(), maxLifetime);
+<     }
+< 
+316,324d263
+<     /**
+<      * Clustered caches should not contain instances of classes that are provided by Openfire plugins. These will cause
+<      * issues related to class loading when the providing plugin is reloaded. This method verifies if an instance is
+<      * loaded by a plugin class loader, and logs a warning to the log files when it is. The amount of warnings logged is
+<      * limited by a time interval.
+<      *
+<      * @param o the instance for which to verify the class loader
+<      * @see <a href="https://github.com/igniterealtime/openfire-hazelcast-plugin/issues/74">Issue #74: Warn against usage of plugin-provided classes in Hazelcast</a>
+<      */
+327,328c266
+<             && lastPluginClassLoaderWarning.isBefore(Instant.now().minus(pluginClassLoaderWarningSupression)) )
+<         {
+---
+>             && lastPluginClassLoaderWarning.isBefore(Instant.now().minus(pluginClassLoaderWarningSupression))) {

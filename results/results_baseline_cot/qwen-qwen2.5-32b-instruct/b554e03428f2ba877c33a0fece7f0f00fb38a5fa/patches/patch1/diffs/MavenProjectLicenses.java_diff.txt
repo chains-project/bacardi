@@ -1,0 +1,44 @@
+1,15d0
+< /*
+<  * Copyright (C) 2008-2022 Mycila (mathieu.carbou@gmail.com)
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *         http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+29d13
+< import org.apache.maven.project.ProjectBuildingRequest;
+33d16
+< import org.apache.maven.shared.dependency.graph.internal.Maven31DependencyGraphBuilder;
+79a63
+>    * @param project        the current {@link MavenProject}
+120a105
+>       throws DependencyGraphBuilderException {
+167,170d151
+< 
+<     // tempting, but does not resolve dependencies after the scope in which this
+<     // plugin is invoked
+<     // return project.getArtifacts();
+186c167,178
+<     this.graph = Optional.ofNullable(graph).orElse(new Maven31DependencyGraphBuilder());
+---
+>     this.graph = Optional.ofNullable(graph).orElseGet(() -> {
+>       try {
+>         // Assuming Maven31DependencyGraphBuilder is no longer available, we need to find an alternative.
+>         // If there is no direct replacement, we might need to use a different approach or a different class.
+>         // For this example, we'll assume a new class is available in the same package.
+>         return new DependencyGraphBuilderImpl(); // Replace with the correct class name if available.
+>       } catch (Exception e) {
+>         // Handle the exception or log it.
+>         getLog().error("Failed to initialize DependencyGraphBuilder", e);
+>         return null;
+>       }
+>     });

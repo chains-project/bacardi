@@ -1,0 +1,145 @@
+<code_analysis>
+The error message indicates that the class `CollectionOf` cannot be found in the package `org.cactoos.collection`. This suggests that the `CollectionOf` class has either been moved or removed in the updated version of the `org.cactoos` dependency. The error occurs in the `equalWallets` method where `CollectionOf` is used to compare the size of the ledgers of two wallets.
+
+To resolve this issue, we need to find the equivalent functionality in the updated version of the `org.cactoos` dependency or replace the usage of `CollectionOf` with a different approach that does not rely on this class.
+</code_analysis>
+
+```java
+package io.zold.api;
+
+import io.zold.api.Copies.Copy;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import org.cactoos.iterable.IterableEnvelope;
+import org.cactoos.iterable.IterableOf;
+import org.cactoos.iterable.Joined;
+import org.cactoos.iterable.Mapped;
+
+/**
+ * Multiple copies of a Wallet.
+ * @since 1.0
+ */
+public final class Copies extends IterableEnvelope<Copy> {
+
+    /**
+     * Ctor.
+     * @param id Id of the wallet to pull.
+     * @param remotes Remote nodes.
+     */
+    Copies(final long id, final Iterable<Remote> remotes) {
+        super(() -> copies(id, remotes));
+    }
+
+    /**
+     * Builds copies from remotes.
+     * @param id Wallet's id
+     * @param remotes List of remotes
+     * @return Iterable Iterable of Copy
+     * @throws IOException If fails
+     */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    private static Iterable<Copy> copies(final long id,
+        final Iterable<Remote> remotes) throws IOException {
+        final List<Copy> copies = new ArrayList<>(10);
+        for (final Remote remote : remotes) {
+            final Wallet wallet = remote.pull(id);
+            boolean updated = false;
+            for (int idx = 0; idx < copies.size(); idx += 1) {
+                final Copy copy = copies.get(idx);
+                if (Copies.equalWallets(copies.get(idx).wallet(), wallet)) {
+                    copies.set(idx, copy.with(remote));
+                    updated = true;
+                }
+            }
+            if (!updated) {
+                copies.add(new Copy(wallet, remote));
+            }
+        }
+        return new IterableOf<>(copies);
+    }
+
+    /**
+     * Checks if content of two wallets is equal.
+     * @param first First wallet
+     * @param second Second wallet
+     * @return Boolean Boolean
+     * @throws IOException If fails
+     * @todo #56:30min Compare the entire content of two wallets. In addition
+     *  to id, compare RSA key and all transactions one by one. Entire content
+     *  of each transaction should be compared.
+     */
+    private static boolean equalWallets(final Wallet first,
+        final Wallet second) throws IOException {
+        return first.id() == second.id() && first.ledger().size() == second.ledger().size();
+    }
+
+    /**
+     * One copy of a {@link Wallet}.
+     * @since 1.0
+     */
+    static final class Copy implements Comparable<Copy> {
+
+        /**
+         * The wallet.
+         */
+        private final Wallet wlt;
+
+        /**
+         * The remote nodes where the wallet was found.
+         */
+        private final Iterable<Remote> remotes;
+
+        /**
+         * Ctor.
+         * @param wallet The wallet.
+         * @param remotes The remote nodes where the wallet was found.
+         */
+        Copy(final Wallet wallet, final Remote... remotes) {
+            this(wallet, new IterableOf<>(remotes));
+        }
+
+        /**
+         * Ctor.
+         * @param wallet The wallet.
+         * @param remotes The remote nodes where the wallet was found.
+         */
+        Copy(final Wallet wallet, final Iterable<Remote> remotes) {
+            this.wlt = wallet;
+            this.remotes = remotes;
+        }
+
+        /**
+         * Creates new Copy instance with additional remote.
+         * @param remote Remote
+         * @return Copy Copy
+         */
+        public Copy with(final Remote remote) {
+            return new Copy(this.wallet(), new Joined<>(remote, this.remotes));
+        }
+
+        /**
+         * The wallet.
+         * @return The wallet.
+         */
+        public Wallet wallet() {
+            return this.wlt;
+        }
+
+        /**
+         * The summary of the score of all the remote nodes.
+         * @return The score.
+         */
+        public Score score() {
+            return new Score.Summed(new Mapped<>(Remote::score, this.remotes));
+        }
+
+        @Override
+        public int compareTo(final Copy other) {
+            return this.score().compareTo(other.score());
+        }
+    }
+}
+```
+
+In this fix, the `CollectionOf` class is replaced with the `size()` method directly on the `ledger()` method of the `Wallet` class, assuming that `ledger()` returns a collection-like object that has a `size()` method. This change is made to ensure compatibility with the updated dependency version.

@@ -1,0 +1,72 @@
+1,16d0
+< /**
+<  *
+<  * Copyright 2004 The Apache Software Foundation
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  * http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+28d11
+< import org.apache.commons.io.input.BoundedInputStream;
+204,205c187,189
+<                         BoundedInputStream bis = new BoundedInputStream( in, remainingSpace + 1 );
+<                         CountingInputStream cis = new CountingInputStream( bis );
+---
+>                         // Custom BoundedInputStream implementation
+>                         InputStream boundedInputStream = new BoundedInputStream(in, remainingSpace + 1);
+>                         CountingInputStream cis = new CountingInputStream(boundedInputStream);
+211c195
+<                         remainingSpace -= cis.getByteCount();
+---
+>                         remainingSpace -= cis.getCount();
+226a211,251
+>     // Custom BoundedInputStream implementation
+>     private static class BoundedInputStream extends InputStream {
+>         private final InputStream in;
+>         private final long maxBytes;
+>         private long bytesRead;
+> 
+>         public BoundedInputStream(InputStream in, long maxBytes) {
+>             this.in = in;
+>             this.maxBytes = maxBytes;
+>             this.bytesRead = 0;
+>         }
+> 
+>         @Override
+>         public int read() throws IOException {
+>             if (bytesRead >= maxBytes) {
+>                 return -1;
+>             }
+>             int b = in.read();
+>             if (b != -1) {
+>                 bytesRead++;
+>             }
+>             return b;
+>         }
+> 
+>         @Override
+>         public int read(byte[] b, int off, int len) throws IOException {
+>             if (bytesRead >= maxBytes) {
+>                 return -1;
+>             }
+>             int read = in.read(b, off, (int) Math.min(len, maxBytes - bytesRead));
+>             if (read != -1) {
+>                 bytesRead += read;
+>             }
+>             return read;
+>         }
+> 
+>         @Override
+>         public void close() throws IOException {
+>             in.close();
+>         }
+>     }
