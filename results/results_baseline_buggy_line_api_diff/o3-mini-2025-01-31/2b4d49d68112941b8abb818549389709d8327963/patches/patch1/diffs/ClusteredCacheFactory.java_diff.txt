@@ -1,0 +1,86 @@
+22c22,23
+< import com.hazelcast.config.MaxSizeConfig;
+---
+> import com.hazelcast.config.EvictionConfig;
+> import com.hazelcast.config.MaxSizePolicy;
+27d27
+< import com.hazelcast.core.Cluster;
+30c30,31
+< import com.hazelcast.core.Member;
+---
+> import com.hazelcast.cluster.Cluster;
+> import com.hazelcast.cluster.Member;
+75,80d75
+< /**
+<  * CacheFactory implementation to use when using Hazelcast in cluster mode.
+<  *
+<  * @author Tom Evans
+<  * @author Gaston Dombiak
+<  */
+194,195c189,190
+<                 memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
+<                 memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
+---
+>                 memberAttributeConfig.getAttributes().put(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
+>                 memberAttributeConfig.getAttributes().put(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
+288c283,284
+<             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+---
+>             dynamicConfig.getEvictionConfig().setMaximumSizePolicy(MaxSizePolicy.USED_HEAP_SIZE);
+>             dynamicConfig.getEvictionConfig().setSize(hazelcastMaxCacheSizeInMegaBytes);
+294d289
+<         // TODO: Better genericize this method in CacheFactoryStrategy so we can stop suppressing this warning
+378d372
+< 
+380d373
+<             // Asynchronously execute the task on the other cluster members
+400d392
+<         // Check that the requested member was found
+402d393
+<             // Asynchronously execute the task on the target member
+432d422
+<             // Asynchronously execute the task on the other cluster members
+466d455
+<         // Check that the requested member was found
+468d456
+<             // Asynchronously execute the task on the target member
+514d501
+<             // Create the cacheStats map if necessary.
+522,524d508
+<                 // The following information is published:
+<                 // current size, max size, num elements, cache
+<                 // hits, cache misses.
+533d516
+<             // Publish message
+548d530
+<         // TODO: Update CacheFactoryStrategy so the signature is getLock(final Serializable key, Cache<Serializable, Serializable> cache)
+553,561d534
+<     /**
+<      * ClusterTasks that are executed should not be provided by a plugin. These will cause issues related to class
+<      * loading when the providing plugin is reloaded. This method verifies if an instance of a task is
+<      * loaded by a plugin class loader, and logs a warning to the log files when it is. The amount of warnings logged is
+<      * limited by a time interval.
+<      *
+<      * @param o the instance for which to verify the class loader
+<      * @see <a href="https://github.com/igniterealtime/openfire-hazelcast-plugin/issues/74">Issue #74: Warn against usage of plugin-provided classes in Hazelcast</a>
+<      */
+566d538
+<             // Try to determine what plugin loaded the offending class.
+583c555
+<             pluginClassLoaderWarnings.put(o.getClass().getName(), Instant.now()); // Note that this Instant is unused.
+---
+>             pluginClassLoaderWarnings.put(o.getClass().getName(), Instant.now());
+656c628,629
+<         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
+---
+>         String nodeIdStr = String.valueOf(member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE));
+>         return NodeID.getInstance(nodeIdStr.getBytes(StandardCharsets.UTF_8));
+684,685d656
+<             // Add a listener at the ultimate end of the list of all listeners, to detect that left-cluster event handling
+<             // has been invoked for all before proceeding.
+699d669
+< 
+701,703d670
+< 
+< 
+< 

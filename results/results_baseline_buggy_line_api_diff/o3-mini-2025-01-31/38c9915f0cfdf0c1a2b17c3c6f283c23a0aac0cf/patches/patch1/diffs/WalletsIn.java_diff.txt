@@ -1,0 +1,50 @@
+37,38d36
+< import org.cactoos.scalar.IoCheckedScalar;
+< import org.cactoos.scalar.SolidScalar;
+40d37
+< import org.cactoos.text.JoinedText;
+53c50
+<     private final IoCheckedScalar<Path> path;
+---
+>     private final Scalar<Path> path;
+101,105c98,105
+<     public WalletsIn(final Scalar<Path> pth, final String ext,
+<         final Random random) {
+<         this.path = new IoCheckedScalar<>(
+<             new SolidScalar<>(pth)
+<         );
+---
+>     public WalletsIn(final Scalar<Path> pth, final String ext, final Random random) {
+>         this.path = () -> {
+>             try {
+>                 return pth.value();
+>             } catch (final Exception e) {
+>                 throw new IOException(e);
+>             }
+>         };
+118,124c118,125
+<         final Path wpth = this.path.value().resolve(
+<             new JoinedText(
+<                 ".",
+<                 Long.toHexString(this.random.nextLong()),
+<                 this.ext
+<             ).asString()
+<         );
+---
+>         final Path base;
+>         try {
+>             base = this.path.value();
+>         } catch (final Exception e) {
+>             throw new IOException(e);
+>         }
+>         final String fileName = String.join(".", Long.toHexString(this.random.nextLong()), this.ext);
+>         final Path wpth = base.resolve(fileName);
+144,145c145
+<     public Wallet create(final long id, final String pubkey, final String
+<         network) throws IOException {
+---
+>     public Wallet create(final long id, final String pubkey, final String network) throws IOException {
+158c158
+<         } catch (final IOException ex) {
+---
+>         } catch (final Exception ex) {

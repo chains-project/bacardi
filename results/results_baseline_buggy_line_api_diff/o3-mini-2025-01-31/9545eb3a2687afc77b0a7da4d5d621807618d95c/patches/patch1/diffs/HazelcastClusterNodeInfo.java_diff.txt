@@ -1,0 +1,11 @@
+23,24c23,24
+< 
+< import com.hazelcast.core.Member;
+---
+> import com.hazelcast.cluster.Member;
+> import java.net.InetSocketAddress;
+42c42,43
+<         this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";
+---
+>         this.hostname = String.valueOf(member.getAttribute(HOST_NAME_ATTRIBUTE)) 
+>                 + " (" + ((InetSocketAddress) member.getSocketAddress()).getHostString() + ")";

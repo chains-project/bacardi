@@ -1,0 +1,12 @@
+4a5
+> import java.io.FileOutputStream;
+242,246c243,245
+<                         writer.writeValue(segmentListFile, dataList);
+< 
+<             processHandler = new ProcessHandler();
+<             processHandler.setFetchProcessConsole(true);
+<             processHandler.startProcess("ocr4all-helper-scripts", skewparams, false);
+---
+>             try (FileOutputStream fos = new FileOutputStream(segmentListFile)) {
+>                 writer.writeValue(fos, dataList);
+>             }

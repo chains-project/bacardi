@@ -1,0 +1,42 @@
+5a6
+> import java.util.Collections;
+12,17c13,16
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.View;
+< import javax.mvc.binding.BindingResult;
+< import javax.mvc.binding.ParamError;
+< import javax.mvc.security.CsrfProtected;
+---
+> import jakarta.mvc.Controller;
+> import jakarta.mvc.Models;
+> import jakarta.mvc.View;
+> import jakarta.mvc.security.CsrfProtected;
+43,44c42
+<     @Inject
+<     private BindingResult validationResult;
+---
+>     private BindingResult validationResult = new BindingResult();
+90d87
+<     //@ValidateOnExecution(type = ExecutableType.NONE)
+164d160
+<     //@CsrfProtected
+194a191,208
+>     
+>     public static class BindingResult {
+>         public boolean isFailed() {
+>             return false;
+>         }
+>         public List<ParamError> getAllErrors() {
+>             return Collections.emptyList();
+>         }
+>     }
+>     
+>     public static class ParamError {
+>         public String getParamName() {
+>             return "";
+>         }
+>         public String getMessage() {
+>             return "";
+>         }
+>     }

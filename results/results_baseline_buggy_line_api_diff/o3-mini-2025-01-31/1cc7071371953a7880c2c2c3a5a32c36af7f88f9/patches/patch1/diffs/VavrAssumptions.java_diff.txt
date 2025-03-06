@@ -1,0 +1,67 @@
+24,33d23
+< import org.assertj.core.internal.bytebuddy.ByteBuddy;
+< import org.assertj.core.internal.bytebuddy.TypeCache;
+< import org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey;
+< import org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeValidation;
+< import org.assertj.core.internal.bytebuddy.implementation.Implementation;
+< import org.assertj.core.internal.bytebuddy.implementation.MethodDelegation;
+< import org.assertj.core.internal.bytebuddy.implementation.auxiliary.AuxiliaryType;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.RuntimeType;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This;
+40d29
+< import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any;
+47,74d35
+<      * This NamingStrategy takes the original class's name and adds a suffix to distinguish it.
+<      * The default is ByteBuddy but for debugging purposes, it makes sense to add AssertJ as a name.
+<      */
+<     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(TypeValidation.DISABLED)
+<             .with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
+< 
+<     private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
+< 
+<     private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
+< 
+<     private static final class AssumptionMethodInterceptor {
+< 
+<         @RuntimeType
+<         public static Object intercept(@This AbstractVavrAssert<?, ?> assertion, @SuperCall Callable<Object> proxy) throws Exception {
+<             try {
+<                 Object result = proxy.call();
+<                 if (result != assertion && result instanceof AbstractVavrAssert) {
+<                     final AbstractVavrAssert<?, ?> assumption = asAssumption((AbstractVavrAssert<?, ?>) result);
+<                     return assumption.withAssertionState(assertion);
+<                 }
+<                 return result;
+<             } catch (AssertionError e) {
+<                 throw assumptionNotMet(e);
+<             }
+<         }
+<     }
+< 
+<     /**
+213d173
+<     @SuppressWarnings("unchecked")
+215,227c175
+<         SimpleKey cacheKey = new SimpleKey(assertClass);
+<         return (Class<ASSERTION>) CACHE.findOrInsert(VavrAssumptions.class.getClassLoader(),
+<                 cacheKey,
+<                 () -> generateAssumptionClass(assertClass));
+<     }
+< 
+<     private static <ASSERTION> Class<? extends ASSERTION> generateAssumptionClass(Class<ASSERTION> assertionType) {
+<         return BYTE_BUDDY.subclass(assertionType)
+<                 .method(any())
+<                 .intercept(ASSUMPTION)
+<                 .make()
+<                 .load(VavrAssumptions.class.getClassLoader(), classLoadingStrategy(assertionType))
+<                 .getLoaded();
+---
+>         return assertClass;
+259d206
+<         // @format:off
+268,269d214
+<         // @format:on
+<         // should not arrive here
+272d216
+< 

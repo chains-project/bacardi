@@ -1,0 +1,35 @@
+0a1,6
+> package io.zold.api;
+> 
+> import org.cactoos.iterable.Repeated;
+> import org.cactoos.Text;
+> import java.util.UUID;
+> 
+25,34d30
+< package io.zold.api;
+< 
+< import org.cactoos.iterable.Repeated;
+< import org.cactoos.text.RandomText;
+< 
+< /**
+<  * Remote node.
+<  *
+<  * @since 0.1
+<  */
+35a32
+> 
+71c68
+<                 new Repeated<>(val, new RandomText())
+---
+>                 new Repeated<>(val, new FakeRandomText())
+96a94,103
+>         
+>         /**
+>          * A fake random text generator to replace the removed RandomText.
+>          */
+>         private static final class FakeRandomText implements Text {
+>             @Override
+>             public String asString() {
+>                 return UUID.randomUUID().toString();
+>             }
+>         }

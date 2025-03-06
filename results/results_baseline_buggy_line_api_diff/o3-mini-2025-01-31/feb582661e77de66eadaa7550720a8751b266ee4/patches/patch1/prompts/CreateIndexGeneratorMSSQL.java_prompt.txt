@@ -1,0 +1,143 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+```java
+package liquibase.ext.mssql.sqlgenerator;
+
+import liquibase.change.AddColumnConfig;
+import liquibase.database.Database;
+import liquibase.ext.mssql.database.MSSQLDatabase;
+import liquibase.ext.mssql.statement.CreateIndexStatementMSSQL;
+import liquibase.sql.Sql;
+import liquibase.sql.UnparsedSql;
+import liquibase.sqlgenerator.SqlGeneratorChain;
+import liquibase.sqlgenerator.core.CreateIndexGenerator;
+import liquibase.statement.core.CreateIndexStatement;
+import liquibase.util.StringUtils;
+
+import java.util.Arrays;
+import java.util.Iterator;
+
+public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
+  @Override
+  public int getPriority() {
+    return 15;
+  }
+
+  @Override
+  public Sql[] generateSql(CreateIndexStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
+    if (statement instanceof CreateIndexStatementMSSQL) {
+      return generateMSSQLSql((CreateIndexStatementMSSQL)statement, database, sqlGeneratorChain);
+    }
+
+    return super.generateSql(statement, database, sqlGeneratorChain);
+  }
+
+  private Sql[] generateMSSQLSql(CreateIndexStatementMSSQL statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
+    StringBuilder builder = new StringBuilder();
+
+    // Basically copied from liquibase.sqlgenerator.core.CreateIndexGenerator
+    builder.append("CREATE ");
+    if (statement.isUnique() != null && statement.isUnique()) {
+      builder.append("UNIQUE ");
+    }
+    
+    if (statement.isClustered() != null) {
+        if (statement.isClustered()) {
+            builder.append("CLUSTERED ");
+        } else {
+            builder.append("NONCLUSTERED ");
+        }
+    }
+    
+    builder.append("INDEX ");
+
+    if (statement.getIndexName() != null) {
+      String indexSchema = statement.getTableSchemaName();
+      builder.append(database.escapeIndexName(statement.getTableCatalogName(), indexSchema, statement.getIndexName())).append(" ");
+    }
+    builder.append("ON ");
+    builder.append(database.escapeTableName(statement.getTableCatalogName(), statement.getTableSchemaName(), statement.getTableName())).append("(");
+    Iterator<AddColumnConfig> iterator = Arrays.asList(statement.getColumns()).iterator();
+    while (iterator.hasNext()) {
+      AddColumnConfig column = iterator.next();
+      builder.append(database.escapeColumnName(statement.getTableCatalogName(), statement.getTableSchemaName(), statement.getTableName(), column.getName()));
+      if (column.getDescending() != null && column.getDescending()) {
+          builder.append(" DESC");
+      }
+      if (iterator.hasNext()) {
+        builder.append(", ");
+      }
+    }
+    if (statement.getIncludedColumns() != null && ! statement.getIncludedColumns().isEmpty()) {
+      builder.append(") INCLUDE (");
+      builder.append(database.escapeColumnNameList(statement.getIncludedColumns()));
+    }
+    builder.append(")");
+    if (statement.getFillFactor() != null) {
+      builder.append(" WITH (FILLFACTOR = ").append(statement.getFillFactor()).append(")");
+    }
+    // This block simplified, since we know we have MSSQLDatabase
+    if (StringUtils.trimToNull(statement.getTablespace()) != null) {
+      builder.append(" ON ").append(statement.getTablespace());
+    }
+
+    return new Sql[]{new UnparsedSql(builder.toString(), getAffectedIndex(statement))};
+  }
+
+  @Override
+  public boolean supports(CreateIndexStatement statement, Database database) {
+    return database instanceof MSSQLDatabase;
+  }
+}
+
+```
+the error is triggered in the following specific lines in the previous code:
+
+```java
+import liquibase.util.StringUtils;
+```
+```java
+if (StringUtils.trimToNull(statement.getTablespace()) != null) {
+```
+```java
+if (StringUtils.trimToNull(statement.getTablespace()) != null) {
+```
+
+
+
+ with the following error information:
+[ERROR] /liquibase-mssql/src/java/liquibase/ext/mssql/sqlgenerator/CreateIndexGeneratorMSSQL.java:[12,22] cannot find symbol
+  symbol:   class StringUtils
+  location: package liquibase.util
+
+[ERROR] /liquibase-mssql/src/java/liquibase/ext/mssql/sqlgenerator/CreateIndexGeneratorMSSQL.java:[77,9] cannot find symbol
+  symbol:   variable StringUtils
+  location: class liquibase.ext.mssql.sqlgenerator.CreateIndexGeneratorMSSQL
+
+[ERROR] /liquibase-mssql/src/java/liquibase/ext/mssql/sqlgenerator/CreateIndexGeneratorMSSQL.java:[77,9] cannot find symbol
+  symbol:   variable StringUtils
+  location: class liquibase.ext.mssql.sqlgenerator.CreateIndexGeneratorMSSQL
+
+
+The error is caused by a change in the API of the dependency. The new library version includes the following changes:
+     Constructor liquibase.util.StringUtils() has been removed in the new version of the dependency.
+     Class liquibase.util.StringUtils has been removed in the new version of the dependency.
+     Type reference liquibase.repackaged.org.apache.commons.lang3.StringUtils() has been added in the new version of the dependency.
+     Method liquibase.repackaged.org.apache.commons.lang3.StringUtils.trimToNull(java.lang.String) has been added in the new version of the dependency.
+     Method liquibase.util.StringUtil.trimToNull(java.lang.String) has been added in the new version of the dependency.
+     Method liquibase.util.StringUtils.trimToNull(java.lang.String) has been removed in the new version of the dependency.
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Oxverride annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

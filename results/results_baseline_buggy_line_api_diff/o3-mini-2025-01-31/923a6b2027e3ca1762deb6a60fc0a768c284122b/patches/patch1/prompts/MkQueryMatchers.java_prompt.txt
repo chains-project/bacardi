@@ -1,0 +1,138 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+```java
+/*
+ * Copyright (c) 2011-2017, jcabi.com
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met: 1) Redistributions of source code must retain the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer. 2) Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3) Neither the name of the jcabi.com nor
+ * the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
+ * permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+ * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+ * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package com.jcabi.http.mock;
+
+import java.net.URI;
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
+
+/**
+ * Convenient set of matchers for {@link MkQuery}.
+ *
+ * @since 1.5
+ */
+@SuppressWarnings("PMD.ProhibitPublicStaticMethods")
+public final class MkQueryMatchers {
+
+    /**
+     * Private ctor.
+     */
+    private MkQueryMatchers() {
+        // Utility class - cannot instantiate
+    }
+
+    /**
+     * Matches the value of the MkQuery's body against the given matcher.
+     *
+     * @param matcher The matcher to use.
+     * @return Matcher for checking the body of MkQuery
+     */
+    public static Matcher<MkQuery> hasBody(final Matcher<String> matcher) {
+        return new MkQueryBodyMatcher(matcher);
+    }
+
+    /**
+     * Matches the content of the MkQuery's header against the given matcher.
+     * Note that for a valid match to occur, the header entry must exist
+     * <i>and</i> its value(s) must match the given matcher.
+     *
+     * @param header The header to check.
+     * @param matcher The matcher to use.
+     * @return Matcher for checking the body of MkQuery
+     */
+    public static Matcher<MkQuery> hasHeader(
+        final String header,
+        final Matcher<Iterable<? extends String>> matcher
+    ) {
+        return new MkQueryHeaderMatcher(header, matcher);
+    }
+
+    /**
+     * Matches the path of the MkQuery.
+     *
+     * @param path The path to check.
+     * @return Matcher for checking the path of MkQuery
+     */
+    public static Matcher<MkQuery> hasPath(final Matcher<String> path) {
+        return new MkQueryUriMatcher(
+            Matchers.<URI>hasProperty("rawPath", path)
+        );
+    }
+
+    /**
+     * Matches the query of the MkQuery.
+     *
+     * @param query The query to check.
+     * @return Matcher for checking the query of MkQuery
+     */
+    public static Matcher<MkQuery> hasQuery(final Matcher<String> query) {
+        return new MkQueryUriMatcher(
+            Matchers.<URI>hasProperty("rawQuery", query)
+        );
+    }
+
+}
+
+```
+the error is triggered in the following specific lines in the previous code:
+
+```java
+import org.hamcrest.Matchers;
+```
+
+
+
+ with the following error information:
+[ERROR] /jcabi-http/src/main/java/com/jcabi/http/mock/MkQueryMatchers.java:[34,20] cannot find symbol
+  symbol:   class Matchers
+  location: package org.hamcrest
+
+
+The error is caused by a change in the API of the dependency. The new library version includes the following changes:
+     Class org.hamcrest.Matchers has been removed in the new version of the dependency.
+     Constructor org.hamcrest.Matchers() has been removed in the new version of the dependency.
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Oxverride annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

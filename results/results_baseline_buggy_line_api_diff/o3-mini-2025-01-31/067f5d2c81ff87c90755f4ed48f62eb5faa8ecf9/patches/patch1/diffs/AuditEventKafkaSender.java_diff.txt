@@ -1,0 +1,22 @@
+33a34
+> import org.apache.thrift.transport.TTransportException;
+121c122
+<   private TSerializer serializer = new TSerializer();
+---
+>   private TSerializer serializer;
+185a187,191
+>     try {
+>       serializer = new TSerializer();
+>     } catch (TTransportException e) {
+>       throw new RuntimeException("Failed to initialize TSerializer", e);
+>     }
+187d192
+< 
+246,252d250
+<   /**
+<    *  Sender dequeues LoggingAuditEvents and sends them to Kafka cluster. If send to one partition
+<    *  fails, it will choose another partition. For each event, it will try at most
+<    *  NUM_OF_PARTITIONS_TO_TRY_SENDING times (3 times) before dropping this event. Metrics are
+<    *  used to track the queue size and usuage, number of events sent out to Kafka successfully, and
+<    *  the number of events dropped.
+<    */

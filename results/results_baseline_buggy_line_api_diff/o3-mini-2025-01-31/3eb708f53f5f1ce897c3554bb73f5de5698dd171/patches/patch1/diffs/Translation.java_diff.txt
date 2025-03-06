@@ -1,0 +1,29 @@
+19d18
+< import com.google.api.services.translate.model.TranslationsResource;
+26,33d24
+< /**
+<  * Information about a translation. Objects of this class contain the translated text and the source
+<  * language's code. The source language's code can be optionally specified by the user or
+<  * automatically detected by the Google Translation service.
+<  *
+<  * @see <a href="https://cloud.google.com/translate/v2/translating-text-with-rest">Translating
+<  *     Text</a>
+<  */
+37,38c28,29
+<   static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =
+<       new Function<TranslationsResource, Translation>() {
+---
+>   static final Function<com.google.api.services.translate.v3.model.Translation, Translation> FROM_PB_FUNCTION =
+>       new Function<com.google.api.services.translate.v3.model.Translation, Translation>() {
+40c31
+<         public Translation apply(TranslationsResource translationPb) {
+---
+>         public Translation apply(com.google.api.services.translate.v3.model.Translation translationPb) {
+106c97
+<   static Translation fromPb(TranslationsResource translationPb) {
+---
+>   static Translation fromPb(com.google.api.services.translate.v3.model.Translation translationPb) {
+109c100
+<         translationPb.getDetectedSourceLanguage(),
+---
+>         null,

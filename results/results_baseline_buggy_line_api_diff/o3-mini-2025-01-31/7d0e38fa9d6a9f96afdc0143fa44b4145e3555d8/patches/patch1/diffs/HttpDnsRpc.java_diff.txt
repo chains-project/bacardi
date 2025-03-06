@@ -1,0 +1,45 @@
+211c211
+<         .create(this.options.getProjectId(), zone)
+---
+>         .create(this.options.getProjectId(), zone.getName(), zone)
+232c232
+<         .get(this.options.getProjectId(), zoneName)
+---
+>         .get(this.options.getProjectId(), zoneName, "")
+247a248,251
+>     String dnsName = Option.DNS_NAME.getString(options);
+>     if (dnsName == null) {
+>       dnsName = "";
+>     }
+249c253
+<         .list(this.options.getProjectId())
+---
+>         .list(this.options.getProjectId(), dnsName)
+252d255
+<         .setDnsName(Option.DNS_NAME.getString(options))
+271c274
+<     return dns.managedZones().delete(this.options.getProjectId(), zoneName);
+---
+>     return dns.managedZones().delete(this.options.getProjectId(), zoneName, "");
+289c292
+<         .list(this.options.getProjectId(), zoneName)
+---
+>         .list(this.options.getProjectId(), zoneName, "")
+308c311
+<         .get(this.options.getProjectId())
+---
+>         .get(this.options.getProjectId(), "")
+325c328
+<         .create(this.options.getProjectId(), zoneName, changeRequest)
+---
+>         .create(this.options.getProjectId(), zoneName, "", changeRequest)
+352c355
+<         .get(this.options.getProjectId(), zoneName, changeRequestId)
+---
+>         .get(this.options.getProjectId(), zoneName, changeRequestId, "")
+372c375
+<             .list(this.options.getProjectId(), zoneName)
+---
+>             .list(this.options.getProjectId(), zoneName, "")
+377d379
+<       // todo check and change if more sorting options are implemented, issue #604

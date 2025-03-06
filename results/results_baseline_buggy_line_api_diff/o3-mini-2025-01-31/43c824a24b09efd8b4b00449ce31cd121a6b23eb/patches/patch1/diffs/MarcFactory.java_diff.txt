@@ -1,0 +1,69 @@
+3d2
+< import de.gwdg.metadataqa.api.json.JsonBranch;
+47,49d45
+< /**
+<  * Factory class to create MarcRecord from JsonPathCache
+<  */
+67,69c63,66
+<     for (JsonBranch branch : schema.getPaths()) {
+<       if (branch.getParent() != null)
+<         continue;
+---
+>     // The new MarcJsonSchema now returns a list of JSON path strings.
+>     for (String path : schema.getPaths()) {
+>       JsonBranch branch = wrapJsonBranch(path);
+>       // Nested branches are no longer used; skip any parent check.
+84,85c81
+<           marcRecord.setControl006(
+<             new Control006(extractFirst(cache, branch), marcRecord));
+---
+>           marcRecord.setControl006(new Control006(extractFirst(cache, branch), marcRecord));
+88,89c84
+<           marcRecord.setControl007(
+<             new Control007(extractFirst(cache, branch), marcRecord));
+---
+>           marcRecord.setControl007(new Control007(extractFirst(cache, branch), marcRecord));
+92,93c87
+<           marcRecord.setControl008(
+<             new Control008(extractFirst(cache, branch), marcRecord));
+---
+>           marcRecord.setControl008(new Control008(extractFirst(cache, branch), marcRecord));
+133,140d126
+<   /**
+<    * Create a MarcRecord object from Marc4j object
+<    * @param marc4jRecord The Marc4j record
+<    * @param defaultType The defauld document type
+<    * @param marcVersion The MARC version
+<    * @param replecementInControlFields A ^ or # character which sould be replaced with space in control fields
+<    * @return
+<    */
+172d157
+<     // marcRecord.setSchemaType(SchemaType.PICA);
+230d214
+<         // System.err.println("getTag: " + dataField.getTag() + " ----");
+472d455
+<       // String tag = schema.containsKey(line.getQualifiedTag()) ? line.getQualifiedTag() : line.getTag();
+484a468,490
+> 
+>   private static JsonBranch wrapJsonBranch(String path) {
+>     return new JsonBranch() {
+>       @Override
+>       public Object getParent() {
+>         return null;
+>       }
+>       @Override
+>       public String getLabel() {
+>         return path;
+>       }
+>       @Override
+>       public String getJsonPath() {
+>         return path;
+>       }
+>     };
+>   }
+> 
+>   private static interface JsonBranch {
+>     Object getParent();
+>     String getLabel();
+>     String getJsonPath();
+>   }

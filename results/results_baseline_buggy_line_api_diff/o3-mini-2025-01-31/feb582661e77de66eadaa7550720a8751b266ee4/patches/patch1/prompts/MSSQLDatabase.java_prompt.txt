@@ -1,0 +1,105 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+```java
+package liquibase.ext.mssql.database;
+
+import liquibase.CatalogAndSchema;
+import liquibase.exception.LiquibaseException;
+import liquibase.executor.ExecutorService;
+import liquibase.ext.mssql.statement.DropStoredProcedureStatement;
+
+public class MSSQLDatabase extends liquibase.database.core.MSSQLDatabase {
+    
+    @Override
+    public int getPriority() {
+        return PRIORITY_DATABASE;
+    }
+    
+    @Override
+    public void dropDatabaseObjects(CatalogAndSchema schemaToDrop) throws LiquibaseException {
+        super.dropDatabaseObjects(schemaToDrop);
+        ExecutorService.getInstance().getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+    }
+}
+```
+the error is triggered in the following specific lines in the previous code:
+
+```java
+ExecutorService.getInstance().getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+```
+```java
+ExecutorService.getInstance().getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+```
+```java
+ExecutorService.getInstance().getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+```
+```java
+ExecutorService.getInstance().getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+```
+```java
+ExecutorService.getInstance().getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+```
+
+
+
+ with the following error information:
+[ERROR] /liquibase-mssql/src/java/liquibase/ext/mssql/database/MSSQLDatabase.java:[18,24] cannot find symbol
+  symbol:   method getInstance()
+  location: class liquibase.executor.ExecutorService
+
+[ERROR] /liquibase-mssql/src/java/liquibase/ext/mssql/database/MSSQLDatabase.java:[18,24] cannot find symbol
+  symbol:   method getInstance()
+  location: class liquibase.executor.ExecutorService
+
+[ERROR] /liquibase-mssql/src/java/liquibase/ext/mssql/database/MSSQLDatabase.java:[18,24] cannot find symbol
+  symbol:   method getInstance()
+  location: class liquibase.executor.ExecutorService
+
+[ERROR] /liquibase-mssql/src/java/liquibase/ext/mssql/database/MSSQLDatabase.java:[18,24] cannot find symbol
+  symbol:   method getInstance()
+  location: class liquibase.executor.ExecutorService
+
+[ERROR] /liquibase-mssql/src/java/liquibase/ext/mssql/database/MSSQLDatabase.java:[18,24] cannot find symbol
+  symbol:   method getInstance()
+  location: class liquibase.executor.ExecutorService
+
+
+The error is caused by a change in the API of the dependency. The new library version includes the following changes:
+     Interface liquibase.executor.Executor has been removed in the new version of the dependency.
+     Method liquibase.sdk.Context.getInstance() has been removed in the new version of the dependency.
+     Method liquibase.command.CommandFactory.getInstance() has been added in the new version of the dependency.
+     Method liquibase.database.ConnectionServiceFactory.getInstance() has been added in the new version of the dependency.
+     Method liquibase.executor.ExecutorService.getInstance() has been removed in the new version of the dependency.
+     Method liquibase.repackaged.org.apache.commons.lang3.time.FastDateFormat.getInstance(java.lang.String) has been added in the new version of the dependency.
+     Method liquibase.repackaged.org.apache.commons.lang3.time.FastDateFormat.getInstance() has been added in the new version of the dependency.
+     Method liquibase.sdk.supplier.database.ConnectionConfigurationFactory.getInstance() has been removed in the new version of the dependency.
+     Method liquibase.pro.packaged.iI.getInstance() has been added in the new version of the dependency.
+     Method liquibase.util.beans.PropertyUtils.getInstance() has been removed in the new version of the dependency.
+     Method liquibase.pro.packaged.iD.getInstance() has been added in the new version of the dependency.
+     Method liquibase.repackaged.org.apache.commons.lang3.CharSet.getInstance(java.lang.String[]) has been added in the new version of the dependency.
+     Method liquibase.repackaged.org.apache.commons.lang3.time.FastDateFormat.getInstance(java.lang.String,java.util.TimeZone,java.util.Locale) has been added in the new version of the dependency.
+     Method liquibase.sdk.verifytest.VerifiedTestFactory.getInstance() has been removed in the new version of the dependency.
+     Method liquibase.repackaged.org.apache.commons.lang3.time.FastDateFormat.getInstance(java.lang.String,java.util.TimeZone) has been added in the new version of the dependency.
+     Method liquibase.util.ui.UIFactory.getInstance() has been removed in the new version of the dependency.
+     Method liquibase.repackaged.org.apache.commons.lang3.time.FastDateFormat.getInstance(java.lang.String,java.util.Locale) has been added in the new version of the dependency.
+     Method liquibase.pro.packaged.aZ.getInstance() has been added in the new version of the dependency.
+     Method liquibase.servicelocator.ServiceLocator.getInstance() has been removed in the new version of the dependency.
+     Method liquibase.sdk.TemplateService.getInstance() has been removed in the new version of the dependency.
+     Interface liquibase.change.Change has been removed in the new version of the dependency.
+     Interface liquibase.executor.ExecutorService has been removed in the new version of the dependency.
+     Method liquibase.executor.ExecutorService.getExecutor(java.lang.String,liquibase.database.Database) has been added in the new version of the dependency.
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Oxverride annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

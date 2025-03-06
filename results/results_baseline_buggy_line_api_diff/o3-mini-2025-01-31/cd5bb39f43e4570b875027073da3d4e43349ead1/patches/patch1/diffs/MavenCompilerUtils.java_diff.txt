@@ -1,0 +1,20 @@
+21c21
+< import org.codehaus.plexus.util.xml.Xpp3Dom;
+---
+> import org.apache.maven.plugin.descriptor.Xpp3Dom;
+23a24
+> import java.util.Arrays;
+71,72c72,74
+<             return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
+<                     .flatMap(aggregate -> stream(aggregate.getChildren("path")))
+---
+>             Xpp3Dom dom = (Xpp3Dom) config;
+>             return stream(getChildren(dom, "annotationProcessorPaths"))
+>                     .flatMap(aggregate -> stream(getChildren(aggregate, "path")))
+102a105,110
+> 
+>     private static Xpp3Dom[] getChildren(Xpp3Dom node, String name) {
+>         return Arrays.stream(node.getChildren())
+>                 .filter(child -> name.equals(child.getName()))
+>                 .toArray(Xpp3Dom[]::new);
+>     }
