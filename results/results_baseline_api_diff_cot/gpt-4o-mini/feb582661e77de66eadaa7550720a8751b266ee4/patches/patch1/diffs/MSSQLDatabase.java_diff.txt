@@ -1,0 +1,6 @@
+18c18,20
+<         ExecutorService.getInstance().getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+---
+>         // Updated to use the new method signature for getting the executor
+>         liquibase.executor.Executor executor = ExecutorService.getExecutor(this.getLiquibaseCatalogName(), this);
+>         executor.execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));

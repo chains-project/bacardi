@@ -216,18 +216,16 @@ public class Bump {
                 String breakingImage = e.breakingUpdateReproductionCommand.replace("docker run ", "");
 
                 // get jar from container for previous version
-                PromptPipeline[] pipeline = {PromptPipeline.BASELINE_API_DIFF, PromptPipeline.BASELINE_API_DIFF_BUGGY};
+                PromptPipeline[] pipeline = {
+                        PromptPipeline.BASELINE_API_DIFF,
+                        PromptPipeline.BASELINE_API_DIFF_BUGGY,
+                        PromptPipeline.BASELINE_COT_API_DIFF};
                 if (Arrays.asList(pipeline).contains(PIPELINE)) {
                     getProjectData(preBreakingImage, dockerBuild, clientFolder, null, null, prevoiusJarInContainerPath);
                 }
                 // get jar from container for new version and m2 folder and project
                 getProjectData(breakingImage, dockerBuild, clientFolder, fromContainerM2, fromContainerProject, newJarInContainerPath);
 
-                // copy project from container
-                // delete Image
-                // if (imageId != null) {
-                // dockerBuild.deleteImage(imageId);
-                // }
             }
         } catch (IOException e1) {
             // TODO Auto-generated catch block

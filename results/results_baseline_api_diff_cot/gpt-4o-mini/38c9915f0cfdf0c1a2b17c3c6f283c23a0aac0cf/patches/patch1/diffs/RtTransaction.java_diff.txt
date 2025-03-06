@@ -1,0 +1,93 @@
+13,14c13,14
+<  * The above copyright notice and this permission notice shall be included
+<  * in all copies or substantial portions of the Software.
+---
+>  * The above copyright notice and this permission notice shall be included in
+>  * all copies or substantial portions of the Software.
+35c35
+< import org.cactoos.scalar.IoCheckedScalar;
+---
+> import org.cactoos.scalar.IoCheckedScalar; // This import is removed
+37,38c37,38
+< import org.cactoos.scalar.StickyScalar;
+< import org.cactoos.scalar.UncheckedScalar;
+---
+> import org.cactoos.scalar.StickyScalar; // This import is removed
+> import org.cactoos.scalar.UncheckedScalar; // This import is removed
+40c40
+< import org.cactoos.text.SplitText;
+---
+> import org.cactoos.text.SplitText; // This import is removed
+42c42
+< import org.cactoos.text.TrimmedText;
+---
+> import org.cactoos.text.TrimmedText; // This import is removed
+88c88
+<     private final IoCheckedScalar<String> transaction;
+---
+>     private final String transaction;
+95,97c95
+<         this.transaction = new IoCheckedScalar<>(
+<             new StickyScalar<>(
+<                 () -> {
+---
+>         this.transaction = trnsct;
+121d118
+<                     return trnsct;
+123,125d119
+<             )
+<         );
+<     }
+131d124
+<             new IoCheckedScalar<>(
+133,134c126
+<                     0, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>                 0, new SplitText(this.transaction, ";")
+156d147
+<                 new IoCheckedScalar<>(
+158,159c149
+<                         1, new SplitText(this.transaction.value(), ";")
+<                     )
+---
+>                     1, new SplitText(this.transaction, ";")
+169d158
+<             new IoCheckedScalar<>(
+171,172c160
+<                     2, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>                 2, new SplitText(this.transaction, ";")
+193d180
+<             new IoCheckedScalar<>(
+196,197c183
+<                     3, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>                 3, new SplitText(this.transaction, ";")
+213d198
+<             new IoCheckedScalar<>(
+216,217c201
+<                     4, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>                 4, new SplitText(this.transaction, ";")
+237d220
+<             new IoCheckedScalar<>(
+240,241c223
+<                     5, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>                 5, new SplitText(this.transaction, ";")
+261d242
+<             new IoCheckedScalar<>(
+264,265c245
+<                     6, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>                 6, new SplitText(this.transaction, ";")
+286c266
+<         return new UncheckedScalar<>(this.transaction).value();
+---
+>         return this.transaction;

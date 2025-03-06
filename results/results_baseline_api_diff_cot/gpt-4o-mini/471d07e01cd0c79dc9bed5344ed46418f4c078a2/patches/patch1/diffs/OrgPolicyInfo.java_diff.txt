@@ -1,0 +1,86 @@
+18,21c18,21
+< import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+< import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+---
+> import com.google.api.services.cloudresourcemanager.v3.model.Policy; // Updated import
+> import com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy; // Updated import
+> import com.google.api.services.cloudresourcemanager.v3.model.ListPolicy; // Updated import
+> import com.google.api.services.cloudresourcemanager.v3.model.RestoreDefault; // Updated import
+38,39c38,39
+<   static final Function<OrgPolicy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
+<       new Function<OrgPolicy, OrgPolicyInfo>() {
+---
+>   static final Function<Policy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
+>       new Function<Policy, OrgPolicyInfo>() {
+41c41
+<         public OrgPolicyInfo apply(OrgPolicy protobuf) {
+---
+>         public OrgPolicyInfo apply(Policy protobuf) {
+45,46c45,46
+<   static final Function<OrgPolicyInfo, OrgPolicy> TO_PROTOBUF_FUNCTION =
+<       new Function<OrgPolicyInfo, OrgPolicy>() {
+---
+>   static final Function<OrgPolicyInfo, Policy> TO_PROTOBUF_FUNCTION =
+>       new Function<OrgPolicyInfo, Policy>() {
+48c48
+<         public OrgPolicy apply(OrgPolicyInfo orgPolicyInfo) {
+---
+>         public Policy apply(OrgPolicyInfo orgPolicyInfo) {
+97c97
+<       return new BooleanPolicy().setEnforced(enforce);
+---
+>       return new BooleanPolicy().setEnforced(enforce); // Updated method call
+125,126c125
+<     private final List<java.lang.String> deniedValues;
+<     private final Boolean inheritFromParent;
+---
+>     private final List<String> deniedValues; // Updated type
+133,134c132
+<         Boolean inheritFromParent,
+<         String suggestedValue) {
+---
+>         String suggestedValue) { // Removed inheritFromParent
+138d135
+<       this.inheritFromParent = inheritFromParent;
+157,161d153
+<     /** Returns the inheritance behavior for this Policy */
+<     Boolean getInheritFromParent() {
+<       return inheritFromParent;
+<     }
+< 
+173d164
+<           .add("inheritFromParent", getInheritFromParent())
+190d180
+<           && Objects.equals(inheritFromParent, policies.inheritFromParent)
+196,197c186
+<       return Objects.hash(
+<           allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
+---
+>       return Objects.hash(allValues, allowedValues, deniedValues, suggestedValue);
+205,206c194
+<           .setInheritFromParent(inheritFromParent)
+<           .setSuggestedValue(suggestedValue);
+---
+>           .setSuggestedValue(suggestedValue); // Removed inheritFromParent
+214d201
+<           listPolicy.getInheritFromParent(),
+360,361c347,348
+<   OrgPolicy toProtobuf() {
+<     OrgPolicy orgPolicyProto = new OrgPolicy();
+---
+>   Policy toProtobuf() {
+>     Policy orgPolicyProto = new Policy(); // Updated class
+372c359
+<     orgPolicyProto.setVersion(version);
+---
+>     orgPolicyProto.setVersion(version); // Updated method call
+376c363
+<   static OrgPolicyInfo fromProtobuf(OrgPolicy orgPolicyProtobuf) {
+---
+>   static OrgPolicyInfo fromProtobuf(Policy orgPolicyProtobuf) { // Updated class
+388c375
+<     builder.setVersion(orgPolicyProtobuf.getVersion());
+---
+>     builder.setVersion(orgPolicyProtobuf.getVersion()); // Updated method call

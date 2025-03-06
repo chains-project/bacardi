@@ -98,7 +98,7 @@ if __name__ == "__main__":
     results_path = sys.argv[1]
 
     failure_counts = process_results(results_path)
-    output_dir = 'results-analysis'
+    output_dir = 'results-analysis-frank'
     os.makedirs(output_dir, exist_ok=True)
     plot_results(failure_counts, output_dir)
     output_results_to_csv(failure_counts, output_dir)

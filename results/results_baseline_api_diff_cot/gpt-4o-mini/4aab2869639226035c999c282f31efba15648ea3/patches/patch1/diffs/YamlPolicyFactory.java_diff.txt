@@ -1,0 +1,14 @@
+9c9,10
+< import com.artipie.asto.factory.Storages;
+---
+> import com.artipie.asto.factory.StorageFactory;
+> import com.artipie.asto.factory.StorageConfig;
+40a42,43
+>             StorageFactory storageFactory = new StorageFactory();
+>             StorageConfig storageConfig = new StorageConfig(sub.toString());
+43,45c46
+<                     new Storages().newStorage(
+<                         sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
+<                     )
+---
+>                     storageFactory.newStorage(storageConfig)

@@ -1,0 +1,51 @@
+23d22
+< import org.spongepowered.api.command.CommandManager;
+27,31c26,28
+< import org.spongepowered.api.event.game.state.GameInitializationEvent;
+< import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+< import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelRegistrar;
+---
+> import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+> import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent;
+> import org.spongepowered.api.network.channel.ChannelBinding;
+53d49
+<     //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
+62c58
+<     public void onPreInit(GamePreInitializationEvent preInitEvent) {
+---
+>     public void onInit(RegisterRegistryEvent event) {
+73c69
+<     public void onInit(GameInitializationEvent initEvent) {
+---
+>     public void onRegisterCommands(RegisterCommandEvent event) {
+77,78d72
+<         CommandManager cmdManager = Sponge.getCommandManager();
+< 
+80,85c74,78
+<         cmdManager.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+<         cmdManager.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+<         cmdManager.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+<         cmdManager.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+<         cmdManager.register(this, injector.getInstance(InvalidateCommand.class)
+<                 .buildSpec(), "skininvalidate", "skin-invalidate");
+---
+>         event.register(injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+>         event.register(injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+>         event.register(injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+>         event.register(injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+>         event.register(injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
+90,94c83,84
+<         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
+<         String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
+<         String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
+<         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
+<         RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
+---
+>         ChannelBinding.RawDataChannel updateChannel = Sponge.getChannelRegistrar().getOrCreateRaw(this, new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName());
+>         ChannelBinding.RawDataChannel permChannel = Sponge.getChannelRegistrar().getOrCreateRaw(this, new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName());
+100c90
+<     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
+---
+>     public void onShutdown(RegisterRegistryEvent event) {

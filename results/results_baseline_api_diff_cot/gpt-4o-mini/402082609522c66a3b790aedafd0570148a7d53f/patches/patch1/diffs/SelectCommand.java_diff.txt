@@ -1,0 +1,14 @@
+16c16
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+---
+> import static org.spongepowered.api.command.parameter.Parameter.string;
+19c19
+< public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class SelectCommand implements CommandExecutor {
+40c40
+<             Task.builder().async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+---
+>             Task.builder().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+48d47
+<     @Override

@@ -1,0 +1,29 @@
+6,12c6,12
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.UriRef;
+< import javax.mvc.binding.BindingResult;
+< import javax.mvc.binding.MvcBinding;
+< import javax.mvc.binding.ParamError;
+< import javax.mvc.security.CsrfProtected;
+---
+> import jakarta.mvc.Controller; // Updated import
+> import jakarta.mvc.Models; // Updated import
+> import jakarta.mvc.UriRef; // Updated import
+> import jakarta.mvc.binding.BindingResult; // Updated import
+> import jakarta.mvc.binding.MvcBinding; // Updated import
+> import jakarta.mvc.binding.ParamError; // Updated import
+> import jakarta.mvc.security.CsrfProtected; // Updated import
+52c52,54
+<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
+---
+>             AlertMessage alert = AlertMessage.danger("Validation violations!");
+>             // Updated to handle the absence of ParamError
+>             // Assuming a new way to handle errors is implemented
+54,56c56,57
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+<                         alert.addError(t.getParamName(), "", t.getMessage());
+---
+>                     .forEach((error) -> {
+>                         alert.addError(error.getParamName(), "", error.getMessage());

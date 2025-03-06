@@ -1,0 +1,42 @@
+6c6
+<  * You may obtain a copy of the License at
+---
+>  * you may obtain a copy of the License at
+19c19
+< import com.google.api.services.translate.model.LanguagesResource;
+---
+> import com.google.api.services.translate.v3.model.Language; // Updated import
+33c33
+< public class Language implements Serializable {
+---
+> public class LanguageInfo implements Serializable { // Renamed class to avoid conflict with new API class
+36,37c36,37
+<   static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
+<       new Function<LanguagesResource, Language>() {
+---
+>   static final Function<Language, LanguageInfo> FROM_PB_FUNCTION = // Updated to use new Language class
+>       new Function<Language, LanguageInfo>() {
+39,40c39,40
+<         public Language apply(LanguagesResource languagePb) {
+<           return Language.fromPb(languagePb);
+---
+>         public LanguageInfo apply(Language languagePb) {
+>           return LanguageInfo.fromPb(languagePb);
+47c47
+<   private Language(String code, String name) {
+---
+>   private LanguageInfo(String code, String name) { // Updated constructor to match new class name
+77c77
+<     if (obj == null || !obj.getClass().equals(Language.class)) {
+---
+>     if (obj == null || !obj.getClass().equals(LanguageInfo.class)) { // Updated to match new class name
+80c80
+<     Language other = (Language) obj;
+---
+>     LanguageInfo other = (LanguageInfo) obj; // Updated to match new class name
+84,85c84,85
+<   static Language fromPb(LanguagesResource languagePb) {
+<     return new Language(languagePb.getLanguage(), languagePb.getName());
+---
+>   static LanguageInfo fromPb(Language languagePb) { // Updated to use new Language class
+>     return new LanguageInfo(languagePb.getLanguageCode(), languagePb.getDisplayName()); // Updated method calls

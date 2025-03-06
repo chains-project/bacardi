@@ -66,6 +66,9 @@ public class BacardiCore {
             case BASELINE_ANTHROPIC:
                 promptPipeline = PromptPipeline.BASELINE_ANTHROPIC;
                 break;
+            case BASELINE_COT_API_DIFF:
+                promptPipeline = PromptPipeline.BASELINE_COT_API_DIFF;
+                break;
             case BASELINE_ANTHROPIC_BUGGY:
                 promptPipeline = PromptPipeline.BASELINE_ANTHROPIC_BUGGY;
                 break;
@@ -226,7 +229,9 @@ public class BacardiCore {
                         log.info("No errors found for: {}", key);
                     } else {
 
-                        if ((PIPELINE.equals(PromptPipeline.BASELINE_API_DIFF) || PIPELINE.equals(PromptPipeline.BASELINE_API_DIFF_BUGGY)) &&
+                        if ((PIPELINE.equals(PromptPipeline.BASELINE_API_DIFF)
+                                || PIPELINE.equals(PromptPipeline.BASELINE_API_DIFF_BUGGY)
+                                || PIPELINE.equals(PromptPipeline.BASELINE_COT_API_DIFF)) &&
                                 value.stream().filter(f -> !f.getApiChanges().isEmpty()).toList().isEmpty()) {
                             return FailureCategory.NOT_APIDIFF;
 
@@ -313,7 +318,7 @@ public class BacardiCore {
         return switch (promptPipeLine) {
             case BASELINE, BASELINE_ANTHROPIC, FIX_YOU -> repairDirectFailures.basePipeLine();
             case BASELINE_BUGGY_LINE, BASELINE_ANTHROPIC_BUGGY -> repairDirectFailures.buggyLinePipeLine();
-            case BASELINE_API_DIFF -> repairDirectFailures.extractConstructsFromDirectFailures();
+            case BASELINE_API_DIFF, BASELINE_COT_API_DIFF -> repairDirectFailures.extractConstructsFromDirectFailures();
             case BASELINE_API_DIFF_BUGGY -> repairDirectFailures.extractConstructsFromDirectFailuresWithBuggyLine();
             default -> throw new IllegalStateException("Unexpected value: " + promptPipeLine);
         };

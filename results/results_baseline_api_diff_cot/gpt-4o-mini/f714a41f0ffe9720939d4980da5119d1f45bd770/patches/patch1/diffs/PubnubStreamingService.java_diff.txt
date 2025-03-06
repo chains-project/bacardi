@@ -1,0 +1,44 @@
+11d10
+< import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
+13,14d11
+< import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
+< import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
+17d13
+< import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
+40,41c36
+<     PNConfiguration pnConfiguration = new PNConfiguration();
+<     pnConfiguration.setSubscribeKey(publicKey);
+---
+>     PNConfiguration pnConfiguration = new PNConfiguration(publicKey); // Updated constructor
+59c54
+<                     //              e.onComplete();
+---
+>                     e.onComplete();
+61c56
+<                     //              e.onError(pnStatus.getErrorData().getThrowable());
+---
+>                     e.onError(pnStatus.getErrorData().getThrowable());
+66c61
+<                 public void message(PubNub pubNub, PNMessageResult pnMessageResult) {
+---
+>                 public void message(PubNub pubNub, com.pubnub.api.models.consumer.pubsub.message.PNMessageResult pnMessageResult) { // Updated type
+89c84
+<                 public void signal(PubNub pubnub, PNSignalResult pnSignalResult) {
+---
+>                 public void signal(PubNub pubnub, com.pubnub.api.models.consumer.pubsub.PNSignalResult pnSignalResult) { // Updated type
+94,95c89,90
+<                 public void user(PubNub pubnub, PNUserResult pnUserResult) {
+<                   LOG.debug("PubNub user: {}", pnUserResult.toString());
+---
+>                 public void user(PubNub pubnub, PNMembershipResult pnMembershipResult) { // Updated type
+>                   LOG.debug("PubNub user: {}", pnMembershipResult.toString());
+110c105
+<                     PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
+---
+>                     PubNub pubnub, com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult pnMessageActionResult) { // Updated type
+111a107,111
+>                 }
+> 
+>                 @Override
+>                 public void file(PubNub pubnub, com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult pnFileEventResult) { // Added method
+>                   LOG.debug("PubNub file: {}", pnFileEventResult.toString());

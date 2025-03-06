@@ -1,0 +1,24 @@
+8d7
+< import org.spongepowered.api.command.CommandSource;
+9a9
+> import org.spongepowered.api.command.CommandSource; // This import is removed as CommandSource no longer exists
+14c14
+<     private final CommandSource invoker;
+---
+>     private final Object invoker; // Changed from CommandSource to Object as CommandSource is removed
+18c18
+<     public NameResolver(ChangeSkinSponge plugin, CommandSource invoker, String targetName, Player receiver
+---
+>     public NameResolver(ChangeSkinSponge plugin, Object invoker, String targetName, Player receiver
+23c23
+<         this.invoker = invoker;
+---
+>         this.invoker = invoker; // Updated to use Object type
+30c30
+<         plugin.sendMessage(invoker, id);
+---
+>         plugin.sendMessage(invoker, id); // This may need to be updated based on how messages are sent to the new invoker type
+41c41
+<         //run this is the same thread
+---
+>         //run this in the same thread

@@ -1,0 +1,8 @@
+79c79,83
+<                                 pageMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+---
+>                                 // Updated to use the new method to get the enchantment
+>                                 XEnchantment enchantment = XEnchantment.matchXEnchantment("power").orElse(null);
+>                                 if (enchantment != null) {
+>                                         pageMeta.addEnchant(enchantment.getEnchant(), 1, false);
+>                                 }

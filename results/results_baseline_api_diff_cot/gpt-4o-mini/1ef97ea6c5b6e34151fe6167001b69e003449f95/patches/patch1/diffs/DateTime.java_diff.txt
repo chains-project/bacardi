@@ -1,0 +1,5 @@
+45c45,46
+<     return new Timestamp(super.between(from, to).getTime());
+---
+>     // Updated to use the new method signature
+>     return new Timestamp(super.between(new Timestamp(from.getTime()), new Timestamp(to.getTime())).getTime());

@@ -1,0 +1,24 @@
+13,14c13,14
+<  * The above copyright notice and this permission notice shall be included
+<  * in all copies or substantial portions of the Software.
+---
+>  * The above copyright notice and this permission notice shall be included in
+>  * all copies or substantial portions of the Software.
+53c53
+<     private final IoCheckedScalar<Path> path;
+---
+>     private final Scalar<Path> path;
+103,105c103
+<         this.path = new IoCheckedScalar<>(
+<             new SolidScalar<>(pth)
+<         );
+---
+>         this.path = pth; // Removed IoCheckedScalar as it is no longer available
+119,123c117
+<             new JoinedText(
+<                 ".",
+<                 Long.toHexString(this.random.nextLong()),
+<                 this.ext
+<             ).asString()
+---
+>             String.join(".", Long.toHexString(this.random.nextLong()), this.ext) // Replaced JoinedText with String.join

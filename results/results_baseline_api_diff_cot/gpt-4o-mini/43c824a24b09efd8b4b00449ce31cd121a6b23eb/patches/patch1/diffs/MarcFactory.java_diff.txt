@@ -1,0 +1,62 @@
+3c3
+< import de.gwdg.metadataqa.api.json.JsonBranch;
+---
+> import de.gwdg.metadataqa.api.json.JsonBranch; // This import will be removed
+67,68c67,68
+<     for (JsonBranch branch : schema.getPaths()) {
+<       if (branch.getParent() != null)
+---
+>     for (String path : schema.getPaths()) { // Updated to use String instead of JsonBranch
+>       if (path.getParent() != null)
+70c70
+<       switch (branch.getLabel()) {
+---
+>       switch (path.getLabel()) {
+72c72
+<           marcRecord.setLeader(new Leader(extractFirst(cache, branch)));
+---
+>           marcRecord.setLeader(new Leader(extractFirst(cache, path)));
+75c75
+<           marcRecord.setControl001(new Control001(extractFirst(cache, branch)));
+---
+>           marcRecord.setControl001(new Control001(extractFirst(cache, path)));
+78c78
+<           marcRecord.setControl003(new Control003(extractFirst(cache, branch)));
+---
+>           marcRecord.setControl003(new Control003(extractFirst(cache, path)));
+81c81
+<           marcRecord.setControl005(new Control005(extractFirst(cache, branch), marcRecord));
+---
+>           marcRecord.setControl005(new Control005(extractFirst(cache, path), marcRecord));
+85c85
+<             new Control006(extractFirst(cache, branch), marcRecord));
+---
+>             new Control006(extractFirst(cache, path), marcRecord));
+89c89
+<             new Control007(extractFirst(cache, branch), marcRecord));
+---
+>             new Control007(extractFirst(cache, path), marcRecord));
+93c93
+<             new Control008(extractFirst(cache, branch), marcRecord));
+---
+>             new Control008(extractFirst(cache, path), marcRecord));
+96c96
+<           JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());
+---
+>           JSONArray fieldInstances = (JSONArray) cache.getFragment(path.getJsonPath());
+104c104
+<               marcRecord.addUnhandledTags(branch.getLabel());
+---
+>               marcRecord.addUnhandledTags(path.getLabel());
+313,314c313,314
+<   private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
+<     List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());
+---
+>   private static List<String> extractList(JsonPathCache cache, String path) { // Updated to use String instead of JsonBranch
+>     List<XmlFieldInstance> instances = cache.get(path);
+322,323c322,323
+<   private static String extractFirst(JsonPathCache cache, JsonBranch branch) {
+<     List<String> list = extractList(cache, branch);
+---
+>   private static String extractFirst(JsonPathCache cache, String path) { // Updated to use String instead of JsonBranch
+>     List<String> list = extractList(cache, path);
