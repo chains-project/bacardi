@@ -1,0 +1,9 @@
+24c24,25
+< import com.hazelcast.core.Member;
+---
+> import com.hazelcast.cluster.Member; // Updated import to the new Member interface
+> import com.hazelcast.instance.EndpointQualifier; // New import for EndpointQualifier
+42c43
+<         this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";
+---
+>         this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress(EndpointQualifier.WRITE).getHostString() + ")"; // Updated method call

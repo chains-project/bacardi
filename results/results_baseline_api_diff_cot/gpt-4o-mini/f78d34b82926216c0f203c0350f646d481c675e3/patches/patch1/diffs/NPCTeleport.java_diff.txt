@@ -1,0 +1,38 @@
+3c3
+< import develop.p2p.lib.*;
+---
+> import tokyo.peya.lib.*; // Updated import for WaveCreator
+107,111d106
+<                     float head = ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f;
+< 
+<                     if (head < 0)
+<                         head *= 2;
+< 
+114c109
+<                     connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) head));
+---
+>                     connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f));
+117c112
+<                     float finalHead = head;
+---
+>                     float finalHead = ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f;
+161c156
+<         WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
+---
+>         WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0); // Updated constructor
+180c175
+<                             .get(0.01, true);
+---
+>                             .get(0.01, true); // Updated method call
+186c181
+<                         center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
+---
+>                         center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20), // Updated method call
+189c184
+<                         (float) ypp.get(4.5, false)
+---
+>                         (float) ypp.get(4.5, false) // Updated method call
+220c215
+<                     ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
+---
+>                     ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true) // Updated method call

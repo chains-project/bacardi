@@ -1,0 +1,89 @@
+1,23d0
+< /*
+<  * The MIT License (MIT)
+<  *
+<  * Copyright (c) 2018-2023 Yegor Bugayenko
+<  *
+<  * Permission is hereby granted, free of charge, to any person obtaining a copy
+<  * of this software and associated documentation files (the "Software"), to deal
+<  * in the Software without restriction, including without limitation the rights
+<  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+<  *
+<  * The above copyright notice and this permission notice shall be included
+<  * in all copies or substantial portions of the Software.
+<  *
+<  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+<  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+<  * SOFTWARE.
+<  */
+30c7
+< import org.cactoos.collection.Filtered;
+---
+> import org.cactoos.iterable.Filtered;
+36d12
+< import org.cactoos.scalar.CheckedScalar;
+40d15
+< import org.cactoos.text.SplitText;
+42d16
+< import org.cactoos.text.UncheckedText;
+99c73
+<      *  added to all Walletl realizations (Wallet(final long id, final String
+---
+>      *  added to all Wallet realizations (Wallet(final long id, final String
+201,202c175
+<             return new CheckedScalar<>(
+<                 () -> Long.parseUnsignedLong(
+---
+>             return Long.parseUnsignedLong(
+204,209c177,178
+<                         new SplitText(
+<                             new TextOf(this.path),
+<                             "\n"
+<                         )
+<                     ).get(2).asString(),
+<                     // @checkstyle MagicNumber (1 line)
+---
+>                     new TextOf(this.path).asString().split("\n")
+>                 ).get(2),
+211,213c180
+<                 ),
+<                 e -> new IOException(e)
+<             ).value();
+---
+>             );
+237d203
+<                     new UncheckedText(
+242d207
+<                         )
+249,258c214,218
+<                     origin -> new UncheckedScalar<>(
+<                         new Or(
+<                             () -> incoming.equals(origin),
+<                             () -> incoming.id() == origin.id()
+<                                 && incoming.bnf().equals(origin.bnf()),
+<                             () -> incoming.id() == origin.id()
+<                                 && incoming.amount() < 0L,
+<                             () -> incoming.prefix().equals(origin.prefix())
+<                         )
+<                     ).value(),
+---
+>                     origin -> 
+>                         incoming.equals(origin) ||
+>                         (incoming.id() == origin.id() && incoming.bnf().equals(origin.bnf())) ||
+>                         (incoming.id() == origin.id() && incoming.amount() < 0L) ||
+>                         incoming.prefix().equals(origin.prefix()),
+275,278c235
+<                         new SplitText(
+<                             new TextOf(this.path),
+<                             "\\n"
+<                         )
+---
+>                         new TextOf(this.path).asString().split("\\n")
+280d236
+<                     // @checkstyle MagicNumberCheck (1 line)

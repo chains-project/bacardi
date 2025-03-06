@@ -44,6 +44,10 @@ public class GeneratePrompt {
                 promptTemplate = new BasePromptAnthropicTemplate();
                 promptTemplate.setPromptModel(promptModel);
                 break;
+            case BASELINE_COT_API_DIFF:
+                promptTemplate = new BaseLineCotApiDiffTemplate();
+                promptTemplate.setPromptModel(promptModel);
+                break;
             case BASELINE_BUGGY_LINE:
                 promptTemplate = new BasePromptBuggyLineTemplate();
                 promptTemplate.setPromptModel(promptModel);
@@ -53,12 +57,10 @@ public class GeneratePrompt {
                 promptTemplate.setPromptModel(promptModel);
                 break;
             case BASELINE_API_DIFF:
-                log.info("Baseline API diff pipeline not implemented yet");
                 promptTemplate = new BasePromptApiDiffTemplate();
                 promptTemplate.setPromptModel(promptModel);
                 break;
             case BASELINE_API_DIFF_BUGGY:
-                log.info("Baseline API diff buggy pipeline not implemented yet");
                 promptTemplate = new BasePromptApiDiffBuggyLineTemplate();
                 promptTemplate.setPromptModel(promptModel);
                 break;

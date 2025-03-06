@@ -1,0 +1,37 @@
+211c211
+<         .create(this.options.getProjectId(), zone)
+---
+>         .create(this.options.getProjectId(), zone.getDnsName(), zone)
+232,233c232
+<         .get(this.options.getProjectId(), zoneName)
+<         .setFields(Option.FIELDS.getString(options));
+---
+>         .get(this.options.getProjectId(), zoneName, Option.FIELDS.getString(options));
+271c270
+<     return dns.managedZones().delete(this.options.getProjectId(), zoneName);
+---
+>     return dns.managedZones().delete(this.options.getProjectId(), zoneName, null);
+289,290c288
+<         .list(this.options.getProjectId(), zoneName)
+<         .setFields(Option.FIELDS.getString(options))
+---
+>         .list(this.options.getProjectId(), zoneName, Option.FIELDS.getString(options))
+308,309c306
+<         .get(this.options.getProjectId())
+<         .setFields(Option.FIELDS.getString(options));
+---
+>         .get(this.options.getProjectId(), Option.FIELDS.getString(options));
+325c322
+<         .create(this.options.getProjectId(), zoneName, changeRequest)
+---
+>         .create(this.options.getProjectId(), zoneName, changeRequest.getId(), changeRequest)
+352,353c349
+<         .get(this.options.getProjectId(), zoneName, changeRequestId)
+<         .setFields(Option.FIELDS.getString(options));
+---
+>         .get(this.options.getProjectId(), zoneName, changeRequestId, Option.FIELDS.getString(options));
+372,373c368
+<             .list(this.options.getProjectId(), zoneName)
+<             .setFields(Option.FIELDS.getString(options))
+---
+>             .list(this.options.getProjectId(), zoneName, Option.FIELDS.getString(options))

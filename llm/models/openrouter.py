@@ -41,6 +41,7 @@ class OpenRouterModels:
                 # Shows in rankings on openrouter.ai.
                 "X-Title": f"bacardi",
             },
+            timeout=600,
             data=json.dumps(model_client),
         )
 

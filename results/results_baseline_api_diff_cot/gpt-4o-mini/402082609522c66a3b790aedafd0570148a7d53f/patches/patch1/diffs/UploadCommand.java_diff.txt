@@ -1,0 +1,24 @@
+14c14
+< import org.spongepowered.api.command.args.CommandContext;
+---
+> import org.spongepowered.api.command.parameter.Parameter;
+19c19
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+---
+> import static org.spongepowered.api.command.parameter.Parameter.string;
+22c22
+< public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class UploadCommand implements CommandExecutor {
+34,35c34,35
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         String url = args.<String>getOne("url").get();
+---
+>     public CommandResult execute(CommandSource src, org.spongepowered.api.command.CommandContext args) {
+>         String url = args.<String>getOne("url").orElse("");
+52d51
+<     @Override
+56c55
+<                 .arguments(string(of("url")))
+---
+>                 .arguments(string().key("url"))

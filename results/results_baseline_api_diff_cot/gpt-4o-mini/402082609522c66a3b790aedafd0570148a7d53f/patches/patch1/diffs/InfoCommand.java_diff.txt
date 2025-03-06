@@ -1,0 +1,45 @@
+13d12
+< import org.spongepowered.api.Sponge;
+17,19c16,17
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.Command;
+25c23
+< public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class InfoCommand implements Command {
+33d30
+< 
+38c35
+<             return CommandResult.empty();
+---
+>             return CommandResult.success();
+42,43c39
+<         Task.builder().async()
+<                 .execute(() -> {
+---
+>         Task.builder().execute(() -> {
+46,47c42
+<                 })
+<                 .submit(plugin);
+---
+>         }).async().submit(plugin);
+52,54c47,48
+<     @Override
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command.Builder builder() {
+>         return Command.builder()
+56,57c50
+<                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
+<                 .build();
+---
+>                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base");
+61c54
+<         Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
+---
+>         Optional<Player> optPlayer = plugin.getServer().getPlayer(uuid);

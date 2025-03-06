@@ -1,0 +1,42 @@
+22d21
+< import com.hazelcast.config.MaxSizeConfig;
+30c29
+< import com.hazelcast.core.Member;
+---
+> import com.hazelcast.cluster.Member; // Updated import
+288c287
+<             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+---
+>             dynamicConfig.setMaxSizeConfig(new com.hazelcast.config.MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, com.hazelcast.config.MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE)); // Updated to use new MaxSizeConfig
+331c330
+<             final Member oldest = cluster.getMembers().iterator().next();
+---
+>             final Member oldest = cluster.getMembers().iterator().next(); // Updated to use new Member interface
+341c340
+<             return getNodeID(cluster.getLocalMember()).toByteArray();
+---
+>             return getNodeID(cluster.getLocalMember()).toByteArray(); // Updated to use new Member interface
+371,372c370,371
+<         final Member current = cluster.getLocalMember();
+<         for (final Member member : cluster.getMembers()) {
+---
+>         final Member current = cluster.getLocalMember(); // Updated to use new Member interface
+>         for (final Member member : cluster.getMembers()) { // Updated to use new Member interface
+424,425c423,424
+<         final Member current = cluster.getLocalMember();
+<         for (final Member member : cluster.getMembers()) {
+---
+>         final Member current = cluster.getLocalMember(); // Updated to use new Member interface
+>         for (final Member member : cluster.getMembers()) { // Updated to use new Member interface
+503c502
+<         for (final Member member : cluster.getMembers()) {
+---
+>         for (final Member member : cluster.getMembers()) { // Updated to use new Member interface
+518c517
+<             final String uid = getNodeID(cluster.getLocalMember()).toString();
+---
+>             final String uid = getNodeID(cluster.getLocalMember()).toString(); // Updated to use new Member interface
+701,703d699
+< 
+< 
+< 

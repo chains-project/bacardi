@@ -42,29 +42,6 @@ public class BasePromptAnthropicTemplate extends AbstractPromptTemplate {
         }
     }
 
-    public String buggyLine() {
-
-        String buggyLine = """
-                """;
-
-        for (DetectedFileWithErrors detectedFileWithErrors : promptModel.getDetectedFileWithErrors()) {
-            String lineInCode = detectedFileWithErrors.getLineInCode();
-            String line = """
-                    ```java
-                    %s
-                    ```
-                    """.formatted(lineInCode);
-
-            buggyLine = buggyLine.concat(line);
-        }
-
-        return """
-                the error is triggered in the following specific lines in the previous code:
-
-                %s
-                """.formatted(buggyLine);
-    }
-
     @Override
     public String errorLog() {
 

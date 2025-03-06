@@ -1,0 +1,7 @@
+5a6
+> import java.io.Writer; // Added import for Writer
+242c243,244
+<                         writer.writeValue(segmentListFile, dataList);
+---
+>                         Writer jsonWriter = new FileWriter(segmentListFile); // Create a Writer for the file
+>                         writer.writeValue(jsonWriter, dataList); // Use the Writer to write the value
