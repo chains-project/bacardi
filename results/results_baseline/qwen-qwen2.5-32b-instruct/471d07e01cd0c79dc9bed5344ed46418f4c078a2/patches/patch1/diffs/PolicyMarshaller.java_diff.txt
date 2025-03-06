@@ -1,0 +1,68 @@
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+19d2
+< import com.google.api.services.cloudresourcemanager.model.Binding;
+37c20
+<     extends Marshaller<com.google.api.services.cloudresourcemanager.model.Policy> {
+---
+>     extends Marshaller<com.google.iam.v1.Policy> {
+55c38
+<   protected Policy fromPb(com.google.api.services.cloudresourcemanager.model.Policy policyPb) {
+---
+>   protected Policy fromPb(com.google.iam.v1.Policy policyPb) {
+57,58c40,41
+<     if (policyPb.getBindings() != null) {
+<       for (Binding bindingPb : policyPb.getBindings()) {
+---
+>     if (policyPb.getBindingsCount() > 0) {
+>       for (com.google.iam.v1.Binding bindingPb : policyPb.getBindingsList()) {
+63c46
+<                     bindingPb.getMembers(),
+---
+>                     bindingPb.getMembersList(),
+76,79c59,61
+<   protected com.google.api.services.cloudresourcemanager.model.Policy toPb(Policy policy) {
+<     com.google.api.services.cloudresourcemanager.model.Policy policyPb =
+<         new com.google.api.services.cloudresourcemanager.model.Policy();
+<     List<Binding> bindingPbList = new LinkedList<>();
+---
+>   protected com.google.iam.v1.Policy toPb(Policy policy) {
+>     com.google.iam.v1.Policy.Builder policyPbBuilder = com.google.iam.v1.Policy.newBuilder();
+>     List<com.google.iam.v1.Binding> bindingPbList = new LinkedList<>();
+81,83c63,65
+<       Binding bindingPb = new Binding();
+<       bindingPb.setRole(binding.getKey().getValue());
+<       bindingPb.setMembers(
+---
+>       com.google.iam.v1.Binding.Builder bindingPbBuilder = com.google.iam.v1.Binding.newBuilder();
+>       bindingPbBuilder.setRole(binding.getKey().getValue());
+>       bindingPbBuilder.addAllMembers(
+92c74
+<       bindingPbList.add(bindingPb);
+---
+>       bindingPbList.add(bindingPbBuilder.build());
+94,97c76,79
+<     policyPb.setBindings(bindingPbList);
+<     policyPb.setEtag(policy.getEtag());
+<     policyPb.setVersion(policy.getVersion());
+<     return policyPb;
+---
+>     policyPbBuilder.addAllBindings(bindingPbList);
+>     policyPbBuilder.setEtag(policy.getEtag());
+>     policyPbBuilder.setVersion(policy.getVersion());
+>     return policyPbBuilder.build();

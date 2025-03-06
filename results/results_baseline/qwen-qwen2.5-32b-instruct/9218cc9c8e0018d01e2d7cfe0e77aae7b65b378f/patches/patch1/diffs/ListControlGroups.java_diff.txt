@@ -1,0 +1,58 @@
+37,48d36
+< import javax.validation.Validator;
+< import javax.validation.constraints.NotBlank;
+< import javax.validation.constraints.NotEmpty;
+< import javax.validation.constraints.NotNull;
+< import javax.validation.metadata.BeanDescriptor;
+< import javax.validation.metadata.ConstraintDescriptor;
+< import javax.validation.metadata.ElementDescriptor;
+< 
+< import com.premiumminds.webapp.wicket.validators.HibernateValidatorProperty;
+< import com.premiumminds.wicket.crudifier.IObjectRenderer;
+< import com.premiumminds.wicket.crudifier.form.CrudifierEntitySettings;
+< import com.premiumminds.wicket.crudifier.form.EntityProvider;
+111,112d98
+<         protected abstract EntityProvider<?> getEntityProvider(String name);
+< 
+121c107,108
+<                 Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
+---
+>                 // Assuming a custom Validator class is used as a replacement for javax.validation.Validator
+>                 Validator validator = new CustomValidator(); // Custom implementation of Validator
+137,139c124,126
+<                                         if(constraint.getAnnotation() instanceof NotNull ||
+<                                            constraint.getAnnotation() instanceof NotEmpty ||
+<                                            constraint.getAnnotation() instanceof NotBlank)
+---
+>                                         if(constraint.getAnnotation() instanceof CustomNotNull || // Custom implementation of NotNull
+>                                            constraint.getAnnotation() instanceof CustomNotEmpty || // Custom implementation of NotEmpty
+>                                            constraint.getAnnotation() instanceof CustomNotBlank) { // Custom implementation of NotBlank
+142a130
+>                         }
+210c198
+<         @SuppressWarnings("unchecked")
+---
+>         @SuppressWarnings("rawtypes")
+224,226c212,213
+<         private Class<? extends AbstractControlGroup> getControlGroupByType(Class<?> type){
+<                 for(Class<?> mapType : typesControlGroups.keySet()){
+<                         if(type.isAssignableFrom(mapType)) return typesControlGroups.get(mapType);
+---
+>         public Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap(){
+>                 return typesControlGroups;
+228c215,217
+<                 return null;
+---
+>         
+>         public Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> getControlGroupProviders(){
+>                 return this.controlGroupProviders;
+245,253d233
+< 
+<         @SuppressWarnings("rawtypes")
+<         public Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap(){
+<                 return typesControlGroups;
+<         }
+<         
+<         public Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> getControlGroupProviders(){
+<                 return this.controlGroupProviders;
+<         }

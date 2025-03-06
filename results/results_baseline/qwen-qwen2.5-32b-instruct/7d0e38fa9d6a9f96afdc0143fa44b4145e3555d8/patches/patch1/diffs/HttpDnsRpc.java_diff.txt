@@ -1,0 +1,214 @@
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+42d25
+< /** A default implementation of the DnsRpc interface. */
+59c42
+<         RpcBatch.Callback<ManagedZonesListResponse> callback, Map<DnsRpc.Option, ?> options) {
+---
+>         RpcBatch.Callback<ManagedZonesListResponse> callback, Map<Option, ?> options) {
+109c92
+<         Map<DnsRpc.Option, ?> options) {
+---
+>         Map<Option, ?> options) {
+121c104
+<         Map<DnsRpc.Option, ?> options) {
+---
+>         Map<Option, ?> options) {
+134c117
+<         Map<DnsRpc.Option, ?> options) {
+---
+>         Map<Option, ?> options) {
+146c129
+<         Change change,
+---
+>         Change changeRequest,
+148c131
+<         Map<DnsRpc.Option, ?> options) {
+---
+>         Map<Option, ?> options) {
+150c133
+<         applyChangeRequestCall(zoneName, change, options).queue(batch, toJsonCallback(callback));
+---
+>         applyChangeRequestCall(zoneName, changeRequest, options).queue(batch, toJsonCallback(callback));
+185d167
+<   /** Constructs an instance of this rpc client with provided {@link DnsOptions}. */
+198d179
+<   @Override
+203d183
+<       // todo this can cause misleading report of a failure, intended to be fixed within #924
+211c191
+<         .create(this.options.getProjectId(), zone)
+---
+>         .create(this.options.getProjectId(), this.options.getProjectId(), zone)
+215d194
+<   @Override
+217d195
+<     // just fields option
+232c210
+<         .get(this.options.getProjectId(), zoneName)
+---
+>         .get(this.options.getProjectId(), this.options.getProjectId(), zoneName)
+236d213
+<   @Override
+238d214
+<     // fields, page token, page size
+247c223
+<   private Dns.ManagedZones.List listZonesCall(Map<DnsRpc.Option, ?> options) throws IOException {
+---
+>   private Dns.ManagedZones.List listZonesCall(Map<Option, ?> options) throws IOException {
+249c225
+<         .list(this.options.getProjectId())
+---
+>         .list(this.options.getProjectId(), this.options.getProjectId())
+252d227
+<         .setDnsName(Option.DNS_NAME.getString(options))
+256d230
+<   @Override
+271c245,260
+<     return dns.managedZones().delete(this.options.getProjectId(), zoneName);
+---
+>     return dns.managedZones()
+>         .delete(this.options.getProjectId(), this.options.getProjectId(), zoneName);
+>   }
+> 
+>   public Project getProject(Map<Option, ?> options) throws DnsException {
+>     try {
+>       return getProjectCall(options).execute();
+>     } catch (IOException ex) {
+>       throw translate(ex, true);
+>     }
+>   }
+> 
+>   private Dns.Projects.Get getProjectCall(Map<Option, ?> options) throws IOException {
+>     return dns.projects()
+>         .get(this.options.getProjectId(), this.options.getProjectId())
+>         .setFields(Option.FIELDS.getString(options));
+274d262
+<   @Override
+287d274
+<     // options are fields, page token, dns name, type
+289c276
+<         .list(this.options.getProjectId(), zoneName)
+---
+>         .list(this.options.getProjectId(), this.options.getProjectId(), zoneName)
+291d277
+<         .setPageToken(Option.PAGE_TOKEN.getString(options))
+293,294c279
+<         .setName(Option.NAME.getString(options))
+<         .setType(Option.DNS_TYPE.getString(options));
+---
+>         .setPageToken(Option.PAGE_TOKEN.getString(options));
+297,298c282,283
+<   @Override
+<   public Project getProject(Map<Option, ?> options) throws DnsException {
+---
+>   public ListResult<Change> listChangeRequests(String zoneName, Map<Option, ?> options)
+>       throws DnsException {
+300c285,286
+<       return getProjectCall(options).execute();
+---
+>       ChangesListResponse response = listChangeRequestsCall(zoneName, options).execute();
+>       return ListResult.of(response.getNextPageToken(), response.getChanges());
+306,319c292,301
+<   private Dns.Projects.Get getProjectCall(Map<Option, ?> options) throws IOException {
+<     return dns.projects()
+<         .get(this.options.getProjectId())
+<         .setFields(Option.FIELDS.getString(options));
+<   }
+< 
+<   @Override
+<   public Change applyChangeRequest(String zoneName, Change changeRequest, Map<Option, ?> options)
+<       throws DnsException {
+<     try {
+<       return applyChangeRequestCall(zoneName, changeRequest, options).execute();
+<     } catch (IOException ex) {
+<       throw translate(ex, false);
+<     }
+---
+>   private Dns.Changes.List listChangeRequestsCall(String zoneName, Map<Option, ?> options)
+>       throws IOException {
+>     Dns.Changes.List request =
+>         dns.changes()
+>             .list(this.options.getProjectId(), this.options.getProjectId(), zoneName)
+>             .setFields(Option.FIELDS.getString(options))
+>             .setMaxResults(Option.PAGE_SIZE.getInt(options))
+>             .setPageToken(Option.PAGE_TOKEN.getString(options));
+>     if (Option.SORTING_ORDER.getString(options) != null) {
+>       request = request.setSortBy(SORT_BY).setSortOrder(Option.SORTING_ORDER.getString(options));
+321,326c303
+< 
+<   private Dns.Changes.Create applyChangeRequestCall(
+<       String zoneName, Change changeRequest, Map<Option, ?> options) throws IOException {
+<     return dns.changes()
+<         .create(this.options.getProjectId(), zoneName, changeRequest)
+<         .setFields(Option.FIELDS.getString(options));
+---
+>     return request;
+329d305
+<   @Override
+337,340d312
+<         if ("entity.parameters.changeId".equals(serviceException.getLocation())
+<             || (serviceException.getMessage() != null
+<                 && serviceException.getMessage().contains("parameters.changeId"))) {
+<           // the change id was not found, but the zone exists
+343,344d314
+<         // the zone does not exist, so throw an exception
+<       }
+352c322
+<         .get(this.options.getProjectId(), zoneName, changeRequestId)
+---
+>         .get(this.options.getProjectId(), this.options.getProjectId(), zoneName, changeRequestId)
+356,358c326,327
+<   @Override
+<   public ListResult<Change> listChangeRequests(String zoneName, Map<Option, ?> options)
+<       throws DnsException {
+---
+>   public Change applyChangeRequest(
+>       String zoneName, Change change, Map<Option, ?> options) throws DnsException {
+360,361c329
+<       ChangesListResponse response = listChangeRequestsCall(zoneName, options).execute();
+<       return ListResult.of(response.getNextPageToken(), response.getChanges());
+---
+>       return applyChangeRequestCall(zoneName, change, options).execute();
+363c331
+<       throw translate(ex, true);
+---
+>       throw translate(ex, false);
+367,380c335,339
+<   private Dns.Changes.List listChangeRequestsCall(String zoneName, Map<Option, ?> options)
+<       throws IOException {
+<     // options are fields, page token, page size, sort order
+<     Dns.Changes.List request =
+<         dns.changes()
+<             .list(this.options.getProjectId(), zoneName)
+<             .setFields(Option.FIELDS.getString(options))
+<             .setMaxResults(Option.PAGE_SIZE.getInt(options))
+<             .setPageToken(Option.PAGE_TOKEN.getString(options));
+<     if (Option.SORTING_ORDER.getString(options) != null) {
+<       // todo check and change if more sorting options are implemented, issue #604
+<       request = request.setSortBy(SORT_BY).setSortOrder(Option.SORTING_ORDER.getString(options));
+<     }
+<     return request;
+---
+>   private Dns.Changes.Create applyChangeRequestCall(
+>       String zoneName, Change change, Map<Option, ?> options) throws IOException {
+>     return dns.changes()
+>         .create(this.options.getProjectId(), this.options.getProjectId(), zoneName, change)
+>         .setFields(Option.FIELDS.getString(options));
+383d341
+<   @Override

@@ -1,0 +1,35 @@
+6d5
+< import com.github.games647.changeskin.core.model.skin.SkinModel;
+17,20c16,18
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelBuf;
+< import org.spongepowered.api.network.ChannelRegistrar;
+< import org.spongepowered.api.network.RawDataListener;
+---
+> import org.spongepowered.api.network.ChannelBinding;
+> import org.spongepowered.api.network.ChannelBinding.ChannelReader;
+> import org.spongepowered.api.network.ChannelBinding.ChannelWriter;
+26c24
+< public class CheckPermissionListener implements RawDataListener {
+---
+> public class CheckPermissionListener implements ChannelReader<ChannelBinding.ByteBufWrapper> {
+29c27
+<     private final RawDataChannel permissionsResultChannel;
+---
+>     private final ChannelWriter<ChannelBinding.ByteBufWrapper> permissionsResultChannel;
+32c30
+<     CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+---
+>     CheckPermissionListener(ChangeSkinSponge plugin, ChannelBinding<ChannelReader<ChannelBinding.ByteBufWrapper>, ChannelWriter<ChannelBinding.ByteBufWrapper>> channelRegistrar) {
+36c34
+<         permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
+---
+>         permissionsResultChannel = channelRegistrar.getOutput();
+40c38
+<     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+---
+>     public void handle(ChannelBinding.ByteBufWrapper data, RemoteConnection connection, Type side) {
+42c40
+<         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+---
+>         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.getBuf().array());

@@ -1,0 +1,416 @@
+6c6,9
+< import java.nio.file.*;
+---
+> import java.nio.file.FileVisitOption;
+> import java.nio.file.Files;
+> import java.nio.file.Path;
+> import java.nio.file.Paths;
+17a21
+> import com.fasterxml.jackson.core.JsonProcessingException;
+42d45
+< 
+59c62
+<      * Progress of the Recognition process
+---
+>      * Progress of the process
+132c135
+<      * Returns the absolute path of all line segment images for the pages in the processState
+---
+>      * Returns the Ids of the pages, for which line segmentation was already executed
+134,135c137
+<      * @param pageIds Identifiers of the chosen pages (e.g 0002,0003)
+<      * @return List of line segment images
+---
+>      * @return List with page ids
+138,144c140,146
+<     public List<String> getLineSegmentImagesForCurrentProcess(List<String> pageIds) throws IOException {
+<         List<String> LineSegmentsOfPage = new ArrayList<String>();
+<         for (String pageId : processState.keySet()) {
+<             for (String segmentId : processState.get(pageId).keySet()) {
+<                 for (String lineSegmentId : processState.get(pageId).get(segmentId).keySet()) {
+<                     LineSegmentsOfPage.add(projConf.PAGE_DIR + pageId + File.separator + segmentId +
+<                         File.separator + lineSegmentId + projConf.getImageExtensionByType(projectImageType));
+---
+>     public ArrayList<String> getValidPageIds() throws IOException {
+>         // Get all pages and check which ones are already line segmented
+>         ArrayList<String> validPageIds = new ArrayList<String>();
+>         ArrayList<String> allPageIds = genericHelper.getPageList("Original");
+>         for (String pageId : allPageIds) {
+>             if (procStateCol.lineSegmentationState(pageId))
+>                 validPageIds.add(pageId);
+145a148,173
+> 
+>         Collections.sort(validPageIds);
+>         return validPageIds;
+>     }
+> 
+>     /**
+>      * Deletion of old process related files
+>      *
+>      * @param pageIds Identifiers of the pages (e.g 0002,0003)
+>      */
+>     public void deleteOldFiles(List<String> pageIds) throws IOException {
+>         // Delete potential TextEquivs already existing in the page xmls
+>         for(String pageId : pageIds) {
+>             File pageXML = new File(projConf.OCR_DIR + pageId + projConf.CONF_EXT);
+>             if (!pageXML.exists())
+>                 return;
+> 
+>             // Load pageXML and replace/delete all Textline text content
+>             String pageXMLContent = new String(Files.readAllBytes(pageXML.toPath()));
+>             pageXMLContent = pageXMLContent.replaceAll("\\<TextEquiv[^>]+?index=\"[^0]\"[^>]*?\\>[^<]*?\\<\\/TextEquiv\\>", "");
+> 
+>             // Save new pageXML
+>             try (FileWriter fileWriter = new FileWriter(pageXML)) {
+>                 fileWriter.write(pageXMLContent);
+>                 fileWriter.flush();
+>                 fileWriter.close();
+148d175
+<         return LineSegmentsOfPage;
+152c179
+<      * Returns the progress of the process
+---
+>      * Creates the recognition files of the linesegments that were skipped by the ocropus-rpred script
+154d180
+<      * @return Progress percentage
+157,160c183,188
+<     public int getProgress() throws IOException {
+<         // Prevent function from calculation progress if process is not running
+<         if (!RecognitionRunning)
+<             return progress;
+---
+>     public void createSkippedSegments() throws IOException{
+>         for(String pageId : processState.keySet()) {
+>             for(String segmentId :processState.get(pageId).keySet()) {
+>                 for (String lineSegmentId : processState.get(pageId).get(segmentId).keySet()) {
+>                     if (processState.get(pageId).get(segmentId).get(lineSegmentId))
+>                         continue;
+162,166c190,191
+<         int modifiedCount = 0;
+<         if(imagesLastModified != null) {
+<             for(String pagexml : imagesLastModified.keySet()) {
+<                 if(imagesLastModified.get(pagexml) < new File(pagexml).lastModified()) {
+<                     modifiedCount++;
+---
+>                     FileUtils.writeStringToFile(new File(projConf.PAGE_DIR + pageId + File.separator +
+>                         segmentId + File.separator + lineSegmentId + projConf.REC_EXT), "", "UTF8");
+169,171d193
+<             progress = (modifiedCount*100) / imagesLastModified.size();
+<         } else {
+<             progress = -1;
+173d194
+<         return progress;
+177c198
+<      * Extracts checkpoints of a String joined by a whitespace
+---
+>      * Determines conflicts with the process
+179,180c200,202
+<      * @return List of checkpoints
+<      * @throws IOException
+---
+>      * @param currentProcesses Processes that are currently running
+>      * @param inProcessFlow Indicates if the process is executed within the ProcessFlow
+>      * @return Type of process conflict
+182,192c204,205
+<     public List<String> extractModelsOfJoinedString(String joinedckptString){
+<         String [] checkpoints = joinedckptString.split(ProjectConfiguration.MODEL_EXT + " ");
+<         List<String> ckptList = new ArrayList<>();
+<         Iterator <String> ckptIterator= Arrays.asList(checkpoints).iterator();
+<         while (ckptIterator.hasNext()) {
+<             String ckpt = ckptIterator.next();
+<             if (ckptIterator.hasNext())
+<                 ckpt = ckpt + ProjectConfiguration.MODEL_EXT;
+<             ckptList.add(ckpt);
+<         }
+<         return ckptList;
+---
+>     public int getConflictType(List<String> currentProcesses, boolean inProcessFlow) {
+>         return ProcessConflictDetector.recognitionConflict(currentProcesses, inProcessFlow);
+193a207
+> 
+196c210
+<      * Achieved with the help of the external python program "calamary-predict"
+---
+>      * Achieved with the help of the external python program "calamari-predict"
+199c213
+<      * @param cmdArgs Command line arguments for "calamary-predict"
+---
+>      * @param cmdArgs Command line arguments for "calamari-predict"
+213c227
+<                 final int maxskewIndex = cmdArgsWork.indexOf("--maxskew");
+---
+>                 int maxskewIndex = cmdArgsWork.indexOf("--maxskew");
+218c232
+<                 final int skewstepsIndex = cmdArgsWork.indexOf("--skewsteps");
+---
+>                 int skewstepsIndex = cmdArgsWork.indexOf("--skewsteps");
+225d238
+<                         // Temp file in a temp folder named "skew-<random numbers>.json"
+227,228c240,241
+<                         skewparams.add(segmentListFile.toString());
+<                         segmentListFile.deleteOnExit(); // Delete if OCR4all terminates
+---
+>             segmentListFile.deleteOnExit();
+> 
+238a252,255
+>                 for (String lineSegmentId : processState.get(pageId).get(segmentId).keySet()) {
+>                     pageList.add(projConf.PAGE_DIR + pageId + File.separator + segmentId +
+>                             File.separator + lineSegmentId + projConf.getImageExtensionByType(projectImageType));
+>                 }
+241,242c258,262
+<                         ObjectWriter writer = mapper.writer();
+<                         writer.writeValue(segmentListFile, dataList);
+---
+>             try {
+>                 mapper.writeValue(segmentListFile, dataList);
+>             } catch (JsonProcessingException e) {
+>                 e.printStackTrace();
+>             }
+251d270
+< 
+267,269c286
+<         // Ugly hack but helpers will be rewritten for the next release anyways. Don't use as basis for future code!
+<         if(cmdArgsWork.contains("--data.output_glyphs")){
+<             cmdArgsWork.remove("--data.output_glyphs");
+---
+>         // Ugly hack but helpers will be rewritten for the next release version.
+272,274d288
+<         }
+<         if(cmdArgsWork.contains("--data.output_confidences")){
+<             cmdArgsWork.remove("--data.output_confidences");
+277d290
+<         }
+279d291
+<         command.add("--data.images");
+282c294
+<         File segmentListFile = File.createTempFile("calamari-",".files");
+---
+>         File segmentListFile = File.createTempFile("calamari-",".json");
+285c297,298
+<         List<String> content = new ArrayList<>();
+---
+>         ObjectMapper mapper = new ObjectMapper();
+>         ArrayNode dataList = mapper.createArrayNode();
+287,288c300,301
+<             // Add affected images with their absolute path to the file
+<             content.add(projConf.getImageDirectoryByType(projectImageType) + pageId +
+---
+>             ArrayNode pageList = mapper.createArrayNode();
+>             pageList.add(projConf.getImageDirectoryByType(projectImageType) + pageId +
+290,292c303,304
+<         }
+<         Files.write(segmentListFile.toPath(), content, StandardOpenOption.APPEND);
+<         command.add(segmentListFile.toString());
+---
+>             final String pageXML = projConf.OCR_DIR + pageId + projConf.CONF_EXT;
+>             pageList.add(pageXML);
+294,300c306,309
+<         //Add checkpoints
+<         Iterator<String> cmdArgsIterator = cmdArgsWork.iterator();
+<         while (cmdArgsIterator.hasNext()) {
+<             String arg = cmdArgsIterator.next();
+<             command.add(arg);
+<             if (arg.equals("--checkpoint") && cmdArgsIterator.hasNext()) {
+<                 command.addAll(extractModelsOfJoinedString(cmdArgsIterator.next()));
+---
+>             // Add affected line segment images with their absolute path to the json file
+>             for (String lineSegmentId : processState.get(pageId).get(segmentId).keySet()) {
+>                 pageList.add(projConf.PAGE_DIR + pageId + File.separator + segmentId +
+>                         File.separator + lineSegmentId + projConf.getImageExtensionByType(projectImageType));
+301a311,316
+>             dataList.add(pageList);
+>         }
+>         try {
+>             mapper.writeValue(segmentListFile, dataList);
+>         } catch (JsonProcessingException e) {
+>             e.printStackTrace();
+303,320d317
+< 
+<         command.add("--data");
+<         command.add("PageXML");
+<         // Set output extension to input extension in order to overwrite the original file
+<         // (default would've been .pred.xml)
+<         command.add("--data.gt_extension");
+<         command.add(".xml");
+<         command.add("--data.pred_extension");
+<         command.add(".xml");
+< 
+<         command.add("--data.text_index");
+<         command.add("1");
+< 
+<         command.add("--verbose");
+<         command.add("True");
+< 
+<         command.add("--predictor.progress_bar");
+<         command.add("False");
+339c336
+<      * Resets the progress (use if an error occurs)
+---
+>      * Resets the progress of the process
+356,400c353
+<      * Returns the Ids of the pages, for which line segmentation was already executed
+<      *
+<      * @return List with page ids
+<      * @throws IOException
+<      */
+<     public ArrayList<String> getValidPageIds() throws IOException {
+<         // Get all pages and check which ones are already line segmented
+<         ArrayList<String> validPageIds = new ArrayList<String>();
+<         ArrayList<String> allPageIds = genericHelper.getPageList("Original");
+<         for (String pageId : allPageIds) {
+<             if (procStateCol.lineSegmentationState(pageId) == true)
+<                 validPageIds.add(pageId);
+<         }
+< 
+<         Collections.sort(validPageIds);
+<         return validPageIds;
+<     }
+< 
+<     /**
+<      * Deletion of old process related files
+<      *
+<      * @param pageIds Identifiers of the pages (e.g 0002,0003)
+<      */
+<     public void deleteOldFiles(List<String> pageIds) throws IOException {
+<         // Delete potential TextEquivs already existing in the page xmls
+<         for(String pageId : pageIds) {
+<             File pageXML = new File(projConf.OCR_DIR + pageId + projConf.CONF_EXT);
+<             if (!pageXML.exists())
+<                 return;
+< 
+<             // Load pageXML and replace/delete all Textline text content
+<             String pageXMLContent = new String(Files.readAllBytes(pageXML.toPath()));
+<             pageXMLContent = pageXMLContent.replaceAll("\\<TextEquiv[^>]+?index=\"[^0]\"[^>]*?\\>[^<]*?\\<\\/TextEquiv\\>", "");
+< 
+<             // Save new pageXML
+<             try (FileWriter fileWriter = new FileWriter(pageXML)) {
+<                 fileWriter.write(pageXMLContent);
+<                 fileWriter.flush();
+<                 fileWriter.close();
+<             }
+<         }
+<     }
+< 
+<     /**
+<      * Creates the recognition files of the linesegments that were skipped by the ocropus-rpred script
+---
+>      * Returns the progress of the process
+401a355
+>      * @return Progress percentage
+404,409c358,361
+<     public void createSkippedSegments() throws IOException{
+<         for(String pageId : processState.keySet()) {
+<             for(String segmentId :processState.get(pageId).keySet()) {
+<                 for (String lineSegmentId : processState.get(pageId).get(segmentId).keySet()) {
+<                     if (processState.get(pageId).get(segmentId).get(lineSegmentId))
+<                         continue;
+---
+>     public int getProgress() throws IOException {
+>         // Prevent function from calculation progress if process is not running
+>         if (!RecognitionRunning)
+>             return progress;
+411,414c363,367
+<                     FileUtils.writeStringToFile(new File(projConf.PAGE_DIR + pageId + File.separator +
+<                         segmentId + File.separator + lineSegmentId + projConf.REC_EXT), "", "UTF8");
+<                 }
+<             }
+---
+>         int modifiedCount = 0;
+>         if(imagesLastModified != null) {
+>             for(String pagexml : imagesLastModified.keySet()) {
+>                 if(imagesLastModified.get(pagexml) < new File(pagexml).lastModified()) {
+>                     modifiedCount++;
+417,427c370,372
+< 
+<     /**
+<      * Checks if process depending files already exist
+<      *
+<      * @param pageIds Identifiers of the pages (e.g 0002,0003)
+<      * @return Information if files exist
+<      */
+<     public boolean doOldFilesExist(String[] pageIds) {
+<         for (String pageId : pageIds) {
+<             if (procStateCol.recognitionState(pageId))
+<                 return true;
+---
+>             progress = (modifiedCount*100) / imagesLastModified.size();
+>         } else {
+>             progress = -1;
+429c374
+<         return false;
+---
+>         return progress;
+433,452c378
+<      * Lists all available Models from the model directory
+<      * Consider the subsequent information to load models correctly
+<      *
+<      * Possible model location directories:
+<      * ProjectConfiguration.PROJ_MODEL_DEFAULT_DIR
+<      * ProjectConfiguration.PROJ_MODEL_CUSTOM_DIR
+<      *
+<      * Model path structures on the filesystem:
+<      * Default: OS_PATH/{TRAINING_IDENTIFIER}/{ID}.ckpt.json
+<      * Custom:  OS_PATH/{PROJECT_NAME}/{TRAINING_IDENTIFIER}/{ID}.ckpt.json
+<      *
+<      * Example: /var/ocr4all/models/default/Baiter_000/Baiter.ckpt.json
+<      * Display: Baiter_000/Baiter
+<      * Example: /var/ocr4all/models/custom/Bibel/0/0.ckpt.json
+<      * Display: Bibel/0/0
+<      * Example: /var/ocr4all/models/custom/Bibel/heading/0.ckpt.json
+<      * Display: Bibel/heading/0
+<      *
+<      * The models need to be in the following structure:
+<      * ANY_PATH/{MODEL_NAME}/ANY_NAME.ckpt.json
+---
+>      * Extracts checkpoints of a String joined by a whitespace
+454c380
+<      * @return Map of models (key = modelName | value = path)
+---
+>      * @return List of checkpoints
+457,479c383,391
+<     public static TreeMap<String, String> listModels() throws IOException{
+<         TreeMap<String, String> models = new TreeMap<String, String>();
+< 
+<         File modelsDir = new File(ProjectConfiguration.PROJ_MODEL_DIR);
+<         if (!modelsDir.exists())
+<             return models;
+< 
+<         // Add all models to map (follow symbolic links on the filesystem due to Docker container)
+<         Files.walk(Paths.get(ProjectConfiguration.PROJ_MODEL_DIR), FileVisitOption.FOLLOW_LINKS)
+<         .map(Path::toFile)
+<         .filter(fileEntry -> fileEntry.getName().endsWith(ProjectConfiguration.MODEL_EXT))
+<         .forEach(
+<             fileEntry -> {
+<                 // Remove OS path and model extension from display string (only display significant information)
+<                 String modelName = fileEntry.getAbsolutePath();
+<                 modelName = modelName.replace(ProjectConfiguration.PROJ_MODEL_DEFAULT_DIR, "");
+<                 modelName = modelName.replace(ProjectConfiguration.PROJ_MODEL_CUSTOM_DIR, "");
+<                 modelName = modelName.replace(ProjectConfiguration.MODEL_EXT, "");
+< 
+<                 models.put(modelName, fileEntry.getAbsolutePath());
+<         });
+< 
+<         return models;
+---
+>     public List<String> extractModelsOfJoinedString(String joinedckptString){
+>         String [] checkpoints = joinedckptString.split(ProjectConfiguration.MODEL_EXT + " ");
+>         List<String> ckptList = new ArrayList<>();
+>         Iterator <String> ckptIterator= Arrays.asList(checkpoints).iterator();
+>         while (ckptIterator.hasNext()) {
+>             String ckpt = ckptIterator.next();
+>             if (ckptIterator.hasNext())
+>                 ckpt = ckpt + ProjectConfiguration.MODEL_EXT;
+>             ckptList.add(ckpt);
+481,490c393
+< 
+<     /**
+<      * Determines conflicts with the process
+<      *
+<      * @param currentProcesses Processes that are currently running
+<      * @param inProcessFlow Indicates if the process is executed within the ProcessFlow
+<      * @return Type of process conflict
+<      */
+<     public int getConflictType(List<String> currentProcesses, boolean inProcessFlow) {
+<         return ProcessConflictDetector.recognitionConflict(currentProcesses, inProcessFlow);
+---
+>         return ckptList;

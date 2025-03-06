@@ -1,0 +1,21 @@
+6c6
+< import javax.mvc.Controller;
+---
+> import javax.mvc.annotation.Controller;
+8d7
+< import javax.mvc.UriRef;
+10,11c9
+< import javax.mvc.binding.MvcBinding;
+< import javax.mvc.binding.ParamError;
+---
+> import javax.mvc.binding.BindingResult.Status;
+46c44
+<     @UriRef("greeting-post")
+---
+>     @CsrfProtected
+49d46
+<             @MvcBinding
+51c48
+<         if (bindingResult.isFailed()) {
+---
+>         if (bindingResult.getStatus() == Status.FAILED) {

@@ -1,0 +1,32 @@
+9a10,11
+> import org.eclipse.jetty.server.HttpConfiguration;
+> import org.eclipse.jetty.server.ServerConnector;
+13,15d14
+< import org.eclipse.jetty.server.Connector;
+< import org.eclipse.jetty.server.nio.SelectChannelConnector;
+< 
+24c23
+<     private final Connector httpConnector;
+---
+>     private final ServerConnector httpConnector;
+30d28
+< 
+33,34c31,33
+<         this.server.setSendServerVersion(false);
+<         this.server.setSendDateHeader(true);
+---
+>         HttpConfiguration httpConfig = new HttpConfiguration();
+>         httpConfig.setSendServerVersion(false);
+>         httpConfig.setSendDateHeader(true);
+36c35
+<         this.httpConnector = new SelectChannelConnector();
+---
+>         this.httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+41d39
+< 
+52d49
+< 
+63d59
+< 
+73d68
+<     

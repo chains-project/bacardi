@@ -1,0 +1,106 @@
+54d53
+< import java.util.concurrent.TimeUnit;
+68,70c67
+<             ScheduledExecutorService executor, SessionSettings sessionSettings, NetworkingOptions networkingOptions,
+<             EventHandlingStrategy eventHandlingStrategy,
+<             IoFilterChainBuilder userIoFilterChainBuilder, boolean sslEnabled, SSLConfig sslConfig,
+---
+>             ScheduledExecutorService executor, SessionSettings sessionSettings, NetworkingOptions networkingOptions, EventHandlingStrategy eventHandlingStrategy, IoFilterChainBuilder userIoFilterChainBuilder, boolean sslEnabled, SSLConfig sslConfig,
+72c69
+<             String proxyUser, String proxyPassword, String proxyDomain, String proxyWorkstation) throws ConfigError {
+---
+>             String proxyUser, String proxyPassword, String proxyDomain, String proxyWorkstation) throws ConfigError, GeneralSecurityException {
+74,127d70
+<         final long[] reconnectIntervalInMillis = new long[reconnectIntervalInSeconds.length];
+<         for (int ii = 0; ii != reconnectIntervalInSeconds.length; ++ii) {
+<             reconnectIntervalInMillis[ii] = reconnectIntervalInSeconds[ii] * 1000L;
+<         }
+<         try {
+<             reconnectTask = new ConnectTask(sslEnabled, socketAddresses, localAddress,
+<                     userIoFilterChainBuilder, fixSession, reconnectIntervalInMillis,
+<                     sessionSettings, networkingOptions, eventHandlingStrategy, sslConfig,
+<                     proxyType, proxyVersion, proxyHost, proxyPort, proxyUser, proxyPassword, proxyDomain, proxyWorkstation, log);
+<         } catch (GeneralSecurityException e) {
+<             throw new ConfigError(e);
+<         }
+< 
+<         fixSession.getLog().onEvent("Configured socket addresses for session: " + Arrays.asList(socketAddresses));
+<     }
+< 
+<     private static class ConnectTask implements Runnable {
+<         private final boolean sslEnabled;
+<         private final SocketAddress[] socketAddresses;
+<         private final SocketAddress localAddress;
+<         private final IoFilterChainBuilder userIoFilterChainBuilder;
+<         private IoConnector ioConnector;
+<         private final Session fixSession;
+<         private final long[] reconnectIntervalInMillis;
+<         private final SessionSettings sessionSettings;
+<         private final NetworkingOptions networkingOptions;
+<         private final EventHandlingStrategy eventHandlingStrategy;
+<         private final SSLConfig sslConfig;
+<         private final Logger log;
+< 
+<         private IoSession ioSession;
+<         private long lastReconnectAttemptTime;
+<         private long lastConnectTime;
+<         private int nextSocketAddressIndex;
+<         private int connectionFailureCount;
+<         private ConnectFuture connectFuture;
+< 
+<         private final String proxyType;
+<         private final String proxyVersion;
+<         private final String proxyHost;
+<         private final int proxyPort;
+<         private final String proxyUser;
+<         private final String proxyPassword;
+<         private final String proxyDomain;
+<         private final String proxyWorkstation;
+< 
+<         public ConnectTask(boolean sslEnabled, SocketAddress[] socketAddresses,
+<                 SocketAddress localAddress, IoFilterChainBuilder userIoFilterChainBuilder,
+<                 Session fixSession, long[] reconnectIntervalInMillis,
+<                 SessionSettings sessionSettings, NetworkingOptions networkingOptions, EventHandlingStrategy eventHandlingStrategy, SSLConfig sslConfig,
+<                 String proxyType, String proxyVersion, String proxyHost,
+<                 int proxyPort, String proxyUser, String proxyPassword, String proxyDomain,
+<                 String proxyWorkstation, Logger log) throws ConfigError, GeneralSecurityException {
+<             this.sslEnabled = sslEnabled;
+132c75
+<             this.reconnectIntervalInMillis = reconnectIntervalInMillis;
+---
+>         this.reconnectIntervalInMillis = reconnectIntervalInSeconds;
+195,197d137
+<             sslFilter.setUseClientMode(true);
+<             sslFilter.setCipherSuites(sslConfig.getEnabledCipherSuites() != null ? sslConfig.getEnabledCipherSuites()
+<                     : SSLSupport.getDefaultCipherSuites(sslContext));
+199a140,141
+>         sslFilter.setCipherSuites(sslConfig.getEnabledCipherSuites() != null ? sslConfig.getEnabledCipherSuites()
+>                 : SSLSupport.getDefaultCipherSuites(sslContext));
+217c159
+<                 LogUtil.logThrowable(fixSession.getLog(), "Exception during ConnectTask run", e);
+---
+>             handleConnectException(e);
+313,333d254
+<         // TODO JMX Expose reconnect property
+< 
+<         @SuppressWarnings("unused") // exposed via JMX
+<         public synchronized int getConnectionFailureCount() {
+<             return connectionFailureCount;
+<         }
+< 
+<         @SuppressWarnings("unused") // exposed via JMX
+<         public synchronized long getLastReconnectAttemptTime() {
+<             return lastReconnectAttemptTime;
+<         }
+< 
+<         @SuppressWarnings("unused") // exposed via JMX
+<         public synchronized long getLastConnectTime() {
+<             return lastConnectTime;
+<         }
+< 
+<         public Session getFixSession() {
+<             return fixSession;
+<         }
+< 
+351d271
+<     }

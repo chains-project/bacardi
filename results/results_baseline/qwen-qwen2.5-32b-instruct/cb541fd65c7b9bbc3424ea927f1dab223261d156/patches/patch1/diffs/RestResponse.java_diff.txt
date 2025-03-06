@@ -1,0 +1,88 @@
+1,29d0
+< /*
+<  * Copyright (c) 2011-2022, jcabi.com
+<  * All rights reserved.
+<  *
+<  * Redistribution and use in source and binary forms, with or without
+<  * modification, are permitted provided that the following conditions
+<  * are met: 1) Redistributions of source code must retain the above
+<  * copyright notice, this list of conditions and the following
+<  * disclaimer. 2) Redistributions in binary form must reproduce the above
+<  * copyright notice, this list of conditions and the following
+<  * disclaimer in the documentation and/or other materials provided
+<  * with the distribution. 3) Neither the name of the jcabi.com nor
+<  * the names of its contributors may be used to endorse or promote
+<  * products derived from this software without specific prior written
+<  * permission.
+<  *
+<  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+<  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+<  * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+<  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+<  * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+<  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+<  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+<  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+<  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+<  * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+<  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+<  * OF THE POSSIBILITY OF SUCH DAMAGE.
+<  */
+48c19
+< import org.hamcrest.Matchers;
+---
+> import org.hamcrest.core.IsEqual;
+61c32
+<  *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
+---
+>  *   .assertHeader("Content-Type", Matchers.hasItems("text/plain"))
+65,67d35
+<  * <p>Method {@link #jump(URI)} creates a new instance of class
+<  * {@link Request} with all cookies transferred from the current one.
+<  *
+103c71
+<      * @return The same object
+---
+>      * @return This object
+114,115c82,83
+<             this,
+<             new RestResponse.StatusMatch(message, status)
+---
+>             this.status(),
+>             new IsEqual<>(status)
+123c91
+<      * @param matcher Matcher to validate status code
+---
+>      * @param matcher The matcher to use
+210c178
+<         return this.assertHeader(name, Matchers.hasItems(value));
+---
+>         return this.assertHeader(name, IsEqual.equalTo(Collections.singletonList(value)));
+226c194
+<                 for (final HttpCookie cookie : HttpCookie.parse(header)) {
+---
+>                 for (final HttpCookie candidate : HttpCookie.parse(header)) {
+230c198
+<                             "%s=%s", cookie.getName(), cookie.getValue()
+---
+>                             "%s=%s", candidate.getName(), candidate.getValue()
+246c214
+<             Matchers.not(Matchers.emptyIterableOf(String.class))
+---
+>             IsEqual.equalTo(Collections.singletonList("http://example.com"))
+262,263c230,235
+<             "cookies should be set in HTTP header",
+<             headers.containsKey(HttpHeaders.SET_COOKIE)
+---
+>             Logger.format(
+>                 "cookies should be set in HTTP header: '%s'",
+>                 headers
+>             ),
+>             headers.containsKey(HttpHeaders.SET_COOKIE),
+>             IsEqual.equalTo(true)
+284c256
+<             Matchers.notNullValue()
+---
+>             IsEqual.equalTo(new Cookie(name, ""))
+332d303
+< 

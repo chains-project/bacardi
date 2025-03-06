@@ -1,0 +1,166 @@
+48d47
+<         private final String executable;
+49a49
+>         private final String executable;
+54d53
+<             this.executable = "bin" + File.separatorChar + executable;
+55a55
+>             this.executable = "bin" + File.separatorChar + executable;
+62,96d61
+<         public static OperatingSystem getOperatingSystem() {
+<             String os = System.getProperty("os.name").toLowerCase();
+<             if (isWindows(os)) {
+<                 return WINDOWS;
+<             }
+<             if (isMac(os)) {
+<                 return OSX;
+<             }
+<             if (isUnix(os)) {
+<                 String arch = System.getProperty("os.arch").toLowerCase();
+< 
+<                 if (isArm(arch)) {
+<                   return LINUX_ARM64;
+<                 }
+<                 return LINUX;
+<             }
+<             throw new IllegalStateException("Unsupported OS: " + os);
+<         }
+< 
+<         private static boolean isWindows(String os) {
+<             return os.contains("win");
+<         }
+< 
+<         private static boolean isMac(String os) {
+<             return os.contains("mac");
+<         }
+< 
+<         private static boolean isUnix(String os) {
+<             return os.contains("nux");
+<         }
+< 
+<         private static boolean isArm(String arch) {
+<             return arch.startsWith("arm") || arch.startsWith("aarch");
+<         }
+< 
+114d78
+< 
+127,243d90
+<     public static final String SAUCE_CONNECT_4 = SAUCE_CONNECT + CURRENT_SC_VERSION;
+< 
+<     /**
+<      * Constructs a new instance with quiet mode disabled.
+<      */
+<     public SauceConnectFourManager() {
+<         this(false);
+<     }
+< 
+<     /**
+<      * Constructs a new instance.
+<      *
+<      * @param quietMode indicates whether Sauce Connect output should be suppressed
+<      */
+<     public SauceConnectFourManager(boolean quietMode) {
+<         super(quietMode);
+<     }
+< 
+<     /**
+<      * @param username         name of the user which launched Sauce Connect
+<      * @param apiKey           api key corresponding to the user
+<      * @param port             port which Sauce Connect should be launched on
+<      * @param sauceConnectJar  File which contains the Sauce Connect executables (typically the CI plugin Jar file)
+<      * @param options          the command line options used to launch Sauce Connect
+<      * @param printStream      the output stream to send log messages
+<      * @param sauceConnectPath if defined, Sauce Connect will be launched from the specified path and won't be extracted from the jar file
+<      * @return new ProcessBuilder instance which will launch Sauce Connect
+<      * @throws SauceConnectException thrown if an error occurs extracting the Sauce Connect binary from the CI jar file
+<      */
+<     @Override
+<     protected Process prepAndCreateProcess(String username, String apiKey, int port, File sauceConnectJar, String options, PrintStream printStream, String sauceConnectPath) throws SauceConnectException {
+< 
+<         //find zip file to extract
+<         try {
+<             File sauceConnectBinary;
+<             if (sauceConnectPath == null || sauceConnectPath.equals("")) {
+<                 File workingDirectory = null;
+<                 if (sauceConnectJar != null && sauceConnectJar.exists()) {
+<                     workingDirectory = sauceConnectJar.getParentFile();
+<                 }
+<                 if (workingDirectory == null) {
+<                     workingDirectory = new File(getSauceConnectWorkingDirectory());
+<                 }
+<                 if (!workingDirectory.canWrite()) {
+<                     throw new SauceConnectException("Can't write to " + workingDirectory.getAbsolutePath() + ", please check the directory permissions");
+<                 }
+<                 OperatingSystem operatingSystem = OperatingSystem.getOperatingSystem();
+<                 File unzipDirectory = getUnzipDir(workingDirectory, operatingSystem);
+<                 sauceConnectBinary = new File(unzipDirectory, operatingSystem.getExecutable());
+<                 if (!sauceConnectBinary.exists()) {
+<                     synchronized (this) {
+<                         if (!sauceConnectBinary.exists()) {
+<                             extractZipFile(workingDirectory, operatingSystem);
+<                         }
+<                     }
+<                 } else {
+<                     logMessage(printStream, sauceConnectBinary + " already exists, so not extracting");
+<                 }
+<             } else {
+<                 sauceConnectBinary = new File(sauceConnectPath);
+<                 if (!sauceConnectBinary.exists()) {
+<                     throw new SauceConnectException(sauceConnectPath + " doesn't exist, please check the location");
+<                 }
+<             }
+< 
+<             //although we are setting the working directory, we need to specify the full path to the exe
+<             String[] args = { sauceConnectBinary.getPath() };
+<             args = generateSauceConnectArgs(args, username, apiKey, port, options);
+<             args = addExtraInfo(args);
+< 
+<             julLogger.log(Level.INFO, "Launching Sauce Connect " + getCurrentVersion() + " " + hideSauceConnectCommandlineSecrets(args));
+<             return createProcess(args, sauceConnectBinary.getParentFile());
+<         } catch (IOException e) {
+<             throw new SauceConnectException(e);
+<         }
+<     }
+< 
+<     public String hideSauceConnectCommandlineSecrets(String[] args) {
+<         HashMap<String, String> map = new HashMap<>();
+<         map.put("-k", "()\\w+-\\w+-\\w+-\\w+-\\w+");
+<         map.put("--api-key", "()\\w+-\\w+-\\w+-\\w+-\\w+");
+<         map.put("-w", "(\\S+:)\\S+");
+<         map.put("--proxy-userpwd", "(\\S+:)\\S+");
+<         map.put("-a", "(\\S+:\\d+:\\S+:)\\S+");
+<         map.put("--auth", "(\\S+:\\d+:\\S+:)\\S+");
+<         String regexpForNextElement = null;
+<         List<String> hiddenArgs = new ArrayList<>();
+< 
+<         for (String arg: args) {
+<             if (regexpForNextElement != null) {
+<                 hiddenArgs.add(arg.replaceAll(regexpForNextElement, "$1****"));
+<                 regexpForNextElement = null;
+<             } else {
+<                 hiddenArgs.add(arg);
+<                 regexpForNextElement = map.getOrDefault(arg, null);
+<             }
+<         }
+<         return Arrays.toString(hiddenArgs.toArray());
+<     }
+< 
+<     public void setUseLatestSauceConnect(boolean useLatestSauceConnect) {
+<         this.useLatestSauceConnect = useLatestSauceConnect;
+<     }
+< 
+<     public void setCleanUpOnExit(boolean cleanUpOnExit) {
+<         this.cleanUpOnExit = cleanUpOnExit;
+<     }
+< 
+<     public static String getLatestSauceConnectVersion() {
+<         try {
+<             URL url = new URL("https://saucelabs.com/versions.json");
+<             String versionsJson = IOUtils.toString(url, StandardCharsets.UTF_8);
+<             return new JSONObject(versionsJson).getJSONObject("Sauce Connect").getString("version");
+<         } catch (IOException e) {
+<             return null;
+<         }
+<     }
+307d153
+<         unArchiver.enableLogging(new ConsoleLogger(Logger.LEVEL_DEBUG, "Sauce"));

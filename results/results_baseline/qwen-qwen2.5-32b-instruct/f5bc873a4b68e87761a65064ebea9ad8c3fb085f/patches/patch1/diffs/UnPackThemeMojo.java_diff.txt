@@ -1,0 +1,18 @@
+22c22
+< import org.apache.maven.artifact.DependencyResolutionRequiredException;
+---
+> import org.apache.maven.artifact.Artifact;
+28a29
+> import org.apache.maven.project.MavenProject;
+82a84,85
+>   @Component
+>   private MavenProject project;
+196,197c199,200
+<     } catch (final DependencyResolutionRequiredException drre) {
+<       throw new MojoExecutionException(drre.getMessage(), drre);
+---
+>     } catch (final Exception e) {
+>       throw new MojoExecutionException(e.getMessage(), e);
+214,215d216
+< 
+< 

@@ -1,0 +1,135 @@
+36c36
+<   private static final Pattern dataFieldPattern = Pattern.compile("^(\\d\\d\\d)\\$(.*)$");
+---
+>   private static final Pattern dataFieldPattern = Pattern.compile("^(\\d\\d\\d)\\$(.*$");
+55,62d54
+<   public enum RESOLVE {
+<     NONE,
+<     RESOLVE,
+<     BOTH;
+<   }
+< 
+<   private List<String> unhandledTags;
+< 
+247,253d238
+<   /**
+<    * Extact field value
+<    * @param tag
+<    * @param subfield
+<    * @param doResolve
+<    * @return
+<    */
+337,344c322
+<   @Override
+<   public Map<String, List<String>> getKeyValuePairs(SolrFieldType type, MarcVersion marcVersion) {
+<     return getKeyValuePairs(type, false, marcVersion);
+<   }
+< 
+<   public Map<String, List<String>> getKeyValuePairs(SolrFieldType type,
+<                                                     boolean withDeduplication,
+<                                                     MarcVersion marcVersion) {
+---
+>   public Map<String, List<String>> getKeyValuePairs(SolrFieldType type, boolean withDeduplication, MarcVersion marcVersion) {
+405c383
+<       if (field != null) {
+---
+>       if (field.getDefinition() != null) {
+421c399
+<         ((ArrayList)map.get(tag)).add(fieldMap);
+---
+>         ((ArrayList)map.get(tag).add(fieldMap);
+435d412
+<   @Override
+454,456d430
+<     // TODO: use reflection to get all validator class
+<     // ValidatorResponse validatorResponse;
+< 
+464,468c438
+<       List<ValidationError> leaderErrors = leader.getValidationErrors();
+<       for (ValidationError leaderError : leaderErrors)
+<         if (leaderError.getRecordId() == null)
+<           leaderError.setRecordId(getId());
+<       validationErrors.addAll(leaderErrors);
+---
+>       validationErrors.addAll(leader.getValidationErrors());
+478c448
+<           if (!isIgnorableField(tag, ignorableFields))
+---
+>           if (!isIgnorableField(tag, ignorableFields)
+562d531
+<   @Override
+626,627c595
+<           if (subfields == null)
+<             continue;
+---
+>           if (subfields != null) {
+633a602
+>     }
+688,692c657,661
+<       List<MarcSubfield> subfields = field.getSubfield(subfieldCode);
+<       if (subfields != null) {
+<         for (MarcSubfield subfield : subfields) {
+<           if (subfield.getValue().equals(query)) {
+<             results.add(subfield.getValue());
+---
+>       List<MarcSubfield> subfieldInstances = field.getSubfield(subfieldCode);
+>       if (subfieldInstances != null) {
+>         for (MarcSubfield subfieldInstance : subfieldInstances) {
+>           if (subfieldInstance.getValue().equals(query)) {
+>             results.add(subfieldInstance.getValue());
+746c715
+<       "600", "610", "611", "630", "647", "648", "650", "651",
+---
+>       "600", "610", "611", "630", "647", "650", "651",
+772,776c741
+<   public void setField(String tag, String content, MarcVersion marcVersion) {
+<     if (marcVersion.equals(MarcVersion.UNIMARC)) {
+<       content = UnimarcConverter.contentFromUnimarc(tag, content);
+<       tag = UnimarcConverter.tagFromUnimarc(tag);
+<     }
+---
+>   public void setField(String tag, String ind1, String ind2, String content, MarcVersion marcVersion) {
+783c748
+<       setControl005(new Control005(content, this));
+---
+>       setControl005(new Control005(content, this);
+785c750
+<       setControl006(new Control006(content, this));
+---
+>       setControl006(new Control006(content, this);
+787c752
+<       setControl007(new Control007(content, this));
+---
+>       setControl007(new Control007(content, this);
+789c754
+<       setControl008(new Control008(content, this));
+---
+>       setControl008(new Control008(content, this);
+796c761
+<       DataField dataField = new DataField(tag, content, marcVersion);
+---
+>       DataField dataField = new DataField(tag, ind1, ind2, content, marcVersion);
+801,823d765
+<   public void setField(String tag, String ind1, String ind2, String content, MarcVersion marcVersion) {
+< 
+<     if (tag.equals("001")) {
+<       setControl001(new Control001(content));
+<     } else if (tag.equals("003")) {
+<       setControl003(new Control003(content));
+<     } else if (tag.equals("005")) {
+<       setControl005(new Control005(content, this));
+<     } else if (tag.equals("006")) {
+<       setControl006(new Control006(content, this));
+<     } else if (tag.equals("007")) {
+<       setControl007(new Control007(content, this));
+<     } else if (tag.equals("008")) {
+<       setControl008(new Control008(content, this));
+<     } else {
+<       DataFieldDefinition definition = MarcFactory.getDataFieldDefinition(tag, marcVersion);
+<       if (definition == null) {
+<         addUnhandledTags(tag);
+<       }
+<       addDataField(new DataField(tag, ind1, ind2, content, marcVersion));
+<     }
+<   }
+< 

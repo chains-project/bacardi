@@ -1,0 +1,59 @@
+31a32
+> import org.cactoos.Func;
+33,40c34,37
+< import org.cactoos.func.IoCheckedFunc;
+< import org.cactoos.io.Directory;
+< import org.cactoos.iterable.Filtered;
+< import org.cactoos.iterable.Mapped;
+< import org.cactoos.scalar.IoCheckedScalar;
+< import org.cactoos.scalar.SolidScalar;
+< import org.cactoos.text.FormattedText;
+< import org.cactoos.text.JoinedText;
+---
+> import org.cactoos.Text;
+> import org.cactoos.text.ConcatText;
+> import org.cactoos.text.HexText;
+> import org.cactoos.text.TextOf;
+53c50
+<     private final IoCheckedScalar<Path> path;
+---
+>     private final Scalar<Path> path;
+58c55
+<     private final IoCheckedFunc<Path, Boolean> filter;
+---
+>     private final Func<Path, Boolean> filter;
+103,107c100,101
+<         this.path = new IoCheckedScalar<>(
+<             new SolidScalar<>(pth)
+<         );
+<         this.filter = new IoCheckedFunc<Path, Boolean>(
+<             (file) -> file.toFile().isFile()
+---
+>         this.path = pth;
+>         this.filter = (file) -> file.toFile().isFile()
+110,111c104
+<                 .matches(file)
+<         );
+---
+>             .matches(file);
+119,122c112,115
+<             new JoinedText(
+<                 ".",
+<                 Long.toHexString(this.random.nextLong()),
+<                 this.ext
+---
+>             new ConcatText(
+>                 new TextOf("."),
+>                 new HexText(this.random.nextLong()),
+>                 new TextOf("." + this.ext)
+128,131c121,125
+<                     new FormattedText(
+<                         "Wallet in path %s already exists",
+<                         wpth.toUri().getPath()
+<                     )
+---
+>                     new ConcatText(
+>                         new TextOf("Wallet in path "),
+>                         new TextOf(wpth.toUri().getPath()),
+>                         new TextOf(" already exists")
+>                     ).asString()

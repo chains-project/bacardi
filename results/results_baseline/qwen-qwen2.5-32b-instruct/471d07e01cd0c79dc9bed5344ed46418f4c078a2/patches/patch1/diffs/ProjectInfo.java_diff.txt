@@ -1,0 +1,72 @@
+1,16d0
+< /*
+<  * Copyright 2015 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+112c96
+<   public static class ResourceId implements Serializable {
+---
+>   static class ResourceId implements Serializable {
+154,155c138
+<     static ResourceId fromPb(
+<         com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb) {
+---
+>     static ResourceId fromPb(com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb) {
+166,168c149
+<      * <p>This field is optional and can remain unset. Allowed characters are: lowercase and
+<      * uppercase letters, numbers, hyphen, single-quote, double-quote, space, and exclamation point.
+<      * This field can be changed after project creation.
+---
+>      * <p>This field is optional, can remain unset, and can be changed after project creation.
+175,177c156
+<      * <p>The ID must be 6 to 30 lowercase letters, digits, or hyphens. It must start with a letter.
+<      * Trailing hyphens are prohibited. This field cannot be changed after the server creates the
+<      * project.
+---
+>      * <p>This field cannot be changed after the server creates the project.
+197,201c176,178
+<      * <p>Label keys must be between 1 and 63 characters long and must conform to the following
+<      * regular expression: [a-z]([-a-z0-9]*[a-z0-9])?. Label values must be between 0 and 63
+<      * characters long and must conform to the regular expression ([a-z]([-a-z0-9]*[a-z0-9])?)?. No
+<      * more than 256 labels can be associated with a given resource. This field can be changed after
+<      * project creation.
+---
+>      * <p>Label keys must be between 1 and 63 characters long and must conform to the regular
+>      * expression ([a-z]([-a-z0-9]*[a-z0-9])?). No more than 256 labels can be associated with a given
+>      * resource. This field can be changed after project creation.
+351,352c328,329
+<    * <p>This is a read-only field. To change the lifecycle state of your project, use the {@code
+<    * delete} or {@code undelete} method.
+---
+>    * <p>This is a read-only field. To change the lifecycle state of your project, use the {@link
+>    * ResourceManager#delete} or {@link ResourceManager#undelete} method.
+392,394c369,371
+<   com.google.api.services.cloudresourcemanager.model.Project toPb() {
+<     com.google.api.services.cloudresourcemanager.model.Project projectPb =
+<         new com.google.api.services.cloudresourcemanager.model.Project();
+---
+>   com.google.api.services.cloudresourcemanager.v3.model.Project toPb() {
+>     com.google.api.services.cloudresourcemanager.v3.model.Project projectPb =
+>         new com.google.api.services.cloudresourcemanager.v3.model.Project();
+404,406c381
+<           DateTimeFormatter.ISO_DATE_TIME
+<               .withZone(ZoneOffset.UTC)
+<               .format(Instant.ofEpochMilli(createTimeMillis)));
+---
+>           DATE_TIME_FORMATTER.format(Instant.ofEpochMilli(createTimeMillis));
+414c389
+<   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.model.Project projectPb) {
+---
+>   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) {
