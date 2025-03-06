@@ -1,0 +1,144 @@
+9d8
+< 
+12c11,13
+< 
+---
+> import java.util.function.Function;
+> import net.kyori.adventure.text.Component;
+> import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+14,19c15,17
+< import org.spongepowered.api.command.CommandException;
+< import org.spongepowered.api.command.CommandResult;
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.Command;
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.parameter.CommandContext;
+21,23d18
+< import org.spongepowered.api.scheduler.Task;
+< import org.spongepowered.api.text.Text;
+< import org.spongepowered.api.text.serializer.TextSerializers;
+25c20
+< public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class InfoCommand implements ChangeSkinCommand {
+33,34d27
+< 
+<     @Override
+36,37c29,31
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+---
+>         Object raw = (src instanceof CommandSourceAdapter) ? ((CommandSourceAdapter) src).getSender() : src;
+>         if (!(raw instanceof Player)) {
+>             plugin.sendMessage(raw, "no-console");
+41,43c35,36
+<         UUID uniqueId = ((Player) src).getUniqueId();
+<         Task.builder().async()
+<                 .execute(() -> {
+---
+>         UUID uniqueId = ((Player) raw).getUniqueId();
+>         Sponge.server().scheduler().asyncExecutor(plugin).submit(() -> {
+45,48c38,39
+<                     Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).submit(plugin);
+<                 })
+<                 .submit(plugin);
+< 
+---
+>             Sponge.server().scheduler().syncExecutor(plugin).submit(() -> sendSkinDetails(uniqueId, preferences));
+>         });
+52d42
+<     @Override
+55c45,48
+<                 .executor(this)
+---
+>                 .executor(context -> {
+>                     Object rawSender = context.cause().root();
+>                     return this.execute(new CommandSourceAdapter(rawSender), context);
+>                 })
+61c54
+<         Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
+---
+>         Optional<Player> optPlayer = Sponge.server().player(uuid);
+70c63
+<                 Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
+---
+>                 Component text = LegacyComponentSerializer.legacyAmpersand().deserialize(formatted);
+76a70,143
+> 
+>     public interface CommandSource extends net.kyori.adventure.audience.Audience {
+>     }
+> 
+>     private static class CommandSourceAdapter implements CommandSource {
+>         private final Object sender;
+> 
+>         public CommandSourceAdapter(Object sender) {
+>             this.sender = sender;
+>         }
+> 
+>         public Object getSender() {
+>             return sender;
+>         }
+> 
+>         @Override
+>         public void sendMessage(Component message) {
+>             if (sender instanceof net.kyori.adventure.audience.Audience) {
+>                 ((net.kyori.adventure.audience.Audience) sender).sendMessage(message);
+>             }
+>         }
+>     }
+> 
+>     public static class CommandSpec {
+>         private final Command command;
+> 
+>         private CommandSpec(Command command) {
+>             this.command = command;
+>         }
+> 
+>         public Command getCommand() {
+>             return command;
+>         }
+> 
+>         public static Builder builder() {
+>             return new Builder();
+>         }
+> 
+>         public static class Builder {
+>             private Function<CommandContext, CommandResult> executor;
+>             private String permission;
+> 
+>             public Builder executor(Function<CommandContext, CommandResult> executor) {
+>                 this.executor = executor;
+>                 return this;
+>             }
+> 
+>             public Builder permission(String permission) {
+>                 this.permission = permission;
+>                 return this;
+>             }
+> 
+>             public CommandSpec build() {
+>                 Command command = Command.builder()
+>                         .executor(context -> {
+>                             executor.apply(context);
+>                             return 1;
+>                         })
+>                         .permission(permission)
+>                         .build();
+>                 return new CommandSpec(command);
+>             }
+>         }
+>     }
+> 
+>     public static class CommandResult {
+>         public static CommandResult success() {
+>             return new CommandResult();
+>         }
+> 
+>         public static CommandResult empty() {
+>             return new CommandResult();
+>         }
+>     }

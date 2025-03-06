@@ -1,0 +1,85 @@
+9a10
+> import java.util.Optional;
+11a13
+> import org.spongepowered.api.command.Command;
+13,17c15,18
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.args.GenericArguments;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+19a21
+> import org.spongepowered.api.text.Text;
+21,22d22
+< import static org.spongepowered.api.command.args.GenericArguments.flags;
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+31c31
+<     SetCommand(ChangeSkinSponge plugin, ChangeSkinCore core) {
+---
+>     public SetCommand(ChangeSkinSponge plugin, ChangeSkinCore core) {
+37,39c37,40
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+---
+>     public CommandResult execute(CommandContext args) throws CommandException {
+>         Optional<Player> playerOpt = args.cause().first(Player.class);
+>         if (!playerOpt.isPresent()) {
+>             plugin.sendMessage(args.cause().root(), "no-console");
+42,43c43,44
+< 
+<         UUID uniqueId = ((Player) src).getUniqueId();
+---
+>         Player sender = playerOpt.get();
+>         UUID uniqueId = sender.getUniqueId();
+45c46
+<             plugin.sendMessage(src, "cooldown");
+---
+>             plugin.sendMessage(sender, "cooldown");
+49,51c50,55
+<         Player receiver = (Player) src;
+<         String targetSkin = args.<String>getOne("skin").get();
+<         boolean keepSkin = args.hasAny("keep");
+---
+>         Object skinArg = args.one("skin").orElse(null);
+>         if (skinArg == null) {
+>             throw new CommandException(of("Missing skin argument"));
+>         }
+>         String targetSkin = skinArg.toString();
+>         boolean keepSkin = args.one("keep").map(val -> (Boolean) val).orElse(false);
+54c58
+<             targetSkin = receiver.getUniqueId().toString();
+---
+>             targetSkin = sender.getUniqueId().toString();
+60c64
+<             if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(src, targetUUID, true)) {
+---
+>             if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(sender, targetUUID, true)) {
+64,65c68,69
+<             plugin.sendMessage(src, "skin-change-queue");
+<             Runnable skinDownloader = new SkinDownloader(plugin, src, receiver, targetUUID, keepSkin);
+---
+>             plugin.sendMessage(sender, "skin-change-queue");
+>             Runnable skinDownloader = new SkinDownloader(plugin, sender, sender, targetUUID, keepSkin);
+70c74
+<         Runnable nameResolver = new NameResolver(plugin, src, targetSkin, receiver, keepSkin);
+---
+>         Runnable nameResolver = new NameResolver(plugin, sender, targetSkin, sender, keepSkin);
+76,77c80,81
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command buildSpec() {
+>         return Command.builder()
+79,81c83,84
+<                 .arguments(
+<                         string(of("skin")),
+<                         flags().flag("keep").buildWith(GenericArguments.none()))
+---
+>                 .addParameter(Parameter.string().key("skin").build())
+>                 .addParameter(Parameter.bool().key("keep").setDefaultValue(false).build())

@@ -1,0 +1,25 @@
+21c21,27
+< import org.codehaus.plexus.util.xml.Xpp3Dom;
+---
+> import org.w3c.dom.Element;
+> import org.w3c.dom.Node;
+> import org.w3c.dom.NodeList;
+> 
+> import javax.xml.parsers.DocumentBuilder;
+> import javax.xml.parsers.DocumentBuilderFactory;
+> import org.xml.sax.InputSource;
+22a29
+> import java.io.StringReader;
+70,71c77,79
+<         if (config instanceof Xpp3Dom) {
+<             return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
+---
+>         if (config instanceof org.codehaus.plexus.util.xml.Xpp3Dom) {
+>             org.codehaus.plexus.util.xml.Xpp3Dom xpp3DomConfig = (org.codehaus.plexus.util.xml.Xpp3Dom) config;
+>             return stream(xpp3DomConfig.getChildren("annotationProcessorPaths"))
+99,100c107,108
+<     private static String extractChildValue(Xpp3Dom node, String name) {
+<         final Xpp3Dom child = node.getChild(name);
+---
+>     private static String extractChildValue(org.codehaus.plexus.util.xml.Xpp3Dom node, String name) {
+>         org.codehaus.plexus.util.xml.Xpp3Dom child = node.getChild(name);

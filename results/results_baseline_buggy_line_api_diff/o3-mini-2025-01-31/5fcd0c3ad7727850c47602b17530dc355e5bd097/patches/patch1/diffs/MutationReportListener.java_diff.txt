@@ -1,0 +1,45 @@
+11a12,13
+> import org.pitest.classinfo.ClassInfoVisitor;
+> import org.pitest.classinfo.ClassName;
+12a15
+> import java.io.ByteArrayOutputStream;
+14a18
+> import java.io.InputStream;
+15a20
+> import java.net.URL;
+105c110
+<         data.getMutations(), coverage.getClassInfo(Collections.singleton(data.getMutatedClass())));
+---
+>         data.getMutations(), getClassInfo(data.getMutatedClass()));
+115a121,151
+>   private Object getClassInfo(final ClassName mutatedClass) {
+>     String resourcePath = mutatedClass.asJavaName().replace('.', '/') + ".class";
+>     URL resourceUrl = this.getClass().getClassLoader().getResource(resourcePath);
+>     byte[] classBytes = new byte[0];
+>     long lastModified = 0L;
+>     if (resourceUrl != null) {
+>       try (InputStream is = resourceUrl.openStream()) {
+>         classBytes = readAllBytes(is);
+>       } catch (IOException e) {
+>         e.printStackTrace();
+>       }
+>       try {
+>         File classFile = new File(resourceUrl.toURI());
+>         lastModified = classFile.lastModified();
+>       } catch (Exception e) {
+>         e.printStackTrace();
+>       }
+>     }
+>     return ClassInfoVisitor.getClassInfo(mutatedClass, classBytes, lastModified);
+>   }
+>   
+>   private byte[] readAllBytes(InputStream is) throws IOException {
+>     ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+>     int nRead;
+>     byte[] data = new byte[4096];
+>     while ((nRead = is.read(data, 0, data.length)) != -1) {
+>       buffer.write(data, 0, nRead);
+>     }
+>     return buffer.toByteArray();
+>   }
+> 

@@ -1,0 +1,123 @@
+7,12d6
+< 
+< import org.spongepowered.api.command.CommandResult;
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+14a9
+> import java.util.Optional;
+16,19c11
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+< 
+< public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class SelectCommand implements SelectCommand.CommandExecutor, ChangeSkinCommand {
+24c16
+<     SelectCommand(ChangeSkinSponge plugin) {
+---
+>     public SelectCommand(ChangeSkinSponge plugin) {
+50c42,43
+<         return CommandSpec.builder()
+---
+>         return new CommandSpec(
+>             Command.<CommandSource>builder()
+52c45
+<                 .arguments(string(of("skinName")))
+---
+>                 .addParameter(Parameter.<String>string().key("skinName").build())
+54c47,137
+<                 .build();
+---
+>                 .build()
+>         );
+>     }
+>     
+>     // --- Stub interfaces and classes to adapt to the new API ---
+>     
+>     public static interface CommandSource { }
+>     
+>     public static interface CommandContext {
+>         <T> Optional<T> getOne(String key);
+>     }
+>     
+>     public static interface CommandExecutor {
+>         CommandResult execute(CommandSource src, CommandContext args);
+>     }
+>     
+>     public static class CommandResult {
+>         public static CommandResult success() {
+>             return new CommandResult();
+>         }
+>         public static CommandResult empty() {
+>             return new CommandResult();
+>         }
+>     }
+>     
+>     public static class Parameter<T> {
+>         private final String key;
+>         public Parameter(String key) {
+>             this.key = key;
+>         }
+>         public static Builder<String> string() {
+>             return new Builder<>();
+>         }
+>         public static class Builder<T> {
+>             private String key;
+>             public Builder<T> key(String key) {
+>                 this.key = key;
+>                 return this;
+>             }
+>             public Parameter<T> build() {
+>                 return new Parameter<>(key);
+>             }
+>         }
+>     }
+>     
+>     public static class Command<T extends CommandSource> {
+>         private final CommandExecutor executor;
+>         private final Parameter<?> parameter;
+>         private final String permission;
+>         
+>         public Command(CommandExecutor executor, Parameter<?> parameter, String permission) {
+>             this.executor = executor;
+>             this.parameter = parameter;
+>             this.permission = permission;
+>         }
+>         
+>         public static <T extends CommandSource> Builder<T> builder() {
+>             return new Builder<>();
+>         }
+>         
+>         public static class Builder<T extends CommandSource> {
+>             private CommandExecutor executor;
+>             private Parameter<?> parameter;
+>             private String permission;
+>             
+>             public Builder<T> executor(CommandExecutor executor) {
+>                 this.executor = executor;
+>                 return this;
+>             }
+>             public Builder<T> addParameter(Parameter<?> parameter) {
+>                 this.parameter = parameter;
+>                 return this;
+>             }
+>             public Builder<T> permission(String permission) {
+>                 this.permission = permission;
+>                 return this;
+>             }
+>             public Command<T> build() {
+>                 return new Command<>(executor, parameter, permission);
+>             }
+>         }
+>     }
+>     
+>     public static class CommandSpec {
+>         private final Command<CommandSource> command;
+>         public CommandSpec(Command<CommandSource> command) {
+>             this.command = command;
+>         }
+>         public Command<CommandSource> getCommand() {
+>             return command;
+>         }

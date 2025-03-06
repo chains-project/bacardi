@@ -1,0 +1,57 @@
+9d8
+< 
+11c10,12
+< 
+---
+> import org.spongepowered.api.command.Command;
+> import org.spongepowered.api.command.CommandCause;
+> import org.spongepowered.api.command.CommandExecutor;
+13,16c14,15
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+18,20c17
+< 
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import static org.spongepowered.api.command.parameter.Parameter.string;
+33,35c30,33
+<     @Override
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         String url = args.<String>getOne("url").get();
+---
+>     public CommandResult execute(CommandContext args) {
+>         CommandCause cause = args.cause();
+>         Object src = cause.root();
+>         String url = args.one(String.class, "url").get();
+48d45
+< 
+52d48
+<     @Override
+54c50
+<         return CommandSpec.builder()
+---
+>         Command command = Command.builder()
+56c52
+<                 .arguments(string(of("url")))
+---
+>                 .addParameter(string().key("url").build())
+58a55,67
+>         return new CommandSpec(command);
+>     }
+> 
+>     public static class CommandSpec {
+>         private final Command command;
+> 
+>         public CommandSpec(Command command) {
+>             this.command = command;
+>         }
+> 
+>         public Command getCommand() {
+>             return command;
+>         }

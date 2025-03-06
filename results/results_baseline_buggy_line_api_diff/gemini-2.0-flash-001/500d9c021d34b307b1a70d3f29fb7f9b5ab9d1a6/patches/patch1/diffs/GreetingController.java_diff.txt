@@ -1,0 +1,32 @@
+6,13c6,11
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.UriRef;
+< import javax.mvc.binding.BindingResult;
+< import javax.mvc.binding.MvcBinding;
+< import javax.mvc.binding.ParamError;
+< import javax.mvc.security.CsrfProtected;
+< import javax.validation.constraints.NotBlank;
+---
+> import jakarta.mvc.Controller;
+> import jakarta.mvc.Models;
+> import jakarta.mvc.UriRef;
+> import jakarta.mvc.binding.BindingResult;
+> import jakarta.mvc.binding.MvcBinding;
+> import jakarta.validation.constraints.NotBlank;
+17a16,20
+> import java.util.stream.Collectors;
+> import jakarta.validation.ConstraintViolation;
+> import jakarta.mvc.Viewable;
+> import java.util.HashMap;
+> import java.util.Map;
+53,57c56,58
+<             bindingResult.getAllErrors()
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+<                         alert.addError(t.getParamName(), "", t.getMessage());
+<                     });
+---
+>             for (ConstraintViolation<?> constraintViolation : bindingResult.getConstraintViolations()) {
+>                 alert.addError(constraintViolation.getPropertyPath().toString(), "", constraintViolation.getMessage());
+>             }

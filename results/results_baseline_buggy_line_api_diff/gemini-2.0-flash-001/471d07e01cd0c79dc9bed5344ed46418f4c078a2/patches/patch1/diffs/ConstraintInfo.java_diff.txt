@@ -1,0 +1,67 @@
+18,20d17
+< import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
+< import com.google.api.services.cloudresourcemanager.model.Constraint;
+< import com.google.api.services.cloudresourcemanager.model.ListConstraint;
+35,36c32,33
+<   static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+<       new Function<Constraint, ConstraintInfo>() {
+---
+>   static final Function<ConstraintInfo, com.google.api.services.cloudresourcemanager.model.Constraint> TO_PROTOBUF_FUNCTION =
+>       new Function<ConstraintInfo, com.google.api.services.cloudresourcemanager.model.Constraint>() {
+38,39c35,36
+<         public ConstraintInfo apply(Constraint protobuf) {
+<           return ConstraintInfo.fromProtobuf(protobuf);
+---
+>         public com.google.api.services.cloudresourcemanager.model.Constraint apply(ConstraintInfo constraintInfo) {
+>           return constraintInfo.toProtobuf();
+42,43c39,40
+<   static final Function<ConstraintInfo, Constraint> TO_PROTOBUF_FUNCTION =
+<       new Function<ConstraintInfo, Constraint>() {
+---
+>   static final Function<com.google.api.services.cloudresourcemanager.model.Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+>       new Function<com.google.api.services.cloudresourcemanager.model.Constraint, ConstraintInfo>() {
+45,46c42,43
+<         public Constraint apply(ConstraintInfo constraintInfo) {
+<           return constraintInfo.toProtobuf();
+---
+>         public ConstraintInfo apply(com.google.api.services.cloudresourcemanager.model.Constraint protobuf) {
+>           return ConstraintInfo.fromProtobuf(protobuf);
+50c47
+<   private BooleanConstraint booleanConstraint;
+---
+>   private com.google.api.services.cloudresourcemanager.model.BooleanConstraint booleanConstraint;
+114,115c111,115
+<     ListConstraint toProtobuf() {
+<       return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
+---
+>     com.google.api.services.cloudresourcemanager.model.ListConstraint toProtobuf() {
+>       com.google.api.services.cloudresourcemanager.model.ListConstraint listConstraint = new com.google.api.services.cloudresourcemanager.model.ListConstraint();
+>       listConstraint.setSuggestedValue(suggestedValue);
+>       listConstraint.setSupportsUnder(supportsUnder);
+>       return listConstraint;
+118c118
+<     static Constraints fromProtobuf(ListConstraint listConstraint) {
+---
+>     static Constraints fromProtobuf(com.google.api.services.cloudresourcemanager.model.ListConstraint listConstraint) {
+125c125
+<     private BooleanConstraint booleanConstraint;
+---
+>     private com.google.api.services.cloudresourcemanager.model.BooleanConstraint booleanConstraint;
+147c147
+<     Builder setBooleanConstraint(BooleanConstraint booleanConstraint) {
+---
+>     Builder setBooleanConstraint(com.google.api.services.cloudresourcemanager.model.BooleanConstraint booleanConstraint) {
+198c198
+<   public BooleanConstraint getBooleanConstraint() {
+---
+>   public com.google.api.services.cloudresourcemanager.model.BooleanConstraint getBooleanConstraint() {
+266,267c266,267
+<   Constraint toProtobuf() {
+<     Constraint constraintProto = new Constraint();
+---
+>   com.google.api.services.cloudresourcemanager.model.Constraint toProtobuf() {
+>     com.google.api.services.cloudresourcemanager.model.Constraint constraintProto = new com.google.api.services.cloudresourcemanager.model.Constraint();
+280c280
+<   static ConstraintInfo fromProtobuf(Constraint constraintProtobuf) {
+---
+>   static ConstraintInfo fromProtobuf(com.google.api.services.cloudresourcemanager.model.Constraint constraintProtobuf) {

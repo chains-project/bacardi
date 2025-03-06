@@ -1,0 +1,59 @@
+7a8
+> import org.spongepowered.api.command.Command;
+9,12c10,11
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+14a14,15
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.CommandCause;
+16,17c17
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import java.util.Optional;
+29,31c29,31
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+---
+>     public CommandResult execute(CommandCause cause, CommandContext args) throws CommandException {
+>         if (!(cause.cause() instanceof Player)) {
+>             plugin.sendMessage(cause, "no-console");
+35c35,41
+<         String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
+---
+>         Optional<String> skinNameOptional = args.one(Parameter.string().key("skinName").build());
+>         if (!skinNameOptional.isPresent()) {
+>             plugin.sendMessage(cause, "invalid-skin-name");
+>             return CommandResult.empty();
+>         }
+> 
+>         String skinName = skinNameOptional.get().toLowerCase().replace("skin-", "");
+39,40c45,46
+<             Player receiver = (Player) src;
+<             Task.builder().async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+---
+>             Player receiver = (Player) cause.cause();
+>             Task.builder().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+42c48
+<             plugin.sendMessage(src, "invalid-skin-name");
+---
+>             plugin.sendMessage(cause, "invalid-skin-name");
+49,50c55,56
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command.Builder buildSpec() {
+>         return Command.builder()
+52,54c58,59
+<                 .arguments(string(of("skinName")))
+<                 .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
+<                 .build();
+---
+>                 .addParameter(Parameter.string().key("skinName").build())
+>                 .permission(PomData.ARTIFACT_ID + ".command.skinselect.base");

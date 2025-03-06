@@ -1,0 +1,13 @@
+10,12c10,12
+< import javax.interceptor.AroundInvoke;
+< import javax.interceptor.Interceptor;
+< import javax.interceptor.InvocationContext;
+---
+> import jakarta.interceptor.AroundInvoke;
+> import jakarta.interceptor.Interceptor;
+> import jakarta.interceptor.InvocationContext;
+57c57,58
+<             return ctx.getMethod().invoke(invocationTargetManager.get().mock(javaClass), ctx.getParameters());
+---
+>             Method method = ctx.getMethod();
+>             return method.invoke(invocationTargetManager.get().mock(javaClass), ctx.getParameters());

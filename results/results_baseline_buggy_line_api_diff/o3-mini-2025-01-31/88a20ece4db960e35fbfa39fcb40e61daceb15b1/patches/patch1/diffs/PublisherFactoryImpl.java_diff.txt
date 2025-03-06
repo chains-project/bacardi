@@ -1,0 +1,45 @@
+20d19
+< import com.google.cloud.pubsublite.PublishMetadata;
+27a27
+> import com.google.cloud.pubsublite.internal.wire.PartitionPublisherFactory;
+35d34
+<   @Override
+40,46c39,42
+<         TopicPath.newBuilder()
+<             .setProject(
+<                 ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
+<                     .project())
+<             .setLocation(CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
+<             .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
+<             .build();
+---
+>         TopicPath.of(
+>             ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value()).project(),
+>             CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()),
+>             TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()));
+48,50c44,47
+<     builder.setPublisherFactory(
+<         partition ->
+<             SinglePartitionPublisherBuilder.newBuilder()
+---
+>     builder.setPublisherFactory(new PartitionPublisherFactory() {
+>       @Override
+>       public Publisher<?> newPublisher(int partition) {
+>         return SinglePartitionPublisherBuilder.newBuilder()
+53,55c50
+<                 .setContext(PubsubContext.of(FRAMEWORK))
+<                 .build());
+<     return builder.build();
+---
+>             .build();
+56a52,61
+> 
+>       @Override
+>       public Publisher<?> newPublisher(int partition, PubsubContext context) {
+>         return newPublisher(partition);
+>       }
+>     });
+>     return (Publisher<PublishMetadata>) builder.build();
+>   }
+> 
+>   public static class PublishMetadata {}

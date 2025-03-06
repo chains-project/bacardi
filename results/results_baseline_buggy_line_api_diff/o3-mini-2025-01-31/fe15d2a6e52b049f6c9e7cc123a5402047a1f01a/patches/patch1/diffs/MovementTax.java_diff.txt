@@ -1,0 +1,37 @@
+8d7
+< 
+163c162
+<         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+---
+>         final ToStringStrategy2 strategy = SimpleToStringStrategy.INSTANCE;
+201a201,230
+>     private static class SimpleToStringStrategy implements ToStringStrategy2 {
+>         public static final SimpleToStringStrategy INSTANCE = new SimpleToStringStrategy();
+>         
+>         @Override
+>         public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+>             buffer.append(object.getClass().getSimpleName());
+>             buffer.append(" [");
+>             return buffer;
+>         }
+>         
+>         @Override
+>         public StringBuilder appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean isSet) {
+>             if (isSet) {
+>                 int len = buffer.length();
+>                 if (len > 0 && buffer.charAt(len - 1) != '[') {
+>                     buffer.append(", ");
+>                 }
+>                 buffer.append(fieldName);
+>                 buffer.append("=");
+>                 buffer.append(value);
+>             }
+>             return buffer;
+>         }
+>         
+>         @Override
+>         public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+>             buffer.append("]");
+>             return buffer;
+>         }
+>     }

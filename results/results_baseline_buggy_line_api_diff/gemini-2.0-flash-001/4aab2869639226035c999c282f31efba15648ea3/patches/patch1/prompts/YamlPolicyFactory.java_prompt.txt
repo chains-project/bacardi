@@ -1,0 +1,118 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
+ * https://github.com/artipie/http/blob/master/LICENSE.txt
+ */
+package com.artipie.security.policy;
+
+import com.amihaiemil.eoyaml.Yaml;
+import com.artipie.asto.blocking.BlockingStorage;
+import com.artipie.asto.factory.Storages;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+
+/**
+ * Policy factory to create {@link YamlPolicy}. Yaml policy is read from storage, and it's required
+ * to describe this storage in the configuration. Configuration format is the following:
+ *
+ * policy:
+ *   type: yaml_policy
+ *   storage:
+ *     type: fs
+ *     path: /some/path
+ *
+ * The storage itself is expected to have yaml files with permissions in the following structure:
+ *
+ * ..
+ * ├── roles.yaml
+ * ├── users
+ * │   ├── david.yaml
+ * │   ├── jane.yaml
+ * │   ├── ...
+ *
+ * @since 1.2
+ */
+@ArtipiePolicyFactory("yaml_policy")
+public final class YamlPolicyFactory implements PolicyFactory {
+
+    @Override
+    public Policy<?> getPolicy(final PolicyConfig config) {
+        final PolicyConfig sub = config.config("storage");
+        try {
+            return new YamlPolicy(
+                new BlockingStorage(
+                    new Storages().newStorage(
+                        sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
+                    )
+                )
+            );
+        } catch (final IOException err) {
+            throw new UncheckedIOException(err);
+        }
+    }
+}
+
+```
+the error is triggered in the following specific lines in the previous code:
+
+```java
+new Storages().newStorage(
+```
+```java
+new Storages().newStorage(
+```
+```java
+new Storages().newStorage(
+```
+```java
+import com.artipie.asto.factory.Storages;
+```
+
+
+
+ with the following error information:
+[ERROR] /http/src/main/java/com/artipie/security/policy/YamlPolicyFactory.java:[43,25] cannot find symbol
+  symbol:   class Storages
+  location: class com.artipie.security.policy.YamlPolicyFactory
+
+[ERROR] /http/src/main/java/com/artipie/security/policy/YamlPolicyFactory.java:[43,25] cannot find symbol
+  symbol:   class Storages
+  location: class com.artipie.security.policy.YamlPolicyFactory
+
+[ERROR] /http/src/main/java/com/artipie/security/policy/YamlPolicyFactory.java:[43,25] cannot find symbol
+  symbol:   class Storages
+  location: class com.artipie.security.policy.YamlPolicyFactory
+
+[ERROR] /http/src/main/java/com/artipie/security/policy/YamlPolicyFactory.java:[9,32] cannot find symbol
+  symbol:   class Storages
+  location: package com.artipie.asto.factory
+
+
+The error is caused by a change in the API of the dependency. The new library version includes the following changes:
+     Class com.artipie.asto.factory.Storages has been removed in the new version of the dependency.
+     Constructor com.artipie.asto.factory.Storages(java.util.Map) has been removed in the new version of the dependency.
+     Constructor com.artipie.asto.factory.Storages() has been removed in the new version of the dependency.
+     Method com.artipie.asto.factory.Storages.newStorage(java.lang.String,com.amihaiemil.eoyaml.YamlMapping) has been removed in the new version of the dependency.
+     Method com.artipie.asto.factory.StorageFactory.newStorage(com.artipie.asto.factory.StorageConfig) has been removed in the new version of the dependency.
+     Method com.artipie.asto.fs.FileStorageFactory.newStorage(com.artipie.asto.factory.Config) has been added in the new version of the dependency.
+     Method com.artipie.asto.fs.FileStorageFactory.newStorage(com.artipie.asto.factory.StorageConfig) has been removed in the new version of the dependency.
+     Method com.artipie.asto.factory.StorageFactory.newStorage(com.artipie.asto.factory.Config) has been added in the new version of the dependency.
+     Method com.artipie.asto.s3.S3StorageFactory.newStorage(com.artipie.asto.factory.StorageConfig) has been removed in the new version of the dependency.
+     Method com.artipie.asto.etcd.EtcdStorageFactory.newStorage(com.artipie.asto.factory.StorageConfig) has been removed in the new version of the dependency.
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Oxverride annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

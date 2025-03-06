@@ -1,0 +1,11 @@
+package com.github.games647.changeskin.sponge.command;
+
+@FunctionalInterface
+public interface ChangeSkinCommand {
+
+    CommandSpec buildSpec();
+
+    interface CommandSpec {
+        // This is a client-side placeholder for the removed CommandSpec API.
+    }
+}

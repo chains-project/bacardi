@@ -1,0 +1,41 @@
+4,5d3
+< import ch.qos.logback.classic.Logger;
+< import ch.qos.logback.classic.spi.ILoggingEvent;
+84c82
+<     private Appender<ILoggingEvent> mockLogAppender;
+---
+>     private Appender mockLogAppender;
+86c84
+<     ArgumentCaptor<ILoggingEvent> loggingEventArgumentCaptor;
+---
+>     ArgumentCaptor<ch.qos.logback.classic.spi.ILoggingEvent> loggingEventArgumentCaptor;
+111,113c109,117
+<         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
+<         logger.setLevel(Level.INFO);
+<         logger.addAppender(mockLogAppender);
+---
+>         org.slf4j.Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
+>         try {
+>             java.lang.reflect.Method setLevelMethod = logger.getClass().getMethod("setLevel", Level.class);
+>             setLevelMethod.invoke(logger, Level.INFO);
+>         } catch (Exception ignored) {}
+>         try {
+>             java.lang.reflect.Method addAppenderMethod = logger.getClass().getMethod("addAppender", Appender.class);
+>             addAppenderMethod.invoke(logger, mockLogAppender);
+>         } catch (Exception ignored) {}
+179c183
+<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+---
+>         List<ch.qos.logback.classic.spi.ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+216c220
+<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+---
+>         List<ch.qos.logback.classic.spi.ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+253c257
+<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+---
+>         List<ch.qos.logback.classic.spi.ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+290c294
+<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+---
+>         List<ch.qos.logback.classic.spi.ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();

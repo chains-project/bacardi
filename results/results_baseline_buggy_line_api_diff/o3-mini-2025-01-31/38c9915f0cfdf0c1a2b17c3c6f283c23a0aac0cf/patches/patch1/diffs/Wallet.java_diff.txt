@@ -1,0 +1,176 @@
+0a1,13
+> package io.zold.api;
+> 
+> import java.io.FileWriter;
+> import java.io.IOException;
+> import java.io.Writer;
+> import java.nio.file.Path;
+> import java.util.ArrayList;
+> import java.util.List;
+> import org.cactoos.iterable.Joined;
+> import org.cactoos.text.FormattedText;
+> import org.cactoos.text.TextOf;
+> import org.cactoos.text.UncheckedText;
+> 
+24,53d36
+< package io.zold.api;
+< 
+< import java.io.FileWriter;
+< import java.io.IOException;
+< import java.io.Writer;
+< import java.nio.file.Path;
+< import org.cactoos.collection.Filtered;
+< import org.cactoos.iterable.IterableOf;
+< import org.cactoos.iterable.Joined;
+< import org.cactoos.iterable.Mapped;
+< import org.cactoos.iterable.Skipped;
+< import org.cactoos.list.ListOf;
+< import org.cactoos.scalar.CheckedScalar;
+< import org.cactoos.scalar.Or;
+< import org.cactoos.scalar.UncheckedScalar;
+< import org.cactoos.text.FormattedText;
+< import org.cactoos.text.SplitText;
+< import org.cactoos.text.TextOf;
+< import org.cactoos.text.UncheckedText;
+< 
+< /**
+<  * Wallet.
+<  * @since 0.1
+<  * @todo #16:30min Merge method should update transactions
+<  *  in wallet's file and return concrete implementation not a fake one.
+<  *  Beware that tests should be refactored to take care of file cleanup
+<  *  after each case that merges wallets.
+<  */
+< @SuppressWarnings({"PMD.ShortMethodName", "PMD.TooManyMethods",
+<     "PMD.UnusedFormalParameter"})
+54a38
+> 
+59,60d42
+<      * @checkstyle ClassDataAbstractionCouplingCheck (500 lines)
+<      * @checkstyle MethodName (2 lines)
+95,102d76
+<      * @since 1.0
+<      * @todo #65:30min Complete Wallet implementations with id, public RSA
+<      *  key and network id. Wallets.create(Long, String, String) must
+<      *  create a Wallet with these strings set and a constructor must be
+<      *  added to all Walletl realizations (Wallet(final long id, final String
+<      *  pubkey, final String network, final Transaction... transactions). After
+<      *  completing these implementations fix tests that uses Wallets.create()
+<      *  and all Wallet realizations.
+121c95
+<             this(id, new IterableOf<>());
+---
+>             this(id, new ArrayList<>());
+130c104
+<             this(id, new IterableOf<>(transactions));
+---
+>             this(id, List.of(transactions));
+137,138c111
+<          * @param network The network the walet belongs to.
+<          * @checkstyle UnusedFormalParameter (2 lines)
+---
+>          * @param network The network the wallet belongs to.
+182d154
+<      * @checkstyle ClassDataAbstractionCouplingCheck (2 lines)
+201,213c173,179
+<             return new CheckedScalar<>(
+<                 () -> Long.parseUnsignedLong(
+<                     new ListOf<>(
+<                         new SplitText(
+<                             new TextOf(this.path),
+<                             "\n"
+<                         )
+<                     ).get(2).asString(),
+<                     // @checkstyle MagicNumber (1 line)
+<                     16
+<                 ),
+<                 e -> new IOException(e)
+<             ).value();
+---
+>             try {
+>                 String content = new TextOf(this.path).asString();
+>                 String[] lines = content.split("\n");
+>                 return Long.parseUnsignedLong(lines[2], 16);
+>             } catch (Exception e) {
+>                 throw new IOException(e);
+>             }
+224,232d189
+<         // @todo #16:30min Following transactions should be ignored according
+<         //  to the whitepaper:
+<         //  a) If the transaction is negative and its signature is not valid,
+<         //  it is ignored;
+<         //  b) If the transaction makes the balance of the wallet negative,
+<         //  it is ignored;
+<         //  c) If the transaction is positive and it’s absent in the paying
+<         //  wallet (which exists at the node), it’s ignored; If the paying
+<         //  wallet doesn’t exist at the node, the transaction is ignored;
+240,241c197
+<                             other.id(),
+<                             this.id()
+---
+>                             this.id(), other.id()
+247,262c203,219
+<             final Iterable<Transaction> candidates = new Filtered<>(
+<                 incoming -> new Filtered<>(
+<                     origin -> new UncheckedScalar<>(
+<                         new Or(
+<                             () -> incoming.equals(origin),
+<                             () -> incoming.id() == origin.id()
+<                                 && incoming.bnf().equals(origin.bnf()),
+<                             () -> incoming.id() == origin.id()
+<                                 && incoming.amount() < 0L,
+<                             () -> incoming.prefix().equals(origin.prefix())
+<                         )
+<                     ).value(),
+<                     ledger
+<                 ).isEmpty(),
+<                 other.ledger()
+<             );
+---
+>             List<Transaction> candidates = new ArrayList<>();
+>             for (Transaction incoming : other.ledger()) {
+>                 boolean exists = false;
+>                 for (Transaction origin : ledger) {
+>                     if (incoming.equals(origin)
+>                         || (incoming.id() == origin.id() && incoming.bnf().equals(origin.bnf()))
+>                         || (incoming.id() == origin.id() && incoming.amount() < 0L)
+>                         || incoming.prefix().equals(origin.prefix())
+>                     ) {
+>                         exists = true;
+>                         break;
+>                     }
+>                 }
+>                 if (!exists) {
+>                     candidates.add(incoming);
+>                 }
+>             }
+271,283c228,238
+<             return new Mapped<>(
+<                 txt -> new RtTransaction(txt.asString()),
+<                 new Skipped<>(
+<                     new ListOf<>(
+<                         new SplitText(
+<                             new TextOf(this.path),
+<                             "\\n"
+<                         )
+<                     ),
+<                     // @checkstyle MagicNumberCheck (1 line)
+<                     5
+<                 )
+<             );
+---
+>             try {
+>                 String content = new TextOf(this.path).asString();
+>                 String[] lines = content.split("\\n");
+>                 List<Transaction> transactions = new ArrayList<>();
+>                 for (int i = 5; i < lines.length; i++) {
+>                     transactions.add(new RtTransaction(lines[i]));
+>                 }
+>                 return transactions;
+>             } catch (Exception ex) {
+>                 throw new RuntimeException(ex);
+>             }
+286,288d240
+<         // @todo #54:30min Implement key method. This should return the
+<         //  public RSA key of the wallet owner in Base64. Also add a unit test
+<         //  to replace WalletTest.keyIsNotYetImplemented().

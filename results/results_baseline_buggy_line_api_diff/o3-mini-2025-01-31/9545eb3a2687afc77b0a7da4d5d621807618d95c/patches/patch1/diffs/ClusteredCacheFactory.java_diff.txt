@@ -1,0 +1,47 @@
+20a21,22
+> import com.hazelcast.config.EvictionConfig;
+> import com.hazelcast.config.EvictionConfig.MaxSizePolicy;
+22,27d23
+< import com.hazelcast.config.MaxSizeConfig;
+< import com.hazelcast.config.MemberAttributeConfig;
+< import com.hazelcast.config.MemcacheProtocolConfig;
+< import com.hazelcast.config.NetworkConfig;
+< import com.hazelcast.config.RestApiConfig;
+< import com.hazelcast.core.Cluster;
+30c26,27
+< import com.hazelcast.core.Member;
+---
+> import com.hazelcast.cluster.Cluster;
+> import com.hazelcast.cluster.Member;
+186c183
+<                 final NetworkConfig networkConfig = config.getNetworkConfig();
+---
+>                 final com.hazelcast.config.NetworkConfig networkConfig = config.getNetworkConfig();
+188c185
+<                     networkConfig.setMemcacheProtocolConfig(new MemcacheProtocolConfig().setEnabled(false));
+---
+>                     networkConfig.setMemcacheProtocolConfig(new com.hazelcast.config.MemcacheProtocolConfig().setEnabled(false));
+191c188
+<                     networkConfig.setRestApiConfig(new RestApiConfig().setEnabled(false));
+---
+>                     networkConfig.setRestApiConfig(new com.hazelcast.config.RestApiConfig().setEnabled(false));
+193c190
+<                 final MemberAttributeConfig memberAttributeConfig = config.getMemberAttributeConfig();
+---
+>                 final com.hazelcast.config.MemberAttributeConfig memberAttributeConfig = config.getMemberAttributeConfig();
+288c285,288
+<             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+---
+>             EvictionConfig evictionConfig = new EvictionConfig();
+>             evictionConfig.setSize(hazelcastMaxCacheSizeInMegaBytes);
+>             evictionConfig.setMaximumSizePolicy(MaxSizePolicy.PER_NODE);
+>             dynamicConfig.setEvictionConfig(evictionConfig);
+656c656,657
+<         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
+---
+>         String attr = (String) member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE);
+>         return NodeID.getInstance(attr != null ? attr.getBytes(StandardCharsets.UTF_8) : new byte[0]);
+701,703d701
+< 
+< 
+< 

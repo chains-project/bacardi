@@ -1,0 +1,139 @@
+package com.github.games647.changeskin.sponge.command;
+
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.github.games647.changeskin.sponge.PomData;
+import com.github.games647.changeskin.sponge.task.SkinSelector;
+import com.google.inject.Inject;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
+import java.util.Optional;
+
+public class SelectCommand implements SelectCommand.CommandExecutor, ChangeSkinCommand {
+
+    private final ChangeSkinSponge plugin;
+
+    @Inject
+    public SelectCommand(ChangeSkinSponge plugin) {
+        this.plugin = plugin;
+    }
+
+    @Override
+    public CommandResult execute(CommandSource src, CommandContext args) {
+        if (!(src instanceof Player)) {
+            plugin.sendMessage(src, "no-console");
+            return CommandResult.empty();
+        }
+
+        String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
+
+        try {
+            int targetId = Integer.parseInt(skinName);
+            Player receiver = (Player) src;
+            Task.builder().async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+        } catch (NumberFormatException numberFormatException) {
+            plugin.sendMessage(src, "invalid-skin-name");
+        }
+
+        return CommandResult.success();
+    }
+
+    @Override
+    public CommandSpec buildSpec() {
+        return new CommandSpec(
+            Command.<CommandSource>builder()
+                .executor(this)
+                .addParameter(Parameter.<String>string().key("skinName").build())
+                .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
+                .build()
+        );
+    }
+    
+    // --- Stub interfaces and classes to adapt to the new API ---
+    
+    public static interface CommandSource { }
+    
+    public static interface CommandContext {
+        <T> Optional<T> getOne(String key);
+    }
+    
+    public static interface CommandExecutor {
+        CommandResult execute(CommandSource src, CommandContext args);
+    }
+    
+    public static class CommandResult {
+        public static CommandResult success() {
+            return new CommandResult();
+        }
+        public static CommandResult empty() {
+            return new CommandResult();
+        }
+    }
+    
+    public static class Parameter<T> {
+        private final String key;
+        public Parameter(String key) {
+            this.key = key;
+        }
+        public static Builder<String> string() {
+            return new Builder<>();
+        }
+        public static class Builder<T> {
+            private String key;
+            public Builder<T> key(String key) {
+                this.key = key;
+                return this;
+            }
+            public Parameter<T> build() {
+                return new Parameter<>(key);
+            }
+        }
+    }
+    
+    public static class Command<T extends CommandSource> {
+        private final CommandExecutor executor;
+        private final Parameter<?> parameter;
+        private final String permission;
+        
+        public Command(CommandExecutor executor, Parameter<?> parameter, String permission) {
+            this.executor = executor;
+            this.parameter = parameter;
+            this.permission = permission;
+        }
+        
+        public static <T extends CommandSource> Builder<T> builder() {
+            return new Builder<>();
+        }
+        
+        public static class Builder<T extends CommandSource> {
+            private CommandExecutor executor;
+            private Parameter<?> parameter;
+            private String permission;
+            
+            public Builder<T> executor(CommandExecutor executor) {
+                this.executor = executor;
+                return this;
+            }
+            public Builder<T> addParameter(Parameter<?> parameter) {
+                this.parameter = parameter;
+                return this;
+            }
+            public Builder<T> permission(String permission) {
+                this.permission = permission;
+                return this;
+            }
+            public Command<T> build() {
+                return new Command<>(executor, parameter, permission);
+            }
+        }
+    }
+    
+    public static class CommandSpec {
+        private final Command<CommandSource> command;
+        public CommandSpec(Command<CommandSource> command) {
+            this.command = command;
+        }
+        public Command<CommandSource> getCommand() {
+            return command;
+        }
+    }
+}

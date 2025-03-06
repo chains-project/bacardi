@@ -1,0 +1,64 @@
+7,12c7,10
+< 
+< import org.spongepowered.api.command.CommandResult;
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.Command;
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.source.CommandSource;
+> import org.spongepowered.api.command.parameter.CommandContext;
+21c19
+<     InvalidateCommand(ChangeSkinSponge plugin) {
+---
+>     public InvalidateCommand(ChangeSkinSponge plugin) {
+33c31
+<         Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
+---
+>         Task.builder().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
+43a42,84
+> 
+>     public static class CommandResult {
+>         public static CommandResult empty() {
+>             return new CommandResult();
+>         }
+>         public static CommandResult success() {
+>             return new CommandResult();
+>         }
+>     }
+> 
+>     public static class CommandSpec {
+>         private final Command command;
+> 
+>         public CommandSpec(Command command) {
+>             this.command = command;
+>         }
+> 
+>         public Command getCommand() {
+>             return command;
+>         }
+> 
+>         public static Builder builder() {
+>             return new Builder();
+>         }
+> 
+>         public static class Builder {
+>             private final Command.Builder delegate = Command.builder();
+> 
+>             public Builder executor(CommandExecutor executor) {
+>                 delegate.executor(executor);
+>                 return this;
+>             }
+> 
+>             public Builder permission(String permission) {
+>                 delegate.permission(permission);
+>                 return this;
+>             }
+> 
+>             public CommandSpec build() {
+>                 return new CommandSpec(delegate.build());
+>             }
+>         }
+>     }

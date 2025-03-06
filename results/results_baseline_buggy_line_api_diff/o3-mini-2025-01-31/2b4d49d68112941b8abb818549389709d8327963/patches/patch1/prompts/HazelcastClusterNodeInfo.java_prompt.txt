@@ -1,0 +1,138 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+```java
+/*
+ * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.jivesoftware.openfire.plugin.util.cluster;
+
+import org.jivesoftware.openfire.cluster.ClusterManager;
+import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
+import org.jivesoftware.openfire.cluster.NodeID;
+import org.jivesoftware.openfire.plugin.util.cache.ClusteredCacheFactory;
+
+import com.hazelcast.core.Member;
+
+/**
+ * Cluster Node information as provided by Hazelcast.
+ *
+ * @author Tom Evans
+ * @author Gaston Dombiak
+ */
+public class HazelcastClusterNodeInfo implements ClusterNodeInfo {
+
+    public static final String HOST_NAME_ATTRIBUTE = "hostname";
+    public static final String NODE_ID_ATTRIBUTE = "node-id";
+    private final String hostname;
+    private final NodeID nodeID;
+    private final long joinedTime;
+    private final boolean seniorMember;
+
+    public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {
+        this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";
+        this.nodeID = ClusteredCacheFactory.getNodeID(member);
+        this.joinedTime = joinedTime;
+        this.seniorMember = ClusterManager.getSeniorClusterMember().equals(nodeID);
+    }
+
+    public String getHostName() {
+        return hostname;
+    }
+
+    public NodeID getNodeID() {
+        return nodeID;
+    }
+
+    public long getJoinedTime() {
+        return joinedTime;
+    }
+
+    public boolean isSeniorMember() {
+        return seniorMember;
+    }
+}
+
+```
+the error is triggered in the following specific lines in the previous code:
+
+```java
+public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {
+```
+```java
+public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {
+```
+```java
+import com.hazelcast.core.Member;
+```
+```java
+public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {
+```
+
+
+
+ with the following error information:
+[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cluster/HazelcastClusterNodeInfo.java:[41,43] cannot find symbol
+  symbol:   class Member
+  location: class org.jivesoftware.openfire.plugin.util.cluster.HazelcastClusterNodeInfo
+
+[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cluster/HazelcastClusterNodeInfo.java:[41,43] cannot find symbol
+  symbol:   class Member
+  location: class org.jivesoftware.openfire.plugin.util.cluster.HazelcastClusterNodeInfo
+
+[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cluster/HazelcastClusterNodeInfo.java:[24,26] cannot find symbol
+  symbol:   class Member
+  location: package com.hazelcast.core
+
+[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cluster/HazelcastClusterNodeInfo.java:[41,43] cannot find symbol
+  symbol:   class Member
+  location: class org.jivesoftware.openfire.plugin.util.cluster.HazelcastClusterNodeInfo
+
+
+The error is caused by a change in the API of the dependency. The new library version includes the following changes:
+     Method com.hazelcast.cluster.Endpoint.getSocketAddress() has been added in the new version of the dependency.
+     Method com.hazelcast.cluster.Member.getSocketAddress(com.hazelcast.instance.EndpointQualifier) has been added in the new version of the dependency.
+     Method com.hazelcast.instance.AbstractMember.getSocketAddress() has been removed in the new version of the dependency.
+     Method com.hazelcast.cp.internal.CPMemberInfo.getSocketAddress() has been removed in the new version of the dependency.
+     Method com.hazelcast.core.Endpoint.getSocketAddress() has been removed in the new version of the dependency.
+     Method com.hazelcast.core.Member.getSocketAddress(com.hazelcast.instance.EndpointQualifier) has been removed in the new version of the dependency.
+     Method com.hazelcast.cluster.impl.AbstractMember.getSocketAddress() has been added in the new version of the dependency.
+     Method com.hazelcast.core.Client.getSocketAddress() has been removed in the new version of the dependency.
+     Method com.hazelcast.cluster.Member.getSocketAddress() has been added in the new version of the dependency.
+     Method com.hazelcast.cluster.impl.AbstractMember.getSocketAddress(com.hazelcast.instance.EndpointQualifier) has been added in the new version of the dependency.
+     Method com.hazelcast.core.Member.getSocketAddress() has been removed in the new version of the dependency.
+     Method com.hazelcast.client.Client.getSocketAddress() has been added in the new version of the dependency.
+     Method com.hazelcast.instance.AbstractMember.getSocketAddress(com.hazelcast.instance.EndpointQualifier) has been removed in the new version of the dependency.
+     Method com.hazelcast.client.impl.MemberImpl.getStringAttribute(java.lang.String) has been removed in the new version of the dependency.
+     Method com.hazelcast.config.MemberAttributeConfig.getStringAttribute(java.lang.String) has been removed in the new version of the dependency.
+     Method com.hazelcast.instance.MemberImpl.getStringAttribute(java.lang.String) has been removed in the new version of the dependency.
+     Method com.hazelcast.core.Member.getStringAttribute(java.lang.String) has been removed in the new version of the dependency.
+     Interface com.hazelcast.cluster.Member has been added in the new version of the dependency.
+     Class com.hazelcast.core.Member has been removed in the new version of the dependency.
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Oxverride annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

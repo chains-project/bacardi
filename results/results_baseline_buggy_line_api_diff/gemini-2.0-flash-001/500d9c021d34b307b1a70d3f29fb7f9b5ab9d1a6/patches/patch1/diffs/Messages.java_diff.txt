@@ -1,0 +1,25 @@
+1c1
+< 
+---
+> import java.util.Locale;
+6c6
+< import javax.mvc.MvcContext;
+---
+> import javax.servlet.http.HttpServletRequest;
+9c9
+<  * Provides I18n messages for the UI per request. To get the correct locale, the method {@link MvcContext#getLocale()}
+---
+>  * Provides I18n messages for the UI per request. To get the correct locale, the method {@link HttpServletRequest#getLocale()}
+13c13
+<  * @see MvcContext#getLocale()
+---
+>  * @see HttpServletRequest#getLocale()
+23c23
+<     private MvcContext mvcContext;
+---
+>     private HttpServletRequest request;
+33c33,34
+<         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
+---
+>         final Locale locale = request.getLocale();
+>         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, locale);

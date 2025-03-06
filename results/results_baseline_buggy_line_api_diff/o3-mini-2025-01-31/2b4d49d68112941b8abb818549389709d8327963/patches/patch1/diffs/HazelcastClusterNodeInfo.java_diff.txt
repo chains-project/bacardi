@@ -1,0 +1,15 @@
+24c24
+< import com.hazelcast.core.Member;
+---
+> import com.hazelcast.cluster.Member;
+26,31d25
+< /**
+<  * Cluster Node information as provided by Hazelcast.
+<  *
+<  * @author Tom Evans
+<  * @author Gaston Dombiak
+<  */
+42c36
+<         this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";
+---
+>         this.hostname = ((String) member.getAttribute(HOST_NAME_ATTRIBUTE)) + " (" + member.getSocketAddress().getHostString() + ")";

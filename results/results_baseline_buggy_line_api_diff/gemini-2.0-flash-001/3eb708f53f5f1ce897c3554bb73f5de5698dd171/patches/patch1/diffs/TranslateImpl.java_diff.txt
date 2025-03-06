@@ -1,0 +1,58 @@
+23,27d22
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.api.services.translate.model.TranslationsResource;
+< import com.google.cloud.BaseService;
+< import com.google.cloud.RetryHelper.RetryHelperException;
+39c34
+< final class TranslateImpl extends BaseService<TranslateOptions> implements Translate {
+---
+> final class TranslateImpl extends com.google.cloud.BaseService<TranslateOptions> implements Translate {
+43c38
+<   private static final Function<List<DetectionsResourceItems>, Detection>
+---
+>   private static final Function<List<com.google.cloud.translate.Detection>, Detection>
+45c40
+<           new Function<List<DetectionsResourceItems>, Detection>() {
+---
+>           new Function<List<com.google.cloud.translate.Detection>, Detection>() {
+47c42
+<             public Detection apply(List<DetectionsResourceItems> detectionPb) {
+---
+>             public Detection apply(List<com.google.cloud.translate.Detection> detectionPb) {
+62c57
+<               new Callable<List<LanguagesResource>>() {
+---
+>               new Callable<List<com.google.cloud.translate.Language>>() {
+64c59
+<                 public List<LanguagesResource> call() {
+---
+>                 public List<com.google.cloud.translate.Language> call() {
+80c75
+<       List<List<DetectionsResourceItems>> detectionsPb =
+---
+>       List<List<com.google.cloud.translate.Detection>> detectionsPb =
+82c77
+<               new Callable<List<List<DetectionsResourceItems>>>() {
+---
+>               new Callable<List<List<com.google.cloud.translate.Detection>>>() {
+84c79
+<                 public List<List<DetectionsResourceItems>> call() {
+---
+>                 public List<List<com.google.cloud.translate.Detection>> call() {
+91c86
+<       Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
+---
+>       Iterator<List<com.google.cloud.translate.Detection>> detectionIterator = detectionsPb.iterator();
+94c89
+<         List<DetectionsResourceItems> detectionPb = detectionIterator.next();
+---
+>         List<com.google.cloud.translate.Detection> detectionPb = detectionIterator.next();
+121c116
+<               new Callable<List<TranslationsResource>>() {
+---
+>               new Callable<List<com.google.cloud.translate.Translation>>() {
+123c118
+<                 public List<TranslationsResource> call() {
+---
+>                 public List<com.google.cloud.translate.Translation> call() {

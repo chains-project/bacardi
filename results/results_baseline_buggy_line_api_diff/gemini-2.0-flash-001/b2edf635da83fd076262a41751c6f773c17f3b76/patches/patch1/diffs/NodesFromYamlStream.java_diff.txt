@@ -1,0 +1,15 @@
+31a32
+> import org.yaml.snakeyaml.LoaderOptions;
+83c84,85
+<       Constructor constructor = new Constructor(Config.class);
+---
+>       LoaderOptions loaderOptions = new LoaderOptions();
+>       Constructor constructor = new Constructor();
+92c94
+<       Yaml yaml = new Yaml(constructor);
+---
+>       Yaml yaml = new Yaml(constructor, loaderOptions);
+97c99
+<          config = (Config) yaml.load(in);
+---
+>          config = yaml.loadAs(in, Config.class);
