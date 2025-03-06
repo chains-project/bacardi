@@ -1,0 +1,97 @@
+138c138
+<       return obj instanceof ResourceId && Objects.equals(toPb(), ((ResourceId) obj).toPb());
+---
+>       return obj instanceof ResourceId && Objects.equals(id, ((ResourceId) obj).id) && Objects.equals(type, ((ResourceId) obj).type);
+146,150c146,149
+<     com.google.api.services.cloudresourcemanager.model.ResourceId toPb() {
+<       com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb =
+<           new com.google.api.services.cloudresourcemanager.model.ResourceId();
+<       resourceIdPb.setId(id);
+<       resourceIdPb.setType(type.toLowerCase());
+---
+>     Map<String, String> toPb() {
+>       Map<String, String> resourceIdPb = new HashMap<>();
+>       resourceIdPb.put("id", id);
+>       resourceIdPb.put("type", type.toLowerCase());
+154,156c153,154
+<     static ResourceId fromPb(
+<         com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb) {
+<       return new ResourceId(resourceIdPb.getId(), resourceIdPb.getType());
+---
+>     static ResourceId fromPb(Map<String, String> resourceIdPb) {
+>       return new ResourceId(resourceIdPb.get("id"), resourceIdPb.get("type"));
+376c374,380
+<             && Objects.equals(toPb(), ((ProjectInfo) obj).toPb());
+---
+>             && Objects.equals(name, ((ProjectInfo) obj).name)
+>             && Objects.equals(projectId, ((ProjectInfo) obj).projectId)
+>             && Objects.equals(labels, ((ProjectInfo) obj).labels)
+>             && Objects.equals(projectNumber, ((ProjectInfo) obj).projectNumber)
+>             && Objects.equals(state, ((ProjectInfo) obj).state)
+>             && Objects.equals(createTimeMillis, ((ProjectInfo) obj).createTimeMillis)
+>             && Objects.equals(parent, ((ProjectInfo) obj).parent);
+392,398c396,401
+<   com.google.api.services.cloudresourcemanager.model.Project toPb() {
+<     com.google.api.services.cloudresourcemanager.model.Project projectPb =
+<         new com.google.api.services.cloudresourcemanager.model.Project();
+<     projectPb.setName(name);
+<     projectPb.setProjectId(projectId);
+<     projectPb.setLabels(labels);
+<     projectPb.setProjectNumber(projectNumber);
+---
+>   Map<String, Object> toPb() {
+>     Map<String, Object> projectPb = new HashMap<>();
+>     projectPb.put("name", name);
+>     projectPb.put("projectId", projectId);
+>     projectPb.put("labels", labels);
+>     projectPb.put("projectNumber", projectNumber);
+400c403
+<       projectPb.setLifecycleState(state.toString());
+---
+>       projectPb.put("lifecycleState", state.toString());
+403c406
+<       projectPb.setCreateTime(
+---
+>       projectPb.put("createTime",
+409c412
+<       projectPb.setParent(parent.toPb());
+---
+>       projectPb.put("parent", parent.toPb());
+414c417
+<   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.model.Project projectPb) {
+---
+>   static ProjectInfo fromPb(Map<String, Object> projectPb) {
+416,418c419,421
+<         newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
+<     if (projectPb.getName() != null && !projectPb.getName().equals("Unnamed")) {
+<       builder.setName(projectPb.getName());
+---
+>         newBuilder((String) projectPb.get("projectId")).setProjectNumber((Long) projectPb.get("projectNumber"));
+>     if (projectPb.get("name") != null && !projectPb.get("name").equals("Unnamed")) {
+>       builder.setName((String) projectPb.get("name"));
+420,421c423,424
+<     if (projectPb.getLabels() != null) {
+<       builder.setLabels(projectPb.getLabels());
+---
+>     if (projectPb.get("labels") != null) {
+>       builder.setLabels((Map<String, String>) projectPb.get("labels"));
+423,424c426,427
+<     if (projectPb.getLifecycleState() != null) {
+<       builder.setState(State.valueOf(projectPb.getLifecycleState()));
+---
+>     if (projectPb.get("lifecycleState") != null) {
+>       builder.setState(State.valueOf((String) projectPb.get("lifecycleState")));
+426c429
+<     if (projectPb.getCreateTime() != null) {
+---
+>     if (projectPb.get("createTime") != null) {
+428c431
+<           DATE_TIME_FORMATTER.parse(projectPb.getCreateTime(), Instant.FROM).toEpochMilli());
+---
+>           DATE_TIME_FORMATTER.parse((String) projectPb.get("createTime"), Instant.FROM).toEpochMilli());
+430,431c433,434
+<     if (projectPb.getParent() != null) {
+<       builder.setParent(ResourceId.fromPb(projectPb.getParent()));
+---
+>     if (projectPb.get("parent") != null) {
+>       builder.setParent(ResourceId.fromPb((Map<String, String>) projectPb.get("parent")));

@@ -1,0 +1,6 @@
+307c307,309
+<         unArchiver.enableLogging(new ConsoleLogger(Logger.LEVEL_DEBUG, "Sauce"));
+---
+>         Logger logger = new ConsoleLogger(Logger.LEVEL_DEBUG, "Sauce");
+>         unArchiver.getLoggerManager().setThreshold(logger.getThreshold());
+>         unArchiver.getLoggerManager().setLogger("Sauce", logger);

@@ -1,0 +1,109 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+
+```java
+package micycle.pgs;
+
+import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import processing.core.PConstants;
+import processing.core.PShape;
+
+/**
+ * Tests to determine which methods from {@link micycle.pgs.PGS_Processing
+ * PGS_Processing} natively support GROUP PShape (MultiPolygon) inputs (or at
+ * least handle them without failing). These tests do not validate the
+ * particular output of the method in question.
+ */
+class PGS_ProcessingGroupShapeTests {
+
+	private PShape GROUP_SHAPE;
+
+	@BeforeEach
+	/**
+	 * Recreate the test shape before each test case in case some methods mutate the
+	 * shape.
+	 */
+	void prepareGroupShape() {
+		final PShape a = new PShape(PShape.GEOMETRY);
+		a.beginShape();
+		a.vertex(0, 0);
+		a.vertex(10, 0);
+		a.vertex(0, 10);
+		a.vertex(10, 10);
+		a.endShape(PConstants.CLOSE);
+
+		final PShape b = new PShape(PShape.GEOMETRY);
+		b.beginShape();
+		b.vertex(70, 70);
+		b.vertex(710, 70);
+		b.vertex(70, 710);
+		b.vertex(710, 710);
+		b.endShape(PConstants.CLOSE);
+
+		GROUP_SHAPE = new PShape(PShape.GROUP);
+		GROUP_SHAPE.setKind(PShape.GROUP);
+		GROUP_SHAPE.addChild(a);
+		GROUP_SHAPE.addChild(b);
+	}
+
+	@Test
+	void test_PGS_Processing_densify() {
+		assumeTrue(GROUP_SHAPE.getChildCount() == 2);
+		PShape out = PGS_Processing.densify(GROUP_SHAPE, 1);
+		assertEquals(2, out.getChildCount());
+	}
+	
+	@Test
+	void test_PGS_Processing_removeSmallHoles() {
+		assumeTrue(GROUP_SHAPE.getChildCount() == 2);
+		PShape out = PGS_Processing.removeSmallHoles(GROUP_SHAPE, 10);
+		assertEquals(2, out.getChildCount());
+	}
+	
+	@Test
+	void test_PGS_Processing_convexPartition() {
+		assumeTrue(GROUP_SHAPE.getChildCount() == 2);
+		PShape out = PGS_Processing.convexPartition(GROUP_SHAPE);
+		assertEquals(2, out.getChildCount());
+	}
+
+}
+
+```
+
+ with the following error information:
+[ERROR] /PGS/src/test/java/micycle/pgs/PGS_ProcessingGroupShapeTests.java:[59,17] cannot find symbol
+  symbol:   method assumeTrue(boolean)
+  location: class micycle.pgs.PGS_ProcessingGroupShapeTests
+
+[ERROR] /PGS/src/test/java/micycle/pgs/PGS_ProcessingGroupShapeTests.java:[52,17] cannot find symbol
+  symbol:   method assumeTrue(boolean)
+  location: class micycle.pgs.PGS_ProcessingGroupShapeTests
+
+[ERROR] /PGS/src/test/java/micycle/pgs/PGS_ProcessingGroupShapeTests.java:[66,17] cannot find symbol
+  symbol:   method assumeTrue(boolean)
+  location: class micycle.pgs.PGS_ProcessingGroupShapeTests
+
+[ERROR] /PGS/src/test/java/micycle/pgs/PGS_ProcessingGroupShapeTests.java:[3,24] cannot find symbol
+  symbol:   class Assume
+  location: package org.junit
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

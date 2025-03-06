@@ -1,0 +1,71 @@
+21d20
+< import org.spongepowered.api.Platform.Type;
+23c22
+< import org.spongepowered.api.command.CommandManager;
+---
+> import org.spongepowered.api.command.CommandResult;
+24a24
+> import org.spongepowered.api.command.manager.CommandManager;
+27,32c27,33
+< import org.spongepowered.api.event.game.state.GameInitializationEvent;
+< import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+< import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelRegistrar;
+< import org.spongepowered.api.plugin.Plugin;
+---
+> import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
+> import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
+> import org.spongepowered.api.network.channel.raw.RawDataChannel;
+> import org.spongepowered.api.network.channel.ChannelManager;
+> import org.spongepowered.api.plugin.PluginContainer;
+> import org.spongepowered.api.text.Text;
+> import org.spongepowered.api.text.serializer.TextSerializer;
+40c41
+< @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+---
+> @PluginContainer(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+53d53
+<     //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
+62,63c62
+<     public void onPreInit(GamePreInitializationEvent preInitEvent) {
+<         //load config and database
+---
+>     public void onPreInit(StartedEngineEvent<Server> preInitEvent) {
+73c72
+<     public void onInit(GameInitializationEvent initEvent) {
+---
+>     public void onInit(StartedEngineEvent<Server> initEvent) {
+79d77
+<         //command and event register
+89,90c87
+<         //incoming channel
+<         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
+---
+>         ChannelManager channelManager = Sponge.getChannelManager();
+93,96c90,93
+<         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
+<         RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
+<         updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
+<         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
+---
+>         RawDataChannel updateChannel = channelManager.getOrCreateRaw(this, updateChannelName);
+>         RawDataChannel permChannel = channelManager.getOrCreateRaw(this, permissionChannelName);
+>         updateChannel.addListener(injector.getInstance(UpdateSkinListener.class));
+>         permChannel.addListener(injector.getInstance(CheckPermissionListener.class));
+100c97
+<     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
+---
+>     public void onShutdown(StoppingEngineEvent<Server> stoppingServerEvent) {
+108d104
+<     @Override
+114d109
+<         //disallow - not whitelisted or blacklisted
+126d120
+<     @Override
+131d124
+<     @Override
+136d128
+<     @Override
+141d132
+<     @Override

@@ -1,0 +1,52 @@
+203d202
+<       // todo this can cause misleading report of a failure, intended to be fixed within #924
+211c210
+<         .create(this.options.getProjectId(), zone)
+---
+>         .create(this.options.getProjectId(), this.options.getProjectId(), zone)
+217d215
+<     // just fields option
+232c230
+<         .get(this.options.getProjectId(), zoneName)
+---
+>         .get(this.options.getProjectId(), this.options.getProjectId(), zoneName)
+238d235
+<     // fields, page token, page size
+249c246
+<         .list(this.options.getProjectId())
+---
+>         .list(this.options.getProjectId(), this.options.getProjectId())
+271c268
+<     return dns.managedZones().delete(this.options.getProjectId(), zoneName);
+---
+>     return dns.managedZones().delete(this.options.getProjectId(), this.options.getProjectId(), zoneName);
+287d283
+<     // options are fields, page token, dns name, type
+289c285
+<         .list(this.options.getProjectId(), zoneName)
+---
+>         .list(this.options.getProjectId(), this.options.getProjectId(), zoneName)
+308c304
+<         .get(this.options.getProjectId())
+---
+>         .get(this.options.getProjectId(), this.options.getProjectId())
+325c321
+<         .create(this.options.getProjectId(), zoneName, changeRequest)
+---
+>         .create(this.options.getProjectId(), this.options.getProjectId(), zoneName, changeRequest)
+340d335
+<           // the change id was not found, but the zone exists
+343d337
+<         // the zone does not exist, so throw an exception
+352c346
+<         .get(this.options.getProjectId(), zoneName, changeRequestId)
+---
+>         .get(this.options.getProjectId(), this.options.getProjectId(), zoneName, changeRequestId)
+369d362
+<     // options are fields, page token, page size, sort order
+372c365
+<             .list(this.options.getProjectId(), zoneName)
+---
+>             .list(this.options.getProjectId(), this.options.getProjectId(), zoneName)
+377d369
+<       // todo check and change if more sorting options are implemented, issue #604

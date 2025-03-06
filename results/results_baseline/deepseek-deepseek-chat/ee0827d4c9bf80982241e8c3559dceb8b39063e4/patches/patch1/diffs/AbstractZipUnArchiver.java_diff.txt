@@ -1,0 +1,27 @@
+28,29d27
+< import org.apache.commons.io.input.BoundedInputStream;
+< import org.apache.commons.io.input.CountingInputStream;
+204,212c202,208
+<                         BoundedInputStream bis = new BoundedInputStream( in, remainingSpace + 1 );
+<                         CountingInputStream cis = new CountingInputStream( bis );
+<                         extractFile( getSourceFile(), outputDirectory, cis,
+<                                      ze.getName(), new Date( ze.getTime() ), ze.isDirectory(),
+<                                      ze.getUnixMode() != 0 ? ze.getUnixMode() : null,
+<                                      resolveSymlink( zipFile, ze ), getFileMappers() );
+< 
+<                         remainingSpace -= cis.getByteCount();
+<                         if ( remainingSpace < 0 )
+---
+>                         long bytesRead = 0;
+>                         byte[] buffer = new byte[8192];
+>                         int bytes;
+>                         while ( (bytes = in.read(buffer)) != -1 )
+>                         {
+>                             bytesRead += bytes;
+>                             if ( bytesRead > remainingSpace )
+216a213,217
+>                         extractFile( getSourceFile(), outputDirectory, in,
+>                                      ze.getName(), new Date( ze.getTime() ), ze.isDirectory(),
+>                                      ze.getUnixMode() != 0 ? ze.getUnixMode() : null,
+>                                      resolveSymlink( zipFile, ze ), getFileMappers() );
+>                     }
