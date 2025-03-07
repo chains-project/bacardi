@@ -1,0 +1,15 @@
+41d40
+< import org.apache.commons.io.output.NullPrintStream;
+78a78,84
+>     private static final PrintStream NULL_PRINT_STREAM = new PrintStream(new java.io.OutputStream() {
+>         @Override
+>         public void write(int b) {
+>             // Discard all output
+>         }
+>     });
+> 
+300,301c306
+<             PrintStream nullPrintStream = NullPrintStream.NULL_PRINT_STREAM;
+<             Integer result = (Integer) runMethod.invoke( jarTool, nullPrintStream, nullPrintStream, args );
+---
+>             Integer result = (Integer) runMethod.invoke( jarTool, NULL_PRINT_STREAM, NULL_PRINT_STREAM, args );

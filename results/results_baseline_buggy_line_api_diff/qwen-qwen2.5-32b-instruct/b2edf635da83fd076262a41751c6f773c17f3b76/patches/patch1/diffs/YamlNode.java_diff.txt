@@ -1,0 +1,10 @@
+27a28
+> import org.yaml.snakeyaml.LoaderOptions;
+114c115,117
+<             return (YamlNode) new Yaml(new Constructor(YamlNode.class)).load(in);
+---
+>             LoaderOptions options = new LoaderOptions();
+>             options.setAllowDuplicateKeys(true);
+>             return (YamlNode) new Yaml(new Constructor(YamlNode.class, options)).load(in);
+172d174
+<       }

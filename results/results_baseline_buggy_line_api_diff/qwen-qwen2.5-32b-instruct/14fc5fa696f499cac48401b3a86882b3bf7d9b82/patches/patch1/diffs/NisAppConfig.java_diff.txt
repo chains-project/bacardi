@@ -1,0 +1,106 @@
+3a4
+> import org.flywaydb.core.api.configuration.ClassicConfiguration;
+108,113c109,115
+<                 final org.flywaydb.core.Flyway flyway = new Flyway();
+<                 flyway.setDataSource(this.dataSource());
+<                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+<                 flyway.setLocations(prop.getProperty("flyway.locations"));
+<                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+<                 return flyway;
+---
+>                 final ClassicConfiguration configuration = new ClassicConfiguration();
+>                 configuration.setDataSource(this.dataSource());
+>                 configuration.setLocations(prop.getProperty("flyway.locations").split(","));
+>                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+> 
+>                 return new Flyway(configuration);
+117d118
+<         @DependsOn("flyway")
+335c336
+<                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
+---
+>                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, AlwaysVestedBalances::new);
+344,348c345,346
+<         public BlockAnalyzer blockAnalyzer() {
+<                 final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
+<                 final ForkConfiguration forkConfiguration = this.nisConfiguration().getForkConfiguration();
+<                 return new BlockAnalyzer(this.blockDao, this.blockChainUpdater(), this.blockChainLastBlockLayer, this.nisMapperFactory(),
+<                                 estimatedBlocksPerYear, forkConfiguration);
+---
+>         public NisConfiguration nisConfiguration() {
+>                 return new NisConfiguration();
+352,356c350,351
+<         public HttpConnectorPool httpConnectorPool() {
+<                 final CommunicationMode communicationMode = this.nisConfiguration().useBinaryTransport()
+<                                 ? CommunicationMode.BINARY
+<                                 : CommunicationMode.JSON;
+<                 return new HttpConnectorPool(communicationMode, this.outgoingAudits());
+---
+>         public TimeProvider timeProvider() {
+>                 return CommonStarter.TIME_PROVIDER;
+360,368c355,359
+<         public NisPeerNetworkHost nisPeerNetworkHost() {
+<                 final HarvestingTask harvestingTask = new HarvestingTask(this.blockChain(), this.harvester(), this.unconfirmedTransactions());
+< 
+<                 final PeerNetworkScheduler scheduler = new PeerNetworkScheduler(this.timeProvider(), harvestingTask);
+< 
+<                 final CountingBlockSynchronizer synchronizer = new CountingBlockSynchronizer(this.blockChain());
+< 
+<                 return new NisPeerNetworkHost(this.nisCache(), synchronizer, scheduler, this.chainServices(), this.nodeCompatibilityChecker(),
+<                                 this.nisConfiguration(), this.httpConnectorPool(), this.trustProvider(), this.incomingAudits(), this.outgoingAudits());
+---
+>         public TrustProvider trustProvider() {
+>                 final int LOW_COMMUNICATION_NODE_WEIGHT = 30;
+>                 final int TRUST_CACHE_TIME = 15 * 60;
+>                 return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), LOW_COMMUNICATION_NODE_WEIGHT), TRUST_CACHE_TIME,
+>                                 this.timeProvider());
+377,379c368,369
+<         public NisConfiguration nisConfiguration() {
+<                 return new NisConfiguration();
+<         }
+---
+>         public NisPeerNetworkHost nisPeerNetworkHost() {
+>                 final HarvestingTask harvestingTask = new HarvestingTask(this.blockChain(), this.harvester(), this.unconfirmedTransactions());
+381,384c371
+<         @Bean
+<         public TimeProvider timeProvider() {
+<                 return CommonStarter.TIME_PROVIDER;
+<         }
+---
+>                 final PeerNetworkScheduler scheduler = new PeerNetworkScheduler(this.timeProvider(), harvestingTask);
+386,391c373,376
+<         @Bean
+<         public TrustProvider trustProvider() {
+<                 final int LOW_COMMUNICATION_NODE_WEIGHT = 30;
+<                 final int TRUST_CACHE_TIME = 15 * 60;
+<                 return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), LOW_COMMUNICATION_NODE_WEIGHT), TRUST_CACHE_TIME,
+<                                 this.timeProvider());
+---
+>                 final CountingBlockSynchronizer synchronizer = new CountingBlockSynchronizer(this.blockChain());
+> 
+>                 return new NisPeerNetworkHost(this.nisCache(), synchronizer, scheduler, this.chainServices(), this.nodeCompatibilityChecker(),
+>                                 this.nisConfiguration(), this.httpConnectorPool(), this.trustProvider(), this.incomingAudits(), this.outgoingAudits());
+395,396c380,384
+<         public NemConfigurationPolicy configurationPolicy() {
+<                 return new NisConfigurationPolicy();
+---
+>         public HttpConnectorPool httpConnectorPool() {
+>                 final CommunicationMode communicationMode = this.nisConfiguration().useBinaryTransport()
+>                                 ? CommunicationMode.BINARY
+>                                 : CommunicationMode.JSON;
+>                 return new HttpConnectorPool(communicationMode, this.outgoingAudits());
+440,446c428,432
+<         public Function<Address, Collection<Address>> cosignatoryLookup() {
+<                 return a -> this.accountStateCache().findStateByAddress(a).getMultisigLinks().getCosignatories();
+<         }
+< 
+<         @Bean
+<         public MosaicIdCache mosaicIdCache() {
+<                 return new SynchronizedMosaicIdCache(new DefaultMosaicIdCache());
+---
+>         public BlockAnalyzer blockAnalyzer() {
+>                 final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
+>                 final ForkConfiguration forkConfiguration = this.nisConfiguration().getForkConfiguration();
+>                 return new BlockAnalyzer(this.blockDao, this.blockChainUpdater(), this.blockChainLastBlockLayer, this.nisMapperFactory(),
+>                                 estimatedBlocksPerYear, forkConfiguration);

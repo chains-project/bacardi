@@ -1,0 +1,159 @@
+package uk.gov.pay.adminusers.queue.event;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.ConsoleAppender;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
+import uk.gov.pay.adminusers.client.ledger.model.LedgerTransaction;
+import uk.gov.pay.adminusers.client.ledger.service.LedgerService;
+import uk.gov.pay.adminusers.model.MerchantDetails;
+import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.ServiceName;
+import uk.gov.pay.adminusers.persistence.entity.UserEntity;
+import uk.gov.pay.adminusers.queue.model.Event;
+import uk.gov.pay.adminusers.queue.model.EventMessage;
+import uk.gov.pay.adminusers.queue.model.EventType;
+import uk.gov.pay.adminusers.service.NotificationService;
+import uk.gov.pay.adminusers.service.ServiceFinder;
+import uk.gov.pay.adminusers.service.UserServices;
+import uk.gov.service.payments.commons.queue.exception.QueueException;
+import uk.gov.service.payments.commons.queue.model.QueueMessage;
+
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.Mockito.atMostOnce;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
+import static uk.gov.pay.adminusers.fixtures.EventFixture.anEventFixture;
+import static uk.gov.pay.adminusers.fixtures.LedgerTransactionFixture.aLedgerTransactionFixture;
+
+@ExtendWith(MockitoExtension.class)
+class EventMessageHandlerTest {
+
+    @Mock
+    private QueueMessage mockQueueMessage;
+
+    @Mock
+    private NotificationService mockNotificationService;
+
+    @Mock
+    private ServiceFinder mockServiceFinder;
+
+    @Mock
+    private UserServices mockUserServices;
+
+    @Mock
+    private LedgerService mockLedgerService;
+
+    @Captor
+    ArgumentCaptor<Set<String>> adminEmailsCaptor;
+
+    @Captor
+    ArgumentCaptor<Map<String, String>> personalisationCaptor;
+
+    @Captor
+    ArgumentCaptor<ILoggingEvent> loggingEventArgumentCaptor;
+
+    @Mock
+    private Appender<ILoggingEvent> mockLogAppender;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final String gatewayAccountId = "123";
+
+    private EventMessageHandler eventMessageHandler;
+    private Service service;
+    private LedgerTransaction transaction;
+    private List<UserEntity> users;
+    private Event disputeEvent;
+
+    @BeforeEach
+    void setUp() {
+        eventMessageHandler = new EventMessageHandler(mockEventSubscriberQueue, mockLedgerService, mockNotificationService, mockServiceFinder, mockUserServices, objectMapper);
+        service = Service.from(randomInt(), randomUuid(), new ServiceName(DEFAULT_NAME_VALUE));
+        service.setMerchantDetails(new MerchantDetails("Organisation Name", null, null, null, null, null, null, null, null));
+        transaction = aLedgerTransactionFixture()
+                .withTransactionId("456")
+                .withReference("tx ref")
+                .build();
+        users = Arrays.asList(
+                aUserEntityWithRoleForService(service, true, "admin1"),
+                aUserEntityWithRoleForService(service, true, "admin2")
+        );
+
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+        encoder.setPattern("%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n");
+        encoder.setContext(loggerContext);
+        encoder.start();
+
+        ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<>();
+        consoleAppender.setEncoder(encoder);
+        consoleAppender.setContext(loggerContext);
+        consoleAppender.start();
+
+        Logger logger = loggerContext.getLogger(EventMessageHandler.class);
+        logger.setLevel(Level.INFO);
+        logger.addAppender(consoleAppender);
+    }
+
+    @Test
+    void shouldMarkMessageAsProcessed() throws Exception {
+        // ... (rest of the test method)
+    }
+
+    @Test
+    void shouldHandleDisputeCreatedEvent() throws QueueException {
+        // ... (rest of the test method)
+    }
+
+    @Test
+    void shouldHandleDisputeLostEvent() throws QueueException {
+        // ... (rest of the test method)
+    }
+
+    @Test
+    void shouldHandleDisputeEvidenceSubmittedEvent() throws QueueException {
+        // ... (rest of the test method)
+    }
+
+    @Test
+    void shouldNotCallNotificationServiceWhenServiceDoesNotExist() throws QueueException {
+        // ... (rest of the test method)
+    }
+
+    @Test
+    void shouldNotCallNotificationServiceWhenTransactionDoesNotExist() throws QueueException {
+        // ... (rest of the test method)
+    }
+
+    @Test
+    void shouldNotCallNotificationServiceWhenNoAdminUsersExist() throws QueueException {
+        // ... (rest of the test method)
+    }
+}

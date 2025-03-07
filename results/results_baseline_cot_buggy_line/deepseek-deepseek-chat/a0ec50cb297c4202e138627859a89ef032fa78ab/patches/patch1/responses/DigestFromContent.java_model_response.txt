@@ -1,0 +1,89 @@
+<code_analysis>
+1. Examine the error message:
+   - The error indicates that the packages `org.cactoos.io` and `org.cactoos.text` do not exist.
+   - The specific lines causing the error are the imports and the usage of `BytesOf` and `HexOf` classes.
+   - This suggests that the `cactoos` library is either not included in the project or has been updated to a version where these classes are no longer available or have been moved.
+
+2. Review the client code:
+   - The problematic areas are the imports and the line where `BytesOf` and `HexOf` are used to create a `Digest.Sha256` object.
+   - The code is trying to convert a byte array to a hexadecimal string using `HexOf` and `BytesOf`.
+
+3. Consider potential fixes:
+   - Since `cactoos` library is causing issues, we can replace its functionality with standard Java libraries.
+   - We can use `java.util.HexFormat` or `java.util.Base64` for hexadecimal conversion.
+   - This approach avoids introducing new dependencies and uses built-in Java functionality.
+
+4. Plan the necessary changes:
+   - Remove the `cactoos` imports.
+   - Replace `HexOf` and `BytesOf` with standard Java methods for converting byte arrays to hexadecimal strings.
+   - Ensure the rest of the code remains unchanged.
+</code_analysis>
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker.misc;
+
+import com.artipie.asto.Content;
+import com.artipie.docker.Digest;
+import hu.akarnokd.rxjava2.interop.SingleInterop;
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
+import java.util.concurrent.CompletionStage;
+
+/**
+ * Digest from content.
+ * @since 0.2
+ */
+public final class DigestFromContent {
+
+    /**
+     * Content.
+     */
+    private final Content content;
+
+    /**
+     * Ctor.
+     * @param content Content publisher
+     */
+    public DigestFromContent(final Content content) {
+        this.content = content;
+    }
+
+    /**
+     * Calculates digest from content.
+     * @return CompletionStage from digest
+     */
+    public CompletionStage<Digest> digest() {
+        final MessageDigest sha;
+        try {
+            sha = MessageDigest.getInstance("SHA-256");
+        } catch (final NoSuchAlgorithmException err) {
+            throw new IllegalStateException("This runtime doesn't have SHA-256 algorithm", err);
+        }
+        return Flowable.fromPublisher(this.content)
+            .flatMapCompletable(
+                buf -> Completable.fromAction(
+                    () -> {
+                        buf.mark();
+                        sha.update(buf);
+                        buf.reset();
+                    }
+                )
+            )
+            .<Digest>andThen(
+                Single.fromCallable(
+                    () -> new Digest.Sha256(HexFormat.of().formatHex(sha.digest()))
+                )
+            )
+            .to(SingleInterop.get()).toCompletableFuture();
+    }
+
+}
+```

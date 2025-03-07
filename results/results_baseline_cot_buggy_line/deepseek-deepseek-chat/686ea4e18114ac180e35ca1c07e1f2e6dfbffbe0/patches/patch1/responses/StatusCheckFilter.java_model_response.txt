@@ -1,0 +1,49 @@
+<code_analysis>
+1. Examine the error message:
+   - The error indicates that the class `FilterFactory` cannot be found, and the package `io.dropwizard.logging.filter` does not exist.
+   - This suggests that the `FilterFactory` class has been moved or removed in the updated version of the Dropwizard library.
+
+2. Review the client code:
+   - The problematic areas are the import statement `import io.dropwizard.logging.filter.FilterFactory;` and the class declaration `public class StatusCheckFilter implements FilterFactory<IAccessEvent>`.
+   - The `FilterFactory` interface is no longer available in the `io.dropwizard.logging.filter` package.
+
+3. Consider potential fixes:
+   - The `FilterFactory` interface might have been moved to a different package in the newer version of Dropwizard.
+   - Researching the Dropwizard documentation or source code reveals that `FilterFactory` is now located in the `io.dropwizard.logging.common.filter` package.
+
+4. Plan the necessary changes to fix the issue:
+   - Update the import statement to use the correct package: `import io.dropwizard.logging.common.filter.FilterFactory;`.
+   - No other changes are required as the class implementation remains valid.
+</code_analysis>
+
+```java
+package com.wire.lithium.server.monitoring;
+
+import ch.qos.logback.access.spi.IAccessEvent;
+import ch.qos.logback.core.filter.Filter;
+import ch.qos.logback.core.spi.FilterReply;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.dropwizard.logging.common.filter.FilterFactory;
+
+@JsonTypeName("status-filter-factory")
+public class StatusCheckFilter implements FilterFactory<IAccessEvent> {
+    @Override
+    public Filter<IAccessEvent> build() {
+        return new Filter<>() {
+            @Override
+            public FilterReply decide(IAccessEvent event) {
+                if (event.getRequestURI().contains("/status")) {
+                    return FilterReply.DENY;
+                }
+                if (event.getRequestURI().contains("/swagger")) {
+                    return FilterReply.DENY;
+                }
+                if (event.getRequestURI().contains("/metrics")) {
+                    return FilterReply.DENY;
+                }
+                return FilterReply.NEUTRAL;
+            }
+        };
+    }
+}
+```

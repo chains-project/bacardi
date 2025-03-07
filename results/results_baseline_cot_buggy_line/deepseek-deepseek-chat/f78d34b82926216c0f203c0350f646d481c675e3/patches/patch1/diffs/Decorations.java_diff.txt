@@ -1,0 +1,13 @@
+3d2
+< import develop.p2p.lib.WaveCreator;
+185c184
+<         WaveCreator wave = new WaveCreator(0.8, 1.8, 0.1);
+---
+>         final double[] waveOffset = {0.0};
+200c199,200
+<                     circle(center.clone().add(0, wave.get(0.01, false), 0), count[0], wave.getStatic());
+---
+>                     double waveHeight = 0.7 + Math.sin(waveOffset[0]) * 0.1;
+>                     circle(center.clone().add(0, waveHeight, 0), count[0], 1.8);
+209a210
+>                     waveOffset[0] += 0.01;

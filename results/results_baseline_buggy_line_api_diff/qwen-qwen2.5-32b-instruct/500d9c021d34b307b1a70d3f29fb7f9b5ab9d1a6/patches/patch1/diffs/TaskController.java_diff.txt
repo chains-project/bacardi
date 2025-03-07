@@ -1,0 +1,26 @@
+12,17c12,16
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.View;
+< import javax.mvc.binding.BindingResult;
+< import javax.mvc.binding.ParamError;
+< import javax.mvc.security.CsrfProtected;
+---
+> import jakarta.mvc.Controller;
+> import jakarta.mvc.Models;
+> import jakarta.mvc.binding.BindingResult;
+> import jakarta.mvc.binding.ParamError;
+> import jakarta.mvc.security.CsrfProtected;
+53,54c52
+<     @View("tasks.xhtml")
+<     public void allTasks() {
+---
+>     public Viewable allTasks() {
+66a65
+>         return new Viewable("tasks.xhtml");
+90d88
+<     //@ValidateOnExecution(type = ExecutableType.NONE)
+164c162
+<     //@CsrfProtected
+---
+>     @CsrfProtected

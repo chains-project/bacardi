@@ -1,0 +1,241 @@
+29d28
+< import org.apache.commons.io.input.ClosedInputStream;
+54,57d52
+< 
+<     /**
+<      * A singleton empty byte array.
+<      */
+59,62d53
+< 
+<     /**
+<      * The list of buffers, which grows and never reduces.
+<      */
+64,67d54
+< 
+<     /**
+<      * The index of the current buffer.
+<      */
+69,72d55
+< 
+<     /**
+<      * The total count of bytes in all the filled buffers.
+<      */
+74,77d56
+< 
+<     /**
+<      * The current buffer.
+<      */
+79,82d57
+< 
+<     /**
+<      * The total count of bytes written.
+<      */
+84,87d58
+< 
+<     /**
+<      * Flag to indicate if the buffers can be reused after reset
+<      */
+90,93c61,67
+<     /**
+<      * Creates a new byte array output stream. The buffer capacity is
+<      * initially 1024 bytes, though its size increases if necessary.
+<      */
+---
+>     private static class ClosedInputStream extends InputStream {
+>         @Override
+>         public int read() {
+>             return -1;
+>         }
+>     }
+> 
+99,106d72
+<     /**
+<      * Creates a new byte array output stream, with a buffer capacity of
+<      * the specified size, in bytes.
+<      *
+<      * @param size the initial size
+<      *
+<      * @throws IllegalArgumentException if size is negative
+<      */
+119,124d84
+<     /**
+<      * Makes a new buffer available either by allocating
+<      * a new one or re-cycling an existing one.
+<      *
+<      * @param newcount the size of the buffer if one is created
+<      */
+129d88
+<             //Recycling old buffer
+131d89
+< 
+137d94
+<             //Creating new buffer
+158,164d114
+<     /**
+<      * Write the bytes to byte array.
+<      *
+<      * @param b the bytes to write
+<      * @param off The start offset
+<      * @param len The number of bytes to write
+<      */
+200,204d149
+<     /**
+<      * Write a byte to byte array.
+<      *
+<      * @param b the byte to write
+<      */
+218,230d162
+<     /**
+<      * Writes the entire contents of the specified input stream to this
+<      * byte stream. Bytes from the input stream are read directly into the
+<      * internal buffers of this streams.
+<      *
+<      * @param in the input stream to read from
+<      *
+<      * @return total number of bytes read from the input stream
+<      * (and written to this stream)
+<      *
+<      * @throws java.io.IOException if an I/O error occurs while reading the input stream
+<      * @since 1.4
+<      */
+251,255d182
+<     /**
+<      * Return the current size of the byte array.
+<      *
+<      * @return the current size of the byte array
+<      */
+261,268d187
+<     /**
+<      * Closing a {@code ByteArrayOutputStream} has no effect. The methods in
+<      * this class can be called after the stream has been closed without
+<      * generating an {@code IOException}.
+<      *
+<      * @throws java.io.IOException never (this method should not declare this exception
+<      * but it has to now due to backwards compatibility)
+<      */
+275,277d193
+<     /**
+<      * @see java.io.ByteArrayOutputStream#reset()
+<      */
+289d204
+<             //Throw away old buffers
+298,306d212
+<     /**
+<      * Writes the entire contents of this byte stream to the
+<      * specified output stream.
+<      *
+<      * @param out the output stream to write to
+<      *
+<      * @throws java.io.IOException if an I/O error occurs, such as if the stream is closed
+<      * @see java.io.ByteArrayOutputStream#writeTo(java.io.OutputStream)
+<      */
+322,344d227
+<     /**
+<      * Fetches entire contents of an <code>InputStream</code> and represent
+<      * same data as result InputStream.
+<      * <p>
+<      * This method is useful where,
+<      * <ul>
+<      * <li>Source InputStream is slow.</li>
+<      * <li>It has network resources associated, so we cannot keep it open for
+<      * long time.</li>
+<      * <li>It has network timeout associated.</li>
+<      * </ul>
+<      * It can be used in favor of {@link #toByteArray()}, since it
+<      * avoids unnecessary allocation and copy of byte[].<br>
+<      * This method buffers the input internally, so there is no need to use a
+<      * <code>BufferedInputStream</code>.
+<      *
+<      * @param input Stream to be fully buffered.
+<      *
+<      * @return A fully buffered stream.
+<      *
+<      * @throws java.io.IOException if an I/O error occurs
+<      * @since 2.0
+<      */
+351,374d233
+<     /**
+<      * Fetches entire contents of an <code>InputStream</code> and represent
+<      * same data as result InputStream.
+<      * <p>
+<      * This method is useful where,
+<      * <ul>
+<      * <li>Source InputStream is slow.</li>
+<      * <li>It has network resources associated, so we cannot keep it open for
+<      * long time.</li>
+<      * <li>It has network timeout associated.</li>
+<      * </ul>
+<      * It can be used in favor of {@link #toByteArray()}, since it
+<      * avoids unnecessary allocation and copy of byte[].<br>
+<      * This method buffers the input internally, so there is no need to use a
+<      * <code>BufferedInputStream</code>.
+<      *
+<      * @param input Stream to be fully buffered.
+<      * @param size the initial buffer size
+<      *
+<      * @return A fully buffered stream.
+<      *
+<      * @throws java.io.IOException if an I/O error occurs
+<      * @since 2.5
+<      */
+378d236
+<         // It does not matter if a ByteArrayOutputStream is not closed as close() is a no-op
+385,395d242
+<     /**
+<      * Gets the current contents of this byte stream as a Input Stream. The
+<      * returned stream is backed by buffers of <code>this</code> stream,
+<      * avoiding memory allocation and copy, thus saving space and time.<br>
+<      *
+<      * @return the current contents of this output stream.
+<      *
+<      * @see java.io.ByteArrayOutputStream#toByteArray()
+<      * @see #reset()
+<      * @since 2.5
+<      */
+418,425d264
+<     /**
+<      * Gets the curent contents of this byte stream as a byte array.
+<      * The result is independent of this stream.
+<      *
+<      * @return the current contents of this output stream, as a byte array
+<      *
+<      * @see java.io.ByteArrayOutputStream#toByteArray()
+<      */
+449,457d287
+<     /**
+<      * Gets the curent contents of this byte stream as a string
+<      * using the platform default charset.
+<      *
+<      * @return the contents of the byte array as a String
+<      *
+<      * @see java.io.ByteArrayOutputStream#toString()
+<      * @deprecated 2.5 use {@link #toString(String)} instead
+<      */
+462d291
+<         // make explicit the use of the default charset
+466,476d294
+<     /**
+<      * Gets the curent contents of this byte stream as a string
+<      * using the specified encoding.
+<      *
+<      * @param enc the name of the character encoding
+<      *
+<      * @return the string converted from the byte array
+<      *
+<      * @throws java.io.UnsupportedEncodingException if the encoding is not supported
+<      * @see java.io.ByteArrayOutputStream#toString(String)
+<      */
+482,492d299
+<     /**
+<      * Gets the curent contents of this byte stream as a string
+<      * using the specified encoding.
+<      *
+<      * @param charset the character encoding
+<      *
+<      * @return the string converted from the byte array
+<      *
+<      * @see java.io.ByteArrayOutputStream#toString(String)
+<      * @since 2.5
+<      */
+497d303
+< 

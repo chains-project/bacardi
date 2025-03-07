@@ -1,0 +1,26 @@
+3d2
+< import com.flowpowered.math.vector.Vector3d;
+12,13d10
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.data.key.Keys;
+18a16,21
+> import org.spongepowered.api.command.source.CommandSource;
+> import org.spongepowered.api.data.key.Key;
+> import org.spongepowered.api.data.value.Value;
+> import org.spongepowered.api.util.Tristate;
+> import org.spongepowered.api.util.Transform;
+> import org.spongepowered.api.util.rotation.Rotation;
+84,85c87,88
+<         receiver.offer(Keys.VANISH, true);
+<         receiver.offer(Keys.VANISH, false);
+---
+>         receiver.offer(Key.of("vanish", Tristate.class), Tristate.TRUE);
+>         receiver.offer(Key.of("vanish", Tristate.class), Tristate.FALSE);
+99c102
+<         Vector3d rotation = receiver.getRotation();
+---
+>         Transform transform = receiver.getTransform();
+107c110
+<                     receiver.setLocationAndRotation(oldLocation, rotation);
+---
+>                     receiver.setTransform(transform);

@@ -1,0 +1,85 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the class `LengthOf` cannot be found in the package `org.cactoos.iterable`.
+   - This suggests that the `LengthOf` class has either been moved to a different package or removed in the updated version of the `cactoos` library.
+
+2. Review the client code:
+   - The problematic import is `import org.cactoos.iterable.LengthOf;`.
+   - The `LengthOf` class is used in the `compareTo` method to calculate the length of the iterable `sfxs`.
+
+3. Consider potential fixes:
+   - The `LengthOf` class might have been moved to a different package in the newer version of the `cactoos` library.
+   - Alternatively, the functionality of `LengthOf` might be replaced by a different class or method in the updated library.
+
+4. Plan the necessary changes to fix the issue:
+   - Research the new location of the `LengthOf` class in the updated `cactoos` library.
+   - Update the import statement to reflect the new package location.
+   - If `LengthOf` is no longer available, consider using an alternative method to calculate the length of the iterable.
+</code_analysis>
+
+After researching, it appears that the `LengthOf` class has been moved to the `org.cactoos.scalar` package in the newer versions of the `cactoos` library. Here is the fixed class with the updated import statement:
+
+```java
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2018-2023 Yegor Bugayenko
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package io.zold.api;
+
+import org.cactoos.Text;
+import org.cactoos.scalar.LengthOf;
+
+/**
+ * Default implementation for {@link Score}.
+ *
+ * @since 1.0
+ */
+public final class RtScore implements Score {
+
+    /**
+     * The suffixes.
+     */
+    private final Iterable<Text> sfxs;
+
+    /**
+     * Ctor.
+     *
+     * @param sfxs The suffixes.
+     */
+    RtScore(final Iterable<Text> sfxs) {
+        this.sfxs = sfxs;
+    }
+
+    @Override
+    public int compareTo(final Score other) {
+        return new LengthOf(other.suffixes()).intValue()
+            - new LengthOf(this.sfxs).intValue();
+    }
+
+    @Override
+    public Iterable<Text> suffixes() {
+        return this.sfxs;
+    }
+}
+```
+
+The fix involves updating the import statement from `org.cactoos.iterable.LengthOf` to `org.cactoos.scalar.LengthOf`, which resolves the compilation error caused by the breaking dependency update.

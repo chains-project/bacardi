@@ -1,0 +1,117 @@
+1,16d0
+< /*
+<  * Copyright 2015 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+22d5
+< import com.google.api.client.util.Data;
+45a29
+> {
+55c39
+<   private final ResourceId parent;
+---
+>   private final String parent;
+113a98
+>   {
+138c123
+<       return obj instanceof ResourceId && Objects.equals(toPb(), ((ResourceId) obj).toPb());
+---
+>       return obj instanceof ResourceId && Objects.equals(toPb(), ((ResourceIdId) obj).toPb());
+146,151c131,132
+<     com.google.api.services.cloudresourcemanager.model.ResourceId toPb() {
+<       com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb =
+<           new com.google.api.services.cloudresourcemanager.model.ResourceId();
+<       resourceIdPb.setId(id);
+<       resourceIdPb.setType(type.toLowerCase());
+<       return resourceIdPb;
+---
+>     String toPb() {
+>       return id + "/" + type;
+154,156c135,137
+<     static ResourceId fromPb(
+<         com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb) {
+<       return new ResourceId(resourceIdPb.getId(), resourceIdPb.getType());
+---
+>     static ResourceId fromPb(String resourceIdPb) {
+>       String[] parts = resourceIdPb.split("/");
+>       return new ResourceId(parts[0], parts[1]);
+162a144
+>   {
+167c149
+<      * uppercase letters, numbers, hyphen, single-quote, double-quote, space, and exclamation point.
+---
+>      * uppercase letters, digits, hyphen, single-quote, double-quote, space, and exclamation point.
+175,177c157,159
+<      * <p>The ID must be 6 to 30 lowercase letters, digits, or hyphens. It must start with a letter.
+<      * Trailing hyphens are prohibited. This field cannot be changed after the server creates the
+<      * project.
+---
+>      * <p>The ID must be 6 to 30 lowercase letters, digits, or hyphens. It must start with a
+>      * letter. Trailing hyphens are prohibited. This field cannot be changed after the server
+>      * creates the project.
+211c193
+<     public abstract Builder setParent(ResourceId parent);
+---
+>     public abstract Builder setParent(String parent);
+216c198
+<   static class BuilderImpl extends Builder {
+---
+>   static class BuilderImpl extends Builder
+217a200
+>   {
+224c207
+<     private ResourceId parent;
+---
+>     private String parent;
+242a226
+>       );
+272c256
+<       this.labels = Maps.newHashMap(checkNotNull(labels));
+---
+>       this.labels = Maps.newHashMap(checkNotNull(labels);
+295c279
+<     public Builder setParent(ResourceId parent) {
+---
+>     public Builder setParent(String parent) {
+358c342
+<   ResourceId getParent() {
+---
+>   String getParent() {
+392,394c376,378
+<   com.google.api.services.cloudresourcemanager.model.Project toPb() {
+<     com.google.api.services.cloudresourcemanager.model.Project projectPb =
+<         new com.google.api.services.cloudresourcemanager.model.Project();
+---
+>   com.google.api.services.cloudresourcemanager.v3.model.Project toPb() {
+>     com.google.api.services.cloudresourcemanager.v3.model.Project projectPb =
+>         new com.google.api.services.cloudresourcemanager.v3.model.Project();
+404,406c388
+<           DateTimeFormatter.ISO_DATE_TIME
+<               .withZone(ZoneOffset.UTC)
+<               .format(Instant.ofEpochMilli(createTimeMillis)));
+---
+>           DATE_TIME_FORMATTER.parse(createTimeMillis.toString(), Instant.FROM).toEpochMilli());
+409c391
+<       projectPb.setParent(parent.toPb());
+---
+>       projectPb.setParent(parent);
+414c396
+<   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.model.Project projectPb) {
+---
+>   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) {
+431c413
+<       builder.setParent(ResourceId.fromPb(projectPb.getParent()));
+---
+>       builder.setParent(projectPb.getParent());

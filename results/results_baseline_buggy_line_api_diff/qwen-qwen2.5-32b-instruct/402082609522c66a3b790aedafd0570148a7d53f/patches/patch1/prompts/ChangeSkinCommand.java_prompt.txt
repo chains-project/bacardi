@@ -1,0 +1,50 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+```java
+package com.github.games647.changeskin.sponge.command;
+
+import org.spongepowered.api.command.spec.CommandSpec;
+
+@FunctionalInterface
+public interface ChangeSkinCommand {
+
+    CommandSpec buildSpec();
+}
+
+```
+the error is triggered in the following specific lines in the previous code:
+
+```java
+import org.spongepowered.api.command.spec.CommandSpec;
+```
+```java
+CommandSpec buildSpec();
+```
+
+
+
+ with the following error information:
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/ChangeSkinCommand.java:[3,42] package org.spongepowered.api.command.spec does not exist
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/ChangeSkinCommand.java:[8,5] cannot find symbol
+  symbol:   class CommandSpec
+  location: interface com.github.games647.changeskin.sponge.command.ChangeSkinCommand
+
+
+The error is caused by a change in the API of the dependency. The new library version includes the following changes:
+     Class org.spongepowered.api.command.spec.CommandSpec has been removed in the new version of the dependency.
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Oxverride annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

@@ -1,0 +1,171 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+```java
+package com.github.games647.changeskin.sponge.task;
+
+import com.flowpowered.math.vector.Vector3d;
+import com.github.games647.changeskin.core.model.UserPreference;
+import com.github.games647.changeskin.core.model.skin.SkinModel;
+import com.github.games647.changeskin.core.shared.task.SharedApplier;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import java.util.UUID;
+
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.tab.TabListEntry;
+import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
+
+public class SkinApplier extends SharedApplier {
+
+    private final ChangeSkinSponge plugin;
+    private final CommandSource invoker;
+    private final Player receiver;
+
+    public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
+            , boolean keepSkin) {
+        super(plugin.getCore(), targetSkin, keepSkin);
+
+        this.plugin = plugin;
+        this.invoker = invoker;
+        this.receiver = receiver;
+    }
+
+    @Override
+    public void run() {
+        if (!isConnected()) {
+            return;
+        }
+
+        //uuid was successful resolved, we could now make a cooldown check
+        if (invoker instanceof Player) {
+            UUID uniqueId = ((Player) invoker).getUniqueId();
+            core.getCooldownService().trackPlayer(uniqueId);
+        }
+
+        if (core.getStorage() != null) {
+            UserPreference preferences = core.getStorage().getPreferences(receiver.getUniqueId());
+            save(preferences);
+        }
+
+        applySkin();
+    }
+
+    @Override
+    protected boolean isConnected() {
+        return receiver.isOnline();
+    }
+
+    @Override
+    protected void applyInstantUpdate() {
+        plugin.getApi().applySkin(receiver, targetSkin);
+
+        sendUpdate();
+        plugin.sendMessage(invoker, "skin-changed");
+    }
+
+    @Override
+    protected void sendMessage(String key) {
+        plugin.sendMessage(invoker, key);
+    }
+
+    @Override
+    protected void runAsync(Runnable runnable) {
+        Task.builder().async()
+                .execute(runnable)
+                .submit(plugin);
+    }
+
+    private void sendUpdate() {
+        sendUpdateSelf();
+
+        //triggers an update for others player to see the new skin
+        receiver.offer(Keys.VANISH, true);
+        receiver.offer(Keys.VANISH, false);
+    }
+
+    private void sendUpdateSelf() {
+        receiver.getTabList().removeEntry(receiver.getUniqueId());
+        receiver.getTabList().addEntry(TabListEntry.builder()
+                .displayName(receiver.getDisplayNameData().displayName().get())
+                .latency(receiver.getConnection().getLatency())
+                .list(receiver.getTabList())
+                .gameMode(receiver.getGameModeData().type().get())
+                .profile(receiver.getProfile())
+                .build());
+
+        Location<World> oldLocation = receiver.getLocation();
+        Vector3d rotation = receiver.getRotation();
+        World receiverWorld = receiver.getWorld();
+        Sponge.getServer().getWorlds()
+                .stream()
+                .filter(world -> !world.equals(receiverWorld))
+                .findFirst()
+                .ifPresent(world -> {
+                    receiver.setLocation(world.getSpawnLocation());
+                    receiver.setLocationAndRotation(oldLocation, rotation);
+                });
+    }
+}
+
+```
+the error is triggered in the following specific lines in the previous code:
+
+```java
+import org.spongepowered.api.data.key.Keys;
+```
+```java
+public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
+```
+```java
+private final CommandSource invoker;
+```
+```java
+import org.spongepowered.api.command.CommandSource;
+```
+```java
+import com.flowpowered.math.vector.Vector3d;
+```
+
+
+
+ with the following error information:
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinApplier.java:[13,38] package org.spongepowered.api.data.key does not exist
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinApplier.java:[26,49] cannot find symbol
+  symbol:   class CommandSource
+  location: class com.github.games647.changeskin.sponge.task.SkinApplier
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinApplier.java:[23,19] cannot find symbol
+  symbol:   class CommandSource
+  location: class com.github.games647.changeskin.sponge.task.SkinApplier
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinApplier.java:[12,37] cannot find symbol
+  symbol:   class CommandSource
+  location: package org.spongepowered.api.command
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinApplier.java:[3,35] package com.flowpowered.math.vector does not exist
+
+
+The error is caused by a change in the API of the dependency. The new library version includes the following changes:
+     Class org.spongepowered.api.data.key.Keys has been removed in the new version of the dependency.
+     Class org.spongepowered.api.command.CommandSource has been removed in the new version of the dependency.
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Oxverride annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

@@ -1,0 +1,110 @@
+<code_analysis>
+1. Examine the error message:
+   - The error indicates that the classes `HexOf` and `BytesOf` from the `org.cactoos.text` and `org.cactoos.io` packages cannot be found.
+   - This suggests that the `cactoos` dependency is either missing or has been updated to a version where these classes are no longer available or have been moved.
+
+2. Review the client code:
+   - The problematic lines are in the `subscribeActual` method where `HexOf` and `BytesOf` are used to convert the digest to a hexadecimal string.
+   - The code relies on these classes to perform the conversion, but they are not available in the current classpath.
+
+3. Consider potential fixes:
+   - Replace the usage of `HexOf` and `BytesOf` with standard Java libraries that provide similar functionality.
+   - Use `java.util.HexFormat` or `java.nio.charset.StandardCharsets` for hexadecimal conversion.
+   - Ensure that the fix maintains the same functionality without introducing new dependencies.
+
+4. Plan the necessary changes:
+   - Replace `new HexOf(new BytesOf(sha.digest())).asString()` with a standard Java method to convert the byte array to a hexadecimal string.
+   - Update the imports to remove the `org.cactoos.text` and `org.cactoos.io` packages.
+   - Ensure the `Digest.Sha256` constructor still receives the correct hexadecimal string.
+</code_analysis>
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker.misc;
+
+import com.artipie.asto.Remaining;
+import com.artipie.asto.ext.Digests;
+import com.artipie.docker.Digest;
+import io.reactivex.Flowable;
+import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+
+/**
+ * {@link Flowable} that calculates digest of origin {@link Publisher} bytes when they pass by.
+ *
+ * @since 0.12
+ */
+public final class DigestedFlowable extends Flowable<ByteBuffer> {
+
+    /**
+     * Origin publisher.
+     */
+    private final Publisher<ByteBuffer> origin;
+
+    /**
+     * Calculated digest.
+     */
+    private final AtomicReference<Digest> dig;
+
+    /**
+     * Ctor.
+     *
+     * @param origin Origin publisher.
+     */
+    public DigestedFlowable(final Publisher<ByteBuffer> origin) {
+        this.dig = new AtomicReference<>();
+        this.origin = origin;
+    }
+
+    @Override
+    public void subscribeActual(final Subscriber<? super ByteBuffer> subscriber) {
+        final MessageDigest sha = Digests.SHA256.get();
+        Flowable.fromPublisher(this.origin).map(
+            buf -> {
+                sha.update(new Remaining(buf, true).bytes());
+                return buf;
+            }
+        ).doOnComplete(
+            () -> this.dig.set(
+                new Digest.Sha256(bytesToHex(sha.digest()))
+            )
+        ).subscribe(subscriber);
+    }
+
+    /**
+     * Calculated digest.
+     *
+     * @return Digest.
+     */
+    public Digest digest() {
+        return Objects.requireNonNull(this.dig.get(), "Digest is not yet calculated.");
+    }
+
+    /**
+     * Converts a byte array to a hexadecimal string.
+     *
+     * @param bytes The byte array to convert.
+     * @return The hexadecimal string representation of the byte array.
+     */
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : bytes) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+}
+```
+
+The fix replaces the `HexOf` and `BytesOf` classes with a custom method `bytesToHex` that converts a byte array to a hexadecimal string using standard Java libraries. This eliminates the dependency on the `cactoos` library and ensures the code compiles and functions correctly.

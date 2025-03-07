@@ -1,0 +1,44 @@
+Based on the error message and code analysis, the issue stems from a type incompatibility in the `registerHard` method where the `SortedMap<MOScope, ManagedObject>` from `server.getRegistry()` cannot be assigned to a `SortedMap<MOScope, ManagedObject<?>>`. This suggests that the dependency update has changed the generic type signature of `ManagedObject`.
+
+Here's the fixed version of the `SnmpmanAgent` class with the necessary changes:
+
+```java
+// Previous package and imports remain unchanged...
+
+public class SnmpmanAgent extends BaseAgent {
+
+    // Previous fields and methods remain unchanged...
+
+    /**
+     * Sets the private registry value of {@link DefaultMOServer} via reflection.
+     * FIXME
+     * If there is any possibility to avoid this, then replace!
+     *
+     * @param group {@link ManagedObject} to register.
+     */
+    private void registerHard(final MOGroup group) {
+        try {
+            final Field registry = server.getClass().getDeclaredField("registry");
+            registry.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            final SortedMap<MOScope, ManagedObject<?>> reg = (SortedMap<MOScope, ManagedObject<?>>) server.getRegistry();
+            DefaultMOContextScope contextScope = new DefaultMOContextScope(new OctetString(""), group.getScope());
+            reg.put(contextScope, group);
+            registry.set(server, reg);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            log.warn("could not set server registry", e);
+        }
+    }
+
+    // Rest of the class remains unchanged...
+}
+```
+
+The key changes made are:
+
+1. Added `@SuppressWarnings("unchecked")` annotation to suppress the unchecked cast warning
+2. Explicitly cast the result of `server.getRegistry()` to `SortedMap<MOScope, ManagedObject<?>>`
+
+This fix addresses the type incompatibility while maintaining the existing functionality. The rest of the class remains unchanged as it was not affected by this specific issue.
+
+The fix assumes that the newer version of the dependency has changed the generic type signature of `ManagedObject` to include a wildcard (`ManagedObject<?>`), which is a common change in library updates to improve type safety and flexibility. The cast is necessary to bridge the gap between the old and new type signatures while maintaining compatibility with the rest of the codebase.

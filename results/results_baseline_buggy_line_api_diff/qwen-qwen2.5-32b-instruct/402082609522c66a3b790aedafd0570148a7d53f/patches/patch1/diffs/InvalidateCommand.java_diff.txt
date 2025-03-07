@@ -1,0 +1,31 @@
+7a8
+> import org.spongepowered.api.command.Command;
+10,13c11
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+< import org.spongepowered.api.entity.living.player.Player;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+14a13
+> import org.spongepowered.api.util.Tuple;
+16c15
+< public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class InvalidateCommand implements Command {
+27c26
+<         if (!(src instanceof Player)) {
+---
+>         if (!(src instanceof CommandSource)) {
+32,33c31,32
+<         Player receiver = (Player) src;
+<         Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
+---
+>         CommandSource receiver = (CommandSource) src;
+>         Task.builder().execute(() -> new SkinInvalidator(plugin, (Player) receiver)).submit(plugin);
+38,39c37,38
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command.Builder build() {
+>         return Command.builder()

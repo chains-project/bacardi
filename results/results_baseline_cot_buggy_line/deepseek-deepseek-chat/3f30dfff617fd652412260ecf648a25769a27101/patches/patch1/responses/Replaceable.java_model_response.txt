@@ -1,0 +1,39 @@
+<code_analysis>
+1. Examine the error message:
+   - The error indicates that the package `javax.interceptor` does not exist, and the symbol `InterceptorBinding` cannot be found.
+   - The error occurs at line 5 (import statement) and line 13 (annotation usage).
+   - This suggests that the `javax.interceptor` package is no longer available or has been moved in the updated dependency version.
+
+2. Review the client code:
+   - The problematic areas are the import statement `import javax.interceptor.InterceptorBinding;` and the annotation `@InterceptorBinding`.
+   - The `@InterceptorBinding` annotation is used to mark the `Replaceable` annotation as an interceptor binding.
+
+3. Consider potential fixes:
+   - The `javax.interceptor` package might have been moved to `jakarta.interceptor` in newer versions of the Java EE or Jakarta EE specifications.
+   - The fix would involve updating the import statement to use the new package location.
+
+4. Plan the necessary changes to fix the issue:
+   - Replace `javax.interceptor.InterceptorBinding` with `jakarta.interceptor.InterceptorBinding`.
+   - Ensure that the `jakarta.interceptor` package is available in the project dependencies.
+</code_analysis>
+
+```java
+package de.hilling.junit.cdi.scope;
+
+import org.immutables.value.Value;
+
+import jakarta.interceptor.InterceptorBinding;
+import java.lang.annotation.*;
+
+/**
+ * Marker interface used internally by the {@link de.hilling.junit.cdi.scope.TestScopeExtension} to
+ * mark classes that can be mocked or replaced by other test beans.
+ */
+@Inherited
+@InterceptorBinding
+@Target({ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Value.Immutable
+public @interface Replaceable {
+}
+```

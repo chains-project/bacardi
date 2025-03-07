@@ -1,0 +1,184 @@
+<code_analysis>
+1. The error message indicates that the `TSerializer` constructor can throw a `TTransportException`, which is not being caught or declared to be thrown in the code. This is a checked exception that needs to be handled.
+
+2. The problematic line is:
+   ```java
+   private TSerializer serializer = new TSerializer();
+   ```
+   This initialization happens at the class level, where exceptions cannot be directly handled. The `TSerializer` constructor from Apache Thrift can throw a `TTransportException`.
+
+3. The fix should:
+   - Move the `TSerializer` initialization to a method where exceptions can be properly handled
+   - Add proper exception handling for `TTransportException`
+   - Initialize the serializer lazily when needed
+   - Maintain the existing functionality while adding the necessary error handling
+
+4. The proposed changes will:
+   - Convert the `serializer` field to be initialized lazily
+   - Add a method to initialize the serializer with proper exception handling
+   - Keep the rest of the class functionality intact
+   - Add appropriate error logging and metrics tracking for initialization failures
+</code_analysis>
+
+Here's the fixed class:
+
+```java
+/**
+ * Copyright 2019 Pinterest, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.pinterest.singer.loggingaudit.client;
+
+import com.pinterest.singer.loggingaudit.client.common.LoggingAuditClientMetrics;
+import com.pinterest.singer.loggingaudit.thrift.LoggingAuditHeaders;
+import com.pinterest.singer.loggingaudit.thrift.LoggingAuditEvent;
+import com.pinterest.singer.loggingaudit.thrift.LoggingAuditStage;
+import com.pinterest.singer.loggingaudit.thrift.configuration.KafkaSenderConfig;
+import com.pinterest.singer.metrics.OpenTsdbMetricConverter;
+import com.pinterest.singer.utils.CommonUtils;
+
+import org.apache.kafka.clients.producer.Callback;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.common.PartitionInfo;
+import org.apache.thrift.TException;
+import org.apache.thrift.TSerializer;
+import org.apache.thrift.transport.TTransportException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+public class AuditEventKafkaSender implements LoggingAuditEventSender {
+
+  private static final Logger LOG = LoggerFactory.getLogger(AuditEventKafkaSender.class);
+
+  private static final int MAX_RETRIES_FOR_SELECTION_RANDOM_PARTITION = 10;
+  private static final int PARTITIONS_REFRESH_INTERVAL_IN_SECONDS = 30;
+  private static final int NUM_OF_PARTITIONS_TO_TRY_SENDING = 3;
+  private static final int DEQUEUE_WAIT_IN_SECONDS = 30;
+  private static final int THREAD_SLEEP_IN_SECONDS = 10;
+
+  private int stopGracePeriodInSeconds = 300;
+  private final LoggingAuditStage stage;
+  private final String host;
+  private final LinkedBlockingDeque<LoggingAuditEvent> queue;
+  private KafkaProducer<byte[], byte[]> kafkaProducer;
+  private TSerializer serializer;
+  private AtomicBoolean cancelled = new AtomicBoolean(false);
+  private String topic;
+  private String name;
+  private Thread thread;
+  private List<PartitionInfo> partitionInfoList = new ArrayList<>();
+  private long lastTimeUpdate = -1;
+  private Set<Integer> badPartitions = ConcurrentHashMap.newKeySet();
+  private Map<LoggingAuditHeaders, Integer> eventTriedCount = new ConcurrentHashMap<>();
+  private int currentPartitionId = -1;
+
+  public AuditEventKafkaSender(KafkaSenderConfig config,
+                             LinkedBlockingDeque<LoggingAuditEvent> queue,
+                             LoggingAuditStage stage, String host, String name) {
+    this.topic = config.getTopic();
+    this.queue = queue;
+    this.stage = stage;
+    this.host = host;
+    this.name = name;
+    this.stopGracePeriodInSeconds = config.getStopGracePeriodInSeconds();
+    this.badPartitions.add(-1);
+  }
+
+  private synchronized void initializeSerializer() {
+    if (serializer == null) {
+      try {
+        serializer = new TSerializer();
+      } catch (TTransportException e) {
+        LOG.error("Failed to initialize TSerializer", e);
+        OpenTsdbMetricConverter.incr(
+            LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_SERIALIZATION_EXCEPTION, 1,
+            "host=" + host, "stage=" + stage.toString());
+      }
+    }
+  }
+
+  @Override
+  public void run() {
+    LoggingAuditEvent event = null;
+    ProducerRecord<byte[], byte[]> record;
+    byte[] value = null;
+
+    while (!cancelled.get()) {
+      try {
+        refreshPartitionIfNeeded();
+        if (currentPartitionId == -1){
+          Thread.sleep(100);
+          continue;
+        }
+        event = queue.poll(DEQUEUE_WAIT_IN_SECONDS, TimeUnit.SECONDS);
+        if (event != null) {
+          try {
+            initializeSerializer();
+            if (serializer != null) {
+              value = serializer.serialize(event);
+              record = new ProducerRecord<>(this.topic, currentPartitionId , null, value);
+              kafkaProducer.send(record, new KafkaProducerCallback(event, currentPartitionId));
+            }
+          } catch (TException e) {
+            LOG.debug("[{}] failed to construct ProducerRecord because of serialization exception.",
+                Thread.currentThread().getName(), e);
+            OpenTsdbMetricConverter
+                .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_SERIALIZATION_EXCEPTION, 1,
+                    "host=" + host, "stage=" + stage.toString(),
+                    "logName=" + event.getLoggingAuditHeaders().getLogName());
+            eventTriedCount.remove(event.getLoggingAuditHeaders());
+          }
+        }
+      } catch (InterruptedException e) {
+        LOG.warn("[{}] got interrupted when polling the queue and while loop is ended!",
+            Thread.currentThread().getName(), e);
+        OpenTsdbMetricConverter.incr(
+            LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_DEQUEUE_INTERRUPTED_EXCEPTION, 1,
+                "host=" + host, "stage=" + stage.toString());
+        break;
+      } catch (Exception e) {
+        LOG.warn("Exit the while loop and finish the thread execution due to exception: ", e);
+        OpenTsdbMetricConverter.incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_EXCEPTION, 1,
+            "host=" + host, "stage=" + stage.toString());
+        break;
+      }
+    }
+  }
+
+  // ... (rest of the class remains unchanged)
+}
+```
+
+The main changes made to fix the issue are:
+
+1. Removed the direct initialization of `TSerializer` at the class level
+2. Added a new `initializeSerializer()` method that handles the `TTransportException`
+3. Made the `serializer` field lazy-initialized
+4. Added proper error logging and metrics tracking for serializer initialization failures
+5. Modified the `run()` method to use the new initialization method
+
+The rest of the class remains unchanged as it was not affected by this specific issue. The fix ensures that the `TTransportException` is properly handled while maintaining the original functionality of the class.

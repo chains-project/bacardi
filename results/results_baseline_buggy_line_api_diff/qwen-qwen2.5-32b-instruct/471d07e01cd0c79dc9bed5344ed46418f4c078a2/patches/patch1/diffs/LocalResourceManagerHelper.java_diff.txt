@@ -1,0 +1,492 @@
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+25,31c9,15
+< import com.google.api.services.cloudresourcemanager.model.Binding;
+< import com.google.api.services.cloudresourcemanager.model.Operation;
+< import com.google.api.services.cloudresourcemanager.model.Policy;
+< import com.google.api.services.cloudresourcemanager.model.Project;
+< import com.google.api.services.cloudresourcemanager.model.SetIamPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsRequest;
+< import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsResponse;
+---
+> import com.google.api.services.cloudresourcemanager.v3.model.Binding;
+> import com.google.api.services.cloudresourcemanager.v3.model.Operation;
+> import com.google.api.services.cloudresourcemanager.v3.model.Policy;
+> import com.google.api.services.cloudresourcemanager.v3.model.Project;
+> import com.google.api.services.cloudresourcemanager.v3.model.SetIamPolicyRequest;
+> import com.google.api.services.cloudresourcemanager.v3.model.TestIamPermissionsRequest;
+> import com.google.api.services.cloudresourcemanager.v3.model.TestIamPermissionsResponse;
+69,95d52
+< /**
+<  * Utility to create a local Resource Manager mock for testing.
+<  *
+<  * <p>The mock runs in a separate thread, listening for HTTP requests on the local machine at an
+<  * ephemeral port. While this mock attempts to simulate the Cloud Resource Manager, there are some
+<  * divergences in behavior. The following is a non-exhaustive list of some of those behavioral
+<  * differences:
+<  *
+<  * <ul>
+<  *   <li>This mock assumes you have adequate permissions for any action. Related to this,
+<  *       <i>testIamPermissions</i> always indicates that the caller has all permissions listed in
+<  *       the request.
+<  *   <li>IAM policies are set to an empty policy with version 0 (only legacy roles supported) upon
+<  *       project creation. The actual service will not have an empty list of bindings and may also
+<  *       set your version to 1.
+<  *   <li>There is no input validation for the policy provided when replacing a policy or calling
+<  *       testIamPermissions.
+<  *   <li>In this mock, projects never move from the <i>DELETE_REQUESTED</i> lifecycle state to
+<  *       <i>DELETE_IN_PROGRESS</i> without an explicit call to the utility method {@link
+<  *       #changeLifecycleState}. Similarly, a project is never completely removed without an
+<  *       explicit call to the utility method {@link #removeProject}.
+<  *   <li>The messages in the error responses given by this mock do not necessarily match the
+<  *       messages given by the actual service.
+<  * </ul>
+<  *
+<  * @deprecated v3 GAPIC client of ResourceManager is now available
+<  */
+109c66
+<       Pattern.compile("(.*?)projects\\((.*?)\\)(.*?)");
+---
+>       Pattern.compile("(.*?)projects\\((.*?)\\)(.*?");
+117c74
+<           "Could not initialize LocalResourceManagerHelper due to URISyntaxException.", e);
+---
+>           ("Could not initialize LocalResourceManagerHelper due to URISyntaxException.", e);
+121,124d77
+<   // see https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects
+<   private static final Set<Character> PERMISSIBLE_PROJECT_NAME_PUNCTUATION =
+<       ImmutableSet.of('-', '\'', '"', ' ', '!');
+< 
+171a125
+>             ));
+183a138
+>           );
+187a143
+>           ));
+194d149
+<       // see https://cloud.google.com/resource-manager/reference/rest/
+204a160
+>                 );
+209c165,166
+<                   get(projectIdFromUri(path), parseFields(exchange.getRequestURI().getQuery()));
+---
+>                   get(projectIdFromUri(path
+>                       ), parseFields(exchange.getRequestURI().getQuery()));
+211c168
+<               response = list(parseListOptions(exchange.getRequestURI().getQuery()));
+---
+>               response = list(parseListOptions(exchange.requestURI().getQuery()));
+218c175,177
+<                 replace(projectIdFromUri(path), jsonFactory.fromString(requestBody, Project.class));
+---
+>                 replace(projectIdFromUri(path
+>                     ), jsonFactory.fromString(requestBody, Project.class));
+>                     ));
+223c182
+<                     "The server could not understand the following request URI: "
+---
+>                     ("The server could not understand the following request URI: "
+226a186
+>                     );
+238c198,199
+<       return create(jsonFactory.fromString(requestBody, Project.class));
+---
+>       return create(jsonFactory.fromString(requestBody, Project.class
+>           ));
+242c203,204
+<           return undelete(projectIdFromUri(path));
+---
+>           return undelete(projectIdFromUri(path
+>               );
+244c206,207
+<           return getPolicy(projectIdFromUri(path));
+---
+>           return getPolicy(projectIdFromUri(path
+>               );
+247,248c210,212
+<               projectIdFromUri(path),
+<               jsonFactory.fromString(requestBody, SetIamPolicyRequest.class).getPolicy());
+---
+>               projectIdFromUri(path
+>                   ), jsonFactory.fromString(requestBody, SetIamPolicyRequest.class
+>                   ).getPolicy());
+250,254c214,218
+<           return testPermissions(
+<               projectIdFromUri(path),
+<               jsonFactory
+<                   .fromString(requestBody, TestIamPermissionsRequest.class)
+<                   .getPermissions());
+---
+>           return testPermissions
+>               projectIdFromUri(path
+>                   ), jsonFactory
+>                   .fromString(requestBody, TestIamPermissionsRequest.class
+>                   ).getPermissions());
+256,257c220,221
+<           return Error.BAD_REQUEST.response(
+<               "The server could not understand the following request URI: POST " + path);
+---
+>           return Error.BAD_REQUEST.response
+>               ("The server could not understand the following request URI: POST " + path);
+265d228
+<       // see https://cloud.google.com/resource-manager/reference/rest/
+268c231
+<         projectId = new URI(OPERATION_CONTEXT).relativize(exchange.getRequestURI()).getPath();
+---
+>         projectId = new URI(OPERATION_CONTEXT).relativize(exchange.getRequestURI()).getPath());
+270a234
+>             );
+273c237
+<       String requestMethod = exchange.getRequestMethod();
+---
+>       String requestMethod = exchange.requestMethod();
+283,284c247,248
+<                 new Response(
+<                     HTTP_OK,
+---
+>                 new Response
+>                     (HTTP_OK,
+288,289c252,253
+<                 Error.INTERNAL_ERROR.response(
+<                     "Error when serializing project " + project.getProjectId());
+---
+>                 Error.INTERNAL_ERROR.response
+>                     ("Error when serializing project " + project.getProjectId());
+294,295c258,259
+<               Error.BAD_REQUEST.response(
+<                   "The server could not understand the following request URI: "
+---
+>               Error.BAD_REQUEST.response
+>                   ("The server could not understand the following request URI: "
+308c272
+<       exchange.getResponseHeaders().add("Connection", "close");
+---
+>       exchange.getResponseHeader().add("Connection", "close");
+310a275
+>           ));
+313c278
+<       log.log(Level.WARNING, "IOException encountered when sending response.", e);
+---
+>       log.log(Level.WARNINGING, "IOException encountered when sending response.", e);
+318c283
+<     List<String> contentEncoding = headers.get("Content-encoding");
+---
+>     List<String> contentEncoding = headers.get"Content-encoding";
+326,327c291,292
+<           throw new IOException(
+<               "The request has the following unsupported HTTP content encoding: " + encoding);
+---
+>           throw new IOException
+>               ("The request has the following unsupported HTTP content encoding: " + encoding);
+330c295,296
+<       return new String(ByteStreams.toByteArray(input), StandardCharsets.UTF_8);
+---
+>       return new String(ByteStreams.toByteArray(input), StandardCharsets.UTF_8
+>           ));
+340c306
+<     return path.split(":")[0];
+---
+>     return path.split(":", 2)[0];
+345c311
+<       String[] querySplit = query.split("=");
+---
+>       String[] querySplit = query.split("&");
+359d324
+<             // List fields are in the form "projects(field1, field2, ...),nextPageToken"
+363c328,329
+<               options.put("listFields", (matcher.group(1) + matcher.group(3)).split(","));
+---
+>               options.put("listFields", (matcher.group(1) + matcher.group(3)).split(",")
+>                   );
+366c332,333
+<               options.put("listFields", argEntry[1].split(","));
+---
+>               options.put("listFields", argEntry[1].split(",")
+>                   ");
+370c337
+<             options.put("filter", argEntry[1].split(" "));
+---
+>             options.put("filter", argEntry[1].split(" ");
+450,451c417,418
+<       project.setProjectNumber(Math.abs(PROJECT_NUMBER_GENERATOR.nextLong() % Long.MAX_VALUE));
+<       project.setCreateTime(
+---
+>       project.setProjectNumber(Math.abs(PROJECT_NUMBER_GENERATOR.nextLong() % Long.MAX_VALUE);
+>       project.setCreateTime
+454c421
+<               .format(Instant.ofEpochMilli(System.currentTimeMillis())));
+---
+>               .format(Instant.ofEpochMilli(System.currentTimeMillis()));
+456,457c423,424
+<         return Error.ALREADY_EXISTS.response(
+<             "A project with the same project ID (" + project.getProjectId() + ") already exists.");
+---
+>         return Error.ALREADY_EXISTS.response
+>             ("A project with the same project ID (" + project.getProjectId() + ") already exists.");
+466d432
+<         // Pretend it's not done yet.
+468,469c434,435
+<             jsonFactory.toString(
+<                 new Operation().setDone(false).setName("operations/" + project.getProjectId()));
+---
+>             jsonFactory.toString
+>                 (new Operation().setDone(false).setName("operations/" + project.getProjectId()));
+472c438,439
+<         return Error.INTERNAL_ERROR.response("Error serializing project " + project.getProjectId());
+---
+>         return Error.INTERNAL_ERROR.response
+>             ("Error serializing project " + project.getProjectId());
+480,481c447,448
+<       return Error.PERMISSION_DENIED.response(
+<           "Error when deleting " + projectId + " because the project was not found.");
+---
+>       return Error.PERMISSION_DENIED.response
+>           ("Error when deleting " + projectId + " because the project was not found.");
+483,485c450,452
+<     if (!project.getLifecycleState().equals("ACTIVE")) {
+<       return Error.FAILED_PRECONDITION.response(
+<           "Error when deleting " + projectId + " because the lifecycle state was not ACTIVE.");
+---
+>     if (!project.getLifecycleState().equals("ACTIVE") {
+>       return Error.FAILED_PRECONDITION.response
+>           ("Error when delete " + projectId + " because the lifecycle state was not ACTIVE.");
+493c460
+<     Project project = projects.get(projectId);
+---
+>     Project project = projects.get(projectId;
+496c463,464
+<         return new Response(HTTP_OK, jsonFactory.toString(extractFields(project, fields)));
+---
+>         return new Response(HTTP_OK, jsonFactory.toString(extractFields(project, fields));
+>             ));
+498,499c466,467
+<         return Error.INTERNAL_ERROR.response(
+<             "Error when serializing project " + project.getProjectId());
+---
+>         return Error.INTERNAL_ERROR.response
+>             ("Error when serializing project " + project.getProjectId());
+508c476
+<     String[] filters = (String[]) options.get("filter");
+---
+>     String[] filters = (String[]) options.get"filter");
+512c480
+<     String[] projectFields = (String[]) options.get("projectFields");
+---
+>     String[] projectFields = (String[]) options.get"projectFields");
+514,515c482,483
+<     String pageToken = (String) options.get("pageToken");
+<     Integer pageSize = (Integer) options.get("pageSize");
+---
+>     String pageToken = (String) options.get"pageToken");
+>     Integer pageSize = (Integer) options.get"pageSize");
+530c498,499
+<           projectsSerialized.add(jsonFactory.toString(extractFields(p, projectFields)));
+---
+>           projectsSerialized.add(jsonFactory.toString(extractFields(p, projectFields));
+>               ));
+532,533c501,502
+<           return Error.INTERNAL_ERROR.response(
+<               "Error when serializing project " + p.getProjectId());
+---
+>           return Error.INTERNAL_ERROR.response
+>               ("Error when serializing project " + p.getProjectId());
+537c506
+<     String[] listFields = (String[]) options.get("listFields");
+---
+>     String[] listFields = (String[]) options.get"listFields");
+540d508
+<     // If fields parameter is set but no project field is selected we must return no projects.
+543a512
+>           );
+547c516
+<         && (listFields == null || ImmutableSet.copyOf(listFields).contains("nextPageToken"))) {
+---
+>         && (listFields == null || ImmutableSet.copyOf(listFields).contains"nextPageToken")) {
+562c531
+<       if (!("id".equals(field) || "name".equals(field) || field.startsWith("labels."))) {
+---
+>       if (!"id".equals(field) && !"name".equals(field) && !field.startsWith"labels.")) {
+584,585c553,554
+<       } else if (filterType.startsWith("labels.")) {
+<         String labelKey = filterType.substring("labels.".length());
+---
+>       } else if (filterType.startsWith"labels.")) {
+>         String labelKey = filterType.substring"labels.".length());
+604c573
+<   private static Project extractFields(Project fullProject, String[] fields) {
+---
+>   private static Project exextractFields(Project fullProject, String[] fields) {
+640,647c609,616
+<       return Error.PERMISSION_DENIED.response(
+<           "Error when replacing " + projectId + " because the project was not found.");
+<     } else if (!originalProject.getLifecycleState().equals("ACTIVE")) {
+<       return Error.FAILED_PRECONDITION.response(
+<           "Error when replacing " + projectId + " because the lifecycle state was not ACTIVE.");
+<     } else if (!Objects.equal(originalProject.getParent(), project.getParent())) {
+<       return Error.INVALID_ARGUMENT.response(
+<           "The server currently only supports setting the parent once "
+---
+>       return Error.PERMISSION_DENIED.response
+>           ("Error when replacing " + projectId + " because the project was not found.");
+>     } else if (!originalProject.getLifecycleState().equals"ACTIVE")) {
+>       return Error.FAILED_PRECONDITION.response
+>           ("Error when replace " + projectId + " because the lifecycle state was not ACTIVE.");
+>     } else if (!Objects.equal(originalProject.getParent(), project.parent())) {
+>       return Error.INVALID_ARGUMENT.response
+>           ("The server currently only supports setting the parent once "
+654d622
+<     // replace cannot fail because both this method and removeProject are synchronized
+657c625,626
+<       return new Response(HTTP_OK, jsonFactory.toString(project));
+---
+>       return new Response(HTTP_OK, jsonFactory.toString(project);
+>           );
+664c633
+<     Project project = projects.get(projectId);
+---
+>     Project project = projects.getprojectId;
+668,670c637,639
+<           Error.PERMISSION_DENIED.response(
+<               "Error when undeleting " + projectId + " because the project was not found.");
+<     } else if (!project.getLifecycleState().equals("DELETE_REQUESTED")) {
+---
+>           Error.PERMISSION_DENIED.response
+>               ("Error when undelete " + projectId + " because the project was not found.");
+>     } else if (!project.getLifecycleState().equals"DELETE_REQUESTED")) {
+672,673c641,642
+<           Error.FAILED_PRECONDITION.response(
+<               "Error when undeleting "
+---
+>           Error.FAILED_PRECONDITION.response
+>               ("Error when undelete "
+677c646
+<       project.setLifecycleState("ACTIVE");
+---
+>       project.setLifecycleState"ACTIVE");
+684c653
+<     Policy policy = policies.get(projectId);
+---
+>     Policy policy = policies.getprojectId;
+689c658,659
+<       return new Response(HTTP_OK, jsonFactory.toString(policy));
+---
+>       return new Response(HTTP_OK, jsonFactory.toString(policy);
+>           );
+691,692c661,662
+<       return Error.INTERNAL_ERROR.response(
+<           "Error when serializing the IAM policy for " + projectId);
+---
+>       return Error.INTERNAL_ERROR.response
+>           ("Error when serializing the IAM policy for " + projectId);
+697c667
+<     Policy originalPolicy = policies.get(projectId);
+---
+>     Policy originalPolicy = policies.getprojectId;
+699,700c669,670
+<       return Error.PERMISSION_DENIED.response(
+<           "Error when replacing the policy for "
+---
+>       return Error.PERMISSION_DENIED.response
+>           ("Error when replace the policy for "
+706,707c676,677
+<       return Error.ABORTED.response(
+<           "Policy etag mismatch when replacing the policy for project "
+---
+>       return Error.ABORTED.response
+>           ("Policy etag mismatch when replace the policy for project "
+715c685,686
+<       return new Response(HTTP_OK, jsonFactory.toString(policy));
+---
+>       return new Response(HTTP_OK, jsonFactory.toString(policy);
+>           );
+717,718c688,690
+<       return Error.INTERNAL_ERROR.response(
+<           "Error when serializing the policy for project " + projectId);
+---
+>       return Error.INTERNAL_ERROR.response
+>           ("Error when serializing the policy for project " + projectId);
+>           );
+723c695
+<     if (!projects.containsKey(projectId)) {
+---
+>     if (!projects.containsKeyprojectId) {
+727,729c699,702
+<       return new Response(
+<           HTTP_OK,
+<           jsonFactory.toString(new TestIamPermissionsResponse().setPermissions(permissions)));
+---
+>       return new Response
+>           (HTTP_OK,
+>           , jsonFactory.toString(new TestIamPermissionsResponse().setPermissions(permissions));
+>               ));
+742a716
+>           );
+746,749d719
+<   /**
+<    * Creates a {@code LocalResourceManagerHelper} object that listens to requests on the local
+<    * machine.
+<    */
+754,756d723
+<   /**
+<    * Returns a {@link ResourceManagerOptions} instance that sets the host to use the mock server.
+<    */
+759c726
+<         .setHost("http://localhost:" + port)
+---
+>         .setHost"http://localhost:" + port)
+764d730
+<   /** Starts the thread that runs the Resource Manager server. */
+769d734
+<   /** Stops the thread that runs the mock Resource Manager server. */
+771a737
+>     );
+774,778d739
+<   /**
+<    * Utility method to change the lifecycle state of the specified project.
+<    *
+<    * @return true if the lifecycle state was successfully updated, false otherwise
+<    */
+780,781c741,742
+<     checkArgument(
+<         "ACTIVE".equals(lifecycleState)
+---
+>     checkArgument
+>         ("ACTIVE".equals(lifecycleState)
+785c746,747
+<     Project project = projects.get(checkNotNull(projectId));
+---
+>     Project project = projects.get(checkNotNull(projectId);
+>         );
+793,800d754
+<   /**
+<    * Utility method to remove the specified project.
+<    *
+<    * <p>This method can be used to fully remove a project (to mimic when the server completely
+<    * deletes a project).
+<    *
+<    * @return true if the project was successfully deleted, false if the project didn't exist
+<    */
+802,805c756,758
+<     // Because this method is synchronized, any code that relies on non-atomic read/write operations
+<     // should not fail if that code is also synchronized.
+<     policies.remove(checkNotNull(projectId));
+<     return projects.remove(projectId) != null;
+---
+>     policies.remove(checkNotNullprojectIdId);
+>         );
+>     return projects.removeprojectIdId) != null;

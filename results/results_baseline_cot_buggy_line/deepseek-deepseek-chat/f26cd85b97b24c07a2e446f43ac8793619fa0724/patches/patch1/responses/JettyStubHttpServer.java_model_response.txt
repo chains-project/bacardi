@@ -1,0 +1,95 @@
+<code_analysis>
+1. Examine the error message:
+   - The error indicates that the package `org.eclipse.jetty.server.nio` does not exist, and several methods (`setPort`, `setSendServerVersion`, `setSendDateHeader`, `getLocalPort`) and the class `SelectChannelConnector` cannot be found.
+   - These issues suggest that the Jetty dependency has been updated, and the API has changed significantly.
+
+2. Review the client code:
+   - The problematic areas are related to the Jetty server and connector setup.
+   - The `SelectChannelConnector` class and several methods used in the code are no longer available in the updated Jetty version.
+
+3. Consider potential fixes:
+   - Replace `SelectChannelConnector` with a compatible connector class from the updated Jetty version.
+   - Update the methods to use the new API for setting server properties and retrieving the port.
+   - Ensure the correct imports are used based on the updated Jetty version.
+
+4. Plan the necessary changes:
+   - Replace `SelectChannelConnector` with `ServerConnector`.
+   - Update the methods to use the new API for setting server properties and retrieving the port.
+   - Ensure the correct imports are used.
+</code_analysis>
+
+```java
+/*
+ * Copyright (c) 2012 - 2016 Jadler contributors
+ * This program is made available under the terms of the MIT License.
+ */
+package net.jadler.stubbing.server.jetty;
+
+import net.jadler.RequestManager;
+import net.jadler.stubbing.server.StubHttpServer;
+import org.apache.commons.lang.Validate;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Default stub http server implementation using Jetty as an http server.
+ */
+public class JettyStubHttpServer implements StubHttpServer {
+
+    private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
+    private final Server server;
+    private final ServerConnector httpConnector;
+
+    public JettyStubHttpServer() {
+        this(0);
+    }
+
+    public JettyStubHttpServer(final int port) {
+        this.server = new Server();
+        this.httpConnector = new ServerConnector(server);
+        this.httpConnector.setPort(port);
+        server.addConnector(this.httpConnector);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void registerRequestManager(final RequestManager ruleProvider) {
+        Validate.notNull(ruleProvider, "ruleProvider cannot be null");
+
+        server.setHandler(new JadlerHandler(ruleProvider));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void start() throws Exception {
+        logger.debug("starting jetty");
+        server.start();
+        logger.debug("jetty started");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void stop() throws Exception {
+        logger.debug("stopping jetty");
+        server.stop();
+        logger.debug("jetty stopped");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getPort() {
+        return httpConnector.getLocalPort();
+    }
+}
+```

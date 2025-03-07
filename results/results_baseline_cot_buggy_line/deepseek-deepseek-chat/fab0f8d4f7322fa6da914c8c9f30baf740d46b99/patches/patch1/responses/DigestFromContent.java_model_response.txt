@@ -1,0 +1,91 @@
+<code_analysis>
+1. Examine the error message:
+   - The error indicates that the classes `HexOf` and `BytesOf` from the `org.cactoos.text` and `org.cactoos.io` packages cannot be found.
+   - The issue occurs in the line where `Digest.Sha256` is being instantiated using `HexOf` and `BytesOf`.
+   - This suggests that the `cactoos` library is either missing or has been updated to a version where these classes are no longer available or have been moved.
+
+2. Review the client code:
+   - The problematic area is in the `digest()` method where `HexOf` and `BytesOf` are used to convert the digest to a hexadecimal string.
+   - The code relies on these classes to perform the conversion, but they are not available in the current classpath.
+
+3. Consider potential fixes:
+   - Replace the usage of `HexOf` and `BytesOf` with standard Java libraries that provide similar functionality.
+   - Use `java.util.HexFormat` or `java.nio.ByteBuffer` to handle the conversion from byte array to hexadecimal string.
+   - Ensure that the fix does not change the method signature or the overall functionality of the `digest()` method.
+
+4. Plan the necessary changes:
+   - Replace `HexOf` and `BytesOf` with `java.util.HexFormat` to convert the byte array to a hexadecimal string.
+   - Update the imports to remove the non-existent `org.cactoos` packages and add the necessary Java standard library imports.
+   - Ensure that the `Digest.Sha256` constructor still receives the correct hexadecimal string representation of the digest.
+</code_analysis>
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker.misc;
+
+import com.artipie.asto.Content;
+import com.artipie.docker.Digest;
+import hu.akarnokd.rxjava2.interop.SingleInterop;
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
+import java.util.concurrent.CompletionStage;
+
+/**
+ * Digest from content.
+ * @since 0.2
+ */
+public final class DigestFromContent {
+
+    /**
+     * Content.
+     */
+    private final Content content;
+
+    /**
+     * Ctor.
+     * @param content Content publisher
+     */
+    public DigestFromContent(final Content content) {
+        this.content = content;
+    }
+
+    /**
+     * Calculates digest from content.
+     * @return CompletionStage from digest
+     */
+    public CompletionStage<Digest> digest() {
+        final MessageDigest sha;
+        try {
+            sha = MessageDigest.getInstance("SHA-256");
+        } catch (final NoSuchAlgorithmException err) {
+            throw new IllegalStateException("This runtime doesn't have SHA-256 algorithm", err);
+        }
+        return Flowable.fromPublisher(this.content)
+            .flatMapCompletable(
+                buf -> Completable.fromAction(
+                    () -> {
+                        buf.mark();
+                        sha.update(buf);
+                        buf.reset();
+                    }
+                )
+            )
+            .<Digest>andThen(
+                Single.fromCallable(
+                    () -> new Digest.Sha256(HexFormat.of().formatHex(sha.digest()))
+                )
+            )
+            .to(SingleInterop.get()).toCompletableFuture();
+    }
+
+}
+```
+
+In this fix, I replaced the usage of `HexOf` and `BytesOf` with `java.util.HexFormat`, which is a standard Java utility for converting byte arrays to hexadecimal strings. This change ensures that the code compiles without relying on the `cactoos` library, which appears to be missing or incompatible in the current environment. The functionality remains the same, and the method signature is unchanged.

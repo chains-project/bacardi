@@ -1,0 +1,25 @@
+36,37d35
+< import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisConfiguration;
+< import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneGlobalConfiguration;
+39d36
+< import org.sonarsource.sonarlint.core.commons.RuleKey;
+46c43
+< import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader.Configuration;
+---
+> import org.sonarsource.sonarlint.core.plugin.commons.Configuration;
+67c64
+<     // The only instance of this singleton class
+---
+>     // The only instance of this class
+77c74
+<         this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, null);
+---
+>         this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, logOutput);
+163c160
+<                 .addEnabledLanguages(globalConfig.getEnabledLanguages())
+---
+>                 .addEnabledLanguages(globalConfig.getEnabledLanguages().toArray(new Language[0]))
+222c219
+<                                                                             i.getRuleKey()))),
+---
+>                                                                             i.getRuleKey())),

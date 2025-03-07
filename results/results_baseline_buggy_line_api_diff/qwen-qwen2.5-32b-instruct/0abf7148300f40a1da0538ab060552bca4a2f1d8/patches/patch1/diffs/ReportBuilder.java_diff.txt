@@ -1,0 +1,140 @@
+25d24
+< 
+34d32
+< import net.sf.jasperreports.engine.JRLineBox;
+55a54
+> import xdev.tableexport.export.ExportException;
+59d57
+< 
+75d72
+<         
+81d77
+<         
+91d86
+<         
+101d95
+<         
+121d114
+<         
+155,159d147
+<         
+<         /**
+<          * 
+<          * @return
+<          */
+162d149
+<                 
+169,171c156,157
+<                         final Font font = style.getFont();
+<                         lbl.setFont(font);
+<                         //get the normal height of the label
+---
+>                         final Font f = style.getFont();
+>                         lbl.setFont(f);
+173c159
+<                         //add the column border width
+---
+>                         //Add border width
+189d174
+<                 
+196,197c181,182
+<                         final Font font = style.getFont();
+<                         lbl.setFont(font);
+---
+>                         final Font f = style.getFont();
+>                         lbl.setFont(f);
+213d197
+<         
+238d221
+<         
+255d237
+<         
+295d276
+<                                         
+330,333d310
+<                         if(this.config.isBlankWhenNullValue())
+<                         {
+<                                 textField.setBlankWhenNull(true);
+<                         }
+353d329
+<                 
+360d335
+<         
+369c344
+<                 textField.getLineBox().getPen().setLineWidth(border.getLineWidth());
+---
+>                 textField.getLineBox().getPen().setLineWidth((float)border.getLineWidth()); // Cast to float
+379d353
+<                 
+386d359
+<         
+394d366
+<         
+397,398c369,421
+<          * Assemble and compile a {@link JasperReport} based on the information of
+<          * the {@link TemplateConfig} object.
+---
+>          * @return
+>          */
+>         private int calcMaxHeaderHeight()
+>         {
+>                 final JLabel lbl = new JLabel("a");
+>                 int maxHeight = 0;
+> 
+>                 for(final TemplateColumn col : this.config.getColumns())
+>                 {
+>                         final ColumnStyle style = col.getHeaderColumn().getStyle();
+>                         final Font f = style.getFont();
+>                         lbl.setFont(f);
+>                         int lblHeigh = (int)lbl.getPreferredSize().getHeight();
+>                         //Add border width
+>                         lblHeigh+= style.getColBorder().getLineWidth()*2;
+>                         //Add padding
+>                         lblHeigh+= style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
+> 
+>                         if(lblHeigh > maxHeight)
+>                         {
+>                                 maxHeight = lblHeigh;
+>                         }
+>                 }
+> 
+>                 return maxHeight;
+>         }
+> 
+>         private int calcMaxContentHeight()
+>         {
+>                 final JLabel lbl = new JLabel("a");
+>                 int maxHeight = 0;
+> 
+>                 for(final TemplateColumn col : this.config.getColumns())
+>                 {
+>                         final ColumnStyle style = col.getContentColumn().getStyle();
+>                         final Font f = style.getFont();
+>                         lbl.setFont(f);
+>                         int lblHeigh = (int)lbl.getPreferredSize().getHeight();
+>                         //Add border width
+>                         lblHeigh+= style.getColBorder().getLineWidth()*2;
+>                         //Add padding
+>                         lblHeigh+= style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
+> 
+>                         if(lblHeigh > maxHeight)
+>                         {
+>                                 maxHeight = lblHeigh;
+>                         }
+>                 }
+> 
+>                 return maxHeight;
+>         }
+> 
+>         /**
+400,401c423
+<          * @return the compiled {@link JasperReport}
+<          * @throws ExportException
+---
+>          * @return
+403c425
+<         public JasperReport assembleReport() throws ExportException
+---
+>         private JasperReport assembleReport() throws ExportException
+428d449
+<         

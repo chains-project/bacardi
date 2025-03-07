@@ -1,0 +1,15 @@
+20d19
+< import com.google.cloud.pubsublite.PublishMetadata;
+25d23
+< import com.google.cloud.pubsublite.internal.wire.PubsubContext.Framework;
+29c27,28
+< import org.apache.kafka.common.config.ConfigValue;
+---
+> import org.apache.kafka.connect.errors.ConnectException;
+> import org.apache.kafka.connect.sink.SinkRecord;
+36c35
+<   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
+---
+>   public Publisher<Void> newPublisher(Map<String, String> params) {
+53d51
+<                 .setContext(PubsubContext.of(FRAMEWORK))

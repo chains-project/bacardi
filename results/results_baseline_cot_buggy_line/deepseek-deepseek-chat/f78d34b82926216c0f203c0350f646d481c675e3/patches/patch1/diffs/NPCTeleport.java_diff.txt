@@ -1,0 +1,28 @@
+3d2
+< import develop.p2p.lib.*;
+260a260,284
+> 
+>     /**
+>      * Custom WaveCreator class to replace the missing dependency.
+>      */
+>     private static class WaveCreator {
+>         private final double min;
+>         private final double max;
+>         private final double amplitude;
+> 
+>         public WaveCreator(double min, double max, double amplitude) {
+>             this.min = min;
+>             this.max = max;
+>             this.amplitude = amplitude;
+>         }
+> 
+>         public double get(double step, boolean ascending) {
+>             double range = max - min;
+>             double value = min + (ascending ? step : range - step);
+>             return value + amplitude * Math.sin(step * Math.PI * 2);
+>         }
+> 
+>         public double getStatic() {
+>             return (min + max) / 2;
+>         }
+>     }

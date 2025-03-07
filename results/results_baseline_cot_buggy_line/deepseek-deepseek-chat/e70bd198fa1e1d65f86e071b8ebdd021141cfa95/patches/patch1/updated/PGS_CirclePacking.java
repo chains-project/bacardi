@@ -1,0 +1,125 @@
+package micycle.pgs;
+
+import static micycle.pgs.PGS_Conversion.fromPShape;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.SplittableRandom;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import org.locationtech.jts.algorithm.locate.IndexedPointInAreaLocator;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Location;
+import org.locationtech.jts.geom.prep.PreparedGeometry;
+import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
+import org.locationtech.jts.operation.distance.IndexedFacetDistance;
+import org.locationtech.jts.util.GeometricShapeFactory;
+import org.tinfour.common.IIncrementalTin;
+import org.tinfour.common.SimpleTriangle;
+import org.tinfour.common.Vertex;
+import org.tinspin.index.PointEntry;
+import org.tinspin.index.Query;
+import org.tinspin.index.covertree.CoverTree;
+
+import micycle.pgs.commons.FrontChainPacker;
+import micycle.pgs.commons.LargestEmptyCircles;
+import micycle.pgs.commons.RepulsionCirclePack;
+import micycle.pgs.commons.TangencyPack;
+import processing.core.PShape;
+import processing.core.PVector;
+
+public final class PGS_CirclePacking {
+
+    private PGS_CirclePacking() {
+    }
+
+    public static List<PVector> obstaclePack(PShape shape, Collection<PVector> pointObstacles, double areaCoverRatio) {
+        final Geometry geometry = fromPShape(shape);
+
+        LargestEmptyCircles lec = new LargestEmptyCircles(fromPShape(PGS_Conversion.toPointsPShape(pointObstacles)), geometry,
+                areaCoverRatio > 0.95 ? 0.5 : 1);
+
+        final double shapeArea = geometry.getArea();
+        double circlesArea = 0;
+        List<PVector> circles = new ArrayList<>();
+
+        while (circlesArea / shapeArea < areaCoverRatio) {
+            double[] currentLEC = lec.findNextLEC();
+            circles.add(new PVector((float) currentLEC[0], (float) currentLEC[1], (float) currentLEC[2]));
+            circlesArea += Math.PI * currentLEC[2] * currentLEC[2];
+            if (currentLEC[2] < 0.5) {
+                break;
+            }
+        }
+        return circles;
+    }
+
+    public static List<PVector> trinscribedPack(PShape shape, int points, int refinements) {
+        final List<PVector> steinerPoints = PGS_Processing.generateRandomPoints(shape, points);
+        final IIncrementalTin tin = PGS_Triangulation.delaunayTriangulationMesh(shape, steinerPoints, true, refinements, true);
+        return StreamSupport.stream(tin.triangles().spliterator(), false).filter(filterBorderTriangles).map(t -> inCircle(t))
+                .collect(Collectors.toList());
+    }
+
+    public static List<PVector> stochasticPack(final PShape shape, final int points, final double minRadius, boolean triangulatePoints) {
+        return stochasticPack(shape, points, minRadius, triangulatePoints, System.nanoTime());
+    }
+
+    public static List<PVector> stochasticPack(final PShape shape, final int points, final double minRadius, boolean triangulatePoints,
+            long seed) {
+
+        final CoverTree<PVector> tree = CoverTree.create(3, 2, circleDistanceMetric);
+        final List<PVector> out = new ArrayList<>();
+
+        List<PVector> steinerPoints = PGS_Processing.generateRandomPoints(shape, points, seed);
+        if (triangulatePoints) {
+            final IIncrementalTin tin = PGS_Triangulation.delaunayTriangulationMesh(shape, steinerPoints, true, 1, true);
+            steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false).filter(filterBorderTriangles)
+                    .map(PGS_CirclePacking::centroid).collect(Collectors.toList());
+        }
+
+        final List<PVector> vertices = PGS_Conversion.toPVector(shape);
+        Collections.shuffle(vertices);
+        vertices.forEach(p -> tree.insert(new double[] { p.x, p.y, 0 }, p));
+
+        float largestR = 0;
+
+        for (PVector p : steinerPoints) {
+            Query<PVector> query = tree.query(new double[] { p.x, p.y, largestR }, 1);
+            PointEntry<PVector> nn = query.next();
+            
+            final float dx = p.x - nn.value().x;
+            final float dy = p.y - nn.value().y;
+            final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z);
+            if (radius > minRadius) {
+                largestR = (radius >= largestR) ? radius : largestR;
+                p.z = radius;
+                tree.insert(new double[] { p.x, p.y, radius }, p);
+                out.add(p);
+            }
+        }
+        return out;
+    }
+
+    // ... (rest of the class remains unchanged, including all other methods and fields)
+
+    private static final Query.DistanceFunction circleDistanceMetric = (p1, p2) -> {
+        final double dx = p1[0] - p2[0];
+        final double dy = p1[1] - p2[1];
+        final double dz = p1[2] - p2[2];
+
+        double euclideanDistance = Math.sqrt(dx * dx + dy * dy);
+        double absZDifference = Math.abs(dz);
+        return euclideanDistance + absZDifference;
+    };
+
+    private static final Predicate<SimpleTriangle> filterBorderTriangles = t -> t.getContainingRegion() != null
+            && !t.getEdgeA().isConstrainedRegionBorder() && !t.getEdgeB().isConstrainedRegionBorder()
+            && !t.getEdgeC().isConstrainedRegionBorder();
+}

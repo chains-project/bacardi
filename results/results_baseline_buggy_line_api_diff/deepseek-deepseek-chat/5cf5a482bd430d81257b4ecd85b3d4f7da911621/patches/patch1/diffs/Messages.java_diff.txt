@@ -1,0 +1,44 @@
+1d0
+< 
+6,15c5,9
+< import javax.mvc.MvcContext;
+< //https://www.mvc-spec.org/learn/cookbook/multilang_en.html
+< /**
+<  * Provides I18n messages for the UI per request. To get the correct locale, the method {@link MvcContext#getLocale()}
+<  * is used. This method uses the built-in {@link javax.mvc.locale.LocaleResolver} of the used MVC Implementation.
+<  *
+<  * @author Tobias Erdle
+<  * @see MvcContext#getLocale()
+<  * @see javax.mvc.locale.LocaleResolver
+<  */
+---
+> import javax.mvc.locale.LocaleResolver;
+> import javax.mvc.locale.LocaleResolverContext;
+> import javax.ws.rs.core.Configuration;
+> import javax.ws.rs.core.Context;
+> 
+23c17,20
+<     private MvcContext mvcContext;
+---
+>     private LocaleResolver localeResolver;
+> 
+>     @Context
+>     private Configuration configuration;
+25,31d21
+<     /**
+<      * Get the assigned message to some key based on the {@link java.util.Locale} of the current request.
+<      *
+<      * @param key the message key to use
+<      * @return the correct translation assigned to the key for the request locale, a fallback translation or a
+<      * placeholder for unknown keys.
+<      */
+33c23,29
+<         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
+---
+>         LocaleResolverContext context = new LocaleResolverContext() {
+>             @Override
+>             public Configuration getConfiguration() {
+>                 return configuration;
+>             }
+>         };
+>         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, localeResolver.resolveLocale(context));

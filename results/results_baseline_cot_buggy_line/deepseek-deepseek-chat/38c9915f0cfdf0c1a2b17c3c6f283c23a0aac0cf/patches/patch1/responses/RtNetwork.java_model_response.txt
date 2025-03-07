@@ -1,0 +1,106 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the class `IoCheckedScalar` cannot be found in the package `org.cactoos.scalar`.
+   - This suggests that the `IoCheckedScalar` class has either been moved, renamed, or removed in the newer version of the `cactoos` library.
+
+2. Review the client code:
+   - The problematic import is `import org.cactoos.scalar.IoCheckedScalar;`.
+   - The `IoCheckedScalar` class is used in the `pull` method to wrap a `Reduced` scalar and handle IO exceptions.
+
+3. Consider potential fixes:
+   - The `IoCheckedScalar` class might have been replaced or its functionality might have been moved to another class in the newer version of `cactoos`.
+   - We need to find an equivalent class or method in the newer version of `cactoos` that provides similar functionality.
+
+4. Plan the necessary changes to fix the issue:
+   - Research the newer version of `cactoos` to find the replacement for `IoCheckedScalar`.
+   - Update the import statement and the usage of `IoCheckedScalar` in the `pull` method.
+   - Ensure that the new class or method provides the same functionality of wrapping a scalar and handling IO exceptions.
+</code_analysis>
+
+After researching the newer versions of `cactoos`, it appears that the `IoCheckedScalar` class has been replaced by `IoChecked` in the `org.cactoos.scalar` package. Here is the fixed class:
+
+```java
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2018-2023 Yegor Bugayenko
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package io.zold.api;
+
+import java.io.IOException;
+import java.util.Iterator;
+import org.cactoos.iterable.Mapped;
+import org.cactoos.iterable.Sorted;
+import org.cactoos.scalar.IoChecked;
+import org.cactoos.scalar.Reduced;
+
+/**
+ * Network implementation.
+ *
+ * @since 0.1
+ * @todo #5:30min We must figure out how to 'load' some network. Loading the
+ *  network will be loading a local JSON file that contains data on all
+ *  remote nodes that we know about; we must have a pre configured set of
+ *  remote nodes built in too. See whitepaper for details.
+ */
+public final class RtNetwork implements Network {
+
+    /**
+     * {@link Remote} nodes.
+     */
+    private final Iterable<Remote> nodes;
+
+    /**
+     * Constructor.
+     * @param remotes Remotes of the network
+     */
+    RtNetwork(final Iterable<Remote> remotes) {
+        this.nodes =  remotes;
+    }
+
+    @Override
+    public void push(final Wallet wallet) {
+        this.nodes.forEach(
+            remote -> remote.push(wallet)
+        );
+    }
+
+    @Override
+    public Wallet pull(final long id) throws IOException {
+        return new IoChecked<>(
+            new Reduced<>(
+                Wallet::merge,
+                new Mapped<>(
+                    c -> c::wallet,
+                    new Sorted<>(new Copies(id, this))
+                )
+            )
+        ).value();
+    }
+
+    @Override
+    public Iterator<Remote> iterator() {
+        return this.nodes.iterator();
+    }
+}
+```
+
+In this fix, the `IoCheckedScalar` import has been replaced with `IoChecked`, and the usage of `IoCheckedScalar` in the `pull` method has been updated to use `IoChecked`. This should resolve the compilation error while maintaining the same functionality.

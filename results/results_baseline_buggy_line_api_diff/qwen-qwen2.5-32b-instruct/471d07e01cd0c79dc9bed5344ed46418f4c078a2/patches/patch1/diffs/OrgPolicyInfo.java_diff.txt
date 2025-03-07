@@ -1,0 +1,128 @@
+1,15d0
+< /*
+<  * Copyright 2020 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+18,21c3,5
+< import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+< import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+---
+> import com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy;
+> import com.google.api.services.cloudresourcemanager.v3.model.Policy;
+> import com.google.api.services.cloudresourcemanager.v3.model.RestoreDefault;
+38,39c22,24
+<   static final Function<OrgPolicy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
+<       new Function<OrgPolicy, OrgPolicyInfo>() {
+---
+> {
+>   static final Function<Policy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
+>       new Function<Policy, OrgPolicyInfo>() {
+41c26
+<         public OrgPolicyInfo apply(OrgPolicy protobuf) {
+---
+>         public OrgPolicyInfo apply(Policy protobuf) {
+45,46c30,31
+<   static final Function<OrgPolicyInfo, OrgPolicy> TO_PROTOBUF_FUNCTION =
+<       new Function<OrgPolicyInfo, OrgPolicy>() {
+---
+>   static final Function<OrgPolicyInfo, Policy> TO_PROTOBUF_FUNCTION =
+>       new Function<OrgPolicyInfo, Policy>() {
+48c33
+<         public OrgPolicy apply(OrgPolicyInfo orgPolicyInfo) {
+---
+>         public Policy apply(OrgPolicyInfo orgPolicyInfo) {
+111,119c96,100
+<    * prefixes. The under: prefix denotes resource subtree values. The is: prefix is used to denote
+<    * specific values, and is required only if the value contains a ":". Values prefixed with "is:"
+<    * are treated the same as values with no prefix. Ancestry subtrees must be in one of the
+<    * following formats: - "projects/", e.g. "projects/tokyo-rain-123" - "folders/", e.g.
+<    * "folders/1234" - "organizations/", e.g. "organizations/1234" The supportsUnder field of the
+<    * associated Constraint defines whether ancestry prefixes can be used. You can set allowedValues
+<    * and deniedValues in the same Policy if allValues is ALL_VALUES_UNSPECIFIED. ALLOW or DENY are
+<    * used to allow or deny all values. If allValues is set to either ALLOW or DENY, allowedValues
+<    * and deniedValues must be unset.
+---
+>    * prefixes. Values prefixed with "is:" are treated the same as values with no prefix. Ancestry
+>    * subtrees must be in one of the following formats: - "projects/", e.g. "projects/tokyo-rain-123" - "folders/", e.g. "folders/1234" - "organizations/", e.g. "organizations/1234" The
+>    * supportsUnder field of the associated Constraint defines whether ancestry prefixes can be used. You
+>    * can set allowedValues and deniedValues in the same Policy if allValues is ALL_VALUES_UNSPECIFIED. ALLOW or DENY are used to allow or deny all values. If allValues is set to either
+>    * ALLOW or DENY, allowedValues and deniedValues must be unset.
+125c106
+<     private final List<java.lang.String> deniedValues;
+---
+>     private final List<String> deniedValues;
+130c111
+<         String allValues,
+---
+>         (String allValues,
+197c178
+<           allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
+---
+>           (allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
+200,201c181,182
+<     ListPolicy toProtobuf() {
+<       return new ListPolicy()
+---
+>     Policy toProtobuf() {
+>       return new Policy()
+209c190
+<     static Policies fromProtobuf(ListPolicy listPolicy) {
+---
+>     static Policies fromProtobuf(Policy listPolicy) {
+211c192
+<           listPolicy.getAllValues(),
+---
+>           (listPolicy.getAllValues(),
+346,347c327,328
+<     return Objects.hash(
+<         boolPolicy, constraint, etag, policies, restoreDefault, updateTime, version);
+---
+>     return Objects.hash
+>         (boolPolicy, constraint, etag, policies, restoreDefault, updateTime, version);
+360,361c341,342
+<   OrgPolicy toProtobuf() {
+<     OrgPolicy orgPolicyProto = new OrgPolicy();
+---
+>   Policy toProtobuf() {
+>     Policy orgPolicyProto = new Policy();
+365c346
+<     orgPolicyProto.setConstraint(constraint);
+---
+>     // constraint field is no longer available in the new version
+371c352
+<     orgPolicyProto.setUpdateTime(updateTime);
+---
+>     // updateTime field is no longer available in the new version
+376c357
+<   static OrgPolicyInfo fromProtobuf(OrgPolicy orgPolicyProtobuf) {
+---
+>   static OrgPolicyInfo fromProtobuf(Policy orgPolicyProtobuf) {
+379c360
+<       builder.setBoolPolicy(BoolPolicy.fromProtobuf(orgPolicyProtobuf.getBooleanPolicy()));
+---
+>       builder.setBoolPolicy(BoolPolicy.fromProtobuf(orgPolicyProtobuf.getBooleanPolicy());
+381c362
+<     builder.setConstraint(orgPolicyProtobuf.getConstraint());
+---
+>     // constraint field is no longer available in the new version
+383c364
+<       builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getListPolicy()));
+---
+>       builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getListPolicy());
+387c368
+<     builder.setUpdateTime(orgPolicyProtobuf.getUpdateTime());
+---
+>     // updateTime field is no longer available in the new version

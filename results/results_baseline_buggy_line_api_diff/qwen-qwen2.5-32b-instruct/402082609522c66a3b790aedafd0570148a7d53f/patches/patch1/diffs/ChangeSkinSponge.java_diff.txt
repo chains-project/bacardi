@@ -1,0 +1,33 @@
+30,32c30,34
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelRegistrar;
+< import org.spongepowered.api.plugin.Plugin;
+---
+> import org.spongepowered.api.network.ChannelBinding;
+> import org.spongepowered.api.network.ChannelBinding.ChannelBuilder;
+> import org.spongepowered.api.network.ChannelBinding.ChannelRegistration;
+> import org.spongepowered.api.plugin.PluginContainer;
+> import org.spongepowered.api.text.Text;
+40,41d41
+< @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+<         url = PomData.URL, description = PomData.DESCRIPTION)
+43a44
+> {
+90c91
+<         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
+---
+>         ChannelBuilder channelBuilder = Sponge.getNetworkManager().createChannelBuilder();
+93,96c94,97
+<         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
+<         RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
+<         updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
+<         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
+---
+>         ChannelRegistration updateChannel = channelBuilder.createChannel(updateChannelName);
+>         ChannelRegistration permChannel = channelBuilder.createChannel(permissionChannelName);
+>         updateChannel.registerListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
+>         permChannel.registerListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class);
+145c146
+<             receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
+---
+>             receiver.sendMessage(Text.of(message));

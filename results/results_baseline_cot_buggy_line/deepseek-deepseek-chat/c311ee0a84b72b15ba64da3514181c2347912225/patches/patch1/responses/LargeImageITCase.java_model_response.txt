@@ -1,0 +1,129 @@
+<code_analysis>
+1. Examine the error message:
+   - The error occurs in the `LargeImageITCase` class at lines 84 and 69.
+   - The issue is related to the `StringContains` constructor in the `org.hamcrest.core.StringContains` class.
+   - The error indicates that the constructor `StringContains` requires a single `String` argument, but the code is passing a `boolean` and a `String`.
+
+2. Review the client code:
+   - The problematic lines are:
+     ```java
+     MatcherAssert.assertThat(output, new StringContains(false, "Pushed"));
+     ```
+     ```java
+     new StringContains(false, String.format("Status: Downloaded newer image for %s", this.remote()))
+     ```
+   - The code is attempting to use a constructor that no longer exists in the updated version of the `hamcrest` library.
+
+3. Consider potential fixes:
+   - The `StringContains` constructor should be updated to accept a single `String` argument.
+   - The `boolean` argument should be removed as it is no longer supported.
+
+4. Plan the necessary changes:
+   - Modify the `StringContains` constructor calls to only pass the `String` argument.
+   - Ensure the rest of the class remains unchanged.
+</code_analysis>
+
+Here is the fixed class:
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker.http;
+
+import com.artipie.asto.fs.FileStorage;
+import com.artipie.asto.test.TestResource;
+import com.artipie.docker.asto.AstoDocker;
+import com.artipie.docker.junit.DockerClient;
+import com.artipie.docker.junit.DockerClientSupport;
+import com.artipie.docker.junit.DockerRepository;
+import java.nio.file.Path;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.core.StringContains;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.io.TempDir;
+
+/**
+ * Integration test for large file pushing scenario of {@link DockerSlice}.
+ *
+ * @since 0.3
+*/
+@DockerClientSupport
+@DisabledOnOs(OS.WINDOWS)
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
+public final class LargeImageITCase {
+    /**
+     * Docker image name.
+     */
+    private static final String IMAGE = "large-image";
+
+    /**
+     * Docker client.
+     */
+    private DockerClient client;
+
+    /**
+     * Docker repository.
+     */
+    private DockerRepository repository;
+
+    @BeforeEach
+    void setUp(final @TempDir Path storage) {
+        this.repository = new DockerRepository(
+            new AstoDocker(new FileStorage(storage))
+        );
+        this.repository.start();
+    }
+
+    @AfterEach
+    void tearDown() {
+        this.repository.stop();
+    }
+
+    @Test
+    void largeImagePullWorks() throws Exception {
+        try {
+            this.buildImage();
+            this.client.run("push", this.remote());
+            this.client.run("image", "rm", this.remote());
+            final String output = this.client.run("pull", this.remote());
+            MatcherAssert.assertThat(
+                output,
+                new StringContains(
+                    String.format("Status: Downloaded newer image for %s", this.remote())
+                )
+            );
+        } finally {
+            this.client.run("rmi", this.remote());
+        }
+    }
+
+    @Test
+    void largeImageUploadWorks() throws Exception {
+        try {
+            this.buildImage();
+            final String output = this.client.run("push", this.remote());
+            MatcherAssert.assertThat(output, new StringContains("Pushed"));
+        } finally {
+            this.client.run("rmi", this.remote());
+        }
+    }
+
+    private void buildImage() throws Exception {
+        this.client.run("build", this.dockerFile().getParent().toString(), "-t", this.remote());
+    }
+
+    private Path dockerFile() {
+        return new TestResource("large-image/Dockerfile").asPath();
+    }
+
+    private String remote() {
+        return String.format("%s/%s", this.repository.url(), LargeImageITCase.IMAGE);
+    }
+}
+```

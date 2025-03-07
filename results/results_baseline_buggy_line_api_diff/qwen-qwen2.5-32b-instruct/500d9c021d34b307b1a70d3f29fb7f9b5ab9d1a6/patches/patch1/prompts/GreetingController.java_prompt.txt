@@ -1,0 +1,167 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+```java
+package com.example.web;
+
+import java.util.logging.Logger;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.mvc.Controller;
+import javax.mvc.Models;
+import javax.mvc.UriRef;
+import javax.mvc.binding.BindingResult;
+import javax.mvc.binding.MvcBinding;
+import javax.mvc.binding.ParamError;
+import javax.mvc.security.CsrfProtected;
+import javax.validation.constraints.NotBlank;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+
+/**
+ *
+ * @author hantsy
+ */
+@Path("greeting")
+@Controller
+@RequestScoped
+public class GreetingController {
+
+    @Inject
+    BindingResult bindingResult;
+
+    @Inject
+    Models models;
+
+    @Inject
+    AlertMessage flashMessage;
+
+    @Inject
+    Logger log;
+
+    @GET
+    public String get() {
+        return "greeting.xhtml";
+    }
+
+    @POST
+    @UriRef("greeting-post")
+    public String post(
+            @FormParam("greeting")
+            @MvcBinding
+            @NotBlank String greeting) {
+        if (bindingResult.isFailed()) {
+            AlertMessage alert = AlertMessage.danger("Validation voilations!");
+            bindingResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
+            models.put("errors", alert);
+            log.info("mvc binding failed.");
+            return "greeting.xhtml";
+        }
+
+        log.info("redirect to greeting page.");
+        flashMessage.notify(AlertMessage.Type.success, "Message:" + greeting);
+        return "redirect:greeting";
+    }
+
+}
+
+```
+the error is triggered in the following specific lines in the previous code:
+
+```java
+Models models;
+```
+```java
+import javax.mvc.binding.ParamError;
+```
+```java
+@Controller
+```
+```java
+@UriRef("greeting-post")
+```
+```java
+import javax.mvc.security.CsrfProtected;
+```
+```java
+@MvcBinding
+```
+```java
+import javax.mvc.binding.MvcBinding;
+```
+```java
+BindingResult bindingResult;
+```
+```java
+import javax.mvc.binding.BindingResult;
+```
+```java
+import javax.mvc.UriRef;
+```
+
+
+
+ with the following error information:
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[32,5] cannot find symbol
+  symbol:   class Models
+  location: class com.example.web.GreetingController
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[11,25] package javax.mvc.binding does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[24,2] cannot find symbol
+  symbol: class Controller
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[46,6] cannot find symbol
+  symbol:   class UriRef
+  location: class com.example.web.GreetingController
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[12,26] package javax.mvc.security does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[49,14] cannot find symbol
+  symbol:   class MvcBinding
+  location: class com.example.web.GreetingController
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[10,25] package javax.mvc.binding does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[29,5] cannot find symbol
+  symbol:   class BindingResult
+  location: class com.example.web.GreetingController
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[9,25] package javax.mvc.binding does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/GreetingController.java:[8,17] package javax.mvc does not exist
+
+
+The error is caused by a change in the API of the dependency. The new library version includes the following changes:
+     Class javax.mvc.Models has been removed in the new version of the dependency.
+     Interface jakarta.mvc.Models has been added in the new version of the dependency.
+     Class javax.mvc.binding.ParamError has been removed in the new version of the dependency.
+     Interface jakarta.mvc.Controller has been added in the new version of the dependency.
+     Class javax.mvc.Controller has been removed in the new version of the dependency.
+     Interface jakarta.mvc.UriRef has been added in the new version of the dependency.
+     Class javax.mvc.UriRef has been removed in the new version of the dependency.
+     Interface jakarta.mvc.security.CsrfProtected has been added in the new version of the dependency.
+     Class javax.mvc.security.CsrfProtected has been removed in the new version of the dependency.
+     Interface jakarta.mvc.binding.MvcBinding has been added in the new version of the dependency.
+     Class javax.mvc.binding.MvcBinding has been removed in the new version of the dependency.
+     Class javax.mvc.binding.BindingResult has been removed in the new version of the dependency.
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Oxverride annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

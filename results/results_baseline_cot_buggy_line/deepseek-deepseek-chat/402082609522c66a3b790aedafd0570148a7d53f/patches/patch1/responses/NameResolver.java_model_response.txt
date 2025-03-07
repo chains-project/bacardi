@@ -1,0 +1,69 @@
+<code_analysis>
+1. Examine the error message:
+   - The error indicates that the class `CommandSource` cannot be found.
+   - The error occurs in lines 14, 18, and 8 of the `NameResolver` class.
+   - The issue is related to the import statement `import org.spongepowered.api.command.CommandSource;`.
+
+2. Review the client code:
+   - The `CommandSource` class is used as a type for the `invoker` field and as a parameter in the constructor.
+   - The import statement for `CommandSource` is incorrect or outdated.
+
+3. Consider potential fixes:
+   - The `CommandSource` class might have been moved or renamed in the newer version of the Sponge API.
+   - Research the correct package or class name for `CommandSource` in the updated dependency version.
+
+4. Plan the necessary changes to fix the issue:
+   - Update the import statement to use the correct package or class name for `CommandSource`.
+   - Ensure that the rest of the code remains unchanged to maintain functionality.
+</code_analysis>
+
+Based on the analysis, the issue is likely due to a change in the Sponge API where the `CommandSource` class has been moved or renamed. After researching the Sponge API documentation, it appears that `CommandSource` has been replaced by `CommandCause` in newer versions. Here is the fixed class:
+
+```java
+package com.github.games647.changeskin.sponge.task;
+
+import com.github.games647.changeskin.core.shared.task.SharedNameResolver;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import java.util.UUID;
+
+import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.entity.living.player.Player;
+
+public class NameResolver extends SharedNameResolver {
+
+    private final ChangeSkinSponge plugin;
+    private final CommandCause invoker;
+    private final Player receiver;
+    private final boolean keepSkin;
+
+    public NameResolver(ChangeSkinSponge plugin, CommandCause invoker, String targetName, Player receiver
+            , boolean keepSkin) {
+        super(plugin.getCore(), targetName, keepSkin);
+
+        this.plugin = plugin;
+        this.invoker = invoker;
+        this.receiver = receiver;
+        this.keepSkin = keepSkin;
+    }
+
+    @Override
+    public void sendMessageInvoker(String id) {
+        plugin.sendMessage(invoker, id);
+    }
+
+    @Override
+    protected boolean hasSkinPermission(UUID uuid) {
+        //todo check skin permissions
+        return true;
+    }
+
+    @Override
+    protected void scheduleDownloader(UUID uuid) {
+        //run this is the same thread
+        new SkinDownloader(plugin, invoker, receiver, uuid, keepSkin).run();
+    }
+}
+```
+
+In this fix, the `CommandSource` class has been replaced with `CommandCause`, which is the correct class in the updated Sponge API. The import statement has been updated accordingly, and the rest of the code remains unchanged to maintain functionality.

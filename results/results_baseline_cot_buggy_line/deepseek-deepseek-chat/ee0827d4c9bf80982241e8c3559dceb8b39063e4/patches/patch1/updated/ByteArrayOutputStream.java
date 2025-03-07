@@ -1,0 +1,304 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.codehaus.plexus.archiver.zip;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.SequenceInputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * This class implements an output stream in which the data is
+ * written into a byte array. The buffer automatically grows as data
+ * is written to it.
+ * <p>
+ * The data can be retrieved using <code>toByteArray()</code> and
+ * <code>toString()</code>.
+ * <p>
+ * Closing a {@code ByteArrayOutputStream} has no effect. The methods in
+ * this class can be called after the stream has been closed without
+ * generating an {@code IOException}.
+ * <p>
+ * This is an alternative implementation of the {@link java.io.ByteArrayOutputStream}
+ * class. The original implementation only allocates 32 bytes at the beginning.
+ * As this class is designed for heavy duty it starts at 1024 bytes. In contrast
+ * to the original it doesn't reallocate the whole memory block but allocates
+ * additional buffers. This way no buffers need to be garbage collected and
+ * the contents don't have to be copied to the new buffer. This class is
+ * designed to behave exactly like the original. The only exception is the
+ * deprecated toString(int) method that has been ignored.
+ */
+public class ByteArrayOutputStream extends OutputStream
+{
+    private static final byte[] EMPTY_BYTE_ARRAY = new byte[ 0 ];
+    private final List<byte[]> buffers = new ArrayList<byte[]>();
+    private int currentBufferIndex;
+    private int filledBufferSum;
+    private byte[] currentBuffer;
+    private int count;
+    private boolean reuseBuffers = true;
+
+    private static class ClosedInputStream extends InputStream {
+        @Override
+        public int read() {
+            return -1;
+        }
+    }
+
+    public ByteArrayOutputStream()
+    {
+        this( 1024 );
+    }
+
+    public ByteArrayOutputStream( final int size )
+    {
+        if ( size < 0 )
+        {
+            throw new IllegalArgumentException( "Negative initial size: " + size );
+        }
+        synchronized ( this )
+        {
+            needNewBuffer( size );
+        }
+    }
+
+    private void needNewBuffer( final int newcount )
+    {
+        if ( currentBufferIndex < buffers.size() - 1 )
+        {
+            filledBufferSum += currentBuffer.length;
+            currentBufferIndex++;
+            currentBuffer = buffers.get( currentBufferIndex );
+        }
+        else
+        {
+            int newBufferSize;
+            if ( currentBuffer == null )
+            {
+                newBufferSize = newcount;
+                filledBufferSum = 0;
+            }
+            else
+            {
+                newBufferSize = Math.max(
+                    currentBuffer.length << 1,
+                    newcount - filledBufferSum );
+                filledBufferSum += currentBuffer.length;
+            }
+
+            currentBufferIndex++;
+            currentBuffer = new byte[ newBufferSize ];
+            buffers.add( currentBuffer );
+        }
+    }
+
+    @Override
+    public void write( final byte[] b, final int off, final int len )
+    {
+        if ( ( off < 0 )
+                 || ( off > b.length )
+                 || ( len < 0 )
+                 || ( ( off + len ) > b.length )
+                 || ( ( off + len ) < 0 ) )
+        {
+            throw new IndexOutOfBoundsException();
+        }
+        else if ( len == 0 )
+        {
+            return;
+        }
+        synchronized ( this )
+        {
+            final int newcount = count + len;
+            int remaining = len;
+            int inBufferPos = count - filledBufferSum;
+            while ( remaining > 0 )
+            {
+                final int part = Math.min( remaining, currentBuffer.length - inBufferPos );
+                System.arraycopy( b, off + len - remaining, currentBuffer, inBufferPos, part );
+                remaining -= part;
+                if ( remaining > 0 )
+                {
+                    needNewBuffer( newcount );
+                    inBufferPos = 0;
+                }
+            }
+            count = newcount;
+        }
+    }
+
+    @Override
+    public synchronized void write( final int b )
+    {
+        int inBufferPos = count - filledBufferSum;
+        if ( inBufferPos == currentBuffer.length )
+        {
+            needNewBuffer( count + 1 );
+            inBufferPos = 0;
+        }
+        currentBuffer[inBufferPos] = (byte) b;
+        count++;
+    }
+
+    public synchronized int write( final InputStream in ) throws IOException
+    {
+        int readCount = 0;
+        int inBufferPos = count - filledBufferSum;
+        int n = in.read( currentBuffer, inBufferPos, currentBuffer.length - inBufferPos );
+        while ( n != -1 )
+        {
+            readCount += n;
+            inBufferPos += n;
+            count += n;
+            if ( inBufferPos == currentBuffer.length )
+            {
+                needNewBuffer( currentBuffer.length );
+                inBufferPos = 0;
+            }
+            n = in.read( currentBuffer, inBufferPos, currentBuffer.length - inBufferPos );
+        }
+        return readCount;
+    }
+
+    public synchronized int size()
+    {
+        return count;
+    }
+
+    @Override
+    public void close() throws IOException
+    {
+        //nop
+    }
+
+    public synchronized void reset()
+    {
+        count = 0;
+        filledBufferSum = 0;
+        currentBufferIndex = 0;
+        if ( reuseBuffers )
+        {
+            currentBuffer = buffers.get( currentBufferIndex );
+        }
+        else
+        {
+            currentBuffer = null;
+            int size = buffers.get( 0 ).length;
+            buffers.clear();
+            needNewBuffer( size );
+            reuseBuffers = true;
+        }
+    }
+
+    public synchronized void writeTo( final OutputStream out ) throws IOException
+    {
+        int remaining = count;
+        for ( final byte[] buf : buffers )
+        {
+            final int c = Math.min( buf.length, remaining );
+            out.write( buf, 0, c );
+            remaining -= c;
+            if ( remaining == 0 )
+            {
+                break;
+            }
+        }
+    }
+
+    public static InputStream toBufferedInputStream( final InputStream input )
+        throws IOException
+    {
+        return toBufferedInputStream( input, 1024 );
+    }
+
+    public static InputStream toBufferedInputStream( final InputStream input, int size )
+        throws IOException
+    {
+        @SuppressWarnings( "resource" )
+        final ByteArrayOutputStream output = new ByteArrayOutputStream( size );
+        output.write( input );
+        return output.toInputStream();
+    }
+
+    public synchronized InputStream toInputStream()
+    {
+        int remaining = count;
+        if ( remaining == 0 )
+        {
+            return new ClosedInputStream();
+        }
+        final List<ByteArrayInputStream> list = new ArrayList<ByteArrayInputStream>( buffers.size() );
+        for ( final byte[] buf : buffers )
+        {
+            final int c = Math.min( buf.length, remaining );
+            list.add( new ByteArrayInputStream( buf, 0, c ) );
+            remaining -= c;
+            if ( remaining == 0 )
+            {
+                break;
+            }
+        }
+        reuseBuffers = false;
+        return new SequenceInputStream( Collections.enumeration( list ) );
+    }
+
+    public synchronized byte[] toByteArray()
+    {
+        int remaining = count;
+        if ( remaining == 0 )
+        {
+            return EMPTY_BYTE_ARRAY;
+        }
+        final byte newbuf[] = new byte[ remaining ];
+        int pos = 0;
+        for ( final byte[] buf : buffers )
+        {
+            final int c = Math.min( buf.length, remaining );
+            System.arraycopy( buf, 0, newbuf, pos, c );
+            pos += c;
+            remaining -= c;
+            if ( remaining == 0 )
+            {
+                break;
+            }
+        }
+        return newbuf;
+    }
+
+    @Override
+    @Deprecated
+    public String toString()
+    {
+        return new String( toByteArray(), Charset.defaultCharset() );
+    }
+
+    public String toString( final String enc ) throws UnsupportedEncodingException
+    {
+        return new String( toByteArray(), enc );
+    }
+
+    public String toString( final Charset charset )
+    {
+        return new String( toByteArray(), charset );
+    }
+}

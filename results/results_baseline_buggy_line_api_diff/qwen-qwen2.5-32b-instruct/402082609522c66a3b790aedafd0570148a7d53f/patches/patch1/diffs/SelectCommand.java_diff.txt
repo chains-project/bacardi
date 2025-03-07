@@ -1,0 +1,53 @@
+7a8,10
+> import net.kyori.adventure.text.Component;
+> import net.kyori.adventure.text.format.TextColor;
+> import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+9a13,14
+> import org.spongepowered.api.command.CommandMapping;
+> import org.spongepowered.api.command.CommandSpec;
+12d16
+< import org.spongepowered.api.command.spec.CommandSpec;
+16,17c20
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import static net.kyori.adventure.text.Component.text;
+20a24
+> {
+24c28,29
+<     SelectCommand(ChangeSkinSponge plugin) {
+---
+>     SelectCommand(ChangeSkinSponge plugin)
+>     {
+29,30c34,37
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         if (!(src instanceof Player)) {
+---
+>     public CommandResult execute(CommandSource src, CommandContext args)
+>     {
+>         if (!(src instanceof Player))
+>         {
+35c42
+<         String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
+---
+>         String skinName = args.getOne("skinName").get().toLowerCase().replace("skin-", "");
+37c44,45
+<         try {
+---
+>         try
+>         {
+41c49,51
+<         } catch (NumberFormatException numberFormatException) {
+---
+>         }
+>         catch (NumberFormatException numberFormatException)
+>         {
+49c59,60
+<     public CommandSpec buildSpec() {
+---
+>     public CommandSpec buildSpec()
+>     {
+52c63
+<                 .arguments(string(of("skinName")))
+---
+>                 .arguments(net.kyori.adventure.text.format.TextColor.of("white"), text("skinName"))

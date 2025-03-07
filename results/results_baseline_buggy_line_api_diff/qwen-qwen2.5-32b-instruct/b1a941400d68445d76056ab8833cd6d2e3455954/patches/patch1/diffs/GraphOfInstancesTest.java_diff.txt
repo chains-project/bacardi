@@ -1,0 +1,56 @@
+10a11
+> import org.yaml.snakeyaml.LoaderOptions;
+13d13
+< import org.yaml.snakeyaml.constructor.Constructor;
+40d39
+< 
+78c77,78
+<             Constructor constructor = new Constructor();
+---
+>             LoaderOptions options = new LoaderOptions();
+>             Constructor constructor = new Constructor(options);
+102,137d101
+<     @Test(expected = NoSuchFieldException.class)
+<     public void driveAsListFromYaml() {
+<         String config = "" +
+<                 "- !doubleSum\n" +
+<                 "  doubleSuppliers:\n" +
+<                 "  - !stringHandler\n" +
+<                 "    id: A\n" +
+<                 "  - !stringHandler\n" +
+<                 "    id: B\n" +
+<                 "- !stringHandler\n" +
+<                 "  id: C";
+<         sep(c -> {
+<             Constructor constructor = new Constructor();
+<             constructor.addTypeDescription(new TypeDescription(DoubleSum.class, "!doubleSum"));
+<             constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
+<             Yaml yaml = new Yaml(constructor);
+<             yaml.loadAs("nodeList:\n" + config, InstanceHolder.class).getNodeList().forEach(c::addNode);
+<         });
+<         DoubleSum aggregator = getField("aggregator");
+<         StringHandler handlerC = getField("stringHandler_C");
+<         onEvent("A");
+<         assertThat(aggregator.sum, is(1.0));
+<         assertThat(handlerC.value, is(0));
+<         onEvent("A");
+<         assertThat(aggregator.sum, is(2.0));
+<         assertThat(handlerC.value, is(0));
+<         onEvent("B");
+<         assertThat(aggregator.sum, is(3.0));
+<         assertThat(handlerC.value, is(0));
+<         onEvent("C");
+<         assertThat(aggregator.sum, is(3.0));
+<         assertThat(handlerC.value, is(1));
+< 
+<         getField("instanceHolder");
+<     }
+< 
+143d106
+< 
+155c118
+< 
+---
+>     @Data
+218d180
+< 

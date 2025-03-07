@@ -1,0 +1,60 @@
+23,25d22
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.api.services.translate.model.TranslationsResource;
+43c40
+<   private static final Function<List<DetectionsResourceItems>, Detection>
+---
+>   private static final Function<List<Map<String, Object>>, Detection>
+45,47c42,43
+<           new Function<List<DetectionsResourceItems>, Detection>() {
+<             @Override
+<             public Detection apply(List<DetectionsResourceItems> detectionPb) {
+---
+>           new Function<List<Map<String, Object>>, Detection>() {
+>             public Detection apply(List<Map<String, Object>> detectionPb) {
+57d52
+<   @Override
+62,64c57,58
+<               new Callable<List<LanguagesResource>>() {
+<                 @Override
+<                 public List<LanguagesResource> call() {
+---
+>               new Callable<List<Map<String, Object>>>() {
+>                 public List<Map<String, Object>> call() {
+77d70
+<   @Override
+80c73
+<       List<List<DetectionsResourceItems>> detectionsPb =
+---
+>       List<List<Map<String, Object>>> detectionsPb =
+82,84c75,76
+<               new Callable<List<List<DetectionsResourceItems>>>() {
+<                 @Override
+<                 public List<List<DetectionsResourceItems>> call() {
+---
+>               new Callable<List<List<Map<String, Object>>>>() {
+>                 public List<List<Map<String, Object>>> call() {
+91c83
+<       Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
+---
+>       Iterator<List<Map<String, Object>>> detectionIterator = detectionsPb.iterator();
+94c86
+<         List<DetectionsResourceItems> detectionPb = detectionIterator.next();
+---
+>         List<Map<String, Object>> detectionPb = detectionIterator.next();
+106d97
+<   @Override
+111d101
+<   @Override
+116d105
+<   @Override
+121,123c110,111
+<               new Callable<List<TranslationsResource>>() {
+<                 @Override
+<                 public List<TranslationsResource> call() {
+---
+>               new Callable<List<Map<String, Object>>>() {
+>                 public List<Map<String, Object>> call() {
+136d123
+<   @Override
