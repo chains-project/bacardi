@@ -1,0 +1,40 @@
+24,33c24,31
+< import org.assertj.core.internal.bytebuddy.ByteBuddy;
+< import org.assertj.core.internal.bytebuddy.TypeCache;
+< import org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey;
+< import org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeValidation;
+< import org.assertj.core.internal.bytebuddy.implementation.Implementation;
+< import org.assertj.core.internal.bytebuddy.implementation.MethodDelegation;
+< import org.assertj.core.internal.bytebuddy.implementation.auxiliary.AuxiliaryType;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.RuntimeType;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This;
+---
+> import net.bytebuddy.ByteBuddy;
+> import net.bytebuddy.TypeCache;
+> import net.bytebuddy.dynamic.scaffold.TypeValidation;
+> import net.bytebuddy.implementation.MethodDelegation;
+> import net.bytebuddy.implementation.auxiliary.AuxiliaryType;
+> import net.bytebuddy.implementation.bind.annotation.RuntimeType;
+> import net.bytebuddy.implementation.bind.annotation.SuperCall;
+> import net.bytebuddy.implementation.bind.annotation.This;
+40c38
+< import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any;
+---
+> import static net.bytebuddy.matcher.ElementMatchers.any;
+53c51
+<     private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
+---
+>     private static final MethodDelegation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
+55c53
+<     private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
+---
+>     private static final TypeCache<TypeCache.SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
+215c213
+<         SimpleKey cacheKey = new SimpleKey(assertClass);
+---
+>         TypeCache.SimpleKey cacheKey = new TypeCache.SimpleKey(assertClass);
+234c232
+<         assumptionClass = getAssumptionClass("org.opentest4j.TestAbortedException");
+---
+>         assumptionClass = getAssumptionClass("org.openttest4j.TestAbortedException");

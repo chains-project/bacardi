@@ -1,0 +1,31 @@
+10,11c10,11
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+14a15
+> import org.spongepowered.api.text.Text;
+16,19c17
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+< 
+< public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class SelectCommand implements ChangeSkinCommand {
+28d25
+<     @Override
+35c32
+<         String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
+---
+>         String skinName = args.one(Parameter.string().key("skinName").build()).get().toLowerCase().replace("skin-", "");
+40c37
+<             Task.builder().async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+---
+>             Task.builder().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+48d44
+<     @Override
+52c48
+<                 .arguments(string(of("skinName")))
+---
+>                 .parameter(Parameter.string().key("skinName").build())
