@@ -1,0 +1,6 @@
+242c242,244
+<                         writer.writeValue(segmentListFile, dataList);
+---
+>                         try (FileWriter fileWriter = new FileWriter(segmentListFile)) {
+>                 writer.writeValue(fileWriter, dataList);
+>             }

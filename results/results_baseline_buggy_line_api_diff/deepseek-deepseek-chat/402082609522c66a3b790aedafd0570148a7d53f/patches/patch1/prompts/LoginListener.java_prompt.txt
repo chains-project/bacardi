@@ -1,0 +1,182 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+```java
+package com.github.games647.changeskin.sponge;
+
+import com.github.games647.changeskin.core.SkinStorage;
+import com.github.games647.changeskin.core.model.UserPreference;
+import com.github.games647.changeskin.core.model.skin.SkinModel;
+import com.github.games647.changeskin.core.shared.SharedListener;
+import com.google.inject.Inject;
+
+import java.util.Optional;
+import java.util.UUID;
+
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.profile.GameProfile;
+import org.spongepowered.api.scheduler.Task;
+
+public class LoginListener extends SharedListener {
+
+    private final ChangeSkinSponge plugin;
+
+    @Inject
+    LoginListener(ChangeSkinSponge plugin) {
+        super(plugin.getCore());
+
+        this.plugin = plugin;
+    }
+
+    @Listener
+    public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
+        SkinStorage storage = core.getStorage();
+        GameProfile profile = preLoginEvent.getProfile();
+        UUID playerUUID = profile.getUniqueId();
+
+        UserPreference preferences = storage.getPreferences(playerUUID);
+        Optional<SkinModel> optSkin = preferences.getTargetSkin();
+        if (optSkin.isPresent()) {
+            SkinModel targetSkin = optSkin.get();
+            if (!preferences.isKeepSkin()) {
+                targetSkin = core.checkAutoUpdate(targetSkin);
+            }
+
+            plugin.getApi().applyProperties(profile, targetSkin);
+            save(preferences);
+        } else {
+            String playerName = profile.getName().get();
+            if (!core.getConfig().getBoolean("restoreSkins") || !refetchSkin(playerName, preferences)) {
+                setDefaultSkin(preferences, profile);
+            }
+        }
+    }
+
+    private void setDefaultSkin(UserPreference preferences, GameProfile profile) {
+        Optional<SkinModel> randomSkin = getRandomSkin();
+        if (randomSkin.isPresent()) {
+            SkinModel targetSkin = randomSkin.get();
+            preferences.setTargetSkin(targetSkin);
+            plugin.getApi().applyProperties(profile, targetSkin);
+        }
+    }
+
+    @Override
+    protected void save(final UserPreference preferences) {
+        Task.builder()
+                .async()
+                .execute(() -> {
+                    Optional<SkinModel> optSkin = preferences.getTargetSkin();
+                    if (optSkin.isPresent()) {
+                        if (core.getStorage().save(optSkin.get())) {
+                            core.getStorage().save(preferences);
+                        }
+                    } else {
+                        core.getStorage().save(preferences);
+                    }
+                }).submit(plugin);
+    }
+}
+
+```
+the error is triggered in the following specific lines in the previous code:
+
+```java
+public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
+```
+```java
+public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
+```
+```java
+public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
+```
+```java
+public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
+```
+```java
+import org.spongepowered.api.event.network.ClientConnectionEvent;
+```
+```java
+public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
+```
+
+
+
+ with the following error information:
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/LoginListener.java:[29,55] package ClientConnectionEvent does not exist
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/LoginListener.java:[29,55] package ClientConnectionEvent does not exist
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/LoginListener.java:[29,55] package ClientConnectionEvent does not exist
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/LoginListener.java:[29,55] package ClientConnectionEvent does not exist
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/LoginListener.java:[13,43] cannot find symbol
+  symbol:   class ClientConnectionEvent
+  location: package org.spongepowered.api.event.network
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/LoginListener.java:[29,55] package ClientConnectionEvent does not exist
+
+
+The error is caused by a change in the API of the dependency. The new library version includes the following changes:
+     Method org.spongepowered.api.event.network.ClientConnectionEvent$Auth.getProfile() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.event.network.ClientConnectionEvent$Login.getProfile() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.util.ban.Ban$Profile.getProfile() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.entity.living.player.User.getProfile() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.entity.living.player.tab.TabListEntry.getProfile() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.entity.EntitySnapshot.getUniqueId() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.action.HoverAction$ShowEntity$Ref.getUniqueId() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.World.getUniqueId() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.util.Identifiable.getUniqueId() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.network.ChannelBuf.getUniqueId(int) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.storage.WorldProperties.getUniqueId() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.network.channel.ChannelBuf.getUniqueId(int) has been added in the new version of the dependency.
+     Method org.spongepowered.api.entity.Tamer.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.command.CommandSource.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.resourcepack.ResourcePack.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.service.context.Context.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.boss.BossBar.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.block.BlockType.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.advancement.criteria.AdvancementCriterion.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.item.recipe.smelting.SmeltingRecipe.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.profile.property.ProfileProperty.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.extra.modifier.skylands.SkylandsWorldGeneratorModifier.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.World.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.MinecraftVersion.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.scoreboard.objective.Objective.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.network.ChannelBinding.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.CatalogType.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.event.world.ChangeWorldGameRuleEvent.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.extra.modifier.empty.VoidWorldGeneratorModifier.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.entity.living.player.User.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.Nameable.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.profile.GameProfile.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.action.HoverAction$ShowEntity$Ref.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.data.DataView.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.block.trait.BlockTrait.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.plugin.PluginContainer.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.scoreboard.Team.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.data.DataRegistration.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.scoreboard.Score.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.scheduler.Task.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.data.MemoryDataView.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.scoreboard.critieria.Criterion.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.text.TextTemplate$Arg.getName() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.item.ItemType.getName() has been removed in the new version of the dependency.
+     Class org.spongepowered.api.event.network.ClientConnectionEvent$Auth has been removed in the new version of the dependency.
+     Class org.spongepowered.api.event.network.ClientConnectionEvent has been removed in the new version of the dependency.
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Oxverride annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

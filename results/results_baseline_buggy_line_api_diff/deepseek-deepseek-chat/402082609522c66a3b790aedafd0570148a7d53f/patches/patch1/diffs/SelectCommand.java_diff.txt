@@ -1,0 +1,23 @@
+10,12c10,13
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.parameter.Parameterized;
+16c17
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+---
+> import static org.spongepowered.api.command.parameter.Parameter.string;
+49,50c50,51
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Parameterized buildSpec() {
+>         return Parameterized.builder()
+52c53
+<                 .arguments(string(of("skinName")))
+---
+>                 .addParameter(string(of("skinName")))

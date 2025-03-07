@@ -1,0 +1,53 @@
+14c14
+< import org.spongepowered.api.command.CommandException;
+---
+> import org.spongepowered.api.command.exception.CommandException;
+16,19c16,18
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.parameter.Parameter;
+22,23c21,22
+< import org.spongepowered.api.text.Text;
+< import org.spongepowered.api.text.serializer.TextSerializers;
+---
+> import net.kyori.adventure.text.TextComponent;
+> import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+33d31
+< 
+35,38c33,36
+<     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+<             return CommandResult.empty();
+---
+>     public CommandResult execute(org.spongepowered.api.command.CommandCause src, CommandContext args) throws CommandException {
+>         if (!(src.subject() instanceof Player)) {
+>             plugin.sendMessage(src.subject(), "no-console");
+>             return CommandResult.builder().build();
+41c39
+<         UUID uniqueId = ((Player) src).getUniqueId();
+---
+>         UUID uniqueId = ((Player) src.subject()).uniqueId();
+49c47
+<         return CommandResult.success();
+---
+>         return CommandResult.builder().build();
+53,54c51,52
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public org.spongepowered.api.command.Command.Parameterized buildSpec() {
+>         return org.spongepowered.api.command.Command.builder()
+61c59
+<         Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
+---
+>         Optional<Player> optPlayer = Sponge.server().player(uuid);
+70c68
+<                 Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
+---
+>                 TextComponent text = LegacyComponentSerializer.legacyAmpersand().deserialize(formatted);
