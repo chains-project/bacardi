@@ -1,0 +1,52 @@
+29d28
+< import org.apache.maven.project.ProjectBuildingRequest;
+33c32,35
+< import org.apache.maven.shared.dependency.graph.internal.Maven31DependencyGraphBuilder;
+---
+> import org.apache.maven.shared.dependency.graph.traversal.DependencyNodeVisitorAdapter;
+> import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
+> import org.apache.maven.shared.dependency.tree.DependencyTreeBuilderException;
+> import org.apache.maven.shared.dependency.tree.internal.DefaultDependencyTreeBuilder;
+53c55
+<   private DependencyGraphBuilder graph;
+---
+>   private DependencyTreeBuilder graph;
+61c63
+<    * @param graph          the {@link DependencyGraphBuilder} implementation
+---
+>    * @param graph          the {@link DependencyTreeBuilder} implementation
+65c67
+<   public MavenProjectLicenses(final Set<MavenProject> projects, final DependencyGraphBuilder graph,
+---
+>   public MavenProjectLicenses(final Set<MavenProject> projects, final DependencyTreeBuilder graph,
+80c82,83
+<    * @param graph          the {@link DependencyGraphBuilder} implementation
+---
+>    * @param project        the maven {@link MavenProject}
+>    * @param graph          the {@link DependencyTreeBuilder} implementation
+83c86
+<   public MavenProjectLicenses(final MavenSession session, MavenProject project, final DependencyGraphBuilder graph,
+---
+>   public MavenProjectLicenses(final MavenSession session, MavenProject project, final DependencyTreeBuilder graph,
+153,154c156,163
+<         dependencies.addAll(getGraph().buildDependencyGraph(buildingRequest, getFilter()).getChildren());
+<       } catch (DependencyGraphBuilderException ex) {
+---
+>         getGraph().buildDependencyTree(buildingRequest, project).getArtifact()).getRoot().accept(new DependencyNodeVisitorAdapter() {
+>           @Override
+>           public boolean visitEnter(DependencyNode node) {
+>             dependencies.add(node);
+>             return true;
+>           }
+>         });
+>       } catch (DependencyTreeBuilderException ex) {
+181c190
+<   private DependencyGraphBuilder getGraph() {
+---
+>   private DependencyTreeBuilder getGraph() {
+185,186c194,195
+<   private void setGraph(DependencyGraphBuilder graph) {
+<     this.graph = Optional.ofNullable(graph).orElse(new Maven31DependencyGraphBuilder());
+---
+>   private void setGraph(DependencyTreeBuilder graph) {
+>     this.graph = Optional.ofNullable(graph).orElse(new DefaultDependencyTreeBuilder());

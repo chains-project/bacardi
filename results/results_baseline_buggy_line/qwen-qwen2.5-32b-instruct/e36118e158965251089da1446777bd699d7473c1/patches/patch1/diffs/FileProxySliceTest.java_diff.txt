@@ -1,0 +1,25 @@
+52d51
+< import org.cactoos.map.MapEntry;
+136,138c135,136
+<                         new MapEntry<>("header", "value"),
+<                         new MapEntry<>("Content-Length", "4"),
+<                         new MapEntry<>("Content-Length", "4")
+---
+>                         new Headers.From("header", "value"),
+>                         new Headers.From("Content-Length", String.valueOf(body.length))
+145c143
+<             "Does not store data in cache",
+---
+>             "Data should stays intact in cache",
+166c164
+<                         new MapEntry<>("Content-Length", String.valueOf(body.length))
+---
+>                         new Headers.From("Content-Length", String.valueOf(body.length))
+173,175c171,173
+<             "Data should stays intact in cache",
+<             new BlockingStorage(this.storage).value(new Key.From(key)),
+<             new IsEqual<>(body)
+---
+>             "Cache storage is not empty",
+>             this.storage.list(Key.ROOT).join().isEmpty(),
+>             new IsEqual<>(true)

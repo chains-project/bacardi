@@ -1,0 +1,165 @@
+1,23d0
+< /*
+<  * The MIT License (MIT)
+<  *
+<  * Copyright (c) 2018-2023 Yegor Bugayenko
+<  *
+<  * Permission is hereby granted, free of charge, to any person obtaining a copy
+<  * of this software and associated documentation files (the "Software"), to deal
+<  * in the Software without restriction, including without limitation the rights
+<  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+<  *
+<  * The above copyright notice and this permission notice shall be included
+<  * in all copies or substantial portions of the Software.
+<  *
+<  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+<  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+<  * SOFTWARE.
+<  */
+30,38c7
+< import org.cactoos.collection.Filtered;
+< import org.cactoos.iterable.IterableOf;
+< import org.cactoos.iterable.Joined;
+< import org.cactoos.iterable.Mapped;
+< import org.cactoos.iterable.Skipped;
+< import org.cactoos.list.ListOf;
+< import org.cactoos.scalar.CheckedScalar;
+< import org.cactoos.scalar.Or;
+< import org.cactoos.scalar.UncheckedScalar;
+---
+> import org.cactoos.Text;
+40d8
+< import org.cactoos.text.SplitText;
+42a11,16
+> import org.cactoos.collection.Filtered;
+> import org.cactoos.collection.Mapped;
+> import org.cactoos.collection.Skipped;
+> import org.cactoos.scalar.Checked;
+> import org.cactoos.scalar.Or;
+> import org.cactoos.scalar.Unchecked;
+134c108
+<          * Constructor.
+---
+>          * Ctor.
+166c140,171
+<             return other;
+---
+>             if (other.id() != this.id()) {
+>                 throw new IOException(
+>                     new UncheckedText(
+>                         new FormattedText(
+>                             "Wallet ID mismatch, ours is %d, theirs is %d",
+>                             other.id(),
+>                             this.id()
+>                         )
+>                     ).asString()
+>                 );
+>             }
+>             final Iterable<Transaction> ledger = this.ledger();
+>             final Iterable<Transaction> candidates = new Filtered<>(
+>                 incoming -> new Filtered<>(
+>                     original -> new Unchecked<>(
+>                         new Or(
+>                             () -> incoming.equals(original),
+>                             () -> incoming.id() == original.id()
+>                                 && incoming.bnf().equals(original.bnf()),
+>                             () -> incoming.id() == original.id()
+>                                 && incoming.amount() < 0L,
+>                             () -> incoming.prefix().equals(original.prefix())
+>                         )
+>                     ).value(),
+>                     ledger
+>                 ).isEmpty(),
+>                 other.ledger()
+>             );
+>             return new Wallet.Fake(
+>                 this.id(),
+>                 new IterableOf<>(ledger, candidates)
+>             );
+171c176,185
+<             return this.transactions;
+---
+>             return new Mapped<>(
+>                 txt -> new RtTransaction(txt.asString()),
+>                 new Skipped<>(
+>                     new IterableOf<>(
+>                         new TextOf(this.path).asString().split("\\n")
+>                     ),
+>                     // @checkstyle MagicNumberCheck (1 line)
+>                     5
+>                 )
+>             );
+173a188,190
+>         // @todo #54:30min Implement key method. This should return the
+>         //  public RSA key of the wallet owner in Base64. Also add a unit test
+>         //  to replace WalletTest.keyIsNotYetImplemented().
+176c193,195
+<             return Long.toString(this.id);
+---
+>             throw new UnsupportedOperationException(
+>                 "key() not yet supported"
+>             );
+201c220
+<             return new CheckedScalar<>(
+---
+>             return new Checked<>(
+203,209c222,225
+<                     new ListOf<>(
+<                         new SplitText(
+<                             new TextOf(this.path),
+<                             "\n"
+<                         )
+<                     ).get(2).asString(),
+<                     // @checkstyle MagicNumber (1 line)
+---
+>                     new IterableOf<>(
+>                         new TextOf(this.path).asString().split("\n")
+>                     ).get(2),
+>                     // @checkstyle MagicNumberCheck (1 line)
+224,232d239
+<         // @todo #16:30min Following transactions should be ignored according
+<         //  to the whitepaper:
+<         //  a) If the transaction is negative and its signature is not valid,
+<         //  it is ignored;
+<         //  b) If the transaction makes the balance of the wallet negative,
+<         //  it is ignored;
+<         //  c) If the transaction is positive and it’s absent in the paying
+<         //  wallet (which exists at the node), it’s ignored; If the paying
+<         //  wallet doesn’t exist at the node, the transaction is ignored;
+249c256
+<                     origin -> new UncheckedScalar<>(
+---
+>                     original -> new Unchecked<>(
+251,254c258,261
+<                             () -> incoming.equals(origin),
+<                             () -> incoming.id() == origin.id()
+<                                 && incoming.bnf().equals(origin.bnf()),
+<                             () -> incoming.id() == origin.id()
+---
+>                             () -> incoming.equals(original),
+>                             () -> incoming.id() == original.id()
+>                                 && incoming.bnf().equals(original.bnf()),
+>                             () -> incoming.id() == original.id()
+256c263
+<                             () -> incoming.prefix().equals(origin.prefix())
+---
+>                             () -> incoming.prefix().equals(original.prefix())
+265c272
+<                 new Joined<Transaction>(ledger, candidates)
+---
+>                 new IterableOf<>(ledger, candidates)
+274,278c281,282
+<                     new ListOf<>(
+<                         new SplitText(
+<                             new TextOf(this.path),
+<                             "\\n"
+<                         )
+---
+>                     new IterableOf<>(
+>                         new TextOf(this.path).asString().split("\\n")

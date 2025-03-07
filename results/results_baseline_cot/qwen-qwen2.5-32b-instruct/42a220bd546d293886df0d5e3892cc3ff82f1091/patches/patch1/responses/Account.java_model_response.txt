@@ -1,0 +1,118 @@
+<code_analysis>
+1. Examine the error message:
+   - The error indicates that the `DigestUtils` class cannot be found, which is part of the `org.apache.commons.codec.digest` package.
+   - The error occurs at line 49, where `DigestUtils.md5Hex` is called.
+   - The error also indicates that the package `org.apache.commons.codec.digest` does not exist, suggesting that the dependency for `org.apache.commons.codec` might have been removed or updated in a way that the `DigestUtils` class is no longer available.
+
+2. Review the client code:
+   - The `username` method in the `Builder` class uses `DigestUtils.md5Hex` to compute the MD5 hash of the username.
+   - The import statement for `DigestUtils` is present, but the package `org.apache.commons.codec.digest` is not found, indicating a missing or changed dependency.
+
+3. Consider potential fixes:
+   - Since the `DigestUtils` class is not available, we need to find an alternative way to compute the MD5 hash.
+   - We can use the `MessageDigest` class from the `java.security` package to compute the MD5 hash.
+   - Ensure the correct imports are used, considering the newer dependency version.
+
+4. Plan the necessary changes:
+   - Replace the `DigestUtils.md5Hex` call with a method that uses `MessageDigest` to compute the MD5 hash.
+   - Add the necessary import for `MessageDigest` and `NoSuchAlgorithmException`.
+   - Ensure the new method to compute the MD5 hash is correctly implemented and integrated into the `username` method.
+</code_analysis>
+
+```java
+package com.maxmind.minfraud.request;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.maxmind.minfraud.AbstractModel;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+/**
+ * Account related data for the minFraud request
+ */
+public final class Account extends AbstractModel {
+    private final String userId;
+    private final String usernameMd5;
+
+    private Account(Account.Builder builder) {
+        userId = builder.userId;
+        usernameMd5 = builder.usernameMd5;
+    }
+
+    /**
+     * {@code Builder} creates instances of {@code Account}
+     * from values set by the builder's methods.
+     */
+    public static final class Builder {
+        String userId;
+        String usernameMd5;
+
+        /**
+         * @param id A unique user ID associated with the end-user in your
+         *           system. If your system allows the login name for the
+         *           account to be changed, this should not be the login
+         *           name for the account, but rather should be an internal
+         *           ID that does not change. This is not your MaxMind user
+         *           ID.
+         * @return The builder object.
+         */
+        public Account.Builder userId(String id) {
+            this.userId = id;
+            return this;
+        }
+
+        /**
+         * @param username The username associated with the account. This is
+         *                 <em>not</em> the MD5 of username. This method
+         *                 automatically runs an MD5 hash on the string passed to it.
+         * @return The builder object.
+         */
+        public Account.Builder username(String username) {
+            this.usernameMd5 = computeMD5(username);
+            return this;
+        }
+
+        /**
+         * @return An instance of {@code Account} created from the
+         * fields set on this builder.
+         */
+        public Account build() {
+            return new Account(this);
+        }
+
+        private String computeMD5(String input) {
+            try {
+                MessageDigest md = MessageDigest.getInstance("MD5");
+                byte[] messageDigest = md.digest(input.getBytes());
+                StringBuilder hexString = new StringBuilder();
+                for (byte b : messageDigest) {
+                    String hex = Integer.toHexString(0xff & b);
+                    if (hex.length() == 1) hexString.append('0');
+                    hexString.append(hex);
+                }
+                return hexString.toString();
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException("MD5 algorithm not found", e);
+            }
+        }
+    }
+
+    /**
+     * @return The user ID.
+     */
+    @JsonProperty("user_id")
+    public String getUserId() {
+        return userId;
+    }
+
+    /**
+     * @return The MD5 of the username passed to the builder.
+     */
+    @JsonProperty("username_md5")
+    public String getUsernameMd5() {
+        return usernameMd5;
+    }
+}
+```
+
+This solution replaces the use of `DigestUtils.md5Hex` with a custom method `computeMD5` that uses `MessageDigest` to compute the MD5 hash. This approach ensures that the code remains functional without relying on the `org.apache.commons.codec.digest` package.

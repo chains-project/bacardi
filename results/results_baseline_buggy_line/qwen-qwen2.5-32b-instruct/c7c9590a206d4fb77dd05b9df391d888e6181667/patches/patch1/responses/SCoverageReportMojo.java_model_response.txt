@@ -1,0 +1,490 @@
+```java
+package org.scoverage.plugin;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.maven.doxia.sink.Sink;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugins.annotations.Execute;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+
+import org.codehaus.plexus.util.StringUtils;
+
+import scala.Option;
+import scala.Tuple2;
+import scala.collection.immutable.Seq;
+import scala.jdk.javaapi.CollectionConverters;
+
+import scoverage.domain.Constants;
+import scoverage.domain.Coverage;
+import scoverage.domain.Statement;
+import scoverage.reporter.IOUtils;
+import scoverage.serialize.Serializer;
+import scoverage.reporter.CoberturaXmlWriter;
+import scoverage.reporter.CoverageAggregator;
+import scoverage.reporter.ScoverageHtmlWriter;
+import scoverage.reporter.ScoverageXmlWriter;
+
+/**
+ * Generates code coverage by unit tests report in forked {@code scoverage} life cycle.
+ * <br>
+ * <br>
+ * In forked {@code scoverage} life cycle project is compiled with SCoverage instrumentation
+ * and unit tests are executed before report generation.
+ * <br>
+ * 
+ * @author <a href="mailto:gslowikowski@gmail.com">Grzegorz Slowikowski</a>
+ * @since 1.0.0
+ */
+@Mojo( name = "report", threadSafe = false )
+@Execute( lifecycle = "scoverage", phase = LifecyclePhase.TEST )
+public class SCoverageReportMojo
+    extends AbstractMojo
+    implements MavenReport
+{
+
+    /**
+     * Allows SCoverage to be skipped.
+     * <br>
+     * 
+     * @since 1.0.0
+     */
+    @Parameter( property = "scoverage.skip", defaultValue = "false" )
+    private boolean skip;
+
+    /**
+     * In multi-module project additionally generate aggregated SCoverage report.
+     * <br>
+     * 
+     * @since 1.1.0
+     */
+    @Parameter( property = "scoverage.aggregate", defaultValue = "false" )
+    private boolean aggregate;
+
+    /**
+     * In multi-module project generate only aggregated SCoverage report.
+     * <br>
+     * <br>
+     * Scoverage reports for individual modules will not be generated.
+     * <br>
+     *
+     * @since 1.4.0
+     */
+    @Parameter( property = "scoverage.aggregateOnly", defaultValue = "false" )
+    private boolean aggregateOnly;
+
+    /**
+     * The file encoding to use when reading Scala sources.
+     * <br>
+     * 
+     * @since 1.2.0
+     */
+    @Parameter( property = "encoding", defaultValue = "${project.build.sourceEncoding}" )
+    private String encoding;
+
+    /**
+     * Specifies if the build will fail if there are errors during report execution or not.
+     */
+    @Parameter( property = "scoverage.failOnError", defaultValue = "true", readonly = true )
+    private boolean failOnError;
+
+    /**
+     * Maven project to interact with.
+     */
+    @Parameter( defaultValue = "${project}", readonly = true, required = true )
+    private MavenProject project;
+
+    /**
+     * All Maven projects in the reactor.
+     */
+    @Parameter( defaultValue = "${reactorProjects}", required = true, readonly = true )
+    private List<MavenProject> reactorProjects;
+
+    /**
+     * Destination directory where the coverage data files should be written.
+     */
+    @Parameter( property = "scoverage.dataDirectory", defaultValue = "${project.build.directory}/scoverage-data", required = true, readonly = true )
+    private File dataDirectory;
+
+    /**
+     * Destination directory for generated HTML report files.
+     */
+    @Parameter( property = "scoverage.outputDirectory", defaultValue = "${project.reporting.outputDirectory}/scoverage", required = true, readonly = true )
+    private File outputDirectory;
+
+    /**
+     * Destination directory for XML report files.
+     */
+    @Parameter( property = "scoverage.xmlOutputDirectory", defaultValue = "${project.build.directory}", required = true, readonly = true )
+    private File xmlOutputDirectory;
+
+    /**
+     * The name of the destination directory.
+     * <br>
+     */
+    @Parameter( property = "destDir", defaultValue = "scoverage", required = true, readonly = true )
+    private String destDir;
+
+    /**
+     * The name of the SCoverage report to be displayed in the Maven Generated Reports page
+     * (i.e. <code>project-reports.html</code>).
+     */
+    @Parameter( property = "name", readonly = true )
+    private String name;
+
+    /**
+     * The description of the Scoverage report to be displayed in the Maven Generated Reports page
+     * (i.e. <code>project-reports.html</code>).
+     */
+    @Parameter( property = "description", readonly = true )
+    private String description;
+
+    /** {@inheritDoc} */
+    public String getName( Locale locale )
+    {
+        if ( StringUtils.isEmpty( name ) )
+        {
+            return getBundle( locale ).getString( "report.scoverage.name" );
+        }
+
+        return name;
+    }
+
+    /** {@inheritDoc} */
+    public String getDescription( Locale locale )
+    {
+        if ( StringUtils.isEmpty( description ) )
+        {
+            return getBundle( locale ).getString( "report.scoverage.description" );
+        }
+
+        return description;
+    }
+
+    /** {@inheritDoc} */
+    public void generate( Sink sink, Locale locale )
+        throws MavenReportException
+    {
+        boolean canGenerateNonAggregatedReport = canGenerateNonAggregatedReport();
+        boolean canGenerateAggregatedReport = canGenerateAggregatedReport();
+        boolean canAttachAggregatedReportToSite = canAttachAggregatedReportToSite();
+
+        if ( canAttachAggregatedReportToSite && !( canGenerateNonAggregatedReport || canGenerateAggregatedReport ) )
+        {
+            return; // aggregated report for top-level project is generated by last reactor project
+        }
+
+        if ( getLog().isDebugEnabled() && canGenerateNonAggregatedReport )
+        {
+            getLog().debug( "Generating non-aggregated report." );
+        }
+
+        if ( getLog().isDebugEnabled() && canGenerateAggregatedReport )
+        {
+            getLog().debug( "Generating aggregated report." );
+        }
+
+        if ( getLog().isDebugEnabled() && canAttachAggregatedReportToSite )
+        {
+            getLog().debug( "Attaching aggregated report to site." );
+        }
+
+        try
+        {
+            long ts = System.currentTimeMillis();
+
+            if ( canGenerateNonAggregatedReport )
+            {
+                generateReports();
+            }
+
+            if ( canGenerateAggregatedReport )
+            {
+                generateAggregatedReports();
+            }
+
+            long te = System.currentTimeMillis();
+            getLog().debug( String.format( "Mojo execution time: %d ms", te - ts ) );
+        }
+        catch ( MavenReportException e )
+        {
+            if ( failOnError )
+            {
+                throw e;
+            }
+            getLog().error( "Error while creating scoverage report: " + e.getMessage(), e );
+        }
+        catch ( RuntimeException e )
+        {
+            if ( failOnError )
+            {
+                throw new MavenReportException( "Report generation exception", e );
+            }
+            getLog().error( "Error while creating scoverage report: " + e.getMessage(), e );
+        }
+    }
+
+    /** {@inheritDoc} */
+    public String getOutputName()
+    {
+        return destDir + "/index";
+    }
+
+    /** {@inheritDoc} */
+    public boolean isExternalReport()
+    {
+        return true;
+    }
+
+    /** {@inheritDoc} */
+    public boolean canGenerateReport()
+    {
+        if ( !skip && !"pom".equals( project.getPackaging() ) )
+        {
+            SCoverageForkedLifecycleConfigurator.afterForkedLifecycleExit( project, reactorProjects );
+        }
+
+        boolean canGenerateNonAggregatedReport = canGenerateNonAggregatedReport();
+        boolean canAttachAggregatedReportToSite = canAttachAggregatedReportToSite();
+
+        boolean result = canGenerateNonAggregatedReport || canAttachAggregatedReportToSite; 
+
+        if ( !result && canGenerateAggregatedReport() )
+        {
+            // last project, but not top-level one
+            // generate here, because 'false' must be returned to Maven in order to avoid adding to this module's site
+            try
+            {
+                generateAggregatedReports();
+            }
+            catch ( MavenReportException e )
+            {
+                throw new RuntimeException( e );
+            }
+        }
+        return result;
+    }
+
+    private boolean canGenerateNonAggregatedReport()
+    {
+        if ( skip )
+        {
+            return false;
+        }
+        if ( "pom".equals( project.getPackaging() ) )
+        {
+            return false;
+        }
+        if ( aggregateOnly && reactorProjects.size() > 1 )
+        {
+            return false;
+        }
+        File coverageFile = Serializer.coverageFile( dataDirectory );
+        if ( !coverageFile.exists() || !coverageFile.isFile() )
+        {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean canGenerateAggregatedReport()
+    {
+        return ( aggregate || aggregateOnly ) && reactorProjects.size() > 1
+                && project == reactorProjects.get( reactorProjects.size() - 1 );
+    }
+
+    private boolean canAttachAggregatedReportToSite()
+    {
+        return ( aggregate || aggregateOnly ) && reactorProjects.size() > 1 && project.isExecutionRoot();
+    }
+
+    /** {@inheritDoc} */
+    public String getCategoryName()
+    {
+        return MavenReport.CATEGORY_PROJECT_REPORTS;
+    }
+
+    /** {@inheritDoc} */
+    public File getReportOutputDirectory()
+    {
+        return outputDirectory;
+    }
+
+    /** {@inheritDoc} */
+    public void setReportOutputDirectory( File reportOutputDirectory )
+    {
+        updateReportOutputDirectory( reportOutputDirectory );
+    }
+
+    private void updateReportOutputDirectory( File reportOutputDirectory )
+    {
+        if ( !reportOutputDirectory.exists() && !reportOutputDirectory.mkdirs() )
+        {
+            throw new MavenReportException( String.format( "Cannot create \"%s\" directory ", reportOutputDirectory.getAbsolutePath() ) );
+        }
+        else if ( reportOutputDirectory.exists() && !reportOutputDirectory.isDirectory() )
+        {
+            throw new MavenReportException( String.format( "Directory \"%s\" exists but is not a directory ", reportOutputDirectory.getAbsolutePath() ) );
+        }
+    }
+
+    private void generateReports()
+        throws MavenReportException
+    {
+        @SuppressWarnings("unchecked")
+        List<String> sourceDirs = project.getExecutionProject().getCompileSourceRoots();
+        List<File> sourceRoots = new ArrayList<File>( sourceDirs.size() );
+        for ( String dir: sourceDirs )
+        {
+            sourceRoots.add( new File( dir ) );
+        }
+
+        mkdirs( outputDirectory );
+        mkdirs( xmlOutputDirectory );
+
+        File coverageFile = Serializer.coverageFile( dataDirectory );
+        getLog().info( String.format( "Reading scoverage instrumentation [%s]...", coverageFile.getAbsolutePath() ) );
+        Coverage coverage = Serializer.deserialize( coverageFile, project.getBasedir() );
+
+        getLog().info( "Generating coverage reports..." );
+        writeReports( coverage, sourceRoots, xmlOutputDirectory, xmlOutputDirectory, outputDirectory );
+        getLog().info( "Coverage reports completed." );
+    }
+
+    private void generateAggregatedReports()
+        throws MavenReportException
+    {
+        Coverage coverage = new Coverage();
+        AtomicInteger id = new AtomicInteger();
+        List<File> scoverageDataDirs = new ArrayList<File>();
+        List<File> sourceRoots = new ArrayList<File>();
+        MavenProject topLevelModule = null;
+        for ( MavenProject module : reactorProjects )
+        {
+            if ( module.isExecutionRoot() )
+            {
+                topLevelModule = module;
+            }
+            else if ( !module.getPackaging().equals( "pom" ) )
+            {
+                File scoverageDataDir = rebase( dataDirectory, module );
+                if ( scoverageDataDir.isDirectory() )
+                {
+                    scoverageDataDirs.add( scoverageDataDir );
+                    File coverageFile = Serializer.coverageFile( scoverageDataDir );
+                    if ( coverageFile.exists() )
+                    {
+                        Coverage subCoverage  = Serializer.deserialize( coverageFile, module.getBasedir() );
+                        List<File> measurementFiles = Arrays.asList( IOUtils.findMeasurementFiles( scoverageDataDir ) );
+                        scala.collection.Set<Tuple2<Object, String>> measurements =
+                                IOUtils.invoked( CollectionConverters.asScala( measurementFiles ).toSeq(), encoding );
+                        subCoverage.apply( measurements );
+                        subCoverage.statements().foreach(statement -> {
+                            int statementId = id.getAndIncrement();
+                            Statement copy = statement.copy(
+                                    (statement.location(), statementId, statement.start(), statement.end(), statement.line(), statement.desc(), statement.symbolName(), statement.treeName(), statement.branch(), statement.count(), statement.ignored(), statement.tests());
+                            coverage.add(copy);
+                            return null;
+                        });
+                    }
+
+                    File sourceRootsFile = new File( scoverageDataDir, "source.roots" );
+                    if ( sourceRootsFile.isFile() )
+                    {
+                        try
+                        {
+                            BufferedReader r = new BufferedReader( new InputStreamReader(
+                                    new FileInputStream( sourceRootsFile ), "UTF-8" ) );
+                            try
+                            {
+                                String path = r.readLine();
+                                while ( path != null )
+                                {
+                                    sourceRoots.add( new File( path ) );
+                                    path = r.readLine();
+                                }
+                            }
+                            finally
+                            {
+                                r.close();
+                            }
+                        }
+                        catch ( IOException e )
+                        {
+                            throw new MavenReportException( "Error reading source roots file", e );
+                        }
+                    }
+                }
+            }
+        }
+
+        if ( scoverageDataDirs.isEmpty() )
+        {
+            // last project, but not top-level one
+            // generate here, because 'false' must be returned to Maven in order to avoid adding to this module's site
+            try
+            {
+                generateAggregatedReports();
+            }
+            catch ( MavenReportException e )
+            {
+                throw new RuntimeException( e );
+            }
+        }
+    }
+
+    private void writeReports( Coverage coverage, List<File> sourceRoots, File coberturaXmlOutputDirectory,
+                              File scoverageXmlOutputDirectory, File scoverageHtmlOutputDirectory )
+    {
+        @SuppressWarnings("unchecked")
+        List<String> sourceDirs = project.getExecutionProject().getCompileSourceRoots();
+        List<File> sourceRoots = new ArrayList<File>( sourceDirs.size() );
+        for ( String dir: sourceDirs )
+        {
+            sourceRoots.add( new File( dir ) );
+        }
+
+        mkdirs( scoverageHtmlOutputDirectory );
+        mkdirs( scoverageXmlOutputDirectory );
+
+        File coverageFile = Serializer.coverageFile( dataDirectory );
+        getLog().info( String.format( "Reading scoverage instrumentation [%s]...", coverageFile.getAbsolutePath() ) );
+        Coverage coverage = Serializer.deserialize( coverageFile, project.getBasedir() );
+
+        getLog().info( "Generating coverage reports..." );
+        writeReports( coverage, sourceRoots, coberturaXmlOutputDirectory, scoverageXmlOutputDirectory, scoverageHtmlOutputDirectory );
+        getLog().info( "Coverage reports completed." );
+    }
+
+    private void mkdirs( File directory )
+        throws MavenReportException
+    {
+        if ( !directory.exists() && !directory.mkdirs() )
+        {
+            throw new MavenReportException( String.format( "Cannot create \"%s\" directory ", directory.getAbsolutePath() ) );
+        }
+        else if ( directory.exists() && !directory.isDirectory() )
+        {
+            throw new MavenReportException( String.format( "Directory \"%s\" exists but is not a directory ", directory.getAbsolutePath() ) );
+        }
+    }
+
+    private File rebase( File file, MavenProject otherModule )
+    {
+        return new File( file.getAbsolutePath().replace( project.getBasedir().getAbsolutePath(), otherModule.getBasedir().getAbsolutePath() ) );
+    }
+}
+```

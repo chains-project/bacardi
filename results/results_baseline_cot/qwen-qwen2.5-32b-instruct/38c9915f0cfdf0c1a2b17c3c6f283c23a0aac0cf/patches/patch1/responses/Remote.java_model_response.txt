@@ -1,0 +1,97 @@
+<code_analysis>
+1. Examine the error message:
+   - The error indicates that the class `RandomText` cannot be found in the package `org.cactoos.text`.
+   - This suggests that the `RandomText` class has been removed or moved in the updated dependency version.
+
+2. Review the client code:
+   - The `RandomText` class is used in the `Fake` constructor to initialize the `score` field.
+   - The `RandomText` class is not used anywhere else in the provided code.
+
+3. Consider potential fixes that adhere to the following constraints:
+   - Since `RandomText` is not found, we need to find an alternative way to initialize the `score` field.
+   - We can replace `RandomText` with another class or method that provides similar functionality.
+   - Ensure that the replacement does not change the behavior of the `Fake` class significantly.
+
+4. Plan the necessary changes to fix the issue:
+   - Replace `RandomText` with a different class or method that can generate a random text or string.
+   - Ensure that the replacement class or method is available in the current dependency version.
+</code_analysis>
+
+```java
+package io.zold.api;
+
+import org.cactoos.iterable.Repeated;
+import org.cactoos.text.Joined;
+
+/**
+ * Remote node.
+ *
+ * @since 0.1
+ */
+public interface Remote {
+    /**
+     * This remote node's score.
+     * @return The score
+     */
+    Score score();
+
+    /**
+     * Pushes a {@link Wallet} to this remote.
+     * @param wallet Wallet to be pushed to this remote
+     */
+    void push(Wallet wallet);
+
+    /**
+     * Pull a wallet from this remote.
+     * @param id The wallet's {@link Wallet#id() id}
+     * @return The wallet
+     */
+    Wallet pull(long id);
+
+    /**
+     * A Fake {@link Remote}.
+     */
+    final class Fake implements Remote {
+
+        /**
+         * The remote's score.
+         */
+        private final Score score;
+
+        /**
+         * Ctor.
+         * @param val The remote's score value
+         */
+        public Fake(final int val) {
+            this(new RtScore(
+                new Repeated<>(val, new Joined("random"))
+            ));
+        }
+
+        /**
+         * Ctor.
+         * @param score The remote's score
+         */
+        public Fake(final Score score) {
+            this.score = score;
+        }
+
+        @Override
+        public Score score() {
+            return this.score;
+        }
+
+        @Override
+        public void push(final Wallet wallet) {
+            // nothing
+        }
+
+        @Override
+        public Wallet pull(final long id) {
+            return new Wallet.Fake(id);
+        }
+    }
+}
+```
+
+In this fix, `RandomText` is replaced with `Joined("random")` to generate a string that can be used in the `Repeated` constructor. This change ensures that the `Fake` class can still initialize the `score` field without relying on the missing `RandomText` class.

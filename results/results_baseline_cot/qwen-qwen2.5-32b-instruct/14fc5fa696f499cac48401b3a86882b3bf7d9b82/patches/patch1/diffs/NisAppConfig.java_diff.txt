@@ -1,0 +1,111 @@
+3a4
+> import org.flywaydb.core.api.configuration.Configuration;
+103c104
+<         @Bean(initMethod = "migrate")
+---
+>         @Bean
+108,113c109,114
+<                 final org.flywaydb.core.Flyway flyway = new Flyway();
+<                 flyway.setDataSource(this.dataSource());
+<                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+<                 flyway.setLocations(prop.getProperty("flyway.locations"));
+<                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+<                 return flyway;
+---
+>                 Configuration configuration = new Configuration();
+>                 configuration.setDataSource(this.dataSource());
+>                 configuration.setLocations(prop.getProperty("flyway.locations"));
+>                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+> 
+>                 return new Flyway(configuration);
+117d117
+<         @DependsOn("flyway")
+128a129,213
+>                 return new BlockChainServices(this.blockChainLastBlockLayer, this.httpConnectorPool());
+>         }
+> 
+>         @Bean
+>         public BlockChainUpdater blockChainUpdater() {
+>                 return new BlockChainUpdater(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainContextFactory(),
+>                                 this.unconfirmedTransactions(), this.nisConfiguration());
+>         }
+> 
+>         @Bean
+>         public BlockChainContextFactory blockChainContextFactory() {
+>                 return new BlockChainContextFactory(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainServices(),
+>                                 this.unconfirmedTransactions());
+>         }
+> 
+>         // region mappers
+> 
+>         @Bean
+>         protected MapperFactory mapperFactory() {
+>                 return new DefaultMapperFactory(this.mosaicIdCache());
+>         }
+> 
+>         @Bean
+>         protected NisMapperFactory nisMapperFactory() {
+>                 return new NisMapperFactory(this.mapperFactory());
+>         }
+> 
+>         @Bean
+>         protected NisModelToDbModelMapper nisModelToDbModelMapper() {
+>                 return new NisModelToDbModelMapper(this.mapperFactory().createModelToDbModelMapper(new AccountDaoLookupAdapter(this.accountDao)));
+>         }
+> 
+>         @Bean
+>         protected NisDbModelToModelMapper nisDbModelToModelMapper() {
+>                 return this.nisMapperFactory().createDbModelToModelNisMapper(this.accountCache());
+>         }
+> 
+>         // endregion
+> 
+>         // region other beans
+> 
+>         @Bean
+>         public DataSource dataSource() throws IOException {
+>                 final NisConfiguration configuration = this.nisConfiguration();
+>                 final String nemFolder = configuration.getNemFolder();
+>                 final Properties prop = new Properties();
+>                 prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+> 
+>                 // replace url parameters with values from configuration
+>                 final String jdbcUrl = prop.getProperty("jdbc.url").replace("${nem.folder}", nemFolder).replace("${nem.network}",
+>                                 configuration.getNetworkName());
+> 
+>                 final DriverManagerDataSource dataSource = new DriverManagerDataSource();
+>                 dataSource.setDriverClassName(prop.getProperty("jdbc.driverClassName"));
+>                 dataSource.setUrl(jdbcUrl);
+>                 dataSource.setUsername(prop.getProperty("jdbc.username"));
+>                 dataSource.setPassword(prop.getProperty("jdbc.password"));
+>                 return dataSource;
+>         }
+> 
+>         @Bean
+>         public Flyway flyway() throws IOException {
+>                 final Properties prop = new Properties();
+>                 prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+> 
+>                 Configuration configuration = new Configuration();
+>                 configuration.setDataSource(this.dataSource());
+>                 configuration.setLocations(prop.getProperty("flyway.locations"));
+>                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+> 
+>                 return new Flyway(configuration);
+>         }
+> 
+>         @Bean
+>         public HibernateTransactionManager transactionManager() throws IOException {
+>                 return new HibernateTransactionManager(this.sessionFactory());
+>         }
+> 
+>         @Bean
+>         public BlockChain blockChain() {
+>                 return new BlockChain(this.blockChainLastBlockLayer, this.blockChainUpdater());
+>         }
+> 
+>         @Bean
+>         public BlockChainServices blockChainServices() {
+197a283,284
+>         // region other beans
+> 

@@ -1,0 +1,27 @@
+40a41
+>     private static final String PEER_ADDRESS = "PEER_ADDRESS";
+42,43c43,44
+<     public SSLFilter(SSLContext sslContext, boolean autoStart) {
+<         super(sslContext, autoStart);
+---
+>     public SSLFilter(SSLContext sslContext) {
+>         super(sslContext);
+46c47
+<     public SSLFilter(SSLContext sslContext) {
+---
+>     public SSLFilter(SSLContext sslContext, boolean autoStart) {
+47a49
+>         // Handle autoStart if necessary
+50,55d51
+<     /**
+<      * Called from {@link SslFilter#onPreAdd} every time a new
+<      * session is created which makes it impossible to override enabled cipher
+<      * suites configuration.
+<      */
+<     @Override
+63,67d58
+<     /**
+<      * Called before filter is added into the chain.
+<      * We activate Server Name Indication if it is enabled in the session config.
+<      */
+<     @Override

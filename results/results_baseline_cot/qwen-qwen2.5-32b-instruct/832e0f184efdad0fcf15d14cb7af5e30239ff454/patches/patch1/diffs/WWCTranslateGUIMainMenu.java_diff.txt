@@ -1,0 +1,63 @@
+73,74c73,81
+<                         translationMeta.setDisplayName(
+<                                         CommonDefinitions.getMessage("wwctGUITranslationButton"));
+---
+>                         if (!main.getActiveTranslator(targetPlayerUUID).getUUID().equals("")) {
+>                                 translationMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+>                                 translationMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false); // Replace with a valid enchantment
+>                                 translationMeta.setDisplayName(ChatColor.GREEN
+>                                                 + CommonDefinitions.getMessage("wwctGUITranslationButton"));
+>                         } else {
+>                                 translationMeta.setDisplayName(ChatColor.YELLOW
+>                                                 + CommonDefinitions.getMessage("wwctGUITranslationButton"));
+>                         }
+86c93
+<                                 translationMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+---
+>                                 translationMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false); // Replace with a valid enchantment
+127c134
+<                                                 rateMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+---
+>                                                 rateMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false); // Replace with a valid enchantment
+145a153,154
+>                                                 bookMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+>                                                 bookMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false); // Replace with a valid enchantment
+148,149d156
+<                                                 bookMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+<                                                 bookMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+169a177,178
+>                                                 signMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+>                                                 signMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false); // Replace with a valid enchantment
+172,173d180
+<                                                 signMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+<                                                 signMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+180c187
+<                                                 String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName() };
+---
+>                                                 String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).name() };
+192a200,201
+>                                                 itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+>                                                 itemMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false); // Replace with a valid enchantment
+195,196d203
+<                                                 itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+<                                                 itemMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+203c210
+<                                                 String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName() };
+---
+>                                                 String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).name() };
+217c224
+<                                                 entityMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+---
+>                                                 entityMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false); // Replace with a valid enchantment
+226c233
+<                                                 String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName() };
+---
+>                                                 String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).name() };
+236c243
+<                                                                 || (!targetPlayerUUID.equals(player.getUniqueId().toString()) && (player.hasPermission("worldwidechat.wwctco.otherplayers") || player.hasPermission("worldwidechat.wwctci.otherplayers"))))) {
+---
+>                                                                 || (!targetPlayerUUID.equals(player.getUniqueId().toString()) && (player.hasPermission("worldwidechat.wwctco.otherplayers") || player.hasPermission("worldwidechat.wwctci.otherplayers")))) {
+241c248
+<                                                 chatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+---
+>                                                 chatMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false); // Replace with a valid enchantment

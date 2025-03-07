@@ -1,0 +1,67 @@
+1,17d0
+< /*
+<  *  Licensed to the Apache Software Foundation (ASF) under one or more
+<  *  contributor license agreements.  See the NOTICE file distributed with
+<  *  this work for additional information regarding copyright ownership.
+<  *  The ASF licenses this file to You under the Apache License, Version 2.0
+<  *  (the "License"); you may not use this file except in compliance with
+<  *  the License.  You may obtain a copy of the License at
+<  *
+<  *      http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  *  Unless required by applicable law or agreed to in writing, software
+<  *  distributed under the License is distributed on an "AS IS" BASIS,
+<  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  *  See the License for the specific language governing permissions and
+<  *  limitations under the License.
+<  *
+<  */
+27c10
+< import org.apache.commons.io.output.ThresholdingOutputStream;
+---
+> import org.apache.commons.io.output.DeferredFileOutputStream;
+30c13
+<  * Offloads to disk when a given memory consumption has been reacehd
+---
+>  * Offloads to disk when a given memory consumption has been reached
+32c15
+< class OffloadingOutputStream extends ThresholdingOutputStream
+---
+> class OffloadingOutputStream extends DeferredFileOutputStream
+90,94c73,76
+<         this( threshold, null, prefix, suffix, directory );
+<         if ( prefix == null )
+<         {
+<             throw new IllegalArgumentException( "Temporary file prefix is missing" );
+<         }
+---
+>         super( threshold, prefix, suffix, directory );
+>         this.prefix = prefix;
+>         this.suffix = suffix;
+>         this.directory = directory;
+109c91
+<         super( threshold );
+---
+>         super( threshold, outputFile, prefix, suffix, directory );
+111,113d92
+< 
+<         memoryOutputStream = new ByteArrayOutputStream( threshold / 10 );
+<         currentOutputStream = memoryOutputStream;
+119,120d97
+<     // --------------------------------------- ThresholdingOutputStream methods
+< 
+129,130c106
+<     @Override
+<     protected OutputStream getStream() throws IOException
+---
+>     public OutputStream getStream() throws IOException
+143,144c119
+<     @Override
+<     protected void thresholdReached() throws IOException
+---
+>     public void thresholdReached() throws IOException
+164,165d138
+<     // --------------------------------------------------------- Public methods
+< 
+207d179
+<     @Override

@@ -1,0 +1,64 @@
+<code_analysis>
+The error messages indicate that the classes and packages related to `javax.mvc.locale` are not found, which suggests that the dependency related to this package has been updated or removed. The `javax.mvc.locale.LocaleResolver` and `javax.mvc.locale.LocaleResolverContext` classes are not available in the current environment, likely due to a change in the dependency version.
+
+Given the context, it seems that the `javax.mvc` package has been replaced or deprecated in favor of a new package or version. To resolve the issue, we need to identify the correct package or class that replaces the old ones and update the imports and class references accordingly.
+
+Since the `javax.mvc` package is not found, we need to find the equivalent classes in the new version of the dependency. Assuming the new version uses the `jakarta.mvc` package (as is common in recent updates from Java EE to Jakarta EE), we can update the imports and class references to use the new package.
+
+The following changes are proposed:
+- Replace `javax.mvc.locale.LocaleResolver` with `jakarta.mvc.locale.LocaleResolver`.
+- Replace `javax.mvc.locale.LocaleResolverContext` with `jakarta.mvc.locale.LocaleResolverContext`.
+- Ensure the correct imports are used for the new package.
+</code_analysis>
+
+```java
+package com.example.web;
+// https://www.mvc-spec.org/learn/cookbook/custom_localeresolver_en.html
+
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.annotation.Priority;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import jakarta.mvc.locale.LocaleResolver;
+import jakarta.mvc.locale.LocaleResolverContext;
+
+/**
+ * Resolver to get the {@link Locale} to use from the requests query param <i>lang</i>.
+ *
+ * In case there is no request param with this name, the {@link Locale} will be resolved by a higher prioritised
+ * implementation.
+ *
+ * Example usage:
+ * <pre>
+ * {@code
+ * # Use default locale
+ * curl -X GET <your-url>
+ *
+ * # Set german locale by query param
+ * curl -X GET <your-url>?lang=de-DE
+ * }
+ * </pre>
+ *
+ * @author Tobias Erdle
+ */
+@Priority(1)
+@ApplicationScoped
+public class QueryParamLocaleResolver implements LocaleResolver {
+    
+    @Inject
+    Logger log;
+    
+    @Override
+    public Locale resolveLocale(final LocaleResolverContext context) {
+        final String queryLang = context.getUriInfo()
+                .getQueryParameters()
+                .getFirst("lang");
+        log.log(Level.INFO, "QueryParamLocaleResolver::resolveLocale:lang:{0}", queryLang);
+        return queryLang != null ? Locale.forLanguageTag(queryLang) : null;
+    }
+}
+```
+
+This solution assumes that the `javax.mvc` package has been replaced by `jakarta.mvc` in the updated dependency. If the actual replacement package is different, the imports and class references should be updated accordingly.

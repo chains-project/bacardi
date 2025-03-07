@@ -1,0 +1,53 @@
+3d2
+< import develop.p2p.lib.*;
+96c95
+<                     Location center = player.getLocation();
+---
+>                     double rangeTmp = range;
+98,107c97,99
+<                     if (center.getPitch() <= 0.0f || center.getPitch() > 15.0f)
+<                         center.setPitch(0.0f);
+< 
+<                     Location n = center.add(center.getDirection().multiply(0 - range));
+< 
+<                     n.setY(center.getY() + range);
+< 
+<                     n.setPitch(50);
+< 
+<                     float head = ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f;
+---
+>                     if (config.getBoolean("npc.wave"))
+>                         rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
+>                             .get(0.01, true);
+109,110c101,109
+<                     if (head < 0)
+<                         head *= 2;
+---
+>                     final Location center = player.getLocation();
+>                     final Location n = new Location(
+>                         center.getWorld(),
+>                         auraBotXPos(time[0], rangeTmp + speed) + center.getX(),
+>                         center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
+>                         auraBotZPos(time[0], rangeTmp + speed) + center.getZ(),
+>                         (float) ypp.getStatic(),
+>                         (float) ypp.get(4.5, false)
+>                     );
+113,114c112,113
+<                     connection.sendPacket(new PacketPlayOutEntityTeleport(target));
+<                     connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) head));
+---
+>                     ((CraftPlayer) player).getHandle().playerConnection
+>                         .sendPacket(new PacketPlayOutEntityTeleport(target));
+117d115
+<                     float finalHead = head;
+123c121,123
+<                             Bukkit.getOnlinePlayers().parallelStream().filter(p -> p.hasPermission("psac.viewnpc"))
+---
+>                             Bukkit.getOnlinePlayers()
+>                                 .parallelStream()
+>                                 .filter(p -> p.hasPermission("psac.viewnpc"))
+128,129d127
+<                                     ((CraftPlayer) p).getHandle().playerConnection
+<                                         .sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) finalHead));
+136d133
+< 

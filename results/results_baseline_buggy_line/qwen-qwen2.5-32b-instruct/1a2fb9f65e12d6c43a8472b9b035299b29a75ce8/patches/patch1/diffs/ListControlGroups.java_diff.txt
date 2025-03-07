@@ -1,0 +1,86 @@
+1,18d0
+< /**
+<  * Copyright (C) 2014 Premium Minds.
+<  *
+<  * This file is part of wicket-crudifier.
+<  *
+<  * wicket-crudifier is free software: you can redistribute it and/or modify it under
+<  * the terms of the GNU Lesser General Public License as published by the Free
+<  * Software Foundation, either version 3 of the License, or (at your option) any
+<  * later version.
+<  *
+<  * wicket-crudifier is distributed in the hope that it will be useful, but WITHOUT ANY
+<  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+<  * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+<  * details.
+<  *
+<  * You should have received a copy of the GNU Lesser General Public License
+<  * along with wicket-crudifier. If not, see <http://www.gnu.org/licenses/>.
+<  */
+36a19
+> import javax.validation.ConstraintViolation;
+38,40c21,22
+< import javax.validation.constraints.NotBlank;
+< import javax.validation.constraints.NotEmpty;
+< import javax.validation.constraints.NotNull;
+---
+> import javax.validation.ValidatorFactory;
+> import javax.validation.groups.Default;
+112a95,116
+>         public IModel<T> getModel(){
+>                 return (IModel<T>) getDefaultModel();
+>         }
+> 
+>         public Component getResourceBase(){
+>                 return this;
+>         }
+> 
+>         public Map<String, AbstractControlGroup<?>> getFieldsControlGroup(){
+>                 return Collections.unmodifiableMap(fieldComponents);
+>         }
+> 
+>         @SuppressWarnings("rawtypes")
+>         public Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap(){
+>                 return typesControlGroups;
+>         }
+> 
+>         @SuppressWarnings("rawtypes")
+>         public Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> getControlGroupProviders(){
+>                 return this.controlGroupProviders;
+>         }
+> 
+119,121c123,124
+<                 Set<String> properties = getPropertiesByOrder(modelClass);
+< 
+<                 Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
+---
+>                 ValidatorFactory factory = HibernateValidatorProperty.validatorFactory;
+>                 Validator validator = factory.getValidator();
+123c126
+<                 for(String property : properties){
+---
+>                 for(String property : getPropertiesByOrder(modelClass)){
+137,139c140,142
+<                                         if(constraint.getAnnotation() instanceof NotNull ||
+<                                            constraint.getAnnotation() instanceof NotEmpty ||
+<                                            constraint.getAnnotation() instanceof NotBlank)
+---
+>                                         if(constraint.getAnnotation() instanceof javax.validation.constraints.NotNull ||
+>                                            constraint.getAnnotation() instanceof javax.validation.constraints.NotEmpty ||
+>                                            constraint.getAnnotation() instanceof javax.validation.constraints.NotBlank)
+165d167
+< 
+210c212
+<         @SuppressWarnings("unchecked")
+---
+>         @SuppressWarnings("rawtypes")
+245,253d246
+< 
+<         @SuppressWarnings("rawtypes")
+<         public Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap(){
+<                 return typesControlGroups;
+<         }
+<         
+<         public Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> getControlGroupProviders(){
+<                 return this.controlGroupProviders;
+<         }

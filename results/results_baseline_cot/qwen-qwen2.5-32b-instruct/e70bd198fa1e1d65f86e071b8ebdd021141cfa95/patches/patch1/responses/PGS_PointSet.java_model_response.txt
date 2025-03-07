@@ -1,0 +1,97 @@
+<code_analysis>
+1. Examine the error message:
+   - The error is related to the `query1NN` method not being found in the `KDTree` class.
+   - The error occurs at line 70 in the `prunePointsWithinDistance` method.
+   - The issue is likely due to a change in the `KDTree` class in the `org.tinspin.index.kdtree` package.
+
+2. Review the client code:
+   - The `prunePointsWithinDistance` method uses the `query1NN` method to find the nearest neighbor.
+   - The `KDTree` class is used to store and query points.
+
+3. Consider potential fixes:
+   - The `query1NN` method might have been renamed or removed in the updated `KDTree` class.
+   - We need to find an alternative method or update the method call to match the new API.
+
+4. Plan the necessary changes:
+   - Replace the `query1NN` method call with the appropriate method from the updated `KDTree` class.
+   - Ensure the method call is correct and the return type is handled properly.
+</code_analysis>
+
+```java
+package micycle.pgs;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.SplittableRandom;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import javax.vecmath.Point3d;
+import javax.vecmath.Point4d;
+
+import org.apache.commons.math3.ml.clustering.Clusterable;
+import org.apache.commons.math3.ml.clustering.Clusterer;
+import org.apache.commons.math3.ml.clustering.KMeansPlusPlusClusterer;
+import org.apache.commons.math3.ml.distance.EuclideanDistance;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.commons.math3.util.Pair;
+
+import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm;
+import org.jgrapht.alg.spanning.PrimMinimumSpanningTree;
+import org.jgrapht.graph.SimpleGraph;
+import org.tinfour.common.IIncrementalTin;
+import org.tinspin.index.kdtree.KDTree;
+import org.tinspin.index.kdtree.NNResult;
+
+import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
+import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
+import micycle.pgs.commons.GeometricMedian;
+import micycle.pgs.commons.PEdge;
+import micycle.pgs.commons.PoissonDistributionJRUS;
+import processing.core.PShape;
+import processing.core.PVector;
+
+/**
+ * Generation of random sets of 2D points having a variety of different
+ * distributions and constraints (and associated functions).
+ * 
+ * @author Michael Carleton
+ * @since 1.2.0
+ *
+ */
+public final class PGS_PointSet {
+
+// ... (rest of the class remains unchanged)
+
+	/**
+	 * Returns a filtered copy of the input, containing no points that are within
+	 * the <code>distanceTolerance</code> of each other.
+	 * <p>
+	 * This method can be used to convert a random point set into a blue-noise-like
+	 * (poisson) point set.
+	 * 
+	 * @param points            list of points to filter
+	 * @param distanceTolerance a point that is within this distance of a previously
+	 *                         included point is not included in the output
+	 * @return
+	 */
+	public static List<PVector> prunePointsWithinDistance(List<PVector> points, double distanceTolerance) {
+		final KDTree<PVector> tree = KDTree.create(2);
+		final List<PVector> newPoints = new ArrayList<>();
+		for (PVector p : points) {
+			final double[] coords = new double[] { p.x, p.y };
+			if (tree.size() == 0 || tree.nearestNeighbor(coords).getDistance() > distanceTolerance) {
+				tree.insert(coords, p);
+				newPoints.add(p);
+			}
+		}
+		return newPoints;
+	}
+
+// ... (rest of the class remains unchanged)
+```
+
+In the provided patch, the `query1NN` method call has been replaced with `nearestNeighbor` to match the updated `KDTree` API. The `nearestNeighbor` method returns a `NNResult` object, which has a `getDistance` method to retrieve the distance to the nearest neighbor. This change should resolve the compilation error while maintaining the original functionality of the `prunePointsWithinDistance` method.

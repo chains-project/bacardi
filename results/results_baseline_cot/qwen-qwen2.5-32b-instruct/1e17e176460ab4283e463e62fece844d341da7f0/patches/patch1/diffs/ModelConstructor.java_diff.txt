@@ -1,0 +1,35 @@
+1,7d0
+< /**
+<  * Copyright (c) 2012 to original author or authors
+<  * All rights reserved. This program and the accompanying materials
+<  * are made available under the terms of the Eclipse Public License v1.0
+<  * which accompanies this distribution, and is available at
+<  * http://www.eclipse.org/legal/epl-v10.html
+<  */
+43c36,37
+<     super(Model.class);
+---
+>     super();
+>     setRootNodeClass(Model.class);
+126,127c120
+<     desc = new TypeDescription(MailingList.class);
+<     desc.putListPropertyType("otherArchives", String.class);
+---
+>     desc = new TypeDescription(DistributionManagement.class);
+130,135c123,127
+<     // Simple types
+<     addTypeDescription(new TypeDescription(DistributionManagement.class));
+<     addTypeDescription(new TypeDescription(Scm.class));
+<     addTypeDescription(new TypeDescription(IssueManagement.class));
+<     addTypeDescription(new TypeDescription(Parent.class));
+<     addTypeDescription(new TypeDescription(Organization.class));
+---
+>     desc = new TypeDescription(Scm.class);
+>     addTypeDescription(desc);
+> 
+>     desc = new TypeDescription(IssueManagement.class);
+>     addTypeDescription(desc);
+168c160
+<           child = toDom(child, (Map) entryValue);
+---
+>           toDom(child, (Map) entryValue);

@@ -1,0 +1,142 @@
+1,19d0
+< /*******************************************************************************
+<  * Copyright (c) quickfixengine.org  All rights reserved.
+<  *
+<  * This file is part of the QuickFIX FIX Engine
+<  *
+<  * This file may be distributed under the terms of the quickfixengine.org
+<  * license as defined by quickfixengine.org and appearing in the file
+<  * LICENSE included in the packaging of this file.
+<  *
+<  * This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING
+<  * THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A
+<  * PARTICULAR PURPOSE.
+<  *
+<  * See http://www.quickfixengine.org/LICENSE for licensing information.
+<  *
+<  * Contact ask@quickfixengine.org if any conditions of this licensing
+<  * are not clear to you.
+<  ******************************************************************************/
+< 
+37d17
+< import quickfix.SessionFactory;
+82c62
+<             MessageFactory messageFactory) throws ConfigError {
+---
+>             LogFactory logFactory, MessageFactory messageFactory) throws ConfigError {
+87,129d66
+<     protected AbstractSocketAcceptor(Application application,
+<             MessageStoreFactory messageStoreFactory, SessionSettings settings,
+<             LogFactory logFactory, MessageFactory messageFactory) throws ConfigError {
+<         this(settings, new DefaultSessionFactory(application, messageStoreFactory, logFactory,
+<                 messageFactory));
+<     }
+< 
+<     // TODO SYNC Does this method really need synchronization?
+<     protected synchronized void startAcceptingConnections() throws ConfigError {
+< 
+<         boolean continueInitOnError = isContinueInitOnError();
+<         createSessions(getSettings(), continueInitOnError);
+<         startSessionTimer();
+< 
+<         SocketAddress address = null;
+<         for (AcceptorSocketDescriptor socketDescriptor : socketDescriptorForAddress.values()) {
+<             try {
+<                 address = socketDescriptor.getAddress();
+<                 IoAcceptor ioAcceptor = getIoAcceptor(socketDescriptor);
+<                 CompositeIoFilterChainBuilder ioFilterChainBuilder = new CompositeIoFilterChainBuilder(getIoFilterChainBuilder());
+< 
+<                 if (socketDescriptor.isUseSSL()) {
+<                     installSSL(socketDescriptor, ioFilterChainBuilder);
+<                 }
+< 
+<                 ioFilterChainBuilder.addLast(FIXProtocolCodecFactory.FILTER_NAME,
+<                         new ProtocolCodecFilter(new FIXProtocolCodecFactory()));
+< 
+<                 ioAcceptor.setFilterChainBuilder(ioFilterChainBuilder);
+<                 ioAcceptor.setCloseOnDeactivation(false);
+<                 ioAcceptor.bind(socketDescriptor.getAddress());
+<                 log.info("Listening for connections at {} for session(s) {}", address, socketDescriptor.getAcceptedSessions().keySet());
+<             } catch (IOException | GeneralSecurityException | ConfigError e) {
+<                 if (continueInitOnError) {
+<                     log.warn("error during session initialization for session(s) {}, continuing...", socketDescriptor.getAcceptedSessions().keySet(), e);
+<                 } else {
+<                     log.error("Cannot start acceptor session for {}, error: {}", address, e);
+<                     throw new RuntimeError(e);
+<                 }
+<             }
+<         }
+<     }
+< 
+136d72
+<         sslFilter.setUseClientMode(false);
+167,223d102
+<     private void setupSession(SessionSettings settings, SessionID sessionID, boolean isTemplate, Map<SessionID, Session> allSessions)
+<             throws ConfigError, FieldConvertError {
+<         int acceptTransportType = ProtocolFactory.SOCKET;
+<         if (settings.isSetting(sessionID, Acceptor.SETTING_SOCKET_ACCEPT_PROTOCOL)) {
+<             try {
+<                 acceptTransportType = ProtocolFactory.getTransportType(settings.getString(
+<                         sessionID, Acceptor.SETTING_SOCKET_ACCEPT_PROTOCOL));
+<             } catch (IllegalArgumentException e) {
+<                 // Unknown transport type
+<                 throw new ConfigError(e);
+<             }
+<         }
+< 
+<         boolean useSSL = false;
+<         SSLConfig sslConfig = null;
+<         if (getSettings().isSetting(sessionID, SSLSupport.SETTING_USE_SSL)
+<                 && getSettings().getBool(sessionID, SSLSupport.SETTING_USE_SSL)) {
+<             if (acceptTransportType == ProtocolFactory.SOCKET) {
+<                 useSSL = true;
+<                 sslConfig = SSLSupport.getSslConfig(getSettings(), sessionID);
+<             } else {
+<                 log.warn("SSL will not be enabled for transport type={}, session={}", acceptTransportType, sessionID);
+<             }
+<         }
+< 
+<         int acceptPort = (int) settings.getLong(sessionID, Acceptor.SETTING_SOCKET_ACCEPT_PORT);
+< 
+<         String acceptHost = null;
+<         if (settings.isSetting(sessionID, SETTING_SOCKET_ACCEPT_ADDRESS)) {
+<             acceptHost = settings.getString(sessionID, SETTING_SOCKET_ACCEPT_ADDRESS);
+<         }
+< 
+<         SocketAddress acceptorAddress = ProtocolFactory.createSocketAddress(acceptTransportType,
+<                 acceptHost, acceptPort);
+< 
+<         // Check for cached descriptor
+<         AcceptorSocketDescriptor descriptor = socketDescriptorForAddress.get(acceptorAddress);
+<         if (descriptor != null) {
+<             if (descriptor.isUseSSL() != useSSL || !equals(sslConfig, descriptor.getSslConfig())) {
+<                 throw new ConfigError("Conflicting configurations of acceptor socket: " + acceptorAddress);
+<             }
+<         } else {
+<             descriptor = new AcceptorSocketDescriptor(acceptorAddress, useSSL, sslConfig);
+<             socketDescriptorForAddress.put(acceptorAddress, descriptor);
+<         }
+< 
+<         if (!isTemplate) {
+<             Session session = sessionFactory.create(sessionID, settings);
+<             descriptor.acceptSession(session);
+<             allSessions.put(sessionID, session);
+<         }
+<     }
+< 
+<     private boolean equals(Object object1, Object object2) {
+<         return object1 == null ? object2 == null : object1.equals(object2);
+<     }
+< 
+326a206
+> 
+338,344d217
+<     public int getQueueSize() {
+<         final EventHandlingStrategy ehs = getEventHandlingStrategy();
+<         return ehs == null ? 0 : ehs.getQueueSize();
+<     }
+< 
+<     protected abstract EventHandlingStrategy getEventHandlingStrategy() ;
+< 
+371d243
+< 

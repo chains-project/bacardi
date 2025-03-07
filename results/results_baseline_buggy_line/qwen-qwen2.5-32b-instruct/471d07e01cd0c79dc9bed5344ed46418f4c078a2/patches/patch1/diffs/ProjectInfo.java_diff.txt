@@ -1,0 +1,178 @@
+1,16d0
+< /*
+<  * Copyright 2015 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+59c43
+<     private static final long serialVersionUID = 869635563976629566L;
+---
+>     private static final long serialVersionUID = 86963556399629566L;
+69,71d52
+<     private static final StringEnumType<State> type = new StringEnumType(State.class, CONSTRUCTOR);
+< 
+<     /** Only used/useful for distinguishing unset values. */
+75d55
+<     /** The normal and active state. */
+78,81d57
+<     /**
+<      * The project has been marked for deletion by the user or by the system (Google Cloud
+<      * Platform). This can generally be reversed by calling {@link ResourceManager#undelete}.
+<      */
+84,86d59
+<     /**
+<      * The process of deleting the project has begun. Reversing the deletion is no longer possible.
+<      */
+93,96d65
+<     /**
+<      * Get the State for the given String constant, and throw an exception if the constant is not
+<      * recognized.
+<      */
+101d69
+<     /** Get the State for the given String constant, and allow unrecognized values. */
+106d73
+<     /** Return the known values for State. */
+138c105,108
+<       return obj instanceof ResourceId && Objects.equals(toPb(), ((ResourceId) obj).toPb());
+---
+>       return obj == this
+>           || obj != null
+>               && obj.getClass().equals(ResourceId.class)
+>               && Objects.equals(toPb(), ((ResourceId) obj).toPb());
+146,148c116,118
+<     com.google.api.services.cloudresourcemanager.model.ResourceId toPb() {
+<       com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb =
+<           new com.google.api.services.cloudresourcemanager.model.ResourceId();
+---
+>     com.google.api.services.cloudresourcemanager.v3.model.ResourceId toPb() {
+>       com.google.api.services.cloudresourcemanager.v3.model.ResourceId resourceIdPb =
+>           new com.google.api.services.cloudresourcemanager.v3.model.ResourceId();
+155c125
+<         com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb) {
+---
+>         com.google.api.services.cloudresourcemanager.v3.model.ResourceId resourceIdPb) {
+160,215d129
+<   /** Builder for {@code ProjectInfo}. */
+<   public abstract static class Builder {
+< 
+<     /**
+<      * Set the user-assigned name of the project.
+<      *
+<      * <p>This field is optional and can remain unset. Allowed characters are: lowercase and
+<      * uppercase letters, numbers, hyphen, single-quote, double-quote, space, and exclamation point.
+<      * This field can be changed after project creation.
+<      */
+<     public abstract Builder setName(String name);
+< 
+<     /**
+<      * Set the unique, user-assigned ID of the project.
+<      *
+<      * <p>The ID must be 6 to 30 lowercase letters, digits, or hyphens. It must start with a letter.
+<      * Trailing hyphens are prohibited. This field cannot be changed after the server creates the
+<      * project.
+<      */
+<     public abstract Builder setProjectId(String projectId);
+< 
+<     /**
+<      * Add a label associated with this project.
+<      *
+<      * <p>See {@link #labels} for label restrictions.
+<      */
+<     public abstract Builder addLabel(String key, String value);
+< 
+<     /** Remove a label associated with this project. */
+<     public abstract Builder removeLabel(String key);
+< 
+<     /** Clear the labels associated with this project. */
+<     public abstract Builder clearLabels();
+< 
+<     /**
+<      * Set the labels associated with this project.
+<      *
+<      * <p>Label keys must be between 1 and 63 characters long and must conform to the following
+<      * regular expression: [a-z]([-a-z0-9]*[a-z0-9])?. Label values must be between 0 and 63
+<      * characters long and must conform to the regular expression ([a-z]([-a-z0-9]*[a-z0-9])?)?. No
+<      * more than 256 labels can be associated with a given resource. This field can be changed after
+<      * project creation.
+<      */
+<     public abstract Builder setLabels(Map<String, String> labels);
+< 
+<     abstract Builder setProjectNumber(Long projectNumber);
+< 
+<     abstract Builder setState(State state);
+< 
+<     abstract Builder setCreateTimeMillis(Long createTimeMillis);
+< 
+<     public abstract Builder setParent(ResourceId parent);
+< 
+<     public abstract ProjectInfo build();
+<   }
+< 
+276d189
+<     @Override
+282d194
+<     @Override
+288d199
+<     @Override
+316,320d226
+<   /**
+<    * Get the unique, user-assigned ID of the project.
+<    *
+<    * <p>This field cannot be changed after the server creates the project.
+<    */
+325,329d230
+<   /**
+<    * Get the user-assigned name of the project.
+<    *
+<    * <p>This field is optional, can remain unset, and can be changed after project creation.
+<    */
+334,338d234
+<   /**
+<    * Get number uniquely identifying the project.
+<    *
+<    * <p>This field is set by the server and is read-only.
+<    */
+343d238
+<   /** Get the immutable map of labels associated with this project. */
+348,353d242
+<   /**
+<    * Get the project's lifecycle state.
+<    *
+<    * <p>This is a read-only field. To change the lifecycle state of your project, use the {@code
+<    * delete} or {@code undelete} method.
+<    */
+362,366d250
+<   /**
+<    * Get the project's creation time (in milliseconds).
+<    *
+<    * <p>This field is set by the server and is read-only.
+<    */
+392,394c276,278
+<   com.google.api.services.cloudresourcemanager.model.Project toPb() {
+<     com.google.api.services.cloudresourcemanager.model.Project projectPb =
+<         new com.google.api.services.cloudresourcemanager.model.Project();
+---
+>   com.google.api.services.cloudresourcemanager.v3.model.Project toPb() {
+>     com.google.api.services.cloudresourcemanager.v3.model.Project projectPb =
+>         new com.google.api.services.cloudresourcemanager.v3.model.Project();
+404,406c288
+<           DateTimeFormatter.ISO_DATE_TIME
+<               .withZone(ZoneOffset.UTC)
+<               .format(Instant.ofEpochMilli(createTimeMillis)));
+---
+>           DATE_TIME_FORMATTER.format(Instant.ofEpochMilli(createTimeMillis)));
+414c296
+<   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.model.Project projectPb) {
+---
+>   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) {

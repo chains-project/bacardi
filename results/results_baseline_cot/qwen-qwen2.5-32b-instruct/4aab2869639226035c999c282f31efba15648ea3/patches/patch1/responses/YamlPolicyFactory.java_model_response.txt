@@ -1,0 +1,59 @@
+<code_analysis>
+The error message indicates that the class `Storages` cannot be found in the package `com.artipie.asto.factory`. This suggests that the `Storages` class has been removed or moved in the updated dependency version. The error occurs in the `YamlPolicyFactory` class, specifically in the `getPolicy` method where `Storages` is used to create a new storage instance. To resolve this issue, we need to find the replacement or equivalent functionality in the updated dependency version. If the `Storages` class has been replaced by another class or method, we should use that instead. If the functionality has been removed, we need to find an alternative way to create the storage instance.
+</code_analysis>
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
+ * https://github.com/artipie/http/blob/master/LICENSE.txt
+ */
+package com.artipie.security.policy;
+
+import com.amihaiemil.eoyaml.Yaml;
+import com.artipie.asto.blocking.BlockingStorage;
+import com.artipie.asto.fs.FsStorage;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+
+/**
+ * Policy factory to create {@link YamlPolicy}. Yaml policy is read from storage, and it's required
+ * to describe this storage in the configuration. Configuration format is the following:
+ *
+ * policy:
+ *   type: yaml_policy
+ *   storage:
+ *     type: fs
+ *     path: /some/path
+ *
+ * The storage itself is expected to have yaml files with permissions in the following structure:
+ *
+ * ..
+ * ├── roles.yaml
+ * ├── users
+ * │   ├── david.yaml
+ * │   ├── jane.yaml
+ * │   ├── ...
+ *
+ * @since 1.2
+ */
+@ArtipiePolicyFactory("yaml_policy")
+public final class YamlPolicyFactory implements PolicyFactory {
+
+    @Override
+    public Policy<?> getPolicy(final PolicyConfig config) {
+        final PolicyConfig sub = config.config("storage");
+        try {
+            // Assuming Storages class is no longer available, we directly create a storage instance.
+            return new YamlPolicy(
+                new BlockingStorage(
+                    new FsStorage(sub.string("path"))
+                )
+            );
+        } catch (final IOException err) {
+            throw new UncheckedIOException(err);
+        }
+    }
+}
+```
+
+In this fix, I've assumed that the `Storages` class has been replaced by a direct method or class to create a storage instance, such as `FsStorage` for file system storage. The `FsStorage` class is used here as an example, and the path is directly passed to it. This is based on the assumption that the `Storages` class was used to create a file system storage, and the `path` parameter is used to specify the storage location. If the actual replacement class or method is different, it should be used instead of `FsStorage`.

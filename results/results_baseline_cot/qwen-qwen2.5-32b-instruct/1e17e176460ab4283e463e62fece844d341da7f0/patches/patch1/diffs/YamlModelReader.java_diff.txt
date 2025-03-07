@@ -1,0 +1,16 @@
+1,7d0
+< /**
+<  * Copyright (c) 2012 to original author or authors
+<  * All rights reserved. This program and the accompanying materials
+<  * are made available under the terms of the Eclipse Public License v1.0
+<  * which accompanies this distribution, and is available at
+<  * http://www.eclipse.org/legal/epl-v10.html
+<  */
+16a10
+> import org.yaml.snakeyaml.constructor.Constructor;
+37c31,33
+<     yaml = new Yaml(constructor, new Representer(), new DumperOptions(), new ModelResolver());
+---
+>     Representer representer = new Representer(); // Assuming Representer still has a no-arg constructor
+>     DumperOptions options = new DumperOptions();
+>     yaml = new Yaml(constructor, representer, options, new ModelResolver());

@@ -1,0 +1,74 @@
+12,16c12,13
+< import io.dropwizard.logging.AbstractAppenderFactory;
+< import io.dropwizard.logging.async.AsyncAppenderFactory;
+< import io.dropwizard.logging.filter.LevelFilterFactory;
+< import io.dropwizard.logging.layout.LayoutFactory;
+< import io.dropwizard.request.logging.layout.LogbackAccessRequestLayoutFactory;
+---
+> import org.slf4j.Logger;
+> import org.slf4j.LoggerFactory;
+25c22,24
+< public class WireAppenderFactory<T extends DeferredProcessingAware> extends AbstractAppenderFactory<T> {
+---
+> public class WireAppenderFactory<T extends DeferredProcessingAware> {
+> 
+>     private static final Logger LOGGER = LoggerFactory.getLogger(WireAppenderFactory.class);
+27d25
+<     @Override
+39c37
+<         final Filter<T> levelFilter = levelFilterFactory.build(threshold);
+---
+>         final Filter<T> levelFilter = levelFilterFactory.build();
+74a73,124
+>     private List<FilterFactory<T>> getFilterFactories() {
+>         // Dummy implementation for demonstration purposes
+>         return List.of();
+>     }
+> 
+>     private interface FilterFactory<T> {
+>         Filter<T> build();
+>     }
+> 
+>     private class AccessEventJsonLayout implements Layout<IAccessEvent> {
+>         public AccessEventJsonLayout(List<Filter<IAccessEvent>> filters) {
+>             // Dummy implementation for demonstration purposes
+>         }
+> 
+>         @Override
+>         public String doLayout(IAccessEvent event) {
+>             return null;
+>         }
+> 
+>         @Override
+>         public void start() {}
+> 
+>         @Override
+>         public void stop() {}
+> 
+>         @Override
+>         public boolean ignoreThrowable(Throwable t) {
+>             return false;
+>         }
+>     }
+> 
+>     private class LoggingEventJsonLayout implements Layout<ILoggingEvent> {
+>         public LoggingEventJsonLayout(List<Filter<ILoggingEvent>> filters) {
+>             // Dummy implementation for demonstration purposes
+>         }
+> 
+>         @Override
+>         public String doLayout(ILoggingEvent event) {
+>             return null;
+>         }
+> 
+>         @Override
+>         public void start() {}
+> 
+>         @Override
+>         public void stop() {}
+> 
+>         @Override
+>         public boolean ignoreThrowable(Throwable t) {
+>             return false;
+>         }
+>     }

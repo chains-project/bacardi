@@ -1,0 +1,84 @@
+26,27c26
+< import org.jclouds.util.Closeables2;
+< import org.yaml.snakeyaml.DumperOptions;
+---
+> import org.yaml.snakeyaml.LoaderOptions;
+89d87
+<       @Override
+107d104
+<       @Override
+114c111,112
+<             return (YamlNode) new Yaml(new Constructor(YamlNode.class)).load(in);
+---
+>             LoaderOptions options = new LoaderOptions();
+>             return (YamlNode) new Yaml(new Constructor(YamlNode.class, options)).load(in);
+126a125,155
+>    public static final Function<Node, YamlNode> nodeToYamlNode = new Function<Node, YamlNode>() {
+>       public YamlNode apply(Node arg0) {
+>          if (arg0 == null)
+>             return null;
+>          YamlNode yaml = new YamlNode();
+>          yaml.id = arg0.getId();
+>          yaml.name = arg0.getName();
+>          yaml.description = arg0.getDescription();
+>          yaml.hostname = arg0.getHostname();
+>          yaml.location_id = arg0.getLocationId();
+>          yaml.os_arch = arg0.getOsArch();
+>          yaml.os_family = arg0.getOsFamily();
+>          yaml.os_description = arg0.getOsDescription();
+>          yaml.os_version = arg0.getOsVersion();
+>          yaml.os_64bit = arg0.isOs64Bit();
+>          yaml.login_port = arg0.getLoginPort();
+>          yaml.group = arg0.getGroup();
+>          yaml.tags = ImmutableList.copyOf(arg0.getTags());
+>          yaml.metadata = ImmutableMap.copyOf(arg0.getMetadata());
+>          yaml.username = arg0.getUsername();
+>          yaml.credential = arg0.getCredential();
+>          yaml.credential_url = arg0.getCredentialUrl() != null ? arg0.getCredentialUrl().toASCIIString() : null;
+>          yaml.sudo_password = arg0.getSudoPassword();
+>          return yaml;
+>       }
+>    };
+> 
+>    public static YamlNode fromNode(Node in) {
+>       return nodeToYamlNode.apply(in);
+>    }
+> 
+128d156
+<       @Override
+172d199
+<       }
+178,210d204
+< 
+<    public static YamlNode fromNode(Node in) {
+<       return nodeToYamlNode.apply(in);
+<    }
+< 
+<    public static final Function<Node, YamlNode> nodeToYamlNode = new Function<Node, YamlNode>() {
+<       @Override
+<       public YamlNode apply(Node arg0) {
+<          if (arg0 == null)
+<             return null;
+<          YamlNode yaml = new YamlNode();
+<          yaml.id = arg0.getId();
+<          yaml.name = arg0.getName();
+<          yaml.description = arg0.getDescription();
+<          yaml.hostname = arg0.getHostname();
+<          yaml.location_id = arg0.getLocationId();
+<          yaml.os_arch = arg0.getOsArch();
+<          yaml.os_family = arg0.getOsFamily();
+<          yaml.os_description = arg0.getOsDescription();
+<          yaml.os_version = arg0.getOsVersion();
+<          yaml.os_64bit = arg0.isOs64Bit();
+<          yaml.login_port = arg0.getLoginPort();
+<          yaml.group = arg0.getGroup();
+<          yaml.tags = ImmutableList.copyOf(arg0.getTags());
+<          yaml.metadata = ImmutableMap.copyOf(arg0.getMetadata());
+<          yaml.username = arg0.getUsername();
+<          yaml.credential = arg0.getCredential();
+<          yaml.credential_url = arg0.getCredentialUrl() != null ? arg0.getCredentialUrl().toASCIIString() : null;
+<          yaml.sudo_password = arg0.getSudoPassword();
+<          return yaml;
+<       }
+<    };
+< 

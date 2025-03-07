@@ -1,0 +1,17 @@
+19a20
+> import java.util.Arrays;
+21,22c22
+< import static org.apache.commons.lang3.StringUtils.isAllBlank;
+< import static org.apache.commons.lang3.StringUtils.isNotBlank;
+---
+> import static org.apache.commons.lang3.StringUtils.isBlank;
+140,141c140,141
+<             if (isAllBlank(server.getUrl(), server.getArtifactory().getUrl(), server.getDistribution().getUrl(),
+<                     step.url, step.artifactoryUrl, step.distributionUrl)) {
+---
+>             if (Arrays.asList(server.getUrl(), server.getArtifactory().getUrl(), server.getDistribution().getUrl(),
+>                     step.url, step.artifactoryUrl, step.distributionUrl).stream().allMatch(StringUtils::isBlank)) {
+186c186
+<             // The following fields does not exist in the Distribution server:
+---
+>             // The following fields do not exist in the Distribution server:

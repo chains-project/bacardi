@@ -1,0 +1,13 @@
+5a6
+> import org.apache.maven.surefire.api.testset.TestSetFailedException;
+10d10
+< 
+25c25,26
+<         DirectoryScanner directoryScanner = new DirectoryScanner(testSrcFolder, TestListResolver.getWildcard());
+---
+>         try {
+>             DirectoryScanner directoryScanner = new DirectoryScanner(testSrcFolder, TestListResolver.getDefaultWildcard());
+26a28,30
+>         } catch (TestSetFailedException e) {
+>             throw new RuntimeException(e);
+>         }

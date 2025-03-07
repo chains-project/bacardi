@@ -1,0 +1,188 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+```java
+//
+// Wire
+// Copyright (C) 2016 Wire Swiss GmbH
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see http://www.gnu.org/licenses/.
+//
+
+package com.wire.lithium.server.resources;
+
+import com.codahale.metrics.annotation.Metered;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wire.bots.cryptobox.CryptoException;
+import com.wire.lithium.ClientRepo;
+import com.wire.lithium.server.monitoring.MDCUtils;
+import com.wire.xenon.MessageHandlerBase;
+import com.wire.xenon.MessageResourceBase;
+import com.wire.xenon.WireClient;
+import com.wire.xenon.assets.Reaction;
+import com.wire.xenon.backend.models.ErrorMessage;
+import com.wire.xenon.backend.models.Payload;
+import com.wire.xenon.exceptions.MissingStateException;
+import com.wire.xenon.tools.Logger;
+import io.swagger.annotations.*;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.util.UUID;
+import java.util.logging.Level;
+
+@Api
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+@Path("/bots/{bot}/messages")
+public class MessageResource extends MessageResourceBase {
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ClientRepo repo;
+
+    public MessageResource(MessageHandlerBase handler, ClientRepo repo) {
+        super(handler);
+        this.repo = repo;
+    }
+
+    @POST
+    @ApiOperation(value = "New OTR Message")
+    @ApiResponses(value = {
+            @ApiResponse(code = 403, message = "Invalid Authorization", response = ErrorMessage.class),
+            @ApiResponse(code = 503, message = "Missing bot's state object", response = ErrorMessage.class),
+            @ApiResponse(code = 200, message = "Alles gute")})
+    @Authorization("Bearer")
+    @Metered
+    public Response newMessage(@ApiParam("UUID Bot instance id") @PathParam("bot") UUID botId,
+                               @ApiParam("UUID Unique event id") @QueryParam("id") UUID eventId,
+                               @ApiParam @Valid @NotNull Payload payload) throws IOException {
+
+        if (eventId == null) {
+            eventId = UUID.randomUUID(); //todo fix this once Wire BE adds eventId into payload
+        }
+
+        if (Logger.getLevel() == Level.FINE) {
+            Logger.debug("eventId: %s, botId: %s, %s",
+                    eventId,
+                    botId,
+                    objectMapper.writeValueAsString(payload));
+        }
+
+        // put tracing information to logs
+        MDCUtils.put("botId", botId);
+        MDCUtils.put("eventId", eventId);
+        MDCUtils.put("conversationId", payload.conversation.id);
+
+        try (WireClient client = getWireClient(botId, payload)) {
+            handleMessage(eventId, payload, client);
+        } catch (CryptoException e) {
+            Logger.exception("newMessage: %s %s", e, botId, e.getMessage());
+            respondWithError(botId, payload);
+            return Response.
+                    status(503).
+                    entity(new ErrorMessage(e.getMessage())).
+                    build();
+        } catch (MissingStateException e) {
+            Logger.exception("newMessage: %s %s", e, botId, e.getMessage());
+            return Response.
+                    status(410).
+                    entity(new ErrorMessage(e.getMessage())).
+                    build();
+        } catch (Exception e) {
+            Logger.exception("newMessage: %s %s", e, botId, e.getMessage());
+            return Response.
+                    status(400).
+                    entity(new ErrorMessage(e.getMessage())).
+                    build();
+        }
+
+        return Response.
+                ok().
+                status(200).
+                build();
+    }
+
+    private void respondWithError(UUID botId, Payload payload) {
+        try (WireClient client = getWireClient(botId, payload)) {
+            client.send(new Reaction(UUID.randomUUID(), ""));
+        } catch (Exception e) {
+            Logger.exception("respondWithError: bot: %s %s", e, botId, e.getMessage());
+        }
+    }
+
+    protected WireClient getWireClient(UUID botId, Payload payload) throws IOException, CryptoException {
+        return repo.getClient(botId);
+    }
+}
+
+```
+the error is triggered in the following specific lines in the previous code:
+
+```java
+@Path("/bots/{bot}/messages")
+```
+```java
+@Produces(MediaType.APPLICATION_JSON)
+```
+```java
+@Consumes(MediaType.APPLICATION_JSON)
+```
+```java
+import javax.ws.rs.core.MediaType;
+```
+```java
+import javax.ws.rs.*;
+```
+```java
+import javax.ws.rs.core.Response;
+```
+```java
+public Response newMessage(@ApiParam("UUID Bot instance id") @PathParam("bot") UUID botId,
+```
+
+
+
+ with the following error information:
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/resources/MessageResource.java:[48,2] cannot find symbol
+
+  symbol: class Path
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/resources/MessageResource.java:[46,2] cannot find symbol
+
+  symbol: class Produces
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/resources/MessageResource.java:[47,2] cannot find symbol
+
+  symbol: class Consumes
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/resources/MessageResource.java:[39,24] package javax.ws.rs.core does not exist
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/resources/MessageResource.java:[38,1] package javax.ws.rs does not exist
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/resources/MessageResource.java:[40,24] package javax.ws.rs.core does not exist
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/resources/MessageResource.java:[66,12] cannot find symbol
+
+  symbol:   class Response
+  location: class com.wire.lithium.server.resources.MessageResource
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

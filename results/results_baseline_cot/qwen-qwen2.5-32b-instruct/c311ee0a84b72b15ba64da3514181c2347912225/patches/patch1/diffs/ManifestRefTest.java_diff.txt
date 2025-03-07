@@ -1,0 +1,27 @@
+1,5d0
+< /*
+<  * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
+<  * https://github.com/artipie/docker-adapter/LICENSE.txt
+<  */
+< 
+13,14d7
+< import org.hamcrest.core.AllOf;
+< import org.hamcrest.core.StringContains;
+55,59c48,50
+<             new AllOf<>(
+<                 Arrays.asList(
+<                     new StringContains(true, "Unsupported reference"),
+<                     new StringContains(false, string)
+<                 )
+---
+>             Matchers.allOf(
+>                 Matchers.containsString("Unsupported reference"),
+>                 Matchers.containsString(string)
+73a65
+>         final String tag = "0.2";
+75,76c67,68
+<             new ManifestRef.FromTag(new Tag.Valid("latest")).link().string(),
+<             Matchers.equalTo("tags/latest/current/link")
+---
+>             new ManifestRef.FromTag(new Tag.Valid(tag)).link().string(),
+>             Matchers.equalTo("tags/0.2/current/link")

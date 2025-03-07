@@ -1,0 +1,35 @@
+6,12c6,11
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.UriRef;
+< import javax.mvc.binding.BindingResult;
+< import javax.mvc.binding.MvcBinding;
+< import javax.mvc.binding.ParamError;
+< import javax.mvc.security.CsrfProtected;
+---
+> import javax.mvc.annotation.Controller;
+> import javax.mvc.annotation.Model;
+> import javax.mvc.annotation.Post;
+> import javax.mvc.annotation.Get;
+> import javax.mvc.annotation.Path;
+> import javax.mvc.annotation.Csrf;
+15,17d13
+< import javax.ws.rs.GET;
+< import javax.ws.rs.POST;
+< import javax.ws.rs.Path;
+28a25
+>     @Model
+31a29
+>     @Model
+40c38
+<     @GET
+---
+>     @Get
+45,46c43,44
+<     @POST
+<     @CsrfProtected
+---
+>     @Post
+>     @Csrf
+49d46
+<             @MvcBinding

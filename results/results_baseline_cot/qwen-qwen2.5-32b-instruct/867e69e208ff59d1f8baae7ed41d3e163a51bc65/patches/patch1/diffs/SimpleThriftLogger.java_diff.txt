@@ -1,0 +1,71 @@
+1,15d0
+< /**
+<  * Copyright 2019 Pinterest, Inc.
+<  * 
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  * 
+<  *    http://www.apache.org/licenses/LICENSE-2.0
+<  * 
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+24d8
+< import org.apache.thrift.transport.TFramedTransport;
+45c29
+<   private static final class ByteOffsetTFramedTransport extends TFramedTransport {
+---
+>   private static final class ByteOffsetTTransport extends TTransport {
+46a31
+>     private final TTransport transport;
+49,50c34,35
+<     public ByteOffsetTFramedTransport(TTransport transport) {
+<       super(transport);
+---
+>     public ByteOffsetTTransport(TTransport transport) {
+>       this.transport = transport;
+54a40,59
+>     public boolean isOpen() {
+>       return transport.isOpen();
+>     }
+> 
+>     @Override
+>     public void open() throws TTransportException {
+>       transport.open();
+>     }
+> 
+>     @Override
+>     public void close() {
+>       transport.close();
+>     }
+> 
+>     @Override
+>     public int read(byte[] buf, int off, int len) throws TTransportException {
+>       return transport.read(buf, off, len);
+>     }
+> 
+>     @Override
+56c61
+<       super.write(buf, off, len);
+---
+>       transport.write(buf, off, len);
+62c67
+<       super.flush();
+---
+>       transport.flush();
+75c80
+<   private ByteOffsetTFramedTransport transport;
+---
+>   private ByteOffsetTTransport transport;
+81c86
+<     transport = new ByteOffsetTFramedTransport(new TIOStreamTransport(bufferedOutputStream));
+---
+>     transport = new ByteOffsetTTransport(new TIOStreamTransport(bufferedOutputStream));
+115c120
+<     transport = new ByteOffsetTFramedTransport(new TIOStreamTransport(bufferedOutputStream));
+---
+>     transport = new ByteOffsetTTransport(new TIOStreamTransport(bufferedOutputStream));

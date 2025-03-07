@@ -1,0 +1,30 @@
+```java
+package io.github.wesleyosantos91.api.v1.mapper;
+
+import io.github.wesleyosantos91.api.v1.request.PersonRequest;
+import io.github.wesleyosantos91.api.v1.response.PersonResponse;
+import io.github.wesleyosantos91.core.domain.PersonDomain;
+import java.util.ArrayList;
+import java.util.List;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
+
+@Mapper
+public interface PersonHttpMapper {
+
+    PersonHttpMapper INSTANCE = Mappers.getMapper(PersonHttpMapper.class);
+    PersonDomain toDomain(PersonRequest request);
+    PersonRequest toRequest(PersonDomain domain);
+
+    PersonDomain toDomain(PersonResponse response);
+    PersonResponse toResponse(PersonDomain domain);
+
+    default List<PersonResponse> toListResponse(List<PersonDomain> domains){
+        List<PersonResponse> list = new ArrayList<>();
+        domains.forEach(d-> list.add(toResponse(d)));
+        return list;
+    }
+}
+```
+
+The provided code does not require changes to the `@Mapper` annotation or the surrounding code based on the error message provided. The error message suggests an issue with the MapStruct library version or configuration, which cannot be resolved by modifying the client code alone. If the issue persists, it may require updating the MapStruct library or ensuring the correct plugin is configured in the build tool (e.g., Maven or Gradle).

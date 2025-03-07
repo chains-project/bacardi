@@ -1,0 +1,187 @@
+1,24d0
+< /*
+<  * The MIT License
+<  *
+<  * Copyright 2018 CloudBees, Inc.
+<  *
+<  * Permission is hereby granted, free of charge, to any person obtaining a copy
+<  * of this software and associated documentation files (the "Software"), to deal
+<  * in the Software without restriction, including without limitation the rights
+<  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+<  *
+<  * The above copyright notice and this permission notice shall be included in
+<  * all copies or substantial portions of the Software.
+<  *
+<  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+<  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+<  * THE SOFTWARE.
+<  */
+< 
+41a18
+> import org.kohsuke.github.GitHubComparison;
+63,99d39
+<     @FunctionalInterface
+<     public interface Log {
+<         void info(String message);
+<     }
+< 
+<     public static final class VersionAndRepo implements Comparable<VersionAndRepo> {
+<         public final String groupId;
+<         public final String artifactId;
+<         public final ComparableVersion version;
+<         public final String repo;
+<         VersionAndRepo(String groupId, String artifactId, ComparableVersion version, String repo) {
+<             this.groupId = groupId;
+<             this.artifactId = artifactId;
+<             this.version = version;
+<             this.repo = repo;
+<         }
+<         /** Sort by version descending. */
+<         @Override public int compareTo(VersionAndRepo o) {
+<             assert o.groupId.equals(groupId) && o.artifactId.equals(artifactId);
+<             return o.version.compareTo(version);
+<         }
+<         /** @return for example: {@code https://repo/net/nowhere/lib/1.23/} */
+<         public String baseURL() {
+<             return repo + groupId.replace('.', '/') + '/' + artifactId + '/' + version + '/';
+<         }
+<         /**
+<          * @param type for example, {@code pom}
+<          * @return for example: {@code https://repo/net/nowhere/lib/1.23/lib-1.23.pom}
+<          */
+<         public String fullURL(String type) {
+<             return baseURL() + artifactId + '-' + version + '.' + type;
+<         }
+<         @Override public String toString() {
+<             return baseURL();
+<         }
+<     }
+< 
+151,155d90
+<                 // The problem is that we cannot then guarantee that the POM has been flattened
+<                 // (this is only guaranteed for repositories which *may* produce incrementals),
+<                 // and loadGitHubCommit will not work for nonflattened POMs from reactor submodules:
+<                 // it would have to be made more complicated to resolve the parent POM(s),
+<                 // or we would need to switch the implementation to use Maven/Aether resolution APIs.
+188,201d122
+<     private static final class GitHubCommit {
+<         final String owner;
+<         final String repo;
+<         final String hash;
+<         GitHubCommit(String owner, String repo, String hash) {
+<             this.owner = owner;
+<             this.repo = repo;
+<             this.hash = hash;
+<         }
+<         @Override public String toString() {
+<             return "https://github.com/" + owner + '/' + repo + "/commit/" + hash;
+<         }
+<     }
+< 
+210c131
+<             return null;
+---
+>             throw new Exception("Could not find <scm> in " + pom);
+231,232d151
+<      * {@code curl -s -u … https://api.github.com/repos/<owner>/<repo>/compare/<branch>...<hash> | jq -r .status}
+<      * will return {@code identical} or {@code behind} if so, else {@code diverged} or {@code ahead}.
+239,240c158,160
+<             GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).status;
+<             return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
+---
+>             GitHubComparison comparison = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).compare(branch, ghc.hash);
+>             GHCompare.Status status = comparison.getStatus();
+>             return status == GHCompare.Status.BEHIND || status == GHCompare.Status.IDENTICAL;
+279a200,285
+>     private static final class GitHubCommit {
+>         final String owner;
+>         final String repo;
+>         final String hash;
+>         GitHubCommit(String owner, String repo, String hash) {
+>             this.owner = owner;
+>             this.repo = repo;
+>             this.hash = hash;
+>         }
+>         @Override public String toString() {
+>             return "https://github.com/" + owner + '/' + repo + "/commit/" + hash;
+>         }
+>     }
+> 
+>     public static final class VersionAndRepo implements Comparable<VersionAndRepo> {
+>         public final String groupId;
+>         public final String artifactId;
+>         public final ComparableVersion version;
+>         public final String repo;
+>         VersionAndRepo(String groupId, String artifactId, ComparableVersion version, String repo) {
+>             this.groupId = groupId;
+>             this.artifactId = artifactId;
+>             this.version = version;
+>             this.repo = repo;
+>         }
+>         /** Sort by version descending. */
+>         @Override public int compareTo(VersionAndRepo o) {
+>             assert o.groupId.equals(groupId) && o.artifactId.equals(artifactId);
+>             return o.version.compareTo(version);
+>         }
+>         /** @return for example: {@code https://repo/net/nowhere/lib/1.23/} */
+>         public String baseURL() {
+>             return repo + groupId.replace('.', '/') + '/' + artifactId + '/' + version + '/';
+>         }
+>         /**
+>          * @param type for example, {@code pom}
+>          * @return for example: {@code https://repo/net/nowhere/lib/1.23/lib-1.23.pom}
+>          */
+>         public String fullURL(String type) {
+>             return baseURL() + artifactId + '-' + version + '.' + type;
+>         }
+>         @Override public String toString() {
+>             return baseURL();
+>         }
+>     }
+> 
+>     public @CheckForNull String findGroupId(String artifactId) throws IOException, InterruptedException {
+>         String cacheKey = artifactId;
+>         if (groupIdCache.containsKey(cacheKey)) {
+>             log.info("Group ID Cache hit on artifact ID: " + artifactId);
+>             return groupIdCache.get(cacheKey);
+>         }
+> 
+>         //TODO: implement to support non-Incremental formats
+>         // Needs to load UC JSON and query it like https://github.com/jenkinsci/docker/pull/668
+>         return null;
+>     }
+> 
+>     public @CheckForNull VersionAndRepo find(String groupId, String artifactId, String currentVersion, String branch) throws Exception {
+>         String cacheKey = groupId + ':' + artifactId + ':' + currentVersion + ':' + branch;
+>         if (cache.containsKey(cacheKey)) {
+>             log.info("Cache hit on updates to " + groupId + ":" + artifactId + ":" + currentVersion + " within " + branch);
+>             return cache.get(cacheKey);
+>         }
+>         VersionAndRepo result = doFind(groupId, artifactId, currentVersion, branch);
+>         cache.put(cacheKey, result);
+>         return result;
+>     }
+> 
+>     private static final class GitHubCommit {
+>         final String owner;
+>         final String repo;
+>         final String hash;
+>         GitHubCommit(String owner, String repo, String hash) {
+>             this.owner = owner;
+>             this.repo = repo;
+>             this.hash = hash;
+>         }
+>         @Override public String toString() {
+>             return "https://github.com/" + owner + '/' + repo + "/commit/" + hash;
+>         }
+>     }
+> 
+>     public interface Log {
+>         void info(String message);
+>     }

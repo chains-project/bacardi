@@ -1,0 +1,26 @@
+24,25d23
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.config.ConfigDir;
+30,31c28
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelRegistrar;
+---
+> import org.spongepowered.api.network.ChannelBinding;
+84,85c81
+<         cmdManager.register(this, injector.getInstance(InvalidateCommand.class)
+<                 .buildSpec(), "skininvalidate", "skin-invalidate");
+---
+>         cmdManager.register(this, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
+90,96c86,89
+<         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
+<         String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
+<         String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
+<         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
+<         RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
+<         updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
+<         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
+---
+>         ChannelBinding.RawDataChannel updateChannel = Sponge.getChannelRegistrar().createChannel(UPDATE_SKIN_CHANNEL);
+>         ChannelBinding.RawDataChannel permChannel = Sponge.getChannelRegistrar().createChannel(CHECK_PERM_CHANNEL);
+>         updateChannel.register(this, injector.getInstance(UpdateSkinListener.class));
+>         permChannel.register(this, injector.getInstance(CheckPermissionListener.class));

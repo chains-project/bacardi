@@ -1,0 +1,104 @@
+16a17
+> import org.slf4j.Logger;
+82a84
+> 
+84a87
+> 
+144,147d146
+<         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
+<         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
+<         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+< 
+151a151,153
+>         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
+>         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+> 
+162d163
+<         assertThat(personalisation.get("paymentExternalId"), is("456"));
+164c165
+<         assertThat(personalisation.get("sendEvidenceToPayDueDate"), is("4 March 2022"));
+---
+>         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
+167,176d167
+<         assertThat(personalisation.get("fraudulent"), is("yes"));
+<         assertThat(personalisation.get("duplicate"), is("no"));
+<         assertThat(personalisation.get("credit_not_processed"), is("no"));
+<         assertThat(personalisation.get("product_not_received"), is("no"));
+<         assertThat(personalisation.get("product_unacceptable"), is("no"));
+<         assertThat(personalisation.get("subscription_canceled"), is("no"));
+<         assertThat(personalisation.get("unrecognized"), is("no"));
+<         assertThat(personalisation.get("paymentAmount"), is(nullValue()));
+<         assertThat(personalisation.get("disputeEvidenceDueDate"), is(nullValue()));
+< 
+189c180
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("net_amount", -4000L, "fee", 1500L, "amount", 2500L, "gateway_account_id", gatewayAccountId)))
+---
+>                 .withEventDetails(objectMapper.valueToTree(Map.of("net_amount", -4000L, "fee", 1500L, "amount", 2500L, "gateway_account_id", gatewayAccountId))
+196a188
+> 
+234,256d225
+<         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
+<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+<         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
+< 
+<         eventMessageHandler.processMessages();
+< 
+<         verify(mockNotificationService, atMostOnce()).sendStripeDisputeWonEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
+< 
+<         var emails = adminEmailsCaptor.getValue();
+<         var personalisation = personalisationCaptor.getValue();
+< 
+<         assertThat(emails.size(), is(2));
+<         assertThat(emails, hasItems("admin1@service.gov.uk", "admin2@service.gov.uk"));
+<         assertThat(personalisation.get("serviceName"), is(service.getName()));
+<         assertThat(personalisation.get("serviceReference"), is("tx ref"));
+<         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
+< 
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+< 
+<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+<         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+<         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
+<     }
+258,270d226
+<     @Test
+<     void shouldHandleDisputeEvidenceSubmittedEvent() throws QueueException {
+<         var mockQueueMessage = mock(QueueMessage.class);
+<         disputeEvent = anEventFixture()
+<                 .withEventType(EventType.DISPUTE_EVIDENCE_SUBMITTED.name())
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("gateway_account_id", gatewayAccountId)))
+<                 .withParentResourceExternalId("456")
+<                 .withServiceId(service.getExternalId())
+<                 .withLive(true)
+<                 .build();
+<         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
+<         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
+<         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+277c233
+<         verify(mockNotificationService, atMostOnce()).sendStripeDisputeEvidenceSubmittedEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
+---
+>         verify(mockNotificationService, atMostOnce()).sendStripeDisputeWonEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
+279c235
+<         var emails = adminEmailsCaptor.getValue();
+---
+>         var emails = adminEmailCaptor.getValue();
+300c256
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00Z", "gateway_account_id", gatewayAccountId)))
+---
+>                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId, "reason", "fraudulent")))
+304a261
+> 
+317c274
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
+---
+>                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId, "reason", "fraudulent")))
+321a279
+> 
+335c293
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
+---
+>                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId, "reason", "fraudulent")))
+341c299
+<         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
+---
+>         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service);

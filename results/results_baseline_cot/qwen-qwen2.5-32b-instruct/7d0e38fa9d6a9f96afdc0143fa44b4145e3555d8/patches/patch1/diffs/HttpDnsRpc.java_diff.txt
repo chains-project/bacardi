@@ -1,0 +1,181 @@
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+38a23
+> 
+42d26
+< /** A default implementation of the DnsRpc interface. */
+83c67,72
+<         throw translate(ex, false);
+---
+>         DnsException serviceException = translate(ex, false);
+>         if (serviceException.getCode() == HTTP_NOT_FOUND) {
+>           callback.onSuccess(null);
+>         } else {
+>           callback.onFailure(serviceException);
+>         }
+92c81,86
+<         throw translate(ex, false);
+---
+>         DnsException serviceException = translate(ex, false);
+>         if (serviceException.getCode() == HTTP_NOT_FOUND) {
+>           callback.onSuccess(null);
+>         } else {
+>           callback.onFailure(serviceException);
+>         }
+134c128
+<         Map<DnsRpc.Option, ?> options) {
+---
+>         Map<Option, ?> options) {
+185d178
+<   /** Constructs an instance of this rpc client with provided {@link DnsOptions}. */
+203d195
+<       // todo this can cause misleading report of a failure, intended to be fixed within #924
+217d208
+<     // just fields option
+238d228
+<     // fields, page token, page size
+252d241
+<         .setDnsName(Option.DNS_NAME.getString(options))
+271c260,261
+<     return dns.managedZones().delete(this.options.getProjectId(), zoneName);
+---
+>     return dns.managedZones()
+>         .delete(this.options.getProjectId(), zoneName);
+275,276c265,283
+<   public ListResult<ResourceRecordSet> listRecordSets(String zoneName, Map<Option, ?> options)
+<       throws DnsException {
+---
+>   public Project getProject(Map<Option, ?> options) throws DnsException {
+>     try {
+>       return getProjectCall(options).execute();
+>     } catch (IOException ex) {
+>       throw translate(ex, true);
+>     }
+>   }
+> 
+>   private Dns.Projects.Get getProjectCall(Map<Option, ?> options) throws IOException {
+>     return dns.projects()
+>         .get(this.options.getProjectId(), this.options.getProjectId())
+>         .setFields(Option.FIELDS.getString(options));
+>   }
+> 
+>   @Override
+>   public ListResult<ResourceRecordSet> listRecordSets(
+>       String zoneName,
+>       RpcBatch.Callback<ResourceRecordSetsListResponse> callback,
+>       Map<DnsRpc.Option, ?> options) throws DnsException {
+287d293
+<     // options are fields, page token, dns name, type
+291d296
+<         .setPageToken(Option.PAGE_TOKEN.getString(options))
+292a298
+>         .setPageToken(Option.PAGE_TOKEN.getString(options))
+298,313c304
+<   public Project getProject(Map<Option, ?> options) throws DnsException {
+<     try {
+<       return getProjectCall(options).execute();
+<     } catch (IOException ex) {
+<       throw translate(ex, true);
+<     }
+<   }
+< 
+<   private Dns.Projects.Get getProjectCall(Map<Option, ?> options) throws IOException {
+<     return dns.projects()
+<         .get(this.options.getProjectId())
+<         .setFields(Option.FIELDS.getString(options));
+<   }
+< 
+<   @Override
+<   public Change applyChangeRequest(String zoneName, Change changeRequest, Map<Option, ?> options)
+---
+>   public ListResult<Change> listChangeRequests(String zoneName, Map<Option, ?> options)
+316c307,308
+<       return applyChangeRequestCall(zoneName, changeRequest, options).execute();
+---
+>       ChangesListResponse response = listChangeRequestsCall(zoneName, options).execute();
+>       return ListResult.of(response.getNextPageToken(), response.getChanges());
+318c310
+<       throw translate(ex, false);
+---
+>       throw translate(ex, true);
+322,323c314,315
+<   private Dns.Changes.Create applyChangeRequestCall(
+<       String zoneName, Change changeRequest, Map<Option, ?> options) throws IOException {
+---
+>   private Dns.Changes.List listChangeRequestsCall(String zoneName, Map<Option, ?> options)
+>       throws IOException {
+325,326c317,322
+<         .create(this.options.getProjectId(), zoneName, changeRequest)
+<         .setFields(Option.FIELDS.getString(options));
+---
+>         .list(this.options.getProjectId(), zoneName)
+>         .setFields(Option.FIELDS.getString(options))
+>         .setMaxResults(Option.PAGE_SIZE.getInt(options))
+>         .setPageToken(Option.PAGE_TOKEN.getString(options))
+>         .setSortBy(SORT_BY)
+>         .setSortOrder(Option.SORTING_ORDER.getString(options));
+330,331c326,327
+<   public Change getChangeRequest(String zoneName, String changeRequestId, Map<Option, ?> options)
+<       throws DnsException {
+---
+>   public Change getChangeRequest(
+>       String zoneName, String changeRequestId, Map<Option, ?> options) throws DnsException {
+337,340d332
+<         if ("entity.parameters.changeId".equals(serviceException.getLocation())
+<             || (serviceException.getMessage() != null
+<                 && serviceException.getMessage().contains("parameters.changeId"))) {
+<           // the change id was not found, but the zone exists
+343,344d334
+<         // the zone does not exist, so throw an exception
+<       }
+357,358c347,348
+<   public ListResult<Change> listChangeRequests(String zoneName, Map<Option, ?> options)
+<       throws DnsException {
+---
+>   public Change applyChangeRequest(
+>       String zoneName, Change change, Map<Option, ?> options) throws DnsException {
+360,361c350
+<       ChangesListResponse response = listChangeRequestsCall(zoneName, options).execute();
+<       return ListResult.of(response.getNextPageToken(), response.getChanges());
+---
+>       return applyChangeRequestCall(zoneName, change, options).execute();
+363c352
+<       throw translate(ex, true);
+---
+>       throw translate(ex, false);
+367,380c356,360
+<   private Dns.Changes.List listChangeRequestsCall(String zoneName, Map<Option, ?> options)
+<       throws IOException {
+<     // options are fields, page token, page size, sort order
+<     Dns.Changes.List request =
+<         dns.changes()
+<             .list(this.options.getProjectId(), zoneName)
+<             .setFields(Option.FIELDS.getString(options))
+<             .setMaxResults(Option.PAGE_SIZE.getInt(options))
+<             .setPageToken(Option.PAGE_TOKEN.getString(options));
+<     if (Option.SORTING_ORDER.getString(options) != null) {
+<       // todo check and change if more sorting options are implemented, issue #604
+<       request = request.setSortBy(SORT_BY).setSortOrder(Option.SORTING_ORDER.getString(options));
+<     }
+<     return request;
+---
+>   private Dns.Changes.Create applyChangeRequestCall(
+>       (String zoneName, Change change, Map<Option, ?> options) throws IOException {
+>     return dns.changes()
+>         .create(this.options.getProjectId(), zoneName, change)
+>         .setFields(Option.FIELDS.getString(options));

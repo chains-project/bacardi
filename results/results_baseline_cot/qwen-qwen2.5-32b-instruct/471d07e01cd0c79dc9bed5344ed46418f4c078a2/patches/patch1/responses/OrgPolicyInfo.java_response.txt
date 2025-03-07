@@ -1,0 +1,357 @@
+package com.google.cloud.resourcemanager;
+
+import com.google.cloud.resourcemanager.v3.model.BooleanPolicy;
+import com.google.cloud.resourcemanager.v3.model.ListPolicy;
+import com.google.cloud.resourcemanager.v3.model.OrgPolicy;
+import com.google.cloud.resourcemanager.v3.model.RestoreDefault;
+import com.google.common.base.Function;
+import com.google.common.base.MoreObjects;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * A Google Cloud Resource Manager organization policy metadata object.
+ *
+ * @deprecated v3 GAPIC client of ResourceManager is now available
+ */
+@Deprecated
+public class OrgPolicyInfo {
+
+  static final Function<OrgPolicy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
+      new Function<OrgPolicy, OrgPolicyInfo>() {
+        @Override
+        public OrgPolicyInfo apply(OrgPolicy orgPolicy) {
+          return OrgPolicyInfo.fromProtobuf(orgPolicy);
+        }
+      };
+  static final Function<OrgPolicyInfo, OrgPolicy> TO_PROTOBUF_FUNCTION =
+      new Function<OrgPolicyInfo, OrgPolicy>() {
+        @Override
+        public OrgPolicy apply(OrgPolicyInfo orgPolicyInfo) {
+          return orgPolicyInfo.toProtobuf();
+        }
+      };
+
+  private BooleanPolicy boolPolicy;
+  private String constraint;
+  private String etag;
+  private Policies policies;
+  private RestoreDefault restoreDefault;
+  private String updateTime;
+  private Integer version;
+
+  public static class BoolPolicy {
+
+    private final Boolean enforce;
+
+    BoolPolicy(Boolean enforce) {
+      this.enforce = enforce;
+    }
+
+    public boolean getEnforce() {
+      return enforce;
+    }
+
+    @Override
+    public String toString() {
+      return MoreObjects.toStringHelper(this).add("enforce", getEnforce()).toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      BoolPolicy that = (BoolPolicy) o;
+      return Objects.equals(enforce, that.enforce);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(enforce);
+    }
+
+    BooleanPolicy toProtobuf() {
+      return new BooleanPolicy().setEnforced(enforce);
+    }
+
+    static BoolPolicy fromProtobuf(BooleanPolicy booleanPolicy) {
+      return new BoolPolicy(booleanPolicy.getEnforced());
+    }
+  }
+
+  public static class Policies {
+
+    private final String allValues;
+    private final List<String> allowedValues;
+    private final List<String> deniedValues;
+    private final Boolean inheritFromParent;
+    private final String suggestedValue;
+
+    Policies(
+        String allValues,
+        List<String> allowedValues,
+        List<String> deniedValues,
+        Boolean inheritFromParent,
+        String suggestedValue) {
+      this.allValues = allValues;
+      this.allowedValues = allowedValues;
+      this.deniedValues = deniedValues;
+      this.inheritFromParent = inheritFromParent;
+      this.suggestedValue = suggestedValue;
+    }
+
+    String getAllValues() {
+      return allValues;
+    }
+
+    List<String> getAllowedValues() {
+      return allowedValues;
+    }
+
+    List<String> getDeniedValues() {
+      return deniedValues;
+    }
+
+    Boolean getInheritFromParent() {
+      return inheritFromParent;
+    }
+
+    String getSuggestedValue() {
+      return suggestedValue;
+    }
+
+    @Override
+    public String toString() {
+      return MoreObjects.toStringHelper(this)
+          .add("allValues", getAllValues())
+          .add("allowedValues", getAllowedValues())
+          .add("deniedValues", getDeniedValues())
+          .add("inheritFromParent", getInheritFromParent())
+          .add("suggestedValue", getSuggestedValue())
+          .toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      Policies policies = (Policies) o;
+      return Objects.equals(allValues, policies.allValues)
+          && Objects.equals(allowedValues, policies.allowedValues)
+          && Objects.equals(deniedValues, policies.deniedValues)
+          && Objects.equals(inheritFromParent, policies.inheritFromParent)
+          && Objects.equals(suggestedValue, policies.suggestedValue);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(
+          allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
+    }
+
+    ListPolicy toProtobuf() {
+      return new ListPolicy()
+          .setAllValues(allValues)
+          .setAllowedValues(allowedValues)
+          .setDeniedValues(deniedValues)
+          .setInheritFromParent(inheritFromParent)
+          .setSuggestedValue(suggestedValue);
+    }
+
+    static Policies fromProtobuf(ListPolicy listPolicy) {
+      return new Policies(
+          listPolicy.getAllValues(),
+          listPolicy.getAllowedValues(),
+          listPolicy.getDeniedValues(),
+          listPolicy.getInheritFromParent(),
+          listPolicy.getSuggestedValue());
+    }
+  }
+
+  public static class Builder {
+    private BooleanPolicy boolPolicy;
+    private String constraint;
+    private String etag;
+    private Policies policies;
+    private RestoreDefault restoreDefault;
+    private String updateTime;
+    private Integer version;
+
+    Builder() {}
+
+    Builder(OrgPolicyInfo info) {
+      this.boolPolicy = info.boolPolicy;
+      this.constraint = info.constraint;
+      this.etag = info.etag;
+      this.policies = info.policies;
+      this.restoreDefault = info.restoreDefault;
+      this.updateTime = info.updateTime;
+      this.version = info.version;
+    }
+
+    Builder setBoolPolicy(BooleanPolicy boolPolicy) {
+      this.boolPolicy = boolPolicy;
+      return this;
+    }
+
+    Builder setConstraint(String constraint) {
+      this.constraint = constraint;
+      return this;
+    }
+
+    Builder setEtag(String etag) {
+      this.etag = etag;
+      return this;
+    }
+
+    Builder setListPolicy(Policies policies) {
+      this.policies = policies;
+      return this;
+    }
+
+    Builder setRestoreDefault(RestoreDefault restoreDefault) {
+      this.restoreDefault = restoreDefault;
+      return this;
+    }
+
+    Builder setUpdateTime(String updateTime) {
+      this.updateTime = updateTime;
+      return this;
+    }
+
+    Builder setVersion(Integer version) {
+      this.version = version;
+      return this;
+    }
+
+    OrgPolicyInfo build() {
+      return new OrgPolicyInfo(this);
+    }
+  }
+
+  private BooleanPolicy boolPolicy;
+  private String constraint;
+  private String etag;
+  private Policies policies;
+  private RestoreDefault restoreDefault;
+  private String updateTime;
+  private Integer version;
+
+  OrgPolicyInfo(Builder builder) {
+    this.boolPolicy = builder.boolPolicy;
+    this.constraint = builder.constraint;
+    this.etag = builder.etag;
+    this.policies = builder.policies;
+    this.restoreDefault = builder.restoreDefault;
+    this.updateTime = builder.updateTime;
+    this.version = builder.version;
+  }
+
+  public static Function<OrgPolicy, OrgPolicyInfo> fromProtobufFunction() {
+    return OrgPolicyInfo::fromProtobuf;
+  }
+
+  public static Function<OrgPolicyInfo, OrgPolicy> toProtobufFunction() {
+    return OrgPolicyInfo::toProtobuf;
+  }
+
+  public static Builder newBuilder() {
+    return new Builder();
+  }
+
+  public Builder toBuilder() {
+    return new Builder(this);
+  }
+
+  public BooleanPolicy getBoolPolicy() {
+    return boolPolicy;
+  }
+
+  public String getConstraint() {
+    return constraint;
+  }
+
+  public String getEtag() {
+    return etag;
+  }
+
+  public Policies getPolicies() {
+    return policies;
+  }
+
+  public RestoreDefault getRestoreDefault() {
+    return restoreDefault;
+  }
+
+  public String getUpdateTime() {
+    return updateTime;
+  }
+
+  public Integer getVersion() {
+    return version;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    OrgPolicyInfo that = (OrgPolicyInfo) o;
+    return Objects.equals(boolPolicy, that.boolPolicy)
+        && Objects.equals(constraint, that.constraint)
+        && Objects.equals(etag, that.etag)
+        && Objects.equals(policies, that.policies)
+        && Objects.equals(restoreDefault, that.restoreDefault)
+        && Objects.equals(updateTime, that.updateTime)
+        && Objects.equals(version, that.version);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        boolPolicy, constraint, etag, policies, restoreDefault, updateTime, version);
+  }
+
+  public static OrgPolicyInfo fromProtobuf(OrgPolicy orgPolicyProtobuf) {
+    Builder builder = newBuilder();
+    if (orgPolicyProtobuf.getBooleanPolicy() != null) {
+      builder.setBoolPolicy(BoolPolicy.fromProtobuf(orgPolicyProtobuf.getBooleanPolicy()));
+    }
+    builder.setConstraint(orgPolicyProtobuf.getConstraint());
+    if (orgPolicyProtobuf.getListPolicy() != null) {
+      builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getListPolicy()));
+    }
+    builder.setRestoreDefault(orgPolicyProtobuf.getRestoreDefault());
+    builder.setEtag(orgPolicyProtobuf.getEtag());
+    builder.setUpdateTime(orgPolicyProtobuf.getUpdateTime());
+    builder.setVersion(orgPolicyProtobuf.getVersion());
+    return builder.build();
+  }
+
+  public OrgPolicy toProtobuf() {
+    OrgPolicy orgPolicyProto = new OrgPolicy();
+    if (boolPolicy != null) {
+      orgPolicyProto.setBooleanPolicy(boolPolicy.toProtobuf());
+    }
+    orgPolicyProto.setConstraint(constraint);
+    if (policies != null) {
+      orgPolicyProto.setListPolicy(policies.toProtobuf());
+    }
+    orgPolicyProto.setRestoreDefault(restoreDefault);
+    orgPolicyProto.setEtag(etag);
+    orgPolicyProto.setUpdateTime(updateTime);
+    orgPolicyProto.setVersion(version);
+    return orgPolicyProto;
+  }
+}

@@ -1,0 +1,57 @@
+12d11
+< import redis.clients.jedis.Client;
+13a13,14
+> import redis.clients.jedis.Transaction;
+> import redis.clients.jedis.Pipeline;
+15c16
+< import redis.clients.jedis.util.SafeEncoder;
+---
+> import redis.clients.jedis.params.SetParams;
+98,101c99,101
+<         } catch (JRedisGraphException rt) {
+<             throw rt;
+<         } catch (JedisDataException j) {
+<             throw new JRedisGraphException(j);
+---
+>         } catch (Exception e) {
+>             conn.close();
+>             throw e;
+120,123c120,122
+<         } catch (JRedisGraphException ge) {
+<             throw ge;
+<         } catch (JedisDataException de) {
+<             throw new JRedisGraphException(de);
+---
+>         } catch (Exception e) {
+>             conn.close();
+>             throw e;
+139d137
+<     @Override
+142,147c140,143
+<         Client client = jedis.getClient();
+<         client.multi();
+<         client.getOne();
+<         RedisGraphTransaction transaction = new RedisGraphTransaction(client, this);
+<         transaction.setRedisGraphCaches(caches);
+<         return transaction;
+---
+>         Transaction transaction = jedis.multi();
+>         RedisGraphTransaction redisGraphTransaction = new RedisGraphTransaction(transaction, this);
+>         redisGraphTransaction.setRedisGraphCaches(caches);
+>         return redisGraphTransaction;
+154d149
+<     @Override
+157,160c152,155
+<         Client client = jedis.getClient();
+<         RedisGraphPipeline pipeline = new RedisGraphPipeline(client, this);
+<         pipeline.setRedisGraphCaches(caches);
+<         return pipeline;
+---
+>         Pipeline pipeline = jedis.pipelined();
+>         RedisGraphPipeline redisGraphPipeline = new RedisGraphPipeline(pipeline, this);
+>         redisGraphPipeline.setRedisGraphCaches(caches);
+>         return redisGraphPipeline;
+208d202
+< 
+215d208
+< 

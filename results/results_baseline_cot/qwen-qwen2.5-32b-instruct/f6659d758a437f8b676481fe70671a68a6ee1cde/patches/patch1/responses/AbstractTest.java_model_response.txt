@@ -1,0 +1,93 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the class `TrustedTagInspector` cannot be found in the package `org.yaml.snakeyaml.inspector`.
+   - This suggests that the `TrustedTagInspector` class has been removed or moved in the newer version of the SnakeYAML library.
+
+2. Review the client code:
+   - The `TrustedTagInspector` class is used in the `createMockEntity` method.
+   - The class is used to configure the `LoaderOptions` object, which is passed to the `Constructor` object.
+
+3. Consider potential fixes:
+   - Since `TrustedTagInspector` is not available, we need to find an alternative way to configure the `LoaderOptions` to ensure that the YAML loading process is secure and works as expected.
+   - We can remove the usage of `TrustedTagInspector` and rely on the default behavior of the `LoaderOptions` if it meets the security requirements.
+
+4. Plan the necessary changes:
+   - Remove the instantiation and usage of `TrustedTagInspector`.
+   - Ensure that the `LoaderOptions` is still properly configured for the `Constructor` if necessary.
+</code_analysis>
+
+```java
+package com.premiumminds.billy.core.test;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.util.Modules;
+import com.premiumminds.billy.core.CoreDependencyModule;
+import com.premiumminds.billy.core.test.fixtures.JavaLocalDateConstruct;
+import com.premiumminds.billy.core.test.fixtures.JavaZoneIdConstruct;
+import com.premiumminds.billy.core.test.fixtures.MockBaseEntity;
+import java.time.LocalDate;
+import org.junit.jupiter.api.BeforeAll;
+import org.mockito.Mockito;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.TypeDescription;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.representer.Representer;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.time.ZoneId;
+
+public class AbstractTest {
+
+    private static Injector injector;
+    protected final static String YML_CONFIGS_DIR = "src/test/resources/yml/";
+
+    @BeforeAll
+    public static void setUpClass() {
+        AbstractTest.injector =
+                Guice.createInjector(Modules.override(new CoreDependencyModule()).with(new MockDependencyModule()));
+    }
+
+    public <T> T getInstance(Class<T> clazz) {
+        return AbstractTest.injector.getInstance(clazz);
+    }
+
+    public <T> T getMock(Class<T> clazz) {
+        return Mockito.mock(clazz);
+    }
+
+    public <T extends MockBaseEntity> T createMockEntity(Class<T> clazz, String path) {
+        final LoaderOptions loadingConfig = new LoaderOptions();
+
+        final Representer representer = new Representer(new DumperOptions());
+        final Tag zoneIdTag = new Tag("!ZoneId");
+        representer.addClassTag(ZoneId.class, zoneIdTag);
+        final Tag localDateTag = new Tag("!LocalDate");
+        representer.addClassTag(LocalDate.class, localDateTag);
+
+        final Constructor constructor = new Constructor(clazz, loadingConfig) {{
+            this.addTypeDescription(new TypeDescription(ZoneId.class, "ZoneId"));
+            this.addTypeDescription(new TypeDescription(LocalDate.class, "LocalDate"));
+
+            this.yamlConstructors.put(zoneIdTag, new JavaZoneIdConstruct());
+            this.yamlConstructors.put(localDateTag, new JavaLocalDateConstruct());
+        }};
+
+        Yaml yaml = new Yaml(constructor, representer);
+
+        try {
+            return yaml.load(new BufferedReader(new FileReader(path)));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+}
+```
+
+In this fix, the `TrustedTagInspector` class is removed as it is no longer available in the updated dependency. The `LoaderOptions` is still used but without the `TrustedTagInspector` configuration. This should resolve the compilation errors while maintaining the functionality of the `createMockEntity` method.

@@ -1,0 +1,58 @@
+<code_analysis>
+The error messages indicate that the `MavenProject` class cannot be found, which suggests that the import for `MavenProject` is missing or the dependency that contains `MavenProject` has been updated or removed. The `MavenProject` class is part of the Maven API, and the error suggests that the import statement for `MavenProject` is missing. Additionally, the package `org.apache.maven.project` is not found, which means the import statement for `MavenProject` needs to be corrected.
+
+The `MavenProject` class is typically found in the `org.apache.maven.project` package. Therefore, the import statement should be corrected to include this package. The rest of the code seems to be fine and does not require any changes.
+</code_analysis>
+
+```java
+package org.apache.myfaces.tobago.maven.plugin;
+
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject; // Corrected import statement
+import org.codehaus.plexus.util.DirectoryScanner;
+
+import java.io.File;
+
+public abstract class AbstractThemeMojo extends AbstractMojo {
+
+  /**
+   * The Maven project.
+   */
+  @Parameter(defaultValue = "${project}", readonly = true, required = true)
+  private MavenProject project;
+
+  private static final String[] INCLUDES = new String[]{
+    "**"
+  };
+  private static final String[] EXCLUDES = new String[]{
+    "META-INF/**/*",
+    "**/*.properties",
+    "**/*.xml",
+    "**/*.class"
+  };
+
+  public MavenProject getProject() {
+    return project;
+  }
+
+  protected String[] getThemeFiles(final File sourceDir) {
+    final DirectoryScanner scanner = new DirectoryScanner();
+    scanner.setBasedir(sourceDir);
+    scanner.setIncludes(INCLUDES);
+    scanner.setExcludes(EXCLUDES);
+    scanner.scan();
+    return scanner.getIncludedFiles();
+  }
+
+  public String[] getIncludes() {
+    return INCLUDES;
+  }
+
+  public String[] getExcludes() {
+    return EXCLUDES;
+  }
+}
+```
+
+This fix corrects the import statement for `MavenProject` to ensure that the class is correctly referenced, which should resolve the compilation errors.
