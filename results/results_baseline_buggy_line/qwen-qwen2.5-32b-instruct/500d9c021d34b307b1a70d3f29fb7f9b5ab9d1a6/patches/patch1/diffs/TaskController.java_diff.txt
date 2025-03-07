@@ -1,0 +1,27 @@
+12,14c12,13
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.View;
+---
+> import javax.mvc.annotation.Controller;
+> import javax.mvc.annotation.View;
+29d27
+< import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+41c39
+<     private Models models;
+---
+>     private javax.mvc.annotation.Models models;
+90d87
+<     //@ValidateOnExecution(type = ExecutableType.NONE)
+103c100
+<             return Response.status(BAD_REQUEST).entity("add.xhtml").build();
+---
+>             return Response.status(Response.Status.BAD_REQUEST).entity("add.xhtml").build();
+147c144
+<             return Response.status(BAD_REQUEST).entity("edit.xhtml").build();
+---
+>             return Response.status(Response.Status.BAD_REQUEST).entity("edit.xhtml").build();
+164c161
+<     //@CsrfProtected
+---
+>     @CsrfProtected

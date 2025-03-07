@@ -1,0 +1,13 @@
+20d19
+< import com.google.cloud.pubsublite.PublishMetadata;
+29c28,31
+< import org.apache.kafka.common.config.ConfigValue;
+---
+> import org.apache.kafka.connect.errors.ConnectException;
+> import org.apache.kafka.connect.sink.SinkRecord;
+> 
+> import java.util.Map;
+36c38
+<   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
+---
+>   public Publisher<SinkRecord> newPublisher(Map<String, String> params) {

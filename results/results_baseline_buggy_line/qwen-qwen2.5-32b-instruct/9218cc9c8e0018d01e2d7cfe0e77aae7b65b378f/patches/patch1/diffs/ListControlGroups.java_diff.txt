@@ -1,0 +1,71 @@
+1,18d0
+< /**
+<  * Copyright (C) 2014 Premium Minds.
+<  *
+<  * This file is part of wicket-crudifier.
+<  *
+<  * wicket-crudifier is free software: you can redistribute it and/or modify it under
+<  * the terms of the GNU Lesser General Public License as published by the Free
+<  * Software Foundation, either version 3 of the License, or (at your option) any
+<  * later version.
+<  *
+<  * wicket-crudifier is distributed in the hope that it will be useful, but WITHOUT ANY
+<  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+<  * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+<  * details.
+<  *
+<  * You should have received a copy of the GNU Lesser General Public License
+<  * along with wicket-crudifier. If not, see <http://www.gnu.org/licenses/>.
+<  */
+36a19
+> import javax.validation.ConstraintViolation;
+38,40c21,22
+< import javax.validation.constraints.NotBlank;
+< import javax.validation.constraints.NotEmpty;
+< import javax.validation.constraints.NotNull;
+---
+> import javax.validation.ValidatorFactory;
+> import javax.validation.groups.Default;
+57c39
+<         private static final long serialVersionUID = 7205285700113097720L;
+---
+>         private static final long serialVersionUID = 7205285700113011405L;
+111,112d92
+<         protected abstract EntityProvider<?> getEntityProvider(String name);
+< 
+119,121c99,100
+<                 Set<String> properties = getPropertiesByOrder(modelClass);
+< 
+<                 Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
+---
+>                 ValidatorFactory factory = HibernateValidatorProperty.validatorFactory;
+>                 Validator validator = factory.getValidator();
+123,124c102
+<                 for(String property : properties){
+<                         PropertyDescriptor descriptor;
+---
+>                 for(ObjectProperties objectProperty : objectProperties){
+126,130c104
+<                                 descriptor = PropertyUtils.getPropertyDescriptor(getModel().getObject(), property);
+<                         } catch (Exception e) {
+<                                 throw new RuntimeException("error getting property "+property, e);
+<                         }
+< 
+---
+>                                 PropertyDescriptor descriptor = PropertyUtils.getPropertyDescriptor(getModel().getObject(), objectProperty.name);
+137,139c111,113
+<                                         if(constraint.getAnnotation() instanceof NotNull ||
+<                                            constraint.getAnnotation() instanceof NotEmpty ||
+<                                            constraint.getAnnotation() instanceof NotBlank)
+---
+>                                                 if(constraint.getAnnotation() instanceof javax.validation.constraints.NotNull ||
+>                                                    constraint.getAnnotation() instanceof javax.validation.constraints.NotEmpty ||
+>                                                    constraint.getAnnotation() instanceof javax.validation.constraints.NotBlank)
+144a119,121
+>                         } catch (Exception e) {
+>                                 throw new RuntimeException(e);
+>                         }
+165d141
+< 
+250a227
+>         @SuppressWarnings("rawtypes")

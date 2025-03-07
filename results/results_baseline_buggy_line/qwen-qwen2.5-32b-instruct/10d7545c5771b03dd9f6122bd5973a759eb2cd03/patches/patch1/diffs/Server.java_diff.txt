@@ -1,0 +1,57 @@
+51d50
+< import io.dropwizard.servlets.tasks.Task;
+53a53
+> import io.dropwizard.setup.AdminEnvironment;
+129c129
+<     public void run(final Config config, Environment env) throws Exception {
+---
+>     public void run(final Config config, Environment env) {
+145a146
+>         try {
+146a148,150
+>         } catch (Exception e) {
+>             throw new RuntimeException(e);
+>         }
+150,151d153
+<         initTelemetry();
+< 
+159c161
+<     private Client createHttpClient(Config config, Environment env) {
+---
+>     protected Client createHttpClient(Config config, Environment env) {
+169a172
+> 
+199c202
+<         return botId -> new JdbiState(botId, getJdbi());
+---
+>         return botId -> new JdbiState(botId, new JdbiStorage(getJdbi()));
+243,267d245
+<     private void initTelemetry() {
+<         /* --- Wire Common --- */
+<         environment.jersey().register(new RequestMdcFactoryFilter());
+<         /* //- Wire Common --- */
+< 
+<         final CryptoFactory cryptoFactory = getCryptoFactory();
+<         final StorageFactory storageFactory = getStorageFactory();
+< 
+<         registerFeatures();
+< 
+<         environment.healthChecks().register("Storage", new StorageHealthCheck(storageFactory));
+<         environment.healthChecks().register("Crypto", new CryptoHealthCheck(cryptoFactory));
+<         environment.healthChecks().register("Alice2Bob", new Alice2Bob(cryptoFactory));
+<         environment.healthChecks().register("Outbound", new Outbound(getClient()));
+< 
+<         environment.metrics().register("logger.errors", (Gauge<Integer>) Logger::getErrorCount);
+<         environment.metrics().register("logger.warnings", (Gauge<Integer>) Logger::getWarningCount);
+< 
+<         JmxReporter jmxReporter = JmxReporter.forRegistry(environment.metrics())
+<                 .convertRatesTo(TimeUnit.SECONDS)
+<                 .convertDurationsTo(TimeUnit.MILLISECONDS)
+<                 .build();
+<         jmxReporter.start();
+<     }
+< 
+275c253
+<                 throw new RuntimeException(result.getError());
+---
+>                 throw new RuntimeException(result.getMessage());

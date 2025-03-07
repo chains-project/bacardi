@@ -1,0 +1,19 @@
+17,18d16
+< import static org.apache.commons.lang3.StringUtils.*;
+< 
+73c71
+<             if (isAllBlank(step.url, step.artifactoryUrl, step.distributionUrl)) {
+---
+>             if (StringUtils.isBlank(step.url) && StringUtils.isBlank(step.artifactoryUrl) && StringUtils.isBlank(step.distributionUrl)) {
+76,78c74,76
+<             String urlWithoutSlash = removeEnd(step.url, "/");
+<             String artifactoryUrl = defaultIfBlank(step.artifactoryUrl, urlWithoutSlash + "/" + "artifactory");
+<             String distributionUrl = defaultIfBlank(step.distributionUrl, urlWithoutSlash + "/" + "distribution");
+---
+>             String urlWithoutSlash = StringUtils.removeEnd(step.url, "/");
+>             String artifactoryUrl = StringUtils.defaultIfBlank(step.artifactoryUrl, urlWithoutSlash + "/" + "artifactory");
+>             String distributionUrl = StringUtils.defaultIfBlank(step.distributionUrl, urlWithoutSlash + "/" + "distribution");
+82c80
+<             if (!isEmpty(step.credentialsId)) {
+---
+>             if (StringUtils.isNotBlank(step.credentialsId)) {

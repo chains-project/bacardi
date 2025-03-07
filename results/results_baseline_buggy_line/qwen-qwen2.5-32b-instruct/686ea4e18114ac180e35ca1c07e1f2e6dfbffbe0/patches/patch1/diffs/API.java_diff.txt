@@ -1,0 +1,180 @@
+1,18d0
+< //
+< // Wire
+< // Copyright (C) 2016 Wire Swiss GmbH
+< //
+< // This program is free software: you can redistribute it and/or modify
+< // it under the terms of the GNU General Public License as published by
+< // the Free Software Foundation, either version 3 of the License, or
+< // (at your option) any later version.
+< //
+< // This program is distributed in the hope that it will be useful,
+< // but WITHOUT ANY WARRANTY; without even the implied warranty of
+< // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+< // GNU General Public License for more details.
+< //
+< // You should have received a copy of the GNU General Public License
+< // along with this program. If not, see http://www.gnu.org/licenses/.
+< //
+< 
+31,32c13
+< import com.wire.xenon.tools.Logger;
+< import com.wire.xenon.tools.Util;
+---
+> 
+38,44c19,28
+< import javax.annotation.Nullable;
+< import javax.ws.rs.NotSupportedException;
+< import javax.ws.rs.client.Client;
+< import javax.ws.rs.client.Entity;
+< import javax.ws.rs.client.Invocation;
+< import javax.ws.rs.client.WebTarget;
+< import javax.ws.rs.core.*;
+---
+> import jakarta.ws.rs.client.Client;
+> import jakarta.ws.rs.client.ClientBuilder;
+> import jakarta.ws.rs.client.WebTarget;
+> import jakarta.ws.rs.core.Entity;
+> import jakarta.ws.rs.core.HttpHeaders;
+> import jakarta.ws.rs.core.MediaType;
+> import jakarta.ws.rs.core.Response;
+> import jakarta.ws.rs.core.GenericType;
+> import jakarta.ws.rs.core.Invocation;
+> 
+50c34,38
+< import java.util.logging.Level;
+---
+> 
+> import static jakarta.ws.rs.core.Response.Status.Family.familyOf;
+> 
+> import com.wire.xenon.tools.Logger;
+> import com.wire.xenon.tools.Util;
+87c75
+<         client = bot
+---
+>         client = users
+112,123d99
+<     public String getWireHost() {
+<         return this.wireHost;
+<     }
+< 
+<     /**
+<      * This method sends the OtrMessage to BE. Message must contain cipher for all participants and all their clients.
+<      *
+<      * @param msg           OtrMessage object containing ciphers for all clients
+<      * @param ignoreMissing If TRUE ignore missing clients and deliver the message to available clients
+<      * @return List of missing devices in case of fail or an empty list.
+<      * @throws HttpException Http Exception is thrown when status {@literal >}= 400
+<      */
+188c164
+<                 .request()
+---
+>                 .request(MediaType.APPLICATION_JSON)
+190d165
+<                 .accept(MediaType.APPLICATION_JSON)
+206c181
+<                 .request()
+---
+>                 .request(MediaType.APPLICATION_JSON)
+218c193
+<         Response res = client
+---
+>         Response response = client
+224,273c199,200
+<         int statusCode = res.getStatus();
+<         if (statusCode >= 400) {
+<             throw new IOException(res.readEntity(String.class));
+<         }
+<     }
+< 
+<     @Override
+<     public AssetKey uploadAsset(IAsset asset) throws Exception {
+<         StringBuilder sb = new StringBuilder();
+< 
+<         // Part 1
+<         String strMetadata = String.format("{\"public\": %s, \"retention\": \"%s\"}",
+<                 asset.isPublic(),
+<                 asset.getRetention());
+<         sb.append("--frontier\r\n");
+<         sb.append("Content-Type: application/json; charset=utf-8\r\n");
+<         sb.append("Content-Length: ")
+<                 .append(strMetadata.length())
+<                 .append("\r\n\r\n");
+<         sb.append(strMetadata)
+<                 .append("\r\n");
+< 
+<         // Part 2
+<         sb.append("--frontier\r\n");
+<         sb.append("Content-Type: ")
+<                 .append(asset.getMimeType())
+<                 .append("\r\n");
+<         sb.append("Content-Length: ")
+<                 .append(asset.getEncryptedData().length)
+<                 .append("\r\n");
+<         sb.append("Content-MD5: ")
+<                 .append(Util.calcMd5(asset.getEncryptedData()))
+<                 .append("\r\n\r\n");
+< 
+<         // Complete
+<         ByteArrayOutputStream os = new ByteArrayOutputStream();
+<         os.write(sb.toString().getBytes(StandardCharsets.UTF_8));
+<         os.write(asset.getEncryptedData());
+<         os.write("\r\n--frontier--\r\n".getBytes(StandardCharsets.UTF_8));
+< 
+<         Response response = assets
+<                 .request(MediaType.APPLICATION_JSON_TYPE)
+<                 .header(HttpHeaders.AUTHORIZATION, bearer())
+<                 .post(Entity.entity(os.toByteArray(), "multipart/mixed; boundary=frontier"));
+< 
+<         if (response.getStatus() >= 400) {
+<             throw new HttpException(response.readEntity(String.class), response.getStatus());
+<         }
+< 
+<         return response.readEntity(AssetKey.class);
+---
+>         if (response.getStatusInfo().getFamily() == Response.Status.Family.CLIENT_ERROR || response.getStatusInfo().getFamily() == Response.Status.Family.SERVER_ERROR) {
+>             throw new IOException(response.readEntity(String.class));
+275,290d201
+< 
+<     private MultiPart getMultiPart(IAsset asset) throws NoSuchAlgorithmException {
+<         MetaData metaData = new MetaData();
+<         metaData.retention = asset.getRetention();
+<         metaData.scope = asset.isPublic();
+< 
+<         BodyPart bodyPart1 = new BodyPart(metaData, MediaType.APPLICATION_JSON_TYPE);
+<         BodyPart bodyPart2 = new BodyPart().entity(asset.getEncryptedData());
+< 
+<         MultivaluedMap<String, String> headers = bodyPart2.getHeaders();
+<         headers.add("Content-Type", asset.getMimeType());
+<         headers.add("Content-MD5", Util.calcMd5(asset.getEncryptedData()));
+< 
+<         return new MultiPart()
+<                 .bodyPart(bodyPart1)
+<                 .bodyPart(bodyPart2);
+304c215
+<         Response response = req.get();
+---
+>         Response response = req.buildGet().invoke();
+306c217
+<         if (response.getStatus() >= 400) {
+---
+>         if (response.getStatusInfo().getFamily() == Response.Status.Family.CLIENT_ERROR || response.getStatusInfo().getFamily() == Response.Status.Family.SERVER_ERROR) {
+318c229
+<         if (response.getStatus() >= 400) {
+---
+>         if (response.getStatusInfo().getFamily() == Response.Status.Family.CLIENT_ERROR || response.getStatusInfo().getFamily() == Response.Status.Family.SERVER_ERROR) {
+326c237
+<     public boolean deleteConversation(UUID teamId) {
+---
+>     public boolean deleteConversation(UUID user) {
+364,373d274
+<     public UUID getUserId(String handle) {
+<         throw new NotSupportedException();
+<     }
+< 
+<     @Override
+<     public boolean hasDevice(UUID userId, String clientId) {
+<         throw new NotSupportedException();
+<     }
+< 
+<     @Override

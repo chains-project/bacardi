@@ -1,0 +1,31 @@
+9a10
+> import org.eclipse.jetty.server.ServerConnector;
+13,15d13
+< import org.eclipse.jetty.server.Connector;
+< import org.eclipse.jetty.server.nio.SelectChannelConnector;
+< 
+24c22
+<     private final Connector httpConnector;
+---
+>     private final ServerConnector httpConnector;
+30d27
+< 
+33,36c30
+<         this.server.setSendServerVersion(false);
+<         this.server.setSendDateHeader(true);
+<         
+<         this.httpConnector = new SelectChannelConnector();
+---
+>         this.httpConnector = new ServerConnector(server);
+38c32
+<         server.addConnector(this.httpConnector);
+---
+>         server.setConnectors(new Connector[]{httpConnector});
+41d34
+< 
+52d44
+< 
+63d54
+< 
+73d63
+<     

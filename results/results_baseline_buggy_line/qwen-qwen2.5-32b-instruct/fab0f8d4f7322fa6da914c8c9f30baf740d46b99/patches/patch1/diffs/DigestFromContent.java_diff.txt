@@ -1,0 +1,9 @@
+15a16,17
+> import org.cactoos.text.Hex;
+> import org.cactoos.text.UncheckedText;
+17d18
+< import org.cactoos.text.HexOf;
+61c62
+<                     () -> new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+---
+>                     () -> new Digest.Sha256(new Hex(new UncheckedText(new BytesOf(sha.digest()))).asString())

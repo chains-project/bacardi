@@ -1,0 +1,67 @@
+```java
+package com.example.web;
+
+import java.util.logging.Logger;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.mvc.annotation.Controller;
+import javax.mvc.annotation.Model;
+import javax.mvc.annotation.Post;
+import javax.mvc.annotation.Get;
+import javax.mvc.annotation.Path;
+import javax.mvc.annotation.Csrf;
+import javax.validation.constraints.NotBlank;
+import javax.ws.rs.FormParam;
+
+/**
+ *
+ * @author hantsy
+ */
+@Path("csrf")
+@Controller
+@RequestScoped
+public class CsrfController {
+
+    @Inject
+    @Model
+    BindingResult bindingResult;
+
+    @Inject
+    @Model
+    Models models;
+
+    @Inject
+    AlertMessage flashMessage;
+
+    @Inject
+    Logger log;
+
+    @Get
+    public String get() {
+        return "csrf.xhtml";
+    }
+
+    @Post
+    @Csrf
+    public String post(
+            @FormParam("greeting")
+            @NotBlank String greeting) {
+        if (bindingResult.isFailed()) {
+            AlertMessage alert = AlertMessage.danger("Validation voilations!");
+            bindingResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
+            models.put("errors", alert);
+            log.info("mvc binding failed.");
+            return "csrf.xhtml";
+        }
+
+        log.info("redirect to greeting page.");
+        flashMessage.notify(AlertMessage.Type.success, "Message:" + greeting);
+        return "redirect:csrf";
+    }
+
+}
+```

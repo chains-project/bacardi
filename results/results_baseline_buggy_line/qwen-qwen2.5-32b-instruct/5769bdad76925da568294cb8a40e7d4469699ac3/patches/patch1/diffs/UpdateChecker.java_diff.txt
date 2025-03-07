@@ -1,0 +1,107 @@
+38d37
+< import javax.xml.parsers.DocumentBuilderFactory;
+40c39
+< import org.kohsuke.github.GHCompare;
+---
+> import org.kohsuke.github.GHCompareResult;
+41a41
+> import org.kohsuke.github.GitHubCommit;
+63,99d62
+<     @FunctionalInterface
+<     public interface Log {
+<         void info(String message);
+<     }
+< 
+<     public static final class VersionAndRepo implements Comparable<VersionAndRepo> {
+<         public final String groupId;
+<         public final String artifactId;
+<         public final ComparableVersion version;
+<         public final String repo;
+<         VersionAndRepo(String groupId, String artifactId, ComparableVersion version, String repo) {
+<             this.groupId = groupId;
+<             this.artifactId = artifactId;
+<             this.version = version;
+<             this.repo = repo;
+<         }
+<         /** Sort by version descending. */
+<         @Override public int compareTo(VersionAndRepo o) {
+<             assert o.groupId.equals(groupId) && o.artifactId.equals(artifactId);
+<             return o.version.compareTo(version);
+<         }
+<         /** @return for example: {@code https://repo/net/nowhere/lib/1.23/} */
+<         public String baseURL() {
+<             return repo + groupId.replace('.', '/') + '/' + artifactId + '/' + version + '/';
+<         }
+<         /**
+<          * @param type for example, {@code pom}
+<          * @return for example: {@code https://repo/net/nowhere/lib/1.23/lib-1.23.pom}
+<          */
+<         public String fullURL(String type) {
+<             return baseURL() + artifactId + '-' + version + '.' + type;
+<         }
+<         @Override public String toString() {
+<             return baseURL();
+<         }
+<     }
+< 
+123,161d85
+<     private @CheckForNull VersionAndRepo doFind(String groupId, String artifactId, String currentVersion, String branch) throws Exception {
+<         ComparableVersion currentV = new ComparableVersion(currentVersion);
+<         log.info("Searching for updates to " + groupId + ":" + artifactId + ":" + currentV + " within " + branch);
+<         SortedSet<VersionAndRepo> candidates = loadVersions(groupId, artifactId);
+<         if (candidates.isEmpty()) {
+<             log.info("Found no candidates");
+<             return null;
+<         }
+<         log.info("Found " + candidates.size() + " candidates from " + candidates.first() + " down to " + candidates.last());
+<         for (VersionAndRepo candidate : candidates) {
+<             if (candidate.version.compareTo(currentV) <= 0) {
+<                 log.info("Stopping search at " + candidate + " since it is no newer than " + currentV);
+<                 return null;
+<             }
+<             log.info("Considering " + candidate);
+<             GitHubCommit ghc = loadGitHubCommit(candidate);
+<             if (ghc != null) {
+<                 log.info("Mapped to: " + ghc);
+<                 if (isAncestor(ghc, branch)) {
+<                     log.info("Seems to be within " + branch + ", so accepting");
+<                     return candidate;
+<                 } else {
+<                     log.info("Does not seem to be within " + branch);
+<                 }
+<             } else {
+<                 log.info("Does not seem to be an incremental release, so accepting");
+<                 // TODO may still be useful to select MRP versions targeted to an origin branch.
+<                 // (For example, select the latest backport from a stable branch rather than trunk.)
+<                 // The problem is that we cannot then guarantee that the POM has been flattened
+<                 // (this is only guaranteed for repositories which *may* produce incrementals),
+<                 // and loadGitHubCommit will not work for nonflattened POMs from reactor submodules:
+<                 // it would have to be made more complicated to resolve the parent POM(s),
+<                 // or we would need to switch the implementation to use Maven/Aether resolution APIs.
+<                 return candidate;
+<             }
+<         }
+<         return null;
+<     }
+< 
+188,201d111
+<     private static final class GitHubCommit {
+<         final String owner;
+<         final String repo;
+<         final String hash;
+<         GitHubCommit(String owner, String repo, String hash) {
+<             this.owner = owner;
+<             this.repo = repo;
+<             this.hash = hash;
+<         }
+<         @Override public String toString() {
+<             return "https://github.com/" + owner + '/' + repo + "/commit/" + hash;
+<         }
+<     }
+< 
+239,240c149,150
+<             GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).status;
+<             return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
+---
+>             GHCompareResult compareResult = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).compare(branch, ghc.hash);
+>             return compareResult.getStatus().equals(GHCompareResult.Status.BEHIND) || compareResult.getStatus().equals(GHCompareResult.Status.EQUAL);

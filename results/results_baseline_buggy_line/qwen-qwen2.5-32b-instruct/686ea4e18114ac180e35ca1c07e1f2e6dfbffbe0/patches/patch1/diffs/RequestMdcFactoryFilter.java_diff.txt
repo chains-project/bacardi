@@ -1,0 +1,17 @@
+3d2
+< import io.dropwizard.util.Strings;
+6,9c5,7
+< import javax.annotation.Nullable;
+< import javax.ws.rs.container.ContainerRequestContext;
+< import javax.ws.rs.container.ContainerRequestFilter;
+< import javax.ws.rs.ext.Provider;
+---
+> import jakarta.ws.rs.container.ContainerRequestContext;
+> import jakarta.ws.rs.container.ContainerRequestFilter;
+> import jakarta.ws.rs.ext.Provider;
+28,29c26,27
+<     private void addIfNotNull(final String key, @Nullable String value) {
+<         if (!Strings.isNullOrEmpty(value)) {
+---
+>     private void addIfNotNull(final String key, String value) {
+>         if (value != null && !value.isEmpty()) {

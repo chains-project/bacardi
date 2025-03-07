@@ -1,0 +1,146 @@
+37d36
+< import quickfix.SessionFactory;
+82c81
+<             MessageFactory messageFactory) throws ConfigError {
+---
+>             LogFactory logFactory, MessageFactory messageFactory) throws ConfigError {
+87,94d85
+<     protected AbstractSocketAcceptor(Application application,
+<             MessageStoreFactory messageStoreFactory, SessionSettings settings,
+<             LogFactory logFactory, MessageFactory messageFactory) throws ConfigError {
+<         this(settings, new DefaultSessionFactory(application, messageStoreFactory, logFactory,
+<                 messageFactory));
+<     }
+< 
+<     // TODO SYNC Does this method really need synchronization?
+136d126
+<         sslFilter.setUseClientMode(false);
+159,160c149,150
+<             } catch (FieldConvertError e) {
+<                 throw new ConfigError(e);
+---
+>             } catch (FieldConvertError ex) {
+>                 throw new ConfigError(ex);
+167,223d156
+<     private void setupSession(SessionSettings settings, SessionID sessionID, boolean isTemplate, Map<SessionID, Session> allSessions)
+<             throws ConfigError, FieldConvertError {
+<         int acceptTransportType = ProtocolFactory.SOCKET;
+<         if (settings.isSetting(sessionID, Acceptor.SETTING_SOCKET_ACCEPT_PROTOCOL)) {
+<             try {
+<                 acceptTransportType = ProtocolFactory.getTransportType(settings.getString(
+<                         sessionID, Acceptor.SETTING_SOCKET_ACCEPT_PROTOCOL));
+<             } catch (IllegalArgumentException e) {
+<                 // Unknown transport type
+<                 throw new ConfigError(e);
+<             }
+<         }
+< 
+<         boolean useSSL = false;
+<         SSLConfig sslConfig = null;
+<         if (getSettings().isSetting(sessionID, SSLSupport.SETTING_USE_SSL)
+<                 && getSettings().getBool(sessionID, SSLSupport.SETTING_USE_SSL)) {
+<             if (acceptTransportType == ProtocolFactory.SOCKET) {
+<                 useSSL = true;
+<                 sslConfig = SSLSupport.getSslConfig(getSettings(), sessionID);
+<             } else {
+<                 log.warn("SSL will not be enabled for transport type={}, session={}", acceptTransportType, sessionID);
+<             }
+<         }
+< 
+<         int acceptPort = (int) settings.getLong(sessionID, Acceptor.SETTING_SOCKET_ACCEPT_PORT);
+< 
+<         String acceptHost = null;
+<         if (settings.isSetting(sessionID, SETTING_SOCKET_ACCEPT_ADDRESS)) {
+<             acceptHost = settings.getString(sessionID, SETTING_SOCKET_ACCEPT_ADDRESS);
+<         }
+< 
+<         SocketAddress acceptorAddress = ProtocolFactory.createSocketAddress(acceptTransportType,
+<                 acceptHost, acceptPort);
+< 
+<         // Check for cached descriptor
+<         AcceptorSocketDescriptor descriptor = socketDescriptorForAddress.get(acceptorAddress);
+<         if (descriptor != null) {
+<             if (descriptor.isUseSSL() != useSSL || !equals(sslConfig, descriptor.getSslConfig())) {
+<                 throw new ConfigError("Conflicting configurations of acceptor socket: " + acceptorAddress);
+<             }
+<         } else {
+<             descriptor = new AcceptorSocketDescriptor(acceptorAddress, useSSL, sslConfig);
+<             socketDescriptorForAddress.put(acceptorAddress, descriptor);
+<         }
+< 
+<         if (!isTemplate) {
+<             Session session = sessionFactory.create(sessionID, settings);
+<             descriptor.acceptSession(session);
+<             allSessions.put(sessionID, session);
+<         }
+<     }
+< 
+<     private boolean equals(Object object1, Object object2) {
+<         return object1 == null ? object2 == null : object1.equals(object2);
+<     }
+< 
+308,371d240
+<     public Collection<IoAcceptor> getEndpoints() {
+<         return ioAcceptors.values();
+<     }
+< 
+<     public Map<SessionID, SocketAddress> getAcceptorAddresses() {
+<         Map<SessionID, SocketAddress> sessionIdToAddressMap = new HashMap<>();
+<         for (AcceptorSocketDescriptor descriptor : socketDescriptorForAddress.values()) {
+<             for (SessionID sessionID : descriptor.getAcceptedSessions().keySet()) {
+<                 sessionIdToAddressMap.put(sessionID, descriptor.getAddress());
+<             }
+<         }
+<         return sessionIdToAddressMap;
+<     }
+< 
+<     public void setSessionProvider(SocketAddress address, AcceptorSessionProvider provider) {
+<         sessionProviders.put(address, provider);
+<     }
+< 
+<     static class StaticAcceptorSessionProvider implements AcceptorSessionProvider {
+<         private final Map<SessionID, Session> acceptorSessions;
+< 
+<         public StaticAcceptorSessionProvider(final Map<SessionID, Session> acceptorSessions) {
+<             this.acceptorSessions = acceptorSessions;
+<         }
+< 
+<         public Session getSession(SessionID sessionID, SessionConnector connector) {
+<             return acceptorSessions.get(sessionID);
+<         }
+<     }
+< 
+<     public int getQueueSize() {
+<         final EventHandlingStrategy ehs = getEventHandlingStrategy();
+<         return ehs == null ? 0 : ehs.getQueueSize();
+<     }
+< 
+<     protected abstract EventHandlingStrategy getEventHandlingStrategy() ;
+< 
+<     private class DefaultAcceptorSessionProvider implements AcceptorSessionProvider {
+< 
+<         private final Map<SessionID, Session> acceptorSessions;
+< 
+<         public DefaultAcceptorSessionProvider(Map<SessionID, Session> acceptorSessions) {
+<             this.acceptorSessions = acceptorSessions;
+<         }
+< 
+<         public Session getSession(SessionID sessionID, SessionConnector ignored) {
+<             Session session = acceptorSessions.get(sessionID);
+<             if (session == null) {
+<                 SessionID reduced = reduceSessionID(sessionID);
+<                 session = acceptorSessions.get(reduced);
+<             }
+<             return session;
+<         }
+< 
+<         /**
+<          * Remove the extra fields added to the session ID in QF-272.
+<          */
+<         private SessionID reduceSessionID(SessionID sessionID) {
+<             // Acceptors don't use qualifiers.
+<             return new SessionID(sessionID.getBeginString(), sessionID.getSenderCompID(),
+<                     sessionID.getTargetCompID());
+<         }
+<     }
+< 

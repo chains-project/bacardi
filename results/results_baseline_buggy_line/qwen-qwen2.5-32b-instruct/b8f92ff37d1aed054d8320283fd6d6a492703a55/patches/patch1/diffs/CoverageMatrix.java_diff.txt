@@ -1,0 +1,24 @@
+14a15
+> import org.apache.maven.surefire.api.util.ScanResult;
+199,200c200,205
+<             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), TestListResolver.getWildcard());
+<             if (directoryScanner.scan().getClasses().contains(className)) {
+---
+>                         DirectoryScanner directoryScanner = new DirectoryScanner();
+>                         directoryScanner.setIncludes(new String[]{"**/*.class"});
+>                         directoryScanner.setBasedir(new File(dir));
+>                         directoryScanner.scan();
+>                         ScanResult scanResult = directoryScanner.getScanResult();
+>                         if (scanResult.getClasses().contains(className)) {
+205,206c210,215
+<             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), TestListResolver.getWildcard());
+<             if (directoryScanner.scan().getClasses().contains(className)) {
+---
+>                         DirectoryScanner directoryScanner = new DirectoryScanner();
+>                         directoryScanner.setIncludes(new String[]{"**/*.class"});
+>                         directoryScanner.setBasedir(new File(dir));
+>                         directoryScanner.scan();
+>                         ScanResult scanResult = directoryScanner.getScanResult();
+>                         if (scanResult.getClasses().contains(className)) {
+213d221
+< 

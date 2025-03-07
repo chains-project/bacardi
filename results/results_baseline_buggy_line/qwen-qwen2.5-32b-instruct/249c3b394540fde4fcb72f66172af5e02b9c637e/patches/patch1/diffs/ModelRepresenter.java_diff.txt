@@ -1,0 +1,51 @@
+94d93
+< 
+108d106
+<         String childName = child.getName();
+111,112c109,110
+<         int childNameLength = childName.length();
+<         if ("reportPlugins".equals(childName)) {
+---
+>         int childNameLength = child.getName().length();
+>         if ("reportPlugins".equals(child.getName())) {
+114,117c112,115
+<         } else if (childNameLength > 3 && childName.endsWith("ies")) {
+<           singularName = childName.substring(0, childNameLength - 3);
+<         } else if (childNameLength > 1 && childName.endsWith("s")) {
+<           singularName = childName.substring(0, childNameLength - 1);
+---
+>         } else if (childNameLength > 3 && child.getName().endsWith("ies")) {
+>           singularName = child.getName().substring(0, childNameLength - 3);
+>         } else if (childNameLength > 1 && child.getName().endsWith("s")) {
+>           singularName = child.getName().substring(0, childNameLength - 1);
+122,129d119
+<           boolean isList = singularName != null;
+<           if (isList) { // check for eventual list construction
+<             for (int j = 0, grandChildCount = child.getChildCount(); j < grandChildCount; j++) {
+<               String grandChildName = child.getChild(j).getName();
+<               isList &= grandChildName.equals(singularName);
+<             }
+<           }
+<           if (isList) {
+131,133d120
+<           } else {
+<             childValue = toMap(child);
+<           }
+135c122
+<         map.put(childName, childValue);
+---
+>         map.put(child.getName(), childValue);
+214,219c201,202
+<   /*
+<    * Change the default order. Important data goes first.
+<    */
+<   @Override
+<   protected Set<Property> getProperties(Class<? extends Object> type)
+<           throws IntrospectionException {
+---
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+>     try {
+232a216,218
+>     } catch (IntrospectionException e) {
+>       throw new RuntimeException(e);
+>     }

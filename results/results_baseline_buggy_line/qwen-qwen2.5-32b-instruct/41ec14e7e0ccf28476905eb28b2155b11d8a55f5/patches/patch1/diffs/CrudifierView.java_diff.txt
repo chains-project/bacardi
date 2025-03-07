@@ -1,0 +1,13 @@
+27c27
+< import org.apache.commons.beanutils.PropertyUtils;
+---
+> import org.apache.commons.beanutils.BeanUtils;
+104c104,105
+<                 for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
+---
+>                 try {
+>                         for(PropertyDescriptor descriptor : BeanUtils.getPropertyDescriptors(modelClass)){
+109a111,113
+>                 } catch (Exception e) {
+>                         e.printStackTrace();
+>                 }

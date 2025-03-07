@@ -1,0 +1,9 @@
+15a16,17
+> import org.cactoos.text.FormattedText;
+> import org.cactoos.text.HexText;
+17d18
+< import org.cactoos.text.HexOf;
+61c62
+<                     () -> new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+---
+>                     () -> new Digest.Sha256(new FormattedText("%s", new HexText(new BytesOf(sha.digest())).asString()))

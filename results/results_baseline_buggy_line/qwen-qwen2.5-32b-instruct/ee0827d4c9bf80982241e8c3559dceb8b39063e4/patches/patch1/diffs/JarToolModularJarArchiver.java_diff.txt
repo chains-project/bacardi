@@ -1,0 +1,30 @@
+30a31,32
+> import java.util.Locale;
+> import java.util.TimeZone;
+33d34
+< import java.util.Locale;
+41d41
+< import org.apache.commons.io.output.NullPrintStream;
+141c141,148
+<             Integer result = (Integer) jarRun.invoke( jarTool, System.out, System.err, getJarToolArguments() );
+---
+>             PrintStream nullPrintStream = new PrintStream( new java.io.OutputStream() {
+>                 @Override
+>                 public void write(int b) throws IOException {
+>                     // Do nothing
+>                 }
+>             });
+> 
+>             Integer result = (Integer) jarRun.invoke( jarTool, nullPrintStream, nullPrintStream, getJarToolArguments() );
+300c307,313
+<             PrintStream nullPrintStream = NullPrintStream.NULL_PRINT_STREAM;
+---
+>             PrintStream nullPrintStream = new PrintStream( new java.io.OutputStream() {
+>                 @Override
+>                 public void write(int b) throws IOException {
+>                     // Do nothing
+>                 }
+>             });
+> 
+310d322
+< 

@@ -1,0 +1,17 @@
+7a8
+> import org.apache.dubbo.common.extension.Activate;
+10a12,13
+> import java.util.concurrent.CompletableFuture;
+> 
+20a24
+> 
+24a29
+> 
+43c48
+<             RpcContext.getContext().setFuture(asyncRpcResult);
+---
+>             RpcContext.getContext().setFuture(CompletableFuture.completedFuture(asyncRpcResult));
+45c50
+<             FutureContext.getContext().setCompatibleFuture(asyncRpcResult);
+---
+>             FutureContext.getContext().setCompatibleFuture(CompletableFuture.completedFuture(asyncRpcResult));
