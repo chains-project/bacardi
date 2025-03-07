@@ -1,0 +1,36 @@
+32a33,38
+> import jakarta.ws.rs.NotSupportedException;
+> import jakarta.ws.rs.client.Client;
+> import jakarta.ws.rs.client.Entity;
+> import jakarta.ws.rs.client.Invocation;
+> import jakarta.ws.rs.client.WebTarget;
+> import jakarta.ws.rs.core.*;
+39,44d44
+< import javax.ws.rs.NotSupportedException;
+< import javax.ws.rs.client.Client;
+< import javax.ws.rs.client.Entity;
+< import javax.ws.rs.client.Invocation;
+< import javax.ws.rs.client.WebTarget;
+< import javax.ws.rs.core.*;
+116,123d115
+<     /**
+<      * This method sends the OtrMessage to BE. Message must contain cipher for all participants and all their clients.
+<      *
+<      * @param msg           OtrMessage object containing ciphers for all clients
+<      * @param ignoreMissing If TRUE ignore missing clients and deliver the message to available clients
+<      * @return List of missing devices in case of fail or an empty list.
+<      * @throws HttpException Http Exception is thrown when status {@literal >}= 400
+<      */
+134d125
+<             // This message was not sent due to missing clients. Parse those missing clients so the caller can add them
+155d145
+<             // This message was not sent due to missing clients. Parse those missing clients so the caller can add them
+234,235c224
+<         // Part 1
+<         String strMetadata = String.format("{\"public\": %s, \"retention\": \"%s\"}",
+---
+>         String strMetadata = String.format("{\"public\": %s, \"retention\": \"\"}",
+246d234
+<         // Part 2
+258d245
+<         // Complete

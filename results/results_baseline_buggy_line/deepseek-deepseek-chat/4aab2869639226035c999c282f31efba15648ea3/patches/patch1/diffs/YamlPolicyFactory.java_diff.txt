@@ -1,0 +1,23 @@
+9c9,10
+< import com.artipie.asto.factory.Storages;
+---
+> import com.artipie.asto.Storage;
+> import com.artipie.asto.fs.FileStorage;
+11a13
+> import java.nio.file.Paths;
+41,47c43,49
+<             return new YamlPolicy(
+<                 new BlockingStorage(
+<                     new Storages().newStorage(
+<                         sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
+<                     )
+<                 )
+<             );
+---
+>             final Storage storage;
+>             if ("fs".equals(sub.string("type"))) {
+>                 storage = new FileStorage(Paths.get(sub.string("path")));
+>             } else {
+>                 throw new IllegalArgumentException("Unsupported storage type: " + sub.string("type"));
+>             }
+>             return new YamlPolicy(new BlockingStorage(storage));

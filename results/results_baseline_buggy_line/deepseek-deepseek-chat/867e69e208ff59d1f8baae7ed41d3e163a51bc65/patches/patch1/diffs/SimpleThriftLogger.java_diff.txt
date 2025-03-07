@@ -1,0 +1,49 @@
+24d23
+< import org.apache.thrift.transport.TFramedTransport;
+45c44
+<   private static final class ByteOffsetTFramedTransport extends TFramedTransport {
+---
+>   private static final class ByteOffsetTFramedTransport extends TTransport {
+46a46
+>     private final TTransport transport;
+50c50
+<       super(transport);
+---
+>       this.transport = transport;
+54d53
+<     @Override
+56c55
+<       super.write(buf, off, len);
+---
+>       transport.write(buf, off, len);
+60d58
+<     @Override
+62c60
+<       super.flush();
+---
+>       transport.flush();
+69a68,87
+> 
+>     @Override
+>     public void close() {
+>       transport.close();
+>     }
+> 
+>     @Override
+>     public boolean isOpen() {
+>       return transport.isOpen();
+>     }
+> 
+>     @Override
+>     public void open() throws TTransportException {
+>       transport.open();
+>     }
+> 
+>     @Override
+>     public int read(byte[] buf, int off, int len) throws TTransportException {
+>       return transport.read(buf, off, len);
+>     }
+80c98
+<     bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(fileName, true));
+---
+>     bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(filename, true));

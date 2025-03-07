@@ -1,0 +1,11 @@
+27d26
+< import org.apache.commons.beanutils.PropertyUtils;
+104c103,104
+<                 for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
+---
+>                 try {
+>                         for(PropertyDescriptor descriptor : java.beans.Introspector.getBeanInfo(modelClass).getPropertyDescriptors()){
+109a110,112
+>                 } catch (Exception e) {
+>                         throw new RuntimeException("Failed to introspect class: " + modelClass.getName(), e);
+>                 }

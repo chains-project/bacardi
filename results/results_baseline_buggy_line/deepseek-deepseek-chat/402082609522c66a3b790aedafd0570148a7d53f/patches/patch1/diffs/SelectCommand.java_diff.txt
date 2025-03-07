@@ -1,0 +1,27 @@
+10,12c10,14
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+> import org.spongepowered.api.command.parameter.managed.Flag;
+> import org.spongepowered.api.command.parameter.managed.clientcompletion.ClientCompletionTypes;
+> import org.spongepowered.api.command.parameter.managed.standard.VariableValueParameters;
+16,17c18
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import static org.spongepowered.api.command.parameter.managed.standard.VariableValueParameters.string;
+19c20
+< public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class SelectCommand implements ChangeSkinCommand {
+28d28
+<     @Override
+48d47
+<     @Override
+52c51
+<                 .arguments(string(of("skinName")))
+---
+>                 .arguments(string(Parameter.key("skinName", ClientCompletionTypes.STRING.get())))

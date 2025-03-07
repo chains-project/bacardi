@@ -1,0 +1,57 @@
+26,27c26
+< 
+< import org.apache.commons.io.output.ThresholdingOutputStream;
+---
+> import java.io.ByteArrayOutputStream;
+32c31
+< class OffloadingOutputStream extends ThresholdingOutputStream
+---
+> class OffloadingOutputStream extends OutputStream
+74a74,78
+>     /**
+>      * The threshold at which to switch to disk-based storage.
+>      */
+>     private final int threshold;
+> 
+109c113
+<         super( threshold );
+---
+>         this.threshold = threshold;
+119,120d122
+<     // --------------------------------------- ThresholdingOutputStream methods
+< 
+122,125c124
+<      * Returns the current output stream. This may be memory based or disk
+<      * based, depending on the current state with respect to the threshold.
+<      *
+<      * @return The underlying output stream.
+---
+>      * Writes the specified byte to this output stream.
+127c126,127
+<      * @exception java.io.IOException if an error occurs.
+---
+>      * @param b The byte to write.
+>      * @exception IOException if an I/O error occurs.
+129,132c129,133
+<     @Override
+<     protected OutputStream getStream() throws IOException
+<     {
+<         return currentOutputStream;
+---
+>     public void write(int b) throws IOException {
+>         if (memoryOutputStream.size() >= threshold) {
+>             thresholdReached();
+>         }
+>         currentOutputStream.write(b);
+143d143
+<     @Override
+207d206
+<     @Override
+210,211c209
+<         super.close();
+<         closed = true;
+---
+>         if (!closed) {
+212a211,212
+>             closed = true;
+>         }

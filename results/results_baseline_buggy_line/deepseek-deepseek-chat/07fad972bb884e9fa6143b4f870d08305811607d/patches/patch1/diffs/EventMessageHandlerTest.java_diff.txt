@@ -1,0 +1,18 @@
+112c112
+<         logger.setLevel(Level.INFO);
+---
+>         logger.detachAndStopAllAppenders();
+113a114
+>         logger.setLevel(Level.INFO);
+141c142
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId, "reason", "fraudulent")))
+---
+>                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id, "reason", "fraudulent")))
+203c204
+<         verify(mockNotificationService, atMostOnce()).sendStripeDisputeLostEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
+---
+>         verify(mockNotificationService, atMostOnce).sendStripeDisputeLostEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
+313c314
+<     void shouldNotCallNotificationServiceWhenTransactionDoesNotExist() throws QueueException {
+---
+>     void shouldNotCallNotificationServiceWhenTransactionDoesNotExist) throws QueueException {

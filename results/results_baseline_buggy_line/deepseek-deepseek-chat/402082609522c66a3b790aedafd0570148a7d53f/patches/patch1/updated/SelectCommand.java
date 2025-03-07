@@ -1,0 +1,55 @@
+package com.github.games647.changeskin.sponge.command;
+
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.github.games647.changeskin.sponge.PomData;
+import com.github.games647.changeskin.sponge.task.SkinSelector;
+import com.google.inject.Inject;
+
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.command.parameter.managed.Flag;
+import org.spongepowered.api.command.parameter.managed.clientcompletion.ClientCompletionTypes;
+import org.spongepowered.api.command.parameter.managed.standard.VariableValueParameters;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
+
+import static org.spongepowered.api.command.parameter.managed.standard.VariableValueParameters.string;
+
+public class SelectCommand implements ChangeSkinCommand {
+
+    private final ChangeSkinSponge plugin;
+
+    @Inject
+    SelectCommand(ChangeSkinSponge plugin) {
+        this.plugin = plugin;
+    }
+
+    public CommandResult execute(CommandSource src, CommandContext args) {
+        if (!(src instanceof Player)) {
+            plugin.sendMessage(src, "no-console");
+            return CommandResult.empty();
+        }
+
+        String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
+
+        try {
+            int targetId = Integer.parseInt(skinName);
+            Player receiver = (Player) src;
+            Task.builder().async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+        } catch (NumberFormatException numberFormatException) {
+            plugin.sendMessage(src, "invalid-skin-name");
+        }
+
+        return CommandResult.success();
+    }
+
+    public CommandSpec buildSpec() {
+        return CommandSpec.builder()
+                .executor(this)
+                .arguments(string(Parameter.key("skinName", ClientCompletionTypes.STRING.get())))
+                .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
+                .build();
+    }
+}

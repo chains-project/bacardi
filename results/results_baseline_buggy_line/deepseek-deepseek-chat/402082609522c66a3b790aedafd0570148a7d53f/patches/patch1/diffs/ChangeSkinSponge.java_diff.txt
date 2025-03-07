@@ -1,0 +1,85 @@
+23,33c23,33
+< import org.spongepowered.api.command.CommandManager;
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.config.ConfigDir;
+< import org.spongepowered.api.event.Listener;
+< import org.spongepowered.api.event.game.state.GameInitializationEvent;
+< import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+< import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelRegistrar;
+< import org.spongepowered.api.plugin.Plugin;
+< import org.spongepowered.api.text.serializer.TextSerializers;
+---
+> import org.spongepowered.api.command.manager.CommandManager;
+> import org.spongepowered.api.command.CommandCause;
+> import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+> import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
+> import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
+> import org.spongepowered.api.network.channel.raw.RawDataChannel;
+> import org.spongepowered.api.network.channel.ChannelManager;
+> import org.spongepowered.plugin.PluginContainer;
+> import org.spongepowered.plugin.builtin.jvm.Plugin;
+> import org.spongepowered.api.text.Text;
+> import org.spongepowered.api.text.serializer.TextSerializer;
+40,42c40,41
+< @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+<         url = PomData.URL, description = PomData.DESCRIPTION)
+< public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
+---
+> @Plugin(ARTIFACT_ID)
+> public class ChangeSkinSponge implements PlatformPlugin<CommandCause> {
+53d51
+<     //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
+62,63c60
+<     public void onPreInit(GamePreInitializationEvent preInitEvent) {
+<         //load config and database
+---
+>     public void onPreInit(StartingEngineEvent<Server> preInitEvent) {
+73c70
+<     public void onInit(GameInitializationEvent initEvent) {
+---
+>     public void onInit(RegisterCommandEvent<CommandCause> initEvent) {
+77c74
+<         CommandManager cmdManager = Sponge.getCommandManager();
+---
+>         CommandManager cmdManager = Sponge.server().commandManager();
+79d75
+<         //command and event register
+87c83
+<         Sponge.getEventManager().registerListeners(this, injector.getInstance(LoginListener.class));
+---
+>         Sponge.eventManager().registerListeners(this, injector.getInstance(LoginListener.class));
+89,90c85
+<         //incoming channel
+<         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
+---
+>         ChannelManager channelReg = Sponge.channelManager();
+93,96c88,91
+<         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
+<         RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
+<         updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
+<         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
+---
+>         RawDataChannel updateChannel = channelReg.ofType(RawDataChannel.class, updateChannelName);
+>         RawDataChannel permChannel = channelReg.ofType(RawDataChannel.class, permissionChannelName);
+>         updateChannel.play().addHandler(injector.getInstance(UpdateSkinListener.class));
+>         permChannel.play().addHandler(injector.getInstance(CheckPermissionListener.class));
+100c95
+<     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
+---
+>     public void onShutdown(StoppingEngineEvent<Server> stoppingServerEvent) {
+109c104
+<     public boolean hasSkinPermission(CommandSource invoker, UUID uuid, boolean sendMessage) {
+---
+>     public boolean hasSkinPermission(CommandCause invoker, UUID uuid, boolean sendMessage) {
+114d108
+<         //disallow - not whitelisted or blacklisted
+142c136
+<     public void sendMessage(CommandSource receiver, String key) {
+---
+>     public void sendMessage(CommandCause receiver, String key) {
+145c139
+<             receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
+---
+>             receiver.sendMessage(Text.of(message));

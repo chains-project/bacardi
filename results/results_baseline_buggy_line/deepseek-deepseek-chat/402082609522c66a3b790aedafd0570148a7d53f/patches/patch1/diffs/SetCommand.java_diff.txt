@@ -1,0 +1,71 @@
+13,17c13,17
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.args.GenericArguments;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+> import org.spongepowered.api.command.parameter.managed.Flag;
+> import org.spongepowered.api.command.parameter.managed.client.ClientCommandCompletionTypes;
+> import org.spongepowered.api.command.parameter.managed.standard.VariableValueParameters;
+21,23c21
+< import static org.spongepowered.api.command.args.GenericArguments.flags;
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import static org.spongepowered.api.command.parameter.managed.standard.VariableValueParameters.string;
+25c23
+< public class SetCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class SetCommand implements ChangeSkinCommand {
+36,39c34,36
+<     @Override
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+---
+>     public CommandResult execute(CommandContext args) {
+>         if (!(args.getCause().getAudience() instanceof Player)) {
+>             plugin.sendMessage(args.getCause().getAudience(), "no-console");
+43c40
+<         UUID uniqueId = ((Player) src).getUniqueId();
+---
+>         UUID uniqueId = ((Player) args.getCause().getAudience()).getUniqueId();
+45c42
+<             plugin.sendMessage(src, "cooldown");
+---
+>             plugin.sendMessage(args.getCause().getAudience(), "cooldown");
+49,51c46,48
+<         Player receiver = (Player) src;
+<         String targetSkin = args.<String>getOne("skin").get();
+<         boolean keepSkin = args.hasAny("keep");
+---
+>         Player receiver = (Player) args.getCause().getAudience();
+>         String targetSkin = args.requireOne(Parameter.string().key("skin").build());
+>         boolean keepSkin = args.hasFlag(Flag.builder("keep").build());
+60c57
+<             if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(src, targetUUID, true)) {
+---
+>             if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(args.getCause().getAudience(), targetUUID, true)) {
+64,65c61,62
+<             plugin.sendMessage(src, "skin-change-queue");
+<             Runnable skinDownloader = new SkinDownloader(plugin, src, receiver, targetUUID, keepSkin);
+---
+>             plugin.sendMessage(args.getCause().getAudience(), "skin-change-queue");
+>             Runnable skinDownloader = new SkinDownloader(plugin, args.getCause().getAudience(), receiver, targetUUID, keepSkin);
+70c67
+<         Runnable nameResolver = new NameResolver(plugin, src, targetSkin, receiver, keepSkin);
+---
+>         Runnable nameResolver = new NameResolver(plugin, args.getCause().getAudience(), targetSkin, receiver, keepSkin);
+75d71
+<     @Override
+79,81c75,77
+<                 .arguments(
+<                         string(of("skin")),
+<                         flags().flag("keep").buildWith(GenericArguments.none()))
+---
+>                 .parameters(
+>                         Parameter.string().key("skin").build(),
+>                         Flag.builder("keep").build())
