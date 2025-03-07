@@ -1,0 +1,98 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the classes `HexOf` and `BytesOf` cannot be found, which suggests that the `org.cactoos.io` and `org.cactoos.text` packages are either missing or have been renamed in the updated dependency version.
+
+2. Review the client code:
+   - The problematic areas are the imports and the usage of `HexOf` and `BytesOf` in the `digest()` method.
+   - The `HexOf` and `BytesOf` classes are used to convert the byte array to a hexadecimal string representation.
+
+3. Consider potential fixes:
+   - The `HexOf` and `BytesOf` classes are likely no longer available in the updated version of the `cactoos` library.
+   - We need to replace these with equivalent functionality using standard Java libraries or other available classes in the updated dependency.
+
+4. Plan the necessary changes:
+   - Replace the `HexOf` and `BytesOf` classes with standard Java methods to convert the byte array to a hexadecimal string.
+   - Remove the unused imports for `HexOf` and `BytesOf`.
+</code_analysis>
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker.misc;
+
+import com.artipie.asto.Content;
+import com.artipie.docker.Digest;
+import hu.akarnokd.rxjava2.interop.SingleInterop;
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+/**
+ * Digest from content.
+ * @since 0.2
+ */
+public final class DigestFromContent {
+
+    /**
+     * Content.
+     */
+    private final Content content;
+
+    /**
+     * Ctor.
+     * @param content Content publisher
+     */
+    public DigestFromContent(final Content content) {
+        this.content = content;
+    }
+
+    /**
+     * Calculates digest from content.
+     * @return CompletionStage from digest
+     */
+    public CompletionStage<Digest> digest() {
+        final MessageDigest sha;
+        try {
+            sha = MessageDigest.getInstance("SHA-256");
+        } catch (final NoSuchAlgorithmException err) {
+            throw new IllegalStateException("This runtime doesn't have SHA-256 algorithm", err);
+        }
+        return Flowable.fromPublisher(this.content)
+            .flatMapCompletable(
+                buf -> Completable.fromAction(
+                    () -> {
+                        buf.mark();
+                        sha.update(buf);
+                        buf.reset();
+                    }
+                )
+            )
+            .<Digest>andThen(
+                Single.fromCallable(
+                    () -> new Digest.Sha256(bytesToHex(sha.digest()))
+                )
+            )
+            .to(SingleInterop.get()).toCompletableFuture();
+    }
+
+    /**
+     * Converts a byte array to a hex string.
+     * @param bytes The byte array to convert.
+     * @return The hex string representation.
+     */
+    private String bytesToHex(final byte[] bytes) {
+        return IntStream.range(0, bytes.length)
+            .mapToObj(i -> String.format("%02x", bytes[i] & 0xFF))
+            .collect(Collectors.joining());
+    }
+}
+```
+
+In this solution, the `HexOf` and `BytesOf` classes have been replaced with a custom method `bytesToHex` that converts a byte array to a hexadecimal string using standard Java methods. This ensures that the code remains functional without relying on the removed or renamed classes from the updated dependency.

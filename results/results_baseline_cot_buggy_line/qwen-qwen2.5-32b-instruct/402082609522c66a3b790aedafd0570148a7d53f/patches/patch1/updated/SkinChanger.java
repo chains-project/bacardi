@@ -1,0 +1,29 @@
+package com.github.games647.changeskin.sponge.task;
+
+import com.github.games647.changeskin.core.model.auth.Account;
+import com.github.games647.changeskin.core.shared.task.SharedSkinChanger;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.serializer.TextSerializers;
+import org.spongepowered.api.command.source.CommandSource;
+
+public class SkinChanger extends SharedSkinChanger {
+
+    private final CommandSource invoker;
+
+    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandSource invoker) {
+        super(plugin.getCore(), owner, url, oldSkinUrl);
+
+        this.invoker = invoker;
+    }
+
+    @Override
+    protected void sendMessageInvoker(String localeMessage) {
+        // Assuming the TextSerializers.LEGACY_FORMATTING_CODE is no longer available,
+        // we use a different method to create a Text object.
+        Text text = Text.of(TextColors.RESET, localeMessage);
+        invoker.sendMessage(text);
+    }
+}

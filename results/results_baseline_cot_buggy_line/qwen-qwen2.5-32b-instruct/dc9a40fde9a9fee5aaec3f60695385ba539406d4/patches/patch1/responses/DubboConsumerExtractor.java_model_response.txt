@@ -1,0 +1,77 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that there is an incompatibility between `org.apache.dubbo.rpc.AsyncRpcResult` and `java.util.concurrent.CompletableFuture<?>`.
+   - The error occurs in the `replay` method of the `DubboConsumerExtractor` class.
+   - The issue is likely due to a change in the `AsyncRpcResult` class or its usage in the newer version of the Dubbo dependency.
+
+2. Review the client code:
+   - The problematic lines are where `AsyncRpcResult` is being set as a `CompletableFuture` in `RpcContext` and `FutureContext`.
+   - The `AsyncRpcResult` is being used as a direct replacement for a `CompletableFuture`, which is causing the type incompatibility.
+
+3. Consider potential fixes:
+   - The fix should involve converting `AsyncRpcResult` to a `CompletableFuture` or ensuring that the `CompletableFuture` is used correctly.
+   - The `AsyncRpcResult` should be handled in a way that it can be used as a `CompletableFuture` or the method should be adjusted to not require a `CompletableFuture`.
+
+4. Plan the necessary changes:
+   - Convert `AsyncRpcResult` to a `CompletableFuture` if possible.
+   - Ensure that the conversion is done in a way that maintains the original functionality.
+</code_analysis>
+
+```java
+package io.arex.inst.dubbo.apache.v2;
+
+import io.arex.agent.bootstrap.model.MockResult;
+import io.arex.agent.bootstrap.model.Mocker;
+import io.arex.inst.dubbo.common.DubboExtractor;
+import io.arex.inst.runtime.util.IgnoreUtils;
+import io.arex.inst.runtime.util.MockUtils;
+import org.apache.dubbo.common.URL;
+import org.apache.dubbo.rpc.*;
+import org.apache.dubbo.rpc.support.RpcUtils;
+import java.util.concurrent.CompletableFuture;
+
+public class DubboConsumerExtractor extends DubboExtractor {
+    private final DubboAdapter adapter;
+
+    public DubboConsumerExtractor(DubboAdapter adapter) {
+        this.adapter = adapter;
+    }
+
+    public void record(Result result) {
+        adapter.execute(result, makeMocker());
+    }
+
+    private Mocker makeMocker() {
+        Mocker mocker = MockUtils.createDubboConsumer(adapter.getServiceOperation());
+        return buildMocker(mocker, adapter, null, null);
+    }
+
+    public MockResult replay() {
+        MockResult mockResult = null;
+        Object result = MockUtils.replayBody(makeMocker());
+        boolean ignoreMockResult = IgnoreUtils.ignoreMockResult(adapter.getPath(), adapter.getOperationName());
+        if (result != null && !ignoreMockResult) {
+            AsyncRpcResult asyncRpcResult;
+            Invocation invocation = adapter.getInvocation();
+            if (result instanceof Throwable) {
+                asyncRpcResult = AsyncRpcResult.newDefaultAsyncResult((Throwable) result, invocation);
+            } else {
+                asyncRpcResult = AsyncRpcResult.newDefaultAsyncResult(result, invocation);
+            }
+            mockResult = MockResult.success(ignoreMockResult, asyncRpcResult);
+            if (invocation instanceof RpcInvocation) {
+                RpcInvocation rpcInv = (RpcInvocation) invocation;
+                rpcInv.setInvokeMode(RpcUtils.getInvokeMode(adapter.getUrl(), invocation));
+            }
+            // Convert AsyncRpcResult to CompletableFuture for compatibility
+            CompletableFuture<Object> future = new CompletableFuture<>();
+            future.complete(asyncRpcResult.getValue());
+            RpcContext.getContext().setFuture(future);
+            FutureContext.getContext().setCompatibleFuture(future);
+        }
+        return mockResult;
+    }
+}
+```
+
+In this fix, the `AsyncRpcResult` is converted to a `CompletableFuture` to ensure type compatibility. This conversion is done by creating a new `CompletableFuture` and completing it with the value from `AsyncRpcResult`. This approach maintains the original functionality while resolving the type incompatibility issue.

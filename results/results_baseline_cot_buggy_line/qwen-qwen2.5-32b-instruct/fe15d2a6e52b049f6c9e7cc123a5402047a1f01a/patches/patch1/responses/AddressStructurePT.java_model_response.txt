@@ -1,0 +1,120 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the method `getInstance()` cannot be found in the class `org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy`.
+   - This suggests that the method `getInstance()` has been removed or renamed in the updated version of the `jaxb2-commons` library.
+
+2. Review the client code:
+   - The problematic line is `final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();`.
+   - The class `JAXBToStringStrategy` is used to create an instance of `ToStringStrategy2` which is used for generating string representations of the object.
+
+3. Consider potential fixes:
+   - Since the `getInstance()` method is no longer available, we need to find an alternative way to create an instance of `ToStringStrategy2`.
+   - The `JAXBToStringStrategy` class might have a constructor or a static factory method that can be used to create an instance.
+
+4. Plan the necessary changes:
+   - Replace the call to `getInstance()` with a call to a constructor or a static factory method if available.
+   - If the class `JAXBToStringStrategy` no longer exists or has been renamed, we need to find the replacement class or method in the updated library.
+</code_analysis>
+
+Based on the analysis, the following patch is proposed to fix the issue:
+
+```java
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_02_01.schema;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
+import org.jvnet.jaxb2_commons.lang.ToString2;
+import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
+import org.jvnet.jaxb2_commons.locator.ObjectLocator;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "AddressStructurePT", propOrder = {
+    "buildingNumber",
+    "streetName",
+    "addressDetail",
+    "city",
+    "postalCode",
+    "region",
+    "country"
+})
+public class AddressStructurePT implements ToString2 {
+
+    @XmlElement(name = "BuildingNumber")
+    protected String buildingNumber;
+    @XmlElement(name = "StreetName")
+    protected String streetName;
+    @XmlElement(name = "AddressDetail", required = true)
+    protected String addressDetail;
+    @XmlElement(name = "City", required = true)
+    protected String city;
+    @XmlElement(name = "PostalCode", required = true)
+    protected String postalCode;
+    @XmlElement(name = "Region")
+    protected String region;
+    @XmlElement(name = "Country", required = true)
+    protected Object country;
+
+    // ... (other methods remain unchanged)
+
+    @Override
+    public String toString() {
+        final ToStringStrategy2 strategy = new JAXBToStringStrategy(); // Changed from getInstance() to new instance
+        final StringBuilder buffer = new StringBuilder();
+        append(null, buffer, strategy);
+        return buffer.toString();
+    }
+
+    @Override
+    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+        strategy.appendStart(locator, this, buffer);
+        appendFields(locator, buffer, strategy);
+        strategy.appendEnd(locator, this, buffer);
+        return buffer;
+    }
+
+    @Override
+    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+        {
+            String theBuildingNumber;
+            theBuildingNumber = this.getBuildingNumber();
+            strategy.appendField(locator, this, "buildingNumber", buffer, theBuildingNumber, (this.buildingNumber != null));
+        }
+        {
+            String theStreetName;
+            theStreetName = this.getStreetName();
+            strategy.appendField(locator, this, "streetName", buffer, theStreetName, (this.streetName != null));
+        }
+        {
+            String theAddressDetail;
+            theAddressDetail = this.getAddressDetail();
+            strategy.appendField(locator, this, "addressDetail", buffer, theAddressDetail, (this.addressDetail != null));
+        }
+        {
+            String theCity;
+            theCity = this.getCity();
+            strategy.appendField(locator, this, "city", buffer, theCity, (this.city != null));
+        }
+        {
+            String thePostalCode;
+            thePostalCode = this.getPostalCode();
+            strategy.appendField(locator, this, "postalCode", buffer, thePostalCode, (this.postalCode != null));
+        }
+        {
+            String theRegion;
+            theRegion = this.getRegion();
+            strategy.appendField(locator, this, "region", buffer, theRegion, (this.region != null));
+        }
+        {
+            Object theCountry;
+            theCountry = this.getCountry();
+            strategy.appendField(locator, this, "country", buffer, theCountry, (this.country != null));
+        }
+        return buffer;
+    }
+}
+```
+
+In this patch, the line `final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();` has been replaced with `final ToStringStrategy2 strategy = new JAXBToStringStrategy();` to create a new instance of `JAXBToStringStrategy` directly, assuming that the constructor is available and appropriate for creating a new instance. If the constructor is not available or appropriate, the correct method or constructor should be used based on the updated library documentation.

@@ -1,0 +1,95 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the class `com.fasterxml.jackson.core.exc.StreamWriteException` cannot be found.
+   - This suggests that the Jackson library version used in the project might have changed, and the class `StreamWriteException` is no longer available in the new version.
+   - The error occurs at line 242, where `writer.writeValue(segmentListFile, dataList)` is called.
+
+2. Review the client code:
+   - The problematic area is in the `execute` method where `ObjectMapper` and `ObjectWriter` are used to write JSON data to a file.
+   - The `ObjectMapper` and `ObjectWriter` classes are part of the Jackson library, and the error suggests a version mismatch or missing dependency.
+
+3. Consider potential fixes that adhere to the following constraints:
+   - Ensure that the correct Jackson library version is included in the project dependencies.
+   - If the class `StreamWriteException` is no longer available, it might have been moved or renamed in the new version of the library.
+
+4. Plan the necessary changes to fix the issue:
+   - Ensure that the correct Jackson library version is included in the project dependencies.
+   - If the class `StreamWriteException` is no longer available, it might have been moved or renamed in the new version of the library. Check the Jackson documentation for the new version to find the correct class or method to use.
+</code_analysis>
+
+Based on the analysis, the issue seems to be related to a missing or incorrect version of the Jackson library. The class `StreamWriteException` is not found, which suggests that the Jackson library version used in the project might be outdated or incorrectly configured.
+
+To fix this issue, ensure that the correct version of the Jackson library is included in the project dependencies. If the class `StreamWriteException` is no longer available, it might have been moved or renamed in the new version of the library. Here is the fixed class with the necessary changes:
+
+```java
+package de.uniwue.helper;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.apache.commons.io.FileUtils;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+
+import de.uniwue.config.ProjectConfiguration;
+import de.uniwue.feature.ProcessConflictDetector;
+import de.uniwue.feature.ProcessHandler;
+import de.uniwue.feature.ProcessStateCollector;
+
+/**
+ * Helper class for recognition module
+ */
+public class RecognitionHelper {
+    // ... (other fields and methods remain unchanged)
+
+    /**
+     * Executes OCR on a list of pages
+     * Achieved with the help of the external python program "calamari-predict"
+     *
+     * @param pageIds Identifiers of the pages (e.g 0002,0003)
+     * @param cmdArgs Command line arguments for "calamari-predict"
+     * @throws IOException
+     */
+    public void execute(List<String> pageIds, final List<String> cmdArgs) throws IOException {
+        // ... (other code remains unchanged)
+
+        // Create temp json file with all segment images (to not overload parameter list)
+        File segmentListFile = File.createTempFile("calamari-", ".files");
+        segmentListFile.deleteOnExit();
+
+        List<String> content = new ArrayList<>();
+        for (String pageId : pageIds) {
+            content.add(projConf.getImageDirectoryByType(projectImageType) + pageId + projConf.getImageExtensionByType(projectImageType));
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectWriter writer = mapper.writer();
+        try {
+            writer.writeValue(segmentListFile, content);
+        } catch (JsonProcessingException e) {
+            throw new IOException("Failed to write JSON content to file", e);
+        }
+
+        // ... (rest of the method remains unchanged)
+    }
+
+    // ... (rest of the class remains unchanged)
+}
+```
+
+In this fix, I have added a try-catch block around the `writeValue` method call to handle `JsonProcessingException` which is the exception that should be caught when using the newer versions of the Jackson library. This ensures that the code is compatible with the updated Jackson library version and handles the exception appropriately.

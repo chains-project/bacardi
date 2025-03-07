@@ -1,0 +1,78 @@
+3d2
+< import de.gwdg.metadataqa.api.json.JsonBranch;
+4a4
+> import de.gwdg.metadataqa.api.model.pathcache.JsonPathCache.JsonPath;
+67,68c67,68
+<     for (JsonBranch branch : schema.getPaths()) {
+<       if (branch.getParent() != null)
+---
+>     for (JsonPath jsonPath : cache.getPaths()) {
+>       if (jsonPath.getParent() != null)
+70c70
+<       switch (branch.getLabel()) {
+---
+>       switch (jsonPath.getLabel()) {
+72c72
+<           marcRecord.setLeader(new Leader(extractFirst(cache, branch)));
+---
+>           marcRecord.setLeader(new Leader(extractFirst(cache, jsonPath)));
+75c75
+<           marcRecord.setControl001(new Control001(extractFirst(cache, branch)));
+---
+>           marcRecord.setControl001(new Control001(extractFirst(cache, jsonPath)));
+78c78
+<           marcRecord.setControl003(new Control003(extractFirst(cache, branch)));
+---
+>           marcRecord.setControl003(new Control003(extractFirst(cache, jsonPath)));
+81c81
+<           marcRecord.setControl005(new Control005(extractFirst(cache, branch), marcRecord));
+---
+>           marcRecord.setControl005(new Control005(extractFirst(cache, jsonPath), marcRecord));
+85c85
+<             new Control006(extractFirst(cache, branch), marcRecord));
+---
+>             new Control006(extractFirst(cache, jsonPath), marcRecord));
+89c89
+<             new Control007(extractFirst(cache, branch), marcRecord));
+---
+>             new Control007(extractFirst(cache, jsonPath), marcRecord));
+93c93
+<             new Control008(extractFirst(cache, branch), marcRecord));
+---
+>             new Control008(extractFirst(cache, jsonPath), marcRecord));
+96c96
+<           JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());
+---
+>           JSONArray fieldInstances = (JSONArray) cache.getFragment(jsonPath.getPath());
+104c104
+<               marcRecord.addUnhandledTags(branch.getLabel());
+---
+>               marcRecord.addUnhandledTags(jsonPath.getLabel());
+156c156
+<             "Error in '%s': no type has been detected. Leader: '%s'.",
+---
+>             ("Error in '%s': no type has been detected. Leader: '%s'.",
+259c259
+<               definition,
+---
+>               (definition,
+292c292
+<         definition,
+---
+>         (definition,
+313,314c313,314
+<   private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
+<     List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());
+---
+>   private static List<String> extractList(JsonPathCache cache, JsonPath jsonPath) {
+>     List<XmlFieldInstance> instances = cache.get(jsonPath.getPath());
+322,323c322,323
+<   private static String extractFirst(JsonPathCache cache, JsonBranch branch) {
+<     List<String> list = extractList(cache, branch);
+---
+>   private static String extractFirst(JsonPathCache cache, JsonPath jsonPath) {
+>     List<String> list = extractList(cache, jsonPath);
+384c384
+<             line.getTag(), line.getInd1().charAt(0), line.getInd2().charAt(0)
+---
+>             (line.getTag(), line.getInd1().charAt(0), line.getInd2().charAt(0)

@@ -1,0 +1,85 @@
+<code_analysis>
+1. The error message indicates that the `SelectChannelConnector` class and methods like `setSendServerVersion`, `setSendDateHeader`, and `getLocalPort` are no longer available in the updated Jetty dependency. This suggests that the Jetty version used in the project has been updated, and these classes and methods have been deprecated or removed.
+
+2. The client code uses `SelectChannelConnector` for setting up the server connector and relies on methods that are no longer available in the newer Jetty version. The `Connector` class does not have the `getLocalPort` method, and the `Server` class does not have the `setSendServerVersion` and `setSendDateHeader` methods.
+
+3. To fix the issue, we need to update the code to use the new Jetty API. The `SelectChannelConnector` has been replaced by `ServerConnector`, and the methods for setting the server version and date header have been removed. The `getLocalPort` method can be replaced by using the `getLocalPort` method from the `ServerConnector` class.
+
+4. The necessary changes include:
+   - Replace `SelectChannelConnector` with `ServerConnector`.
+   - Remove the calls to `setSendServerVersion` and `setSendDateHeader` as they are no longer supported.
+   - Update the `getPort` method to use the `ServerConnector`'s `getLocalPort` method.
+</code_analysis>
+
+```java
+package net.jadler.stubbing.server.jetty;
+
+import net.jadler.RequestManager;
+import net.jadler.stubbing.server.StubHttpServer;
+import org.apache.commons.lang.Validate;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Default stub http server implementation using Jetty as an http server.
+ */
+public class JettyStubHttpServer implements StubHttpServer {
+
+    private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
+    private final Server server;
+    private final ServerConnector httpConnector;
+
+    public JettyStubHttpServer() {
+        this(0);
+    }
+
+    public JettyStubHttpServer(final int port) {
+        this.server = new Server();
+        this.httpConnector = new ServerConnector(server);
+        this.httpConnector.setPort(port);
+        server.addConnector(this.httpConnector);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void registerRequestManager(final RequestManager ruleProvider) {
+        Validate.notNull(ruleProvider, "ruleProvider cannot be null");
+
+        server.setHandler(new JadlerHandler(ruleProvider));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void start() throws Exception {
+        logger.debug("starting jetty");
+        server.start();
+        logger.debug("jetty started");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void stop() throws Exception {
+        logger.debug("stopping jetty");
+        server.stop();
+        logger.debug("jetty stopped");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getPort() {
+        return httpConnector.getLocalPort();
+    }
+}
+```
+
+This fix updates the code to use the `ServerConnector` class instead of the deprecated `SelectChannelConnector`. It also removes the calls to `setSendServerVersion` and `setSendDateHeader` as these methods are no longer available in the newer Jetty version. The `getPort` method is updated to use the `getLocalPort` method from the `ServerConnector` class.

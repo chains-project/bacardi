@@ -1,0 +1,96 @@
+12d11
+< import redis.clients.jedis.Client;
+13a13,14
+> import redis.clients.jedis.Pipeline;
+> import redis.clients.jedis.Transaction;
+14a16
+> import redis.clients.jedis.params.RedisGraphCommand;
+22a25
+> {
+56,59c59,61
+<         } catch (JRedisGraphException rt) {
+<             throw rt;
+<         } catch (JedisDataException j) {
+<             throw new JRedisGraphException(j);
+---
+>         } catch (Exception e) {
+>             conn.close();
+>             throw e;
+76,79c78,80
+<         } catch (JRedisGraphException ge) {
+<             throw ge;
+<         } catch (JedisDataException de) {
+<             throw new JRedisGraphException(de);
+---
+>         } catch (Exception e) {
+>             conn.close();
+>             throw e;
+95,96c96
+<             List<Object> rawResponse = (List<Object>) conn.sendBlockingCommand(RedisGraphCommand.QUERY,
+<                     graphId, preparedQuery, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING, Long.toString(timeout));
+---
+>             List<Object> rawResponse = (List<Object>) conn.sendBlockingCommand(RedisGraphCommand.QUERY, graphId, preparedQuery, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING, Long.toString(timeout));
+98,101c98,100
+<         } catch (JRedisGraphException rt) {
+<             throw rt;
+<         } catch (JedisDataException j) {
+<             throw new JRedisGraphException(j);
+---
+>         } catch (Exception e) {
+>             conn.close();
+>             throw e;
+117,118c116
+<             List<Object> rawResponse = (List<Object>) conn.sendBlockingCommand(RedisGraphCommand.RO_QUERY,
+<                     graphId, preparedQuery, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING, Long.toString(timeout));
+---
+>             List<Object> rawResponse = (List<Object>) conn.sendBlockingCommand(RedisGraphCommand.RO_QUERY, graphId, preparedQuery, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING, Long.toString(timeout));
+120,123c118,120
+<         } catch (JRedisGraphException ge) {
+<             throw ge;
+<         } catch (JedisDataException de) {
+<             throw new JRedisGraphException(de);
+---
+>         } catch (Exception e) {
+>             conn.close();
+>             throw e;
+142,147c139,142
+<         Client client = jedis.getClient();
+<         client.multi();
+<         client.getOne();
+<         RedisGraphTransaction transaction = new RedisGraphTransaction(client, this);
+<         transaction.setRedisGraphCaches(caches);
+<         return transaction;
+---
+>         Transaction transaction = jedis.multi();
+>         RedisGraphTransaction redisGraphTransaction = new RedisGraphTransaction(transaction, this);
+>         redisGraphTransaction.setRedisGraphCaches(caches);
+>         return redisGraphTransaction;
+157,160c152,155
+<         Client client = jedis.getClient();
+<         RedisGraphPipeline pipeline = new RedisGraphPipeline(client, this);
+<         pipeline.setRedisGraphCaches(caches);
+<         return pipeline;
+---
+>         Pipeline pipeline = jedis.pipelined();
+>         RedisGraphPipeline redisGraphPipeline = new RedisGraphPipeline(pipeline, this);
+>         redisGraphPipeline.setRedisGraphCaches(caches);
+>         return redisGraphPipeline;
+184c179
+<      * @param graphId graph to delete
+---
+>      * @param graphId graph to be deleted
+190d184
+<         Object response;
+192c186,187
+<             response = conn.sendCommand(RedisGraphCommand.DELETE, graphId);
+---
+>             Object response = conn.sendCommand(RedisGraphCommand.DELETE, graphId);
+>             return SafeEncoder.encode((byte[]) response);
+197,199d191
+<         //clear local state
+<         caches.removeGraphCache(graphId);
+<         return SafeEncoder.encode((byte[]) response);
+208d199
+< 
+215d205
+< 

@@ -1,0 +1,71 @@
+package com.google.cloud.translate;
+
+import com.google.cloud.translate.v3.Languages;
+import com.google.common.base.Function;
+import com.google.common.base.MoreObjects;
+import java.io.Serializable;
+import java.util.Objects;
+
+/**
+ * Information about a language supported by Google Translation. Objects of this class contain the
+ * language's code and the language name.
+ *
+ * @see <a href="https://cloud.google.com/translate/v2/discovering-supported-languages-with-rest">
+ *     Discovering Supported Languages</a>
+ * @see <a href="https://cloud.google.com/translate/docs/languages">Supported Languages</a>
+ */
+public class Language implements Serializable {
+
+  private static final long serialVersionUID = 5205240279371907020L;
+  static final Function<Languages, Language> FROM_PB_FUNCTION =
+      new Function<Languages, Language>() {
+        @Override
+        public Language apply(Languages languagePb) {
+          return Language.fromPb(languagePb);
+        }
+      };
+
+  private final String code;
+  private final String name;
+
+  private Language(String code, String name) {
+    this.code = code;
+    this.name = name;
+  }
+
+  /** Returns the code of the language. */
+  public String getCode() {
+    return code;
+  }
+
+  /** Returns the name of the language. */
+  public String getName() {
+    return name;
+  }
+
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper(this).add("code", code).add("name", name).toString();
+  }
+
+  @Override
+  public final int hashCode() {
+    return Objects.hash(code, name);
+  }
+
+  @Override
+  public final boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj == null || !obj.getClass().equals(Language.class)) {
+      return false;
+    }
+    Language other = (Language) obj;
+    return Objects.equals(code, other.code) && Objects.equals(name, other.name);
+  }
+
+  static Language fromPb(Languages languagePb) {
+    return new Language(languagePb.getCode(), languagePb.getName());
+  }
+}

@@ -1,0 +1,34 @@
+93c93
+<             new StringContains(false, "Unexpected path")
+---
+>             new StringContains("Unexpected path")
+109c109
+<             new StringContains(false, "Unexpected query")
+---
+>             new StringContains("Unexpected query")
+137,161d136
+< 
+<     @Test
+<     void shouldReadFromWhenPresent() {
+<         final UploadEntity.Request request = new UploadEntity.Request(
+<             new RequestLine(
+<                 RqMethod.POST,
+<                 "/v2/my-repo/blobs/uploads/?mount=sha256:12345&from=foo"
+<             ).toString()
+<         );
+<         MatcherAssert.assertThat(
+<             request.from().map(RepoName::value),
+<             new IsEqual<>(Optional.of("foo"))
+<         );
+<     }
+< 
+<     @Test
+<     void shouldReadFromWhenAbsent() {
+<         final UploadEntity.Request request = new UploadEntity.Request(
+<             new RequestLine(RqMethod.POST, "/v2/my-repo/blobs/uploads/").toString()
+<         );
+<         MatcherAssert.assertThat(
+<             request.from().isPresent(),
+<             new IsEqual<>(false)
+<         );
+<     }

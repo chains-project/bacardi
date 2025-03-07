@@ -1,0 +1,148 @@
+<code_analysis>
+1. Examine the error message:
+   - The error indicates that the class `Tv` cannot be found in the package `com.jcabi.aspects`.
+   - This suggests that the `Tv` class has been removed or moved in the updated dependency version.
+
+2. Review the client code:
+   - The `Tv` class is used in the client code to provide constants such as `Tv.TEN` and `Tv.EIGHT`.
+   - These constants are used in the `RandomStringUtils.randomAlphanumeric` and `RandomStringUtils.randomAlphabetic` methods to generate random strings.
+
+3. Consider potential fixes:
+   - Since `Tv` is not available, we need to replace its usage with direct values or define our own constants.
+   - We can define our own constants in the class to maintain the same functionality.
+
+4. Plan the necessary changes:
+   - Remove the import statement for `Tv`.
+   - Define constants `TEN` and `EIGHT` in the class to replace the usage of `Tv.TEN` and `Tv.EIGHT`.
+</code_analysis>
+
+```java
+package com.jcabi.simpledb;
+
+import com.amazonaws.services.simpledb.model.SelectRequest;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
+
+/**
+ * Integration case for {@link Region}.
+ *
+ * @since 0.1
+ */
+final class RegionITCase {
+
+    /**
+     * SimpleDB key.
+     */
+    private static final String KEY =
+        System.getProperty("failsafe.sdb.key");
+
+    /**
+     * SimpleDB secret key.
+     */
+    private static final String SECRET =
+        System.getProperty("failsafe.sdb.secret");
+
+    /**
+     * Constant for ten.
+     */
+    private static final int TEN = 10;
+
+    /**
+     * Constant for eight.
+     */
+    private static final int EIGHT = 8;
+
+    @Test
+    void putsAndRemovesIndividualItems() {
+        final Domain domain = this.domain();
+        try {
+            final String name = RandomStringUtils.randomAlphanumeric(TEN);
+            final String attr = RandomStringUtils.randomAlphabetic(EIGHT);
+            final String value = RandomStringUtils.randomAlphanumeric(TEN);
+            for (int idx = 0; idx < 2; ++idx) {
+                domain.item(name).put(attr, value);
+                MatcherAssert.assertThat(
+                    domain.item(name), Matchers.hasKey(attr)
+                );
+                domain.item(name).remove(attr);
+                MatcherAssert.assertThat(
+                    domain.item(name), Matchers.not(Matchers.hasKey(attr))
+                );
+            }
+        } finally {
+            domain.drop();
+        }
+    }
+
+    @Test
+    void selectsMultipleItems() {
+        final Domain domain = this.domain();
+        try {
+            final String attr = "alpha";
+            domain.item("first").put(attr, "val-99");
+            domain.item("second").put("beta", "");
+            MatcherAssert.assertThat(
+                domain.select(
+                    new SelectRequest().withSelectExpression(
+                        String.format(
+                            "SELECT * FROM `%s` WHERE `%s` = 'val-99'",
+                            domain.name(), attr
+                        )
+                    ).withConsistentRead(true)
+                ),
+                Matchers.hasItem(Matchers.hasKey(attr))
+            );
+        } finally {
+            domain.drop();
+        }
+    }
+
+    /**
+     * Region.Simple can select many items.
+     */
+    @Test
+    void selectsManyItems() {
+        final Domain domain = this.domain();
+        try {
+            for (int idx = 0; idx < TEN; ++idx) {
+                domain.item(String.format("i-%d", idx)).put("hey", "");
+            }
+            MatcherAssert.assertThat(
+                domain.select(
+                    new SelectRequest().withSelectExpression(
+                        String.format("SELECT * FROM `%s`", domain.name())
+                    ).withConsistentRead(true)
+                ),
+                Matchers.iterableWithSize(TEN)
+            );
+        } finally {
+            domain.drop();
+        }
+    }
+
+    /**
+     * Make domain.
+     * @return Domain
+     */
+    private Domain domain() {
+        Assumptions.assumeFalse(RegionITCase.KEY.isEmpty());
+        final Region region = new Region.Simple(
+            new Credentials.Simple(RegionITCase.KEY, RegionITCase.SECRET)
+        );
+        final Domain domain = region.domain(
+            String.format(
+                "jcabi-test-%s",
+                RandomStringUtils.randomAlphabetic(5)
+            )
+        );
+        domain.create();
+        return domain;
+    }
+
+}
+```
+
+In this solution, the `Tv` class import is removed, and the constants `TEN` and `EIGHT` are defined within the `RegionITCase` class to replace the usage of `Tv.TEN` and `Tv.EIGHT`. This ensures that the code remains functional and adheres to the constraints provided.

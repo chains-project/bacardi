@@ -1,0 +1,118 @@
+20,21c20,24
+< import org.slf4j.Logger;
+< import org.spongepowered.api.Platform.Type;
+---
+> import ninja.leaping.configurate.ConfigurationNode;
+> import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+> import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
+> import ninja.leaping.configurate.loader.ConfigurationLoader;
+> import org.checkerframework.checker.nullness.qual.Nullable;
+23c26,27
+< import org.spongepowered.api.command.CommandManager;
+---
+> import org.spongepowered.api.command.CommandMapping;
+> import org.spongepowered.api.command.CommandResult;
+24a29,30
+> import org.spongepowered.api.command.args.CommandElement;
+> import org.spongepowered.api.command.spec.CommandSpec;
+27,28c33
+< import org.spongepowered.api.event.game.state.GameInitializationEvent;
+< import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+---
+> import org.spongepowered.api.event.game.state.GameStartingServerEvent;
+30,32c35,44
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelRegistrar;
+< import org.spongepowered.api.plugin.Plugin;
+---
+> import org.spongepowered.api.network.ChannelBinding;
+> import org.spongepowered.api.network.ChannelId;
+> import org.spongepowered.api.network.message.MessageChannel;
+> import org.spongepowered.api.plugin.PluginContainer;
+> import org.spongepowered.api.plugin.PluginContainer;
+> import org.spongepowered.api.service.permission.Subject;
+> import org.spongepowered.api.service.permission.SubjectCollection;
+> import org.spongepowered.api.service.permission.SubjectData;
+> import org.spongepowered.api.service.permission.SubjectReference;
+> import org.spongepowered.api.text.Text;
+33a46,47
+> import org.spongepowered.plugin.PluginContainer;
+> import org.spongepowered.plugin.PluginManager;
+40,41d53
+< @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+<         url = PomData.URL, description = PomData.DESCRIPTION)
+43a56
+> {
+45c58
+<     private final Logger logger;
+---
+>     private final org.slf4j.Logger logger;
+53d65
+<     //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
+55c67
+<     ChangeSkinSponge(Logger logger, @ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
+---
+>     public ChangeSkinSponge(org.slf4j.Logger logger, @ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
+62,63c74
+<     public void onPreInit(GamePreInitializationEvent preInitEvent) {
+<         //load config and database
+---
+>     public void onPreInit(GameStartingServerEvent preInitEvent) {
+73c84
+<     public void onInit(GameInitializationEvent initEvent) {
+---
+>     public void onInit(GameStartingServerEvent initEvent) {
+77c88
+<         CommandManager cmdManager = Sponge.getCommandManager();
+---
+>         PluginContainer pluginContainer = Sponge.pluginManager().fromInstance(this).getClass()).orElse(null);
+79,96c90,109
+<         //command and event register
+<         cmdManager.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+<         cmdManager.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+<         cmdManager.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+<         cmdManager.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+<         cmdManager.register(this, injector.getInstance(InvalidateCommand.class)
+<                 .buildSpec(), "skininvalidate", "skin-invalidate");
+< 
+<         Sponge.getEventManager().registerListeners(this, injector.getInstance(LoginListener.class));
+< 
+<         //incoming channel
+<         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
+<         String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
+<         String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
+<         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
+<         RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
+<         updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
+<         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
+---
+>         CommandSpec selectCommandSpec = CommandSpec.builder().executor(injector.getInstance(SelectCommand.class)).build();
+>         CommandSpec infoCommandSpec = CommandSpec.builder().executor(injector.getInstance(InfoCommand.class)).build();
+>         CommandSpec uploadCommandSpec = CommandSpec.builder().executor(injector.getInstance(UploadCommand.class)).build();
+>         CommandSpec setCommandSpec = CommandSpec.builder().executor(injector.getInstance(SetCommand.class)).build();
+>         CommandSpec invalidateCommandSpec = CommandSpec.builder().executor(injector.getInstance(InvalidateCommand.class)).build();
+> 
+>         Sponge.server().commandManager().process(pluginContainer, "skin-select", selectCommandSpec);
+>         Sponge.server().commandManager().process(pluginContainer, "skin-info", infoCommandSpec);
+>         Sponge.server().commandManager().process(pluginContainer, "skin-upload", uploadCommandSpec);
+>         Sponge.server().commandManager().process(pluginContainer, "changeskin", setCommandSpec);
+>         Sponge.server().commandManager().process(pluginContainer, "skininvalidate", invalidateCommandSpec);
+> 
+>         Sponge.server().eventManager().registerListeners(pluginContainer, injector.getInstance(LoginListener.class));
+> 
+>         ChannelId updateChannelId = ChannelId.of(ARTIFACT_ID, UPDATE_SKIN_CHANNEL);
+>         ChannelId permissionChannelId = ChannelId.of(ARTIFACT_ID, CHECK_PERM_CHANNEL);
+>         MessageChannel updateChannel = Sponge.server().networkManager().getChannel(updateChannelId);
+>         MessageChannel permissionChannel = Sponge.server().networkManager().getChannel(permissionChannelId);
+>         updateChannel.registerListener(injector.getInstance(UpdateSkinListener.class));
+>         permissionChannel.registerListener(injector.getInstance(CheckPermissionListener.class));
+114d126
+<         //disallow - not whitelisted or blacklisted
+137c149
+<     public Logger getLog() {
+---
+>     public org.slf4j.Logger getLog() {
+145c157
+<             receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
+---
+>             receiver.sendMessage(Text.of(message));

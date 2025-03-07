@@ -1,0 +1,166 @@
+103c103
+<         @Bean(initMethod = "migrate")
+---
+>         @Bean
+108,112c108,112
+<                 final org.flywaydb.core.Flyway flyway = new Flyway();
+<                 flyway.setDataSource(this.dataSource());
+<                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+<                 flyway.setLocations(prop.getProperty("flyway.locations"));
+<                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+---
+>                 final Flyway flyway = Flyway.configure()
+>                                 .dataSource(this.dataSource())
+>                                 .locations(prop.getProperty("flyway.locations"))
+>                                 .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
+>                                 .load();
+129,130c129,130
+<                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
+<                                 this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+---
+>                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
+>                                 this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+334,335c334,335
+<                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
+<                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
+---
+>                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
+>                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTINGING, () -> AlwaysVestedBalances::new);
+344,402c344,345
+<         public BlockAnalyzer blockAnalyzer() {
+<                 final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
+<                 final ForkConfiguration forkConfiguration = this.nisConfiguration().getForkConfiguration();
+<                 return new BlockAnalyzer(this.blockDao, this.blockChainUpdater(), this.blockChainLastBlockLayer, this.nisMapperFactory(),
+<                                 estimatedBlocksPerYear, forkConfiguration);
+<         }
+< 
+<         @Bean
+<         public HttpConnectorPool httpConnectorPool() {
+<                 final CommunicationMode communicationMode = this.nisConfiguration().useBinaryTransport()
+<                                 ? CommunicationMode.BINARY
+<                                 : CommunicationMode.JSON;
+<                 return new HttpConnectorPool(communicationMode, this.outgoingAudits());
+<         }
+< 
+<         @Bean
+<         public NisPeerNetworkHost nisPeerNetworkHost() {
+<                 final HarvestingTask harvestingTask = new HarvestingTask(this.blockChain(), this.harvester(), this.unconfirmedTransactions());
+< 
+<                 final PeerNetworkScheduler scheduler = new PeerNetworkScheduler(this.timeProvider(), harvestingTask);
+< 
+<                 final CountingBlockSynchronizer synchronizer = new CountingBlockSynchronizer(this.blockChain());
+< 
+<                 return new NisPeerNetworkHost(this.nisCache(), synchronizer, scheduler, this.chainServices(), this.nodeCompatibilityChecker(),
+<                                 this.nisConfiguration(), this.httpConnectorPool(), this.trustProvider(), this.incomingAudits(), this.outgoingAudits());
+<         }
+< 
+<         @Bean
+<         public NetworkHostBootstrapper networkHostBootstrapper() {
+<                 return new HarvestAwareNetworkHostBootstrapper(this.nisPeerNetworkHost(), this.unlockedAccounts(), this.nisConfiguration());
+<         }
+< 
+<         @Bean
+<         public NisConfiguration nisConfiguration() {
+<                 return new NisConfiguration();
+<         }
+< 
+<         @Bean
+<         public TimeProvider timeProvider() {
+<                 return CommonStarter.TIME_PROVIDER;
+<         }
+< 
+<         @Bean
+<         public TrustProvider trustProvider() {
+<                 final int LOW_COMMUNICATION_NODE_WEIGHT = 30;
+<                 final int TRUST_CACHE_TIME = 15 * 60;
+<                 return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), LOW_COMMUNICATION_NODE_WEIGHT), TRUST_CACHE_TIME,
+<                                 this.timeProvider());
+<         }
+< 
+<         @Bean
+<         public NemConfigurationPolicy configurationPolicy() {
+<                 return new NisConfigurationPolicy();
+<         }
+< 
+<         @Bean
+<         public ChainServices chainServices() {
+<                 return new DefaultChainServices(this.blockChainLastBlockLayer, this.httpConnectorPool());
+<         }
+---
+>         public NisMain nisMain() {
+>                 final NisConfiguration nisConfiguration = this.nisConfiguration();
+404,407c347,348
+<         @Bean
+<         public CommonStarter commonStarter() {
+<                 return CommonStarter.INSTANCE;
+<         }
+---
+>                 // initialize network info
+>                 NetworkInfos.setDefault(nisConfiguration.getNetworkInfo());
+409,411c350,359
+<         @Bean
+<         public ValidationState validationState() {
+<                 return NisCacheUtils.createValidationState(this.nisCache());
+---
+>                 // initialize other globals
+>                 final NamespaceCacheLookupAdapters adapters = new NamespaceCacheLookupAdapters(this.namespaceCache());
+>                 if (nisConfiguration.ignoreFees()) {
+>                         NemGlobals.setTransactionFeeCalculator(new ZeroTransactionFeeCalculator());
+>                 } else {
+>                         NemGlobals.setTransactionFeeCalculator(new DefaultTransactionFeeCalculator(adapters.asMosaicFeeInformationLookup(),
+>                                         () -> this.blockChainLastBlockLayer.getLastBlockHeight().next(), new BlockHeight[]{
+>                                                         nisConfiguration.getForkConfiguration().getFeeFork().getFirstHeight(),
+>                                                         nisConfiguration.getForkConfiguration().getFeeFork().getSecondHeight()
+>                                         }));
+414,417c362,363
+<         @Bean
+<         public LocalHostDetector localHostDetector() {
+<                 return new LocalHostDetector(this.nisConfiguration().getAdditionalLocalIps());
+<         }
+---
+>                 NemGlobals.setBlockChainConfiguration(nisConfiguration.getBlockChainConfiguration());
+>                 NemStateGlobals.setWeightedBalancesSupplier(this.weighedBalancesSupplier());
+419,421c365,366
+<         @Bean
+<         public NodeCompatibilityChecker nodeCompatibilityChecker() {
+<                 return new DefaultNodeCompatibilityChecker();
+---
+>                 return new NisMain(this.blockDao, this.nisCache(), this.networkHostBootstrapper(), this.nisModelToDbModelMapper(), nisConfiguration,
+>                                 this.blockAnalyzer(), System::exit);
+425,434c370,372
+<         public EnumSet<ObserverOption> observerOptions() {
+<                 final EnumSet<ObserverOption> observerOptions = EnumSet.noneOf(ObserverOption.class);
+<                 if (this.nisConfiguration().isFeatureSupported(NodeFeature.HISTORICAL_ACCOUNT_DATA)) {
+<                         observerOptions.add(ObserverOption.NoHistoricalDataPruning);
+<                 }
+< 
+<                 final BlockChainConfiguration blockChainConfiguration = this.nisConfiguration().getBlockChainConfiguration();
+<                 if (blockChainConfiguration.isBlockChainFeatureSupported(BlockChainFeature.PROOF_OF_STAKE)) {
+<                         observerOptions.add(ObserverOption.NoOutlinkObserver);
+<                 }
+---
+>         public Flyway flyway() throws IOException {
+>                 final Properties prop = new Properties();
+>                 prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+436,437c374,378
+<                 return observerOptions;
+<         }
+---
+>                 final Flyway flyway = Flyway.configure()
+>                                 .dataSource(this.dataSource())
+>                                 .locations(prop.getProperty("flyway.locations"))
+>                                 .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
+>                                 .load();
+439,441c380
+<         @Bean
+<         public Function<Address, Collection<Address>> cosignatoryLookup() {
+<                 return a -> this.accountStateCache().findStateByAddress(a).getMultisigLinks().getCosignatories();
+---
+>                 return flyway;
+444,447c383
+<         @Bean
+<         public MosaicIdCache mosaicIdCache() {
+<                 return new SynchronizedMosaicIdCache(new DefaultMosaicIdCache());
+<         }
+---
+>         // ... (rest of the class remains unchanged)

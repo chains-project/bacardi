@@ -1,0 +1,39 @@
+12,17c12,17
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.View;
+< import javax.mvc.binding.BindingResult;
+< import javax.mvc.binding.ParamError;
+< import javax.mvc.security.CsrfProtected;
+---
+> import jakarta.mvc.Controller;
+> import jakarta.mvc.Models;
+> import jakarta.mvc.binding.BindingResult;
+> import jakarta.mvc.binding.ParamError;
+> import jakarta.mvc.security.CsrfProtected;
+> import jakarta.mvc.View;
+29,30d28
+< import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+< import org.eclipse.krazo.engine.Viewable;
+32d29
+< @Path("tasks")
+90d86
+<     //@ValidateOnExecution(type = ExecutableType.NONE)
+103c99
+<             return Response.status(BAD_REQUEST).entity("add.xhtml").build();
+---
+>             return Response.status(Response.Status.BAD_REQUEST).entity("add.xhtml").build();
+107,108c103,104
+<         task.setName(form.getName());
+<         task.setDescription(form.getDescription());
+---
+>         task.setName = form.getName();
+>         task.description = form.getDescription();
+147c143
+<             return Response.status(BAD_REQUEST).entity("edit.xhtml").build();
+---
+>             return Response.status(Response.Status.BAD_REQUEST).entity("edit.xhtml").build();
+164c160
+<     //@CsrfProtected
+---
+>     @CsrfProtected

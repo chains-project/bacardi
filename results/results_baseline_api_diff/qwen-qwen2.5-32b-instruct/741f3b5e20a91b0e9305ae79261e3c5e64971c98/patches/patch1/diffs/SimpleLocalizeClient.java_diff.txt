@@ -1,0 +1,21 @@
+2a3,4
+> import com.fasterxml.jackson.core.type.TypeReference;
+> import com.fasterxml.jackson.databind.JavaType;
+14a17
+> import java.io.InputStream;
+22d24
+< import java.time.Duration;
+28,30d29
+< import static io.simplelocalize.cli.TemplateKeys.LANGUAGE_TEMPLATE_KEY;
+< import static io.simplelocalize.cli.TemplateKeys.NAMESPACE_TEMPLATE_KEY;
+< 
+88,89c87,89
+<     ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
+<     return exportResponse.getFiles();
+---
+>     JavaType javaType = objectMapper.getTypeFactory().constructCollectionType(List.class, DownloadableFile.class);
+>     List<DownloadableFile> exportResponse = objectMapper.readValue(body, javaType);
+>     return exportResponse;
+165,166d164
+< 
+< 

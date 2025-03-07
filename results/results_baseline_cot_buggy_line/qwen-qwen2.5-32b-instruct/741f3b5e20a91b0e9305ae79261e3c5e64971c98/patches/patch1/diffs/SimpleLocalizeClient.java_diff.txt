@@ -1,0 +1,15 @@
+2a3
+> import com.fasterxml.jackson.core.JsonProcessingException;
+88c89,95
+<     ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
+---
+>     ExportResponse exportResponse;
+>     try {
+>       exportResponse = objectMapper.readValue(body, ExportResponse.class);
+>     } catch (JsonProcessingException e) {
+>       log.error("Failed to parse JSON response", e);
+>       throw new IOException("Failed to parse JSON response", e);
+>     }
+165,166d171
+< 
+< 

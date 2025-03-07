@@ -1,0 +1,42 @@
+15d14
+< import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
+17d15
+< import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
+20d17
+< 
+108d104
+<         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+110c106
+<         append(null, buffer, strategy);
+---
+>         append(null, buffer, new ToStringStrategy());
+114,115c110
+<     @Override
+<     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+---
+>     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy strategy) {
+122,123c117
+<     @Override
+<     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+---
+>     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy strategy) {
+141a136,154
+>     private static class ToStringStrategy implements org.jvnet.jaxb2_commons.lang.ToStringStrategy {
+>         @Override
+>         public void appendStart(ObjectLocator locator, Object objectToAppend, StringBuilder buffer) {
+>             buffer.append(objectToAppend.getClass().getSimpleName()).append("@").append(Integer.toHexString(System.identityHashCode(objectToAppend))).append(" {");
+>         }
+> 
+>         @Override
+>         public void appendField(ObjectLocator locator, Object object, String name, StringBuilder buffer, Object value, boolean first) {
+>             if (!first) {
+>                 buffer.append(", ");
+>             }
+>             buffer.append(name).append('=').append(value);
+>         }
+> 
+>         @Override
+>         public void appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+>             buffer.append('}');
+>         }
+>     }

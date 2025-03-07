@@ -1,0 +1,104 @@
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+32,52d15
+< import com.google.api.services.cloudresourcemanager.CloudResourceManager;
+< import com.google.api.services.cloudresourcemanager.model.ClearOrgPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.Constraint;
+< import com.google.api.services.cloudresourcemanager.model.GetEffectiveOrgPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.GetIamPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.GetOrgPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.ListAvailableOrgPolicyConstraintsRequest;
+< import com.google.api.services.cloudresourcemanager.model.ListAvailableOrgPolicyConstraintsResponse;
+< import com.google.api.services.cloudresourcemanager.model.ListOrgPoliciesRequest;
+< import com.google.api.services.cloudresourcemanager.model.ListOrgPoliciesResponse;
+< import com.google.api.services.cloudresourcemanager.model.ListProjectsResponse;
+< import com.google.api.services.cloudresourcemanager.model.Operation;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.Policy;
+< import com.google.api.services.cloudresourcemanager.model.Project;
+< import com.google.api.services.cloudresourcemanager.model.SetIamPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.SetOrgPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.Status;
+< import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsRequest;
+< import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsResponse;
+< import com.google.api.services.cloudresourcemanager.model.UndeleteProjectRequest;
+58a22,41
+> import com.google.cloud.resourcemanager.spi.v1beta1.model.UndeleteProjectRequest; // Assuming the new package for UndeleteProjectRequest
+> import com.google.cloud.resourcemanager.spi.v1beta1.model.Status; // Assuming the new package for Status
+> import com.google.cloud.resourcemanager.spi.v1beta1.model.Operation; // Assuming the new package for Operation
+> import com.google.cloud.resourcemanager.spi.v1beta1.model.SetOrgPolicyRequest; // Assuming the new package for SetOrgPolicyRequest
+> import com.google.cloud.resourcemanager.spi.v1beta1.model.SetIamPolicyRequest; // Assuming the new package for SetIamPolicyRequest
+> import com.google.cloud.resourcemanager.spi.v1beta1.model.GetOrgPolicyRequest; // Assuming the new package for GetOrgPolicyRequest
+> import com.google.cloud.resourcemanager.spi.v1beta1.model.Constraint; // Assuming the new package for Constraint
+> import com.google.cloud.resourcemanager.spi.v1beta1.model.ListAvailableOrgPolicyConstraintsRequest; // Assuming the new package for ListAvailableOrgPolicyConstraintsRequest
+> import com.google.cloud.resourcemanager.spi.v1beta1.model.ListAvailableOrgPolicyConstraintsResponse; // Assuming the new package for ListAvailableOrgPolicyConstraintsResponse
+> import com.google.cloud.resourcemanager.spi.v1beta1.model.ListOrgPoliciesRequest; // Assuming the new package for ListOrgPoliciesRequest
+> import com.google.cloud.resourcemanager.spi.v1beta1.model.ListOrgPoliciesResponse; // Assuming the new package for ListOrgPoliciesResponse
+> import com.google.cloud.resourcemanager.spi.v1beta1.model.Policy; // Assuming the new package for Policy
+> import com.google.cloud.resourcemanager.spi.v1beta1.model.Project; // Assuming the new package for Project
+> import com.google.cloud.resourcemanager.spi.v1beta1.model.ListProjectsResponse; // Assuming the new package for ListProjectsResponse
+> import com.google.cloud.resourcemanager.spi.v1beta1.model.ClearOrgPolicyRequest; // Assuming the new package for ClearOrgPolicyRequest
+> import com.google.cloud.resourcemanager.spi.v1beta1.model.GetIamPolicyRequest; // Assuming the new package for GetIamPolicyRequest
+> import com.google.cloud.resourcemanager.spi.v1beta1.model.TestIamPermissionsRequest; // Assuming the new package for TestIamPermissionsRequest
+> import com.google.cloud.resourcemanager.spi.v1beta1.model.TestIamPermissionsResponse; // Assuming the new package for TestIamPermissionsResponse
+> import com.google.cloud.resourcemanager.spi.v1beta1.model.GetEffectiveOrgPolicyRequest; // Assuming the new package for GetEffectiveOrgPolicyRequest
+> import com.google.cloud.resourcemanager.spi.v1beta1.CloudResourceManager; // Assuming the new package for CloudResourceManager
+75,76d57
+<   // See doc of create() for more details:
+<   // https://developers.google.com/resources/api-libraries/documentation/cloudresourcemanager/v1/java/latest/com/google/api/services/cloudresourcemanager/CloudResourceManager.Projects.html#create(com.google.api.services.cloudresourcemanager.model.Project)
+79,80d59
+<           // SLO permits 30s at 90th percentile, 4x it for total limit.
+<           // Observed latency is much lower: 11s at 95th percentile.
+82d60
+<           // Linked doc recommends polling at 5th second.
+85d62
+<           // Observed P95 latency is 11s. We probably shouldn't sleep longer than this.
+92d68
+<   // reference: https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
+187,192d162
+<     // NOTE(pongad): Operation.getResponse() returns a Map<String, Object>.
+<     // 1. `(Project) finishedOp.getResponse()` doesn't work,
+<     // because JSON deserializer in execute() didn't know to create a Project object.
+<     // 2. `new Project().putAll(finishedOp.getResponse())` doesn't work either.
+<     // 64-bit integers are sent as strings in JSON,
+<     // so execute(), not knowing the type, parses it as String, not Long.
+221d190
+<         // Service can return either 403 or 404 to signify that the project doesn't exist.
+241,242c210
+<       return Tuple.<String, Iterable<Project>>of(
+<           response.getNextPageToken(), response.getProjects());
+---
+>       return Tuple.of(response.getNextPageToken(), response.getProjects());
+276d243
+<         // Service returns permission denied if policy doesn't exist.
+307c274
+<           ImmutableSet.copyOf(firstNonNull(response.getPermissions(), ImmutableList.<String>of()));
+---
+>           ImmutableSet.copyOf(firstNonNull(response.getPermissions(), ImmutableList.of()));
+329c296
+<           ImmutableSet.copyOf(firstNonNull(response.getPermissions(), ImmutableList.<String>of()));
+---
+>           ImmutableSet.copyOf(firstNonNull(response.getPermissions(), ImmutableList.of()));
+392c359
+<                       .setPageToken(Option.PAGE_TOKEN.getString(options)))
+---
+>                       .setPageToken(Option.PAGE_TOKEN.getString(options))
+411c378
+<                       .setPageToken(Option.PAGE_TOKEN.getString(options)))
+---
+>                       .setPageToken(Option.PAGE_TOKEN.getString(options))

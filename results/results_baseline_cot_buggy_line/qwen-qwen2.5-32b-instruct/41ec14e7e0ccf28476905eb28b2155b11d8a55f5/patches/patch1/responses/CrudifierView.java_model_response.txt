@@ -1,0 +1,123 @@
+<code_analysis>
+1. The error message indicates that the `org.apache.commons.beanutils.PropertyUtils` class is not found, which suggests that the `commons-beanutils` library is either missing or has been updated in a way that the `PropertyUtils` class is no longer available or has been moved to a different package.
+
+2. The client code uses `PropertyUtils.getPropertyDescriptors(modelClass)` to get the property descriptors of the model class. This method is used to dynamically inspect the properties of the model object.
+
+3. To fix the issue, we need to either:
+   - Ensure that the `commons-beanutils` library is included in the project and is of a version that includes `PropertyUtils`.
+   - Alternatively, if the library has been updated and `PropertyUtils` is no longer available, we need to find an alternative method to achieve the same functionality.
+
+4. Assuming the `commons-beanutils` library is no longer available or has been updated, we can use Java Reflection API to achieve the same functionality without relying on `PropertyUtils`.
+</code_analysis>
+
+```java
+package com.premiumminds.wicket.crudifier.view;
+
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.wicket.IGenericComponent;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.markup.repeater.RepeatingView;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.StringResourceModel;
+
+import com.premiumminds.wicket.crudifier.IObjectRenderer;
+import com.premiumminds.wicket.crudifier.LabelProperty;
+import com.premiumminds.wicket.crudifier.form.CrudifierEntitySettings;
+
+public class CrudifierView<T> extends Panel implements IGenericComponent<T, CrudifierView<T>> {
+	private static final long serialVersionUID = -151637566983702881L;
+
+	private CrudifierEntitySettings entitySettings = new CrudifierEntitySettings();
+	private Map<Class<?>, IObjectRenderer<?>> renderers = new HashMap<Class<?>, IObjectRenderer<?>>();
+
+	public CrudifierView(String id, IModel<T> model) {
+		super(id, model);
+
+		StringResourceModel stringResourceModel = new StringResourceModel("viewLegend", this, getModel());
+		stringResourceModel.setDefaultValue("Unknown");
+		add(new Label("viewLegend", stringResourceModel){
+			private static final long serialVersionUID = -7854751811138463187L;
+
+			@Override
+			protected void onConfigure() {
+				super.onConfigure();
+
+				setVisible(!getDefaultModelObjectAsString().isEmpty());
+			}
+		});
+	}
+
+	protected void onConfigure() {
+		super.onConfigure();
+
+		RepeatingView view = new RepeatingView("control");
+		if(null != getModelObject()) {
+			for(final String property : getPropertiesByOrder(getModelObject().getClass())){
+				WebMarkupContainer control = new WebMarkupContainer(view.newChildId());
+				view.addOrReplace(control);
+
+				StringResourceModel stringResourceModel = new StringResourceModel("controls."+property+".label", this, getModel());
+				stringResourceModel.setDefaultValue("Unknown");
+				control.addOrReplace(new Label("label", stringResourceModel));
+				control.addOrReplace(new LabelProperty("input", new PropertyModel<Object>(getModel(), property), renderers) {
+					private static final long serialVersionUID = 8561120757563362569L;
+
+					@Override
+					protected String getResourceString(String key, String defaultValue) {
+						return getLocalizer().getStringIgnoreSettings("controls."+property+"."+key, CrudifierView.this, null, defaultValue);
+					}
+				});
+			}
+		}
+		addOrReplace(view);
+	}
+
+	protected void onInitialize() {
+		super.onInitialize();
+	}
+
+	private Set<String> getPropertiesByOrder(Class<?> modelClass) {
+		Set<String> properties = new LinkedHashSet<String>();
+
+		for(String property : entitySettings.getOrderOfFields()){
+			if(!entitySettings.getHiddenFields().contains(property))
+				properties.add(property);
+		}
+		for(Field field : modelClass.getDeclaredFields()){
+			if(!entitySettings.getHiddenFields().contains(field.getName()) &&
+					!properties.contains(field.getName()) &&
+					!field.getName().equals("class"))
+				properties.add(field.getName());
+		}
+
+		return properties;
+	}
+
+	public CrudifierEntitySettings getEntitySettings() {
+		return entitySettings;
+	}
+
+	public void setEntitySettings(CrudifierEntitySettings entitySettings) {
+		this.entitySettings = entitySettings;
+	}
+
+	public Map<Class<?>, IObjectRenderer<?>> getRenderers() {
+		return renderers;
+	}
+
+	public void setRenderers(Map<Class<?>, IObjectRenderer<?>> renderers) {
+		this.renderers = renderers;
+	}
+}
+```
+
+In this solution, I have removed the dependency on `PropertyUtils` and replaced it with Java Reflection API to get the fields of the model class. This approach avoids the dependency on `commons-beanutils` and should resolve the compilation errors.

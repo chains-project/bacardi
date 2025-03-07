@@ -1,0 +1,181 @@
+3,4c3
+< import ch.qos.logback.classic.Level;
+< import ch.qos.logback.classic.Logger;
+---
+> import ch.qos.logback.classic.LoggerContext;
+8,9d6
+< import com.google.gson.GsonBuilder;
+< import org.hamcrest.core.Is;
+16a14
+> import org.slf4j.Logger;
+48d45
+< import static org.mockito.Mockito.mock;
+52d48
+< import static org.mockito.Mockito.when;
+57,58d52
+< import static uk.gov.pay.adminusers.model.Service.DEFAULT_NAME_VALUE;
+< import static uk.gov.pay.adminusers.service.UserServicesTest.aUserEntityWithRoleForService;
+64c58
+<     private EventSubscriberQueue mockEventSubscriberQueue;
+---
+>     private QueueMessage mockQueueMessage;
+82a77
+> 
+84a80
+> 
+95d90
+<     private Event disputeEvent;
+99c94
+<         eventMessageHandler = new EventMessageHandler(mockEventSubscriberQueue, mockLedgerService, mockNotificationService, mockServiceFinder, mockUserServices, objectMapper);
+---
+>         eventMessageHandler = new EventMessageHandler(mockQueueMessage, mockLedgerService, mockNotificationService, mockServiceFinder, mockUserServices, objectMapper);
+111,112c106,107
+<         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
+<         logger.setLevel(Level.INFO);
+---
+>         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+>         Logger logger = loggerContext.getLogger(EventMessageHandler.class);
+118c113
+<         disputeEvent = anEventFixture()
+---
+>         var disputeEvent = anEventFixture()
+122a118,119
+>         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
+>         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
+127,130d123
+<         var mockQueueMessage = mock(QueueMessage.class);
+<         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
+<         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+< 
+133c126
+<         verify(mockEventSubscriberQueue).markMessageAsProcessed(mockQueueMessage);
+---
+>         verify(mockQueueMessage).markMessageAsProcessed();
+138,139c131
+<         var mockQueueMessage = mock(QueueMessage.class);
+<         disputeEvent = anEventFixture()
+---
+>         var disputeEvent = anEventFixture()
+141c133
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId, "reason", "fraudulent")))
+---
+>                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId, "reason", "fraudulent")))
+142a135,136
+>                 .withServiceId(service.getExternalId())
+>                 .withLive(true)
+146,147d139
+<         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+< 
+162d153
+<         assertThat(personalisation.get("paymentExternalId"), is("456"));
+164c155
+<         assertThat(personalisation.get("sendEvidenceToPayDueDate"), is("4 March 2022"));
+---
+>         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName));
+166d156
+< 
+173d162
+<         assertThat(personalisation.get("unrecognized"), is("no"));
+186,187c175
+<         var mockQueueMessage = mock(QueueMessage.class);
+<         disputeEvent = anEventFixture()
+---
+>         var disputeEvent = anEventFixture()
+189c177
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("net_amount", -4000L, "fee", 1500L, "amount", 2500L, "gateway_account_id", gatewayAccountId)))
+---
+>                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
+196d183
+<         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+212c199
+<         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
+---
+>         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName));
+223,224c210
+<         var mockQueueMessage = mock(QueueMessage.class);
+<         disputeEvent = anEventFixture()
+---
+>         var disputeEvent = anEventFixture()
+226c212
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("gateway_account_id", gatewayAccountId)))
+---
+>                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
+233d218
+<         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+242c227
+<         var emails = adminEmailsCaptor.getValue();
+---
+>         var emails = adminEmailCaptor.getValue();
+249,286c234
+<         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
+< 
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+< 
+<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+<         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+<         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
+<     }
+< 
+<     @Test
+<     void shouldHandleDisputeEvidenceSubmittedEvent() throws QueueException {
+<         var mockQueueMessage = mock(QueueMessage.class);
+<         disputeEvent = anEventFixture()
+<                 .withEventType(EventType.DISPUTE_EVIDENCE_SUBMITTED.name())
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("gateway_account_id", gatewayAccountId)))
+<                 .withParentResourceExternalId("456")
+<                 .withServiceId(service.getExternalId())
+<                 .withLive(true)
+<                 .build();
+<         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
+<         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
+<         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+<         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
+<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+<         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
+< 
+<         eventMessageHandler.processMessages();
+< 
+<         verify(mockNotificationService, atMostOnce()).sendStripeDisputeEvidenceSubmittedEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
+< 
+<         var emails = adminEmailsCaptor.getValue();
+<         var personalisation = personalisationCaptor.getValue();
+< 
+<         assertThat(emails.size(), is(2));
+<         assertThat(emails, hasItems("admin1@service.gov.uk", "admin2@service.gov.uk"));
+<         assertThat(personalisation.get("serviceName"), is(service.getName()));
+<         assertThat(personalisation.get("serviceReference"), is("tx ref"));
+<         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
+---
+>         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName));
+297,298c245
+<         var mockQueueMessage = mock(QueueMessage.class);
+<         disputeEvent = anEventFixture()
+---
+>         var disputeEvent = anEventFixture()
+300c247
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00Z", "gateway_account_id", gatewayAccountId)))
+---
+>                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
+304c251
+<         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+---
+>         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
+314,315c261
+<         var mockQueueMessage = mock(QueueMessage.class);
+<         disputeEvent = anEventFixture()
+---
+>         var disputeEvent = anEventFixture()
+321c267
+<         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+---
+>         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
+332,333c278
+<         var mockQueueMessage = mock(QueueMessage.class);
+<         disputeEvent = anEventFixture()
+---
+>         var disputeEvent = anEventFixture()
+339,340c284
+<         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+< 
+---
+>         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");

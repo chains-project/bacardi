@@ -1,0 +1,95 @@
+package com.jcabi.s3;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
+import org.junit.Rule;
+import org.junit.Test;
+
+/**
+ * Integration case for {@link AwsOcket}.
+ *
+ * @author Yegor Bugayenko (yegor256@gmail.com)
+ * @version $Id: d67286e195243030346f4424945bcc8027d7b932 $
+ * @since 0.1
+ */
+public final class AwsOcketITCase {
+
+    /**
+     * Bucket we're working with.
+     * @checkstyle VisibilityModifier (3 lines)
+     */
+    @Rule
+    public final transient BucketRule rule = new BucketRule();
+
+    /**
+     * AwsOcket can read and write S3 content.
+     * @throws Exception If fails
+     */
+    @Test
+    public void readsAndWritesObjectContent() throws Exception {
+        final Bucket bucket = this.rule.bucket();
+        final String name = "a/b/c/test.txt";
+        final Ocket.Text ocket = new Ocket.Text(bucket.ocket(name));
+        final String content = "text \u20ac\n\t\rtest";
+        ocket.write(content);
+        ocket.write(content);
+        try {
+            MatcherAssert.assertThat(ocket.read(), Matchers.equalTo(content));
+        } finally {
+            bucket.remove(name);
+        }
+    }
+
+    /**
+     * AwsOcket can read and write large S3 content.
+     * @throws Exception If fails
+     */
+    @Test
+    public void readsAndWritesLargeObjectContent() throws Exception {
+        final Bucket bucket = this.rule.bucket();
+        final String name = "test-44.txt";
+        final Ocket.Text ocket = new Ocket.Text(bucket.ocket(name));
+        final String data = RandomStringUtils.random(100000); // 100,000 characters
+        ocket.write(data);
+        try {
+            MatcherAssert.assertThat(ocket.read(), Matchers.equalTo(data));
+        } finally {
+            bucket.remove(name);
+        }
+    }
+
+    /**
+     * AwsOcket can check S3 object existence.
+     * @throws Exception If fails
+     */
+    @Test
+    public void checksObjectExistenceInBucket() throws Exception {
+        final Bucket bucket = this.rule.bucket();
+        final String name = "a/b/ffo/test.txt";
+        new Ocket.Text(bucket.ocket(name)).write("test me");
+        try {
+            MatcherAssert.assertThat(
+                bucket.ocket(name).exists(),
+                Matchers.is(true)
+            );
+            MatcherAssert.assertThat(
+                bucket.ocket("a/b/ffo/test-2.txt").exists(),
+                Matchers.is(false)
+            );
+        } finally {
+            bucket.remove(name);
+        }
+    }
+
+    /**
+     * Region can throw when ocket is absent.
+     * @throws Exception If fails
+     */
+    @Test(expected = OcketNotFoundException.class)
+    public void throwsWhenObjectIsAbsent() throws Exception {
+        final Bucket bucket = this.rule.bucket();
+        new Ocket.Text(bucket.ocket("key-is-absent.txt")).read();
+    }
+
+}

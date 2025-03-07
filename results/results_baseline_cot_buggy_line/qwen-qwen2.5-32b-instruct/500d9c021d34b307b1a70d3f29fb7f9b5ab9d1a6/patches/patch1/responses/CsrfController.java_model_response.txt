@@ -1,0 +1,88 @@
+<code_analysis>
+1. Examine the error message:
+   - The error messages indicate that the `javax.mvc` package and its sub-packages are not found. This suggests that the dependency related to the `javax.mvc` package has been updated or removed, and the new version does not include these classes.
+
+2. Review the client code:
+   - The client code uses several annotations and classes from the `javax.mvc` package, such as `@Controller`, `@CsrfProtected`, `MvcBinding`, `BindingResult`, and `Models`.
+   - These classes and annotations are not found, leading to compilation errors.
+
+3. Consider potential fixes:
+   - The `javax.mvc` package is part of the Java MVC specification, which has been deprecated and replaced by the Jakarta EE specification. The `javax.mvc` package has been moved to `jakarta.mvc` in the newer Jakarta EE version.
+   - The `javax.mvc` annotations and classes need to be replaced with their `jakarta.mvc` counterparts.
+
+4. Plan the necessary changes:
+   - Replace all `javax.mvc` imports with `jakarta.mvc` imports.
+   - Replace `javax.mvc` annotations and classes with their `jakarta.mvc` equivalents.
+</code_analysis>
+
+```java
+package com.example.web;
+
+import java.util.logging.Logger;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import jakarta.mvc.binding.BindingResult;
+import jakarta.mvc.binding.MvcBinding;
+import jakarta.mvc.binding.ParamError;
+import jakarta.mvc.security.CsrfProtected;
+import javax.validation.constraints.NotBlank;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+
+/**
+ *
+ * @author hantsy
+ */
+@Path("csrf")
+@Controller
+@RequestScoped
+public class CsrfController {
+
+    @Inject
+    BindingResult bindingResult;
+
+    @Inject
+    Models models;
+
+    @Inject
+    AlertMessage flashMessage;
+
+    @Inject
+    Logger log;
+
+    @GET
+    public String get() {
+        return "csrf.xhtml";
+    }
+
+    @POST
+    @CsrfProtected
+    public String post(
+            @FormParam("greeting")
+            @MvcBinding
+            @NotBlank String greeting) {
+        if (bindingResult.isFailed()) {
+            AlertMessage alert = AlertMessage.danger("Validation voilations!");
+            bindingResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
+            models.put("errors", alert);
+            log.info("mvc binding failed.");
+            return "csrf.xhtml";
+        }
+
+        log.info("redirect to greeting page.");
+        flashMessage.notify(AlertMessage.Type.success, "Message:" + greeting);
+        return "redirect:csrf";
+    }
+
+}
+```
+
+This fix replaces the `javax.mvc` package with `jakarta.mvc` and its sub-packages, ensuring that the code is compatible with the updated dependency.

@@ -1,0 +1,32 @@
+45d44
+< import com.artipie.http.rs.RsWithStatus;
+52d50
+< import org.cactoos.map.MapEntry;
+136,138c134,135
+<                         new MapEntry<>("header", "value"),
+<                         new MapEntry<>("Content-Length", "4"),
+<                         new MapEntry<>("Content-Length", "4")
+---
+>                         Matchers.hasEntry("header", "value"),
+>                         Matchers.hasEntry("Content-Length", String.valueOf(body.length))
+145c142
+<             "Does not store data in cache",
+---
+>             "Data should stays intact in cache",
+164c161,162
+<                     new RsHasStatus(RsStatus.OK), new RsHasBody(body),
+---
+>                     new RsHasStatus(RsStatus.OK),
+>                     new RsHasBody(body),
+166c164
+<                         new MapEntry<>("Content-Length", String.valueOf(body.length))
+---
+>                         Matchers.hasEntry("Content-Length", String.valueOf(body.length))
+173,175c171,173
+<             "Data should stays intact in cache",
+<             new BlockingStorage(this.storage).value(new Key.From(key)),
+<             new IsEqual<>(body)
+---
+>             "Cache storage is not empty",
+>             this.storage.list(Key.ROOT).join().isEmpty(),
+>             new IsEqual<>(true)

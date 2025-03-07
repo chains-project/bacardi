@@ -1,0 +1,160 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the `StringContains` constructor is being called with two arguments, but the constructor only accepts one argument of type `java.lang.String`.
+   - The error occurs in the `UploadEntityRequestTest` class at lines 93 and 109.
+   - The issue is likely due to a change in the `hamcrest` library, where the `StringContains` constructor signature has changed.
+
+2. Review the client code:
+   - The problematic areas are the `StringContains` instances used in the `shouldThrowExceptionOnInvalidPath` and `shouldThrowExceptionWhenDigestIsAbsent` methods.
+   - The `StringContains` instances are used to check if the exception message contains a specific string.
+
+3. Consider potential fixes:
+   - The `StringContains` constructor now only accepts a single argument, the string to match.
+   - The boolean argument that was previously used to specify case sensitivity is no longer available, so the fix should ensure that the string comparison is case-sensitive, which is the default behavior of the new constructor.
+
+4. Plan the necessary changes:
+   - Remove the boolean argument from the `StringContains` constructor calls.
+   - Ensure that the string comparison remains case-sensitive.
+</code_analysis>
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker.http;
+
+import com.artipie.docker.Digest;
+import com.artipie.docker.RepoName;
+import com.artipie.http.rq.RequestLine;
+import com.artipie.http.rq.RqMethod;
+import java.util.Optional;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.core.IsEqual;
+import org.hamcrest.core.StringContains;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+/**
+ * Tests for {@link UploadEntity.Request}.
+ *
+ * @since 0.2
+ * @checkstyle ClassDataAbstractionCouplingCheck (2 lines)
+ */
+@SuppressWarnings({"PMD.AvoidDuplicateLiterals", "PMD.TooManyMethods"})
+class UploadEntityRequestTest {
+
+    @Test
+    void shouldReadName() {
+        final UploadEntity.Request request = new UploadEntity.Request(
+            new RequestLine(RqMethod.POST, "/v2/my-repo/blobs/uploads/").toString()
+        );
+        MatcherAssert.assertThat(request.name().value(), new IsEqual<>("my-repo"));
+    }
+
+    @Test
+    void shouldReadCompositeName() {
+        final String name = "zero-one/two.three/four_five";
+        MatcherAssert.assertThat(
+            new UploadEntity.Request(
+                new RequestLine(
+                    RqMethod.POST, String.format("/v2/%s/blobs/uploads/", name)
+                ).toString()
+            ).name().value(),
+            new IsEqual<>(name)
+        );
+    }
+
+    @Test
+    void shouldReadUuid() {
+        final UploadEntity.Request request = new UploadEntity.Request(
+            new RequestLine(
+                RqMethod.PATCH,
+                "/v2/my-repo/blobs/uploads/a9e48d2a-c939-441d-bb53-b3ad9ab67709"
+            ).toString()
+        );
+        MatcherAssert.assertThat(
+            request.uuid(),
+            new IsEqual<>("a9e48d2a-c939-441d-bb53-b3ad9ab67709")
+        );
+    }
+
+    @Test
+    void shouldReadEmptyUuid() {
+        final UploadEntity.Request request = new UploadEntity.Request(
+            new RequestLine(RqMethod.PATCH, "/v2/my-repo/blobs/uploads//123").toString()
+        );
+        MatcherAssert.assertThat(
+            request.uuid(),
+            new IsEqual<>("")
+        );
+    }
+
+    @Test
+    void shouldReadDigest() {
+        final UploadEntity.Request request = new UploadEntity.Request(
+            new RequestLine(
+                RqMethod.PUT,
+                "/v2/my-repo/blobs/uploads/123-abc?digest=sha256:12345"
+            ).toString()
+        );
+        MatcherAssert.assertThat(request.digest().string(), new IsEqual<>("sha256:12345"));
+    }
+
+    @Test
+    void shouldThrowExceptionOnInvalidPath() {
+        MatcherAssert.assertThat(
+            Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> new UploadEntity.Request(
+                    new RequestLine(RqMethod.PUT, "/one/two").toString()
+                ).name()
+            ).getMessage(),
+            new StringContains("Unexpected path")
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDigestIsAbsent() {
+        MatcherAssert.assertThat(
+            Assertions.assertThrows(
+                IllegalStateException.class,
+                () -> new UploadEntity.Request(
+                    new RequestLine(
+                        RqMethod.PUT,
+                        "/v2/my-repo/blobs/uploads/123-abc?what=nothing"
+                    ).toString()
+                ).digest()
+            ).getMessage(),
+            new StringContains("Unexpected query")
+        );
+    }
+
+    @Test
+    void shouldReadMountWhenPresent() {
+        final UploadEntity.Request request = new UploadEntity.Request(
+            new RequestLine(
+                RqMethod.POST,
+                "/v2/my-repo/blobs/uploads/?mount=sha256:12345&from=foo"
+            ).toString()
+        );
+        MatcherAssert.assertThat(
+            request.mount().map(Digest::string),
+            new IsEqual<>(Optional.of("sha256:12345"))
+        );
+    }
+
+    @Test
+    void shouldReadMountWhenAbsent() {
+        final UploadEntity.Request request = new UploadEntity.Request(
+            new RequestLine(RqMethod.POST, "/v2/my-repo/blobs/uploads/").toString()
+        );
+        MatcherAssert.assertThat(
+            request.mount().isPresent(),
+            new IsEqual<>(false)
+        );
+    }
+}
+```
+
+In the provided solution, the boolean argument has been removed from the `StringContains` constructor calls, as the constructor now only accepts a single `String` argument. This change aligns with the updated `hamcrest` library's constructor signature for `StringContains`.

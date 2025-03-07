@@ -1,0 +1,107 @@
+1,18d0
+< /**
+<  * Copyright (C) 2014 Premium Minds.
+<  *
+<  * This file is part of wicket-crudifier.
+<  *
+<  * wicket-crudifier is free software: you can redistribute it and/or modify it under
+<  * the terms of the GNU Lesser General Public License as published by the Free
+<  * Software Foundation, either version 3 of the License, or (at your option) any
+<  * later version.
+<  *
+<  * wicket-crudifier is distributed in the hope that it will be useful, but WITHOUT ANY
+<  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+<  * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+<  * details.
+<  *
+<  * You should have received a copy of the GNU Lesser General Public License
+<  * along with wicket-crudifier. If not, see <http://www.gnu.org/licenses/>.
+<  */
+36a19,20
+> import javax.validation.ConstraintViolation;
+> import javax.validation.Validation;
+37a22
+> import javax.validation.ValidatorFactory;
+44,48d28
+< 
+< import com.premiumminds.webapp.wicket.validators.HibernateValidatorProperty;
+< import com.premiumminds.wicket.crudifier.IObjectRenderer;
+< import com.premiumminds.wicket.crudifier.form.CrudifierEntitySettings;
+< import com.premiumminds.wicket.crudifier.form.EntityProvider;
+87d66
+<                 typesControlGroups.put(Set.class, CollectionControlGroup.class);
+94,112d72
+<         private Set<String> getPropertiesByOrder(Class<?> modelClass) {
+<                 Set<String> properties = new LinkedHashSet<String>();
+< 
+<                 for(String property : entitySettings.getOrderOfFields()){
+<                         if(!entitySettings.getHiddenFields().contains(property))
+<                                 properties.add(property);
+<                 }
+<                 for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
+<                         if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
+<                            !properties.contains(descriptor.getName()) &&
+<                            !descriptor.getName().equals("class"))
+<                                 properties.add(descriptor.getName());
+<                 }
+< 
+<                 return properties;
+<         }
+< 
+<         protected abstract EntityProvider<?> getEntityProvider(String name);
+< 
+119,121c79,80
+<                 Set<String> properties = getPropertiesByOrder(modelClass);
+< 
+<                 Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
+---
+>         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+>         Validator validator = factory.getValidator();
+123,131d81
+<                 for(String property : properties){
+<                         PropertyDescriptor descriptor;
+<                         try {
+<                                 descriptor = PropertyUtils.getPropertyDescriptor(getModel().getObject(), property);
+<                         } catch (Exception e) {
+<                                 throw new RuntimeException("error getting property "+property, e);
+<                         }
+< 
+<                         boolean required = false;
+133,147d82
+<                         ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+<                         if(constraintDescriptor!=null){
+<                                 Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
+<                                 for(ConstraintDescriptor<?> constraint : constraintsSet){
+<                                         if(constraint.getAnnotation() instanceof NotNull ||
+<                                            constraint.getAnnotation() instanceof NotEmpty ||
+<                                            constraint.getAnnotation() instanceof NotBlank)
+<                                                 required = true;
+<                                 }
+<                         }
+< 
+<                         objectProperties.add(new ObjectProperties(descriptor, required));
+<                 }
+<                 
+<                 RepeatingView view = new RepeatingView("controlGroup");
+153c88
+<                                         Class<? extends Panel> typesControlGroup = getControlGroupByType(objectProperty.type);
+---
+>                     Class<? extends AbstractControlGroup> typesControlGroup = getControlGroupByType(objectProperty.type);
+165d99
+< 
+192,202c126
+<                         } catch (SecurityException e) {
+<                                 throw new RuntimeException(e);
+<                         } catch (NoSuchMethodException e) {
+<                                 throw new RuntimeException(e);
+<                         } catch (IllegalArgumentException e) {
+<                                 throw new RuntimeException(e);
+<                         } catch (InstantiationException e) {
+<                                 throw new RuntimeException(e);
+<                         } catch (IllegalAccessException e) {
+<                                 throw new RuntimeException(e);
+<                         } catch (InvocationTargetException e) {
+---
+>             } catch (SecurityException | NoSuchMethodException | IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+250a175
+>     @SuppressWarnings("rawtypes")

@@ -1,0 +1,20 @@
+2a3,5
+> import org.pitest.classinfo.ClassInfoVisitor;
+> import org.pitest.classinfo.ClassName;
+> import org.pitest.classinfo.ClassInfo;
+6d8
+< import org.pitest.mutationtest.SourceLocator;
+103a106,114
+>     // Assuming the new method signature requires a different approach to get class info
+>     // This is a placeholder for the actual logic to get class info using the new API
+>     ClassInfoVisitor visitor = new ClassInfoVisitor() {
+>       @Override
+>       public void visit(ClassInfo classInfo) {
+>         // Implement the logic to handle classInfo
+>       }
+>     };
+>     coverage.accept(Collections.singleton(data.getMutatedClass()), visitor);
+105c116
+<         data.getMutations(), coverage.getClassInfo(Collections.singleton(data.getMutatedClass())));
+---
+>         data.getMutations(), null); // Adjust the third parameter as needed

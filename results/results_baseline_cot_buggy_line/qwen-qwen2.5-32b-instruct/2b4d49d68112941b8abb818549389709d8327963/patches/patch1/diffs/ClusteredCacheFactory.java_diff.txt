@@ -1,0 +1,332 @@
+1,16d0
+< /*
+<  * Copyright (C) 2007-2009 Jive Software. All rights reserved.
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+22,24d5
+< import com.hazelcast.config.MaxSizeConfig;
+< import com.hazelcast.config.MemberAttributeConfig;
+< import com.hazelcast.config.MemcacheProtocolConfig;
+26,27d6
+< import com.hazelcast.config.RestApiConfig;
+< import com.hazelcast.core.Cluster;
+30c9,11
+< import com.hazelcast.core.Member;
+---
+> import com.hazelcast.core.IMap;
+> import com.hazelcast.map.impl.MapService;
+> import com.hazelcast.spi.properties.GroupProperty;
+40d20
+< import org.jivesoftware.openfire.plugin.util.cluster.HazelcastClusterNodeInfo;
+54,55d33
+< import java.nio.charset.StandardCharsets;
+< import java.text.MessageFormat;
+77,79d54
+<  *
+<  * @author Tom Evans
+<  * @author Gaston Dombiak
+83,133d57
+<     private static final SystemProperty<String> HAZELCAST_EXECUTOR_SERVICE_NAME = SystemProperty.Builder.ofType(String.class)
+<         .setKey("hazelcast.executor.service.name")
+<         .setDefaultValue("openfire::cluster::executor")
+<         .setDynamic(false)
+<         .setPlugin(HazelcastPlugin.PLUGIN_NAME)
+<         .build();
+<     private static final SystemProperty<Duration> MAX_CLUSTER_EXECUTION_TIME = SystemProperty.Builder.ofType(Duration.class)
+<         .setKey("hazelcast.max.execution.seconds")
+<         .setDefaultValue(Duration.ofSeconds(30))
+<         .setChronoUnit(ChronoUnit.SECONDS)
+<         .setDynamic(true)
+<         .setPlugin(HazelcastPlugin.PLUGIN_NAME)
+<         .build();
+<     private static final SystemProperty<Duration> CLUSTER_STARTUP_RETRY_TIME = SystemProperty.Builder.ofType(Duration.class)
+<         .setKey("hazelcast.startup.retry.seconds")
+<         .setDefaultValue(Duration.ofSeconds(10))
+<         .setChronoUnit(ChronoUnit.SECONDS)
+<         .setDynamic(true)
+<         .setPlugin(HazelcastPlugin.PLUGIN_NAME)
+<         .build();
+<     private static final SystemProperty<Integer> CLUSTER_STARTUP_RETRY_COUNT = SystemProperty.Builder.ofType(Integer.class)
+<         .setKey("hazelcast.startup.retry.count")
+<         .setDefaultValue(1)
+<         .setDynamic(true)
+<         .setPlugin(HazelcastPlugin.PLUGIN_NAME)
+<         .build();
+<     private static final SystemProperty<String> HAZELCAST_CONFIG_FILE = SystemProperty.Builder.ofType(String.class)
+<         .setKey("hazelcast.config.xml.filename")
+<         .setDefaultValue("hazelcast-cache-config.xml")
+<         .setDynamic(false)
+<         .setPlugin(HazelcastPlugin.PLUGIN_NAME)
+<         .build();
+<     private static final SystemProperty<Boolean> HAZELCAST_JMX_ENABLED = SystemProperty.Builder.ofType(Boolean.class)
+<         .setKey("hazelcast.config.jmx.enabled")
+<         .setDefaultValue(Boolean.FALSE)
+<         .setDynamic(false)
+<         .setPlugin(HazelcastPlugin.PLUGIN_NAME)
+<         .build();
+<     private static final SystemProperty<Boolean> HAZELCAST_REST_ENABLED = SystemProperty.Builder.ofType(Boolean.class)
+<         .setKey("hazelcast.config.rest.enabled")
+<         .setDefaultValue(Boolean.FALSE)
+<         .setDynamic(false)
+<         .setPlugin(HazelcastPlugin.PLUGIN_NAME)
+<         .build();
+<     private static final SystemProperty<Boolean> HAZELCAST_MEMCACHE_ENABLED = SystemProperty.Builder.ofType(Boolean.class)
+<         .setKey("hazelcast.config.memcache.enabled")
+<         .setDefaultValue(Boolean.FALSE)
+<         .setDynamic(false)
+<         .setPlugin(HazelcastPlugin.PLUGIN_NAME)
+<         .build();
+< 
+149d72
+<     private static Cluster cluster = null;
+154,163d76
+<     /**
+<      * Keeps that running state. Initial state is stopped.
+<      */
+<     private State state = State.stopped;
+< 
+<     /**
+<      * Used to limit the amount of duplicate warnings logged.
+<      */
+<     private final Cache<String, Instant> pluginClassLoaderWarnings;
+< 
+188c101
+<                     networkConfig.setMemcacheProtocolConfig(new MemcacheProtocolConfig().setEnabled(false));
+---
+>                     networkConfig.setMemcacheProtocolConfig(new com.hazelcast.config.MemcacheProtocolConfig().setEnabled(false));
+191c104
+<                     networkConfig.setRestApiConfig(new RestApiConfig().setEnabled(false));
+---
+>                     networkConfig.setRestApiConfig(new com.hazelcast.config.RestApiConfig().setEnabled(false));
+193c106
+<                 final MemberAttributeConfig memberAttributeConfig = config.getMemberAttributeConfig();
+---
+>                 final com.hazelcast.config.MemberAttributeConfig memberAttributeConfig = config.getGroupConfig().getAttributesConfig();
+196a110,122
+>                 config.setProperty(GroupProperty.PARTITION_COUNT.getName(), "271");
+>                 config.setProperty(GroupProperty.MERGE_FIRST_RUN_DELAY_SECONDS.getName(), "5");
+>                 config.setProperty(GroupProperty.MERGE_NEXT_RUN_DELAY_SECONDS.getName(), "5");
+>                 config.setProperty(GroupProperty.MERGE_MAX_REPETITIONS.getName(), "1");
+>                 config.setProperty(GroupProperty.MERGE_PAUSE_MILLIS.getName(), "250");
+>                 config.setProperty(GroupProperty.MERGE_FIRST_RUN_DELAY_SECONDS.getName(), "5");
+>                 config.setProperty(GroupProperty.MERGE_NEXT_RUN_DELAY_SECONDS.getName(), "5");
+>                 config.setProperty(GroupProperty.MERGE_MAX_REPETITIONS.getName(), "1");
+>                 config.setProperty(GroupProperty.MERGE_PAUSE_MILLIS.getName(), "250");
+>                 config.setProperty(GroupProperty.MERGE_FIRST_RUN_DELAY_SECONDS.getName(), "5");
+>                 config.setProperty(GroupProperty.MERGE_NEXT_RUN_DELAY_SECONDS.getName(), "5");
+>                 config.setProperty(GroupProperty.MERGE_MAX_REPETITIONS.getName(), "1");
+>                 config.setProperty(GroupProperty.MERGE_PAUSE_MILLIS.getName(), "250");
+203d128
+<                 cluster = hazelcast.getCluster();
+206c131
+<                 clusterListener = new ClusterListener(cluster);
+---
+>                 clusterListener = new ClusterListener(hazelcast);
+209c134
+<                 membershipListener = cluster.addMembershipListener(clusterListener);
+---
+>                 membershipListener = hazelcast.getCluster().addMembershipListener(clusterListener);
+213d137
+<                 cluster = null;
+215,216c139
+<                     logger.warn("Failed to start clustering (" + e.getMessage() + "); " +
+<                         "will retry in " + StringUtils.getFullElapsedTime(CLUSTER_STARTUP_RETRY_TIME.getValue()));
+---
+>                     logger.warn("Failed to start clustering (" + e.getMessage() + "); will retry in " + StringUtils.getFullElapsedTime(CLUSTER_STARTUP_RETRY_TIME.getValue()));
+233c156
+<         return cluster != null;
+---
+>         return hazelcast != null;
+248c171
+<         cluster.removeMembershipListener(membershipListener);
+---
+>         hazelcast.getCluster().removeMembershipListener(membershipListener);
+250c173
+<         cluster = null;
+---
+>         hazelcast = null;
+288c211
+<             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+---
+>             dynamicConfig.setMaxSizeConfig(new com.hazelcast.config.MaxSizeConfig().setSize(hazelcastMaxCacheSizeInMegaBytes).setMaxSizePolicy(com.hazelcast.config.MaxSizePolicy.USED_HEAP_SIZE));
+330,331c253,254
+<         if (cluster != null && !cluster.getMembers().isEmpty()) {
+<             final Member oldest = cluster.getMembers().iterator().next();
+---
+>         if (hazelcast != null && !hazelcast.getCluster().getMembers().isEmpty()) {
+>             final Member oldest = hazelcast.getCluster().getMembers().iterator().next();
+340,341c263,264
+<         if (cluster != null) {
+<             return getNodeID(cluster.getLocalMember()).toByteArray();
+---
+>         if (hazelcast != null) {
+>             return getNodeID(hazelcast.getCluster().getLocalMember()).toByteArray();
+356c279
+<         return cluster == null ? System.currentTimeMillis() : cluster.getClusterTime();
+---
+>         return hazelcast == null ? System.currentTimeMillis() : hazelcast.getCluster().getClusterTime();
+365,367c288,289
+<     public void doClusterTask(final ClusterTask<?> task) {
+< 
+<         if (cluster == null) {
+---
+>     public void doClusterTask(final ClusterTask<?> task, final boolean includeLocalMember) {
+>         if (hazelcast == null) {
+371,373c293,295
+<         final Member current = cluster.getLocalMember();
+<         for (final Member member : cluster.getMembers()) {
+<             if (!member.getUuid().equals(current.getUuid())) {
+---
+>         final Member current = hazelcast.getCluster().getLocalMember();
+>         for (final Member member : hazelcast.getCluster().getMembers()) {
+>             if (includeLocalMember || (!member.getUuid().equals(current.getUuid())) {
+378d299
+< 
+381c302
+<             logger.debug("Executing asynchronous MultiTask: " + task.getClass().getName());
+---
+>             logger.debug("Executing MultiTask: " + task.getClass().getName());
+390c311
+<      * Execute the given task on the given cluster member.
+---
+>      * Execute the given task on the designated cluster member.
+396c317
+<         if (cluster == null) {
+---
+>         if (hazelcast == null) {
+403,468d323
+<             logger.debug("Executing asynchronous DistributedTask: " + task.getClass().getName());
+<             checkForPluginClassLoader(task);
+<             hazelcast.getExecutorService(HAZELCAST_EXECUTOR_SERVICE_NAME.getValue()).submitToMember(new CallableTask<>(task), member);
+<         } else {
+<             final String msg = MessageFormat.format("Requested node {0} not found in cluster", new String(nodeID, StandardCharsets.UTF_8));
+<             logger.warn(msg);
+<             throw new IllegalArgumentException(msg);
+<         }
+<     }
+< 
+<     /*
+<      * Execute the given task on the designated cluster members.
+<      * Note that this method blocks for up to MAX_CLUSTER_EXECUTION_TIME
+<      * (seconds) per member until the task is run on all members.
+<      */
+<     @Override
+<     public <T> Collection<T> doSynchronousClusterTask(final ClusterTask<T> task, final boolean includeLocalMember) {
+<         if (cluster == null) {
+<             return Collections.emptyList();
+<         }
+<         final Set<Member> members = new HashSet<>();
+<         final Member current = cluster.getLocalMember();
+<         for (final Member member : cluster.getMembers()) {
+<             if (includeLocalMember || (!member.getUuid().equals(current.getUuid()))) {
+<                 members.add(member);
+<             }
+<         }
+<         final Collection<T> result = new ArrayList<>();
+<         if (!members.isEmpty()) {
+<             // Asynchronously execute the task on the other cluster members
+<             try {
+<                 logger.debug("Executing MultiTask: " + task.getClass().getName());
+<                 checkForPluginClassLoader(task);
+<                 final Map<Member, ? extends Future<T>> futures = hazelcast.getExecutorService(HAZELCAST_EXECUTOR_SERVICE_NAME.getValue()).submitToMembers(new CallableTask<>(task), members);
+<                 long nanosLeft = TimeUnit.SECONDS.toNanos(MAX_CLUSTER_EXECUTION_TIME.getValue().getSeconds() * members.size());
+<                 for (final Future<T> future : futures.values()) {
+<                     final long start = System.nanoTime();
+<                     result.add(future.get(nanosLeft, TimeUnit.NANOSECONDS));
+<                     nanosLeft = nanosLeft - (System.nanoTime() - start);
+<                 }
+<             } catch (final TimeoutException te) {
+<                 logger.error("Failed to execute cluster task within " + StringUtils.getFullElapsedTime(MAX_CLUSTER_EXECUTION_TIME.getValue()), te);
+<             } catch (final Exception e) {
+<                 logger.error("Failed to execute cluster task", e);
+<             }
+<         } else {
+<             logger.debug("No cluster members selected for cluster task " + task.getClass().getName());
+<         }
+<         return result;
+<     }
+< 
+<     /*
+<      * Execute the given task on the designated cluster member.
+<      * Note that this method blocks for up to MAX_CLUSTER_EXECUTION_TIME
+<      * (seconds) until the task is run on the given member.
+<      */
+<     @Override
+<     public <T> T doSynchronousClusterTask(final ClusterTask<T> task, final byte[] nodeID) {
+<         if (cluster == null) {
+<             return null;
+<         }
+<         final Member member = getMember(nodeID);
+<         T result = null;
+<         // Check that the requested member was found
+<         if (member != null) {
+<             // Asynchronously execute the task on the target member
+471,479c326
+<             try {
+<                 final Future<T> future = hazelcast.getExecutorService(HAZELCAST_EXECUTOR_SERVICE_NAME.getValue()).submitToMember(new CallableTask<>(task), member);
+<                 result = future.get(MAX_CLUSTER_EXECUTION_TIME.getValue().getSeconds(), TimeUnit.SECONDS);
+<                 logger.trace("DistributedTask result: {}", result);
+<             } catch (final TimeoutException te) {
+<                 logger.error("Failed to execute cluster task within " + MAX_CLUSTER_EXECUTION_TIME + " seconds", te);
+<             } catch (final Exception e) {
+<                 logger.error("Failed to execute cluster task", e);
+<             }
+---
+>             hazelcast.getExecutorService(HAZELCAST_EXECUTOR_SERVICE_NAME.getValue()).submitToMember(new CallableTask<>(task), member);
+485d331
+<         return result;
+490c336
+<         if (cluster == null) {
+---
+>         if (hazelcast == null) {
+496c342
+<             result = new HazelcastClusterNodeInfo(member, cluster.getClusterTime());
+---
+>             result = new HazelcastClusterNodeInfo(member, hazelcast.getCluster().getClusterTime());
+503c349
+<         for (final Member member : cluster.getMembers()) {
+---
+>         for (final Member member : hazelcast.getCluster().getMembers()) {
+513c359
+<         if (!caches.isEmpty() && cluster != null) {
+---
+>         if (!caches.isEmpty() && hazelcast != null) {
+518c364
+<             final String uid = getNodeID(cluster.getLocalMember()).toString();
+---
+>             final String uid = getNodeID(hazelcast.getCluster().getLocalMember()).toString();
+564,565c410
+<             && !pluginClassLoaderWarnings.containsKey(o.getClass().getName()) )
+<         {
+---
+>             && !pluginClassLoaderWarnings.containsKey(o.getClass().getName()) ) {
+656c501
+<         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
+---
+>         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
+687c532
+<             logger.debug("Firing leftCluster() event");
+---
+>             logger.debug("Firinging leftCluster() event");
+691c536
+<                 logger.warn("Timeout waiting for leftCluster() event to be called [timeout={}]", StringUtils.getFullElapsedTime(timeout));
+---
+>                 logger.warn("Timeout waiting for leftCluster() event to be called [timeout={}]", StringUtils.getFullElapsedTime(timeout);
+699d543
+< 
+701,703d544
+< 
+< 
+< 

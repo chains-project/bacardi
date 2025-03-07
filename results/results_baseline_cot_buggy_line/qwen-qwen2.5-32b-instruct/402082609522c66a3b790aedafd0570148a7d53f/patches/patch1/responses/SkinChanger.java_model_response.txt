@@ -1,0 +1,50 @@
+<code_analysis>
+1. Examine the error message:
+   - The error messages indicate that the `CommandSource` class and the `TextSerializers` class cannot be found. This suggests that the `org.spongepowered.api.command.CommandSource` and `org.spongepowered.api.text.serializer.TextSerializers` classes are no longer available in the updated version of the Sponge API dependency.
+
+2. Review the client code:
+   - The `CommandSource` class is used as a type for the `invoker` field and as a parameter in the constructor.
+   - The `TextSerializers` class is used to deserialize a string into a text object.
+
+3. Consider potential fixes:
+   - The `CommandSource` class might have been moved or renamed in the new version of the Sponge API.
+   - The `TextSerializers` class might have been removed or replaced with a different mechanism for text serialization.
+
+4. Plan the necessary changes:
+   - Update the import statements to reflect the new location of the `CommandSource` class if it has been moved.
+   - Replace the usage of `TextSerializers.LEGACY_FORMATTING_CODE` with an alternative method for deserializing text, if the class has been removed.
+</code_analysis>
+
+```java
+package com.github.games647.changeskin.sponge.task;
+
+import com.github.games647.changeskin.core.model.auth.Account;
+import com.github.games647.changeskin.core.shared.task.SharedSkinChanger;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.serializer.TextSerializers;
+import org.spongepowered.api.command.source.CommandSource;
+
+public class SkinChanger extends SharedSkinChanger {
+
+    private final CommandSource invoker;
+
+    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandSource invoker) {
+        super(plugin.getCore(), owner, url, oldSkinUrl);
+
+        this.invoker = invoker;
+    }
+
+    @Override
+    protected void sendMessageInvoker(String localeMessage) {
+        // Assuming the TextSerializers.LEGACY_FORMATTING_CODE is no longer available,
+        // we use a different method to create a Text object.
+        Text text = Text.of(TextColors.RESET, localeMessage);
+        invoker.sendMessage(text);
+    }
+}
+```
+
+In this solution, I've assumed that the `CommandSource` class is still available but might have been moved to a different package. I've also replaced the `TextSerializers.LEGACY_FORMATTING_CODE` usage with a simple `Text.of` method call, which is a common way to create a `Text` object in Sponge API. If the `TextSerializers` class is still available but the `LEGACY_FORMATTING_CODE` is not, you might need to use a different serializer or method to achieve the same effect.

@@ -1,0 +1,40 @@
+31a32
+> import org.cactoos.Func;
+33c34,35
+< import org.cactoos.func.IoCheckedFunc;
+---
+> import org.cactoos.FuncAsScalar;
+> import org.cactoos.FuncAsFunc;
+37,38d38
+< import org.cactoos.scalar.IoCheckedScalar;
+< import org.cactoos.scalar.SolidScalar;
+40d39
+< import org.cactoos.text.JoinedText;
+53c52
+<     private final IoCheckedScalar<Path> path;
+---
+>     private final Scalar<Path> path;
+58c57
+<     private final IoCheckedFunc<Path, Boolean> filter;
+---
+>     private final Func<Path, Boolean> filter;
+103,107c102,103
+<         this.path = new IoCheckedScalar<>(
+<             new SolidScalar<>(pth)
+<         );
+<         this.filter = new IoCheckedFunc<Path, Boolean>(
+<             (file) -> file.toFile().isFile()
+---
+>         this.path = pth;
+>         this.filter = new FuncAsFunc<>(file -> file.toFile().isFile()
+110,111c106
+<                 .matches(file)
+<         );
+---
+>             .matches(file));
+119,120c114,115
+<             new JoinedText(
+<                 ".",
+---
+>             new FormattedText(
+>                 "%s.%s",

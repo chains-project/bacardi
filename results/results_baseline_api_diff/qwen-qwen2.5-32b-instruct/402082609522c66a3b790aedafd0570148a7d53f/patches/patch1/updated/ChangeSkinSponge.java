@@ -1,0 +1,160 @@
+package com.github.games647.changeskin.sponge;
+
+import com.github.games647.changeskin.core.ChangeSkinCore;
+import com.github.games647.changeskin.core.PlatformPlugin;
+import com.github.games647.changeskin.core.message.NamespaceKey;
+import com.github.games647.changeskin.sponge.bungee.CheckPermissionListener;
+import com.github.games647.changeskin.sponge.bungee.UpdateSkinListener;
+import com.github.games647.changeskin.sponge.command.InfoCommand;
+import com.github.games647.changeskin.sponge.command.InvalidateCommand;
+import com.github.games647.changeskin.sponge.command.SelectCommand;
+import com.github.games647.changeskin.sponge.command.SetCommand;
+import com.github.games647.changeskin.sponge.command.UploadCommand;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Singleton;
+
+import java.nio.file.Path;
+import java.util.UUID;
+
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
+import ninja.leaping.configurate.loader.ConfigurationLoader;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandMapping;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.args.CommandElement;
+import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.config.ConfigDir;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GameStartingServerEvent;
+import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+import org.spongepowered.api.network.ChannelBinding;
+import org.spongepowered.api.network.ChannelId;
+import org.spongepowered.api.network.message.MessageChannel;
+import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.service.permission.Subject;
+import org.spongepowered.api.service.permission.SubjectCollection;
+import org.spongepowered.api.service.permission.SubjectData;
+import org.spongepowered.api.service.permission.SubjectReference;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.serializer.TextSerializers;
+import org.spongepowered.plugin.PluginContainer;
+import org.spongepowered.plugin.PluginManager;
+
+import static com.github.games647.changeskin.core.message.CheckPermMessage.CHECK_PERM_CHANNEL;
+import static com.github.games647.changeskin.core.message.SkinUpdateMessage.UPDATE_SKIN_CHANNEL;
+import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
+
+@Singleton
+public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
+
+{
+    private final Path dataFolder;
+    private final org.slf4j.Logger logger;
+    private final Injector injector;
+
+    private final ChangeSkinCore core = new ChangeSkinCore(this);
+    private final SpongeSkinAPI api = new SpongeSkinAPI(this);
+
+    private boolean initialized;
+
+    @Inject
+    public ChangeSkinSponge(org.slf4j.Logger logger, @ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
+        this.dataFolder = dataFolder;
+        this.logger = logger;
+        this.injector = injector.createChildInjector(binder -> binder.bind(ChangeSkinCore.class).toInstance(core));
+    }
+
+    @Listener
+    public void onPreInit(GameStartingServerEvent preInitEvent) {
+        try {
+            core.load(true);
+            initialized = true;
+        } catch (Exception ex) {
+            logger.error("Error initializing plugin. Disabling...", ex);
+        }
+    }
+
+    @Listener
+    public void onInit(GameStartingServerEvent initEvent) {
+        if (!initialized)
+            return;
+
+        PluginContainer pluginContainer = Sponge.pluginManager().fromInstance(this).getClass()).orElse(null);
+
+        CommandSpec selectCommandSpec = CommandSpec.builder().executor(injector.getInstance(SelectCommand.class)).build();
+        CommandSpec infoCommandSpec = CommandSpec.builder().executor(injector.getInstance(InfoCommand.class)).build();
+        CommandSpec uploadCommandSpec = CommandSpec.builder().executor(injector.getInstance(UploadCommand.class)).build();
+        CommandSpec setCommandSpec = CommandSpec.builder().executor(injector.getInstance(SetCommand.class)).build();
+        CommandSpec invalidateCommandSpec = CommandSpec.builder().executor(injector.getInstance(InvalidateCommand.class)).build();
+
+        Sponge.server().commandManager().process(pluginContainer, "skin-select", selectCommandSpec);
+        Sponge.server().commandManager().process(pluginContainer, "skin-info", infoCommandSpec);
+        Sponge.server().commandManager().process(pluginContainer, "skin-upload", uploadCommandSpec);
+        Sponge.server().commandManager().process(pluginContainer, "changeskin", setCommandSpec);
+        Sponge.server().commandManager().process(pluginContainer, "skininvalidate", invalidateCommandSpec);
+
+        Sponge.server().eventManager().registerListeners(pluginContainer, injector.getInstance(LoginListener.class));
+
+        ChannelId updateChannelId = ChannelId.of(ARTIFACT_ID, UPDATE_SKIN_CHANNEL);
+        ChannelId permissionChannelId = ChannelId.of(ARTIFACT_ID, CHECK_PERM_CHANNEL);
+        MessageChannel updateChannel = Sponge.server().networkManager().getChannel(updateChannelId);
+        MessageChannel permissionChannel = Sponge.server().networkManager().getChannel(permissionChannelId);
+        updateChannel.registerListener(injector.getInstance(UpdateSkinListener.class));
+        permissionChannel.registerListener(injector.getInstance(CheckPermissionListener.class));
+    }
+
+    @Listener
+    public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
+        core.close();
+    }
+
+    public ChangeSkinCore getCore() {
+        return core;
+    }
+
+    @Override
+    public boolean hasSkinPermission(CommandSource invoker, UUID uuid, boolean sendMessage) {
+        if (invoker.hasPermission(PomData.ARTIFACT_ID + ".skin.whitelist." + uuid)) {
+            return true;
+        }
+
+        if (sendMessage) {
+            sendMessage(invoker, "no-permission");
+        }
+
+        return false;
+    }
+
+    public SpongeSkinAPI getApi() {
+        return api;
+    }
+
+    @Override
+    public String getName() {
+        return PomData.NAME;
+    }
+
+    @Override
+    public Path getPluginFolder() {
+        return dataFolder;
+    }
+
+    @Override
+    public org.slf4j.Logger getLog() {
+        return logger;
+    }
+
+    @Override
+    public void sendMessage(CommandSource receiver, String key) {
+        String message = core.getMessage(key);
+        if (message != null && receiver != null) {
+            receiver.sendMessage(Text.of(message));
+        }
+    }
+}

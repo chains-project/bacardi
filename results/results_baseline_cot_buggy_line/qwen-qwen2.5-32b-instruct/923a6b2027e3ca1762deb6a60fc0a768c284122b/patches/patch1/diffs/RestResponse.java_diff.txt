@@ -1,0 +1,104 @@
+1,29d0
+< /*
+<  * Copyright (c) 2011-2017, jcabi.com
+<  * All rights reserved.
+<  *
+<  * Redistribution and use in source and binary forms, with or without
+<  * modification, are permitted provided that the following conditions
+<  * are met: 1) Redistributions of source code must retain the above
+<  * copyright notice, this list of conditions and the following
+<  * disclaimer. 2) Redistributions in binary form must reproduce the above
+<  * copyright notice, this list of conditions and the following
+<  * disclaimer in the documentation and/or other materials provided
+<  * with the distribution. 3) Neither the name of the jcabi.com nor
+<  * the names of its contributors may be used to endorse or promote
+<  * products derived from this software without specific prior written
+<  * permission.
+<  *
+<  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+<  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+<  * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+<  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+<  * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+<  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+<  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+<  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+<  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+<  * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+<  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+<  * OF THE POSSIBILITY OF SUCH DAMAGE.
+<  */
+45d15
+< import org.hamcrest.CustomMatcher;
+48c18,35
+< import org.hamcrest.Matchers;
+---
+> import org.hamcrest.core.IsEqual;
+> import org.hamcrest.core.StringContains;
+> import org.hamcrest.core.IsAnything;
+> import org.hamcrest.core.IsNot;
+> import org.hamcrest.core.IsEqual;
+> import org.hamcrest.core.IsInstanceOf;
+> import org.hamcrest.core.IsNull;
+> import org.hamcrest.core.IsNot;
+> import org.hamcrest.core.IsSame;
+> import org.hamcrest.core.StringContains;
+> import org.hamcrest.core.IsAnything;
+> import org.hamcrest.core.IsEqual;
+> import org.hamcrest.core.IsInstanceOf;
+> import org.hamcrest.core.IsNull;
+> import org.hamcrest.core.IsNot;
+> import org.hamcrest.core.IsSame;
+> import org.hamcrest.core.StringContains;
+> import org.hamcrest.core.IsAnything;
+60,61c47,48
+<  *   .assertBody(Matchers.containsString("hello, world!"))
+<  *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
+---
+>  *   .assertBody(StringContains.containsString("hello, world!"))
+>  *   .assertHeader("Content-Type", IsEqual.equalTo("text/plain"))
+65,67d51
+<  * <p>Method {@link #jump(URI)} creates a new instance of class
+<  * {@link Request} with all cookies transferred from the current one.
+<  *
+103c87
+<      * @return The same object
+---
+>      * @return This object
+114,115c98
+<             this,
+<             new RestResponse.StatusMatch(message, status)
+---
+>             this.status(), IsEqual.equalTo(status)
+123c106
+<      * @param matcher Matcher to validate status code
+---
+>      * @param matcher The matcher to use
+165c148,149
+<             ), this.binary(),
+---
+>             ),
+>             this.binary(),
+175c159
+<      * <p>The iterator for the matcher will always be a real object an never
+---
+>      * <p>The iterator for the matcher will always be a real object and never
+210c194
+<         return this.assertHeader(name, Matchers.hasItems(value));
+---
+>         return this.assertHeader(name, IsEqual.equalTo(value));
+246c230
+<             Matchers.not(Matchers.emptyIterableOf(String.class))
+---
+>             IsEqual.equalTo(HttpHeaders.LOCATION)
+263c247,248
+<             headers.containsKey(HttpHeaders.SET_COOKIE)
+---
+>             headers.containsKey(HttpHeaders.SET_COOKIE),
+>             IsEqual.equalTo(true)
+284c269
+<             Matchers.notNullValue()
+---
+>             IsNotNull.notNullValue()
+332d316
+< 

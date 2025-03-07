@@ -1,0 +1,14 @@
+3,5d2
+< import static org.junit.Assert.assertEquals;
+< import static org.junit.Assert.assertTrue;
+< 
+8a6
+> import org.junit.jupiter.api.Assertions;
+22,24c20,22
+<                 assertTrue(PGS_Conversion.getChildren(mergedMesh).stream().allMatch(f -> PGS_ShapePredicates.area(f) >= areaThreshold));
+<                 assertTrue(faces.size() >= mergedMesh.getChildCount());
+<                 assertEquals(PGS_ShapePredicates.area(mesh), PGS_ShapePredicates.area(mergedMesh), 1e-6);
+---
+>                 Assertions.assertTrue(PGS_Conversion.getChildren(mergedMesh).stream().allMatch(f -> PGS_ShapePredicates.area(f) >= areaThreshold));
+>                 Assertions.assertTrue(faces.size() >= mergedMesh.getChildCount());
+>                 Assertions.assertEquals(PGS_ShapePredicates.area(mesh), PGS_ShapePredicates.area(mergedMesh), 1e-6);

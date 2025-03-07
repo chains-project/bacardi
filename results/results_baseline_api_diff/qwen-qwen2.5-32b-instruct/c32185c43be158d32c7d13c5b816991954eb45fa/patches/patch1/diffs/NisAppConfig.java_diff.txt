@@ -1,0 +1,149 @@
+3a4
+> import org.flywaydb.core.api.configuration.ClassicConfiguration;
+65d65
+<         @SuppressWarnings("unused")
+93c93
+<                                 configuration.getNetworkName());
+---
+>                                 configuration.getNetworkInfo().getName());
+103c103
+<         @Bean(initMethod = "migrate")
+---
+>         @Bean
+105,106c105,111
+<                 final Properties prop = new Properties();
+<                 prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+---
+>                 final ClassicConfiguration config = new ClassicConfiguration();
+>                 config.setDataSource(this.dataSource());
+>                 config.setLocations(prop.getProperty("flyway.locations"));
+>                 config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 config.setClassLoader(NisAppConfig.class.getClassLoader());
+>                 return new Flyway(config);
+>         }
+108,113c113,115
+<                 final org.flywaydb.core.Flyway flyway = new Flyway();
+<                 flyway.setDataSource(this.dataSource());
+<                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+<                 flyway.setLocations(prop.getProperty("flyway.locations"));
+<                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+<                 return flyway;
+---
+>         @Bean
+>         public HibernateTransactionManager transactionManager() throws IOException {
+>                 return new HibernateTransactionManager(this.sessionFactory());
+117d118
+<         @DependsOn("flyway")
+129c130
+<                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
+---
+>                 return new DefaultBlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
+145c146,233
+<         // region mappers
+---
+>         @Bean
+>         public AuditCollection outgoingAudits() {
+>                 return this.createAuditCollection();
+>         }
+> 
+>         @Bean
+>         public AuditCollection incomingAudits() {
+>                 return this.createAuditCollection();
+>         }
+> 
+>         private AuditCollection createAuditCollection() {
+>                 return new AuditCollection(MAX_AUDIT_HISTORY_SIZE, this.timeProvider());
+>         }
+> 
+>         @Bean
+>         public DataSource dataSource() throws IOException {
+>                 final NisConfiguration configuration = this.nisConfiguration();
+>                 final String nemFolder = configuration.getNemFolder();
+>                 final Properties prop = new Properties();
+>                 prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+> 
+>                 // replace url parameters with values from configuration
+>                 final String jdbcUrl = prop.getProperty("jdbc.url").replace("${nem.folder}", nemFolder).replace("${nem.network}",
+>                                 configuration.getNetworkInfo().name());
+> 
+>                 final DriverManagerDataSource dataSource = new DriverManagerDataSource();
+>                 dataSource.setDriverClassName(prop.getProperty("jdbc.driverClassName"));
+>                 dataSource.setUrl(jdbcUrl);
+>                 dataSource.setUsername(prop.getProperty("jdbc.username"));
+>                 dataSource.setPassword(prop.getProperty("jdbc.password"));
+>                 return dataSource;
+>         }
+> 
+>         @Bean
+>         public Flyway flyway() throws IOException {
+>                 final ClassicConfiguration config = new ClassicConfiguration();
+>                 config.setDataSource(this.dataSource());
+>                 config.setLocations(prop.getProperty("flyway.locations"));
+>                 config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 config.setClassLoader(NisAppConfig.class.getClassLoader());
+>                 return new Flyway(config);
+>         }
+> 
+>         @Bean
+>         public NisConfiguration nisConfiguration() {
+>                 return new NisConfiguration();
+>         }
+> 
+>         @Bean
+>         public TimeProvider timeProvider() {
+>                 return CommonStarter.TIME_PROVIDER;
+>         }
+> 
+>         @Bean
+>         public TrustProvider trustProvider() {
+>                 final int LOW_COMMUNICATION_NODE_WEIGHT = 30;
+>                 final int TRUST_CACHE_TIME = 15 * 60;
+>                 return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), LOW_COMMUNICATION_NODE_WEIGHT), TRUST_CACHE_TIME,
+>                                 this.timeProvider());
+>         }
+> 
+>         @Bean
+>         public NisMain nisMain() {
+>                 return new NisMain(this.blockDao, this.nisCache(), this.nisDbModelToModelMapper(), this.nisConfiguration());
+>         }
+> 
+>         @Bean
+>         public BlockChain blockChain() {
+>                 return new BlockChain(this.blockChainLastBlockLayer, this.blockChainUpdater());
+>         }
+> 
+>         @Bean
+>         public BlockChainServices blockChainServices() {
+>                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
+>                                 this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+>         }
+> 
+>         @Bean
+>         public BlockChainUpdater blockChainUpdater() {
+>                 return new BlockChainUpdater(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainContextFactory(),
+>                                 this.unconfirmedTransactions(), this.nisConfiguration());
+>         }
+> 
+>         @Bean
+>         public BlockChainContextFactory blockChainContextFactory() {
+>                 return new BlockChainContextFactory(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainServices(),
+>                                 this.unconfirmedTransactions());
+>         }
+167,170d254
+<         // endregion
+< 
+<         // region observers + validators
+< 
+195,196d278
+<         // endregion
+< 
+296,300d377
+<         public HibernateTransactionManager transactionManager() throws IOException {
+<                 return new HibernateTransactionManager(this.sessionFactory());
+<         }
+< 
+<         @Bean
+314c391
+<                                                                         BlockMarkerConstants.SECOND_FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24))
+---
+>                                                                         BlockMarkerConstants.SECOND_FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24)

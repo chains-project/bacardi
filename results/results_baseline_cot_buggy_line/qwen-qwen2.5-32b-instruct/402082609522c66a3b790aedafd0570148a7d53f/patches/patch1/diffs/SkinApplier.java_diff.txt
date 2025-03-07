@@ -1,0 +1,16 @@
+3d2
+< import com.flowpowered.math.vector.Vector3d;
+12c11
+< import org.spongepowered.api.command.CommandSource;
+---
+> import org.spongepowered.api.command.source.CommandSource;
+15d13
+< import org.spongepowered.api.entity.living.player.tab.TabListEntry;
+99c97
+<         Vector3d rotation = receiver.getRotation();
+---
+>         double[] rotation = {receiver.getRotation().getX(), receiver.getRotation().getY()};
+107c105
+<                     receiver.setLocationAndRotation(oldLocation, rotation);
+---
+>                     receiver.setLocationAndRotation(oldLocation, rotation[0], rotation[1]);

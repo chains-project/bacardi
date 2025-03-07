@@ -1,0 +1,155 @@
+<code_analysis>
+The error messages indicate that the PubNub library has been updated, and some of the classes and methods that were previously available are no longer present or have been renamed. Specifically, the `PNConfiguration` constructor without arguments is no longer available, and the `PNSpaceResult`, `PNUserResult`, and `PNMembershipResult` classes are not found. Additionally, the `SubscribeCallback` interface has changed, and the `space` and `user` methods are no longer part of the interface, causing compilation errors.
+
+The following are the specific issues and their causes:
+- The `PNConfiguration` constructor without arguments is no longer available.
+- The `PNSpaceResult`, `PNUserResult`, and `PNMembershipResult` classes are not found, indicating that these classes have been removed or renamed.
+- The `SubscribeCallback` interface has changed, and the `space` and `user` methods are no longer part of the interface, causing compilation errors.
+</code_analysis>
+
+Here is the proposed patch to fix the issue:
+
+```java
+package info.bitrich.xchangestream.service.pubnub;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pubnub.api.PNConfiguration;
+import com.pubnub.api.PubNub;
+import com.pubnub.api.callbacks.SubscribeCallback;
+import com.pubnub.api.enums.PNStatusCategory;
+import com.pubnub.api.models.consumer.PNStatus;
+import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
+import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
+import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
+import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
+import io.reactivex.Completable;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/** Created by Lukas Zaoralek on 14.11.17. */
+public class PubnubStreamingService {
+  private static final Logger LOG = LoggerFactory.getLogger(PubnubStreamingService.class);
+
+  private final PubNub pubnub;
+  private PNStatusCategory pnStatusCategory;
+  private final Map<String, ObservableEmitter<JsonNode>> subscriptions = new ConcurrentHashMap<>();
+  private final ObjectMapper mapper;
+
+  public PubnubStreamingService(String publicKey) {
+    mapper = new ObjectMapper();
+    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    PNConfiguration pnConfiguration = new PNConfiguration(publicKey);
+    pubnub = new PubNub(pnConfiguration);
+    pnStatusCategory = PNStatusCategory.PNDisconnectedCategory;
+  }
+
+  public Completable connect() {
+    return Completable.create(
+        e -> {
+          pubnub.addListener(
+              new SubscribeCallback() {
+                @Override
+                public void status(PubNub pubNub, PNStatus pnStatus) {
+                  pnStatusCategory = pnStatus.getCategory();
+                  LOG.debug(
+                      "PubNub status: {} {}",
+                      pnStatusCategory.toString(),
+                      pnStatus.getStatusCode());
+                  if (pnStatusCategory == PNStatusCategory.PNConnectedCategory) {
+                    //              e.onComplete();
+                  } else if (pnStatus.isError()) {
+                    //              e.onError(pnStatus.getErrorData().getThrowable());
+                  }
+                }
+
+                @Override
+                public void message(PubNub pubNub, PNMessageResult pnMessageResult) {
+                  String channelName = pnMessageResult.getChannel();
+                  ObservableEmitter<JsonNode> subscription = subscriptions.get(channelName);
+                  LOG.debug("PubNub Message: {}", pnMessageResult.toString());
+                  if (subscription != null) {
+                    JsonNode jsonMessage = null;
+                    try {
+                      jsonMessage = mapper.readTree(pnMessageResult.getMessage().toString());
+                    } catch (IOException ex) {
+                      ex.printStackTrace();
+                    }
+                    subscription.onNext(jsonMessage);
+                  } else {
+                    LOG.debug("No subscriber for channel {}.", channelName);
+                  }
+                }
+
+                @Override
+                public void presence(PubNub pubNub, PNPresenceEventResult pnPresenceEventResult) {
+                  LOG.debug("PubNub presence: {}", pnPresenceEventResult.toString());
+                }
+
+                @Override
+                public void signal(PubNub pubnub, PNSignalResult pnSignalResult) {
+                  LOG.debug("PubNub signal: {}", pnSignalResult.toString());
+                }
+
+                @Override
+                public void messageAction(
+                    PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
+                  LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
+                }
+
+                // Removed methods that are no longer part of the SubscribeCallback interface
+                // public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {}
+                // public void user(PubNub pubnub, PNUserResult pnUserResult) {}
+              });
+          e.onComplete();
+        });
+  }
+
+  public Observable<JsonNode> subscribeChannel(String channelName) {
+    LOG.info("Subscribing to channel {}.", channelName);
+    return Observable.<JsonNode>create(
+            e -> {
+              if (!subscriptions.containsKey(channelName)) {
+                subscriptions.put(channelName, e);
+                pubnub.subscribe().channels(Collections.singletonList(channelName)).execute();
+                LOG.debug("Subscribe channel: {}", channelName);
+              }
+            })
+        .doOnDispose(
+            () -> {
+              LOG.debug("Unsubscribe channel: {}", channelName);
+              pubnub.unsubscribe().channels(Collections.singletonList(channelName)).execute();
+            })
+        .share();
+  }
+
+  public Completable disconnect() {
+    return Completable.create(
+        completable -> {
+          pubnub.disconnect();
+          completable.onComplete();
+        });
+  }
+
+  public boolean isAlive() {
+    return (pnStatusCategory == PNStatusCategory.PNConnectedCategory);
+  }
+
+  public void useCompressedMessages(boolean compressedMessages) {
+    throw new UnsupportedOperationException();
+  }
+}
+```
+
+In this patch, the following changes were made:
+- The `PNConfiguration` constructor now takes a `publicKey` as an argument.
+- The `space` and `user` methods were removed from the `SubscribeCallback` implementation since they are no longer part of the interface.
+- The imports for `PNSpaceResult`, `PNUserResult`, and `PNMembershipResult` were removed as they are no longer needed.
+- The `@Override` annotations for the `space` and `user` methods were removed since these methods no longer override methods from the `SubscribeCallback` interface.

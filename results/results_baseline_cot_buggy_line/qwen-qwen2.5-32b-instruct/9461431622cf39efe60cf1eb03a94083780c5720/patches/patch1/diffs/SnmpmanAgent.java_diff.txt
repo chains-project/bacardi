@@ -1,0 +1,262 @@
+23,24d22
+< import org.snmp4j.transport.TransportMappings;
+< import org.snmp4j.util.ThreadPool;
+35,40d32
+< /**
+<  * This is the core class of the {@code Snmpman}. The agent simulates the SNMP-capable devices.
+<  * <br>
+<  * This class can be instantiated via the constructor {@link #SnmpmanAgent(com.oneandone.snmpman.configuration.AgentConfiguration)}, which
+<  * requires an instance of the {@link com.oneandone.snmpman.configuration.AgentConfiguration}.
+<  */
+44,46d35
+<     /**
+<      * The default charset for files being read.
+<      */
+48,51d36
+< 
+<     /**
+<      * The pattern of variable bindings in a walk file.
+<      */
+53,56d37
+< 
+<     /**
+<      * The configuration of this agent.
+<      */
+58,61d38
+< 
+<     /**
+<      * The list of managed object groups.
+<      */
+64,68d40
+<     /**
+<      * Initializes a new instance of an SNMP agent.
+<      *
+<      * @param configuration the configuration for this agent
+<      */
+75,81d46
+<     /**
+<      * Returns the name of {@code this} agent.
+<      * <br>
+<      * See {@code AgentConfiguration.name} for more information on the return value.
+<      *
+<      * @return the name of {@code this} agent.
+<      */
+86,92d50
+<     /**
+<      * Returns the boot-counter file for the specified agent.
+<      * <p>
+<      * This file will be created in the same directory as the {@link com.oneandone.snmpman.configuration.AgentConfiguration#getWalk()} file.
+<      *
+<      * @return the boot-counter file
+<      */
+97,103d54
+<     /**
+<      * Returns the configuration file for the specified agent.
+<      * <p>
+<      * This file will be created in the same directory as the {@link com.oneandone.snmpman.configuration.AgentConfiguration#getWalk()} file.
+<      *
+<      * @return the configuration file
+<      */
+108,113d58
+<     /**
+<      * Translates a string into {@code x-www-form-urlencoded} format. The method uses the <i>UTF-8</i> encoding scheme.
+<      *
+<      * @param string {@code String} to be translated
+<      * @return the translated {@code String}
+<      */
+118c63
+<             log.error("UTF-8 encoding is unsupported");
+---
+>             log.error("UTF-8 encoding is unsupported", e);
+123,215d67
+<     /**
+<      * Returns the root OIDs of the bindings.
+<      *
+<      * @param bindings the variable bindings
+<      * @return the roots of the specified variable bindings
+<      */
+<     private static List<OID> getRoots(final SortedMap<OID, Variable> bindings) {
+<         final List<OID> potentialRoots = new ArrayList<>(bindings.size());
+< 
+<         OID last = null;
+<         for (final OID oid : bindings.keySet()) {
+<             if (last != null) {
+<                 int min = Math.min(oid.size(), last.size());
+<                 while (min > 0) {
+<                     if (oid.leftMostCompare(min, last) == 0) {
+<                         OID root = new OID(last.getValue(), 0, min);
+<                         potentialRoots.add(root);
+<                         break;
+<                     }
+<                     min--;
+<                 }
+<             }
+<             last = oid;
+<         }
+<         Collections.sort(potentialRoots);
+< 
+<         final List<OID> roots = new ArrayList<>(potentialRoots.size());
+<         potentialRoots.stream().filter(potentialRoot -> potentialRoot.size() > 0).forEach(potentialRoot -> {
+<             OID trimmedPotentialRoot = new OID(potentialRoot.getValue(), 0, potentialRoot.size() - 1);
+<             while (trimmedPotentialRoot.size() > 0 && Collections.binarySearch(potentialRoots, trimmedPotentialRoot) < 0) {
+<                 trimmedPotentialRoot.trim(1);
+<             }
+<             if (trimmedPotentialRoot.size() == 0 && !roots.contains(potentialRoot)) {
+<                 roots.add(potentialRoot);
+<             }
+<         });
+< 
+<         log.trace("identified roots {}", roots);
+<         return roots;
+<     }
+< 
+<     /**
+<      * Returns a {@link Variable} instance for the specified parameters.
+<      *
+<      * @param type  the type of the variable
+<      * @param value the value of this variable
+<      * @return a a {@link Variable} instance with the specified type and value
+<      * @throws IllegalArgumentException if the type could not be mapped to a {@link Variable} implementation
+<      */
+<     private static Variable getVariable(final String type, final String value) {
+<         switch (type) {
+<             // TODO add "BITS" support
+<             case "STRING":
+<                 if (value.startsWith("\"") && value.endsWith("\"")) {
+<                     if (value.length() == 2) {
+<                         return new OctetString();
+<                     }
+<                     return new OctetString(value.substring(1, value.length() - 1));
+<                 } else {
+<                     return new OctetString(value);
+<                 }
+<             case "OID":
+<                 return new OID(value);
+<             case "Gauge32":
+<                 return new Gauge32(Long.parseLong(value.replaceAll("[^-?0-9]+", "")));
+<             case "Timeticks":
+<                 final int openBracket = value.indexOf("(") + 1;
+<                 final int closeBracket = value.indexOf(")");
+<                 if (openBracket == 0 || closeBracket < 0) {
+<                     throw new IllegalArgumentException("could not parse time tick value in " + value);
+<                 }
+<                 return new TimeTicks(Long.parseLong(value.substring(openBracket, closeBracket)));
+<             case "Counter32":
+<                 return new Counter32(Long.parseLong(value.replaceAll("[^-?0-9]+", "")));
+<             case "Counter64":
+<                 // Parse unsigned long
+<                 return new Counter64(UnsignedLong.valueOf(value).longValue());
+<             case "INTEGER":
+<                 return new Integer32(Integer.parseInt(value.replaceAll("[^-?0-9]+", "")));
+<             case "Hex-STRING":
+<                 return OctetString.fromHexString(value, ' ');
+<             case "IpAddress":
+<                 return new IpAddress(value);
+<             default:
+<                 throw new IllegalArgumentException("illegal type \"" + type + "\" in walk detected");
+<         }
+<     }
+< 
+<     /**
+<      * Starts this agent instance.
+<      *
+<      * @throws IOException signals that this agent could not be initialized by the {@link #init()} method
+<      */
+222d73
+<         // configure community index contexts
+224c75
+<             this.getServer().addContext(new OctetString(String.valueOf(vlan)));
+---
+>             this.getServer().addContext(new OctetString(String.valueOf(vlan));
+247c98
+<             unregisterDefaultManagedObjects(new OctetString(String.valueOf(vlan)));
+---
+>             unregisterDefaultManagedObjects(new OctetString(String.valueOf(vlan));
+303,305d153
+<     /**
+<      * Creates the {@link StaticMOGroup} with all information necessary to register it to the server.
+<      */
+324,330d171
+<     /**
+<      * Creates a list of {@link VariableBinding} out of a mapping of {@link OID} and {@link Variable}.
+<      *
+<      * @param variableBindings mapping of {@link OID} and {@link Variable}.
+<      * @param root             root SNMP OID.
+<      * @return list of {@link VariableBinding}.
+<      */
+337,341d177
+<     /**
+<      * Registers a {@link ManagedObject} to the server with an empty {@link OctetString} community context.
+<      *
+<      * @param group {@link ManagedObject} to register.
+<      */
+344c180
+<         registerGroupAndContext(group, new OctetString(""));
+---
+>         registerGroupAndContext(group, new OctetString("");
+347,352d182
+<     /**
+<      * Registers a {@link ManagedObject} to the server with a {@link OctetString} community context.
+<      *
+<      * @param group   {@link ManagedObject} to register.
+<      * @param context community context.
+<      */
+364c194
+<                 other = server.lookup(new DefaultMOQuery(contextScope, false));
+---
+>                 other = server.lookup(new DefaultMOQuery(contextScope, false);
+378,384d207
+<     /**
+<      * Sets the private registry value of {@link DefaultMOServer} via reflection.
+<      * FIXME
+<      * If there is any possibility to avoid this, then replace!
+<      *
+<      * @param group {@link ManagedObject} to register.
+<      */
+389c212
+<             final SortedMap<MOScope, ManagedObject> reg = server.getRegistry();
+---
+>             final SortedMap<MOScope, ManagedObject<?>> reg = server.getRegistry();
+398,403d220
+<     /**
+<      * Reads all variable bindings using {@link #VARIABLE_BINDING_PATTERN}.
+<      *
+<      * @param reader the reader to read the bindings from.
+<      * @return the map of oid to variable binding.
+<      */
+432,436d248
+<     /**
+<      * Unregisters all default managed objects in the specified context {@code ctx}.
+<      *
+<      * @param ctx the context from which all default managed objects should be unregistred
+<      */
+446,455d257
+<     /**
+<      * Returns the variable bindings for a device configuration and a list of bindings.
+<      * <p>
+<      * In this step the {@link ModifiedVariable} instances will be created as a wrapper for dynamic variables.
+<      *
+<      * @param device   the device configuration
+<      * @param bindings the bindings as the base
+<      * @return the variable bindings for the specified device configuration
+<      */
+<     @SuppressWarnings("unchecked")
+516d317
+<         // configure community index contexts
+543,558d343
+<     @Override
+<     protected void addCommunities(final SnmpCommunityMIB snmpCommunityMIB) {
+<         log.trace("adding communities {} for agent \"{}\"", snmpCommunityMIB.toString(), configuration.getName());
+<         // configure community index contexts
+<         for (final Long vlan : configuration.getDevice().getVlans()) {
+<             configureSnmpCommunity(snmpCommunityMIB, vlan);
+<         }
+<         configureSnmpCommunity(snmpCommunityMIB, null);
+<     }
+< 
+<     /**
+<      * Configures an SNMP community for a given SNMP community context.
+<      *
+<      * @param snmpCommunityMIB SNMP community.
+<      * @param context          SNMP community context.
+<      */

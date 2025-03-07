@@ -1,0 +1,62 @@
+<code_analysis>
+1. Examine the error message:
+   - The error indicates that the class `LengthOf` cannot be found in the package `org.cactoos.iterable`.
+   - This suggests that the `LengthOf` class has been removed or moved in the updated version of the `org.cactoos` dependency.
+
+2. Review the client code:
+   - The `LengthOf` class is used to calculate the length of the `Iterable<Text>` objects.
+   - The error occurs in the `compareTo` method where `LengthOf` is used to compare the lengths of the suffixes.
+
+3. Consider potential fixes:
+   - Since `LengthOf` is not available, we need to find an alternative way to calculate the length of the `Iterable<Text>` objects.
+   - We can use Java's `Stream` API to count the elements in the iterable.
+
+4. Plan the necessary changes:
+   - Replace the usage of `LengthOf` with a stream-based approach to count the elements.
+   - Ensure that the `compareTo` method still functions correctly after the change.
+</code_analysis>
+
+```java
+package io.zold.api;
+
+import org.cactoos.Text;
+import org.cactoos.iterable.IterableOf;
+
+import java.util.stream.Stream;
+
+/**
+ * Default implementation for {@link Score}.
+ *
+ * @since 1.0
+ */
+public final class RtScore implements Score {
+
+    /**
+     * The suffixes.
+     */
+    private final Iterable<Text> sfxs;
+
+    /**
+     * Ctor.
+     *
+     * @param sfxs The suffixes.
+     */
+    RtScore(final Iterable<Text> sfxs) {
+        this.sfxs = sfxs;
+    }
+
+    @Override
+    public int compareTo(final Score other) {
+        final long thisLength = StreamSupport.stream(this.sfxs.spliterator(), false).count();
+        final long otherLength = StreamSupport.stream(other.suffixes().spliterator(), false).count();
+        return Long.compare(otherLength, thisLength);
+    }
+
+    @Override
+    public Iterable<Text> suffixes() {
+        return this.sfxs;
+    }
+}
+```
+
+In this solution, the `LengthOf` class is replaced with a stream-based approach to count the elements in the `Iterable<Text>` objects. This ensures that the `compareTo` method can still compare the lengths of the suffixes without relying on the removed `LengthOf` class.
