@@ -1,0 +1,19 @@
+14a15
+> import org.reflections.util.QueryFunction;
+56c57,62
+<                 .filterInputsBy(this::shouldScan);
+---
+>                 .filterInputsBy(new QueryFunction<String>() {
+>                     @Override
+>                     public boolean apply(String input) {
+>                         return shouldScan(input);
+>                     }
+>                 });
+64c70
+<             return new FilterBuilder().include(".+\\.class").apply(s);
+---
+>             return new FilterBuilder().include(".+\\.class").getPattern().matcher(s).matches();
+69c75
+<             if (new FilterBuilder().include(regex).apply(s)) {
+---
+>             if (new FilterBuilder().include(regex).getPattern().matcher(s).matches()) {

@@ -1,0 +1,87 @@
+1,16d0
+< /*
+<  * Copyright 2015 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+21a6
+> import com.google.api.services.cloudresourcemanager.v3.model.Project; // Updated import for the new version
+111,116d95
+<     public Builder setParent(ResourceId parent) {
+<       infoBuilder.setParent(parent);
+<       return this;
+<     }
+< 
+<     @Override
+128c107,109
+<   /** Returns the {@link ResourceManager} service object associated with this Project. */
+---
+>   /**
+>    * Returns the {@link ResourceManager} service object associated with this Project.
+>    */
+146,160c127
+<    * <p>This method will only affect the project if the following criteria are met:
+<    *
+<    * <ul>
+<    *   <li>The project does not have a billing account associated with it.
+<    *   <li>The project has a lifecycle state of {@link ProjectInfo.State#ACTIVE}.
+<    * </ul>
+<    *
+<    * This method changes the project's lifecycle state from {@link ProjectInfo.State#ACTIVE} to
+<    * {@link ProjectInfo.State#DELETE_REQUESTED}. The deletion starts at an unspecified time, at
+<    * which point the lifecycle state changes to {@link ProjectInfo.State#DELETE_IN_PROGRESS}. Until
+<    * the deletion completes, you can check the lifecycle state checked by retrieving the project
+<    * with {@link ResourceManager#get}, and the project remains visible to {@link
+<    * ResourceManager#list}. However, you cannot update the project. After the deletion completes,
+<    * the project is not retrievable by the {@link ResourceManager#get} and {@link
+<    * ResourceManager#list} methods. The caller must have modify permissions for this project.
+---
+>    * <p>The caller must have modify permissions for this project.
+163,165d129
+<    * @see <a href=
+<    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/delete">Cloud
+<    *     Resource Manager delete</a>
+174,177c138
+<    * <p>You can only use this method for a project that has a lifecycle state of {@link
+<    * ProjectInfo.State#DELETE_REQUESTED}. After deletion starts, as indicated by a lifecycle state
+<    * of {@link ProjectInfo.State#DELETE_IN_PROGRESS}, the project cannot be restored. The caller
+<    * must have modify permissions for this project.
+---
+>    * <p>The caller must have modify permissions for this project.
+180,182d140
+<    * @see <a href=
+<    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/undelete">Cloud
+<    *     Resource Manager undelete</a>
+195,197d152
+<    * @see <a href=
+<    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/update">Cloud
+<    *     Resource Manager update</a>
+209,211d163
+<    * @see <a href=
+<    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/getIamPolicy">
+<    *     Resource Manager getIamPolicy</a>
+224,226d175
+<    * @see <a href=
+<    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/setIamPolicy">
+<    *     Resource Manager setIamPolicy</a>
+244,248d192
+<    * @see <a href=
+<    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/testIamPermissions">
+<    *     Resource Manager testIamPermissions</a>
+<    * @see <a href= "https://cloud.google.com/iam/#supported_cloud_platform_services">Supported Cloud
+<    *     Platform Services</a>
+283c227
+<       com.google.api.services.cloudresourcemanager.model.Project answer) {
+---
+>       com.google.api.services.cloudresourcemanager.v3.model.Project answer) { // Updated reference to the new version

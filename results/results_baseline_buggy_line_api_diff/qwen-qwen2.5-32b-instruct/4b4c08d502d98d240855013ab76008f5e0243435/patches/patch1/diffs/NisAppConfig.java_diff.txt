@@ -1,0 +1,180 @@
+3a4
+> import org.flywaydb.core.api.configuration.ClassicConfiguration;
+108,113c109,115
+<                 final org.flywaydb.core.Flyway flyway = new Flyway();
+<                 flyway.setDataSource(this.dataSource());
+<                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+<                 flyway.setLocations(prop.getProperty("flyway.locations"));
+<                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+<                 return flyway;
+---
+>                 final ClassicConfiguration configuration = new ClassicConfiguration();
+>                 configuration.setDataSource(this.dataSource());
+>                 configuration.setLocations(prop.getProperty("flyway.locations").split(","));
+>                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+> 
+>                 return new Flyway(configuration);
+117d118
+<         @DependsOn("flyway")
+196a198,199
+>         // region mappers
+> 
+200,201c203,204
+<                                 this.transactionValidatorFactory(), this.blockValidatorFactory(), this.blockTransactionObserverFactory(),
+<                                 this.unconfirmedTransactionsFilter(), this.nisConfiguration().getForkConfiguration());
+---
+>                                 this.blockTransactionObserverFactory(), this.blockValidatorFactory(), this.unconfirmedTransactionsFilter(),
+>                                 this.nisConfiguration().getForkConfiguration());
+233a237,383
+>         // endregion
+> 
+>         @Bean
+>         public DataSource dataSource() throws IOException {
+>                 final NisConfiguration configuration = this.nisConfiguration();
+>                 final String nemFolder = configuration.getNemFolder();
+>                 final Properties prop = new Properties();
+>                 prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+> 
+>                 // replace url parameters with values from configuration
+>                 final String jdbcUrl = prop.getProperty("jdbc.url").replace("${nem.folder}", nemFolder).replace("${nem.network",
+>                                 configuration.getNetworkName());
+> 
+>                 final DriverManagerDataSource dataSource = new DriverManagerDataSource();
+>                 dataSource.setDriverClassName(prop.getProperty("jdbc.driverClassName"));
+>                 dataSource.setUrl(jdbcUrl);
+>                 dataSource.setUsername(prop.getProperty("jdbc.username"));
+>                 dataSource.setPassword(prop.getProperty("jdbc.password"));
+>                 return dataSource;
+>         }
+> 
+>         @Bean(initMethod = "migrate")
+>         public Flyway flyway() throws IOException {
+>                 final Properties prop = new Properties();
+>                 prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+> 
+>                 final ClassicConfiguration configuration = new ClassicConfiguration();
+>                 configuration.setDataSource(this.dataSource());
+>                 configuration.setLocations(prop.getProperty("flyway.locations").split(","));
+>                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+> 
+>                 return new Flyway(configuration);
+>         }
+> 
+>         @Bean
+>         public SessionFactory sessionFactory() throws IOException {
+>                 return SessionFactoryLoader.load(this.dataSource());
+>         }
+> 
+>         @Bean
+>         public BlockChain blockChain() {
+>                 return new BlockChain(this.blockChainLastBlockLayer, this.blockChainUpdater());
+>         }
+> 
+>         @Bean
+>         public BlockChainServices blockChainServices() {
+>                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
+>                                 this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+>         }
+> 
+>         @Bean
+>         public BlockChainUpdater blockChainUpdater() {
+>                 return new BlockChainUpdater(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainContextFactory(),
+>                                 this.unconfirmedTransactions(), this.nisConfiguration());
+>         }
+> 
+>         @Bean
+>         public BlockChainContextFactory blockChainContextFactory() {
+>                 return new BlockChainContextFactory(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainServices(),
+>                                 this.unconfirmedTransactions());
+>         }
+> 
+>         // region mappers
+> 
+>         @Bean
+>         public MapperFactory mapperFactory() {
+>                 return new DefaultMapperFactory(this.mosaicIdCache());
+>         }
+> 
+>         @Bean
+>         public NisMapperFactory nisMapperFactory() {
+>                 return new NisMapperFactory(this.mapperFactory());
+>         }
+> 
+>         @Bean
+>         public NisModelToDbModelMapper nisModelToDbModelMapper() {
+>                 return new NisModelToDbModelMapper(this.mapperFactory().createModelToDbModelMapper(new AccountDaoLookupAdapter(this.accountDao)));
+>         }
+> 
+>         @Bean
+>         public NisDbModelToModelMapper nisDbModelToModelMapper() {
+>                 return this.nisMapperFactory().createDbModelToModelNisMapper(this.accountCache());
+>         }
+> 
+>         // endregion
+> 
+>         // region observers + validators
+> 
+>         @Bean
+>         public BlockTransactionObserverFactory blockTransactionObserverFactory() {
+>                 final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
+>                 return new BlockTransactionObserverFactory(this.observerOptions(), estimatedBlocksPerYear);
+>         }
+> 
+>         @Bean
+>         public BlockValidatorFactory blockValidatorFactory() {
+>                 return new BlockValidatorFactory(this.timeProvider(), this.nisConfiguration().getForkConfiguration());
+>         }
+> 
+>         @Bean
+>         public TransactionValidatorFactory transactionValidatorFactory() {
+>                 return new TransactionValidatorFactory(this.timeProvider(), this.nisConfiguration().getNetworkInfo(),
+>                                 this.nisConfiguration().getForkConfiguration(), this.nisConfiguration().ignoreFees());
+>         }
+> 
+>         @Bean
+>         public SingleTransactionValidator transactionValidator() {
+>                 // this is only consumed by the TransactionController and used in transaction/prepare,
+>                 // which should propagate incomplete transactions
+>                 return this.transactionValidatorFactory().createIncompleteSingleBuilder(this.nisCache()).build();
+>         }
+> 
+>         // endregion
+> 
+>         @Bean
+>         public Harvester harvester() {
+>                 final NewBlockTransactionsProvider transactionsProvider = new DefaultNewBlockTransactionsProvider(this.nisCache(),
+>                                 this.transactionValidatorFactory(), this.blockValidatorFactory(), this.blockTransactionObserverFactory(),
+>                                 this.unconfirmedTransactionsFilter(), this.nisConfiguration().getForkConfiguration());
+> 
+>                 final BlockGenerator generator = new BlockGenerator(this.nisCache(), transactionsProvider, this.blockDao,
+>                                 new BlockScorer(this.accountStateCache()), this.blockValidatorFactory().create(this.nisCache()));
+>                 return new Harvester(this.timeProvider(), this.blockChainLastBlockLayer, this.unlockedAccounts(), this.nisDbModelToModelMapper(),
+>                                 generator);
+>         }
+> 
+>         @Bean
+>         public SynchronizedAccountCache accountCache() {
+>                 return new SynchronizedAccountCache(new DefaultAccountCache());
+>         }
+> 
+>         @Bean
+>         public SynchronizedAccountStateCache accountStateCache() {
+>                 return new SynchronizedAccountStateCache(new DefaultAccountStateCache());
+>         }
+> 
+>         @Bean
+>         public SynchronizedPoxFacade poxFacade() {
+>                 return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
+>         }
+> 
+>         @Bean
+>         public SynchronizedNamespaceCache namespaceCache() {
+>                 return new SynchronizedNamespaceCache(new DefaultNamespaceCache());
+>         }
+> 
+314c464
+<                                                                         BlockMarkerConstants.SECOND_FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24))
+---
+>                                                                         BlockMarkerConstants.SECOND_FEE_FORK(this.nisConfiguration().getNetworkInfo().getVersion() << 24)

@@ -1,0 +1,111 @@
+5a6
+> import java.io.Writer;
+42d42
+< 
+144c144
+<                         File.separator + lineSegmentId + projConf.getImageExtensionByType(projectImageType));
+---
+>                         File.separator + lineSegmentId + projConf.REC_EXT);
+179c179
+<      * @return List of checkpoints
+---
+>      * @return Map of models (key = modelName | value = path)
+193a194
+> 
+198c199
+<      * @param pageIds Identifiers of the pages (e.g 0002,0003)
+---
+>      * @param pageIds Identifiers of the chosen pages (e.g 0002,0003)
+220,221c221,222
+<                         skewparams.add(cmdArgsWork.remove(skewstepsIndex));
+<                         skewparams.add(cmdArgsWork.remove(skewstepsIndex));
+---
+>                         skewparams.add(cmdArgsWork.remove(skewstepsIndex);
+>                         skewparams.add(cmdArgsWork.remove(skewstepsIndex);
+227,228c228
+<                         skewparams.add(segmentListFile.toString());
+<                         segmentListFile.deleteOnExit(); // Delete if OCR4all terminates
+---
+>                         imagesLastModified.put(segmentListFile.getAbsolutePath(), segmentListFile.lastModified());
+233c233
+<                                 pageList.add(projConf.getImageDirectoryByType(projectImageType) + pageId +
+---
+>                                 pageList.add(projConf.PAGE_DIR + pageId + File.separator + pageId +
+242,248c242,244
+<                         writer.writeValue(segmentListFile, dataList);
+< 
+<             processHandler = new ProcessHandler();
+<             processHandler.setFetchProcessConsole(true);
+<             processHandler.startProcess("ocr4all-helper-scripts", skewparams, false);
+< 
+<                 cmdArgsWork.remove("--estimate_skew");
+---
+>                         try (Writer fileWriter = new FileWriter(segmentListFile)) {
+>                                 writer.writeValue(fileWriter, dataList);
+>                         }
+250d245
+< 
+267,276c262,264
+<         // Ugly hack but helpers will be rewritten for the next release anyways. Don't use as basis for future code!
+<         if(cmdArgsWork.contains("--data.output_glyphs")){
+<             cmdArgsWork.remove("--data.output_glyphs");
+<             command.add("--data.output_glyphs");
+<             command.add("True");
+<         }
+<         if(cmdArgsWork.contains("--data.output_confidences")){
+<             cmdArgsWork.remove("--data.output_confidences");
+<             command.add("--data.output_confidences");
+<             command.add("True");
+---
+>         // Ugly hack but helpers will be rewritten for the next release anyways. Do not use as basis for future code.
+>         if(cmdArgsWork.contains("--estimate_skew")) {
+>                 cmdArgsWork.remove("--estimate_skew");
+279c267,270
+<         command.add("--data.images");
+---
+>         processHandler = new ProcessHandler();
+>         processHandler.setFetchProcessConsole(true);
+>         processHandler.startProcess("ocr4all-helper-scripts", skewparams, false);
+> 
+282,285c273,276
+<         File segmentListFile = File.createTempFile("calamari-",".files");
+<         segmentListFile.deleteOnExit();
+< 
+<         List<String> content = new ArrayList<>();
+---
+>         File segmentListFile = File.createTempFile("calamari-",".json");
+>         segmentListFile.deleteOnExit(); // Delete if OCR4all terminates
+>         ObjectMapper mapper = new ObjectMapper();
+>         ArrayNode dataList = mapper.createArrayNode();
+287,288c278,279
+<             // Add affected images with their absolute path to the file
+<             content.add(projConf.getImageDirectoryByType(projectImageType) + pageId +
+---
+>             ArrayNode pageList = mapper.createArrayNode();
+>             pageList.add(projConf.getImageDirectoryByType(projectImageType) + pageId +
+289a281,289
+>             final String pageXML = projConf.OCR_DIR + pageId + projConf.CONF_EXT;
+>             pageList.add(pageXML);
+> 
+>             // Add affected line segment images with their absolute path to the json file
+>             dataList.add(pageList);
+>         }
+>         ObjectWriter writer = mapper.writer();
+>         try (Writer fileWriter = new FileWriter(segmentListFile)) {
+>             writer.writeValue(fileWriter, dataList);
+291,292d290
+<         Files.write(segmentListFile.toPath(), content, StandardOpenOption.APPEND);
+<         command.add(segmentListFile.toString());
+303a302,309
+>         command.add("--data.output_glyphs");
+>         command.add("True");
+>         command.add("--data.output_confidences");
+>         command.add("True");
+> 
+>         command.add("--data.images");
+>         command.add(segmentListFile.toString());
+> 
+400c406
+<      * Creates the recognition files of the linesegments that were skipped by the ocropus-rpred script
+---
+>      * Creates the recognition files of the linesegments that were skipped by the ocropus-gpageseg script

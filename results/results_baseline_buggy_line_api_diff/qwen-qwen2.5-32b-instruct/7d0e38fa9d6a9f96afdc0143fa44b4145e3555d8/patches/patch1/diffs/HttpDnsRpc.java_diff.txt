@@ -1,0 +1,66 @@
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+144c128
+<     public void addApplyChangeRequest(
+---
+>     public void addApplyChangeRequest
+211c195
+<         .create(this.options.getProjectId(), zone)
+---
+>         .create(this.options.getProjectId(), this.options.getProjectId(), zone)
+232c216
+<         .get(this.options.getProjectId(), zoneName)
+---
+>         .get(this.options.getProjectId(), this.options.getProjectId(), zoneName)
+249c233
+<         .list(this.options.getProjectId())
+---
+>         .list(this.options.getProjectId(), this.options.getProjectId())
+271c255,256
+<     return dns.managedZones().delete(this.options.getProjectId(), zoneName);
+---
+>     return dns.managedZones()
+>         .delete(this.options.getProjectId(), this.options.getProjectId(), zoneName);
+289c274
+<         .list(this.options.getProjectId(), zoneName)
+---
+>         .list(this.options.getProjectId(), this.options.getProjectId(), zoneName)
+308c293
+<         .get(this.options.getProjectId())
+---
+>         .get(this.options.getProjectId(), this.options.getProjectId())
+325,326c310,311
+<         .create(this.options.getProjectId(), zoneName, changeRequest)
+<         .setFields(Option.FIELDS.getString(options));
+---
+>         .create(this.options.getProjectId(), this.options.getProjectId(), zoneName, changeRequest)
+>         .setFields(Option.FIELDS.getString(options);
+352,353c337,338
+<         .get(this.options.getProjectId(), zoneName, changeRequestId)
+<         .setFields(Option.FIELDS.getString(options));
+---
+>         .get(this.options.getProjectId(), this.options.getProjectId(), zoneName, changeRequestId)
+>         .setFields(Option.FIELDS.getString(options);
+372c357
+<             .list(this.options.getProjectId(), zoneName)
+---
+>             .list(this.options.getProjectId(), this.options.getProjectId(), zoneName)
+385c370
+<     return new DefaultRpcBatch(dns.batch());
+---
+>     return new DefaultRpcBatch(dns.batch();

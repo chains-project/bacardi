@@ -1,0 +1,20 @@
+34d33
+< import org.hamcrest.Matchers;
+85c84,89
+<             Matchers.<URI>hasProperty("rawPath", path)
+---
+>             new Matcher<URI>() {
+>                 @Override
+>                 public boolean matches(Object item) {
+>                     return path.matches(((URI) item).getRawPath());
+>                 }
+>             }
+97c101,106
+<             Matchers.<URI>hasProperty("rawQuery", query)
+---
+>             new Matcher<URI>() {
+>                 @Override
+>                 public boolean matches(Object item) {
+>                     return query.matches(((URI) item).getRawQuery());
+>                 }
+>             }

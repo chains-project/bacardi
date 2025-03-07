@@ -1,0 +1,41 @@
+14,16c14,17
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.Command;
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.managed.Flag;
+> import org.spongepowered.api.command.parameter.managed.ValueParameter;
+17a19,20
+> import org.spongepowered.api.text.Text;
+> import org.spongepowered.api.text.selector.Selector;
+19,20c22
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import static org.spongepowered.api.command.parameter.Parameter.string;
+22c24
+< public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class UploadCommand implements Command {
+23a26
+> {
+43c46
+<                 Task.builder().async().execute(skinUploader).submit(plugin);
+---
+>                 Task.builder().execute(skinUploader).submit(plugin);
+46c49
+<             plugin.sendMessage(src, "no-valid-url");
+---
+>             plugin.message(src, "no-valid-url");
+53,54c56,57
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command.Builder buildSpec() {
+>         return Command.builder()
+56c59
+<                 .arguments(string(of("url")))
+---
+>                 .addParameter(string(Text.of("url")))

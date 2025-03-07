@@ -1,0 +1,212 @@
+```java
+package org.jivesoftware.openfire.plugin.util.cache;
+
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.Cluster;
+import com.hazelcast.config.Config;
+import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.MaxSizeConfig;
+import com.hazelcast.config.MemberAttributeConfig;
+import com.hazelcast.config.NetworkConfig;
+import com.hazelcast.config.RestApiConfig;
+import com.hazelcast.config.MemcacheProtocolConfig;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.cluster.MembershipEvent;
+import com.hazelcast.cluster.MemberSelector;
+import org.jivesoftware.openfire.JMXManager;
+import org.jivesoftware.openfire.XMPPServer;
+import org.jivesoftware.openfire.cluster.ClusterEventListener;
+import org.jivesoftware.openfire.cluster.ClusterManager;
+import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
+import org.jivesoftware.openfire.cluster.NodeID;
+import org.jivesoftware.openfire.container.Plugin;
+import org.jivesoftware.openfire.container.PluginClassLoader;
+import org.jivesoftware.openfire.plugin.HazelcastPlugin;
+import org.jivesoftware.openfire.plugin.util.cluster.HazelcastClusterNodeInfo;
+import org.jivesoftware.util.StringUtils;
+import org.jivesoftware.util.SystemProperty;
+import org.jivesoftware.util.cache.Cache;
+import org.jivesoftware.util.cache.CacheFactory;
+import org.jivesoftware.util.cache.CacheFactoryStrategy;
+import org.jivesoftware.util.cache.CacheWrapper;
+import org.jivesoftware.util.cache.ClusterTask;
+import org.jivesoftware.util.cache.ExternalizableUtil;
+import org.jivesoftware.util.cache.ExternalizableUtilStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactoryFactory;
+
+import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * CacheFactory implementation to use when using Hazelcast in cluster mode.
+ */
+public class ClusteredCacheFactory implements CacheFactoryStrategy {
+
+    private static final Logger logger = LoggerFactory.getLogger(ClusteredCacheFactory.class);
+    public static final String PLUGIN_NAME = "hazelcast";
+
+    /**
+     * Keep serialization strategy the server was using before we set our strategy. We will
+     * restore old strategy when plugin is unloaded.
+     */
+    private ExternalizableUtilStrategy serializationStrategy;
+
+    /**
+     * Storage for cache statistics
+     */
+    private static Map<String, Map<String, long[]>> cacheStats;
+
+    private static HazelcastInstance hazelcast = null;
+    private static Cluster cluster = null;
+    private ClusterListener clusterListener;
+    private String lifecycleListener;
+    private String membershipListener;
+
+    public ClusteredCacheFactory() {
+        // Initialization code
+    }
+
+    @Override
+    public boolean startCluster() {
+        // Start cluster code
+        return cluster != null;
+    }
+
+    @Override
+    public void stopCluster() {
+        // Stop cluster code
+    }
+
+    @Override
+    public Cache createCache(final String name) {
+        // Create cache code
+        return null;
+    }
+
+    @Override
+    public void destroyCache(Cache cache) {
+        // Destroy cache code
+    }
+
+    @Override
+    public boolean isSeniorClusterMember() {
+        // Check senior member code
+        return false;
+    }
+
+    @Override
+    public List<ClusterNodeInfo> getClusterNodesInfo() {
+        // Get cluster nodes info code
+        return Collections.emptyList();
+    }
+
+    @Override
+    public int getMaxClusterNodes() {
+        // Get max cluster nodes code
+        return 10000;
+    }
+
+    @Override
+    public byte[] getSeniorClusterMemberID() {
+        // Get senior cluster member ID code
+        return null;
+    }
+
+    @Override
+    public byte[] getClusterMemberID() {
+        // Get cluster member ID code
+        return null;
+    }
+
+    @Override
+    public long getClusterTime() {
+        // Get cluster time code
+        return System.currentTimeMillis();
+    }
+
+    @Override
+    public void doClusterTask(final ClusterTask<?> task) {
+        // Execute cluster task code
+    }
+
+    @Override
+    public void doClusterTask(final ClusterTask<?> task, final byte[] nodeID) {
+        // Execute cluster task on specific node code
+    }
+
+    @Override
+    public <T> Collection<T> doSynchronousClusterTask(final ClusterTask<T> task, final boolean includeLocalMember) {
+        // Execute synchronous cluster task code
+        return Collections.emptyList();
+    }
+
+    @Override
+    public <T> T doSynchronousClusterTask(final ClusterTask<T> task, final byte[] nodeID) {
+        // Execute synchronous cluster task on specific node code
+        return null;
+    }
+
+    @Override
+    public ClusterNodeInfo getClusterNodeInfo(final byte[] nodeID) {
+        // Get cluster node info code
+        return null;
+    }
+
+    private Member getMember(final byte[] nodeID) {
+        // Get member code
+        return null;
+    }
+
+    private static NodeID getNodeID(final Member member) {
+        // Get node ID code
+        return null;
+    }
+
+    static void fireLeftClusterAndWaitToComplete(final Duration timeout) {
+        // Fire left cluster event code
+    }
+
+    private void checkForPluginClassLoader(final ClusterTask<?> task) {
+        // Check for plugin class loader code
+    }
+
+    private static class ClusteredCache implements Cache {
+        // ClusteredCache implementation
+    }
+
+    private static class ClusterListener implements ClusterEventListener {
+        // ClusterListener implementation
+    }
+
+    private static class ClusterLock implements Lock {
+        // ClusterLock implementation
+    }
+
+    private static class CallableTask<V> implements Callable<V>, Serializable {
+        // CallableTask implementation
+    }
+
+    private enum State {
+        stopped,
+        starting,
+        started
+    }
+}
+```

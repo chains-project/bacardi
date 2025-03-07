@@ -1,0 +1,72 @@
+1,16d0
+< /*
+<  * Copyright 2015 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+19,22c3,6
+< import com.google.api.services.cloudresourcemanager.model.Constraint;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.Policy;
+< import com.google.api.services.cloudresourcemanager.model.Project;
+---
+> import com.google.api.services.cloudresourcemanager.v3.model.Constraint;
+> import com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy;
+> import com.google.api.services.cloudresourcemanager.v3.model.Policy;
+> import com.google.api.services.cloudresourcemanager.v3.model.Project;
+51,55d34
+<     @SuppressWarnings("unchecked")
+<     <T> T get(Map<Option, ?> options) {
+<       return (T) options.get(this);
+<     }
+< 
+75,78d53
+<     public static <T> ListResult<T> of(String pageToken, Iterable<T> list) {
+<       return new ListResult<>(pageToken, list);
+<     }
+< 
+118,119c93
+<    * project has a lifecycle state of {@code DELETE_REQUESTED} state. The caller must have modify
+<    * permissions for this project.
+---
+>    * project has a lifecycle state of {@code DELETE_REQUESTED} state.
+181,199d154
+<    * Gets the Policy on a resource.
+<    *
+<    * <p>If no Policy is set on the resource, a Policy is returned with default values including
+<    * POLICY_TYPE_NOT_SET for the policy_type oneof. The etag value can be used with
+<    * projects.setOrgPolicy() to create or update a Policy during read-modify-write.
+<    *
+<    * @throws ResourceManagerException upon failure
+<    */
+<   OrgPolicy getOrgPolicy(String resource, String constraint) throws IOException;
+< 
+<   /**
+<    * Lists all the Constraints that can be applied on the specified resource.
+<    *
+<    * @throws ResourceManagerException upon failure
+<    */
+<   ListResult<Constraint> listAvailableOrgPolicyConstraints(String resource, Map<Option, ?> options)
+<       throws IOException;
+< 
+<   /**
+214a170,177
+> 
+>   /**
+>    * Lists all the Constraints that can be applied on the specified resource.
+>    *
+>    * @throws ResourceManagerException upon failure
+>    */
+>   ListResult<Constraint> listAvailableOrgPolicyConstraints(String resource, Map<Option, ?> options)
+>       throws IOException;

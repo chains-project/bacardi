@@ -1,0 +1,14 @@
+21d20
+< import org.apache.maven.plugin.logging.Log;
+27d25
+< import org.codehaus.plexus.util.xml.Xpp3Dom;
+162c160
+<         .map(exec -> (Xpp3Dom) exec.getConfiguration())
+---
+>         .map(exec -> (org.apache.maven.model.Configuration) exec.getConfiguration())
+164,165c162,163
+<         .map(Xpp3Dom::getChildren)
+<         .map(arr -> Arrays.stream(arr).map(Xpp3Dom::getValue).collect(Collectors.toSet()))
+---
+>         .map(org.apache.maven.model.Configuration::getChildren)
+>         .map(arr -> Arrays.stream(arr).map(org.apache.maven.model.Configuration::getValue).collect(Collectors.toSet()))
