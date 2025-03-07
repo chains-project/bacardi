@@ -1,0 +1,57 @@
+14c14,15
+< import org.spongepowered.api.command.CommandException;
+---
+> import org.spongepowered.api.command.Command;
+> import org.spongepowered.api.command.CommandCause;
+16,19c17
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+22,23c20,21
+< import org.spongepowered.api.text.Text;
+< import org.spongepowered.api.text.serializer.TextSerializers;
+---
+> import net.kyori.adventure.text.Component;
+> import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+25c23
+< public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class InfoCommand implements Command, ChangeSkinCommand {
+33d30
+< 
+35,38c32,35
+<     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+<             return CommandResult.empty();
+---
+>     public CommandResult execute(CommandCause src, CommandContext args) {
+>         if (!(src.subject() instanceof Player)) {
+>             plugin.sendMessage(src.subject(), "no-console");
+>             return CommandResult.success();
+41c38
+<         UUID uniqueId = ((Player) src).getUniqueId();
+---
+>         UUID uniqueId = ((Player) src.subject()).getUniqueId();
+53,54c50,51
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command.Builder buildSpec() {
+>         return Command.builder()
+56,57c53
+<                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
+<                 .build();
+---
+>                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base");
+61c57
+<         Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
+---
+>         Optional<Player> optPlayer = Sponge.server().player(uuid);
+70c66
+<                 Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
+---
+>                 Component text = LegacyComponentSerializer.legacyAmpersand().deserialize(formatted);

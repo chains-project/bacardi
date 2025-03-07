@@ -1,0 +1,137 @@
+18,21c18,20
+< import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+< import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+---
+> import com.google.api.services.cloudresourcemanager.v3.model.BooleanConstraint;
+> import com.google.api.services.cloudresourcemanager.v3.model.ListConstraint;
+> import com.google.api.services.cloudresourcemanager.v3.model.Policy;
+38,39c37,38
+<   static final Function<OrgPolicy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
+<       new Function<OrgPolicy, OrgPolicyInfo>() {
+---
+>   static final Function<Policy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
+>       new Function<Policy, OrgPolicyInfo>() {
+41c40
+<         public OrgPolicyInfo apply(OrgPolicy protobuf) {
+---
+>         public OrgPolicyInfo apply(Policy protobuf) {
+45,46c44,45
+<   static final Function<OrgPolicyInfo, OrgPolicy> TO_PROTOBUF_FUNCTION =
+<       new Function<OrgPolicyInfo, OrgPolicy>() {
+---
+>   static final Function<OrgPolicyInfo, Policy> TO_PROTOBUF_FUNCTION =
+>       new Function<OrgPolicyInfo, Policy>() {
+48c47
+<         public OrgPolicy apply(OrgPolicyInfo orgPolicyInfo) {
+---
+>         public Policy apply(OrgPolicyInfo orgPolicyInfo) {
+57c56
+<   private RestoreDefault restoreDefault;
+---
+>   private String restoreDefault;
+96,97c95,96
+<     BooleanPolicy toProtobuf() {
+<       return new BooleanPolicy().setEnforced(enforce);
+---
+>     BooleanConstraint toProtobuf() {
+>       return new BooleanConstraint().setEnforced(enforce);
+100,101c99,100
+<     static BoolPolicy fromProtobuf(BooleanPolicy booleanPolicy) {
+<       return new BoolPolicy(booleanPolicy.getEnforced());
+---
+>     static BoolPolicy fromProtobuf(BooleanConstraint booleanConstraint) {
+>       return new BoolPolicy(booleanConstraint.getEnforced());
+200,201c199,200
+<     ListPolicy toProtobuf() {
+<       return new ListPolicy()
+---
+>     ListConstraint toProtobuf() {
+>       return new ListConstraint()
+209c208
+<     static Policies fromProtobuf(ListPolicy listPolicy) {
+---
+>     static Policies fromProtobuf(ListConstraint listConstraint) {
+211,215c210,214
+<           listPolicy.getAllValues(),
+<           listPolicy.getAllowedValues(),
+<           listPolicy.getDeniedValues(),
+<           listPolicy.getInheritFromParent(),
+<           listPolicy.getSuggestedValue());
+---
+>           listConstraint.getAllValues(),
+>           listConstraint.getAllowedValues(),
+>           listConstraint.getDeniedValues(),
+>           listConstraint.getInheritFromParent(),
+>           listConstraint.getSuggestedValue());
+225c224
+<     private RestoreDefault restoreDefault;
+---
+>     private String restoreDefault;
+261c260
+<     Builder setRestoreDefault(RestoreDefault restoreDefault) {
+---
+>     Builder setRestoreDefault(String restoreDefault) {
+312c311
+<   public RestoreDefault getRestoreDefault() {
+---
+>   public String getRestoreDefault() {
+360,361c359,360
+<   OrgPolicy toProtobuf() {
+<     OrgPolicy orgPolicyProto = new OrgPolicy();
+---
+>   Policy toProtobuf() {
+>     Policy policyProto = new Policy();
+363c362
+<       orgPolicyProto.setBooleanPolicy(boolPolicy.toProtobuf());
+---
+>       policyProto.setBooleanConstraint(boolPolicy.toProtobuf());
+365c364
+<     orgPolicyProto.setConstraint(constraint);
+---
+>     policyProto.setConstraint(constraint);
+367c366
+<       orgPolicyProto.setListPolicy(policies.toProtobuf());
+---
+>       policyProto.setListConstraint(policies.toProtobuf());
+369,373c368,372
+<     orgPolicyProto.setRestoreDefault(restoreDefault);
+<     orgPolicyProto.setEtag(etag);
+<     orgPolicyProto.setUpdateTime(updateTime);
+<     orgPolicyProto.setVersion(version);
+<     return orgPolicyProto;
+---
+>     policyProto.setRestoreDefault(restoreDefault);
+>     policyProto.setEtag(etag);
+>     policyProto.setUpdateTime(updateTime);
+>     policyProto.setVersion(version);
+>     return policyProto;
+376c375
+<   static OrgPolicyInfo fromProtobuf(OrgPolicy orgPolicyProtobuf) {
+---
+>   static OrgPolicyInfo fromProtobuf(Policy policyProtobuf) {
+378,379c377,378
+<     if (orgPolicyProtobuf.getBooleanPolicy() != null) {
+<       builder.setBoolPolicy(BoolPolicy.fromProtobuf(orgPolicyProtobuf.getBooleanPolicy()));
+---
+>     if (policyProtobuf.getBooleanConstraint() != null) {
+>       builder.setBoolPolicy(BoolPolicy.fromProtobuf(policyProtobuf.getBooleanConstraint()));
+381,388c380,387
+<     builder.setConstraint(orgPolicyProtobuf.getConstraint());
+<     if (orgPolicyProtobuf.getListPolicy() != null) {
+<       builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getListPolicy()));
+<     }
+<     builder.setRestoreDefault(orgPolicyProtobuf.getRestoreDefault());
+<     builder.setEtag(orgPolicyProtobuf.getEtag());
+<     builder.setUpdateTime(orgPolicyProtobuf.getUpdateTime());
+<     builder.setVersion(orgPolicyProtobuf.getVersion());
+---
+>     builder.setConstraint(policyProtobuf.getConstraint());
+>     if (policyProtobuf.getListConstraint() != null) {
+>       builder.setListPolicy(Policies.fromProtobuf(policyProtobuf.getListConstraint()));
+>     }
+>     builder.setRestoreDefault(policyProtobuf.getRestoreDefault());
+>     builder.setEtag(policyProtobuf.getEtag());
+>     builder.setUpdateTime(policyProtobuf.getUpdateTime());
+>     builder.setVersion(policyProtobuf.getVersion());

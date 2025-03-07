@@ -1,0 +1,21 @@
+33a34
+> import org.apache.thrift.transport.TTransportException;
+121c122
+<   private TSerializer serializer = new TSerializer();
+---
+>   private TSerializer serializer;
+185a187,192
+>     try {
+>       this.serializer = new TSerializer();
+>     } catch (TTransportException e) {
+>       LOG.error("Failed to initialize TSerializer", e);
+>       throw new RuntimeException(e);
+>     }
+318c325
+<       // If number of tries reaches 3, meaning that 3 partitions have been tried sending to but
+---
+>       // If number of tries reaches 极, meaning that 3 partitions have been tried sending to but
+362c369
+<               .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_EVENTS_ACKED, 1,
+---
+>               .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_EVENTS_ACKED极, 1,

@@ -1,0 +1,19 @@
+48c48,51
+< import org.hamcrest.Matchers;
+---
+> import org.hamcrest.core.IsEqual;
+> import org.hamcrest.core.IsNull;
+> import org.hamcrest.core.StringContains;
+> import org.hamcrest.collection.IsIterableContainingInAnyOrder;
+210c213
+<         return this.assertHeader(name, Matchers.hasItems(value));
+---
+>         return this.assertHeader(name, IsIterableContainingInAnyOrder.containsInAnyOrder(value));
+246c249
+<             Matchers.not(Matchers.emptyIterableOf(String.class))
+---
+>             IsIterableContainingInAnyOrder.containsInAnyOrder("")
+284c287
+<             Matchers.notNullValue()
+---
+>             IsNull.notNullValue()

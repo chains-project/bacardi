@@ -1,0 +1,179 @@
+```java
+/*
+ * Copyright 2016 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.cloud.resourcemanager.testing;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static java.net.HttpURLConnection.HTTP_OK;
+
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.cloudresourcemanager.v3.model.Binding;
+import com.google.api.services.cloudresourcemanager.v3.model.Operation;
+import com.google.api.services.cloudresourcemanager.v3.model.Policy;
+import com.google.api.services.cloudresourcemanager.v3.model.Project;
+import com.google.api.services.cloudresourcemanager.v3.model.SetIamPolicyRequest;
+import com.google.api.services.cloudresourcemanager.v3.model.TestIamPermissionsRequest;
+import com.google.api.services.cloudresourcemanager.v3.model.TestIamPermissionsResponse;
+import com.google.cloud.NoCredentials;
+import com.google.cloud.resourcemanager.ResourceManagerOptions;
+import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.io.ByteStreams;
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.format.DateTimeFormatter;
+
+/**
+ * Utility to create a local Resource Manager mock for testing.
+ *
+ * <p>The mock runs in a separate thread, listening for HTTP requests on the local machine at an
+ * ephemeral port. While this mock attempts to simulate the Cloud Resource Manager, there are some
+ * divergences in behavior. The following is a non-exhaustive list of some of those behavioral
+ * differences:
+ *
+ * <ul>
+ *   <li>This mock assumes you have adequate permissions for any action. Related to this,
+ *       <i>testIamPermissions</i> always indicates that the caller has all permissions listed in
+ *       the request.
+ *   <li>IAM policies are set to an empty policy with version 0 (only legacy roles supported) upon
+ *       project creation. The actual service will not have an empty list of bindings and may also
+ *       set your version to 1.
+ *   <li>There is no input validation for the policy provided when replacing a policy or calling
+ *       testIamPermissions.
+ *   <li>In this mock, projects never move from the <i>DELETE_REQUESTED</i> lifecycle state to
+ *       <i>DELETE_IN_PROGRESS</i> without an explicit call to the utility method {@link
+ *       #changeLifecycleState}. Similarly, a project is never completely removed without an
+ *       explicit call to the utility method {@link #removeProject}.
+ *   <li>The messages in the error responses given by this mock do not necessarily match the
+ *       messages given by the actual service.
+ * </ul>
+ *
+ * @deprecated v3 GAPIC client of ResourceManager is now available
+ */
+@Deprecated
+@SuppressWarnings("restriction")
+public class LocalResourceManagerHelper {
+  private static final Logger log = Logger.getLogger(LocalResourceManagerHelper.class.getName());
+  private static final JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
+  private static final Random PROJECT_NUMBER_GENERATOR = new Random();
+  private static final String VERSION = "v1";
+  private static final String CONTEXT = "/" + VERSION + "/projects";
+  private static final String OPERATION_CONTEXT = "/" + VERSION + "/operations";
+  private static final URI BASE_CONTEXT;
+  private static final Set<String> SUPPORTED_COMPRESSION_ENCODINGS =
+      ImmutableSet.of("gzip", "x-gzip");
+  private static final Pattern LIST_FIELDS_PATTERN =
+      Pattern.compile("(.*?)projects\\((.*?)\\)(.*?)");
+  private static final String[] NO_FIELDS = {};
+
+  static {
+    try {
+      BASE_CONTEXT = new URI(CONTEXT);
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(
+          "Could not initialize LocalResourceManagerHelper due to URISyntaxException.", e);
+    }
+  }
+
+  // see https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects
+  private static final Set<Character> PERMISSIBLE_PROJECT_NAME_PUNCTUATION =
+      ImmutableSet.of('-', '\'', '"', ' ', '!');
+
+  private final HttpServer server;
+  private final ConcurrentSkipListMap<String, Project> projects = new ConcurrentSkipListMap<>();
+  private final Map<String, Policy> policies = new HashMap<>();
+  private final int port;
+
+  private static class Response {
+    private final int code;
+    private final String body;
+
+    Response(int code, String body) {
+      this.code = code;
+      this.body = body;
+    }
+
+    int code() {
+      return code;
+    }
+
+    String body() {
+      return body;
+    }
+  }
+
+  private enum Error {
+    ABORTED(409, "global", "aborted", "ABORTED"),
+    ALREADY_EXISTS(409, "global", "alreadyExists", "ALREADY_EXISTS"),
+    PERMISSION_DENIED(403, "global", "forbidden", "PERMISSION_DENIED"),
+    FAILED_PRECONDITION(400, "global", "failedPrecondition", "FAILED_PRECONDITION"),
+    INVALID_ARGUMENT(400, "global", "badRequest", "INVALID_ARGUMENT"),
+    BAD_REQUEST(400, "global", "badRequest", "BAD_REQUEST"),
+    INTERNAL_ERROR(500, "global", "internalError", "INTERNAL_ERROR");
+
+    private final int code;
+    private final String domain;
+    private final String reason;
+    private final String status;
+
+    Error(int code, String domain, String reason, String status) {
+      this.code = code;
+      this.domain = domain;
+      this.reason = reason;
+      this.status = status;
+    }
+
+    Response response(String message) {
+      try {
+        return new Response(code, toJson(message));
+      } catch (IOException e) {
+        return Error.INTERNAL_ERROR.response("Error when generating JSON error response");
+      }
+    }
+
+    private String toJson(String message) throws IOException {
+      Map<String, Object
