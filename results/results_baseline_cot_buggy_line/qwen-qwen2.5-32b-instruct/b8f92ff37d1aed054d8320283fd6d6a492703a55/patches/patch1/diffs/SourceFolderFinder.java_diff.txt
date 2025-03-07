@@ -1,0 +1,9 @@
+5d4
+< import org.apache.maven.surefire.api.testset.TestListResolver;
+10d8
+< 
+25c23,24
+<         DirectoryScanner directoryScanner = new DirectoryScanner(testSrcFolder, TestListResolver.getWildcard());
+---
+>         // Replace TestListResolver.getWildcard() with a hardcoded wildcard pattern
+>         DirectoryScanner directoryScanner = new DirectoryScanner(testSrcFolder, "**/*.java");

@@ -1,0 +1,88 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the `StringContains` constructor is being called with incorrect arguments. The constructor expects a single `String` argument, but the code is passing a `boolean` and a `String`.
+   - The error occurs in the `TagValidTest` class at lines 62 and 63.
+
+2. Review the client code:
+   - The problematic areas are the `StringContains` constructors in the `shouldFailToGetValueWhenInvalid` method.
+   - The `StringContains` class from the `org.hamcrest.core` package is being used incorrectly, as it does not support the `boolean` parameter.
+
+3. Consider potential fixes:
+   - The `StringContains` class in the newer version of the dependency does not support the `boolean` parameter.
+   - The `boolean` parameter is likely used to specify whether the string should contain or not contain the specified substring. This can be achieved by using `StringContains` and `StringContainsInOrder` or `StringContainsIgnoringCase` as needed.
+
+4. Plan the necessary changes:
+   - Replace the `StringContains` constructors with the appropriate `StringContains` calls without the `boolean` parameter.
+   - Ensure that the logic of the test remains the same, i.e., checking if the exception message contains the expected string.
+</code_analysis>
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker;
+
+import com.artipie.docker.error.InvalidTagNameException;
+import java.util.Arrays;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.core.AllOf;
+import org.hamcrest.core.IsEqual;
+import org.hamcrest.core.StringContains;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
+/**
+ * Tests for {@link Tag.Valid}.
+ *
+ * @since 0.2
+ */
+class TagValidTest {
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "latest",
+        "1.0",
+        "my-tag",
+        "MY_TAG",
+        "My.Tag.1",
+        "_some_tag",
+        "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567"
+    })
+    void shouldGetValueWhenValid(final String original) {
+        final Tag.Valid tag = new Tag.Valid(original);
+        MatcherAssert.assertThat(tag.valid(), new IsEqual<>(true));
+        MatcherAssert.assertThat(tag.value(), new IsEqual<>(original));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "",
+        ".0",
+        "*",
+        "\u00ea",
+        "-my-tag",
+        "012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678"
+    })
+    void shouldFailToGetValueWhenInvalid(final String original) {
+        final Tag.Valid tag = new Tag.Valid(original);
+        MatcherAssert.assertThat(tag.valid(), new IsEqual<>(false));
+        final Throwable throwable = Assertions.assertThrows(
+            InvalidTagNameException.class,
+            tag::value
+        );
+        MatcherAssert.assertThat(
+            throwable.getMessage(),
+            new AllOf<>(
+                Arrays.asList(
+                    new StringContains("Invalid tag"),
+                    new StringContains(original)
+                )
+            )
+        );
+    }
+}
+```
+
+In the provided fix, the `StringContains` constructors are updated to remove the `boolean` parameter, as it is not supported in the newer version of the dependency. The logic of the test remains the same, ensuring that the exception message contains the expected string.

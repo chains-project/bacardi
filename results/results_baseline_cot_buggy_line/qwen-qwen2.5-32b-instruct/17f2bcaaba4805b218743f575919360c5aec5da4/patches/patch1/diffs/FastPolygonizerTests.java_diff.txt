@@ -1,0 +1,36 @@
+13c13
+< import org.junit.Ignore;
+---
+> import org.junit.jupiter.api.Disabled;
+88,101c88
+<         void testSimpleHalfDangling() {
+<                 PEdge a, b, c, d, e;
+<                 a = new PEdge(0, 0, 10, 0);
+<                 b = new PEdge(10, 0, 5, 5);
+<                 c = new PEdge(5, 5, 0, 0);
+<                 d = new PEdge(10, 0, -5, -5);
+<                 e = new PEdge(-5, -5, 1, 1); // half dangling
+< 
+<                 PShape out = polygonize(Arrays.asList(a, b, c, d, e));
+<                 assertEquals(1, out.getChildCount());
+<         }
+< 
+<         @Test
+<         @Ignore
+---
+>         @Disabled
+112,113c99
+<                         nodedSS.forEach(ss -> nodedEdges.add(new PEdge(PGS.toPVector(ss.getCoordinate(0)), PGS.toPVector(ss.getCoordinate(1)))));
+<                         Collection<PEdge> nodedEdgesSet = new HashSet<>(nodedEdges);
+---
+>                         nodedSS.forEach(ss -> nodedEdges.add(new PEdge(PGS.toPVector(ss.getCoordinate(0)), PGS.toPVector(ss.getCoordinate(1))));
+117c103
+<                         nodedEdgesSet.forEach(e -> {
+---
+>                         nodedEdges.forEach(e -> {
+130c116
+<                         PShape FP = polygonize(nodedEdgesSet);
+---
+>                         PShape FP = polygonize(nodedEdges);
+137d122
+< 

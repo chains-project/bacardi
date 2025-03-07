@@ -1,0 +1,116 @@
+<code_analysis>
+1. Examine the error message:
+   - The error indicates that the `DigestUtils` class cannot be found, and the package `org.apache.commons.codec.digest` does not exist.
+   - This suggests that the `org.apache.commons.codec` dependency might have been updated or removed, and the `DigestUtils` class is no longer available in the same package or version.
+
+2. Review the client code:
+   - The problematic area is the usage of `DigestUtils.md5Hex(username)` in the `username` method of the `Builder` class.
+   - The import statement `import org.apache.commons.codec.digest.DigestUtils;` is also causing an error.
+
+3. Consider potential fixes:
+   - The `DigestUtils` class might have been moved to a different package or the entire `commons-codec` library might have been updated.
+   - We need to find the correct import for `DigestUtils` or an alternative method to compute the MD5 hash.
+
+4. Plan the necessary changes:
+   - Check the latest `commons-codec` documentation to find the correct import for `DigestUtils`.
+   - If `DigestUtils` is no longer available, consider using `MessageDigest` from the `java.security` package to compute the MD5 hash.
+</code_analysis>
+
+```java
+package com.maxmind.minfraud.request;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.maxmind.minfraud.AbstractModel;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+/**
+ * Account related data for the minFraud request
+ */
+public final class Account extends AbstractModel {
+    private final String userId;
+    private final String usernameMd5;
+
+    private Account(Account.Builder builder) {
+        userId = builder.userId;
+        usernameMd5 = builder.usernameMd5;
+    }
+
+    /**
+     * {@code Builder} creates instances of {@code Account}
+     * from values set by the builder's methods.
+     */
+    public static final class Builder {
+        String userId;
+        String usernameMd5;
+
+        /**
+         * @param id A unique user ID associated with the end-user in your
+         *           system. If your system allows the login name for the
+         *           account to be changed, this should not be the login
+         *           name for the account, but rather should be an internal
+         *           ID that does not change. This is not your MaxMind user
+         *           ID.
+         * @return The builder object.
+         */
+        public Account.Builder userId(String id) {
+            this.userId = id;
+            return this;
+        }
+
+        /**
+         * @param username The username associated with the account. This is
+         *                 <em>not</em> the MD5 of username. This method
+         *                 automatically runs {@code MessageDigest.md5Hex}
+         *                 on the string passed to it.
+         * @return The builder object.
+         */
+        public Account.Builder username(String username) {
+            try {
+                MessageDigest md = MessageDigest.getInstance("MD5");
+                byte[] messageDigest = md.digest(username.getBytes());
+                this.usernameMd5 = bytesToHex(messageDigest);
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException("MD5 algorithm not available", e);
+            }
+            return this;
+        }
+
+        private String bytesToHex(byte[] bytes) {
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : bytes) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        }
+
+        /**
+         * @return An instance of {@code Account} created from the
+         * fields set on this builder.
+         */
+        public Account build() {
+            return new Account(this);
+        }
+    }
+
+    /**
+     * @return The user ID.
+     */
+    @JsonProperty("user_id")
+    public String getUserId() {
+        return userId;
+    }
+
+    /**
+     * @return The MD5 of the username passed to the builder.
+     */
+    @JsonProperty("username_md5")
+    public String getUsernameMd5() {
+        return usernameMd5;
+    }
+}
+```
+
+In this solution, I have replaced the `DigestUtils.md5Hex` method with a custom method that uses `MessageDigest` to compute the MD5 hash. This approach ensures that the code remains functional and compatible with the latest dependency updates.

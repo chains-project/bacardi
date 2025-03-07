@@ -1,0 +1,77 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the class `Storages` cannot be found in the package `com.artipie.asto.factory`.
+   - This suggests that the `Storages` class has been removed or moved in the updated dependency version.
+
+2. Review the client code:
+   - The problematic areas are the import statement and the instantiation of `Storages`.
+   - The code is trying to create a new storage instance using `Storages.newStorage()`.
+
+3. Consider potential fixes:
+   - The `Storages` class is no longer available, so we need to find an alternative way to create a storage instance.
+   - We need to check the updated documentation or changelog of the dependency to find the new method or class to replace `Storages`.
+
+4. Plan the necessary changes:
+   - Replace the `Storages` class with the new class or method provided by the updated dependency.
+   - Update the import statement to reflect the new class or method.
+   - Ensure that the new method or class is used in the same way as `Storages.newStorage()` to maintain the functionality.
+</code_analysis>
+
+Based on the analysis, the following patch is proposed to fix the issue:
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
+ * https://github.com/artipie/http/blob/master/LICENSE.txt
+ */
+package com.artipie.security.policy;
+
+import com.amihaiemil.eoyaml.Yaml;
+import com.artipie.asto.blocking.BlockingStorage;
+import com.artipie.asto.factory.StorageFactory;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+
+/**
+ * Policy factory to create {@link YamlPolicy}. Yaml policy is read from storage, and it's required
+ * to describe this storage in the configuration. Configuration format is the following:
+ *
+ * policy:
+ *   type: yaml_policy
+ *   storage:
+ *     type: fs
+ *     path: /some/path
+ *
+ * The storage itself is expected to have yaml files with permissions in the following structure:
+ *
+ * ..
+ * ├── roles.yaml
+ * ├── users
+ * │   ├── david.yaml
+ * │   ├── jane.yaml
+ * │   ├── ...
+ *
+ * @since 1.2
+ */
+@ArtipiePolicyFactory("yaml_policy")
+public final class YamlPolicyFactory implements PolicyFactory {
+
+    @Override
+    public Policy<?> getPolicy(final PolicyConfig config) {
+        final PolicyConfig sub = config.config("storage");
+        try {
+            return new YamlPolicy(
+                new BlockingStorage(
+                    StorageFactory.newInstance(
+                        sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
+                    )
+                )
+            );
+        } catch (final IOException err) {
+            throw new UncheckedIOException(err);
+        }
+    }
+}
+```
+
+In this patch, the `Storages` class has been replaced with `StorageFactory.newInstance()` to create a new storage instance, assuming that `StorageFactory` is the new class provided by the updated dependency. Adjustments may be necessary based on the actual changes in the dependency.

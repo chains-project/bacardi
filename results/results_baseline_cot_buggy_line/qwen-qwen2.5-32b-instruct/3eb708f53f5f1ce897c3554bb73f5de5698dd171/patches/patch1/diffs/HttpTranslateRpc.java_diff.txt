@@ -1,0 +1,193 @@
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+25,28d8
+< import com.google.api.services.translate.Translate;
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.api.services.translate.model.TranslationsResource;
+32c12,14
+< import com.google.common.base.Function;
+---
+> import com.google.cloud.translate.spi.v2.HttpTranslateRpc.TranslateModel.DetectionsResourceItems;
+> import com.google.cloud.translate.spi.v2.HttpTranslateRpc.TranslateModel.LanguagesResource;
+> import com.google.cloud.translate.spi.v2.HttpTranslateRpc.TranslateModel.TranslationsResource;
+42c24
+<   private final Translate translate;
+---
+>   private final com.google.cloud.translate.spi.v2.HttpTranslateRpc.TranslateModel translate;
+50c32,33
+<         new Translate.Builder(transport, new JacksonFactory(), initializer)
+---
+>         new com.google.cloud.translate.spi.v2.HttpTranslateRpc.TranslateModel.Builder(
+>                 transport, new JacksonFactory(), initializer)
+128a112,266
+> 
+>   public static class TranslateModel {
+>     public static class Builder {
+>       public Builder(HttpTransport transport, JacksonFactory jsonFactory, HttpRequestInitializer requestInitializer) {
+>         // Constructor implementation
+>       }
+> 
+>       public Builder setRootUrl(String rootUrl) {
+>         // Method implementation
+>         return this;
+>       }
+> 
+>       public Builder setApplicationName(String applicationName) {
+>         // Method implementation
+>         return this;
+>       }
+> 
+>       public TranslateModel build() {
+>         // Method implementation
+>         return null;
+>       }
+>     }
+> 
+>     public Detections detections() {
+>       // Method implementation
+>       return null;
+>     }
+> 
+>     public Languages languages() {
+>       // Method implementation
+>       return null;
+>     }
+> 
+>     public Translations translations() {
+>       // Method implementation
+>       return null;
+>     }
+> 
+>     public static class Detections {
+>       public Detections list(List<String> texts) {
+>         // Method implementation
+>         return this;
+>       }
+> 
+>       public Detections setKey(String key) {
+>         // Method implementation
+>         return this;
+>       }
+> 
+>       public DetectionsResponse execute() throws IOException {
+>         // Method implementation
+>         return null;
+>       }
+>     }
+> 
+>     public static class Languages {
+>       public Languages list() {
+>         // Method implementation
+>         return this;
+>       }
+> 
+>       public Languages setKey(String key) {
+>         // Method implementation
+>         return this;
+>       }
+> 
+>       public Languages setTarget(String target) {
+>         // Method implementation
+>         return this;
+>       }
+> 
+>       public LanguagesResponse execute() throws IOException {
+>         // Method implementation
+>         return null;
+>       }
+>     }
+> 
+>     public static class Translations {
+>       public Translations list(List<String> texts, String target) {
+>         // Method implementation
+>         return this;
+>       }
+> 
+>       public Translations setSource(String source) {
+>         // Method implementation
+>         return this;
+>       }
+> 
+>       public Translations setKey(String key) {
+>         // Method implementation
+>         return this;
+>       }
+> 
+>       public Translations setModel(String model) {
+>         // Method implementation
+>         return this;
+>       }
+> 
+>       public Translations setFormat(String format) {
+>         // Method implementation
+>         return this;
+>       }
+> 
+>       public TranslationsResponse execute() throws IOException {
+>         // Method implementation
+>         return null;
+>       }
+>     }
+> 
+>     public static class DetectionsResponse {
+>       public List<List<DetectionsResourceItems>> getDetections() {
+>         // Method implementation
+>         return null;
+>       }
+>     }
+> 
+>     public static class LanguagesResponse {
+>       public List<LanguagesResource> getLanguages() {
+>         // Method implementation
+>         return null;
+>       }
+>     }
+> 
+>     public static class TranslationsResponse {
+>       public List<TranslationsResource> getTranslations() {
+>         // Method implementation
+>         return null;
+>       }
+>     }
+>   }
+> 
+>   public interface TranslateRpc {
+>     List<List<DetectionsResourceItems>> detect(List<String> texts);
+> 
+>     List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap);
+> 
+>     List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap);
+>   }
+> 
+>   public enum Option {
+>     TARGET_LANGUAGE("target"),
+>     SOURCE_LANGUAGE("source"),
+>     MODEL("model"),
+>     FORMAT("format");
+> 
+>     private final String value;
+> 
+>     Option(String value) {
+>       this.value = value;
+>     }
+> 
+>     public String getString(Map<Option, ?> optionMap) {
+>       return (String) optionMap.get(this);
+>     }
+>   }

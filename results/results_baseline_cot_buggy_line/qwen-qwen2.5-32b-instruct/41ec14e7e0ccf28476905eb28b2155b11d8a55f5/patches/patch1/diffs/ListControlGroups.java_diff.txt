@@ -1,0 +1,129 @@
+1,18d0
+< /**
+<  * Copyright (C) 2014 Premium Minds.
+<  *
+<  * This file is part of wicket-crudifier.
+<  *
+<  * wicket-crudifier is free software: you can redistribute it and/or modify it under
+<  * the terms of the GNU Lesser General Public License as published by the Free
+<  * Software Foundation, either version 3 of the License, or (at your option) any
+<  * later version.
+<  *
+<  * wicket-crudifier is distributed in the hope that it will be useful, but WITHOUT ANY
+<  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+<  * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+<  * details.
+<  *
+<  * You should have received a copy of the GNU Lesser General Public License
+<  * along with wicket-crudifier. If not, see <http://www.gnu.org/licenses/>.
+<  */
+38a21,22
+> import javax.validation.ConstraintViolation;
+> import javax.validation.Validation;
+42,44d25
+< import javax.validation.metadata.BeanDescriptor;
+< import javax.validation.metadata.ConstraintDescriptor;
+< import javax.validation.metadata.ElementDescriptor;
+46c27
+< import org.apache.commons.beanutils.PropertyUtils;
+---
+> import org.apache.commons.lang3.reflect.FieldUtils;
+63c44
+<         private Map<Class<?>, ControlGroupProvider<?>> controlGroupProviders = new HashMap<Class<?>, ControlGroupProvider<?>>();
+---
+>     private Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> controlGroupProviders = new HashMap<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>>();
+66c47
+<         private final Map<Class<?>, Class<? extends AbstractControlGroup>> typesControlGroups = new HashMap<Class<?>, Class<? extends AbstractControlGroup>>();
+---
+>     private Map<Class<?>, Class<? extends AbstractControlGroup>> typesControlGroups = new HashMap<Class<?>, Class<? extends AbstractControlGroup>>();
+103c84
+<                 for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
+---
+>         for(PropertyDescriptor descriptor : FieldUtils.getAllFieldsList(modelClass)){
+113,114d93
+<         protected abstract EntityProvider<?> getEntityProvider(String name);
+< 
+121,131c100,101
+<                 Set<String> properties = getPropertiesByOrder(modelClass);
+< 
+<                 Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
+<                 BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
+<                 for(String property : properties){
+<                         PropertyDescriptor descriptor;
+<                         try {
+<                                 descriptor = PropertyUtils.getPropertyDescriptor(getModel().getObject(), property);
+<                         } catch (Exception e) {
+<                                 throw new RuntimeException("error getting property "+property, e);
+<                         }
+---
+>         Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+>         Set<ConstraintViolation<Object>> violations = validator.validate(getModel().getObject());
+132a103
+>         for(ObjectProperties objectProperty : objectProperties){
+135,141c106,107
+<                         ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+<                         if(constraintDescriptor!=null){
+<                                 Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
+<                                 for(ConstraintDescriptor<?> constraint : constraintsSet){
+<                                         if(constraint.getAnnotation() instanceof NotNull ||
+<                                            constraint.getAnnotation() instanceof NotEmpty ||
+<                                            constraint.getAnnotation() instanceof NotBlank)
+---
+>             for (ConstraintViolation<Object> violation : violations) {
+>                 if (violation.getPropertyPath().toString().equals(objectProperty.name)) {
+142a109
+>                     break;
+146c113
+<                         objectProperties.add(new ObjectProperties(descriptor, required));
+---
+>             objectProperty.required = required;
+154,161c121
+<                                         Constructor<?> constructor;
+<                                         Class<? extends Panel> typesControlGroup = getControlGroupByType(objectProperty.type);
+<                                         if(typesControlGroup==null){
+<                                                 if(objectProperty.type.isEnum()) typesControlGroup = EnumControlGroup.class;
+<                                                 else typesControlGroup = ObjectChoiceControlGroup.class;
+<                                         }
+< 
+<                                         constructor = typesControlGroup.getConstructor(String.class, IModel.class);
+---
+>                     Constructor<?> constructor = getControlGroupByType(objectProperty.type).getConstructor(String.class, IModel.class);
+167,180c127
+< 
+<                                         if(typesControlGroup==ObjectChoiceControlGroup.class){
+<                                                 IObjectRenderer<?> renderer = renderers.get(objectProperty.type);
+<                                                 if(renderer==null){
+<                                                         renderer = new IObjectRenderer<Object>() {
+<                                                                 private static final long serialVersionUID = -6171655578529011405L;
+< 
+<                                                                 public String render(Object object) {
+<                                                                         return object.toString();
+<                                                                 }
+<                                                         };
+<                                                 }
+<                                                 ((ObjectChoiceControlGroup<?>) controlGroup).setConfiguration(getEntityProvider(objectProperty.name), renderer);
+<                                         } else if(typesControlGroup==CollectionControlGroup.class){
+---
+>                     if(getControlGroupByType(objectProperty.type) == CollectionControlGroup.class){
+183d129
+< 
+194,204c140
+<                         } catch (SecurityException e) {
+<                                 throw new RuntimeException(e);
+<                         } catch (NoSuchMethodException e) {
+<                                 throw new RuntimeException(e);
+<                         } catch (IllegalArgumentException e) {
+<                                 throw new RuntimeException(e);
+<                         } catch (InstantiationException e) {
+<                                 throw new RuntimeException(e);
+<                         } catch (IllegalAccessException e) {
+<                                 throw new RuntimeException(e);
+<                         } catch (InvocationTargetException e) {
+---
+>             } catch (SecurityException | NoSuchMethodException | IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+212c148
+<         @SuppressWarnings("unchecked")
+---
+>     @SuppressWarnings("rawtypes")
+252a189
+>     @SuppressWarnings("rawtypes")

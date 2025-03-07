@@ -1,0 +1,9 @@
+12d11
+< import liquibase.util.StringUtils;
+67c66,67
+<     if (StringUtils.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
+---
+>     // Replace StringUtils.trimToNull with a direct check for null or empty string
+>     if (statement.getTablespace() != null && !statement.getTablespace().trim().isEmpty() && database.supportsTablespaces()) {
+84d83
+< 

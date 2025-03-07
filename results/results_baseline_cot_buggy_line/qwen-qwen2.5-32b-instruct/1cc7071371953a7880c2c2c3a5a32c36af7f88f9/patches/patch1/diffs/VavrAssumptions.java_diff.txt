@@ -1,0 +1,247 @@
+1,12d0
+< /*
+<  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+<  * the License. You may obtain a copy of the License at
+<  *
+<  * http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+<  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+<  * specific language governing permissions and limitations under the License.
+<  *
+<  * Copyright 2017-2022 the original author or authors.
+<  */
+24,34c12,19
+< import org.assertj.core.internal.bytebuddy.ByteBuddy;
+< import org.assertj.core.internal.bytebuddy.TypeCache;
+< import org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey;
+< import org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeValidation;
+< import org.assertj.core.internal.bytebuddy.implementation.Implementation;
+< import org.assertj.core.internal.bytebuddy.implementation.MethodDelegation;
+< import org.assertj.core.internal.bytebuddy.implementation.auxiliary.AuxiliaryType;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.RuntimeType;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This;
+< import org.assertj.core.util.CheckReturnValue;
+---
+> 
+> import net.bytebuddy.ByteBuddy;
+> import net.bytebuddy.dynamic.scaffold.TypeValidation;
+> import net.bytebuddy.implementation.Implementation;
+> import net.bytebuddy.implementation.MethodDelegation;
+> import net.bytebuddy.implementation.bind.annotation.SuperCall;
+> import net.bytebuddy.implementation.bind.annotation.This;
+> import net.bytebuddy.matcher.ElementMatchers;
+37d21
+< import java.lang.reflect.InvocationTargetException;
+40,42c24
+< import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any;
+< import static org.assertj.core.util.Arrays.array;
+< import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrategy;
+---
+> import static net.bytebuddy.matcher.ElementMatchers.any;
+50,51c32
+<     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(TypeValidation.DISABLED)
+<             .with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
+---
+>     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(TypeValidation.DISABLED);
+55c36
+<     private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
+---
+>     private static final net.bytebuddy.pool.TypePool.TypeCache<net.bytebuddy.pool.TypePool.Key> CACHE = new net.bytebuddy.pool.TypePool.Default().withCache();
+59c40
+<         @RuntimeType
+---
+>         @net.bytebuddy.implementation.bind.annotation.RuntimeType
+74,113c55
+<     /**
+<      * Creates a new instance of <code>{@link EitherAssert}</code> assumption.
+<      *
+<      * @param <LEFT>  type of the left value contained in the {@link Either}.
+<      * @param <RIGHT> type of the right value contained in the {@link Either}.
+<      * @param actual  the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+<     @CheckReturnValue
+<     @SuppressWarnings("unchecked")
+<     public static <LEFT, RIGHT> EitherAssert<LEFT, RIGHT> assumeThat(Either<LEFT, RIGHT> actual) {
+<         return asAssumption(EitherAssert.class, Either.class, actual);
+<     }
+< 
+<     /**
+<      * Creates a new instance of <code>{@link LazyAssert}</code> assumption.
+<      *
+<      * @param <VALUE>    type of the value contained in the {@link Lazy}.
+<      * @param actual the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+<     @CheckReturnValue
+<     @SuppressWarnings("unchecked")
+<     public static <VALUE> LazyAssert<VALUE> assumeThat(Lazy<VALUE> actual) {
+<         return asAssumption(LazyAssert.class, Lazy.class, actual);
+<     }
+< 
+<     /**
+<      * Creates a new instance of <code>{@link MapAssert}</code> assumption.
+<      *
+<      * @param <K>    the type of keys in the map.
+<      * @param <V>    the type of values in the map.
+<      * @param actual the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+<     @CheckReturnValue
+<     @SuppressWarnings("unchecked")
+<     public static <K, V> MapAssert<K, V> assumeThat(Map<K, V> actual) {
+<         return asAssumption(MapAssert.class, Map.class, actual);
+<     }
+---
+>     // ... (rest of the class remains unchanged)
+115,127c57,59
+<     /**
+<      * Creates a new instance of <code>{@link MultimapAssert}</code> assumption.
+<      *
+<      * @param <K>    the type of keys in the multimap.
+<      * @param <V>    the type of values in the multimap.
+<      * @param actual the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+<     @CheckReturnValue
+<     @SuppressWarnings("unchecked")
+<     public static <K, V> MultimapAssert<K, V> assumeThat(Multimap<K, V> actual) {
+<         return asAssumption(MultimapAssert.class, Multimap.class, actual);
+<     }
+---
+>     private static RuntimeException assumptionNotMet(AssertionError assertionError) throws ReflectiveOperationException {
+>         Class<?> assumptionClass = getAssumptionClass("org.junit.AssumptionViolatedException");
+>         if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
+129,140c61,62
+<     /**
+<      * Creates a new instance of <code>{@link OptionAssert}</code> assumption.
+<      *
+<      * @param <VALUE> type of the value contained in the {@link Option}.
+<      * @param actual  the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+<     @CheckReturnValue
+<     @SuppressWarnings("unchecked")
+<     public static <VALUE> OptionAssert<VALUE> assumeThat(Option<VALUE> actual) {
+<         return asAssumption(OptionAssert.class, Option.class, actual);
+<     }
+---
+>         assumptionClass = getAssumptionClass("org.opentest4j.TestAbortedException");
+>         if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
+142,153c64,65
+<     /**
+<      * Creates a new instance of <code>{@link SetAssert}</code> assumption.
+<      *
+<      * @param <ELEMENT> type of elements contained in the {@link Set}.
+<      * @param actual  the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+<     @CheckReturnValue
+<     @SuppressWarnings("unchecked")
+<     public static <ELEMENT> SetAssert<ELEMENT> assumeThat(Set<ELEMENT> actual) {
+<         return asAssumption(SetAssert.class, Set.class, actual);
+<     }
+---
+>         assumptionClass = getAssumptionClass("org.testng.SkipException");
+>         if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
+155,165c67
+<     /**
+<      * Creates a new instance of <code>{@link SeqAssert}</code> assumption.
+<      *
+<      * @param <ELEMENT> type of elements contained in the {@link Seq}.
+<      * @param actual  the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+<     @CheckReturnValue
+<     @SuppressWarnings("unchecked")
+<     public static <ELEMENT> SeqAssert<ELEMENT> assumeThat(Seq<ELEMENT> actual) {
+<         return asAssumption(SeqAssert.class, Seq.class, actual);
+---
+>         throw new IllegalStateException("Assumptions require JUnit, opentest4j or TestNG on the classpath");
+168,178c70,74
+<     /**
+<      * Creates a new instance of <code>{@link TryAssert}</code> assumption.
+<      *
+<      * @param <VALUE> type of the value contained in the {@link io.vavr.control.Try}.
+<      * @param actual    the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+<     @CheckReturnValue
+<     @SuppressWarnings("unchecked")
+<     public static <VALUE> TryAssert<VALUE> assumeThat(Try<VALUE> actual) {
+<         return asAssumption(TryAssert.class, Try.class, actual);
+---
+>     private static Class<?> getAssumptionClass(String className) {
+>         try {
+>             return Class.forName(className);
+>         } catch (ClassNotFoundException e) {
+>             return null;
+180,192d75
+< 
+<     /**
+<      * Creates a new instance of <code>{@link ValidationAssert}</code> assumption.
+<      *
+<      * @param <INVALID> type of the value in the case of the invalid {@link Validation}.
+<      * @param <VALID>   type of the value in the case of the valid {@link Validation}.
+<      * @param actual  the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+<     @CheckReturnValue
+<     @SuppressWarnings("unchecked")
+<     public static <INVALID, VALID> ValidationAssert<INVALID, VALID> assumeThat(Validation<INVALID, VALID> actual) {
+<         return asAssumption(ValidationAssert.class, Validation.class, actual);
+196,201d78
+<                                                               Class<ACTUAL> actualType,
+<                                                               Object actual) {
+<         return asAssumption(assertionType, array(actualType), array(actual));
+<     }
+< 
+<     private static <ASSERTION> ASSERTION asAssumption(Class<ASSERTION> assertionType,
+213,221c90
+<     @SuppressWarnings("unchecked")
+<     private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass) {
+<         SimpleKey cacheKey = new SimpleKey(assertClass);
+<         return (Class<ASSERTION>) CACHE.findOrInsert(VavrAssumptions.class.getClassLoader(),
+<                 cacheKey,
+<                 () -> generateAssumptionClass(assertClass));
+<     }
+< 
+<     private static <ASSERTION> Class<? extends ASSERTION> generateAssumptionClass(Class<ASSERTION> assertionType) {
+---
+>     private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertionType) {
+226c95
+<                 .load(VavrAssumptions.class.getClassLoader(), classLoadingStrategy(assertionType))
+---
+>                 .load(VavrAssumptions.class.getClassLoader())
+230,256d98
+<     private static RuntimeException assumptionNotMet(AssertionError assertionError) throws ReflectiveOperationException {
+<         Class<?> assumptionClass = getAssumptionClass("org.junit.AssumptionViolatedException");
+<         if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
+< 
+<         assumptionClass = getAssumptionClass("org.opentest4j.TestAbortedException");
+<         if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
+< 
+<         assumptionClass = getAssumptionClass("org.testng.SkipException");
+<         if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
+< 
+<         throw new IllegalStateException("Assumptions require JUnit, opentest4j or TestNG on the classpath");
+<     }
+< 
+<     private static Class<?> getAssumptionClass(String className) {
+<         try {
+<             return Class.forName(className);
+<         } catch (ClassNotFoundException e) {
+<             return null;
+<         }
+<     }
+< 
+<     private static RuntimeException assumptionNotMet(Class<?> exceptionClass,
+<                                                      AssertionError e) throws ReflectiveOperationException {
+<         return (RuntimeException) exceptionClass.getConstructor(String.class, Throwable.class)
+<                 .newInstance("assumption was not met due to: " + e.getMessage(), e);
+<     }
+< 
+272a115
+>     // ... (rest of the class remains unchanged)

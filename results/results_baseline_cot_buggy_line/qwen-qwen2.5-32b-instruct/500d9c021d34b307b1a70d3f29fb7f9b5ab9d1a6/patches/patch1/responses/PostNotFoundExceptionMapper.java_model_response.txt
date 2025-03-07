@@ -1,0 +1,51 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the `Models` class cannot be found, which suggests that the class `Models` is no longer available in the current dependency version.
+   - The error occurs at line 29, where the `Models` class is referenced.
+
+2. Review the client code:
+   - The `Models` class is used to store and pass data between the controller and the view.
+   - The `models.put("error", exception.getMessage());` line uses the `models` instance to store an error message.
+
+3. Consider potential fixes:
+   - The `Models` class is part of the older Java EE specification and is not available in the newer Jakarta EE specification.
+   - The `Models` class should be replaced with an alternative approach to store and pass data between the controller and the view.
+   - Since the `Models` class is not available, we need to remove the usage of `models.put` and find an alternative way to handle the error message.
+
+4. Plan the necessary changes:
+   - Remove the `Models` class import and the `models` variable.
+   - Remove the line `models.put("error", exception.getMessage());` since it is no longer needed.
+   - Ensure the `Response` object is correctly configured to handle the error message.
+</code_analysis>
+
+```java
+package com.example.config;
+
+import com.example.domain.TaskNotFoundException;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
+
+/**
+ *
+ * @author hantsy
+ */
+@Provider
+public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFoundException> {
+
+    @Inject
+    Logger log;
+
+    @Override
+    public Response toResponse(TaskNotFoundException exception) {
+        log.log(Level.INFO, "handling exception : PostNotFoundException");
+        // Removed models.put("error", exception.getMessage());
+        return Response.status(Response.Status.NOT_FOUND).entity("error.xhtml").build();
+    }
+
+}
+```

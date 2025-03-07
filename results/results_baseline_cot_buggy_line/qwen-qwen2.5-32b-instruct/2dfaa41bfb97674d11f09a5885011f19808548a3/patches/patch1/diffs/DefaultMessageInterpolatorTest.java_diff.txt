@@ -1,0 +1,202 @@
+1,16d0
+< /*
+<  * Licensed to the Apache Software Foundation (ASF) under one or more
+<  * contributor license agreements. See the NOTICE file distributed with this
+<  * work for additional information regarding copyright ownership. The ASF
+<  * licenses this file to you under the Apache License, Version 2.0 (the
+<  * "License"); you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  * http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+<  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+<  * License for the specific language governing permissions and limitations under
+<  * the License.
+<  */
+52d35
+< import org.junit.runners.Parameterized.Parameters;
+64c47
+<             new Object[] { "tomcat", "org.apache.el.ExpressionFactoryImpl" },
+---
+>             new Object[] { "tomcat", "org.apache.el.ExpressionFactory" },
+117,183d99
+<         assumeTrue(originalClassLoader != null);
+<         Thread.currentThread().setContextClassLoader(originalClassLoader);
+<     }
+< 
+<     @Test
+<     public void testInterpolateFromValidationResources() {
+<         String msg = interpolator.interpolate("{validator.creditcard}",
+<             context("12345678",
+<                 () -> validator.getConstraintsForClass(PreferredGuest.class)
+<                     .getConstraintsForProperty("guestCreditCardNumber").getConstraintDescriptors().stream()
+<                     .filter(forConstraintType(Digits.class)).findFirst()
+<                     .orElseThrow(() -> new AssertionError("expected constraint missing"))));
+< 
+<         assertEquals("credit card is not valid", msg);
+<     }
+< 
+<     @Test
+<     public void testInterpolateFromDefaultResources() {
+<         String msg = interpolator.interpolate("{org.apache.bval.constraints.NotEmpty.message}",
+<             context("",
+<                 () -> validator.getConstraintsForClass(Author.class).getConstraintsForProperty("lastName")
+<                     .getConstraintDescriptors().stream().filter(forConstraintType(NotEmpty.class)).findFirst()
+<                     .orElseThrow(() -> new AssertionError("expected constraint missing"))));
+< 
+<         assertEquals("may not be empty", msg);
+<     }
+< 
+<     /**
+<      * Checks that strings containing special characters are correctly
+<      * substituted when interpolating.
+<      */
+<     @Test
+<     public void testReplacementWithSpecialChars() {
+<         // Try to interpolate an annotation attribute containing $
+<         String idNumberResult = this.interpolator.interpolate("Id number should match {regexp}",
+<             context("12345678",
+<                 () -> validator.getConstraintsForClass(Person.class).getConstraintsForProperty("idNumber")
+<                     .getConstraintDescriptors().stream().filter(forConstraintType(Pattern.class)).findFirst()
+<                     .orElseThrow(() -> new AssertionError("expected constraint missing"))));
+< 
+<         assertEquals("Incorrect message interpolation when $ is in an attribute", "Id number should match ....$",
+<             idNumberResult);
+< 
+<         // Try to interpolate an annotation attribute containing \
+<         String otherIdResult = this.interpolator.interpolate("Other id should match {regexp}",
+<             context("12345678",
+<                 () -> validator.getConstraintsForClass(Person.class).getConstraintsForProperty("otherId")
+<                     .getConstraintDescriptors().stream().filter(forConstraintType(Pattern.class)).findFirst()
+<                     .orElseThrow(() -> new AssertionError("expected constraint missing"))));
+< 
+<         assertEquals("Incorrect message interpolation when \\ is in an attribute value", "Other id should match .\\n",
+<             otherIdResult);
+<     }
+< 
+<     @Test
+<     public void testRecursiveInterpolation() {
+<         String msg = this.interpolator.interpolate("{recursive.interpolation.1}",
+<             context("12345678",
+<                 () -> validator.getConstraintsForClass(Person.class).getConstraintsForProperty("idNumber")
+<                     .getConstraintDescriptors().stream().filter(forConstraintType(Pattern.class)).findFirst()
+<                     .orElseThrow(() -> new AssertionError("expected constraint missing"))));
+< 
+<         assertEquals("must match \"....$\"", msg);
+<     }
+< 
+<     @Test
+<     public void testNoELAvailable() {
+208,311c124
+<                 .orElseThrow(() -> new AssertionError("expected constraint missing")))));
+<     }
+< 
+<     @Test
+<     public void testExpressionLanguageEvaluation() {
+<         assumeTrue(elAvailable);
+<         
+<         final MessageInterpolator.Context context = context("12345678",
+<             () -> validator.getConstraintsForClass(Person.class).getConstraintsForProperty("anotherValue")
+<             .getConstraintDescriptors().stream().filter(forConstraintType(Pattern.class)).findFirst()
+<             .orElseThrow(() -> new AssertionError("expected constraint missing")));
+<         
+<         assertEquals("Another value should match ....$",
+<             interpolator.interpolate(context.getConstraintDescriptor().getMessageTemplate(), context));
+<     }
+< 
+<     @Test
+<     public void testMixedEvaluation() {
+<         assumeTrue(elAvailable);
+< 
+<         final MessageInterpolator.Context context = context("12345678",
+<             () -> validator.getConstraintsForClass(Person.class).getConstraintsForProperty("mixedMessageValue")
+<             .getConstraintDescriptors().stream().filter(forConstraintType(Pattern.class)).findFirst()
+<             .orElseThrow(() -> new AssertionError("expected constraint missing")));
+<         
+<         assertEquals("Mixed message value of length 8 should match ....$",
+<             interpolator.interpolate(context.getConstraintDescriptor().getMessageTemplate(), context));
+<     }
+< 
+<     @Test
+<     public void testELEscapingTomcatJuel() {
+<         assumeTrue(elAvailable);
+<         assumeThat(elImpl, anyOf(equalTo("tomcat")));
+< 
+<         // not so much a test as an illustration that the specified EL implementations are seemingly confused by leading
+<         // backslashes and treats the whole expression as literal. We could skip any literal text before the first
+<         // non-escaped $, but that would only expose us to inconsistency for composite expressions containing more
+<         // than one component EL expression
+< 
+<         ApacheMessageContext context = context("12345678",
+<             () -> validator.getConstraintsForClass(Person.class).getConstraintsForProperty("idNumber")
+<             .getConstraintDescriptors().stream().filter(forConstraintType(Pattern.class)).findFirst()
+<             .orElseThrow(() -> new AssertionError("expected constraint missing")));
+< 
+<         when(context
+<             .getConfigurationProperty(ApacheValidatorConfiguration.Properties.CUSTOM_TEMPLATE_EXPRESSION_EVALUATION))
+<                 .thenAnswer(invocation -> Boolean.toString(true));
+< 
+<         assertEquals("${regexp.charAt(4)}", interpolator.interpolate("\\${regexp.charAt(4)}",
+<             context));
+< 
+<         assertEquals("${regexp.charAt(4)}", interpolator.interpolate("\\\\${regexp.charAt(4)}",
+<             context));
+<     }
+< 
+<     @Test
+<     public void testELEscapingRI() {
+<         assumeTrue(elAvailable);
+<             assumeThat(elImpl, equalTo("ri"));
+< 
+<         ApacheMessageContext context = context("12345678",
+<             () -> validator.getConstraintsForClass(Person.class).getConstraintsForProperty("idNumber")
+<                 .getConstraintDescriptors().stream().filter(forConstraintType(Pattern.class)).findFirst()
+<                 .orElseThrow(() -> new AssertionError("expected constraint missing")));
+< 
+<         when(context
+<             .getConfigurationProperty(ApacheValidatorConfiguration.Properties.CUSTOM_TEMPLATE_EXPRESSION_EVALUATION))
+<         .thenAnswer(invocation -> Boolean.toString(true));
+< 
+<         assertEquals("returns literal", "${regexp.charAt(4)}",
+<             interpolator.interpolate("\\${regexp.charAt(4)}",
+<                 context));
+< 
+<         assertEquals("returns literal \\ followed by $, later interpreted as an escape sequence", "$",
+<             interpolator.interpolate("\\\\${regexp.charAt(4)}",
+<                 context));
+< 
+<         assertEquals("returns literal \\ followed by .", "\\.",
+<             interpolator.interpolate("\\\\${regexp.charAt(3)}",
+<                 context));
+<     }
+< 
+<     @Test
+<     public void testEscapedELPattern() {
+<         assertEquals("$must match \"....$\"",
+<             interpolator.interpolate("\\${jakarta.validation.constraints.Pattern.message}",
+<                 context("12345678",
+<                     () -> validator.getConstraintsForClass(Person.class).getConstraintsForProperty("idNumber")
+<                         .getConstraintDescriptors().stream().filter(forConstraintType(Pattern.class)).findFirst()
+<                         .orElseThrow(() -> new AssertionError("expected constraint missing")))));
+< 
+<         assertEquals("$must match \"....$\"",
+<             interpolator.interpolate("\\${jakarta.validation.constraints.Pattern.message}",
+<                 context("12345678",
+<                     () -> validator.getConstraintsForClass(Person.class).getConstraintsForProperty("idNumber")
+<                     .getConstraintDescriptors().stream().filter(forConstraintType(Pattern.class)).findFirst()
+<                     .orElseThrow(() -> new AssertionError("expected constraint missing")))));
+< 
+<         assertEquals("\\$must match \"....$\"",
+<             interpolator.interpolate("\\\\\\${jakarta.validation.constraints.Pattern.message}",
+<                 context("12345678",
+<                     () -> validator.getConstraintsForClass(Person.class).getConstraintsForProperty("idNumber")
+<                     .getConstraintDescriptors().stream().filter(forConstraintType(Pattern.class)).findFirst()
+<                     .orElseThrow(() -> new AssertionError("expected constraint missing")))));
+---
+>                 .orElseThrow(() -> new AssertionError("expected constraint missing"))));
+318c131
+<             .thenAnswer(invocation -> invocation.getArgumentAt(0, Class.class).cast(result));
+---
+>             .thenAnswer(invocation -> invocation.getArgument(0).cast(result));

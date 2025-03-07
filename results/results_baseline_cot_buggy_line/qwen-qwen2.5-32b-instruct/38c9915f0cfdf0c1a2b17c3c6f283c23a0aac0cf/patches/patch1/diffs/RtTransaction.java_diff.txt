@@ -1,0 +1,237 @@
+1,23d0
+< /*
+<  * The MIT License (MIT)
+<  *
+<  * Copyright (c) 2018-2023 Yegor Bugayenko
+<  *
+<  * Permission is hereby granted, free of charge, to any person obtaining a copy
+<  * of this software and associated documentation files (the "Software"), to deal
+<  * in the Software without restriction, including without limitation the rights
+<  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+<  *
+<  * The above copyright notice and this permission notice shall be included
+<  * in all copies or substantial portions of the Software.
+<  *
+<  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+<  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+<  * SOFTWARE.
+<  */
+32,44d8
+< import org.cactoos.Text;
+< import org.cactoos.iterable.LengthOf;
+< import org.cactoos.list.ListOf;
+< import org.cactoos.scalar.IoCheckedScalar;
+< import org.cactoos.scalar.ItemAt;
+< import org.cactoos.scalar.StickyScalar;
+< import org.cactoos.scalar.UncheckedScalar;
+< import org.cactoos.text.FormattedText;
+< import org.cactoos.text.SplitText;
+< import org.cactoos.text.TextOf;
+< import org.cactoos.text.TrimmedText;
+< import org.cactoos.text.UncheckedText;
+< import org.cactoos.time.ZonedDateTimeOf;
+52,53c16
+< @SuppressWarnings({"PMD.AvoidCatchingGenericException",
+<     "PMD.AvoidFieldNameMatchingMethodName"})
+---
+> @SuppressWarnings({"PMD.AvoidFieldNameMatchingMethodName", "PMD.ShortMethodName"})
+60d22
+<         //@checkstyle LineLengthCheck (1 line)
+77,78c39
+<     private static final Pattern DTLS =
+<         Pattern.compile("[A-Za-z0-9 -.]{1,512}");
+---
+>     private static final Pattern DTLS = Pattern.compile("[A-Za-z0-9 -.]{1,512}");
+88c49
+<     private final IoCheckedScalar<String> transaction;
+---
+>     private final String transaction;
+92a54
+>      * @throws IOException If an I/O error occurs
+94,105c56,59
+<     RtTransaction(final String trnsct) {
+<         this.transaction = new IoCheckedScalar<>(
+<             new StickyScalar<>(
+<                 () -> {
+<                     if (
+<                         new TrimmedText(
+<                             new TextOf(trnsct)
+<                         ).asString().isEmpty()
+<                     ) {
+<                         throw new IOException(
+<                             "Invalid transaction string: string is empty"
+<                         );
+---
+>     RtTransaction(final String trnsct) throws IOException {
+>         this.transaction = trnsct.trim();
+>         if (this.transaction.isEmpty()) {
+>             throw new IOException("Invalid transaction string: string is empty");
+107,112c61,62
+<                     final List<Text> pieces =
+<                         new ListOf<>(
+<                             new SplitText(trnsct, ";")
+<                         );
+<                     // @checkstyle MagicNumberCheck (1 line)
+<                     if (new LengthOf(pieces).intValue() != 7) {
+---
+>         final String[] pieces = this.transaction.split(";");
+>         if (pieces.length != 7) {
+114,115c64
+<                             new FormattedText(
+<                                 // @checkstyle LineLength (1 line)
+---
+>                 String.format(
+117,122c66
+<                                 pieces.size()
+<                             ).asString()
+<                         );
+<                     }
+<                     return trnsct;
+<                 }
+---
+>                     pieces.length
+125a70
+>     }
+128d72
+<     @SuppressWarnings("PMD.ShortMethodName")
+130,136c74
+<         final String ident = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     0, new SplitText(this.transaction.value(), ";")
+<                 )
+<             ).value()
+<         ).asString();
+---
+>         final String ident = pieces[0];
+139,141c77
+<                 new UncheckedText(
+<                     new FormattedText(
+<                         // @checkstyle LineLength (1 line)
+---
+>                 String.format(
+145d80
+<                 ).asString()
+148d82
+<         // @checkstyle MagicNumber (1 line)
+154,161c88,89
+<         return new ZonedDateTimeOf(
+<             new UncheckedText(
+<                 new IoCheckedScalar<>(
+<                     new ItemAt<>(
+<                         1, new SplitText(this.transaction.value(), ";")
+<                     )
+<                 ).value()
+<             ).asString(),
+---
+>         return ZonedDateTime.parse(
+>             pieces[1],
+163c91
+<         ).value();
+---
+>         );
+168,174c96
+<         final String amnt = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     2, new SplitText(this.transaction.value(), ";")
+<                 )
+<             ).value()
+<         ).asString();
+---
+>         final String amnt = pieces[2];
+177,179c99
+<                 new UncheckedText(
+<                     new FormattedText(
+<                         // @checkstyle LineLength (1 line)
+---
+>                 String.format(
+183d102
+<                 ).asString()
+186d104
+<         // @checkstyle MagicNumber (1 line)
+192,200c110
+<         final String prefix = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+<                     3, new SplitText(this.transaction.value(), ";")
+<                 )
+<             ).value()
+<         ).asString();
+<         //@checkstyle MagicNumberCheck (1 line)
+---
+>         final String prefix = pieces[3];
+212,219c122
+<         final String bnf = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+<                     4, new SplitText(this.transaction.value(), ";")
+<                 )
+<             ).value()
+<         ).asString();
+---
+>         final String bnf = pieces[4];
+222,224c125
+<                 new UncheckedText(
+<                     new FormattedText(
+<                         // @checkstyle LineLength (1 line)
+---
+>                 String.format(
+228d128
+<                 ).asString()
+236,243c136
+<         final String dtls = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+<                     5, new SplitText(this.transaction.value(), ";")
+<                 )
+<             ).value()
+<         ).asString();
+---
+>         final String dtls = pieces[5];
+246,248c139
+<                 new UncheckedText(
+<                     new FormattedText(
+<                         // @checkstyle LineLength (1 line)
+---
+>                 String.format(
+252d142
+<                 ).asString()
+260,270c150,151
+<         final String sign = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+<                     6, new SplitText(this.transaction.value(), ";")
+<                 )
+<             ).value()
+<         ).asString();
+<         // @checkstyle MagicNumber (1 line)
+<         if (sign.length() != 684
+<             || !RtTransaction.SIGN.matcher(sign).matches()) {
+---
+>         final String sign = pieces[6];
+>         if (sign.length() != 684 || !RtTransaction.SIGN.matcher(sign).matches()) {
+272,274c153
+<                 new UncheckedText(
+<                     new FormattedText(
+<                         // @checkstyle LineLength (1 line)
+---
+>                 String.format(
+278d156
+<                 ).asString()
+286c164
+<         return new UncheckedScalar<>(this.transaction).value();
+---
+>         return this.transaction;
+290d167
+<     @SuppressWarnings("PMD.OnlyOneReturn")

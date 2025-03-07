@@ -1,0 +1,47 @@
+37,46d36
+<          * Key is the line, value is a set of test methods that execute that line
+<          */
+<         protected Map<Location, Set<TestMethod>> resultExecution = new HashMap<>();
+< 
+<         /**
+<          * Map between executed test methods and their result. True if passing, false is failing.
+<          */
+<         protected Map<TestMethod, Boolean> tests = new HashMap<>();
+< 
+<         /**
+96,97c86
+<                                                 // We want to keep it if and only if it the class was included in the coverage
+<                                                 // computation, which will ignore classes like org.junit.Assert
+---
+>                                                 // We include the class if it is part of the coverage computation
+100,104d88
+<                                                         // We also want to ignore test classes if they coverTests is not set
+<                                                         if (!config.isCoverTests() && testClasses.contains(element.getClassName())) {
+<                                                                 continue;
+<                                                         }
+< 
+112,121d95
+< 
+<                                                         // Compute the executed lines from the block where the exception was thrown
+<                                                         // See: https://github.com/SpoonLabs/flacoco/issues/109
+<                                                         SpoonBlockInspector blockMatcher = new SpoonBlockInspector(config);
+<                                                         List<Location> locations = blockMatcher.getBlockLocations(element);
+< 
+<                                                         for (Location blockLocation : locations) {
+<                                                                 logger.debug("Adding a line from the block where an exception was thrown: " + blockLocation);
+<                                                                 this.add(blockLocation, testMethod, 1, false);
+<                                                         }
+177c151
+<          * - We include the class if it is available in the binary directories
+---
+>          * - We include the class if it is present in the available binaries
+199c173
+<             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), TestListResolver.getWildcard());
+---
+>                         DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), "**/*.class");
+205c179
+<             DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), TestListResolver.getWildcard());
+---
+>                         DirectoryScanner directoryScanner = new DirectoryScanner(new File(dir), "**/*.class");
+213d186
+< 

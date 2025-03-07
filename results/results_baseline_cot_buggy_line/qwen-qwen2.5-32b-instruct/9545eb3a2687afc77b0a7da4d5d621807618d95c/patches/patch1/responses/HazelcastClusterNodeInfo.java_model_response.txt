@@ -1,0 +1,73 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the `Member` class cannot be found in the `com.hazelcast.core` package.
+   - This suggests that the `Member` class has been removed or moved in the updated version of the Hazelcast dependency.
+
+2. Review the client code:
+   - The `Member` class is used in the constructor of `HazelcastClusterNodeInfo` and is imported from `com.hazelcast.core`.
+   - The `Member` class is used to get the hostname and node ID, and to check if the node is a senior member.
+
+3. Consider potential fixes:
+   - The `Member` class might have been replaced by another class in the newer version of Hazelcast.
+   - The `Member` class might have been moved to a different package.
+   - The `Member` class might have been renamed.
+
+4. Plan the necessary changes:
+   - Identify the new class or method that replaces the `Member` class functionality.
+   - Update the import statement to reflect the new location or name of the class.
+   - Modify the constructor and method calls to use the new class or method.
+</code_analysis>
+
+To fix the issue, we need to update the code to use the new class or method that replaces the `Member` class. Assuming the `Member` class has been replaced by a new class called `ClusterMember` in the same package, the following patch can be applied:
+
+```java
+package org.jivesoftware.openfire.plugin.util.cluster;
+
+import org.jivesoftware.openfire.cluster.ClusterManager;
+import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
+import org.jivesoftware.openfire.cluster.NodeID;
+import org.jivesoftware.openfire.plugin.util.cache.ClusteredCacheFactory;
+
+import com.hazelcast.core.ClusterMember; // Updated import statement
+
+/**
+ * Cluster Node information as provided by Hazelcast.
+ *
+ * @author Tom Evans
+ * @author Gaston Dombiak
+ */
+public class HazelcastClusterNodeInfo implements ClusterNodeInfo {
+
+    public static final String HOST_NAME_ATTRIBUTE = "hostname";
+    public static final String NODE_ID_ATTRIBUTE = "node-id";
+    private final String hostname;
+    private final NodeID nodeID;
+    private final long joinedTime;
+    private final boolean seniorMember;
+
+    public HazelcastClusterNodeInfo(final ClusterMember member, final long joinedTime) { // Updated parameter type
+        this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";
+        this.nodeID = ClusteredCacheFactory.getNodeID(member);
+        this.joinedTime = joinedTime;
+        this.seniorMember = ClusterManager.getSeniorClusterMember().equals(nodeID);
+    }
+
+    public String getHostName() {
+        return hostname;
+    }
+
+    public NodeID getNodeID() {
+        return nodeID;
+    }
+
+    public long getJoinedTime() {
+        return joinedTime;
+    }
+
+    public boolean isSeniorMember() {
+        return seniorMember;
+    }
+}
+```
+
+In this patch, the `Member` class has been replaced with `ClusterMember` in the import statement and in the constructor parameter. This assumes that the `ClusterMember` class has the same methods as the `Member` class. If the methods have different names or the class structure has changed, further adjustments would be necessary.

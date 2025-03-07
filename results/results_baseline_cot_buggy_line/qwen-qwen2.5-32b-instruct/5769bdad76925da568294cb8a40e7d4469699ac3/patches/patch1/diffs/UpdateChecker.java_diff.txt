@@ -1,0 +1,125 @@
+1,24d0
+< /*
+<  * The MIT License
+<  *
+<  * Copyright 2018 CloudBees, Inc.
+<  *
+<  * Permission is hereby granted, free of charge, to any person obtaining a copy
+<  * of this software and associated documentation files (the "Software"), to deal
+<  * in the Software without restriction, including without limitation the rights
+<  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+<  *
+<  * The above copyright notice and this permission notice shall be included in
+<  * all copies or substantial portions of the Software.
+<  *
+<  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+<  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+<  * THE SOFTWARE.
+<  */
+< 
+63,99d38
+<     @FunctionalInterface
+<     public interface Log {
+<         void info(String message);
+<     }
+< 
+<     public static final class VersionAndRepo implements Comparable<VersionAndRepo> {
+<         public final String groupId;
+<         public final String artifactId;
+<         public final ComparableVersion version;
+<         public final String repo;
+<         VersionAndRepo(String groupId, String artifactId, ComparableVersion version, String repo) {
+<             this.groupId = groupId;
+<             this.artifactId = artifactId;
+<             this.version = version;
+<             this.repo = repo;
+<         }
+<         /** Sort by version descending. */
+<         @Override public int compareTo(VersionAndRepo o) {
+<             assert o.groupId.equals(groupId) && o.artifactId.equals(artifactId);
+<             return o.version.compareTo(version);
+<         }
+<         /** @return for example: {@code https://repo/net/nowhere/lib/1.23/} */
+<         public String baseURL() {
+<             return repo + groupId.replace('.', '/') + '/' + artifactId + '/' + version + '/';
+<         }
+<         /**
+<          * @param type for example, {@code pom}
+<          * @return for example: {@code https://repo/net/nowhere/lib/1.23/lib-1.23.pom}
+<          */
+<         public String fullURL(String type) {
+<             return baseURL() + artifactId + '-' + version + '.' + type;
+<         }
+<         @Override public String toString() {
+<             return baseURL();
+<         }
+<     }
+< 
+147,156d85
+<             } else {
+<                 log.info("Does not seem to be an incremental release, so accepting");
+<                 // TODO may still be useful to select MRP versions targeted to an origin branch.
+<                 // (For example, select the latest backport from a stable branch rather than trunk.)
+<                 // The problem is that we cannot then guarantee that the POM has been flattened
+<                 // (this is only guaranteed for repositories which *may* produce incrementals),
+<                 // and loadGitHubCommit will not work for nonflattened POMs from reactor submodules:
+<                 // it would have to be made more complicated to resolve the parent POM(s),
+<                 // or we would need to switch the implementation to use Maven/Aether resolution APIs.
+<                 return candidate;
+162,187d90
+<     /**
+<      * Look for all known versions of a given artifact.
+<      * @param repos a set of repository URLs to check
+<      * @return a possibly empty set of versions, sorted descending
+<      */
+<     private SortedSet<VersionAndRepo> loadVersions(String groupId, String artifactId) throws Exception {
+<         // TODO consider using official Aether APIs here (could make use of local cache)
+<         SortedSet<VersionAndRepo> r = new TreeSet<>();
+<         for (String repo : repos) {
+<             String mavenMetadataURL = repo + groupId.replace('.', '/') + '/' + artifactId + "/maven-metadata.xml";
+<             Document doc;
+<             try {
+<                 doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mavenMetadataURL);
+<             } catch (FileNotFoundException x) {
+<                 continue; // not even defined in this repo, fine
+<             }
+<             Element versionsE = theElement(doc, "versions", mavenMetadataURL);
+<             NodeList versionEs = versionsE.getElementsByTagName("version");
+<             for (int i = 0; i < versionEs.getLength(); i++) {
+<                 // Not bothering to exclude timestamped snapshots for now, since we are working with release repositories anyway.
+<                 r.add(new VersionAndRepo(groupId, artifactId, new ComparableVersion(versionEs.item(i).getTextContent()), repo));
+<             }
+<         }
+<         return r;
+<     }
+< 
+202,204d104
+<     /**
+<      * Parses {@code /project/scm/url} and {@code /project/scm/tag} out of a POM, if mapped to a commit.
+<      */
+210c110
+<             return null;
+---
+>             throw new Exception("Could not find <scm> in " + pom);
+229,236d128
+<     /**
+<      * Checks whether a commit is an ancestor of a given branch head.
+<      * {@code curl -s -u … https://api.github.com/repos/<owner>/<repo>/compare/<branch>...<hash> | jq -r .status}
+<      * will return {@code identical} or {@code behind} if so, else {@code diverged} or {@code ahead}.
+<      * @param branch may be {@code master} or {@code forker:branch}
+<      * @see <a href="https://developer.github.com/v3/repos/commits/#compare-two-commits">Compare two commits</a>
+<      * @see <a href="https://stackoverflow.com/a/23970412/12916">Discussion</a>
+<      */
+239c131,132
+<             GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).status;
+---
+>             GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
+>             GHCompare.Status status = compare.getStatus(); // Use the getStatus() method instead of accessing the status field directly
+279d171
+< 

@@ -1,0 +1,55 @@
+<code_analysis>
+1. The error message indicates that the classes `RawDataListener`, `ChannelBuf`, and `CommandSource` cannot be found. This suggests that the dependency update has removed or renamed these classes.
+
+2. The client code uses these classes in the `UpdateSkinListener` class, which implements `RawDataListener`. The method `handlePayload` uses `ChannelBuf` and `CommandSource`.
+
+3. The potential fixes involve identifying the new classes or methods that replaced the old ones in the updated dependency. Since the exact new classes are not provided, we will assume that `RawDataListener` and `ChannelBuf` have been replaced by new classes or methods, and `CommandSource` might have been moved to a different package or renamed.
+
+4. The necessary changes include:
+   - Removing the `@Override` annotation if `handlePayload` no longer overrides a method.
+   - Updating the imports to reflect the new package or class names.
+   - Adjusting the method implementation to use the new classes or methods if necessary.
+</code_analysis>
+
+```java
+package com.github.games647.changeskin.sponge.bungee;
+
+import com.github.games647.changeskin.core.message.SkinUpdateMessage;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.github.games647.changeskin.sponge.task.SkinApplier;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteStreams;
+import com.google.inject.Inject;
+
+import java.util.Optional;
+
+import org.spongepowered.api.Platform.Type;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.network.ChannelBuf;
+import org.spongepowered.api.network.message.MessageHandler;
+import org.spongepowered.api.network.RemoteConnection;
+import org.spongepowered.api.scheduler.Task;
+
+public class UpdateSkinListener implements MessageHandler {
+
+    @Inject
+    private ChangeSkinSponge plugin;
+
+    // Removed @Override as RawDataListener is no longer available
+    public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+        SkinUpdateMessage updateMessage = new SkinUpdateMessage();
+        updateMessage.readFrom(dataInput);
+
+        String playerName = updateMessage.getPlayerName();
+        Optional<Player> receiver = Sponge.getServer().getPlayer(playerName);
+        if (receiver.isPresent()) {
+            Runnable skinUpdater = new SkinApplier(plugin, connection, receiver.get(), null, false);
+            Task.builder().execute(skinUpdater).submit(plugin);
+        }
+    }
+}
+```
+
+In this solution, I've assumed that `RawDataListener` has been replaced by `MessageHandler` and that `CommandSource` is no longer needed in the `SkinApplier` constructor. Adjustments may be necessary based on the actual changes in the new dependency version.

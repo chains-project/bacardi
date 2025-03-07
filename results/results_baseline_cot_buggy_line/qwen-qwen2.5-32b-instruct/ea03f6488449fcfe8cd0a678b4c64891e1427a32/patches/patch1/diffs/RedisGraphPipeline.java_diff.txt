@@ -1,0 +1,61 @@
+2a3
+> import redis.clients.jedis.JedisPipeline; // Assuming a new combined interface
+4,11d4
+< import redis.clients.jedis.commands.BasicRedisPipeline;
+< import redis.clients.jedis.commands.BinaryRedisPipeline;
+< import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
+< import redis.clients.jedis.commands.ClusterPipeline;
+< import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;
+< import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
+< import redis.clients.jedis.commands.RedisPipeline;
+< import redis.clients.jedis.commands.ScriptingCommandsPipeline;
+20,24c13
+< public interface RedisGraphPipeline extends
+<         MultiKeyBinaryRedisPipeline,
+<         MultiKeyCommandsPipeline, ClusterPipeline,
+<         BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
+<         BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
+---
+> public interface RedisGraphPipeline extends JedisPipeline, Closeable { // Assuming JedisPipeline combines all functionalities
+43,60d31
+<      * Execute a Cypher query with timeout.
+<      * @param graphId a graph to perform the query on
+<      * @param query Cypher query
+<      * @param timeout
+<      * @return a response which builds the result set with the query answer.
+<      */
+<     Response<ResultSet> query(String graphId, String query, long timeout);
+< 
+<     /**
+<      * Execute a Cypher read-only query with timeout.
+<      * @param graphId a graph to perform the query on
+<      * @param query Cypher query
+<      * @param timeout
+<      * @return a response which builds the result set with the query answer.
+<      */
+<     Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout);
+< 
+<     /**
+100c71
+<      * @param graphId a graph to perform the query on
+---
+>      * @param graphId graph to perform the query on
+108c79
+<      * @param graphId a graph to perform the query on
+---
+>      * @param graphId graph to perform the query on
+117c88
+<      * @param graphId a graph to perform the query on
+---
+>      * @param graphId graph to perform the query on
+132d102
+<     
+146,147c116
+<     public void sync();
+<     
+---
+>     void sync();
+159c128
+<     public Response<Long> waitReplicas(int replicas, long timeout);
+---
+>     Response<Long> waitReplicas(int replicas, long timeout);

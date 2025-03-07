@@ -1,0 +1,6 @@
+34c34,36
+<         if (StringUtils.isAllBlank(kanikoImageFile, jibImageFile) || StringUtils.isNoneBlank(kanikoImageFile, jibImageFile)) {
+---
+>         // Replace isAllBlank with a combination of isBlank checks
+>         if ((StringUtils.isBlank(kanikoImageFile) && StringUtils.isBlank(jibImageFile)) ||
+>             (StringUtils.isNoneBlank(kanikoImageFile, jibImageFile))) {

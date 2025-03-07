@@ -1,0 +1,90 @@
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+23,25d6
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.api.services.translate.model.TranslationsResource;
+28a10,12
+> import com.google.cloud.translate.v2.model.DetectionResourceItems;
+> import com.google.cloud.translate.v2.model.LanguagesResourceV2;
+> import com.google.cloud.translate.v2.model.TranslationsResourceV2;
+43c27
+<   private static final Function<List<DetectionsResourceItems>, Detection>
+---
+>   private static final Function<List<DetectionResourceItems>, Detection>
+45c29
+<           new Function<List<DetectionsResourceItems>, Detection>() {
+---
+>           new Function<List<DetectionResourceItems>, Detection>() {
+47c31
+<             public Detection apply(List<DetectionsResourceItems> detectionPb) {
+---
+>             public Detection apply(List<DetectionResourceItems> detectionPb) {
+62c46
+<               new Callable<List<LanguagesResource>>() {
+---
+>               new Callable<List<LanguagesResourceV2>>() {
+64c48
+<                 public List<LanguagesResource> call() {
+---
+>                 public List<LanguagesResourceV2> call() {
+80c64
+<       List<List<DetectionsResourceItems>> detectionsPb =
+---
+>       List<List<DetectionResourceItems>> detectionsPb =
+82c66
+<               new Callable<List<List<DetectionsResourceItems>>>() {
+---
+>               new Callable<List<List<DetectionResourceItems>>>() {
+84c68
+<                 public List<List<DetectionsResourceItems>> call() {
+---
+>                 public List<List<DetectionResourceItems>> call() {
+91c75
+<       Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
+---
+>       Iterator<List<DetectionResourceItems>> detectionIterator = detectionsPb.iterator();
+94c78
+<         List<DetectionsResourceItems> detectionPb = detectionIterator.next();
+---
+>         List<DetectionResourceItems> detectionPb = detectionIterator.next();
+107,116d90
+<   public List<Detection> detect(String... texts) {
+<     return detect(Arrays.asList(texts));
+<   }
+< 
+<   @Override
+<   public Detection detect(String text) {
+<     return detect(Collections.singletonList(text)).get(0);
+<   }
+< 
+<   @Override
+121c95
+<               new Callable<List<TranslationsResource>>() {
+---
+>               new Callable<List<TranslationsResourceV2>>() {
+123c97
+<                 public List<TranslationsResource> call() {
+---
+>                 public List<TranslationsResourceV2> call() {
+136,140d109
+<   @Override
+<   public Translation translate(String text, TranslateOption... options) {
+<     return translate(Collections.singletonList(text), options).get(0);
+<   }
+< 

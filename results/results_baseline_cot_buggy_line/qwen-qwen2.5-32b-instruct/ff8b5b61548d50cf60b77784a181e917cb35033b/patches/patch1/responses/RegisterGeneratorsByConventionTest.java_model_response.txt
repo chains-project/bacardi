@@ -1,0 +1,94 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the package `org.mockito.runners` does not exist, and the class `MockitoJUnitRunner` cannot be found.
+   - This suggests that the version of Mockito being used no longer includes the `MockitoJUnitRunner` class, which was previously used for running tests with Mockito.
+
+2. Review the client code:
+   - The problematic areas are the import statement `import org.mockito.runners.MockitoJUnitRunner;` and the annotation `@RunWith(MockitoJUnitRunner.class)`.
+   - These are used to run the test with Mockito's runner, which is no longer available in the newer version of Mockito.
+
+3. Consider potential fixes that adhere to the following constraints:
+   - The `MockitoJUnitRunner` has been deprecated and removed in newer versions of Mockito. The recommended approach is to use JUnit 5's `@ExtendWith(MockitoExtension.class)` instead.
+   - Ensure correct imports are used, considering the newer dependency version.
+   - Avoid removing existing code unless it directly causes a compilation or functionality error.
+
+4. Plan the necessary changes to fix the issue:
+   - Replace the `@RunWith(MockitoJUnitRunner.class)` annotation with `@ExtendWith(MockitoExtension.class)`.
+   - Update the import statement to reflect the new Mockito extension.
+</code_analysis>
+
+```java
+package com.pholser.junit.quickcheck.internal.generator;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+
+import com.pholser.junit.quickcheck.generator.GenerationStatus;
+import com.pholser.junit.quickcheck.generator.Generator;
+import com.pholser.junit.quickcheck.internal.ParameterTypeContext;
+import com.pholser.junit.quickcheck.internal.generator.conventiontestclasses.Convention;
+import com.pholser.junit.quickcheck.internal.generator.conventiontestclasses.GeneratesOtherTypes;
+import com.pholser.junit.quickcheck.internal.generator.conventiontestclasses.NotAGenerator;
+import com.pholser.junit.quickcheck.random.SourceOfRandomness;
+import org.junit.Before;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+@ExtendWith(MockitoExtension.class)
+public class RegisterGeneratorsByConventionTest {
+    private GeneratorRepository repo;
+    @Mock private SourceOfRandomness random;
+    @Mock private GenerationStatus generationStatus;
+
+    @Before
+    public void setupRepository() {
+        repo = new GeneratorRepository(random);
+    }
+
+    @Test
+    public void canGenerateValues() {
+        Generator<?> generator =
+            repo.generatorFor(ParameterTypeContext.forClass(Convention.class));
+
+        assertNotNull(generator);
+        assertThat(
+            generator.generate(random, generationStatus),
+            instanceOf(Convention.class));
+    }
+
+    @Test
+    public void classNameFollowsConventionButNotAGenerator() {
+        assertThatNoGeneratorCanBeFound(NotAGenerator.class);
+    }
+
+    @Test
+    public void noValueTypeMatch() {
+        assertThatNoGeneratorCanBeFound(GeneratesOtherTypes.class);
+    }
+
+    @Test
+    public void notAClassFollowingNamingConvention() {
+        assertThatNoGeneratorCanBeFound(this.getClass());
+    }
+
+    private void assertThatNoGeneratorCanBeFound(Class<?> valueClass) {
+        IllegalArgumentException ex =
+            assertThrows(
+                IllegalArgumentException.class,
+                () -> repo.generatorFor(
+                    ParameterTypeContext.forClass(valueClass)));
+
+        assertThat(
+            ex.getMessage(),
+            containsString(
+                "Cannot find generator for " + valueClass.getName()));
+    }
+}
+```
+
+This solution updates the test class to use JUnit 5 and Mockito's new extension mechanism, which is compatible with the latest versions of these libraries.

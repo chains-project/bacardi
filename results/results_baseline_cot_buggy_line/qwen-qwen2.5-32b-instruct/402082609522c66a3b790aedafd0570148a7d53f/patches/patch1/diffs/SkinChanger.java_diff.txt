@@ -1,0 +1,14 @@
+7c7,8
+< import org.spongepowered.api.command.CommandSource;
+---
+> import org.spongepowered.api.text.Text;
+> import org.spongepowered.api.text.format.TextColors;
+8a10
+> import org.spongepowered.api.command.source.CommandSource;
+22c24,27
+<         invoker.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage));
+---
+>         // Assuming the TextSerializers.LEGACY_FORMATTING_CODE is no longer available,
+>         // we use a different method to create a Text object.
+>         Text text = Text.of(TextColors.RESET, localeMessage);
+>         invoker.sendMessage(text);

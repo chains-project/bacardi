@@ -1,0 +1,26 @@
+3a4
+> import org.flywaydb.core.api.configuration.FlywayConfiguration;
+108,112c109,115
+<                 final org.flywaydb.core.Flyway flyway = new Flyway();
+<                 flyway.setDataSource(this.dataSource());
+<                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+<                 flyway.setLocations(prop.getProperty("flyway.locations"));
+<                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+---
+>                 final FlywayConfiguration configuration = FlywayConfiguration.create();
+>                 configuration.setDataSource(this.dataSource());
+>                 configuration.setLocations(prop.getProperty("flyway.locations"));
+>                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+> 
+>                 final Flyway flyway = Flyway.configure().configuration(configuration).load();
+117d119
+<         @DependsOn("flyway")
+169c171
+<         // region observers + validators
+---
+>         // region mappers
+335c337
+<                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
+---
+>                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, AlwaysVestedBalances::new);

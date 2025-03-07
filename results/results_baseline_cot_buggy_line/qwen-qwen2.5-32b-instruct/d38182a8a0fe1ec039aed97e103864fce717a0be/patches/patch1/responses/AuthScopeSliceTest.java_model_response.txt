@@ -1,0 +1,108 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the `User` class cannot be found within the `Authentication` interface.
+   - This suggests that the `User` class has been removed or moved in the updated dependency version.
+
+2. Review the client code:
+   - The problematic areas are where `User` is referenced within the `AuthScopeSliceTest` class.
+   - The `User` class is used to create an `Authentication.User` object, which is then wrapped in an `Optional`.
+
+3. Consider potential fixes:
+   - The `User` class is no longer available in the `Authentication` interface.
+   - The fix should involve replacing the usage of `User` with an alternative that is compatible with the updated dependency version.
+   - If the `User` class has been replaced by another class or method, that should be used instead.
+
+4. Plan the necessary changes:
+   - Replace the `User` class with a compatible alternative.
+   - Ensure that the replacement maintains the same functionality.
+   - Update the imports if necessary to reflect the changes in the dependency.
+</code_analysis>
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker.http;
+
+import com.artipie.asto.Content;
+import com.artipie.http.Headers;
+import com.artipie.http.Response;
+import com.artipie.http.auth.AuthScheme;
+import com.artipie.http.auth.Authentication;
+import com.artipie.http.rs.StandardRs;
+import java.nio.ByteBuffer;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.core.IsEqual;
+import org.junit.jupiter.api.Test;
+
+/**
+ * Tests for {@link AuthScopeSlice}.
+ *
+ * @since 0.11
+ */
+class AuthScopeSliceTest {
+
+    @Test
+    void testScope() {
+        final String line = "GET /resource.txt HTTP/1.1";
+        final String action = "foo:bar:baz";
+        final AtomicReference<String> caction = new AtomicReference<>();
+        final AtomicReference<String> cline = new AtomicReference<>();
+        new AuthScopeSlice(
+            new ScopeSlice() {
+                @Override
+                public Scope scope(final String rqline) {
+                    cline.set(rqline);
+                    return new Scope.FromString(action);
+                }
+
+                @Override
+                public Response response(
+                    final String line,
+                    final Iterable<Map.Entry<String, String>> headers,
+                    final Publisher<ByteBuffer> body
+                ) {
+                    return StandardRs.OK;
+                }
+            },
+            (headers, rline) -> CompletableFuture.completedFuture(
+                new AuthScheme.Result() {
+                    @Override
+                    public Optional<Authentication> user() {
+                        // Assuming the new version of the dependency uses Authentication directly
+                        return Optional.of(Authentication.of("alice"));
+                    }
+
+                    @Override
+                    public String challenge() {
+                        return "";
+                    }
+                }
+            ),
+            (user, act) -> {
+                caction.set(act);
+                return true;
+            }
+        ).response(line, Headers.EMPTY, Content.EMPTY).send(
+            (status, headers, body) -> CompletableFuture.allOf()
+        ).toCompletableFuture().join();
+        MatcherAssert.assertThat(
+            "Request line passed to slice",
+            cline.get(),
+            new IsEqual<>(line)
+        );
+        MatcherAssert.assertThat(
+            "Scope passed as action to permissions",
+            caction.get(),
+            new IsEqual<>(action)
+        );
+    }
+}
+```
+
+In the proposed fix, the `User` class is replaced with a direct `Authentication` object creation, assuming that the new version of the dependency allows for this. If the actual replacement is different, the code should be adjusted accordingly.

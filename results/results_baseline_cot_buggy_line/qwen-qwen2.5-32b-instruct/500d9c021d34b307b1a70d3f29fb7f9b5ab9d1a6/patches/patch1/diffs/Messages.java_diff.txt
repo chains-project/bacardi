@@ -1,0 +1,19 @@
+1c1
+< 
+---
+> import java.util.Locale;
+6,7c6,7
+< import javax.mvc.MvcContext;
+< //https://www.mvc-spec.org/learn/cookbook/multilang_en.html
+---
+> import jakarta.mvc.MvcContext; // Assuming the new package is jakarta.mvc
+> 
+23c23
+<     private MvcContext mvcContext;
+---
+>     private jakarta.mvc.MvcContext mvcContext; // Update the import and usage of MvcContext
+33c33,34
+<         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
+---
+>         final Locale locale = mvcContext.getLocale(); // Ensure the method signature is correct
+>         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, locale);

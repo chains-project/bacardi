@@ -1,0 +1,28 @@
+108,112c108,114
+<                 final org.flywaydb.core.Flyway flyway = new Flyway();
+<                 flyway.setDataSource(this.dataSource());
+<                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+<                 flyway.setLocations(prop.getProperty("flyway.locations"));
+<                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+---
+>                 final Flyway flyway = Flyway.configure()
+>                                 .dataSource(this.dataSource())
+>                                 .locations(prop.getProperty("flyway.locations"))
+>                                 .classLoader(NisAppConfig.class.getClassLoader())
+>                                 .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
+>                                 .load();
+> 
+117d118
+<         @DependsOn("flyway")
+169c170
+<         // region observers + validators
+---
+>         // region mappers
+291c292
+<                 return new SynchronizedUnconfirmedTransactions(unconfirmedTransactions);
+---
+>                 return new SynchronizedUnconfirmedTransactions(unconfirmedTransaction);
+334c335
+<                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
+---
+>                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
