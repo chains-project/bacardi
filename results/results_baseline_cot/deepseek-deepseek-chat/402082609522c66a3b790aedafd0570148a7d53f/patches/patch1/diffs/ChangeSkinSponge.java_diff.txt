@@ -1,0 +1,53 @@
+23,33c23,33
+< import org.spongepowered.api.command.CommandManager;
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.config.ConfigDir;
+< import org.spongepowered.api.event.Listener;
+< import org.spongepowered.api.event.game.state.GameInitializationEvent;
+< import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+< import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelRegistrar;
+< import org.spongepowered.api.plugin.Plugin;
+< import org.spongepowered.api.text.serializer.TextSerializers;
+---
+> import org.spongepowered.api.command.manager.CommandManager;
+> import org.spongepowered.api.command.CommandCause;
+> import org.spongepowered.api.event.lifecycle.GameInitializationEvent;
+> import org.spongepowered.api.event.lifecycle.GamePreInitializationEvent;
+> import org.spongepowered.api.event.lifecycle.GameStoppingServerEvent;
+> import org.spongepowered.api.network.channel.raw.RawDataChannel;
+> import org.spongepowered.api.network.channel.ChannelManager;
+> import org.spongepowered.plugin.PluginContainer;
+> import org.spongepowered.plugin.builtin.jvm.Plugin;
+> import org.spongepowered.api.text.Text;
+> import org.spongepowered.api.text.serializer.TextSerializer;
+42c42
+< public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
+---
+> public class ChangeSkinSponge implements PlatformPlugin<CommandCause> {
+53d52
+<     //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
+63d61
+<         //load config and database
+79d76
+<         //command and event register
+89,90c86
+<         //incoming channel
+<         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
+---
+>         ChannelManager channelReg = Sponge.getChannelManager();
+109c105
+<     public boolean hasSkinPermission(CommandSource invoker, UUID uuid, boolean sendMessage) {
+---
+>     public boolean hasSkinPermission(CommandCause invoker, UUID uuid, boolean sendMessage) {
+114d109
+<         //disallow - not whitelisted or blacklisted
+142c137
+<     public void sendMessage(CommandSource receiver, String key) {
+---
+>     public void sendMessage(CommandCause receiver, String key) {
+145c140
+<             receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
+---
+>             receiver.sendMessage(Text.of(message));

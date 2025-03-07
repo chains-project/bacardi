@@ -1,0 +1,215 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the package `org.codehaus.plexus.util.xml` does not exist.
+   - The error occurs at line 27 in the `MavenDependencyManager.java` file.
+   - This suggests that the dependency containing `org.codehaus.plexus.util.xml` is either missing or has been updated/removed.
+
+2. Review the client code:
+   - The problematic import is `import org.codehaus.plexus.util.xml.Xpp3Dom;`.
+   - The `Xpp3Dom` class is used in the `collectUsedClassesFromProcessors` method to parse XML configuration from Maven plugins.
+   - The code relies on this class to interact with Maven's plugin configuration.
+
+3. Consider potential fixes:
+   - The `Xpp3Dom` class might have been moved to a different package in a newer version of the dependency.
+   - Alternatively, a different class or library might be needed to achieve the same functionality.
+   - The fix should ensure that the XML parsing functionality remains intact.
+
+4. Plan the necessary changes:
+   - Investigate the correct package or alternative class for `Xpp3Dom` in the updated dependency.
+   - Update the import statement to use the correct package or class.
+   - Ensure that the `collectUsedClassesFromProcessors` method continues to work as expected.
+</code_analysis>
+
+```java
+package se.kth.depclean.wrapper;
+
+import static com.google.common.collect.ImmutableSet.of;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Serializable;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.project.DefaultProjectBuildingRequest;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuildingRequest;
+import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
+import org.apache.maven.shared.dependency.graph.DependencyNode;
+import org.apache.maven.plugin.Plugin;
+import org.apache.maven.plugin.PluginExecution;
+import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginDescriptor;
+import org.apache.maven.plugin.descriptor.PluginDescriptorBuilder;
+import org.apache.maven.plugin.descriptor.PluginParameter;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+import org.apache.maven.plugin.descriptor.PluginParameterExpressionEvaluator;
+

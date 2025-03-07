@@ -1,0 +1,99 @@
+<code_analysis>
+1. Examine the error message:
+   - The error indicates that the class `ClientConnectionEvent` cannot be found in the package `org.spongepowered.api.event.network`.
+   - The error occurs at line 13 (import statement) and line 29 (method parameter).
+   - This suggests that the package or class structure has changed in the updated version of the Sponge API.
+
+2. Review the client code:
+   - The problematic areas are the import statement and the method `onPlayerPreLogin` which uses `ClientConnectionEvent.Auth`.
+   - The code relies on the `ClientConnectionEvent` class from the Sponge API, which appears to have been moved or renamed.
+
+3. Consider potential fixes:
+   - The `ClientConnectionEvent` class might have been moved to a different package or renamed in the newer version of the Sponge API.
+   - The fix should involve updating the import statement and the event class to match the new package or class name.
+
+4. Plan the necessary changes:
+   - Update the import statement to reflect the new location or name of the `ClientConnectionEvent` class.
+   - Update the method parameter to use the correct event class.
+</code_analysis>
+
+```java
+package com.github.games647.changeskin.sponge;
+
+import com.github.games647.changeskin.core.SkinStorage;
+import com.github.games647.changeskin.core.model.UserPreference;
+import com.github.games647.changeskin.core.model.skin.SkinModel;
+import com.github.games647.changeskin.core.shared.SharedListener;
+import com.google.inject.Inject;
+
+import java.util.Optional;
+import java.util.UUID;
+
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.profile.GameProfile;
+import org.spongepowered.api.scheduler.Task;
+
+public class LoginListener extends SharedListener {
+
+    private final ChangeSkinSponge plugin;
+
+    @Inject
+    LoginListener(ChangeSkinSponge plugin) {
+        super(plugin.getCore());
+
+        this.plugin = plugin;
+    }
+
+    @Listener
+    public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
+        SkinStorage storage = core.getStorage();
+        GameProfile profile = preLoginEvent.getProfile();
+        UUID playerUUID = profile.getUniqueId();
+
+        UserPreference preferences = storage.getPreferences(playerUUID);
+        Optional<SkinModel> optSkin = preferences.getTargetSkin();
+        if (optSkin.isPresent()) {
+            SkinModel targetSkin = optSkin.get();
+            if (!preferences.isKeepSkin()) {
+                targetSkin = core.checkAutoUpdate(targetSkin);
+            }
+
+            plugin.getApi().applyProperties(profile, targetSkin);
+            save(preferences);
+        } else {
+            String playerName = profile.getName().get();
+            if (!core.getConfig().getBoolean("restoreSkins") || !refetchSkin(playerName, preferences)) {
+                setDefaultSkin(preferences, profile);
+            }
+        }
+    }
+
+    private void setDefaultSkin(UserPreference preferences, GameProfile profile) {
+        Optional<SkinModel> randomSkin = getRandomSkin();
+        if (randomSkin.isPresent()) {
+            SkinModel targetSkin = randomSkin.get();
+            preferences.setTargetSkin(targetSkin);
+            plugin.getApi().applyProperties(profile, targetSkin);
+        }
+    }
+
+    @Override
+    protected void save(final UserPreference preferences) {
+        Task.builder()
+                .async()
+                .execute(() -> {
+                    Optional<SkinModel> optSkin = preferences.getTargetSkin();
+                    if (optSkin.isPresent()) {
+                        if (core.getStorage().save(optSkin.get())) {
+                            core.getStorage().save(preferences);
+                        }
+                    } else {
+                        core.getStorage().save(preferences);
+                    }
+                }).submit(plugin);
+    }
+}
+```
+
+In this case, the `ClientConnectionEvent` class is still in the same package, so the issue might be related to the dependency version not being correctly included in the project. Ensure that the correct version of the Sponge API is included in the project's dependencies. If the class has indeed been moved or renamed, you would need to update the import statement and the event class accordingly. However, based on the current information, the class appears to be in the correct package, so the issue might be related to the build configuration rather than the code itself.

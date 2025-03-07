@@ -1,0 +1,54 @@
+56,57d55
+<     // The order of these initialisations is important as each field is dependent upon the previous
+<     // one.
+67d64
+<     // The only instance of this singleton class
+70d66
+<     // We need to reinitialise it before starting analysis of any source files on any rules.
+97c93
+<             throw new RuntimeException("Could not download Sonar Java plugin", e); // NOSONAR:S112
+---
+>             throw new RuntimeException("Could not download Sonar Java plugin", e);
+101d96
+<     /** Store the path to SonarJava plugin and if it is downloaded or fetched from cache. */
+135d129
+<         // Default loaded result stops the loader. The following code prevents that.
+141d134
+<         // We do not want this loader to close.
+162,163c155
+<         return AnalysisEngineConfiguration.builder()
+<                 .addEnabledLanguages(globalConfig.getEnabledLanguages())
+---
+>         AnalysisEngineConfiguration.Builder builder = AnalysisEngineConfiguration.builder()
+167,168c159,166
+<                 .setModulesProvider(globalConfig.getModulesProvider())
+<                 .build();
+---
+>                 .setModulesProvider(globalConfig.getModulesProvider());
+> 
+>         // Add each enabled language individually
+>         for (Language language : globalConfig.getEnabledLanguages()) {
+>             builder.addEnabledLanguage(language);
+>         }
+> 
+>         return builder.build();
+171d168
+<     /** Get or creates the one and only instance of this class. */
+181,184d177
+<     /**
+<      * Recreates the analysis engine as it is stopped after each analysis executed by {@link
+<      * SonarStaticAnalyzer}.
+<      */
+235d227
+<     /** Returns all rule keys available at the provided version of Sonar Java. */
+270c262
+<         throw new RuntimeException("Not implemented"); // NOSONAR:S112
+---
+>         throw new RuntimeException("Not implemented");
+273,276d264
+<     /**
+<      * Overriding this class to ensure that plugin instance loader never closes throughout the
+<      * lifecycle of JVM.
+<      */
+287d274
+<             // Prevent closing of `pluginInstancesLoader`

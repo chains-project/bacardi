@@ -1,0 +1,157 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the `StringContains` constructor is being called with two arguments (boolean, String), but the constructor only accepts a single String argument.
+   - The errors occur in multiple lines (84, 99, 123, 127, 131) where `StringContains` is instantiated.
+   - This suggests that the version of Hamcrest being used has changed, and the `StringContains` constructor signature has been updated.
+
+2. Review the client code:
+   - The problematic areas are in the `manifestPushed()`, `layersPushed()`, `layersAlreadyExist()`, and test methods where `StringContains` is used.
+   - The code is trying to use a constructor that no longer exists in the current version of Hamcrest.
+
+3. Consider potential fixes:
+   - The `StringContains` constructor should be updated to use the correct signature.
+   - The boolean argument (which appears to be `false` in all cases) should be removed since it's no longer supported.
+   - The functionality should remain the same, only the constructor call needs to be adjusted.
+
+4. Plan the necessary changes:
+   - Modify all instances of `new StringContains(false, String)` to `new StringContains(String)`.
+   - Ensure that the string argument remains the same to maintain the original functionality.
+</code_analysis>
+
+Here is the fixed Java class:
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker.http;
+
+import com.artipie.asto.memory.InMemoryStorage;
+import com.artipie.docker.asto.AstoDocker;
+import com.artipie.docker.junit.DockerClient;
+import com.artipie.docker.junit.DockerClientSupport;
+import com.artipie.docker.junit.DockerRepository;
+import org.hamcrest.Matcher;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
+import org.hamcrest.core.StringContains;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+/**
+ * Integration test for {@link DockerSlice}.
+ *
+ * @since 0.2
+ */
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
+@DockerClientSupport
+final class DockerSliceITCase {
+    /**
+     * Example docker image to use in tests.
+     */
+    private Image image;
+
+    /**
+     * Docker client.
+     */
+    private DockerClient client;
+
+    /**
+     * Docker repository.
+     */
+    private DockerRepository repository;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        this.repository = new DockerRepository(
+            new AstoDocker(new InMemoryStorage())
+        );
+        this.repository.start();
+        this.image = this.prepareImage();
+    }
+
+    @AfterEach
+    void tearDown() {
+        this.repository.stop();
+    }
+
+    @Test
+    void shouldPush() throws Exception {
+        final String output = this.client.run("push", this.image.remote());
+        MatcherAssert.assertThat(
+            output,
+            Matchers.allOf(this.layersPushed(), this.manifestPushed())
+        );
+    }
+
+    @Test
+    void shouldPushExisting() throws Exception {
+        this.client.run("push", this.image.remote());
+        final String output = this.client.run("push", this.image.remote());
+        MatcherAssert.assertThat(
+            output,
+            Matchers.allOf(this.layersAlreadyExist(), this.manifestPushed())
+        );
+    }
+
+    @Test
+    void shouldPullPushedByTag() throws Exception {
+        this.client.run("push", this.image.remote());
+        this.client.run("image", "rm", this.image.name());
+        this.client.run("image", "rm", this.image.remote());
+        final String output = this.client.run("pull", this.image.remote());
+        MatcherAssert.assertThat(
+            output,
+            new StringContains(
+                String.format("Status: Downloaded newer image for %s", this.image.remote())
+            )
+        );
+    }
+
+    @Test
+    void shouldPullPushedByDigest() throws Exception {
+        this.client.run("push", this.image.remote());
+        this.client.run("image", "rm", this.image.name());
+        this.client.run("image", "rm", this.image.remote());
+        final String output = this.client.run("pull", this.image.remoteByDigest());
+        MatcherAssert.assertThat(
+            output,
+            new StringContains(
+                String.format("Status: Downloaded newer image for %s", this.image.remoteByDigest())
+            )
+        );
+    }
+
+    private Image prepareImage() throws Exception {
+        final Image tmpimg = new Image.ForOs();
+        final String original = tmpimg.remoteByDigest();
+        this.client.run("pull", original);
+        final String local = "my-test";
+        this.client.run("tag", original, String.format("%s:latest", local));
+        final Image img = new Image.From(
+            this.repository.url(),
+            local,
+            tmpimg.digest(),
+            tmpimg.layer()
+        );
+        this.client.run("tag", original, img.remote());
+        return img;
+    }
+
+    private Matcher<String> manifestPushed() {
+        return new StringContains(String.format("latest: digest: %s", this.image.digest()));
+    }
+
+    private Matcher<String> layersPushed() {
+        return new StringContains(String.format("%s: Pushed", this.image.layer()));
+    }
+
+    private Matcher<String> layersAlreadyExist() {
+        return new StringContains(
+            String.format("%s: Layer already exists", this.image.layer())
+        );
+    }
+}
+```

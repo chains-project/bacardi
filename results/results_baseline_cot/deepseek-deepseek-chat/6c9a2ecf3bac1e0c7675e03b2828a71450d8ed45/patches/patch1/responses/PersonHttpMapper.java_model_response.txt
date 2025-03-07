@@ -1,0 +1,52 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the `@Mapper` annotation could not be retrieved.
+   - The error occurs at line 11 in the `PersonHttpMapper` interface.
+   - This suggests that there might be an issue with the MapStruct dependency or its configuration.
+
+2. Review the client code:
+   - The `@Mapper` annotation is used from the `org.mapstruct` package.
+   - The `Mappers.getMapper` method is used to create an instance of the mapper.
+   - The code appears to be correctly structured for MapStruct usage.
+
+3. Consider potential fixes:
+   - Ensure that the MapStruct dependency is correctly included in the project.
+   - Verify that the correct version of MapStruct is being used.
+   - Check if there are any changes in the MapStruct API that affect the `@Mapper` annotation.
+
+4. Plan the necessary changes to fix the issue:
+   - Verify and update the MapStruct dependency version if necessary.
+   - Ensure that the `@Mapper` annotation is correctly imported and used.
+   - No changes to the method signatures or existing code are required.
+</code_analysis>
+
+```java
+package io.github.wesleyosantos91.api.v1.mapper;
+
+import io.github.wesleyosantos91.api.v1.request.PersonRequest;
+import io.github.wesleyosantos91.api.v1.response.PersonResponse;
+import io.github.wesleyosantos91.core.domain.PersonDomain;
+import java.util.ArrayList;
+import java.util.List;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
+
+@Mapper(componentModel = "spring")
+public interface PersonHttpMapper {
+
+    PersonHttpMapper INSTANCE = Mappers.getMapper(PersonHttpMapper.class);
+    PersonDomain toDomain(PersonRequest request);
+    PersonRequest toRequest(PersonDomain domain);
+
+    PersonDomain toDomain(PersonResponse response);
+    PersonResponse toResponse(PersonDomain domain);
+
+    default List<PersonResponse> toListResponse(List<PersonDomain> domains){
+        List<PersonResponse> list = new ArrayList<>();
+        domains.forEach(d-> list.add(toResponse(d)));
+        return list;
+    }
+}
+```
+
+The fix involves adding the `componentModel = "spring"` attribute to the `@Mapper` annotation. This ensures that the mapper is correctly instantiated and managed by the Spring framework, which is a common requirement when using MapStruct in a Spring application. This change should resolve the issue with retrieving the `@Mapper` annotation.

@@ -1,0 +1,92 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that several packages and classes from the `javax.mvc` namespace are missing. Specifically, `javax.mvc.security`, `javax.mvc.binding`, and `javax.mvc` itself are not found.
+   - The `CsrfProtected`, `Controller`, `MvcBinding`, `Models`, and `BindingResult` classes cannot be found.
+   - This suggests that the code is using an outdated or incorrect version of the MVC API, likely due to a breaking dependency update.
+
+2. Review the client code:
+   - The code imports several classes from the `javax.mvc` package, which are now missing.
+   - The `@CsrfProtected` annotation is used in the `post` method, but the class cannot be found.
+   - The `@Controller`, `@MvcBinding`, `Models`, and `BindingResult` classes are also missing.
+
+3. Consider potential fixes:
+   - The issue appears to be related to the transition from `javax.*` to `jakarta.*` namespace in Jakarta EE 9 and later versions.
+   - The `javax.mvc` package has been moved to `jakarta.mvc` in Jakarta EE 9+.
+   - The fix should involve updating the imports to use the `jakarta.mvc` namespace instead of `javax.mvc`.
+
+4. Plan the necessary changes:
+   - Update all imports from `javax.mvc` to `jakarta.mvc`.
+   - Ensure that the `@CsrfProtected`, `@Controller`, `@MvcBinding`, `Models`, and `BindingResult` classes are imported from the correct `jakarta.mvc` package.
+   - No changes to the method signatures or logic are required.
+</code_analysis>
+
+```java
+package com.example.web;
+
+import java.util.logging.Logger;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import jakarta.mvc.UriRef;
+import jakarta.mvc.binding.BindingResult;
+import jakarta.mvc.binding.MvcBinding;
+import jakarta.mvc.binding.ParamError;
+import jakarta.mvc.security.CsrfProtected;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+
+/**
+ *
+ * @author hantsy
+ */
+@Path("csrf")
+@Controller
+@RequestScoped
+public class CsrfController {
+
+    @Inject
+    BindingResult bindingResult;
+
+    @Inject
+    Models models;
+
+    @Inject
+    AlertMessage flashMessage;
+
+    @Inject
+    Logger log;
+
+    @GET
+    public String get() {
+        return "csrf.xhtml";
+    }
+
+    @POST
+    @CsrfProtected
+    public String post(
+            @FormParam("greeting")
+            @MvcBinding
+            @NotBlank String greeting) {
+        if (bindingResult.isFailed()) {
+            AlertMessage alert = AlertMessage.danger("Validation voilations!");
+            bindingResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
+            models.put("errors", alert);
+            log.info("mvc binding failed.");
+            return "csrf.xhtml";
+        }
+
+        log.info("redirect to greeting page.");
+        flashMessage.notify(AlertMessage.Type.success, "Message:" + greeting);
+        return "redirect:csrf";
+    }
+
+}
+```

@@ -1,0 +1,63 @@
+<code_analysis>
+1. Examine the error message:
+   - The error indicates that the class `CommandSource` cannot be found in the package `org.spongepowered.api.command`.
+   - The error occurs on lines 9, 16, and 19 in the `SkinDownloader` class.
+   - This suggests that the `CommandSource` class has been moved, renamed, or removed in the updated version of the Sponge API dependency.
+
+2. Review the client code:
+   - The `CommandSource` class is used in the `SkinDownloader` class as a parameter type and as a field.
+   - The `sendMessageInvoker` method also uses `CommandSource` to send messages.
+
+3. Consider potential fixes:
+   - The `CommandSource` class might have been replaced by a different class in the newer version of the Sponge API.
+   - Research the Sponge API documentation to find the appropriate replacement for `CommandSource`.
+   - Update the imports and class references accordingly.
+
+4. Plan the necessary changes:
+   - Replace `CommandSource` with the appropriate class, such as `CommandCause` or `CommandExecutor`, depending on the Sponge API version.
+   - Update the imports to reflect the new class.
+   - Ensure that the new class provides the same functionality as `CommandSource`.
+</code_analysis>
+
+```java
+package com.github.games647.changeskin.sponge.task;
+
+import com.github.games647.changeskin.core.model.skin.SkinModel;
+import com.github.games647.changeskin.core.shared.task.SharedDownloader;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import java.util.UUID;
+
+import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
+
+public class SkinDownloader extends SharedDownloader {
+
+    private final ChangeSkinSponge plugin;
+    private final CommandCause invoker;
+    private final Player receiver;
+
+    public SkinDownloader(ChangeSkinSponge plugin, CommandCause invoker, Player receiver, UUID targetUUID
+            , boolean keepSkin) {
+        super(plugin.getCore(), keepSkin, targetUUID, receiver.getUniqueId());
+
+        this.plugin = plugin;
+        this.invoker = invoker;
+        this.receiver = receiver;
+    }
+
+    @Override
+    protected void scheduleApplyTask(SkinModel skinData) {
+        Runnable skinUpdater = new SkinApplier(plugin, invoker, receiver, skinData, keepSkin);
+        Task.builder().execute(skinUpdater).submit(plugin);
+    }
+
+    @Override
+    public void sendMessageInvoker(String id) {
+        plugin.sendMessage(invoker, id);
+    }
+}
+```
+
+In this fix, I replaced `CommandSource` with `CommandCause`, which is a common replacement in newer versions of the Sponge API. I also updated the import statement to reflect this change. This should resolve the compilation errors while maintaining the functionality of the code.

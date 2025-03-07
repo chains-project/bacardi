@@ -1,0 +1,121 @@
+<code_analysis>
+1. Examine the error message:
+   - The error occurs in the `DockerAuthITCase` class at lines 70 and 85.
+   - The issue is related to the `StringContains` constructor from the `org.hamcrest.core.StringContains` class.
+   - The error indicates that the constructor is being called with a boolean and a String, but it expects only a String.
+
+2. Review the client code:
+   - The problematic lines are in the `shouldPush` and `shouldPull` methods where `StringContains` is instantiated with two arguments: a boolean and a String.
+   - The code is using an older version of Hamcrest where `StringContains` had a constructor that accepted a boolean and a String, but this constructor is no longer available in newer versions.
+
+3. Consider potential fixes:
+   - The fix should modify the instantiation of `StringContains` to use the constructor that accepts only a String.
+   - The boolean argument, which likely controlled case sensitivity, should be handled differently if needed.
+
+4. Plan the necessary changes:
+   - Replace the `StringContains` constructor calls with the single-argument version.
+   - If case sensitivity is important, consider using `StringContainsIgnoringCase` instead.
+</code_analysis>
+
+Here is the fixed class:
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker.http;
+
+import com.artipie.asto.memory.InMemoryStorage;
+import com.artipie.docker.asto.AstoDocker;
+import com.artipie.docker.junit.DockerClient;
+import com.artipie.docker.junit.DockerClientSupport;
+import com.artipie.docker.junit.DockerRepository;
+import com.artipie.http.auth.BasicAuthScheme;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.core.StringContains;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+/**
+ * Integration test for authentication in {@link DockerSlice}.
+ *
+ * @checkstyle ClassDataAbstractionCouplingCheck (500 lines)
+ * @since 0.4
+ */
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
+@DockerClientSupport
+final class DockerAuthITCase {
+
+    /**
+     * Docker client.
+     */
+    private DockerClient cli;
+
+    /**
+     * Docker repository.
+     */
+    private DockerRepository repo;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        final TestAuthentication.User user = TestAuthentication.ALICE;
+        this.repo = new DockerRepository(
+            new DockerSlice(
+                new AstoDocker(new InMemoryStorage()),
+                (identity, action) -> user.name().equals(identity.name()),
+                new BasicAuthScheme(new TestAuthentication())
+            )
+        );
+        this.repo.start();
+        this.cli.run(
+            "login",
+            "--username", user.name(),
+            "--password", user.password(),
+            this.repo.url()
+        );
+    }
+
+    @AfterEach
+    void tearDown() {
+        this.repo.stop();
+    }
+
+    @Test
+    void shouldPush() throws Exception {
+        final Image original = new Image.ForOs();
+        final String image = this.copy(original);
+        final String output = this.cli.run("push", image);
+        MatcherAssert.assertThat(
+            output,
+            new StringContains(
+                String.format("latest: digest: %s", original.digest())
+            )
+        );
+    }
+
+    @Test
+    void shouldPull() throws Exception {
+        final String image = this.copy(new Image.ForOs());
+        this.cli.run("push", image);
+        this.cli.run("image", "rm", image);
+        final String output = this.cli.run("pull", image);
+        MatcherAssert.assertThat(
+            output,
+            new StringContains(
+                String.format("Status: Downloaded newer image for %s", image)
+            )
+        );
+    }
+
+    private String copy(final Image original) throws Exception {
+        this.cli.run("pull", original.remoteByDigest());
+        final String copy = String.format("%s/my-test/latest", this.repo.url());
+        this.cli.run("tag", original.remoteByDigest(), copy);
+        return copy;
+    }
+}
+```
+
+The fix removes the boolean argument from the `StringContains` constructor calls, as the newer version of Hamcrest only accepts a single String argument. This change maintains the functionality while resolving the compilation error.

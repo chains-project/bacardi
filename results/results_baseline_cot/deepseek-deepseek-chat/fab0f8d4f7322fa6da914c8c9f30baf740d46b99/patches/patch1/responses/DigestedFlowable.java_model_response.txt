@@ -1,0 +1,93 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the classes `HexOf` and `BytesOf` from the `org.cactoos.text` and `org.cactoos.io` packages cannot be found.
+   - The issue occurs at line 57 in the `DigestedFlowable` class.
+   - The problem is related to missing or incorrect dependencies for the `org.cactoos` library.
+
+2. Review the client code:
+   - The problematic code is in the `subscribeActual` method where `HexOf` and `BytesOf` are used to calculate the digest.
+   - The imports for `org.cactoos.io.BytesOf` and `org.cactoos.text.HexOf` are missing or incorrect.
+
+3. Consider potential fixes:
+   - The fix should ensure that the correct classes are imported and used.
+   - Since the `org.cactoos` library is not available, we can replace the functionality with standard Java classes.
+
+4. Plan the necessary changes:
+   - Replace `HexOf` and `BytesOf` with standard Java classes like `HexFormat` and `ByteArrayOutputStream`.
+   - Update the imports to use standard Java classes.
+   - Ensure the functionality remains the same.
+</code_analysis>
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker.misc;
+
+import com.artipie.asto.Remaining;
+import com.artipie.asto.ext.Digests;
+import com.artipie.docker.Digest;
+import io.reactivex.Flowable;
+import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.util.HexFormat;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+
+/**
+ * {@link Flowable} that calculates digest of origin {@link Publisher} bytes when they pass by.
+ *
+ * @since 0.12
+ */
+public final class DigestedFlowable extends Flowable<ByteBuffer> {
+
+    /**
+     * Origin publisher.
+     */
+    private final Publisher<ByteBuffer> origin;
+
+    /**
+     * Calculated digest.
+     */
+    private final AtomicReference<Digest> dig;
+
+    /**
+     * Ctor.
+     *
+     * @param origin Origin publisher.
+     */
+    public DigestedFlowable(final Publisher<ByteBuffer> origin) {
+        this.dig = new AtomicReference<>();
+        this.origin = origin;
+    }
+
+    @Override
+    public void subscribeActual(final Subscriber<? super ByteBuffer> subscriber) {
+        final MessageDigest sha = Digests.SHA256.get();
+        Flowable.fromPublisher(this.origin).map(
+            buf -> {
+                sha.update(new Remaining(buf, true).bytes());
+                return buf;
+            }
+        ).doOnComplete(
+            () -> this.dig.set(
+                new Digest.Sha256(HexFormat.of().formatHex(sha.digest()))
+            )
+        ).subscribe(subscriber);
+    }
+
+    /**
+     * Calculated digest.
+     *
+     * @return Digest.
+     */
+    public Digest digest() {
+        return Objects.requireNonNull(this.dig.get(), "Digest is not yet calculated.");
+    }
+}
+```
+
+In this fix, I replaced the `HexOf` and `BytesOf` classes from the `org.cactoos` library with the standard Java `HexFormat` class. This ensures that the code compiles without requiring the `org.cactoos` dependency. The functionality remains the same, as `HexFormat.of().formatHex(sha.digest())` correctly converts the digest to a hexadecimal string.

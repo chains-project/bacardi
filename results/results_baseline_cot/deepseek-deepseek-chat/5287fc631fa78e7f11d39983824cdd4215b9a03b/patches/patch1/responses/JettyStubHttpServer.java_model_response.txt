@@ -1,0 +1,100 @@
+<code_analysis>
+1. Examine the error message:
+   - The errors indicate that the package `org.eclipse.jetty.server.nio` does not exist, and several methods (`setPort`, `setSendDateHeader`, `getLocalPort`, `setSendServerVersion`) and the class `SelectChannelConnector` cannot be found.
+   - These issues suggest that the code is using an outdated version of the Jetty library, and the API has changed in the newer version.
+
+2. Review the client code:
+   - The problematic areas are in the constructor where `SelectChannelConnector` is used and where methods like `setPort`, `setSendDateHeader`, `setSendServerVersion`, and `getLocalPort` are called.
+   - The code is using Jetty's old API, which has been updated in newer versions.
+
+3. Consider potential fixes:
+   - Replace `SelectChannelConnector` with the appropriate connector class from the newer Jetty version.
+   - Update the method calls to match the new API.
+   - Ensure the correct imports are used.
+
+4. Plan the necessary changes:
+   - Replace `SelectChannelConnector` with `ServerConnector`.
+   - Update the method calls to use the new API methods.
+   - Update the imports to reflect the new package structure.
+</code_analysis>
+
+```java
+/*
+ * Copyright (c) 2012 - 2016 Jadler contributors
+ * This program is made available under the terms of the MIT License.
+ */
+package net.jadler.stubbing.server.jetty;
+
+import net.jadler.RequestManager;
+import net.jadler.stubbing.server.StubHttpServer;
+import org.apache.commons.lang.Validate;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Default stub http server implementation using Jetty as an http server.
+ */
+public class JettyStubHttpServer implements StubHttpServer {
+
+    private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
+    private final Server server;
+    private final ServerConnector httpConnector;
+
+    public JettyStubHttpServer() {
+        this(0);
+    }
+
+    public JettyStubHttpServer(final int port) {
+        this.server = new Server();
+        this.server.setAttribute("org.eclipse.jetty.server.Server.SERVER_VERSION", null);
+        this.server.setAttribute("org.eclipse.jetty.server.Server.SEND_DATE_HEADER", true);
+
+        this.httpConnector = new ServerConnector(server);
+        this.httpConnector.setPort(port);
+        server.addConnector(this.httpConnector);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void registerRequestManager(final RequestManager ruleProvider) {
+        Validate.notNull(ruleProvider, "ruleProvider cannot be null");
+
+        server.setHandler(new JadlerHandler(ruleProvider));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void start() throws Exception {
+        logger.debug("starting jetty");
+        server.start();
+        logger.debug("jetty started");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void stop() throws Exception {
+        logger.debug("stopping jetty");
+        server.stop();
+        logger.debug("jetty stopped");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getPort() {
+        return httpConnector.getLocalPort();
+    }
+}
+```
+
+This fix replaces the deprecated `SelectChannelConnector` with `ServerConnector` and updates the method calls to match the new Jetty API. The imports have also been updated to reflect the new package structure. The class should now compile correctly with the updated Jetty dependency.

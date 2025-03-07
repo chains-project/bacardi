@@ -1,0 +1,21 @@
+3a4
+> import org.flywaydb.core.api.configuration.FluentConfiguration;
+108,113c109,115
+<                 final org.flywaydb.core.Flyway flyway = new Flyway();
+<                 flyway.setDataSource(this.dataSource());
+<                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+<                 flyway.setLocations(prop.getProperty("flyway.locations"));
+<                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+<                 return flyway;
+---
+>         FluentConfiguration config = Flyway.configure()
+>                 .dataSource(this.dataSource())
+>                 .classLoader(NisAppConfig.class.getClassLoader())
+>                 .locations(prop.getProperty("flyway.locations"))
+>                 .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+> 
+>         return new Flyway(config);
+226c228
+<                 return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
+---
+>         return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());
