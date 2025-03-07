@@ -1,0 +1,1 @@
+new StringContains(true, digest)

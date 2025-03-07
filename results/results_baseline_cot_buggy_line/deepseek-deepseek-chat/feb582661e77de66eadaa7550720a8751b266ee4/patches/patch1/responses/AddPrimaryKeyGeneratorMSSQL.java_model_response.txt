@@ -1,0 +1,110 @@
+<code_analysis>
+1. Examine the error message:
+   - The error indicates that the class `StringUtils` from the package `liquibase.util` cannot be found.
+   - The error occurs at line 12 (import statement) and line 67 (usage of `StringUtils.trimToNull`).
+   - This suggests that the `StringUtils` class has been removed or relocated in the newer version of the Liquibase dependency.
+
+2. Review the client code:
+   - The problematic areas are the import statement and the usage of `StringUtils.trimToNull`.
+   - The `StringUtils.trimToNull` method is used to check if the `tablespace` value is null or empty after trimming.
+
+3. Consider potential fixes:
+   - Since `StringUtils` is no longer available, we need to replace it with an equivalent method.
+   - The `String` class in Java provides a `trim()` method, and we can use `isEmpty()` to check for empty strings.
+   - We can create a utility method to replicate the behavior of `StringUtils.trimToNull`.
+
+4. Plan the necessary changes:
+   - Remove the import statement for `liquibase.util.StringUtils`.
+   - Replace the usage of `StringUtils.trimToNull` with a custom utility method or inline logic.
+   - Ensure the new logic correctly handles null and empty strings.
+</code_analysis>
+
+```java
+package liquibase.ext.mssql.sqlgenerator;
+
+import liquibase.database.Database;
+import liquibase.ext.mssql.database.MSSQLDatabase;
+import liquibase.ext.mssql.statement.AddPrimaryKeyStatementMSSQL;
+import liquibase.sql.Sql;
+import liquibase.sql.UnparsedSql;
+import liquibase.sqlgenerator.SqlGeneratorChain;
+import liquibase.sqlgenerator.core.AddPrimaryKeyGenerator;
+import liquibase.statement.core.AddPrimaryKeyStatement;
+import liquibase.structure.core.Index;
+
+public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
+  @Override
+  public int getPriority() {
+    return 15;
+  }
+
+  /**
+   * Conditionally executes to extension's custom Primary Key SQL generation process if statement is the
+   * AddPrimaryKeyStatementMSSQL implementation and the custom attribute (fillFactor) is set.
+   *
+   * Otherwise, defers to default liquibase implementation.
+   *
+   * @param statement
+   * @param database
+   * @param sqlGeneratorChain
+   * @return
+   */
+  @Override
+  public Sql[] generateSql(AddPrimaryKeyStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
+    if (statement instanceof AddPrimaryKeyStatementMSSQL && ((AddPrimaryKeyStatementMSSQL) statement).getFillFactor() != null) {
+      return generateMSSQLSql((AddPrimaryKeyStatementMSSQL)statement, database, sqlGeneratorChain);
+    }
+
+    return super.generateSql(statement, database, sqlGeneratorChain);
+  }
+
+  /**
+   * The extension's implementation is essentially a copy/paste of the default implementation, with the following changes:
+   *
+   * 1) Removed other database platform specific logic other than MSSQL (purely to simplify)
+   *
+   * 2) Added support for setting fillFactor
+   *
+   * @param statement
+   * @param database
+   * @param sqlGeneratorChain
+   * @return
+   */
+  private Sql[] generateMSSQLSql(AddPrimaryKeyStatementMSSQL statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
+    String sql;
+    if (statement.getConstraintName() == null) {
+      sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) + " ADD PRIMARY KEY (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
+    } else {
+      sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) + " ADD CONSTRAINT " + database.escapeConstraintName(statement.getConstraintName())+" PRIMARY KEY";
+      if (!statement.isClustered()) {
+        sql += " NONCLUSTERED";
+      }
+      sql += " (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
+    }
+
+    // the only new feature being added is support for fillFactor
+    sql += " WITH (FILLFACTOR = " + statement.getFillFactor() + ")";
+
+    String tablespace = statement.getTablespace();
+    if (tablespace != null && !tablespace.trim().isEmpty() && database.supportsTablespaces()) {
+      sql += " ON "+tablespace.trim();
+    }
+
+    if (statement.getForIndexName() != null) {
+      sql += " USING INDEX "+database.escapeObjectName(statement.getForIndexCatalogName(), statement.getForIndexSchemaName(), statement.getForIndexName(), Index.class);
+    }
+
+    return new Sql[] {
+        new UnparsedSql(sql, getAffectedPrimaryKey(statement))
+    };
+  }
+
+  @Override
+  public boolean supports(AddPrimaryKeyStatement statement, Database database) {
+    return database instanceof MSSQLDatabase;
+  }
+
+}
+```
+
+In this fix, I removed the import of `liquibase.util.StringUtils` and replaced the usage of `StringUtils.trimToNull` with inline logic that checks if the `tablespace` is not null and not empty after trimming. This ensures the same functionality without relying on the removed `StringUtils` class.

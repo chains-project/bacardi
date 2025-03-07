@@ -1,0 +1,130 @@
+<code_analysis>
+1. Examine the error message:
+   - The error occurs in the `ManifestRefTest` class, specifically in the `failsToResolveInvalid` method.
+   - The issue is related to the `StringContains` constructor in the `org.hamcrest.core` package.
+   - The error indicates that the `StringContains` constructor is being called with a boolean and a String, but it only accepts a String.
+
+2. Review the client code:
+   - The problematic lines are where `StringContains` is instantiated with `(true, "Unsupported reference")` and `(false, string)`.
+   - The `StringContains` class in the newer version of Hamcrest likely no longer supports a constructor with a boolean and a String.
+
+3. Consider potential fixes:
+   - The `StringContains` constructor should be updated to only accept a String.
+   - The boolean parameter, which likely controlled case sensitivity, should be handled differently or removed.
+
+4. Plan the necessary changes to fix the issue:
+   - Modify the `StringContains` constructor calls to only pass the String argument.
+   - Ensure the test logic remains intact by adjusting the assertions if necessary.
+</code_analysis>
+
+Here is the fixed Java class:
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+
+package com.artipie.docker.ref;
+
+import com.artipie.docker.Digest;
+import com.artipie.docker.Tag;
+import java.util.Arrays;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
+import org.hamcrest.core.AllOf;
+import org.hamcrest.core.StringContains;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
+/**
+ * Test case for {@link ManifestRef}.
+ * @since 0.1
+ */
+public final class ManifestRefTest {
+
+    @Test
+    void resolvesDigestString() {
+        MatcherAssert.assertThat(
+            new ManifestRef.FromString("sha256:1234").link().string(),
+            Matchers.equalTo("revisions/sha256/1234/link")
+        );
+    }
+
+    @Test
+    void resolvesTagString() {
+        MatcherAssert.assertThat(
+            new ManifestRef.FromString("1.0").link().string(),
+            Matchers.equalTo("tags/1.0/current/link")
+        );
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "",
+        "a:b:c",
+        ".123"
+    })
+    void failsToResolveInvalid(final String string) {
+        final Throwable throwable = Assertions.assertThrows(
+            IllegalStateException.class,
+            () -> new ManifestRef.FromString(string).link().string()
+        );
+        MatcherAssert.assertThat(
+            throwable.getMessage(),
+            new AllOf<>(
+                Arrays.asList(
+                    new StringContains("Unsupported reference"),
+                    new StringContains(string)
+                )
+            )
+        );
+    }
+
+    @Test
+    void resolvesDigestLink() {
+        MatcherAssert.assertThat(
+            new ManifestRef.FromDigest(new Digest.Sha256("0000")).link().string(),
+            Matchers.equalTo("revisions/sha256/0000/link")
+        );
+    }
+
+    @Test
+    void resolvesTagLink() {
+        MatcherAssert.assertThat(
+            new ManifestRef.FromTag(new Tag.Valid("latest")).link().string(),
+            Matchers.equalTo("tags/latest/current/link")
+        );
+    }
+
+    @Test
+    void stringFromDigestRef() {
+        MatcherAssert.assertThat(
+            new ManifestRef.FromDigest(new Digest.Sha256("0123")).string(),
+            Matchers.equalTo("sha256:0123")
+        );
+    }
+
+    @Test
+    void stringFromTagRef() {
+        final String tag = "0.2";
+        MatcherAssert.assertThat(
+            new ManifestRef.FromTag(new Tag.Valid(tag)).string(),
+            Matchers.equalTo(tag)
+        );
+    }
+
+    @Test
+    void stringFromStringRef() {
+        final String value = "whatever";
+        MatcherAssert.assertThat(
+            new ManifestRef.FromString(value).string(),
+            Matchers.equalTo(value)
+        );
+    }
+}
+```
+
+The fix involves removing the boolean parameter from the `StringContains` constructor calls, as the newer version of Hamcrest no longer supports this constructor. The test logic remains intact, and the class should now compile correctly.

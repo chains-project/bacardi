@@ -1,0 +1,68 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the `@Mapper` annotation cannot be retrieved.
+   - The error occurs at line 11, where the `@Mapper` annotation is used.
+   - This suggests that there might be an issue with the MapStruct dependency or its version.
+
+2. Review the client code:
+   - The `@Mapper` annotation is used to define a MapStruct mapper interface.
+   - The code imports `org.mapstruct.Mapper` and `org.mapstruct.factory.Mappers`, which are part of the MapStruct library.
+   - The issue is likely related to the MapStruct dependency not being correctly included or an incompatible version being used.
+
+3. Consider potential fixes:
+   - Ensure that the correct version of MapStruct is included in the project's dependencies.
+   - Verify that the `@Mapper` annotation is correctly imported from the MapStruct library.
+   - If the issue persists, consider using a different version of MapStruct that is compatible with the project.
+
+4. Plan the necessary changes to fix the issue:
+   - Check the project's build configuration (e.g., `pom.xml` for Maven) to ensure that the correct MapStruct dependency is included.
+   - If the dependency is missing or incorrect, update the build configuration to include the correct version of MapStruct.
+   - Ensure that the `@Mapper` annotation is correctly imported and used in the code.
+</code_analysis>
+
+```java
+package io.github.wesleyosantos91.api.v1.mapper;
+
+import io.github.wesleyosantos91.api.v1.request.PersonRequest;
+import io.github.wesleyosantos91.api.v1.response.PersonResponse;
+import io.github.wesleyosantos91.core.domain.PersonDomain;
+import java.util.ArrayList;
+import java.util.List;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
+
+@Mapper
+public interface PersonHttpMapper {
+
+    PersonHttpMapper INSTANCE = Mappers.getMapper(PersonHttpMapper.class);
+    PersonDomain toDomain(PersonRequest request);
+    PersonRequest toRequest(PersonDomain domain);
+
+    PersonDomain toDomain(PersonResponse response);
+    PersonResponse toResponse(PersonDomain domain);
+
+    default List<PersonResponse> toListResponse(List<PersonDomain> domains){
+        List<PersonResponse> list = new ArrayList<>();
+        domains.forEach(d-> list.add(toResponse(d)));
+        return list;
+    }
+}
+```
+
+To fix the issue, ensure that the correct MapStruct dependency is included in your project's build configuration. For example, in a Maven `pom.xml` file, you should have:
+
+```xml
+<dependency>
+    <groupId>org.mapstruct</groupId>
+    <artifactId>mapstruct</artifactId>
+    <version>1.5.5.Final</version> <!-- or the appropriate version -->
+</dependency>
+<dependency>
+    <groupId>org.mapstruct</groupId>
+    <artifactId>mapstruct-processor</artifactId>
+    <version>1.5.5.Final</version> <!-- or the appropriate version -->
+    <scope>provided</scope>
+</dependency>
+```
+
+Make sure to use the correct version of MapStruct that is compatible with your project. If the issue persists, consider updating the MapStruct version to a more recent one that is known to work with your project setup.

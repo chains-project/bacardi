@@ -1,0 +1,52 @@
+23,25c23,24
+< import org.spongepowered.api.command.CommandManager;
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.config.ConfigDir;
+---
+> import org.spongepowered.api.command.CommandResult;
+> import org.spongepowered.api.command.manager.CommandManager;
+27,33c26,33
+< import org.spongepowered.api.event.game.state.GameInitializationEvent;
+< import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+< import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelRegistrar;
+< import org.spongepowered.api.plugin.Plugin;
+< import org.spongepowered.api.text.serializer.TextSerializers;
+---
+> import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
+> import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
+> import org.spongepowered.api.network.channel.raw.RawDataChannel;
+> import org.spongepowered.api.network.channel.ChannelRegistrar;
+> import org.spongepowered.plugin.PluginContainer;
+> import org.spongepowered.plugin.builtin.jvm.Plugin;
+> import org.spongepowered.api.text.Text;
+> import org.spongepowered.api.text.serializer.TextSerializer;
+42c42
+< public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
+---
+> public class ChangeSkinSponge implements PlatformPlugin<CommandResult> {
+62c62
+<     public void onPreInit(GamePreInitializationEvent preInitEvent) {
+---
+>     public void onPreInit(StartedEngineEvent<PluginContainer> preInitEvent) {
+73c73
+<     public void onInit(GameInitializationEvent initEvent) {
+---
+>     public void onInit(StartedEngineEvent<PluginContainer> initEvent) {
+100c100
+<     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
+---
+>     public void onShutdown(StoppingEngineEvent<PluginContainer> stoppingServerEvent) {
+109c109
+<     public boolean hasSkinPermission(CommandSource invoker, UUID uuid, boolean sendMessage) {
+---
+>     public boolean hasSkinPermission(CommandResult invoker, UUID uuid, boolean sendMessage) {
+142c142
+<     public void sendMessage(CommandSource receiver, String key) {
+---
+>     public void sendMessage(CommandResult receiver, String key) {
+145c145
+<             receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
+---
+>             receiver.sendMessage(TextSerializer.LEGACY_FORMATTING_CODE.deserialize(message));

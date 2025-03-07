@@ -1,0 +1,22 @@
+15,16d14
+< import org.cactoos.io.BytesOf;
+< import org.cactoos.text.HexOf;
+57c55
+<                 new Digest.Sha256(new HexOf(new BytesOf(sha.digest())).asString())
+---
+>                 new Digest.Sha256(bytesToHex(sha.digest()))
+62a61,74
+>      * Converts a byte array to a hexadecimal string.
+>      *
+>      * @param bytes The byte array to convert.
+>      * @return The hexadecimal string representation of the byte array.
+>      */
+>     private static String bytesToHex(byte[] bytes) {
+>         StringBuilder sb = new StringBuilder();
+>         for (byte b : bytes) {
+>             sb.append(String.format("%02x", b));
+>         }
+>         return sb.toString();
+>     }
+> 
+>     /**

@@ -1,0 +1,57 @@
+<code_analysis>
+1. Examine the error message:
+   - The errors indicate that the `javax.ws.rs` package and its sub-packages (`javax.ws.rs.container`, `javax.ws.rs.ext`, `javax.ws.rs.core`) do not exist.
+   - This suggests that the project is using a version of the JAX-RS API that is either missing or incompatible.
+   - The specific classes causing the issue are `ContainerRequestContext`, `Provider`, `Response`, `HttpHeaders`, `WebApplicationException`, and `ContainerRequestFilter`.
+
+2. Review the client code:
+   - The code is a JAX-RS filter that implements `ContainerRequestFilter` and uses annotations like `@Provider`.
+   - The imports and class implementations are based on the JAX-RS API, which is now missing or incompatible.
+
+3. Consider potential fixes:
+   - The issue is likely due to a missing or outdated JAX-RS dependency.
+   - The fix should involve updating the imports to use the correct package names or adding the necessary dependency.
+
+4. Plan the necessary changes:
+   - Update the imports to use the correct package names if the JAX-RS API has been relocated.
+   - Ensure that the project includes the correct version of the JAX-RS API in its dependencies.
+</code_analysis>
+
+```java
+package com.wire.lithium.server.filters;
+
+import com.wire.xenon.Const;
+import com.wire.xenon.tools.Logger;
+import com.wire.xenon.tools.Util;
+
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.Provider;
+
+@Provider
+public class AuthenticationFilter implements ContainerRequestFilter {
+    @Override
+    public void filter(ContainerRequestContext requestContext) {
+        String auth = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
+        if (auth == null) {
+            Exception cause = new IllegalArgumentException("Missing Authorization");
+            throw new WebApplicationException(cause, Response.Status.UNAUTHORIZED);
+        }
+
+        String serviceToken = System.getProperty(Const.WIRE_BOTS_SDK_TOKEN, System.getenv("SERVICE_TOKEN"));
+
+        if (!Util.compareAuthorizations(auth, serviceToken)) {
+            Logger.warning("Wrong service token");
+            Exception cause = new IllegalArgumentException("Wrong service token");
+            throw new WebApplicationException(cause, Response.Status.UNAUTHORIZED);
+        }
+
+        requestContext.setProperty("wire-auth", Util.extractToken(auth));
+    }
+}
+```
+
+The fix involves updating the imports from `javax.ws.rs` to `jakarta.ws.rs`, which is the new package namespace for JAX-RS in Jakarta EE 9 and later. This change ensures that the code uses the correct package names and resolves the compilation errors related to missing packages.

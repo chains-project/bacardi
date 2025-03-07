@@ -1,0 +1,182 @@
+22c22,23
+< import com.hazelcast.config.MaxSizeConfig;
+---
+> import com.hazelcast.config.EvictionConfig;
+> import com.hazelcast.config.EvictionPolicy;
+27c28
+< import com.hazelcast.core.Cluster;
+---
+> import com.hazelcast.cluster.Cluster;
+30c31
+< import com.hazelcast.core.Member;
+---
+> import com.hazelcast.cluster.Member;
+75,80d75
+< /**
+<  * CacheFactory implementation to use when using Hazelcast in cluster mode.
+<  *
+<  * @author Tom Evans
+<  * @author Gaston Dombiak
+<  */
+137,140d131
+<     /**
+<      * Keep serialization strategy the server was using before we set our strategy. We will
+<      * restore old strategy when plugin is unloaded.
+<      */
+142,145d132
+< 
+<     /**
+<      * Storage for cache statistics
+<      */
+147d133
+< 
+153,156d138
+< 
+<     /**
+<      * Keeps that running state. Initial state is stopped.
+<      */
+158,161d139
+< 
+<     /**
+<      * Used to limit the amount of duplicate warnings logged.
+<      */
+166c144
+<         pluginClassLoaderWarnings.setMaxLifetime(Duration.ofHours(1).toMillis()); // Minimum duration between logged warnings.
+---
+>         pluginClassLoaderWarnings.setMaxLifetime(Duration.ofHours(1).toMillis());
+174d151
+<         // Set the serialization strategy to use for transmitting objects between node clusters
+178d154
+<         // Store previous class loader (in case we change it)
+205d180
+<                 // CacheFactory is now using clustered caches. We can add our listeners.
+230d204
+<             // Restore previous class loader
+238d211
+<         // Stop the cache services.
+240d212
+<         // Update the running state of the cluster
+242,244d213
+< 
+<         // Fire the leftClusterEvent before we leave the cluster - we need to access the clustered data before the
+<         // cluster is shutdown so it can be copied in to the non-clustered, DefaultCache
+246d214
+<         // Stop the cluster
+254,255d221
+< 
+<         // Reset packet router to use to deliver packets to remote cluster nodes
+257d222
+<         // Reset the session locator to use
+259d223
+<         // Set the old serialization strategy was using before clustering was loaded
+265d228
+<         // Check if cluster is being started up
+267d229
+<             // Wait until cluster is fully started (or failed)
+271d232
+<                 // Ignore
+277d237
+<         // Determine the time to live. Note that in Hazelcast 0 means "forever", not -1
+280d239
+<         // Determine the max cache size. Note that in Hazelcast the max cache size must be positive and is in megabytes
+283d241
+<         // It's only possible to create a dynamic config if a static one doesn't already exist
+288c246,249
+<             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+---
+>             EvictionConfig evictionConfig = new EvictionConfig()
+>                 .setSize(hazelcastMaxCacheSizeInMegaBytes)
+>                 .setEvictionPolicy(EvictionPolicy.LRU);
+>             dynamicConfig.setEvictionConfig(evictionConfig);
+294d254
+<         // TODO: Better genericize this method in CacheFactoryStrategy so we can stop suppressing this warning
+304d263
+< 
+324d282
+<         // No longer depends on license code so just return a big number
+347,353d304
+<     /**
+<      * Gets the pseudo-synchronized time from the cluster. While the cluster members may
+<      * have varying system times, this method is expected to return a timestamp that is
+<      * synchronized (or nearly so; best effort) across the cluster.
+<      *
+<      * @return Synchronized time for all cluster members
+<      */
+359,363d309
+<     /*
+<      * Execute the given task on the other (non-local) cluster members.
+<      * Note that this method does not provide the result set for the given
+<      * task, as the task is run asynchronously across the cluster.
+<      */
+366d311
+< 
+377,378d321
+< 
+< 
+380d322
+<             // Asynchronously execute the task on the other cluster members
+389,393d330
+<     /*
+<      * Execute the given task on the given cluster member.
+<      * Note that this method does not provide the result set for the given
+<      * task, as the task is run asynchronously across the cluster.
+<      */
+400d336
+<         // Check that the requested member was found
+402d337
+<             // Asynchronously execute the task on the target member
+413,417d347
+<     /*
+<      * Execute the given task on the designated cluster members.
+<      * Note that this method blocks for up to MAX_CLUSTER_EXECUTION_TIME
+<      * (seconds) per member until the task is run on all members.
+<      */
+432d361
+<             // Asynchronously execute the task on the other cluster members
+454,458d382
+<     /*
+<      * Execute the given task on the designated cluster member.
+<      * Note that this method blocks for up to MAX_CLUSTER_EXECUTION_TIME
+<      * (seconds) until the task is run on the given member.
+<      */
+466d389
+<         // Check that the requested member was found
+468d390
+<             // Asynchronously execute the task on the target member
+514d435
+<             // Create the cacheStats map if necessary.
+522,524d442
+<                 // The following information is published:
+<                 // current size, max size, num elements, cache
+<                 // hits, cache misses.
+533d450
+<             // Publish message
+548d464
+<         // TODO: Update CacheFactoryStrategy so the signature is getLock(final Serializable key, Cache<Serializable, Serializable> cache)
+553,561d468
+<     /**
+<      * ClusterTasks that are executed should not be provided by a plugin. These will cause issues related to class
+<      * loading when the providing plugin is reloaded. This method verifies if an instance of a task is
+<      * loaded by a plugin class loader, and logs a warning to the log files when it is. The amount of warnings logged is
+<      * limited by a time interval.
+<      *
+<      * @param o the instance for which to verify the class loader
+<      * @see <a href="https://github.com/igniterealtime/openfire-hazelcast-plugin/issues/74">Issue #74: Warn against usage of plugin-provided classes in Hazelcast</a>
+<      */
+566d472
+<             // Try to determine what plugin loaded the offending class.
+583c489
+<             pluginClassLoaderWarnings.put(o.getClass().getName(), Instant.now()); // Note that this Instant is unused.
+---
+>             pluginClassLoaderWarnings.put(o.getClass().getName(), Instant.now());
+588d493
+< 
+684,685d588
+<             // Add a listener at the ultimate end of the list of all listeners, to detect that left-cluster event handling
+<             // has been invoked for all before proceeding.
+699d601
+< 
+701,703d602
+< 
+< 
+< 

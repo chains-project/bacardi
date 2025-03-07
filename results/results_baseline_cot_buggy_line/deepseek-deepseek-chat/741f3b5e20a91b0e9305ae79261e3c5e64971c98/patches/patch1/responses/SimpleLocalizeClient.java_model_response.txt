@@ -1,0 +1,202 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the class `com.fasterxml.jackson.core.exc.StreamReadException` cannot be found.
+   - This error occurs at line 88 in the `SimpleLocalizeClient` class, specifically in the `fetchDownloadableFiles` method where `objectMapper.readValue(body, ExportResponse.class)` is called.
+   - The issue is likely due to a missing or incompatible version of the Jackson library, specifically the `jackson-core` module.
+
+2. Review the client code:
+   - The problematic line is where the `ObjectMapper` is used to deserialize JSON into an `ExportResponse` object.
+   - The `ObjectMapper` is part of the Jackson library, which is used for JSON processing.
+   - The error suggests that the `StreamReadException` class, which is part of the `jackson-core` module, is missing.
+
+3. Consider potential fixes:
+   - The most straightforward fix is to ensure that the correct version of the `jackson-core` library is included in the project dependencies.
+   - If the `jackson-core` library is already included but the version is incompatible, it may need to be updated to a version that includes the `StreamReadException` class.
+
+4. Plan the necessary changes to fix the issue:
+   - Add or update the `jackson-core` dependency in the project's build configuration (e.g., Maven or Gradle).
+   - Ensure that the `jackson-core` version is compatible with the `jackson-databind` version being used.
+   - No changes to the client code are necessary if the correct dependencies are in place.
+</code_analysis>
+
+Since the issue is related to missing dependencies rather than the client code itself, the fix involves ensuring that the correct version of the `jackson-core` library is included in the project. Below is the complete `SimpleLocalizeClient` class with no changes, as the issue is resolved by updating the project's dependencies:
+
+```java
+package io.simplelocalize.cli.client;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.Option;
+import io.simplelocalize.cli.client.dto.DownloadRequest;
+import io.simplelocalize.cli.client.dto.DownloadableFile;
+import io.simplelocalize.cli.client.dto.ExportResponse;
+import io.simplelocalize.cli.client.dto.UploadRequest;
+import io.simplelocalize.cli.exception.ApiRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.time.Duration;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import static io.simplelocalize.cli.TemplateKeys.LANGUAGE_TEMPLATE_KEY;
+import static io.simplelocalize.cli.TemplateKeys.NAMESPACE_TEMPLATE_KEY;
+
+public class SimpleLocalizeClient
+{
+
+  private static final String ERROR_MESSAGE_PATH = "$.msg";
+  private final HttpClient httpClient;
+  private final SimpleLocalizeHttpRequestFactory httpRequestFactory;
+  private final SimpleLocalizeUriFactory uriFactory;
+
+  private final Logger log = LoggerFactory.getLogger(SimpleLocalizeClient.class);
+  private final ObjectMapper objectMapper;
+
+  public SimpleLocalizeClient(String baseUrl, String apiKey)
+  {
+
+    Objects.requireNonNull(baseUrl);
+    Objects.requireNonNull(apiKey);
+    this.uriFactory = new SimpleLocalizeUriFactory(baseUrl);
+    this.httpRequestFactory = new SimpleLocalizeHttpRequestFactory(apiKey);
+    this.objectMapper = new ObjectMapper();
+    this.httpClient = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofMinutes(5))
+            .build();
+  }
+
+  public static SimpleLocalizeClient create(String baseUrl, String apiKey)
+  {
+    return new SimpleLocalizeClient(baseUrl, apiKey);
+  }
+
+  public void uploadKeys(Collection<String> keys) throws IOException, InterruptedException
+  {
+    URI uri = uriFactory.buildSendKeysURI();
+    HttpRequest httpRequest = httpRequestFactory.createSendKeysRequest(uri, keys);
+    HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+    throwOnError(httpResponse);
+    int keysProcessed = JsonPath.read(httpResponse.body(), "$.data.uniqueKeysProcessed");
+    log.info("Successfully uploaded {} keys", keysProcessed);
+  }
+
+  public void uploadFile(UploadRequest uploadRequest) throws IOException, InterruptedException
+  {
+    Path uploadPath = uploadRequest.getPath();
+    log.info("Uploading {}", uploadPath);
+    URI uri = uriFactory.buildUploadUri(uploadRequest);
+    HttpRequest httpRequest = httpRequestFactory.createUploadFileRequest(uri, uploadRequest);
+    HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+    throwOnError(httpResponse);
+  }
+
+  public List<DownloadableFile> fetchDownloadableFiles(DownloadRequest downloadRequest) throws IOException, InterruptedException
+  {
+    log.info("Preparing files to download");
+    URI downloadUri = uriFactory.buildDownloadUri(downloadRequest);
+    HttpRequest httpRequest = httpRequestFactory.createGetRequest(downloadUri).build();
+    HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+    throwOnError(httpResponse);
+    String body = httpResponse.body();
+    ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
+    return exportResponse.getFiles();
+  }
+
+  public void downloadFile(DownloadableFile downloadableFile, String downloadPathTemplate)
+  {
+    Optional<DownloadableFile> optionalDownloadableFile = Optional.of(downloadableFile);
+    String downloadPath = downloadPathTemplate
+            .replace(NAMESPACE_TEMPLATE_KEY, optionalDownloadableFile.map(DownloadableFile::getNamespace).orElse(""))
+            .replace(LANGUAGE_TEMPLATE_KEY, optionalDownloadableFile.map(DownloadableFile::getLanguage).orElse(""));
+    String url = downloadableFile.getUrl();
+    HttpRequest httpRequest = httpRequestFactory.createGetRequest(URI.create(url)).build();
+    Path savePath = Path.of(downloadPath);
+    try
+    {
+      Path parentDirectory = savePath.getParent();
+      if (parentDirectory != null)
+      {
+        Files.createDirectories(parentDirectory);
+      }
+      log.info("Downloading {}", savePath);
+      httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofFile(savePath, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING));
+    } catch (IOException e)
+    {
+      log.error("Download failed: {}", savePath, e);
+    } catch (InterruptedException e)
+    {
+      log.error("Download interrupted: {}", savePath, e);
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  public int validateGate() throws IOException, InterruptedException
+  {
+    URI validateUri = uriFactory.buildValidateGateUri();
+    HttpRequest httpRequest = httpRequestFactory.createGetRequest(validateUri).build();
+    HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+    throwOnError(httpResponse);
+    String json = httpResponse.body();
+    Boolean passed = JsonPath.read(json, "$.data.passed");
+    String message = JsonPath.read(json, "$.data.message");
+    int status = JsonPath.read(json, "$.data.status");
+    log.info("Gate result: {} (status: {}, message: {})", passed, status, message);
+    return status;
+  }
+
+  private void throwOnError(HttpResponse<?> httpResponse)
+  {
+    if (httpResponse.statusCode() != 200)
+    {
+      com.jayway.jsonpath.Configuration parseContext = com.jayway.jsonpath.Configuration
+              .defaultConfiguration()
+              .addOptions(Option.SUPPRESS_EXCEPTIONS);
+
+      Object responseBody = httpResponse.body();
+      String stringBody = safeCastHttpBodyToString(responseBody);
+      String message = JsonPath.using(parseContext).parse(stringBody).read(ERROR_MESSAGE_PATH);
+      if (message == null)
+      {
+        message = "Unknown error, HTTP Status: " + httpResponse.statusCode();
+      }
+      log.error("Request failed: {}", message);
+      throw new ApiRequestException(message, httpResponse);
+    }
+  }
+
+  private String safeCastHttpBodyToString(Object responseBody)
+  {
+    if (responseBody instanceof byte[])
+    {
+      return new String((byte[]) responseBody);
+    } else if (responseBody instanceof String)
+    {
+      return (String) responseBody;
+    }
+    return "";
+  }
+}
+```
+
+To resolve the issue, ensure that the `jackson-core` dependency is included in your project's build configuration. For example, in a Maven `pom.xml`, you would add:
+
+```xml
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-core</artifactId>
+    <version>2.13.0</version> <!-- or the version compatible with your jackson-databind -->
+</dependency>
+```
+
+This will ensure that the `StreamReadException` class is available, resolving the compilation error.

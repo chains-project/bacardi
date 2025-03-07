@@ -1,0 +1,165 @@
+ You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates.
+Your task is to analyze the provided code and error message, then propose a patch that can be applied to the client code to resolve the issue.
+
+ Here is the client code that is failing:
+```java
+package com.example.web;
+
+import java.io.Serializable;
+import java.util.Objects;
+import javax.mvc.binding.MvcBinding;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+import javax.ws.rs.FormParam;
+
+public class TaskForm implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @FormParam("id")
+    private Long id;
+
+    @NotBlank
+    @FormParam("name")
+    @MvcBinding
+    private String name;
+
+    @NotBlank
+    @Size(min = 10, max = 2000)
+    @FormParam("description")
+    @MvcBinding
+    private String description;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 61 * hash + Objects.hashCode(this.id);
+        hash = 61 * hash + Objects.hashCode(this.name);
+        hash = 61 * hash + Objects.hashCode(this.description);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final TaskForm other = (TaskForm) obj;
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.description, other.description)) {
+            return false;
+        }
+        if (!Objects.equals(this.id, other.id)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "TaskForm{" + "id=" + id + ", name=" + name + ", description=" + description + '}';
+    }
+  
+}
+
+```
+
+ the error is triggered in the following specific lines in the previous code:
+
+```java
+import javax.mvc.binding.MvcBinding;
+```
+```java
+@MvcBinding
+```
+```java
+@MvcBinding
+```
+
+
+ And here is the error message:
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/TaskForm.java:[5,25] package javax.mvc.binding does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/TaskForm.java:[19,6] cannot find symbol
+  symbol:   class MvcBinding
+  location: class com.example.web.TaskForm
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/TaskForm.java:[25,6] cannot find symbol
+  symbol:   class MvcBinding
+  location: class com.example.web.TaskForm
+
+
+
+ Before proposing a fix, please analyze the error message and client code. Wrap your analysis inside <code_analysis> tags:
+
+<code_analysis>
+1. Examine the error message:
+   - Identify the specific issue related to the dependency update.
+   - Note the line number or method where the error occurs.
+   - Determine which dependency and version is causing the issue.
+
+2. Review the client code:
+   - Locate the problematic areas mentioned in the error message.
+   - Identify any related code that might be affected by the changes.
+
+3. Consider potential fixes that adhere to the following constraints:
+   - Do not change any function signatures.
+   - Only remove the @Override annotation if the method no longer overrides a method in the updated dependency version.
+   - Ensure correct imports are used, considering the newer dependency version.
+   - Avoid removing existing code unless it directly causes a compilation or functionality error.
+
+4. Plan the necessary changes to fix the issue:
+   - List the specific modifications required.
+   - Consider potential side effects of the proposed changes.
+   - Ensure the fix addresses the root cause of the error.
+</code_analysis>
+
+Based on your analysis, propose a patch to fix the issue. Your response should be a complete and compilable Java class in a fenced code block. Adhere to these guidelines:
+
+1. Do not change any function signatures.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Avoid removing any existing code unless it directly causes a compilation or functionality error.
+6. Ensure the entire class is included and that it will compile correctly. Don't use the comment "// ... (rest of the class remains unchanged)".
+
+Please provide your fixed class in the following format:
+
+```java
+// Your complete, fixed Java class here
+```
+
+Remember to focus specifically on issues related to the dependency update when proposing your fix.
+ 

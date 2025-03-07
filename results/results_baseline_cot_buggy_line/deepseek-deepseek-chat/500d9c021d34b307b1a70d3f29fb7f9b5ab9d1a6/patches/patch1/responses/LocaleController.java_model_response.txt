@@ -1,0 +1,58 @@
+<code_analysis>
+1. Examine the error message:
+   - The errors indicate that the classes `Controller`, `Models`, and `MvcContext` from the `javax.mvc` package cannot be found.
+   - The issue is likely due to a breaking change in the dependency version, where the package namespace has changed from `javax.mvc` to `jakarta.mvc` as part of the transition from Java EE to Jakarta EE.
+
+2. Review the client code:
+   - The problematic areas are the imports and the usage of `@Controller`, `Models`, and `MvcContext`.
+   - The code is using the old `javax.mvc` package, which is no longer available in the updated dependency.
+
+3. Consider potential fixes:
+   - Update the imports to use the `jakarta.mvc` package instead of `javax.mvc`.
+   - Ensure that the new package is compatible with the rest of the code.
+
+4. Plan the necessary changes to fix the issue:
+   - Change the import statements from `javax.mvc` to `jakarta.mvc`.
+   - No other changes are needed as the class and method signatures remain the same.
+</code_analysis>
+
+```java
+package com.example.web;
+
+import java.util.Locale;
+import java.util.logging.Logger;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import jakarta.mvc.MvcContext;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+
+/**
+ *
+ * @author hantsy
+ */
+@Path("locale")
+@Controller
+@RequestScoped
+public class LocaleController {
+
+    @Inject
+    MvcContext mvc;
+
+    @Inject
+    Models models;
+
+    @Inject
+    Logger log;
+
+    @GET
+    public String get() {
+        Locale locale = mvc.getLocale();
+        models.put("locale", locale);
+        return "locale.xhtml";
+    }
+
+}
+```
