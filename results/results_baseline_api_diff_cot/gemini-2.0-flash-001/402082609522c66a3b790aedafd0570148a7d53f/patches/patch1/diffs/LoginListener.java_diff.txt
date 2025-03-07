@@ -1,0 +1,25 @@
+13c13
+< import org.spongepowered.api.event.network.ClientConnectionEvent;
+---
+> import org.spongepowered.api.event.network.ServerSideConnectionEvent;
+15a16
+> import org.spongepowered.api.entity.living.player.User;
+29c30
+<     public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
+---
+>     public void onPlayerPreLogin(ServerSideConnectionEvent.Auth preLoginEvent) {
+31c32,33
+<         GameProfile profile = preLoginEvent.getProfile();
+---
+>         User user = preLoginEvent.getUser();
+>         GameProfile profile = user.getProfile();
+45c47,49
+<             String playerName = profile.getName().get();
+---
+>             Optional<String> playerNameOpt = profile.getName();
+>             if (playerNameOpt.isPresent()) {
+>                 String playerName = playerNameOpt.get();
+48a53,55
+>             } else {
+>                 setDefaultSkin(preferences, profile);
+>             }

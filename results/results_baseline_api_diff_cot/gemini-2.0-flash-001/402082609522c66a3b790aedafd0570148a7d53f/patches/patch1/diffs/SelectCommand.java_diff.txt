@@ -1,0 +1,58 @@
+7a8,9
+> import net.kyori.adventure.text.Component;
+> import org.spongepowered.api.command.Command;
+9,12c11,13
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+16,17c17
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import java.util.Optional;
+19c19
+< public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class SelectCommand implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
+29c29,31
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+---
+>     public CommandResult execute(CommandContext context) throws CommandException {
+>         org.spongepowered.api.command.CommandSource src = context.getCause().root();
+> 
+35c37,43
+<         String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
+---
+>         Optional<String> skinNameOptional = context.one(Parameter.string());
+>         if (!skinNameOptional.isPresent()) {
+>             plugin.sendMessage(src, "invalid-skin-name");
+>             return CommandResult.empty();
+>         }
+> 
+>         String skinName = skinNameOptional.get().toLowerCase().replace("skin-", "");
+40c48
+<             Task.builder().async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+---
+>             Task.builder().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+49,53c57,60
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+<                 .executor(this)
+<                 .arguments(string(of("skinName")))
+<                 .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
+---
+>     public Command.Builder buildSpec() {
+>         Parameter.Key<String> skinNameKey = Parameter.key("skinName", String.class);
+>         Parameter skinNameParameter = Parameter.builder(String.class)
+>                 .key(skinNameKey)
+54a62,66
+> 
+>         return Command.builder()
+>                 .executor(this)
+>                 .addParameter(skinNameParameter)
+>                 .permission(PomData.ARTIFACT_ID + ".command.skinselect.base");

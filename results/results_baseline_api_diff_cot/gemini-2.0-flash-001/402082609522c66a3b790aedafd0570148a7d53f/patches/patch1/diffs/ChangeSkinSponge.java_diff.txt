@@ -1,0 +1,96 @@
+21c21
+< import org.spongepowered.api.Platform.Type;
+---
+> import org.spongepowered.api.Platform;
+23,24d22
+< import org.spongepowered.api.command.CommandManager;
+< import org.spongepowered.api.command.CommandSource;
+27,31c25,29
+< import org.spongepowered.api.event.game.state.GameInitializationEvent;
+< import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+< import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelRegistrar;
+---
+> import org.spongepowered.api.event.lifecycle.GameInitializationEvent;
+> import org.spongepowered.api.event.lifecycle.GamePreInitializationEvent;
+> import org.spongepowered.api.event.lifecycle.GameStoppingEvent;
+> import org.spongepowered.api.network.channel.raw.RawDataChannel;
+> import org.spongepowered.api.network.channel.raw.RawDataListener;
+33c31,33
+< import org.spongepowered.api.text.serializer.TextSerializers;
+---
+> import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+> import org.spongepowered.api.command.Command;
+> import org.spongepowered.plugin.PluginContainer;
+40,42c40,41
+< @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+<         url = PomData.URL, description = PomData.DESCRIPTION)
+< public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
+---
+> @Plugin(ARTIFACT_ID)
+> public class ChangeSkinSponge implements PlatformPlugin<org.spongepowered.api.command.CommandCause> {
+77c76
+<         CommandManager cmdManager = Sponge.getCommandManager();
+---
+>         PluginContainer pluginContainer = Sponge.pluginManager().plugin(ARTIFACT_ID).orElse(null);
+79,85c78
+<         //command and event register
+<         cmdManager.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+<         cmdManager.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+<         cmdManager.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+<         cmdManager.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+<         cmdManager.register(this, injector.getInstance(InvalidateCommand.class)
+<                 .buildSpec(), "skininvalidate", "skin-invalidate");
+---
+>         Sponge.eventManager().registerListeners(this, injector.getInstance(LoginListener.class));
+87c80,93
+<         Sponge.getEventManager().registerListeners(this, injector.getInstance(LoginListener.class));
+---
+>         //command and event register
+>         Command.Builder selectCommandBuilder = injector.getInstance(SelectCommand.class).buildSpec();
+>         Command.Builder infoCommandBuilder = injector.getInstance(InfoCommand.class).buildSpec();
+>         Command.Builder uploadCommandBuilder = injector.getInstance(UploadCommand.class).buildSpec();
+>         Command.Builder setCommandBuilder = injector.getInstance(SetCommand.class).buildSpec();
+>         Command.Builder invalidateCommandBuilder = injector.getInstance(InvalidateCommand.class).buildSpec();
+> 
+>         if (pluginContainer != null) {
+>             Sponge.commandManager().register(pluginContainer, selectCommandBuilder, "skin-select", "skinselect");
+>             Sponge.commandManager().register(pluginContainer, infoCommandBuilder, "skin-info");
+>             Sponge.commandManager().register(pluginContainer, uploadCommandBuilder, "skin-upload");
+>             Sponge.commandManager().register(pluginContainer, setCommandBuilder, "changeskin", "setskin", "skin");
+>             Sponge.commandManager().register(pluginContainer, invalidateCommandBuilder, "skininvalidate", "skin-invalidate");
+>         }
+90d95
+<         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
+93,96c98,106
+<         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
+<         RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
+<         updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
+<         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
+---
+> 
+>         RawDataChannel updateChannel = Sponge.channelRegistry().register(pluginContainer, updateChannelName);
+>         RawDataChannel permChannel = Sponge.channelRegistry().register(pluginContainer, permissionChannelName);
+> 
+>         UpdateSkinListener updateSkinListener = injector.getInstance(UpdateSkinListener.class);
+>         CheckPermissionListener checkPermissionListener = injector.getInstance(CheckPermissionListener.class);
+> 
+>         updateChannel.addListener(updateSkinListener);
+>         permChannel.addListener(checkPermissionListener);
+100c110
+<     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
+---
+>     public void onShutdown(GameStoppingEvent stoppingServerEvent) {
+109c119
+<     public boolean hasSkinPermission(CommandSource invoker, UUID uuid, boolean sendMessage) {
+---
+>     public boolean hasSkinPermission(org.spongepowered.api.command.CommandCause invoker, UUID uuid, boolean sendMessage) {
+142c152
+<     public void sendMessage(CommandSource receiver, String key) {
+---
+>     public void sendMessage(org.spongepowered.api.command.CommandCause receiver, String key) {
+145c155
+<             receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
+---
+>             receiver.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(message));

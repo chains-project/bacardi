@@ -1,0 +1,44 @@
+8a9
+> import net.kyori.adventure.text.Component;
+14c15
+< import org.spongepowered.api.command.CommandException;
+---
+> import org.spongepowered.api.command.Command;
+16,19c17
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+22,23d19
+< import org.spongepowered.api.text.Text;
+< import org.spongepowered.api.text.serializer.TextSerializers;
+25c21
+< public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class InfoCommand implements Command.Executor, ChangeSkinCommand {
+34,35c30,31
+<     @Override
+<     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+---
+>     public CommandResult execute(CommandContext context) {
+>         org.spongepowered.api.command.CommandCause src = context.cause();
+42c38
+<         Task.builder().async()
+---
+>         Task.builder().plugin(plugin).async()
+45c41
+<                     Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).submit(plugin);
+---
+>                     Task.builder().plugin(plugin).execute(() -> sendSkinDetails(uniqueId, preferences)).submit(plugin);
+53,54c49,50
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command buildSpec() {
+>         return Command.builder()
+70c66
+<                 Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
+---
+>                 Component text = net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize(formatted);

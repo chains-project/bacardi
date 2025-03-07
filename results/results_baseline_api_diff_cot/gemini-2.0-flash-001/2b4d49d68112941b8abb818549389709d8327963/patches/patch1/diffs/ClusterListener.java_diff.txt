@@ -1,0 +1,46 @@
+18c18
+< import com.hazelcast.core.Cluster;
+---
+> import com.hazelcast.cluster.Cluster;
+22,26c22,25
+< import com.hazelcast.core.LifecycleListener;
+< import com.hazelcast.core.Member;
+< import com.hazelcast.core.MemberAttributeEvent;
+< import com.hazelcast.core.MembershipEvent;
+< import com.hazelcast.core.MembershipListener;
+---
+> import com.hazelcast.cluster.Member;
+> import com.hazelcast.cluster.MemberAttributeEvent;
+> import com.hazelcast.cluster.MembershipEvent;
+> import com.hazelcast.cluster.MembershipListener;
+52c51
+< public class ClusterListener implements MembershipListener, LifecycleListener {
+---
+> public class ClusterListener implements MembershipListener, com.hazelcast.core.LifecycleListener {
+129c128,132
+<         return members.next().getUuid().equals(cluster.getLocalMember().getUuid());
+---
+>         Member firstMember = members.next();
+>         if (firstMember == null || cluster.getLocalMember() == null) {
+>             return false;
+>         }
+>         return firstMember.getUuid().equals(cluster.getLocalMember().getUuid());
+154d156
+<     @Override
+162c164,165
+<         if (event.getMember().localMember()) { // We left and re-joined the cluster
+---
+>         Member member = event.getMember();
+>         if (member != null && member.localMember()) { // We left and re-joined the cluster
+227d229
+<     @Override
+232a235
+>         Member member = event.getMember();
+234c237
+<         if (event.getMember().localMember()) {
+---
+>         if (member != null && member.localMember()) {
+261d263
+<     @Override
+270d271
+<     @Override

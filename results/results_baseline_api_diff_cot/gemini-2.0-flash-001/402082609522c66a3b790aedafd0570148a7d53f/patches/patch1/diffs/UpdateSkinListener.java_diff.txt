@@ -1,0 +1,11 @@
+14d13
+< import org.spongepowered.api.command.CommandSource;
+19a19
+> import org.spongepowered.api.scheduler.TaskExecutorService;
+35,36c35,37
+<             Runnable skinUpdater = new SkinApplier(plugin, (CommandSource) connection, receiver.get(), null, false);
+<             Task.builder().execute(skinUpdater).submit(plugin);
+---
+>             Runnable skinUpdater = new SkinApplier(plugin, (org.spongepowered.api.command.CommandSource) connection, receiver.get(), null, false);
+>             TaskExecutorService taskExecutorService = Sponge.getServer().getScheduler().createSyncExecutor(plugin);
+>             taskExecutorService.execute(skinUpdater);

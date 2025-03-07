@@ -1,0 +1,25 @@
+7a8
+> import org.spongepowered.api.command.Command;
+8a10
+> import org.spongepowered.api.command.parameter.CommandContext;
+10,12d11
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+14a14
+> import org.spongepowered.api.scheduler.TaskExecutor;
+16c16
+< public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class InvalidateCommand implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
+33c33,34
+<         Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
+---
+>         TaskExecutor taskExecutor = plugin.getServer().getScheduler().executor(plugin);
+>         Task.builder().execute(new SkinInvalidator(plugin, receiver)).submit(taskExecutor);
+38,39c39,40
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command buildSpec() {
+>         return Command.builder()
