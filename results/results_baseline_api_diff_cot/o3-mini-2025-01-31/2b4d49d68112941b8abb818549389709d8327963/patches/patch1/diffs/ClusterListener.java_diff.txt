@@ -1,0 +1,55 @@
+18,19c18,19
+< import com.hazelcast.core.Cluster;
+< import com.hazelcast.core.EntryListener;
+---
+> import com.hazelcast.cluster.Cluster;
+> import com.hazelcast.map.listener.EntryListener;
+22,26c22,25
+< import com.hazelcast.core.LifecycleListener;
+< import com.hazelcast.core.Member;
+< import com.hazelcast.core.MemberAttributeEvent;
+< import com.hazelcast.core.MembershipEvent;
+< import com.hazelcast.core.MembershipListener;
+---
+> import com.hazelcast.cluster.MembershipEvent;
+> import com.hazelcast.cluster.MembershipListener;
+> import com.hazelcast.cluster.Member;
+> import com.hazelcast.cluster.MemberAttributeEvent;
+48,52c47
+< /**
+<  * ClusterListener reacts to membership changes in the cluster. It takes care of cleaning up the state
+<  * of the routing table and the sessions within it when a node which manages those sessions goes down.
+<  */
+< public class ClusterListener implements MembershipListener, LifecycleListener {
+---
+> public class ClusterListener implements MembershipListener {
+76d70
+< 
+164d157
+< 
+223d215
+< 
+256c248,256
+<     @SuppressWarnings("WeakerAccess")
+---
+>     @Override
+>     public void memberAttributeChanged(final MemberAttributeEvent event) {
+>         logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
+>         isSenior = isSeniorClusterMember();
+>         final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));
+>         clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(event.getMember()),
+>                 new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));
+>     }
+> 
+261d260
+<     @Override
+270,278d268
+<     @Override
+<     public void memberAttributeChanged(final MemberAttributeEvent event) {
+<         logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
+<         isSenior = isSeniorClusterMember();
+<         final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));
+<         clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(event.getMember()),
+<                 new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));
+<     }
+< 

@@ -1,0 +1,79 @@
+<repair_strategy>
+1. The errors arise because the class com.hazelcast.core.Member has been removed. The new API provides the interface com.hazelcast.cluster.Member.
+2. The old call to member.getStringAttribute(message) is no longer valid since that method was removed; the new API exposes a similar way to obtain member attributes via member.getAttribute(String) (which returns an Object and can be cast to String).
+3. The client code in the constructor uses member.getStringAttribute(HOST_NAME_ATTRIBUTE) and member.getSocketAddress(), which must be updated. The getSocketAddress() call is still valid as the new API adds a similar method on com.hazelcast.cluster.Member.
+4. We update the import to use com.hazelcast.cluster.Member instead of com.hazelcast.core.Member. We then replace the call to member.getStringAttribute with a call to member.getAttribute, casting its result to a String.
+5. We cast the result of member.getSocketAddress() to InetSocketAddress to safely call getHostString() on it.
+6. This minimal change ensures that the overall functionality remains the same while the code becomes compilable under the new Hazelcast API.
+</repair_strategy>
+
+```java
+/*
+ * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.jivesoftware.openfire.plugin.util.cluster;
+
+import org.jivesoftware.openfire.cluster.ClusterManager;
+import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
+import org.jivesoftware.openfire.cluster.NodeID;
+import org.jivesoftware.openfire.plugin.util.cache.ClusteredCacheFactory;
+
+import com.hazelcast.cluster.Member;
+import java.net.InetSocketAddress;
+
+/**
+ * Cluster Node information as provided by Hazelcast.
+ *
+ * @author Tom Evans
+ * @author Gaston Dombiak
+ */
+public class HazelcastClusterNodeInfo implements ClusterNodeInfo {
+
+    public static final String HOST_NAME_ATTRIBUTE = "hostname";
+    public static final String NODE_ID_ATTRIBUTE = "node-id";
+    private final String hostname;
+    private final NodeID nodeID;
+    private final long joinedTime;
+    private final boolean seniorMember;
+
+    public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {
+        // Use the new getAttribute method instead of the removed getStringAttribute.
+        String customHostName = (String) member.getAttribute(HOST_NAME_ATTRIBUTE);
+        // Cast to InetSocketAddress for obtaining the host string.
+        InetSocketAddress socketAddress = (InetSocketAddress) member.getSocketAddress();
+        this.hostname = customHostName + " (" + socketAddress.getHostString() + ")";
+        this.nodeID = ClusteredCacheFactory.getNodeID(member);
+        this.joinedTime = joinedTime;
+        this.seniorMember = ClusterManager.getSeniorClusterMember().equals(nodeID);
+    }
+
+    public String getHostName() {
+        return hostname;
+    }
+
+    public NodeID getNodeID() {
+        return nodeID;
+    }
+
+    public long getJoinedTime() {
+        return joinedTime;
+    }
+
+    public boolean isSeniorMember() {
+        return seniorMember;
+    }
+}
+```

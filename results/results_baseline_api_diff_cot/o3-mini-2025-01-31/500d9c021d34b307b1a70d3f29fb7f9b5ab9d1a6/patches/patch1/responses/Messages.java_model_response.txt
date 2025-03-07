@@ -1,0 +1,51 @@
+<repair_strategy>
+1. The API change removes the class javax.mvc.MvcContext, which means that the code can no longer inject and use that type.
+2. In previous versions, MvcContext provided a method getLocale() to derive the request locale (often through the LocaleResolver). In the new version, this class is removed.
+3. To update the client code, we can use the servlet API: HttpServletRequest has a getLocale() method that returns the request’s Locale.
+4. We need to remove the injection and import for MvcContext and instead inject HttpServletRequest.
+5. The minimal change is to update the field injection and change the get() method to use request.getLocale() instead of mvcContext.getLocale(). We are allowed to modify internal code but not the function signatures.
+6. The only side effect is that the locale resolution now directly uses the HttpServletRequest rather than any MVC-specific LocaleResolver, which typically is acceptable.
+7. The resulting class will compile in the new dependency environment.
+8. Additionally, we update the Javadoc references accordingly and add the necessary import for HttpServletRequest.
+</repair_strategy>
+
+```java
+import java.util.ResourceBundle;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
+
+/**
+ * Provides I18n messages for the UI per request. To get the correct locale, the method {@link HttpServletRequest#getLocale()}
+ * is used. This approach relies on the servlet request to determine the locale.
+ *
+ * @author Tobias Erdle
+ * @see HttpServletRequest#getLocale()
+ */
+@RequestScoped
+@Named("msg")
+public class Messages {
+
+    private static final String BASE_NAME = "messages";
+
+    @Inject
+    private HttpServletRequest request;
+
+    /**
+     * Get the assigned message to some key based on the {@link java.util.Locale} of the current request.
+     *
+     * @param key the message key to use
+     * @return the correct translation assigned to the key for the request locale, a fallback translation or a
+     * placeholder for unknown keys.
+     */
+    public final String get(final String key) {
+        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, request.getLocale());
+        return bundle.containsKey(key) ? bundle.getString(key) : formatUnknownKey(key);
+    }
+
+    private static String formatUnknownKey(final String key) {
+        return String.format("???%s???", key);
+    }
+}
+```

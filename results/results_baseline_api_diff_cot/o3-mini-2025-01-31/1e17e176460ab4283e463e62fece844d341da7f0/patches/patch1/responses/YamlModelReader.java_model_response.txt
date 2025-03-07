@@ -1,0 +1,59 @@
+<repair_strategy>
+1. The error is caused by using the removed default constructor Representer() from the SnakeYAML dependency.
+2. The old API allowed using new Representer() with no parameters, while in the new API a constructor Representer(DumperOptions) must be used.
+3. The client code needs to change the instantiation of Representer to pass an instance of DumperOptions.
+4. We must not modify function signatures or remove code that doesn't need fixing.
+5. The minimal change is to create a DumperOptions instance, then create a Representer by passing that instance, and use the same dumper options when constructing the Yaml instance.
+6. This fix should have no unwanted side effects and ensures the code compiles using the new dependency.
+7. New required imports are already present.
+</repair_strategy>
+
+```
+/**
+ * Copyright (c) 2012 to original author or authors
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+package org.sonatype.maven.polyglot.yaml;
+
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.ModelParseException;
+import org.apache.maven.model.io.ModelReader;
+import org.codehaus.plexus.component.annotations.Component;
+import org.sonatype.maven.polyglot.io.ModelReaderSupport;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.representer.Representer;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.util.Map;
+
+/**
+ * YAML model reader.
+ * 
+ * Authors: jvanzyl, bentmann
+ *
+ * @since 0.7
+ */
+@Component(role = ModelReader.class, hint = "yaml")
+public class YamlModelReader extends ModelReaderSupport {
+  private final Yaml yaml;
+
+  public YamlModelReader() {
+    ModelConstructor constructor = new ModelConstructor();
+    DumperOptions dumperOptions = new DumperOptions();
+    Representer representer = new Representer(dumperOptions);
+    yaml = new Yaml(constructor, representer, dumperOptions, new ModelResolver());
+  }
+
+  public Model read(Reader input, Map<String, ?> options) throws IOException, ModelParseException {
+    if (input == null) {
+      throw new IllegalArgumentException("YAML Reader is null.");
+    }
+    return (Model) yaml.load(input);
+  }
+}
+```

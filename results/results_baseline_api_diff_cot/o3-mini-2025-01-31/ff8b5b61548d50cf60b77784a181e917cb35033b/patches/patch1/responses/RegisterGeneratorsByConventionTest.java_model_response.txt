@@ -1,0 +1,84 @@
+<repair_strategy>
+1. The breaking API change is that org.mockito.runners.MockitoJUnitRunner is removed from the dependency. The client code uses this class in its @RunWith annotation.
+2. The new version of Mockito has relocated the runner to org.mockito.junit.MockitoJUnitRunner.
+3. The client code only needs to update the import statement for MockitoJUnitRunner to the new package.
+4. No changes to method signatures or other code are necessary.
+5. The minimal change is to update the import and leave all other code intact.
+6. This change should not affect other parts of the test code.
+7. The final class will compile using the new dependency version.
+8. The additional import now comes from org.mockito.junit.MockitoJUnitRunner.
+</repair_strategy>
+
+```java
+package com.pholser.junit.quickcheck.internal.generator;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+
+import com.pholser.junit.quickcheck.generator.GenerationStatus;
+import com.pholser.junit.quickcheck.generator.Generator;
+import com.pholser.junit.quickcheck.internal.ParameterTypeContext;
+import com.pholser.junit.quickcheck.internal.generator.conventiontestclasses.Convention;
+import com.pholser.junit.quickcheck.internal.generator.conventiontestclasses.GeneratesOtherTypes;
+import com.pholser.junit.quickcheck.internal.generator.conventiontestclasses.NotAGenerator;
+import com.pholser.junit.quickcheck.random.SourceOfRandomness;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+@RunWith(MockitoJUnitRunner.class)
+public class RegisterGeneratorsByConventionTest {
+    private GeneratorRepository repo;
+    @Mock private SourceOfRandomness random;
+    @Mock private GenerationStatus generationStatus;
+
+    @Before
+    public void setupRepository() {
+        repo = new GeneratorRepository(random);
+    }
+
+    @Test
+    public void canGenerateValues() {
+        Generator<?> generator =
+            repo.generatorFor(ParameterTypeContext.forClass(Convention.class));
+
+        assertNotNull(generator);
+        assertThat(
+            generator.generate(random, generationStatus),
+            instanceOf(Convention.class));
+    }
+
+    @Test
+    public void classNameFollowsConventionButNotAGenerator() {
+        assertThatNoGeneratorCanBeFound(NotAGenerator.class);
+    }
+
+    @Test
+    public void noValueTypeMatch() {
+        assertThatNoGeneratorCanBeFound(GeneratesOtherTypes.class);
+    }
+
+    @Test
+    public void notAClassFollowingNamingConvention() {
+        assertThatNoGeneratorCanBeFound(this.getClass());
+    }
+
+    private void assertThatNoGeneratorCanBeFound(Class<?> valueClass) {
+        IllegalArgumentException ex =
+            assertThrows(
+                IllegalArgumentException.class,
+                () -> repo.generatorFor(
+                    ParameterTypeContext.forClass(valueClass)));
+
+        assertThat(
+            ex.getMessage(),
+            containsString(
+                "Cannot find generator for " + valueClass.getName()));
+    }
+}
+```

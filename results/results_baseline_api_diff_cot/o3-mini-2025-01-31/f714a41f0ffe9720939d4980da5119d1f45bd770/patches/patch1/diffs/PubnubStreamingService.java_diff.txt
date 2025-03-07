@@ -1,0 +1,81 @@
+7a8
+> import com.pubnub.api.UserId;
+11,17c12,14
+< import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
+< import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
+< import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
+< import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
+< import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
+< import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
+< import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
+---
+> import com.pubnub.api.models.consumer.pubnub.PNMessageResult;
+> import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
+> import com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult;
+28d24
+< /** Created by Lukas Zaoralek on 14.11.17. */
+40c36,38
+<     PNConfiguration pnConfiguration = new PNConfiguration();
+---
+>     // The no-arg constructor for PNConfiguration has been removed.
+>     // The new API requires a UserId; here we supply a fixed ID and then set the subscribe key.
+>     PNConfiguration pnConfiguration = new PNConfiguration(new UserId("xchange-stream"));
+47,48c45
+<     return Completable.create(
+<         e -> {
+---
+>     return Completable.create(e -> {
+54,56c51,52
+<                   LOG.debug(
+<                       "PubNub status: {} {}",
+<                       pnStatusCategory.toString(),
+---
+>               LOG.debug("PubNub status: {} {}",
+>                   pnStatus.getCategory().toString(),
+58c54
+<                   if (pnStatusCategory == PNStatusCategory.PNConnectedCategory) {
+---
+>               if (pnStatus.getCategory() == PNStatusCategory.PNConnectedCategory) {
+84,100c80,81
+<                 public void presence(PubNub pubNub, PNPresenceEventResult pnPresenceEventResult) {
+<                   LOG.debug("PubNub presence: {}", pnPresenceEventResult.toString());
+<                 }
+< 
+<                 @Override
+<                 public void signal(PubNub pubnub, PNSignalResult pnSignalResult) {
+<                   LOG.debug("PubNub signal: {}", pnSignalResult.toString());
+<                 }
+< 
+<                 @Override
+<                 public void user(PubNub pubnub, PNUserResult pnUserResult) {
+<                   LOG.debug("PubNub user: {}", pnUserResult.toString());
+<                 }
+< 
+<                 @Override
+<                 public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
+<                   LOG.debug("PubNub space: {}", pnSpaceResult.toString());
+---
+>             public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
+>               LOG.debug("PubNub file event: {}", pnFileEventResult.toString());
+107,112d87
+< 
+<                 @Override
+<                 public void messageAction(
+<                     PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
+<                   LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
+<                 }
+120,121c95
+<     return Observable.<JsonNode>create(
+<             e -> {
+---
+>     return Observable.<JsonNode>create(e -> {
+128,129c102
+<         .doOnDispose(
+<             () -> {
+---
+>         .doOnDispose(() -> {
+137,138c110
+<     return Completable.create(
+<         completable -> {
+---
+>     return Completable.create(completable -> {

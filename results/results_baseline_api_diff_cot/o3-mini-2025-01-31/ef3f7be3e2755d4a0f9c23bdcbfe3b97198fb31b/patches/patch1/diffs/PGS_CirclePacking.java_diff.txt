@@ -1,0 +1,116 @@
+23,28d22
+< import org.tinfour.common.IIncrementalTin;
+< import org.tinfour.common.SimpleTriangle;
+< import org.tinfour.common.Vertex;
+< import org.tinspin.index.PointDistanceFunction;
+< import org.tinspin.index.PointEntryDist;
+< import org.tinspin.index.covertree.CoverTree;
+35a30,32
+> import org.tinfour.common.IIncrementalTin;
+> import org.tinfour.common.SimpleTriangle;
+> import org.tinfour.common.Vertex;
+165d161
+<          * 
+203c199,200
+<                 final CoverTree<PVector> tree = CoverTree.create(3, 2, circleDistanceMetric);
+---
+>                 // Using a simple spatial index (a List) for nearest neighbor queries
+>                 final List<PVector> spatialIndex = new ArrayList<>();
+209,210c206,209
+<                         steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false).filter(filterBorderTriangles)
+<                                         .map(PGS_CirclePacking::centroid).collect(Collectors.toList());
+---
+>                         steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false)
+>                                         .filter(filterBorderTriangles)
+>                                         .map(PGS_CirclePacking::centroid)
+>                                         .collect(Collectors.toList());
+213,214c212
+<                 // Model shape vertices as circles of radius 0, to constrain packed circles
+<                 // within shape edge
+---
+>                 // Model shape vertices as circles of radius 0, to constrain packed circles within shape edge
+216,217c214,216
+<                 Collections.shuffle(vertices); // shuffle vertices to reduce tree imbalance during insertion
+<                 vertices.forEach(p -> tree.insert(new double[] { p.x, p.y, 0 }, p));
+---
+>                 Collections.shuffle(vertices); // shuffle vertices to reduce potential bias
+>                 // Assume vertices have a zero radius.
+>                 spatialIndex.addAll(vertices);
+223c222
+<                 float largestR = 0; // the radius of the largest circle in the tree
+---
+>                 float largestR = 0; // the radius of the largest circle in the index
+226,235c225,228
+<                         final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+< 
+<                         /*
+<                          * nn.dist() does not return the radius (since it's a distance metric used to
+<                          * find nearest circle), so calculate maximum radius for candidate circle using
+<                          * 2d euclidean distance between center points minus radius of nearest circle.
+<                          */
+<                         final float dx = p.x - nn.value().x;
+<                         final float dy = p.y - nn.value().y;
+<                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z);
+---
+>                         PVector nearest = findNearestCircle(spatialIndex, p.x, p.y, largestR);
+>                         final float dx = p.x - nearest.x;
+>                         final float dy = p.y - nearest.y;
+>                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nearest.z);
+239c232
+<                                 tree.insert(new double[] { p.x, p.y, radius }, p); // insert circle into tree
+---
+>                                 spatialIndex.add(p);
+285d277
+< 
+627,654c619,640
+<          * Calculate the distance between two points in 3D space, where each point
+<          * represents a circle with (x, y, r) coordinates. This custom metric considers
+<          * both the Euclidean distance between the centers of the circles and the
+<          * absolute difference of their radii.
+<          * <p>
+<          * The metric is defined as follows: Given two points A and B, representing
+<          * circles centered at (x1, y1) and (x2, y2) with radii r1 and r2 respectively,
+<          * the distance is calculated as sqrt((x1 - x2)^2 + (y1 - y2)^2) + |r1 - r2|.
+<          * <p>
+<          * This metric can be used to find the nearest circle to a given center (x, y)
+<          * in a proximity search. To perform the search, use a point (x, y, R) where R
+<          * is greater than or equal to the maximum radius of a circle in the proximity
+<          * structure.
+<          *
+<          * @param p1 3D point representing the first circle (x1, y1, r1)
+<          * @param p2 3D point representing the second circle (x2, y2, r2)
+<          * @return the distance between the two points based on the custom metric
+<          */
+<         private static final PointDistanceFunction circleDistanceMetric = (p1, p2) -> {
+<                 // from https://stackoverflow.com/a/21975136/
+<                 final double dx = p1[0] - p2[0];
+<                 final double dy = p1[1] - p2[1];
+<                 final double dz = p1[2] - p2[2];
+< 
+<                 double euclideanDistance = Math.sqrt(dx * dx + dy * dy);
+<                 double absZDifference = Math.abs(dz);
+<                 return euclideanDistance + absZDifference; // negative if inside
+<         };
+---
+>          * Helper method to find the nearest circle from the spatial index based on a
+>          * custom 3D distance metric combining 2D Euclidean distance and absolute radius difference.
+>          */
+>         private static PVector findNearestCircle(List<PVector> index, double x, double y, double queryRadius) {
+>                 PVector nearest = null;
+>                 double minDist = Double.MAX_VALUE;
+>                 for (PVector candidate : index) {
+>                         double dx = x - candidate.x;
+>                         double dy = y - candidate.y;
+>                         double euclidean = Math.sqrt(dx * dx + dy * dy);
+>                         double diff = Math.abs(queryRadius - candidate.z);
+>                         double dist = euclidean + diff;
+>                         if (dist < minDist) {
+>                                 minDist = dist;
+>                                 nearest = candidate;
+>                         }
+>                 }
+>                 if (nearest == null) {
+>                         nearest = new PVector((float) x, (float) y, 0);
+>                 }
+>                 return nearest;
+>         }

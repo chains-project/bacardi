@@ -1,0 +1,75 @@
+<repair_strategy>
+1. The API change indicates that the class and static method have moved from develop.p2p.lib.LearnMath to tokyo.peya.lib.LearnMath.
+2. The old static import "develop.p2p.lib.LearnMath.sigmoid" is now invalid because the class has been removed from the dependency. The new API now provides the sigmoid method in tokyo.peya.lib.LearnMath.
+3. The only portion of the client code that needs updating is the static import line.
+4. We must preserve the function signatures and existing methods; only the import must be changed.
+5. The minimal change required is to update the static import to import from tokyo.peya.lib.LearnMath.
+6. This change will ensure that the code calls the new sigmoid method while maintaining its functionality.
+7. The resulting class is complete and compilable.
+8. The new required import (static) is added accordingly.
+</repair_strategy>
+
+```java
+package ml.peya.plugins.Learn;
+
+import java.util.ArrayList;
+
+import static tokyo.peya.lib.LearnMath.sigmoid;
+
+/**
+ * 重みを突っ込む器。
+ */
+public class Neuron
+{
+    /**
+     * 加算したWeight。
+     */
+    private double sum;
+
+    /**
+     * 入力用値。
+     */
+    private double value = 0.0;
+
+    /**
+     * ゲッター。
+     *
+     * @return value参照。
+     */
+    public double getValue()
+    {
+        return value;
+    }
+
+    /**
+     * セッター。
+     *
+     * @param value value参照。
+     */
+    public void setValue(double value)
+    {
+        this.value = value;
+    }
+
+    /**
+     * ReLU関数で値を強めて出力系に入れる。
+     *
+     * @param inputData InputクラスのArrayListデータ。
+     */
+    public void input(ArrayList<Input> inputData)
+    {
+        inputData.parallelStream().forEachOrdered(input -> input(input.getWeightingValue()));
+        setValue(sigmoid(sum));
+    }
+
+    /**
+     * input(ArrayList)のオーバーロード。
+     *
+     * @param value sumに加算する値。
+     */
+    public void input(double value)
+    {
+        sum += value;
+    }
+}
+```

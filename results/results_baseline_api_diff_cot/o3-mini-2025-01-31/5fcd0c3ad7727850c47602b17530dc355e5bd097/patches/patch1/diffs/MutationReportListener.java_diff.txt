@@ -1,0 +1,41 @@
+14a15
+> import java.io.InputStream;
+19a21,25
+> // New imports to support the API changes
+> import org.pitest.classinfo.ClassInfo;
+> import org.pitest.classinfo.ClassInfoVisitor;
+> import org.pitest.classinfo.ClassName;
+> 
+56,57c62
+<     this.jsonParser = new JsonParser(
+<         new HashSet<>(Arrays.asList(locators)));
+---
+>     this.jsonParser = new JsonParser(new HashSet<>(Arrays.asList(locators)));
+103a109,111
+>     // The old API call to coverage.getClassInfo(Collection) has been removed.
+>     // Instead, we now obtain class information using the new ClassInfoVisitor API.
+>     ClassInfo classInfo = getClassInfo(data.getMutatedClass());
+105c113
+<         data.getMutations(), coverage.getClassInfo(Collections.singleton(data.getMutatedClass())));
+---
+>         data.getMutations(), classInfo);
+136a145,163
+>   
+>   private ClassInfo getClassInfo(ClassName className) {
+>     byte[] classBytes = loadClassBytes(className);
+>     // Using the new API which accepts a ClassName, the class byte array, and a timestamp (using 0L here)
+>     return ClassInfoVisitor.getClassInfo(className, classBytes, 0L);
+>   }
+> 
+>   private byte[] loadClassBytes(ClassName className) {
+>     // Convert the ClassName to a resource path by replacing dots with slashes and appending ".class"
+>     String resourcePath = className.asJavaName().replace('.', '/') + ".class";
+>     try (InputStream in = this.getClass().getClassLoader().getResourceAsStream(resourcePath)) {
+>       if (in == null) {
+>         throw new IOException("Could not load resource: " + resourcePath);
+>       }
+>       return in.readAllBytes();
+>     } catch (IOException e) {
+>       throw new RuntimeException("Failed to read class bytes for " + className, e);
+>     }
+>   }

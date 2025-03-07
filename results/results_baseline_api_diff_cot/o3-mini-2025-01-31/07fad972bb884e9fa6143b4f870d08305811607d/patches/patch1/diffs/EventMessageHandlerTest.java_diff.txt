@@ -1,0 +1,25 @@
+4d3
+< import ch.qos.logback.classic.Logger;
+16a16
+> import org.slf4j.Logger;
+33d32
+< import java.time.Instant;
+111,113c110,123
+<         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
+<         logger.setLevel(Level.INFO);
+<         logger.addAppender(mockLogAppender);
+---
+>         // Instead of casting to a removed logback-specific Logger type, we retrieve the SLF4J logger
+>         // and use reflection to configure its level and attach our mock appender.
+>         Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
+>         try {
+>             // Set the logging level to INFO via reflection
+>             java.lang.reflect.Method setLevelMethod = logger.getClass().getMethod("setLevel", Level.class);
+>             setLevelMethod.invoke(logger, Level.INFO);
+> 
+>             // Attach the mock appender via reflection
+>             java.lang.reflect.Method addAppenderMethod = logger.getClass().getMethod("addAppender", Appender.class);
+>             addAppenderMethod.invoke(logger, mockLogAppender);
+>         } catch (Exception e) {
+>             throw new RuntimeException("Failed to configure logger", e);
+>         }

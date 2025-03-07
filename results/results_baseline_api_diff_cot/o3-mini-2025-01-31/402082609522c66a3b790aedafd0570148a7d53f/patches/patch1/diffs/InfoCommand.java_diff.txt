@@ -1,0 +1,86 @@
+9d8
+< 
+12d10
+< 
+14c12,13
+< import org.spongepowered.api.command.CommandException;
+---
+> import org.spongepowered.api.command.Command;
+> import org.spongepowered.api.command.CommandExecutor;
+16,19c15,16
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.parameter.CommandContext;
+21,23c18,19
+< import org.spongepowered.api.scheduler.Task;
+< import org.spongepowered.api.text.Text;
+< import org.spongepowered.api.text.serializer.TextSerializers;
+---
+> import net.kyori.adventure.text.Component;
+> import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+33c29
+< 
+---
+>     // Updated execute method for the new command API:
+35,38c31,38
+<     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+<             return CommandResult.empty();
+---
+>     public CommandResult execute(CommandContext context) throws CommandException {
+>         // In the new API, the command source is available via the context's cause.
+>         Optional<Player> optPlayer = context.cause().first(Player.class);
+>         if (!optPlayer.isPresent()) {
+>             // If the command sender is not a player, send the "no-console" message.
+>             Object source = context.cause().first().orElse("Console");
+>             plugin.sendMessage(source, "no-console");
+>             return CommandResult.builder().affectedEntities(0).build();
+41,43c41,46
+<         UUID uniqueId = ((Player) src).getUniqueId();
+<         Task.builder().async()
+<                 .execute(() -> {
+---
+>         Player player = optPlayer.get();
+>         UUID uniqueId = player.getUniqueId();
+> 
+>         // Schedule the asynchronous work using the new scheduler API.
+>         // We assume that plugin.getScheduler() now returns a TaskExecutorService with a submit(Runnable) method.
+>         plugin.getScheduler().submit(() -> {
+45,47c48,50
+<                     Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).submit(plugin);
+<                 })
+<                 .submit(plugin);
+---
+>             // Schedule the next task (presumably on the main thread) to send the skin details.
+>             plugin.getScheduler().submit(() -> sendSkinDetails(uniqueId, preferences));
+>         });
+49c52
+<         return CommandResult.success();
+---
+>         return CommandResult.builder().affectedEntities(1).build();
+52,54c55,57
+<     @Override
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     // Updated command building method using the new Command builder.
+>     public Command buildSpec() {
+>         return Command.builder()
+61c64,65
+<         Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
+---
+>         // Instead of using Sponge.getServer(), the new API uses Sponge.server()
+>         Optional<Player> optPlayer = Sponge.server().player(uuid);
+69,71c73,75
+< 
+<                 Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
+<                 player.sendMessage(text);
+---
+>                 // Instead of the old Text and TextSerializers API, use Adventure Components.
+>                 Component component = LegacyComponentSerializer.legacySection().deserialize(formatted);
+>                 player.sendMessage(component);

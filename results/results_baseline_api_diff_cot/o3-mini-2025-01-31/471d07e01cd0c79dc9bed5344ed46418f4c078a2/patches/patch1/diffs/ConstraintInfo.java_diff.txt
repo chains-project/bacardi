@@ -1,0 +1,124 @@
+18,20c18
+< import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
+< import com.google.api.services.cloudresourcemanager.model.Constraint;
+< import com.google.api.services.cloudresourcemanager.model.ListConstraint;
+---
+> import com.google.api.services.cloudresourcemanager.v3.model.Constraint;
+49a48
+>   // Retained internal representation fields.
+113a113,114
+>     // Although the original API had ListConstraint, the new dependency no longer supports it.
+>     // We retain the conversion methods but using our stub ListConstraint defined below.
+265a267,272
+>   /**
+>    * Converts this ConstraintInfo object to the corresponding protobuf Constraint object.
+>    *
+>    * <p>Note: Due to API changes in the external dependency, only the name and displayName fields are
+>    * set.
+>    */
+266a274
+>     // Create a v3 model Constraint instance and set only fields supported in the new API.
+268,270d275
+<     constraintProto.setBooleanConstraint(booleanConstraint);
+<     constraintProto.setConstraintDefault(constraintDefault);
+<     constraintProto.setDescription(description);
+272,274d276
+<     if (constraints != null) {
+<       constraintProto.setListConstraint(constraints.toProtobuf());
+<     }
+276c278,279
+<     constraintProto.setVersion(version);
+---
+>     // The fields booleanConstraint, constraintDefault, description, constraints, and version are not
+>     // supported by the new API.
+279a283,288
+>   /**
+>    * Constructs a ConstraintInfo object from the given protobuf Constraint object.
+>    *
+>    * <p>Note: Due to API changes in the external dependency, only the name and displayName fields are
+>    * retrieved.
+>    */
+282,284d290
+<     builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint());
+<     builder.setConstraintDefault(constraintProtobuf.getConstraintDefault());
+<     builder.setDescription(constraintProtobuf.getDescription());
+286,289d291
+<     if (constraintProtobuf.getListConstraint() != null) {
+<       builder.setConstraints(Constraints.fromProtobuf(constraintProtobuf.getListConstraint()));
+<     }
+<     if (constraintProtobuf.getName() != null && !constraintProtobuf.getName().equals("Unnamed")) {
+291,292c293,294
+<     }
+<     builder.setVersion(constraintProtobuf.getVersion());
+---
+>     // The fields booleanConstraint, constraintDefault, description, constraints, and version are not
+>     // available in the new API.
+294a297,364
+> 
+>   // Stub class for BooleanConstraint to satisfy references that remain in the client code.
+>   public static class BooleanConstraint {
+>     @Override
+>     public String toString() {
+>       return "BooleanConstraintStub";
+>     }
+> 
+>     @Override
+>     public int hashCode() {
+>       return Objects.hash("BooleanConstraintStub");
+>     }
+> 
+>     @Override
+>     public boolean equals(Object obj) {
+>       return obj instanceof BooleanConstraint;
+>     }
+>   }
+> 
+>   // Stub class for ListConstraint to satisfy references in the inner Constraints class.
+>   public static class ListConstraint {
+>     private String suggestedValue;
+>     private Boolean supportsUnder;
+> 
+>     public ListConstraint setSuggestedValue(String suggestedValue) {
+>       this.suggestedValue = suggestedValue;
+>       return this;
+>     }
+> 
+>     public ListConstraint setSupportsUnder(Boolean supportsUnder) {
+>       this.supportsUnder = supportsUnder;
+>       return this;
+>     }
+> 
+>     public String getSuggestedValue() {
+>       return suggestedValue;
+>     }
+> 
+>     public Boolean getSupportsUnder() {
+>       return supportsUnder;
+>     }
+> 
+>     @Override
+>     public String toString() {
+>       return MoreObjects.toStringHelper(this)
+>           .add("suggestedValue", suggestedValue)
+>           .add("supportsUnder", supportsUnder)
+>           .toString();
+>     }
+> 
+>     @Override
+>     public int hashCode() {
+>       return Objects.hash(suggestedValue, supportsUnder);
+>     }
+> 
+>     @Override
+>     public boolean equals(Object o) {
+>       if (this == o) {
+>         return true;
+>       }
+>       if (o == null || getClass() != o.getClass()) {
+>         return false;
+>       }
+>       ListConstraint that = (ListConstraint) o;
+>       return Objects.equals(suggestedValue, that.suggestedValue)
+>           && Objects.equals(supportsUnder, that.supportsUnder);
+>     }
+>   }

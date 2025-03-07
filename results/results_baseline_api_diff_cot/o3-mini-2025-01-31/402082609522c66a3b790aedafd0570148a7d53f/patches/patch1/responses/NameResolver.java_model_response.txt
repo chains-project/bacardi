@@ -1,0 +1,56 @@
+<repair_strategy>
+1. The error occurs because the class CommandSource has been removed from its original package (org.spongepowered.api.command) in the new dependency version.
+2. In the new API the CommandSource class has been relocated to a different package. This update requires changing the import statement.
+3. The only part of the client code needing adjustment is the import for CommandSource. All usages of CommandSource in the class remain valid if imported from the new package location.
+4. The constraints require that we do not change any method signatures or remove existing code that is not causing compile errors.
+5. The minimal change is to update the import statement to reference the new package (org.spongepowered.api.command.source.CommandSource). This ensures that all references to CommandSource are valid.
+6. This change has no side effects because the underlying API remains functionally equivalent.
+7. The resulting NameResolver class will fully compile.
+8. No extra imports are necessary apart from updating the CommandSource import.
+</repair_strategy>
+
+```java
+package com.github.games647.changeskin.sponge.task;
+
+import com.github.games647.changeskin.core.shared.task.SharedNameResolver;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import java.util.UUID;
+
+import org.spongepowered.api.command.source.CommandSource;
+import org.spongepowered.api.entity.living.player.Player;
+
+public class NameResolver extends SharedNameResolver {
+
+    private final ChangeSkinSponge plugin;
+    private final CommandSource invoker;
+    private final Player receiver;
+    private final boolean keepSkin;
+
+    public NameResolver(ChangeSkinSponge plugin, CommandSource invoker, String targetName, Player receiver, boolean keepSkin) {
+        super(plugin.getCore(), targetName, keepSkin);
+
+        this.plugin = plugin;
+        this.invoker = invoker;
+        this.receiver = receiver;
+        this.keepSkin = keepSkin;
+    }
+
+    @Override
+    public void sendMessageInvoker(String id) {
+        plugin.sendMessage(invoker, id);
+    }
+
+    @Override
+    protected boolean hasSkinPermission(UUID uuid) {
+        //todo check skin permissions
+        return true;
+    }
+
+    @Override
+    protected void scheduleDownloader(UUID uuid) {
+        //run this in the same thread
+        new SkinDownloader(plugin, invoker, receiver, uuid, keepSkin).run();
+    }
+}
+```

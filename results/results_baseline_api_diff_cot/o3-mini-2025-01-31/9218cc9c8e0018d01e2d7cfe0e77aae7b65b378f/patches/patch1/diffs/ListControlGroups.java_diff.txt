@@ -1,0 +1,40 @@
+37,43c37,44
+< import javax.validation.Validator;
+< import javax.validation.constraints.NotBlank;
+< import javax.validation.constraints.NotEmpty;
+< import javax.validation.constraints.NotNull;
+< import javax.validation.metadata.BeanDescriptor;
+< import javax.validation.metadata.ConstraintDescriptor;
+< import javax.validation.metadata.ElementDescriptor;
+---
+> 
+> import jakarta.validation.Validator;
+> import jakarta.validation.constraints.NotBlank;
+> import jakarta.validation.constraints.NotEmpty;
+> import jakarta.validation.constraints.NotNull;
+> import jakarta.validation.metadata.BeanDescriptor;
+> import jakarta.validation.metadata.ConstraintDescriptor;
+> import jakarta.validation.metadata.ElementDescriptor;
+155,156c156,159
+<                                                 if(objectProperty.type.isEnum()) typesControlGroup = EnumControlGroup.class;
+<                                                 else typesControlGroup = ObjectChoiceControlGroup.class;
+---
+>                         if (objectProperty.type.isEnum())
+>                             typesControlGroup = EnumControlGroup.class;
+>                         else
+>                             typesControlGroup = ObjectChoiceControlGroup.class;
+165d167
+< 
+185,187c187,189
+<                                                         .createControlGroup(view.newChildId()
+<                                                                         , new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name)
+<                                                                         , objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
+---
+>                             .createControlGroup(view.newChildId(),
+>                                     new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name),
+>                                     objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
+226c228,229
+<                         if(type.isAssignableFrom(mapType)) return typesControlGroups.get(mapType);
+---
+>             if (type.isAssignableFrom(mapType))
+>                 return typesControlGroups.get(mapType);

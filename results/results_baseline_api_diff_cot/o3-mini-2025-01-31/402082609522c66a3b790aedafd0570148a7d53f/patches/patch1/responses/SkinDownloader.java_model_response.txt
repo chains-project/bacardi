@@ -1,0 +1,49 @@
+<repair_strategy>
+1. The failure is caused because the class org.spongepowered.api.command.CommandSource has been removed from the new dependency.
+2. In the old API, CommandSource was used for handling command invocations. In the new API, a similar concept is represented by CommandCause.
+3. We need to update the SkinDownloader class so that it no longer refers to CommandSource; instead, we replace it with CommandCause.
+4. The constructor and field for “invoker” are currently of type CommandSource. We must change both to CommandCause. We also update the import statement accordingly.
+5. These minimal changes ensure that scheduleApplyTask and sendMessageInvoker still function correctly (assuming that ChangeSkinSponge and SkinApplier have been similarly updated).
+6. No other part of the code is affected by the API change.
+7. The planned changes yield a complete and compilable class.
+8. Required additional import is org.spongepowered.api.command.CommandCause.
+</repair_strategy>
+
+```java
+package com.github.games647.changeskin.sponge.task;
+
+import com.github.games647.changeskin.core.model.skin.SkinModel;
+import com.github.games647.changeskin.core.shared.task.SharedDownloader;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import java.util.UUID;
+
+import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
+
+public class SkinDownloader extends SharedDownloader {
+
+    private final ChangeSkinSponge plugin;
+    private final CommandCause invoker;
+    private final Player receiver;
+
+    public SkinDownloader(ChangeSkinSponge plugin, CommandCause invoker, Player receiver, UUID targetUUID, boolean keepSkin) {
+        super(plugin.getCore(), keepSkin, targetUUID, receiver.getUniqueId());
+        this.plugin = plugin;
+        this.invoker = invoker;
+        this.receiver = receiver;
+    }
+
+    @Override
+    protected void scheduleApplyTask(SkinModel skinData) {
+        Runnable skinUpdater = new SkinApplier(plugin, invoker, receiver, skinData, keepSkin);
+        Task.builder().execute(skinUpdater).submit(plugin);
+    }
+
+    @Override
+    public void sendMessageInvoker(String id) {
+        plugin.sendMessage(invoker, id);
+    }
+}
+```

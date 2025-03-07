@@ -1,0 +1,13 @@
+20d19
+< import com.google.cloud.pubsublite.PublishMetadata;
+35,36c34,36
+<   @Override
+<   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
+---
+>   // Changed the generic type from PublishMetadata (removed from dependency)
+>   // to Void because the external dependency no longer provides a publish metadata type.
+>   public Publisher<Void> newPublisher(Map<String, String> params) {
+49a50
+>             // Removed the removed setContext() call per the updated dependency API.
+53d53
+<                 .setContext(PubsubContext.of(FRAMEWORK))

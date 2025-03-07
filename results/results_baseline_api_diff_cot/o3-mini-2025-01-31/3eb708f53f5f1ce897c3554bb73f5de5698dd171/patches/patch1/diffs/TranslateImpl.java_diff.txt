@@ -1,0 +1,59 @@
+23,25d22
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.api.services.translate.model.TranslationsResource;
+43c40,42
+<   private static final Function<List<DetectionsResourceItems>, Detection>
+---
+>   // Previously, this function was parameterized over List<DetectionsResourceItems>.
+>   // With the new API the internal model classes have been removed, so we use List<Object> instead.
+>   private static final Function<List<Object>, Detection>
+45c44
+<           new Function<List<DetectionsResourceItems>, Detection>() {
+---
+>           new Function<List<Object>, Detection>() {
+47c46
+<             public Detection apply(List<DetectionsResourceItems> detectionPb) {
+---
+>             public Detection apply(List<Object> detectionPb) {
+59a59
+>       // The new API no longer returns LanguagesResource; it now returns generic objects.
+62c62
+<               new Callable<List<LanguagesResource>>() {
+---
+>               new Callable<List<Object>>() {
+64c64
+<                 public List<LanguagesResource> call() {
+---
+>                 public List<Object> call() {
+80c80,81
+<       List<List<DetectionsResourceItems>> detectionsPb =
+---
+>       // The new API no longer returns DetectionsResourceItems; it now returns generic objects.
+>       List<List<Object>> detectionsPb =
+82c83
+<               new Callable<List<List<DetectionsResourceItems>>>() {
+---
+>               new Callable<List<List<Object>>>() {
+84c85
+<                 public List<List<DetectionsResourceItems>> call() {
+---
+>                 public List<List<Object>> call() {
+91c92
+<       Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
+---
+>       Iterator<List<Object>> detectionIterator = detectionsPb.iterator();
+94c95
+<         List<DetectionsResourceItems> detectionPb = detectionIterator.next();
+---
+>         List<Object> detectionPb = detectionIterator.next();
+118a120
+>       // The new API no longer returns TranslationsResource; it now returns generic objects.
+121c123
+<               new Callable<List<TranslationsResource>>() {
+---
+>               new Callable<List<Object>>() {
+123c125
+<                 public List<TranslationsResource> call() {
+---
+>                 public List<Object> call() {

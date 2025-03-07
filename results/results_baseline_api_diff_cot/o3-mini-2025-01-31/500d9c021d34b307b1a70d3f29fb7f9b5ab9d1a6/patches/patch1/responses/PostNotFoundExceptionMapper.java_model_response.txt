@@ -1,0 +1,50 @@
+<repair_strategy>
+1. Identify the failing API: The error is due to the removal of javax.mvc.Models.
+2. Compare APIs: The new dependency now provides jakarta.mvc.Models instead.
+3. Determine parts to update: The client code imports javax.mvc.Models which must be changed to jakarta.mvc.Models.
+4. Consider constraints: The function signature stays the same; only the import is updated.
+5. Plan minimal changes: Replace the import statement for Models with the updated package.
+6. Verify side effects: None, since the rest of the code uses Models methods that remain identical.
+7. Ensure the complete class compiles: The new import meets the dependency’s updated API.
+8. Additional imports: Only the Models import needs correcting.
+</repair_strategy>
+
+```java
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.example.config;
+
+import com.example.domain.TaskNotFoundException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.inject.Inject;
+import jakarta.mvc.Models;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
+
+/**
+ *
+ * @author hantsy
+ */
+@Provider
+public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFoundException> {
+
+    @Inject
+    Logger log;
+
+    @Inject
+    Models models;
+
+    @Override
+    public Response toResponse(TaskNotFoundException exception) {
+        log.log(Level.INFO, "handling exception : PostNotFoundException");
+        models.put("error", exception.getMessage());
+        return Response.status(Response.Status.NOT_FOUND).entity("error.xhtml").build();
+    }
+
+}
+```

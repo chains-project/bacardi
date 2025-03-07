@@ -1,0 +1,126 @@
+5c5
+< import ch.qos.logback.classic.spi.ILoggingEvent;
+---
+> import ch.qos.logback.classic.LoggerContext;
+17a18
+> import org.slf4j.event.LoggingEvent;
+30c31,33
+< import uk.gov.service.payments.commons.queue.exception.QueueException;
+---
+> import uk.gov.pay.service.payments.commons.queue.exception.QueueException;
+> import uk.gov.pay.adminusers.queue.event.EventSubscriberQueue;
+> import uk.gov.pay.adminusers.queue.event.EventMessageHandler;
+82a86
+> 
+84c88,89
+<     private Appender<ILoggingEvent> mockLogAppender;
+---
+>     private Appender<LoggingEvent> mockLogAppender;
+> 
+86c91
+<     ArgumentCaptor<ILoggingEvent> loggingEventArgumentCaptor;
+---
+>     ArgumentCaptor<LoggingEvent> loggingEventArgumentCaptor;
+99c104,105
+<         eventMessageHandler = new EventMessageHandler(mockEventSubscriberQueue, mockLedgerService, mockNotificationService, mockServiceFinder, mockUserServices, objectMapper);
+---
+>         eventMessageHandler = new EventMessageHandler(mockEventSubscriberQueue, mockLedgerService, mockNotificationService,
+>                 mockServiceFinder, mockUserServices, objectMapper);
+111c117,118
+<         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
+---
+>         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+>         Logger logger = loggerContext.getLogger(EventMessageHandler.class.getName());
+120c127,129
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
+---
+>                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L,
+>                         "evidence_due_date", "2022-03-07T13:00:00.001Z",
+>                         "gateway_account_id", gatewayAccountId)))
+141c150,153
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId, "reason", "fraudulent")))
+---
+>                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L,
+>                         "evidence_due_date", "2022-03-07T13:00:00.001Z",
+>                         "gateway_account_id", gatewayAccountId,
+>                         "reason", "fraudulent")))
+154c166,167
+<         verify(mockNotificationService, atMostOnce()).sendStripeDisputeCreatedEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
+---
+>         verify(mockNotificationService, atMostOnce()).sendStripeDisputeCreatedEmail(
+>                 adminEmailsCaptor.capture(), personalisationCaptor.capture());
+179,181c192,194
+<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+<         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+<         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
+---
+>         List<LoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+>         assertThat(logStatement.get(0).getMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+>         assertThat(logStatement.get(1).getMessage(), Is.is("Processed notification email for disputed transaction"));
+189c202,205
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("net_amount", -4000L, "fee", 1500L, "amount", 2500L, "gateway_account_id", gatewayAccountId)))
+---
+>                 .withEventDetails(objectMapper.valueToTree(Map.of("net_amount", -4000L,
+>                         "fee", 1500L,
+>                         "amount", 2500L,
+>                         "gateway_account_id", gatewayAccountId)))
+203c219,220
+<         verify(mockNotificationService, atMostOnce()).sendStripeDisputeLostEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
+---
+>         verify(mockNotificationService, atMostOnce()).sendStripeDisputeLostEmail(
+>                 adminEmailsCaptor.capture(), personalisationCaptor.capture());
+216,218c233,235
+<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+<         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+<         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
+---
+>         List<LoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+>         assertThat(logStatement.get(0).getMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+>         assertThat(logStatement.get(1).getMessage(), Is.is("Processed notification email for disputed transaction"));
+240c257,258
+<         verify(mockNotificationService, atMostOnce()).sendStripeDisputeWonEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
+---
+>         verify(mockNotificationService, atMostOnce()).sendStripeDisputeWonEmail(
+>                 adminEmailsCaptor.capture(), personalisationCaptor.capture());
+253,255c271,273
+<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+<         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+<         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
+---
+>         List<LoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+>         assertThat(logStatement.get(0).getMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+>         assertThat(logStatement.get(1).getMessage(), Is.is("Processed notification email for disputed transaction"));
+277c295,296
+<         verify(mockNotificationService, atMostOnce()).sendStripeDisputeEvidenceSubmittedEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
+---
+>         verify(mockNotificationService, atMostOnce()).sendStripeDisputeEvidenceSubmittedEmail(
+>                 adminEmailsCaptor.capture(), personalisationCaptor.capture());
+290,292c309,311
+<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+<         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+<         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
+---
+>         List<LoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+>         assertThat(logStatement.get(0).getMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+>         assertThat(logStatement.get(1).getMessage(), Is.is("Processed notification email for disputed transaction"));
+300c319,322
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00Z", "gateway_account_id", gatewayAccountId)))
+---
+>                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L,
+>                         "fee", 1500L,
+>                         "evidence_due_date", "2022-03-07T13:00:00Z",
+>                         "gateway_account_id", gatewayAccountId)))
+317c339,342
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
+---
+>                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L,
+>                         "fee", 1500L,
+>                         "evidence_due_date", "2022-03-07T13:00:00.001Z",
+>                         "gateway_account_id", gatewayAccountId)))
+335c360,363
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
+---
+>                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L,
+>                         "fee", 1500L,
+>                         "evidence_due_date", "2022-03-07T13:00:00.001Z",
+>                         "gateway_account_id", gatewayAccountId)))

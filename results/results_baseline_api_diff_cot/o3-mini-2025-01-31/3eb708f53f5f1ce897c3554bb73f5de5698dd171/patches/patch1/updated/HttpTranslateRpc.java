@@ -1,0 +1,223 @@
+package com.google.cloud.translate.spi.v2;
+
+import static com.google.common.base.MoreObjects.firstNonNull;
+
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpRequestInitializer;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.translate.v3.Translate;
+import com.google.api.services.translate.v3.model.DetectLanguageRequest;
+import com.google.api.services.translate.v3.model.DetectLanguageResponse;
+import com.google.api.services.translate.v3.model.Detection;
+import com.google.api.services.translate.v3.model.SupportedLanguagesResponse;
+import com.google.api.services.translate.v3.model.SupportedLanguage;
+import com.google.api.services.translate.v3.model.TranslateTextRequest;
+import com.google.api.services.translate.v3.model.TranslateTextResponse;
+import com.google.api.services.translate.v3.model.Translation;
+import com.google.cloud.http.HttpTransportOptions;
+import com.google.cloud.translate.TranslateException;
+import com.google.cloud.translate.TranslateOptions;
+import com.google.common.collect.ImmutableList;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public class HttpTranslateRpc implements TranslateRpc {
+
+  private final TranslateOptions options;
+  private final Translate translate;
+
+  public HttpTranslateRpc(TranslateOptions options) {
+    HttpTransportOptions transportOptions = (HttpTransportOptions) options.getTransportOptions();
+    HttpTransport transport = transportOptions.getHttpTransportFactory().create();
+    HttpRequestInitializer initializer = transportOptions.getHttpRequestInitializer(options);
+    this.options = options;
+    // Use the v3 builder for Translate.
+    translate =
+        new Translate.Builder(transport, new JacksonFactory(), initializer)
+            .setRootUrl(options.getHost())
+            .setApplicationName(options.getApplicationName())
+            .build();
+  }
+
+  private static TranslateException translate(IOException exception) {
+    return new TranslateException(exception);
+  }
+
+  private GenericUrl buildTargetUrl(String path) {
+    // Update the URL to use v3 endpoints.
+    GenericUrl genericUrl = new GenericUrl(translate.getRootUrl() + "v3/" + path);
+    if (options.getApiKey() != null) {
+      genericUrl.put("key", options.getApiKey());
+    }
+    return genericUrl;
+  }
+
+  @Override
+  public List<List<DetectionsResourceItems>> detect(List<String> texts) {
+    try {
+      String parent =
+          "projects/"
+              + options.getProjectId()
+              + "/locations/"
+              + (options.getLocation() != null ? options.getLocation() : "global");
+      DetectLanguageRequest detectRequest = new DetectLanguageRequest();
+      // For batch detection, set the content of each text.
+      detectRequest.setContent(texts);
+      Translate.Projects.Locations.DetectLanguage request =
+          translate.projects().locations().detectLanguage(parent, detectRequest);
+      request.setKey(options.getApiKey());
+      DetectLanguageResponse response = request.execute();
+      List<List<DetectionsResourceItems>> result = new ArrayList<>();
+      if (response.getDetections() != null) {
+        // The new API returns a list of lists of Detection objects.
+        for (List<Detection> detectionList : response.getDetections()) {
+          List<DetectionsResourceItems> innerList = new ArrayList<>();
+          for (Detection detection : detectionList) {
+            DetectionsResourceItems item = new DetectionsResourceItems();
+            // Map the detection language code to our resource item.
+            item.setLanguage(detection.getLanguage());
+            innerList.add(item);
+          }
+          result.add(innerList);
+        }
+      } else {
+        return ImmutableList.<List<DetectionsResourceItems>>of();
+      }
+      return result;
+    } catch (IOException ex) {
+      throw translate(ex);
+    }
+  }
+
+  @Override
+  public List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap) {
+    try {
+      String parent =
+          "projects/"
+              + options.getProjectId()
+              + "/locations/"
+              + (options.getLocation() != null ? options.getLocation() : "global");
+      String target =
+          firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
+      Translate.Projects.Locations.GetSupportedLanguages request =
+          translate.projects().locations().getSupportedLanguages(parent);
+      request.setKey(options.getApiKey());
+      // Set the target language for display names if supported.
+      request.setTarget(target);
+      SupportedLanguagesResponse response = request.execute();
+      List<LanguagesResource> languages = new ArrayList<>();
+      if (response.getLanguages() != null) {
+        for (SupportedLanguage lang : response.getLanguages()) {
+          LanguagesResource lr = new LanguagesResource();
+          lr.setLanguage(lang.getLanguageCode());
+          lr.setName(lang.getDisplayName());
+          languages.add(lr);
+        }
+      }
+      return languages;
+    } catch (IOException ex) {
+      throw translate(ex);
+    }
+  }
+
+  @Override
+  public List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap) {
+    try {
+      String parent =
+          "projects/"
+              + options.getProjectId()
+              + "/locations/"
+              + (options.getLocation() != null ? options.getLocation() : "global");
+      String targetLanguage =
+          firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
+      final String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
+      TranslateTextRequest requestBody = new TranslateTextRequest();
+      requestBody.setContents(texts);
+      requestBody.setTargetLanguageCode(targetLanguage);
+      if (sourceLanguage != null && !sourceLanguage.isEmpty()) {
+        requestBody.setSourceLanguageCode(sourceLanguage);
+      }
+      requestBody.setModel(Option.MODEL.getString(optionMap));
+      // In the new API, use "mimeType" instead of "format"
+      requestBody.setMimeType(Option.FORMAT.getString(optionMap));
+      Translate.Projects.Locations.TranslateText request =
+          translate.projects().locations().translateText(parent, requestBody);
+      request.setKey(options.getApiKey());
+      TranslateTextResponse response = request.execute();
+      List<TranslationsResource> translations = new ArrayList<>();
+      if (response.getTranslations() != null) {
+        for (Translation translation : response.getTranslations()) {
+          TranslationsResource tr = new TranslationsResource();
+          tr.setTranslatedText(translation.getTranslatedText());
+          tr.setDetectedSourceLanguage(translation.getDetectedLanguageCode());
+          if (tr.getDetectedSourceLanguage() == null) {
+            tr.setDetectedSourceLanguage(sourceLanguage);
+          }
+          translations.add(tr);
+        }
+      }
+      return translations;
+    } catch (IOException ex) {
+      throw translate(ex);
+    }
+  }
+
+  // Custom inner classes to replace removed API model types.
+
+  public static class DetectionsResourceItems {
+    private String language;
+
+    public String getLanguage() {
+      return language;
+    }
+
+    public void setLanguage(String language) {
+      this.language = language;
+    }
+  }
+
+  public static class LanguagesResource {
+    private String language;
+    private String name;
+
+    public String getLanguage() {
+      return language;
+    }
+
+    public void setLanguage(String language) {
+      this.language = language;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+  }
+
+  public static class TranslationsResource {
+    private String translatedText;
+    private String detectedSourceLanguage;
+
+    public String getTranslatedText() {
+      return translatedText;
+    }
+
+    public void setTranslatedText(String translatedText) {
+      this.translatedText = translatedText;
+    }
+
+    public String getDetectedSourceLanguage() {
+      return detectedSourceLanguage;
+    }
+
+    public void setDetectedSourceLanguage(String detectedSourceLanguage) {
+      this.detectedSourceLanguage = detectedSourceLanguage;
+    }
+  }
+}

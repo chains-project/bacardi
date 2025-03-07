@@ -1,0 +1,79 @@
+<repair_strategy>
+1. The errors occur because the MVC API classes from the old javax.mvc packages (BindingResult, UriRef, Models, Controller, MvcBinding, ParamError, etc.) have been removed or replaced. 
+2. In the new dependency, these classes now reside in the jakarta.mvc (or jakarta.mvc.binding, jakarta.mvc.security) packages. In addition, the ParamError class has been replaced by the ValidationError interface.
+3. The fix requires updating all import statements to use the new jakarta.mvc packages. In the code that iterates over the binding errors, the explicit lambda type (ParamError) is replaced with the new ValidationError type.
+4. The minimal changes involve updating all javax.mvc.* imports to their jakarta.mvc.* counterparts and replacing ParamError with ValidationError.
+5. Since the function signatures remain unchanged, only the import statements and the lambda parameter type are modified.
+6. The rest of the code remains unchanged and will compile once the new API classes are imported correctly.
+</repair_strategy>
+
+```java
+package com.example.web;
+
+import java.util.logging.Logger;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import jakarta.mvc.UriRef;
+import jakarta.mvc.binding.BindingResult;
+import jakarta.mvc.binding.MvcBinding;
+import jakarta.mvc.binding.ValidationError;
+import jakarta.mvc.security.CsrfProtected;
+import javax.validation.constraints.NotBlank;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+
+/**
+ *
+ * @author hantsy
+ */
+@Path("greeting")
+@Controller
+@RequestScoped
+public class GreetingController {
+
+    @Inject
+    BindingResult bindingResult;
+
+    @Inject
+    Models models;
+
+    @Inject
+    AlertMessage flashMessage;
+
+    @Inject
+    Logger log;
+
+    @GET
+    public String get() {
+        return "greeting.xhtml";
+    }
+
+    @POST
+    @UriRef("greeting-post")
+    public String post(
+            @FormParam("greeting")
+            @MvcBinding
+            @NotBlank String greeting) {
+        if (bindingResult.isFailed()) {
+            AlertMessage alert = AlertMessage.danger("Validation voilations!");
+            bindingResult.getAllErrors()
+                    .stream()
+                    .forEach((ValidationError error) -> {
+                        alert.addError(error.getParamName(), "", error.getMessage());
+                    });
+            models.put("errors", alert);
+            log.info("mvc binding failed.");
+            return "greeting.xhtml";
+        }
+
+        log.info("redirect to greeting page.");
+        flashMessage.notify(AlertMessage.Type.success, "Message:" + greeting);
+        return "redirect:greeting";
+    }
+
+}
+```

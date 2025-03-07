@@ -1,0 +1,70 @@
+<repair_strategy>
+1. The error indicates that the old API’s method between(Date, Date) no longer exists. The new API now provides a between method that accepts java.sql.Timestamp parameters.
+2. Previously, the client code was calling super.between(Date, Date) which returned a java.util.Date, then wrapping it in a new java.sql.Timestamp.
+3. The fix is to remove the @Override annotation from the between(Date, Date) method (since it no longer overrides a superclass method) and update its implementation to convert the Date arguments into java.sql.Timestamp objects and then use the new API method super.between(Timestamp, Timestamp).
+4. The function signature of between(Date, Date) remains unchanged as required.
+5. No other changes or removal of code are necessary, as the other methods still correctly wrap the super call.
+6. This minimal change ensures the class compiles with the updated dependency and maintains the expected functionality.
+</repair_strategy>
+
+```java
+package com.github.knaufk.flink.faker;
+
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+import net.datafaker.DateAndTime;
+import net.datafaker.Faker;
+
+public class DateTime extends DateAndTime {
+
+  protected DateTime(Faker faker) {
+    super(faker);
+  }
+
+  public Timestamp past(int atMost, TimeUnit unit) {
+    return new Timestamp(super.past(atMost, unit).getTime());
+  }
+
+  public Timestamp past(int atMost, int minimum, TimeUnit unit) {
+    return new Timestamp(super.past(atMost, minimum, unit).getTime());
+  }
+
+  @Override
+  public Timestamp future(int atMost, TimeUnit unit) {
+    return new Timestamp(super.future(atMost, unit).getTime());
+  }
+
+  @Override
+  public Timestamp future(int atMost, int minimum, TimeUnit unit) {
+    return new Timestamp(super.future(atMost, minimum, unit).getTime());
+  }
+
+  @Override
+  public Timestamp future(int atMost, TimeUnit unit, Date referenceDate) {
+    return new Timestamp(super.future(atMost, unit, referenceDate).getTime());
+  }
+
+  @Override
+  public Timestamp past(int atMost, TimeUnit unit, Date referenceDate) {
+    return new Timestamp(super.past(atMost, unit, referenceDate).getTime());
+  }
+
+  // Removed @Override because the original between(java.util.Date, java.util.Date) method was removed in the dependency.
+  public Timestamp between(Date from, Date to) throws IllegalArgumentException {
+    Timestamp tFrom = new Timestamp(from.getTime());
+    Timestamp tTo = new Timestamp(to.getTime());
+    return super.between(tFrom, tTo);
+  }
+
+  @Override
+  public Timestamp birthday() {
+    return new Timestamp(super.birthday().getTime());
+  }
+
+  @Override
+  public Timestamp birthday(int minAge, int maxAge) {
+    return new Timestamp(super.birthday(minAge, maxAge).getTime());
+  }
+}
+```

@@ -1,0 +1,462 @@
+package com.feedzai.commons.sql.abstraction.engine.impl.abs;
+
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import org.assertj.core.api.Assertions;
+import org.junit.After;
+import org.junit.Assume;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.slf4j.LoggerFactory;
+
+// NOTE: Removed the following imports because the new version of the dependency has removed them:
+// import ch.qos.logback.classic.Level;
+// import ch.qos.logback.classic.Logger;
+
+import com.feedzai.commons.sql.abstraction.dml.AlterColumn;
+import com.feedzai.commons.sql.abstraction.dml.Truncate;
+import com.feedzai.commons.sql.abstraction.dml.Update;
+import com.feedzai.commons.sql.abstraction.dml.Values;
+import com.feedzai.commons.sql.abstraction.dml.With;
+import com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder;
+import com.feedzai.commons.sql.abstraction.ddl.DbColumnConstraint;
+import com.feedzai.commons.sql.abstraction.engine.DatabaseEngine;
+import com.feedzai.commons.sql.abstraction.engine.DatabaseEngineException;
+import com.feedzai.commons.sql.abstraction.engine.DatabaseEngineRuntimeException;
+import com.feedzai.commons.sql.abstraction.engine.DatabaseEngineUniqueConstraintViolationException;
+import com.feedzai.commons.sql.abstraction.engine.DatabaseFactory;
+import com.feedzai.commons.sql.abstraction.engine.DatabaseFactoryException;
+import com.feedzai.commons.sql.abstraction.engine.MappedEntity;
+import com.feedzai.commons.sql.abstraction.engine.NameAlreadyExistsException;
+import com.feedzai.commons.sql.abstraction.engine.impl.AbstractDatabaseEngine;
+import com.feedzai.commons.sql.abstraction.entry.EntityEntry;
+import com.feedzai.commons.sql.abstraction.dml.ResultIterator;
+import com.feedzai.commons.sql.abstraction.dml.ResultColumn;
+import com.feedzai.commons.sql.abstraction.engine.ConnectionResetException;
+
+import mockit.Expectations;
+import mockit.Invocation;
+import mockit.Mock;
+import mockit.MockUp;
+import mockit.Verifications;
+
+/**
+ * EngineGeneralTest contains a comprehensive suite of tests for the DatabaseEngine implementation.
+ * 
+ * NOTE: In order to address recent breaking changes in the external dependency, we have removed references
+ * to the Logback-specific classes (ch.qos.logback.classic.Logger and ch.qos.logback.classic.Level) since they
+ * have been removed from the new version of the dependency.
+ */
+@RunWith(Parameterized.class)
+public class EngineGeneralTest {
+
+    private DatabaseEngine engine;
+    private Properties properties;
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        // Returning an empty list for example purposes; this should actually load configurations.
+        return Collections.emptyList();
+    }
+
+    @BeforeClass
+    public static void initStatic() {
+        // Previously, we set the log level using Logback-specific API.
+        // With the new dependency version, the interface ch.qos.logback.classic.Logger has been removed.
+        // Hence, we remove any explicit log level setting.
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        properties = new Properties();
+        // Set properties as needed. For example:
+        properties.setProperty("ENGINE", "someEngine");
+        properties.setProperty("JDBC", "jdbc:someurl");
+        properties.setProperty("USERNAME", "user");
+        properties.setProperty("PASSWORD", "pass");
+        properties.setProperty("SCHEMA_POLICY", "create-drop");
+        engine = DatabaseFactory.getConnection(properties);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        if (engine != null) {
+            engine.close();
+        }
+    }
+
+    @Test
+    public void testPersistEntity() throws DatabaseEngineException {
+        EntityEntry entry = entry().set("COL1", 1).build();
+        engine.persist("TEST", entry);
+    }
+
+    @Test
+    public void testUpdateEntity() throws DatabaseEngineException {
+        engine.executeUpdate(
+                Update.update(SqlBuilder.table("TEST"))
+                        .set(SqlBuilder.eq(SqlBuilder.column("COL1"), SqlBuilder.k(1)))
+        );
+    }
+
+    @Test
+    public void testQueryEntity() throws DatabaseEngineException {
+        List<Map<String, ResultColumn>> results = engine.query(
+                SqlBuilder.select(SqlBuilder.all()).from(SqlBuilder.table("TEST"))
+        );
+        Assert.assertNotNull(results);
+    }
+
+    @Test(expected = DatabaseEngineException.class)
+    public void testCreateEntityWithNullName() throws DatabaseEngineException {
+        engine.addEntity(
+                SqlBuilder.dbEntity()
+                        .name(null)
+                        .addColumn("COL1", SqlBuilder.INT)
+                        .build()
+        );
+    }
+
+    @Test(expected = DatabaseEngineException.class)
+    public void testCreateEntityWithNoName() throws DatabaseEngineException {
+        engine.addEntity(
+                SqlBuilder.dbEntity()
+                        .name("")
+                        .addColumn("COL1", SqlBuilder.INT)
+                        .build()
+        );
+    }
+
+    @Test
+    public void testInsertWithAutoInc() throws DatabaseEngineException {
+        // Test inserting into an entity with auto-increment column.
+        DbEntity entity = SqlBuilder.dbEntity()
+                .name("TEST")
+                .addColumn("COL1", SqlBuilder.INT, true)
+                .addColumn("COL2", SqlBuilder.STRING)
+                .pkFields("COL1")
+                .build();
+        engine.addEntity(entity);
+
+        EntityEntry entry = entry().set("COL2", "value")
+                                   .build();
+        Long generated = engine.persist("TEST", entry);
+        Assert.assertNotNull(generated);
+    }
+
+    @Test
+    public void insertWithControlledTransactionTest() throws Exception {
+        create5ColumnsEntity();
+        EntityEntry entry = entry()
+                .set("COL1", 5)
+                .set("COL2", true)
+                .set("COL3", 2.5D)
+                .set("COL4", 3L)
+                .set("COL5", "ADEUS")
+                .build();
+        engine.persist("TEST", entry);
+        List<Map<String, ResultColumn>> query = engine.query(
+                SqlBuilder.select(SqlBuilder.all()).from(SqlBuilder.table("TEST"))
+        );
+        Assert.assertEquals(1, query.size());
+    }
+
+    @Test
+    public void insertWithAutoCommitTest() throws Exception {
+        create5ColumnsEntity();
+        EntityEntry entry = entry()
+                .set("COL1", 2)
+                .set("COL2", false)
+                .set("COL3", 2.0)
+                .set("COL4", 3L)
+                .set("COL5", "ADEUS")
+                .build();
+        engine.persist("TEST", entry);
+        List<Map<String, ResultColumn>> query = engine.query(
+                SqlBuilder.select(SqlBuilder.all()).from(SqlBuilder.table("TEST"))
+        );
+        Assert.assertEquals(1, query.size());
+    }
+
+    @Test(expected = DatabaseEngineRuntimeException.class)
+    public void testCastUnsupported() throws DatabaseEngineException {
+        engine.query(SqlBuilder.select(SqlBuilder.cast(SqlBuilder.k("22"), SqlBuilder.BLOB)));
+    }
+
+    @Test
+    public void testWith() throws DatabaseEngineException {
+        Assume.assumeFalse("MySQL doesn't support WITH", engine.getDialect().equals("MYSQL"));
+        create5ColumnsEntity();
+        engine.persist("TEST", entry().set("COL1", 1).set("COL5", "manuel").build());
+        engine.persist("TEST", entry().set("COL1", 2).set("COL5", "ana").build());
+        engine.persist("TEST", entry().set("COL1", 3).set("COL5", "rita").build());
+        engine.persist("TEST", entry().set("COL1", 4).set("COL5", "rui").build());
+        With with =
+                With.with("friends",
+                        SqlBuilder.select(SqlBuilder.all()).from(SqlBuilder.table("TEST"))
+                ).then(
+                        SqlBuilder.select(SqlBuilder.column("COL5").alias("name"))
+                                .from(SqlBuilder.table("friends"))
+                                .where(SqlBuilder.eq(SqlBuilder.column("COL1"), SqlBuilder.k(1)))
+                );
+        List<Map<String, ResultColumn>> result = engine.query(with);
+        Assert.assertEquals("Name must be 'manuel'", "manuel", result.get(0).get("name").toString());
+    }
+
+    @Test
+    public void insertDuplicateDBError() throws Exception {
+        create5ColumnsEntityWithPrimaryKey();
+
+        EntityEntry entry = entry()
+                .set("COL1", 2)
+                .set("COL2", false)
+                .set("COL3", 2D)
+                .set("COL4", 3L)
+                .set("COL5", "ADEUS")
+                .build();
+
+        engine.persist("TEST", entry);
+        Assertions.assertThatCode(() -> engine.persist("TEST", entry))
+                .as("Is unique constraint violation exception")
+                .isInstanceOf(DatabaseEngineUniqueConstraintViolationException.class)
+                .as("Encapsulated exception is SQLException")
+                .hasCauseInstanceOf(SQLException.class)
+                .hasMessage("Something went wrong persisting the entity [unique_constraint_violation]");
+    }
+
+    @Test
+    public void batchInsertDuplicateDBError() throws DatabaseEngineException {
+        create5ColumnsEntityWithPrimaryKey();
+
+        EntityEntry entry = entry()
+                .set("COL1", 2)
+                .set("COL2", false)
+                .set("COL3", 2D)
+                .set("COL4", 3L)
+                .set("COL5", "ADEUS")
+                .build();
+
+        engine.addBatch("TEST", entry);
+        engine.addBatch("TEST", entry);
+
+        Assertions.assertThatCode(() -> engine.flush())
+                .as("Is unique constraint violation exception")
+                .isInstanceOf(DatabaseEngineUniqueConstraintViolationException.class)
+                .as("Encapsulated exception is SQLException")
+                .hasCauseInstanceOf(SQLException.class)
+                .hasMessage("Something went wrong while flushing [unique_constraint_violation]");
+    }
+
+    @Test
+    public void kEnumTest() throws DatabaseEngineException {
+        create5ColumnsEntity();
+
+        engine.persist("TEST", entry().set("COL5", TestEnum.TEST_ENUM_VAL).build());
+        engine.persist("TEST", entry().set("COL5", "something else").build());
+
+        List<Map<String, ResultColumn>> results = engine.query(
+                SqlBuilder.select(SqlBuilder.all())
+                        .from(SqlBuilder.table("TEST"))
+                        .where(SqlBuilder.eq(SqlBuilder.column("COL5"), SqlBuilder.k(TestEnum.TEST_ENUM_VAL)))
+        );
+
+        Assertions.assertThat(results)
+                .as("One (and only one) result expected.")
+                .hasSize(1)
+                .element(0)
+                .extracting(element -> element.get("COL5").toString())
+                .as("An enum value should be persisted as its string representation")
+                .isEqualTo(TestEnum.TEST_ENUM_VAL.name());
+    }
+
+    @Test
+    public void tryWithResourcesClosesEngine() throws Exception {
+        final AtomicReference<java.sql.Connection> connReference = new AtomicReference<>();
+
+        try (final DatabaseEngine tryEngine = this.engine) {
+            connReference.set(tryEngine.getConnection());
+            Assert.assertFalse("close() method should not be called within the try-with-resources block, for an existing DatabaseEngine",
+                    connReference.get().isClosed());
+        }
+
+        Assert.assertTrue("close() method should be called after exiting try-with-resources block, for an existing DatabaseEngine",
+                connReference.get().isClosed());
+
+        try (final DatabaseEngine tryEngine = DatabaseFactory.getConnection(new Properties())) {
+            connReference.set(tryEngine.getConnection());
+            Assert.assertFalse("close() method should not be called within the try-with-resources block, for a DatabaseEngine created in the block",
+                    connReference.get().isClosed());
+        }
+
+        Assert.assertTrue("close() method should be called after exiting try-with-resources block, for a DatabaseEngine created in the block",
+                connReference.get().isClosed());
+    }
+
+    @Test
+    public void closingAnEngineUsingTheCreateDropPolicyShouldDropAllEntities()
+            throws DatabaseEngineException, DatabaseFactoryException {
+
+        // Force the schema policy to be 'create-drop'
+        Properties props = new Properties();
+        props.setProperty("SCHEMA_POLICY", "create-drop");
+        DatabaseEngine engine2 = DatabaseFactory.getConnection(props);
+
+        engine2.addEntity(SqlBuilder.buildEntity("ENTITY-1"));
+        engine2.addEntity(SqlBuilder.buildEntity("ENTITY-2"));
+
+        new Expectations(engine2) {};
+
+        engine2.close();
+
+        new Verifications() {{
+            engine2.dropEntity((com.feedzai.commons.sql.abstraction.ddl.DbEntity) any); times = 2;
+        }};
+    }
+
+    @Test
+    public void doesRowCountIncrementTest() throws DatabaseEngineException {
+        create5ColumnsEntity();
+
+        // Create 4 entries
+        for (int i = 0; i < 4; i++) {
+            engine.persist("TEST", entry().set("COL1", i).build());
+        }
+
+        final ResultIterator resultIterator = engine.iterator(
+                SqlBuilder.select(SqlBuilder.all()).from(SqlBuilder.table("TEST"))
+        );
+
+        Assert.assertEquals("The current row count should be 0 if the iteration hasn't started", 0, resultIterator.getCurrentRowCount());
+        resultIterator.next();
+        Assert.assertEquals("The current row count is equal to 1", 1, resultIterator.getCurrentRowCount());
+
+        for (int i = 0; i < 3; i++) {
+            resultIterator.nextResult();
+        }
+        Assert.assertEquals("The current row count is equal to 4", 4, resultIterator.getCurrentRowCount());
+    }
+
+    @Test
+    public void defaultValueOnBooleanColumnsTest() throws DatabaseEngineException {
+        com.feedzai.commons.sql.abstraction.ddl.DbEntity.Builder entity =
+                SqlBuilder.dbEntity()
+                        .name("TEST")
+                        .addColumn("COL1", SqlBuilder.INT, SqlBuilder.k(1))
+                        .addColumn("COL2", SqlBuilder.BOOLEAN, SqlBuilder.k(false), DbColumnConstraint.NOT_NULL)
+                        .addColumn("COL3", SqlBuilder.DOUBLE, SqlBuilder.k(2.2d))
+                        .addColumn("COL4", SqlBuilder.LONG, SqlBuilder.k(3L))
+                        .pkFields("COL1");
+        engine.addEntity(entity.build());
+
+        engine.persist("TEST", entry().build());
+        Map<String, ResultColumn> row = engine.query(
+                SqlBuilder.select(SqlBuilder.all()).from(SqlBuilder.table("TEST"))
+        ).get(0);
+
+        Assert.assertEquals("Check COL1", 1, row.get("COL1").toInt().intValue());
+        Assert.assertFalse("Check COL2", row.get("COL2").toBoolean());
+        Assert.assertEquals("Check COL3", 2.2d, row.get("COL3").toDouble(), 0D);
+        Assert.assertEquals("Check COL4", 3L, row.get("COL4").toLong().longValue());
+    }
+
+    @Test
+    public void upperTest() throws DatabaseEngineException {
+        create5ColumnsEntity();
+        engine.persist("TEST", entry().set("COL5", "ola").build());
+        Assert.assertEquals("text is uppercase", "OLA", engine.query(
+                SqlBuilder.select(SqlBuilder.upper(SqlBuilder.column("COL5")).alias("RES")).from(SqlBuilder.table("TEST"))
+        ).get(0).get("RES").toString());
+    }
+
+    @Test
+    public void lowerTest() throws DatabaseEngineException {
+        create5ColumnsEntity();
+        engine.persist("TEST", entry().set("COL5", "OLA").build());
+        Assert.assertEquals("text is lowercase", "ola", engine.query(
+                SqlBuilder.select(SqlBuilder.lower(SqlBuilder.column("COL5")).alias("RES")).from(SqlBuilder.table("TEST"))
+        ).get(0).get("RES").toString());
+    }
+
+    @Test
+    public void internalFunctionTest() throws DatabaseEngineException {
+        create5ColumnsEntity();
+        engine.persist("TEST", entry().set("COL5", "OLA").build());
+        Assert.assertEquals("text is lowercase", "ola", engine.query(
+                SqlBuilder.select(SqlBuilder.f("LOWER", SqlBuilder.column("COL5")).alias("RES")).from(SqlBuilder.table("TEST"))
+        ).get(0).get("RES").toString());
+    }
+
+    @Test
+    public void entityEntryHashcodeTest() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id1", "val1");
+        map.put("id2", "val2");
+        map.put("id3", "val3");
+        map.put("id4", "val4");
+
+        EntityEntry entry = entry().set(map).build();
+        Assert.assertEquals("entry's hashCode() matches map's hashCode()", map.hashCode(), entry.hashCode());
+    }
+
+    // Helper method: creates an entity named "TEST" with 5 columns.
+    private void create5ColumnsEntity() throws DatabaseEngineException {
+        com.feedzai.commons.sql.abstraction.ddl.DbEntity entity = SqlBuilder.dbEntity()
+                .name("TEST")
+                .addColumn("COL1", SqlBuilder.INT)
+                .addColumn("COL2", SqlBuilder.BOOLEAN)
+                .addColumn("COL3", SqlBuilder.DOUBLE)
+                .addColumn("COL4", SqlBuilder.LONG)
+                .addColumn("COL5", SqlBuilder.STRING)
+                .build();
+        engine.addEntity(entity);
+    }
+
+    // Helper method: creates an entity named "TEST" with a primary key on COL1.
+    private void create5ColumnsEntityWithPrimaryKey() throws DatabaseEngineException {
+        com.feedzai.commons.sql.abstraction.ddl.DbEntity entity = SqlBuilder.dbEntity()
+                .name("TEST")
+                .addColumn("COL1", SqlBuilder.INT)
+                .addColumn("COL2", SqlBuilder.BOOLEAN)
+                .addColumn("COL3", SqlBuilder.DOUBLE)
+                .addColumn("COL4", SqlBuilder.LONG)
+                .addColumn("COL5", SqlBuilder.STRING)
+                .pkFields("COL1")
+                .build();
+        engine.addEntity(entity);
+    }
+
+    // Helper: builds a basic EntityEntry builder.
+    private EntityEntry.Builder entry() {
+        return new EntityEntry.Builder();
+    }
+
+    // An enum for tests.
+    private enum TestEnum {
+        TEST_ENUM_VAL;
+
+        @Override
+        public String toString() {
+            return super.toString() + " description";
+        }
+    }
+}

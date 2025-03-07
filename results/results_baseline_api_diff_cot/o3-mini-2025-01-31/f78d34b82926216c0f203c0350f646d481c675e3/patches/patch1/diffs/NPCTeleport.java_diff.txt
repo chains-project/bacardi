@@ -1,0 +1,19 @@
+3c3
+< import develop.p2p.lib.*;
+---
+> import tokyo.peya.lib.WaveCreator; // Updated import: use the new dependency package for WaveCreator
+89d88
+< 
+158,159c157,158
+<         final double radius = reachMode ? config.getDouble("npc.reachRange"): config.getDoubleList("npc.range")
+<             .get(new Random().nextInt(config.getDoubleList("npc.range").size()));
+---
+>         final double radius = reachMode ? config.getDouble("npc.reachRange")
+>             : config.getDoubleList("npc.range").get(new Random().nextInt(config.getDoubleList("npc.range").size()));
+202,203c201
+<                             Bukkit.getOnlinePlayers()
+<                                 .parallelStream()
+---
+>                             Bukkit.getOnlinePlayers().parallelStream()
+235d232
+< 

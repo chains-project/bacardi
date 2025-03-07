@@ -1,0 +1,25 @@
+54d53
+< import org.apache.fop.apps.FOPException;
+114,115c113,114
+<         // create an instance of fop factory
+<         FopFactory fopFactory = FopFactory.newInstance();
+---
+>         // create an instance of fop factory using the new API (passing a base URI)
+>         FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
+148c147
+<         } catch (FOPException e) {
+---
+>         } catch (org.apache.fop.apps.FOPException e) {
+177,179c176
+<     private Path createQR(String data)
+<         throws WriterException, IOException
+<     {
+---
+>     private Path createQR(String data) throws WriterException, IOException {
+191,194c188
+<         MatrixToImageWriter.writeToPath(
+<             bitMatrix,
+<             "png",
+<             file);
+---
+>         MatrixToImageWriter.writeToPath(bitMatrix, "png", file);

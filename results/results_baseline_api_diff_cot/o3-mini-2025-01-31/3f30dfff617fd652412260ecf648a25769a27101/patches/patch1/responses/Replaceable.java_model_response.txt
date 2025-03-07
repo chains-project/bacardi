@@ -1,0 +1,30 @@
+<repair_strategy>
+1. The error is caused because the client code imports InterceptorBinding from the old package (javax.interceptor) which has been removed in the new dependency version.
+2. The new API introduces jakarta.interceptor.InterceptorBinding. There are no changes to method signatures, return types, or parameters.
+3. The only necessary update is to change the import statement for InterceptorBinding.
+4. The fix simply involves updating the import statement from javax.interceptor.InterceptorBinding to jakarta.interceptor.InterceptorBinding.
+5. This is a minimal change that directly targets the compilation error while retaining all functionality.
+6. Since only the import is updated, there are no adverse side effects.
+7. The resulting class will be complete, compilable, and comply with the new API.
+8. The additional import required is jakarta.interceptor.InterceptorBinding.
+</repair_strategy>
+
+```java
+package de.hilling.junit.cdi.scope;
+
+import org.immutables.value.Value;
+import jakarta.interceptor.InterceptorBinding;
+import java.lang.annotation.*;
+
+/**
+ * Marker interface used internally by the {@link de.hilling.junit.cdi.scope.TestScopeExtension} to
+ * mark classes that can be mocked or replaced by other test beans.
+ */
+@Inherited
+@InterceptorBinding
+@Target({ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Value.Immutable
+public @interface Replaceable {
+}
+```

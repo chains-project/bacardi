@@ -1,0 +1,36 @@
+18,19c18,19
+<  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+<  * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+---
+>  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+>  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+48c48,50
+< import org.hamcrest.Matchers;
+---
+> import org.hamcrest.CoreMatchers;
+> import org.hamcrest.collection.IsEmptyIterable;
+> import org.hamcrest.core.IsCollectionContaining;
+60,61c62,63
+<  *   .assertBody(Matchers.containsString("hello, world!"))
+<  *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
+---
+>  *   .assertBody(CoreMatchers.containsString("hello, world!"))
+>  *   .assertHeader("Content-Type", IsCollectionContaining.hasItem("text/plain"))
+165,166c167,168
+<             ), this.binary(),
+<             matcher
+---
+>             ),
+>             this.binary(), matcher
+210c212
+<         return this.assertHeader(name, Matchers.hasItems(value));
+---
+>         return this.assertHeader(name, IsCollectionContaining.hasItem(value));
+246c248
+<             Matchers.not(Matchers.emptyIterableOf(String.class))
+---
+>             CoreMatchers.not(IsEmptyIterable.emptyIterable())
+284c286
+<             Matchers.notNullValue()
+---
+>             CoreMatchers.notNullValue()

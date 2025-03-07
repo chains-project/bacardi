@@ -1,0 +1,58 @@
+3d2
+< import de.gwdg.metadataqa.api.json.JsonBranch;
+24d22
+< 
+27d24
+< 
+67,70c64,70
+<     for (JsonBranch branch : schema.getPaths()) {
+<       if (branch.getParent() != null)
+<         continue;
+<       switch (branch.getLabel()) {
+---
+>     // Updated: The dependency removed the JsonBranch class.
+>     // We now assume that schema.getPaths() returns a list of String identifiers.
+>     // The branch string now represents both the label and the JSON path.
+>     for (String branch : schema.getPaths()) {
+>       // The old check for nested branches (branch.getParent() != null) is removed,
+>       // because the new API no longer supports nested branch objects.
+>       switch (branch) {
+84,85c84
+<           marcRecord.setControl006(
+<             new Control006(extractFirst(cache, branch), marcRecord));
+---
+>           marcRecord.setControl006(new Control006(extractFirst(cache, branch), marcRecord));
+88,89c87
+<           marcRecord.setControl007(
+<             new Control007(extractFirst(cache, branch), marcRecord));
+---
+>           marcRecord.setControl007(new Control007(extractFirst(cache, branch), marcRecord));
+92,93c90
+<           marcRecord.setControl008(
+<             new Control008(extractFirst(cache, branch), marcRecord));
+---
+>           marcRecord.setControl008(new Control008(extractFirst(cache, branch), marcRecord));
+96,98c93,95
+<           JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());
+<           for (var fieldInsanceNr = 0; fieldInsanceNr < fieldInstances.size(); fieldInsanceNr++) {
+<             var fieldInstance = (Map) fieldInstances.get(fieldInsanceNr);
+---
+>           JSONArray fieldInstances = (JSONArray) cache.getFragment(branch);
+>           for (int fieldInstanceNr = 0; fieldInstanceNr < fieldInstances.size(); fieldInstanceNr++) {
+>             var fieldInstance = (Map) fieldInstances.get(fieldInstanceNr);
+104c101
+<               marcRecord.addUnhandledTags(branch.getLabel());
+---
+>               marcRecord.addUnhandledTags(branch);
+313,314c310,313
+<   private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
+<     List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());
+---
+>   // Updated helper methods: Instead of accepting a JsonBranch (which was removed),
+>   // we now take a String key that represents both the branch label and the JSON path.
+>   private static List<String> extractList(JsonPathCache cache, String branch) {
+>     List<XmlFieldInstance> instances = cache.get(branch);
+322c321
+<   private static String extractFirst(JsonPathCache cache, JsonBranch branch) {
+---
+>   private static String extractFirst(JsonPathCache cache, String branch) {

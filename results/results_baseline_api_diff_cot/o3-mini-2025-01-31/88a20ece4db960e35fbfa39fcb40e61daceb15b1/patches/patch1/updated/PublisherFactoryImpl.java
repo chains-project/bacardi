@@ -1,0 +1,54 @@
+package com.google.pubsublite.kafka.sink;
+
+import com.google.cloud.pubsublite.CloudZone;
+import com.google.cloud.pubsublite.ProjectPath;
+import com.google.cloud.pubsublite.TopicName;
+import com.google.cloud.pubsublite.TopicPath;
+import com.google.cloud.pubsublite.internal.Publisher;
+import com.google.cloud.pubsublite.internal.wire.PubsubContext;
+import com.google.cloud.pubsublite.internal.wire.PubsubContext.Framework;
+import com.google.cloud.pubsublite.internal.wire.RoutingPublisherBuilder;
+import com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisherBuilder;
+import java.util.Map;
+import org.apache.kafka.common.config.ConfigValue;
+
+class PublisherFactoryImpl implements PublisherFactory {
+
+  // Retained from the old version though it isn’t used anymore now that setContext has been removed.
+  private static final Framework FRAMEWORK = Framework.of("KAFKA_CONNECT");
+
+  @Override
+  public Publisher<Void> newPublisher(Map<String, String> params) {
+    Map<String, ConfigValue> config = ConfigDefs.config().validateAll(params);
+    RoutingPublisherBuilder.Builder builder = RoutingPublisherBuilder.newBuilder();
+    
+    // The TopicPath builder API has been removed; use the new static factory method instead.
+    TopicPath topic = TopicPath.of(
+        ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value()).project(),
+        CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()),
+        TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()));
+
+    builder.setTopic(topic);
+    
+    // The old lambda was using PartitionPublisherFactory as a functional interface. However,
+    // the new dependency no longer treats it as such (or has added extra abstract methods).
+    // We now supply an anonymous inner class implementation.
+    builder.setPublisherFactory(new com.google.cloud.pubsublite.internal.wire.PartitionPublisherFactory() {
+      @Override
+      public Publisher<Void> newPublisher(int partition) {
+        // Note: The setContext method has been removed. So we remove that call.
+        return SinglePartitionPublisherBuilder.newBuilder()
+            .setTopic(topic)
+            .setPartition(partition)
+            .build();
+      }
+      
+      @Override
+      public void close() {
+        // No additional resources to close.
+      }
+    });
+    
+    return builder.build();
+  }
+}

@@ -1,0 +1,10 @@
+43c43
+<   @Override
+---
+>   // Removed @Override because the original between(java.util.Date, java.util.Date) method was removed in the dependency.
+45c45,47
+<     return new Timestamp(super.between(from, to).getTime());
+---
+>     Timestamp tFrom = new Timestamp(from.getTime());
+>     Timestamp tTo = new Timestamp(to.getTime());
+>     return super.between(tFrom, tTo);

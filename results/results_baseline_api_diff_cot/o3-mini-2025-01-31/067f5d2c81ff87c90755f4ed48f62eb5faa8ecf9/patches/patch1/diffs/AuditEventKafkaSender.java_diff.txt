@@ -1,0 +1,118 @@
+33a34
+> import org.apache.thrift.transport.TTransportException;
+57d57
+< 
+59d58
+< 
+64,65c63
+<    *  kafka client
+<    *  library when sending an event to a certain partition.
+---
+>    * kafka client library when sending an event to a certain partition.
+68d65
+< 
+73,74d69
+< 
+< 
+83d77
+< 
+89,90d82
+< 
+< 
+95d86
+< 
+100d90
+< 
+112d101
+< 
+117d105
+< 
+121,122c109
+<   private TSerializer serializer = new TSerializer();
+< 
+---
+>   private TSerializer serializer;
+127d113
+< 
+132d117
+< 
+137d121
+< 
+142d125
+< 
+147d129
+< 
+152d133
+< 
+158d138
+< 
+165d144
+< 
+167d145
+< 
+185a164,168
+>     try {
+>       this.serializer = new TSerializer();
+>     } catch (TTransportException e) {
+>       throw new RuntimeException("Failed to initialize TSerializer", e);
+>     }
+187d169
+< 
+242d223
+< 
+246,252d226
+<   /**
+<    *  Sender dequeues LoggingAuditEvents and sends them to Kafka cluster. If send to one partition
+<    *  fails, it will choose another partition. For each event, it will try at most
+<    *  NUM_OF_PARTITIONS_TO_TRY_SENDING times (3 times) before dropping this event. Metrics are
+<    *  used to track the queue size and usuage, number of events sent out to Kafka successfully, and
+<    *  the number of events dropped.
+<    */
+298d271
+< 
+312,313c285,286
+<       OpenTsdbMetricConverter
+<           .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_PARTITION_ERROR, 1,
+---
+>       OpenTsdbMetricConverter.incr(
+>           LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_PARTITION_ERROR, 1,
+324,325c297
+<         OpenTsdbMetricConverter
+<             .gauge(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_EVENTS_RETRIED,
+---
+>         OpenTsdbMetricConverter.gauge(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_EVENTS_RETRIED,
+330,331c302
+<           OpenTsdbMetricConverter
+<               .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_EVENTS_DROPPED, 1,
+---
+>           OpenTsdbMetricConverter.incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_EVENTS_DROPPED, 1,
+350,351c321
+<         LOG.debug(
+<             "Enqueuing LoggingAuditEvent at head of the queue was interrupted in callback. "
+---
+>         LOG.debug("Enqueuing LoggingAuditEvent at head of the queue was interrupted in callback. "
+361,362c331,332
+<           OpenTsdbMetricConverter
+<               .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_EVENTS_ACKED, 1,
+---
+>           OpenTsdbMetricConverter.incr(
+>               LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_EVENTS_ACKED, 1,
+367d336
+<           // LoggingAuditHeaders can uniquely identify an event.
+376,377c345,346
+<         OpenTsdbMetricConverter
+<             .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_CALLBACK_EXCEPTION, 1,
+---
+>         OpenTsdbMetricConverter.incr(
+>             LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_CALLBACK_EXCEPTION, 1,
+404,405c373
+<         "[{}] waits up to {} seconds to let [{}] send out LoggingAuditEvents left in the queue if"
+<             + " any.",
+---
+>         "[{}] waits up to {} seconds to let [{}] send out LoggingAuditEvents left in the queue if any.",
+417,418c385,386
+<         LOG.warn("[{}] got interrupted while waiting for [{}] to send out LoggingAuditEvents left "
+<             + "in the queue.", Thread.currentThread().getName(), name, e);
+---
+>         LOG.warn("[{}] got interrupted while waiting for [{}] to send out LoggingAuditEvents left in the queue.",
+>             Thread.currentThread().getName(), name, e);

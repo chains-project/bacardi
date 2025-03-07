@@ -1,0 +1,68 @@
+1,15d0
+< /*
+<  * Copyright 2020 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+20d4
+< import com.google.cloud.pubsublite.PublishMetadata;
+32a17
+>   // Retained from the old version though it isn’t used anymore now that setContext has been removed.
+36c21
+<   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
+---
+>   public Publisher<Void> newPublisher(Map<String, String> params) {
+39,46c24,30
+<     TopicPath topic =
+<         TopicPath.newBuilder()
+<             .setProject(
+<                 ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
+<                     .project())
+<             .setLocation(CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
+<             .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
+<             .build();
+---
+>     
+>     // The TopicPath builder API has been removed; use the new static factory method instead.
+>     TopicPath topic = TopicPath.of(
+>         ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value()).project(),
+>         CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()),
+>         TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()));
+> 
+48,50c32,40
+<     builder.setPublisherFactory(
+<         partition ->
+<             SinglePartitionPublisherBuilder.newBuilder()
+---
+>     
+>     // The old lambda was using PartitionPublisherFactory as a functional interface. However,
+>     // the new dependency no longer treats it as such (or has added extra abstract methods).
+>     // We now supply an anonymous inner class implementation.
+>     builder.setPublisherFactory(new com.google.cloud.pubsublite.internal.wire.PartitionPublisherFactory() {
+>       @Override
+>       public Publisher<Void> newPublisher(int partition) {
+>         // Note: The setContext method has been removed. So we remove that call.
+>         return SinglePartitionPublisherBuilder.newBuilder()
+53,54c43,51
+<                 .setContext(PubsubContext.of(FRAMEWORK))
+<                 .build());
+---
+>             .build();
+>       }
+>       
+>       @Override
+>       public void close() {
+>         // No additional resources to close.
+>       }
+>     });
+>     

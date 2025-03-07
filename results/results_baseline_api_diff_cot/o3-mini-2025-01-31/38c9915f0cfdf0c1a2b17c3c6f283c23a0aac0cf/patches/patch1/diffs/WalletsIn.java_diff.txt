@@ -1,0 +1,63 @@
+37,38c37
+< import org.cactoos.scalar.IoCheckedScalar;
+< import org.cactoos.scalar.SolidScalar;
+---
+> import org.cactoos.scalar.Sticky;
+40d38
+< import org.cactoos.text.JoinedText;
+53c51
+<     private final IoCheckedScalar<Path> path;
+---
+>     private final Scalar<Path> path;
+98d95
+<      * @param random Randomizer
+99a97
+>      * @param random Randomizer
+101,106c99,101
+<     public WalletsIn(final Scalar<Path> pth, final String ext,
+<         final Random random) {
+<         this.path = new IoCheckedScalar<>(
+<             new SolidScalar<>(pth)
+<         );
+<         this.filter = new IoCheckedFunc<Path, Boolean>(
+---
+>     public WalletsIn(final Scalar<Path> pth, final String ext, final Random random) {
+>         this.path = new Sticky<>(pth);
+>         this.filter = new IoCheckedFunc<>(
+115a111,123
+>     /**
+>      * Returns the base path from the scalar, wrapping any exception as IOException.
+>      * @return The base path
+>      * @throws IOException If an error occurs evaluating the scalar
+>      */
+>     private Path basePath() throws IOException {
+>         try {
+>             return this.path.value();
+>         } catch (final Exception ex) {
+>             throw new IOException(ex);
+>         }
+>     }
+> 
+118,119c126,127
+<         final Path wpth = this.path.value().resolve(
+<             new JoinedText(
+---
+>         final Path base = basePath();
+>         final String filename = String.join(
+123d130
+<             ).asString()
+124a132
+>         final Path wpth = base.resolve(filename);
+144,145c152
+<     public Wallet create(final long id, final String pubkey, final String
+<         network) throws IOException {
+---
+>     public Wallet create(final long id, final String pubkey, final String network) throws IOException {
+154c161
+<             return new Mapped<Path, Wallet>(
+---
+>             return new Mapped<>(
+156c163
+<                 new Filtered<>(this.filter, new Directory(this.path.value()))
+---
+>                 new Filtered<>(this.filter, new Directory(basePath()))

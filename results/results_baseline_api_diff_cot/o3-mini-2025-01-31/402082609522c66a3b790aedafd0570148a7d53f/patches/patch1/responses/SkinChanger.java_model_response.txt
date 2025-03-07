@@ -1,0 +1,39 @@
+<repair_strategy>
+1. The external dependency has removed the classes CommandSource (from package org.spongepowered.api.command) and TextSerializers (from package org.spongepowered.api.text.serializer).
+2. In the new API, Sponge now uses the Adventure-based messaging system. Instead of CommandSource, recipients of messages are represented by the Audience interface from the new API. Similarly, text serialization is now provided by the LegacyComponentSerializer from Kyori Adventure (using, for instance, its legacyAmpersand() method) instead of TextSerializers.LEGACY_FORMATTING_CODE.
+3. Consequently, the client code must update any reference to CommandSource to use Audience and update the text serializer accordingly.
+4. Since the method signatures must remain the same where possible, we update the types used in this class and its constructor. In this case, because the external dependency has changed, updating the parameter type and field from CommandSource to Audience is necessary.
+5. The minimal changes required are:
+   • Replace the import of org.spongepowered.api.command.CommandSource with org.spongepowered.api.adventure.Audience.
+   • Replace the import of org.spongepowered.api.text.serializer.TextSerializers with net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.
+   • Change the type of the invoker field and the corresponding constructor parameter to Audience.
+   • Update the message sending call to use LegacyComponentSerializer.legacyAmpersand().deserialize(localeMessage) instead.
+6. Verify that the changes propagate correctly and that the class remains compilable.
+7. No other parts of the code must be removed as they do not cause functionality issues.
+8. The fix will result in a complete and compilable class.
+</repair_strategy>
+
+```java
+package com.github.games647.changeskin.sponge.task;
+
+import com.github.games647.changeskin.core.model.auth.Account;
+import com.github.games647.changeskin.core.shared.task.SharedSkinChanger;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import org.spongepowered.api.adventure.Audience;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+
+public class SkinChanger extends SharedSkinChanger {
+
+    private final Audience invoker;
+
+    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, Audience invoker) {
+        super(plugin.getCore(), owner, url, oldSkinUrl);
+        this.invoker = invoker;
+    }
+
+    @Override
+    protected void sendMessageInvoker(String localeMessage) {
+        invoker.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(localeMessage));
+    }
+}
+```

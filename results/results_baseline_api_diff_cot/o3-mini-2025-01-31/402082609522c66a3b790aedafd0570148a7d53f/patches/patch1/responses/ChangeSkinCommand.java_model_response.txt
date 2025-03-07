@@ -1,0 +1,18 @@
+<repair_strategy>
+1. The error occurs because the class CommandSpec (in package org.spongepowered.api.command.spec) has been removed from the dependency.
+2. In the updated Sponge API, command definitions are now built using a new type – the Command interface – available under org.spongepowered.api.command.
+3. Therefore, we replace the import of CommandSpec with the appropriate import for Command and update the return type of buildSpec() accordingly.
+4. This is the minimal change needed so that the client code compiles under the new dependency while keeping the method signature (name and parameters) unchanged.
+</repair_strategy>
+  
+```java
+package com.github.games647.changeskin.sponge.command;
+
+import org.spongepowered.api.command.Command;
+
+@FunctionalInterface
+public interface ChangeSkinCommand {
+
+    Command buildSpec();
+}
+```

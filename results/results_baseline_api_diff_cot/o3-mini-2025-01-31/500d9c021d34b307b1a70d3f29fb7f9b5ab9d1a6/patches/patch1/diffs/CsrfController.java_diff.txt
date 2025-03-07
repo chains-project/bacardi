@@ -1,0 +1,40 @@
+6,12c6,9
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.UriRef;
+< import javax.mvc.binding.BindingResult;
+< import javax.mvc.binding.MvcBinding;
+< import javax.mvc.binding.ParamError;
+< import javax.mvc.security.CsrfProtected;
+---
+> import jakarta.mvc.Controller;
+> import jakarta.mvc.Models;
+> import jakarta.mvc.binding.MvcBinding;
+> import jakarta.mvc.security.CsrfProtected;
+19,22d15
+< /**
+<  *
+<  * @author hantsy
+<  */
+29,31d21
+<     BindingResult bindingResult;
+< 
+<     @Inject
+51,61d40
+<         if (bindingResult.isFailed()) {
+<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
+<             bindingResult.getAllErrors()
+<                     .stream()
+<                     .forEach((ParamError t) -> {
+<                         alert.addError(t.getParamName(), "", t.getMessage());
+<                     });
+<             models.put("errors", alert);
+<             log.info("mvc binding failed.");
+<             return "csrf.xhtml";
+<         }
+62a42,44
+>         // BindingResult and ParamError have been removed in the new API.
+>         // In Jakarta MVC, binding errors result in a Bad Request response,
+>         // so this method is only invoked when the binding is successful.
+67d48
+< 

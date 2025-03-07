@@ -1,0 +1,46 @@
+26c26,27
+< import org.tinspin.index.kdtree.KDTree;
+---
+> // Removed import for tin.spin KDTree as its API has been removed
+> // import org.tinspin.index.kdtree.KDTree;
+63c64
+<          * @return
+---
+>          * @return filtered list of points
+66c67,68
+<                 final KDTree<PVector> tree = KDTree.create(2);
+---
+>                 // With the removal of tinspin's KDTree and its query1NN API,
+>                 // we now perform a simple brute-force search of the accepted points.
+67a70
+>                 double tolSq = distanceTolerance * distanceTolerance;
+69,71c72,84
+<                         final double[] coords = new double[] { p.x, p.y };
+<                         if (tree.size() == 0 || tree.query1NN(coords).dist() > distanceTolerance) {
+<                                 tree.insert(coords, p);
+---
+>                         if (newPoints.isEmpty()) {
+>                                 newPoints.add(p);
+>                         } else {
+>                                 boolean tooClose = false;
+>                                 for (PVector np : newPoints) {
+>                                         double dx = p.x - np.x;
+>                                         double dy = p.y - np.y;
+>                                         if (dx * dx + dy * dy <= tolSq) {
+>                                                 tooClose = true;
+>                                                 break;
+>                                         }
+>                                 }
+>                                 if (!tooClose) {
+74a88
+>                 }
+217c231
+<          * @param yMax y-coordinate of boundary maximum
+---
+>          * @param yMax x-coordinate of boundary maximum
+233c247
+<          * @param yMax y-coordinate of boundary maximum
+---
+>          * @param yMax x-coordinate of boundary maximum
+795d808
+<          * @see #nRooksLDS(double, double, double, double, int)

@@ -1,0 +1,16 @@
+4c4
+< import ch.qos.logback.classic.Logger;
+---
+> import ch.qos.logback.classic.LoggerContext;
+111,113c111,117
+<         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
+<         logger.setLevel(Level.INFO);
+<         logger.addAppender(mockLogAppender);
+---
+>         // Instead of casting from LoggerFactory.getLogger (which previously used the removed Logger interface),
+>         // retrieve the logger via the LoggerContext provided by Logback.
+>         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+>         // Use the logger for the class under test to attach our test appender.
+>         ch.qos.logback.classic.Logger eventLogger = loggerContext.getLogger(EventMessageHandler.class);
+>         eventLogger.setLevel(Level.INFO);
+>         eventLogger.addAppender(mockLogAppender);
