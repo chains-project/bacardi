@@ -1,0 +1,33 @@
+22a23
+> import org.yaml.snakeyaml.introspector.PropertyUtils;
+217,231c218,226
+<   @Override
+<   protected Set<Property> getProperties(Class<? extends Object> type)
+<           throws IntrospectionException {
+<     if (type.isAssignableFrom(Model.class)) {
+<       return sortTypeWithOrder(type, ORDER_MODEL);
+<     } else if (type.isAssignableFrom(Developer.class)) {
+<       return sortTypeWithOrder(type, ORDER_DEVELOPER);
+<     } else if (type.isAssignableFrom(Contributor.class)) {
+<       return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
+<     }  else if (type.isAssignableFrom(Dependency.class)) {
+<       return sortTypeWithOrder(type, ORDER_DEPENDENCY);
+<     }  else if (type.isAssignableFrom(Plugin.class)) {
+<       return sortTypeWithOrder(type, ORDER_PLUGIN);
+<     } else {
+<       return super.getProperties(type);
+---
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+>       try {
+>           PropertyUtils propertyUtils = this.getPropertyUtils();
+>           Set<Property> standard = propertyUtils.getProperties(type);
+>           Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(ORDER_MODEL));
+>           sorted.addAll(standard);
+>           return sorted;
+>       } catch (IntrospectionException e) {
+>           throw new YAMLException(e);
+237c232,233
+<       Set<Property> standard = super.getProperties(type);
+---
+>       PropertyUtils propertyUtils = this.getPropertyUtils();
+>       Set<Property> standard = propertyUtils.getProperties(type);

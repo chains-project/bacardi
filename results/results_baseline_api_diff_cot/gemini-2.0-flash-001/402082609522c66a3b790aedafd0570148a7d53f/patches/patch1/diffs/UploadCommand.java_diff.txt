@@ -1,0 +1,43 @@
+11a12
+> import org.spongepowered.api.command.Command;
+13,16c14,16
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.parameter.Parameter;
+19,20c19,20
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import net.kyori.adventure.text.TextComponent;
+> import net.kyori.adventure.text.Component;
+22c22
+< public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class UploadCommand implements CommandExecutor {
+34,35c34,37
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         String url = args.<String>getOne("url").get();
+---
+>     public CommandResult execute(CommandContext context) {
+>         String url = context.one(Parameter.string("url")).orElse("");
+>         org.spongepowered.api.command.CommandSource src = context.cause().root();
+> 
+52,54c54,55
+<     @Override
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command.Builder buildSpec() {
+>         return Command.builder()
+56,58c57,58
+<                 .arguments(string(of("url")))
+<                 .permission(PomData.ARTIFACT_ID + ".command.skinupload.base")
+<                 .build();
+---
+>                 .addParameter(Parameter.string("url"))
+>                 .permission(PomData.ARTIFACT_ID + ".command.skinupload.base");

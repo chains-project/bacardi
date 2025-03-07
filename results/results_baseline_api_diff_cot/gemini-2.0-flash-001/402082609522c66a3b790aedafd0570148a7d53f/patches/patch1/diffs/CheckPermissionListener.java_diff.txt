@@ -1,0 +1,37 @@
+13a14
+> import java.util.function.Consumer;
+17,20c18
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelBuf;
+< import org.spongepowered.api.network.ChannelRegistrar;
+< import org.spongepowered.api.network.RawDataListener;
+---
+> import org.spongepowered.api.network.channel.raw.RawDataChannel;
+21a20,21
+> import org.spongepowered.api.network.channel.ChannelBuf;
+> import org.spongepowered.api.network.channel.ChannelRegistry;
+26c26
+< public class CheckPermissionListener implements RawDataListener {
+---
+> public class CheckPermissionListener {
+32c32
+<     CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+---
+>     CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistry channelRegistry) {
+36c36
+<         permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
+---
+>         permissionsResultChannel = (RawDataChannel) channelRegistry.findChannel(plugin, combinedName).orElseGet(() -> channelRegistry.createRawChannel(plugin, combinedName));
+39d38
+<     @Override
+42c41
+<         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+---
+>         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.asByteArray());
+83c82,85
+<         permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+---
+>         byte[] data = dataOutput.toByteArray();
+> 
+>         Consumer<ChannelBuf> writeAction = buf -> buf.writeByteArray(data);
+>         permissionsResultChannel.sendTo(receiver, writeAction);

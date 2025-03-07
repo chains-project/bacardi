@@ -1,0 +1,26 @@
+41a42,44
+> import org.flywaydb.core.api.configuration.ClassicConfiguration;
+> import java.util.stream.Collectors;
+> import java.util.Arrays;
+108,112c111,125
+<                 final org.flywaydb.core.Flyway flyway = new Flyway();
+<                 flyway.setDataSource(this.dataSource());
+<                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+<                 flyway.setLocations(prop.getProperty("flyway.locations"));
+<                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+---
+>                 final ClassicConfiguration configuration = new ClassicConfiguration();
+>                 configuration.setDataSource(this.dataSource());
+>                 // Use Arrays.asList to convert the comma-separated string to a list of strings
+>                 final String locationsString = prop.getProperty("flyway.locations");
+>                 List<String> locationsList = Arrays.asList(locationsString.split(","));
+> 
+>                 // Convert the list of strings to an array of Location objects
+>                 org.flywaydb.core.api.Location[] locations = locationsList.stream()
+>                                 .map(org.flywaydb.core.api.Location::new)
+>                                 .toArray(org.flywaydb.core.api.Location[]::new);
+> 
+>                 configuration.setLocations(locations);
+>                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+> 
+>                 final org.flywaydb.core.Flyway flyway = new org.flywaydb.core.Flyway(configuration);

@@ -1,0 +1,19 @@
+16a17
+> import com.artipie.http.auth.AuthUser;
+30a32
+> import java.util.Optional;
+350c352,353
+<                     token -> CompletableFuture.completedFuture(
+---
+>                     token -> {
+>                         final Optional<TestAuthentication.User> found =
+353,355c356,360
+<                             .map(user -> new Authentication.User(user.name()))
+<                             .findFirst()
+<                     ),
+---
+>                                 .findFirst();
+>                         return CompletableFuture.completedFuture(
+>                             found.map(user -> new AuthUser(user.name()))
+>                         );
+>                     },

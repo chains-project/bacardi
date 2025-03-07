@@ -1,0 +1,70 @@
+21c21,27
+< import org.codehaus.plexus.util.xml.Xpp3Dom;
+---
+> import org.w3c.dom.Element;
+> import org.w3c.dom.Node;
+> import org.w3c.dom.NodeList;
+> 
+> import javax.xml.parsers.DocumentBuilder;
+> import javax.xml.parsers.DocumentBuilderFactory;
+> import org.xml.sax.InputSource;
+22a29
+> import java.io.StringReader;
+70,71c77,79
+<         if (config instanceof Xpp3Dom) {
+<             return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
+---
+>         if (config instanceof org.codehaus.plexus.util.xml.Xpp3Dom) {
+>             org.codehaus.plexus.util.xml.Xpp3Dom xpp3DomConfig = (org.codehaus.plexus.util.xml.Xpp3Dom) config;
+>             return stream(xpp3DomConfig.getChildren("annotationProcessorPaths"))
+83a92,122
+>         } else if (config instanceof String) {
+>             try {
+>                 DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+>                 DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+>                 org.w3c.dom.Document doc = dBuilder.parse(new InputSource(new StringReader((String) config)));
+>                 doc.getDocumentElement().normalize();
+> 
+>                 NodeList annotationProcessorPathsList = doc.getElementsByTagName("annotationProcessorPaths");
+>                 return stream(IntStream.range(0, annotationProcessorPathsList.getLength()).mapToObj(annotationProcessorPathsList::item))
+>                         .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
+>                         .map(node -> (Element) node)
+>                         .flatMap(aggregate -> {
+>                             NodeList pathList = aggregate.getElementsByTagName("path");
+>                             return stream(IntStream.range(0, pathList.getLength()).mapToObj(pathList::item))
+>                                     .filter(pathNode -> pathNode.getNodeType() == Node.ELEMENT_NODE)
+>                                     .map(pathNode -> (Element) pathNode);
+>                         })
+>                         .map(processor -> system.createArtifact(
+>                                 extractChildValue(processor, "groupId"),
+>                                 extractChildValue(processor, "artifactId"),
+>                                 extractChildValue(processor, "version"),
+>                                 PACKAGING))
+>                         // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
+>                         // therefore there is little use in logging incomplete paths that are filtered out.
+>                         .filter(a -> !a.getGroupId().isEmpty())
+>                         .filter(a -> !a.getArtifactId().isEmpty())
+>                         .filter(a -> !a.getVersion().isEmpty())
+>                         .collect(Collectors.toSet());
+>             } catch (Exception e) {
+>                 throw new RuntimeException("Error parsing configuration XML", e);
+>             }
+91a131,135
+>     private static String extractChildValue(org.codehaus.plexus.util.xml.Xpp3Dom node, String name) {
+>         org.codehaus.plexus.util.xml.Xpp3Dom child = node.getChild(name);
+>         return child == null ? "" : child.getValue();
+>     }
+> 
+99,101c143,148
+<     private static String extractChildValue(Xpp3Dom node, String name) {
+<         final Xpp3Dom child = node.getChild(name);
+<         return child == null ? "" : child.getValue();
+---
+>     private static String extractChildValue(Element node, String name) {
+>         NodeList children = node.getElementsByTagName(name);
+>         if (children.getLength() == 0) {
+>             return "";
+>         }
+>         return children.item(0).getTextContent();
+102a150
+>     private static java.util.stream.IntStream IntStream;

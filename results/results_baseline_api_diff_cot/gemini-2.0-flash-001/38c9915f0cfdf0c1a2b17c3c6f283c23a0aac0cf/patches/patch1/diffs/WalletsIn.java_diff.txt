@@ -1,0 +1,29 @@
+37,38c37
+< import org.cactoos.scalar.IoCheckedScalar;
+< import org.cactoos.scalar.SolidScalar;
+---
+> import org.cactoos.scalar.Unchecked;
+40c39
+< import org.cactoos.text.JoinedText;
+---
+> import org.cactoos.text.Joined;
+53c52
+<     private final IoCheckedScalar<Path> path;
+---
+>     private final Scalar<Path> path;
+103,105c102
+<         this.path = new IoCheckedScalar<>(
+<             new SolidScalar<>(pth)
+<         );
+---
+>         this.path = pth;
+118,119c115,116
+<         final Path wpth = this.path.value().resolve(
+<             new JoinedText(
+---
+>         final Path wpth = new Unchecked<>(this.path).value().resolve(
+>             new Joined(
+156c153
+<                 new Filtered<>(this.filter, new Directory(this.path.value()))
+---
+>                 new Filtered<>(this.filter, new Directory(new Unchecked<>(this.path).value()))

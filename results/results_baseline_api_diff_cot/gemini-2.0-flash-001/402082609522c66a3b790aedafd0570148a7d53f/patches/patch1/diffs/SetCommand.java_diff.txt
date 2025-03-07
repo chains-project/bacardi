@@ -1,0 +1,70 @@
+13,17c13,17
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.args.GenericArguments;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.CommandCause;
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.CommandSpec;
+> import org.spongepowered.api.command.parameter.GenericArguments;
+19a20
+> import org.spongepowered.api.text.Text;
+21,22c22,23
+< import static org.spongepowered.api.command.args.GenericArguments.flags;
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+---
+> import static org.spongepowered.api.command.parameter.CommonParameters.string;
+> import static org.spongepowered.api.command.parameter.GenericArguments.flags;
+25c26
+< public class SetCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class SetCommand implements CommandExecutor {
+37,39c38,40
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+---
+>     public CommandResult execute(CommandCause cause, CommandContext args) {
+>         if (!(cause.cause().root() instanceof Player)) {
+>             plugin.sendMessage(cause, "no-console");
+43c44
+<         UUID uniqueId = ((Player) src).getUniqueId();
+---
+>         UUID uniqueId = ((Player) cause.cause().root()).getUniqueId();
+45c46
+<             plugin.sendMessage(src, "cooldown");
+---
+>             plugin.sendMessage(cause, "cooldown");
+49,50c50,51
+<         Player receiver = (Player) src;
+<         String targetSkin = args.<String>getOne("skin").get();
+---
+>         Player receiver = (Player) cause.cause().root();
+>         String targetSkin = args.<String>one(Text.of("skin")).get();
+60c61
+<             if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(src, targetUUID, true)) {
+---
+>             if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(cause, targetUUID, true)) {
+64,65c65,66
+<             plugin.sendMessage(src, "skin-change-queue");
+<             Runnable skinDownloader = new SkinDownloader(plugin, src, receiver, targetUUID, keepSkin);
+---
+>             plugin.sendMessage(cause, "skin-change-queue");
+>             Runnable skinDownloader = new SkinDownloader(plugin, cause, receiver, targetUUID, keepSkin);
+70c71
+<         Runnable nameResolver = new NameResolver(plugin, src, targetSkin, receiver, keepSkin);
+---
+>         Runnable nameResolver = new NameResolver(plugin, cause, targetSkin, receiver, keepSkin);
+75d75
+<     @Override
+79,81c79,81
+<                 .arguments(
+<                         string(of("skin")),
+<                         flags().flag("keep").buildWith(GenericArguments.none()))
+---
+>                 .addParameter(
+>                         string(Text.of("skin")))
+>                 .addParameter(flags().flag("keep").buildWith(GenericArguments.none()))

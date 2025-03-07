@@ -1,0 +1,12 @@
+57a58
+> import org.apache.fop.apps.FopFactoryBuilder;
+115c116,122
+<         FopFactory fopFactory = FopFactory.newInstance();
+---
+>         FopFactoryBuilder fopFactoryBuilder = new FopFactoryBuilder(null, null);
+>         FopFactory fopFactory = null;
+>         try {
+>             fopFactory = fopFactoryBuilder.build();
+>         } catch (FOPException e) {
+>             throw new ExportServiceException("Error creating FopFactory", e);
+>         }

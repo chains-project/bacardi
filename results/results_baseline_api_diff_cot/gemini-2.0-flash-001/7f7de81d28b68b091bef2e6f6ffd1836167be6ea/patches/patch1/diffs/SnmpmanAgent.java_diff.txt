@@ -1,0 +1,38 @@
+62c62
+<     private final List<ManagedObject> groups = new ArrayList<>();
+---
+>     private final List<ManagedObject<?>> groups = new ArrayList<>();
+266c266
+<                     ManagedObject mo = server.lookup(new DefaultMOQuery(scope, false));
+---
+>                     ManagedObject<?> mo = server.lookup(new DefaultMOQuery(scope, false));
+271,273c271,273
+<                             mo = server.lookup(new DefaultMOQuery(scope, false));
+<                             if (mo != null) {
+<                                 log.warn("could not register single OID at {} because ManagedObject {} is already registered.", variableBinding.getOid(), mo);
+---
+>                             ManagedObject<?> mo2 = server.lookup(new DefaultMOQuery(scope, false));
+>                             if (mo2 != null) {
+>                                 log.warn("could not register single OID at {} because ManagedObject {} is already registered.", variableBinding.getOid(), mo2);
+357c357
+<                 ManagedObject other = server.lookup(new DefaultMOQuery(contextScope, false));
+---
+>                 ManagedObject<?> other = server.lookup(new DefaultMOQuery(contextScope, false));
+364,365c364,365
+<                 other = server.lookup(new DefaultMOQuery(contextScope, false));
+<                 if (other != null) {
+---
+>                 ManagedObject<?> other2 = server.lookup(new DefaultMOQuery(contextScope, false));
+>                 if (other2 != null) {
+389c389
+<             final SortedMap<MOScope, ManagedObject> reg = server.getRegistry();
+---
+>             final SortedMap<MOScope, ManagedObject<?>> reg = server.getRegistry();
+440c440
+<         ManagedObject query;
+---
+>         ManagedObject<?> query;
+489c489
+<         for (final ManagedObject mo : groups) {
+---
+>         for (final ManagedObject<?> mo : groups) {
