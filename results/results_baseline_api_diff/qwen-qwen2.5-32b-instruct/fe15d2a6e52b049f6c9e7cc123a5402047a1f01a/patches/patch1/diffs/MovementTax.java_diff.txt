@@ -1,0 +1,32 @@
+17d16
+< import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
+19d17
+< import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
+22d19
+< 
+163d159
+<         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+165c161,181
+<         append(null, buffer, strategy);
+---
+>         append(null, buffer, new ToStringStrategy2() {
+>             @Override
+>             public StringBuilder appendField(ObjectLocator locator, Object object, String getterName, StringBuilder buffer, Object value, boolean isPrimitive) {
+>                 if (value != null) {
+>                     buffer.append(getterName).append(": ").append(value.toString()).append(", ");
+>                 }
+>                 return buffer;
+>             }
+> 
+>             @Override
+>             public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+>                 buffer.append(object.getClass().getSimpleName()).append("{");
+>                 return buffer;
+>             }
+> 
+>             @Override
+>             public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+>                 buffer.append("}");
+>                 return buffer;
+>             }
+>         });

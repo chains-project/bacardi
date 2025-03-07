@@ -1,0 +1,22 @@
+94d93
+< 
+107a107
+> 
+214,219c214
+<   /*
+<    * Change the default order. Important data goes first.
+<    */
+<   @Override
+<   protected Set<Property> getProperties(Class<? extends Object> type)
+<           throws IntrospectionException {
+---
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+235,238c230,232
+<   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+<           throws IntrospectionException {
+<       Set<Property> standard = super.getProperties(type);
+<       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
+---
+>   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+>     Set<Property> standard = PropertyUtils.getProperties(type);
+>     Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));

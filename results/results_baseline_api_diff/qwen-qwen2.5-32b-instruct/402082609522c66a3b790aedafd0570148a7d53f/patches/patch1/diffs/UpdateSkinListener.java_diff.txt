@@ -1,0 +1,30 @@
+9a10
+> import java.nio.ByteBuffer;
+14d14
+< import org.spongepowered.api.command.CommandSource;
+16,18d15
+< import org.spongepowered.api.network.ChannelBuf;
+< import org.spongepowered.api.network.RawDataListener;
+< import org.spongepowered.api.network.RemoteConnection;
+19a17
+> import org.spongepowered.api.scheduler.TaskExecutorService;
+21c19
+< public class UpdateSkinListener implements RawDataListener {
+---
+> public class UpdateSkinListener {
+26,27c24
+<     @Override
+<     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+---
+>     public void handlePayload(ByteBuffer data, RemoteConnection connection, Type side) {
+33c30
+<         Optional<Player> receiver = Sponge.getServer().getPlayer(playerName);
+---
+>         Optional<Player> receiver = Sponge.server().getPlayer(playerName);
+35,36c32,34
+<             Runnable skinUpdater = new SkinApplier(plugin, (CommandSource) connection, receiver.get(), null, false);
+<             Task.builder().execute(skinUpdater).submit(plugin);
+---
+>             Runnable skinUpdater = new SkinApplier(plugin, connection, receiver.get(), null, false);
+>             TaskExecutorService executorService = Sponge.server().scheduler().executorService();
+>             executorService.submit(skinUpdater);

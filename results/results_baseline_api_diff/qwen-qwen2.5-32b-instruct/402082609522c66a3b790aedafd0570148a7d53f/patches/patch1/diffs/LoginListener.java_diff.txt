@@ -1,0 +1,16 @@
+12a13
+> import org.spongepowered.api.event.game.state.GameInitializationEvent;
+29c30
+<     public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
+---
+>     public void onPlayerPreLogin(ClientConnectionEvent.Join joinEvent) {
+31,32c32,33
+<         GameProfile profile = preLoginEvent.getProfile();
+<         UUID playerUUID = profile.getUniqueId();
+---
+>         GameProfile profile = joinEvent.getProfile();
+>         UUID playerUUID = profile.uniqueId();
+45c46
+<             String playerName = profile.getName().get();
+---
+>             String playerName = profile.name().orElse("");

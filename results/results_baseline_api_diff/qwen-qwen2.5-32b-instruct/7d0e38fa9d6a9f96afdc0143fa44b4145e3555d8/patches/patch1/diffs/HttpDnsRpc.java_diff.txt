@@ -1,0 +1,87 @@
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+42d25
+< /** A default implementation of the DnsRpc interface. */
+144c127
+<     public void addApplyChangeRequest(
+---
+>     public void addApplyChangeRequest
+150c133
+<         applyChangeRequestCall(zoneName, change, options).queue(batch, toJsonCallback(callback));
+---
+>         applyChangeRequestCall(zoneName, change, options).queue(batch, toJsonCallback(callback);
+185d167
+<   /** Constructs an instance of this rpc client with provided {@link DnsOptions}. */
+203d184
+<       // todo this can cause misleading report of a failure, intended to be fixed within #924
+211c192
+<         .create(this.options.getProjectId(), zone)
+---
+>         .create(this.options.getProjectId(), this.options.getProjectId(), zone)
+217d197
+<     // just fields option
+232c212
+<         .get(this.options.getProjectId(), zoneName)
+---
+>         .get(this.options.getProjectId(), this.options.getProjectId(), zoneName)
+238d217
+<     // fields, page token, page size
+249c228
+<         .list(this.options.getProjectId())
+---
+>         .list(this.options.getProjectId(), this.options.getProjectId())
+271c250
+<     return dns.managedZones().delete(this.options.getProjectId(), zoneName);
+---
+>     return dns.managedZones().delete(this.options.getProjectId(), this.options.getProjectId(), zoneName);
+287d265
+<     // options are fields, page token, dns name, type
+289c267
+<         .list(this.options.getProjectId(), zoneName)
+---
+>         .list(this.options.getProjectId(), this.options.getProjectId(), zoneName)
+308c286
+<         .get(this.options.getProjectId())
+---
+>         .get(this.options.getProjectId(), this.options.getProjectId())
+325c303
+<         .create(this.options.getProjectId(), zoneName, changeRequest)
+---
+>         .create(this.options.getProjectId(), this.options.getProjectId(), zoneName, changeRequest)
+340d317
+<           // the change id was not found, but the zone exists
+343d319
+<         // the zone does not exist, so throw an exception
+352,353c328,329
+<         .get(this.options.getProjectId(), zoneName, changeRequestId)
+<         .setFields(Option.FIELDS.getString(options));
+---
+>         .get(this.options.getProjectId(), this.options.getProjectId(), zoneName, changeRequestId)
+>         .setFields(Option.FIELDS.getString(options);
+369d344
+<     // options are fields, page token, page size, sort order
+372c347
+<             .list(this.options.getProjectId(), zoneName)
+---
+>             .list(this.options.getProjectId(), this.options.getProjectId(), zoneName)
+377d351
+<       // todo check and change if more sorting options are implemented, issue #604
+385c359
+<     return new DefaultRpcBatch(dns.batch());
+---
+>     return new DefaultRpcBatch(dns.batch();

@@ -1,0 +1,72 @@
+3c3
+< import develop.p2p.lib.WaveCreator;
+---
+> import tokyo.peya.lib.WaveCreator;
+194,207c194,195
+<                     Location center = player.getLocation();
+< 
+<                     circle(center.clone().add(0, 0.9, 0), count[0], 3, Particle.CRIT);
+< 
+<                     circle(center.add(0, 0.7, 0), count[0], 2.7, Particle.ENCHANTMENT_TABLE);
+< 
+<                     circle(center.clone().add(0, wave.get(0.01, false), 0), count[0], wave.getStatic());
+< 
+<                     circle(center.clone().add(3.2, 0.7, 3.2), count[0], 1.5);
+<                     circle(center.clone().add(-3.2, 0.7, -3.2), count[0], 1.5);
+<                     circle(center.clone().add(-3.2, 0.7, 3.2), count[0], 1.5);
+<                     circle(center.clone().add(3.2, 0.7, -3.2), count[0], 1.5);
+< 
+<                     circle(center.clone().add(0, 1.5, 0), count[0], 5, Particle.SPELL_WITCH);
+---
+>                     Location c = player.getLocation().clone();
+>                     Location X = new Location(c.getWorld(), particle_x(count[0], 3) + c.getX(), 5.0 + c.getY(), particle_z(count[0], 3) + c.getZ());
+208a197,198
+>                     for (int i = 0; i < 10; i++)
+>                         line(c, X, Particle.TOWN_AURA);
+216,220c206
+<                 line(center.clone().add(3, 0.7, 0), center.clone().add(-1.5, 0.7, -2.3));
+< 
+<                 line(center.clone().add(-3, 0.7, 0), center.clone().add(1.5, 0.7, -2.3));
+<                 line(center.clone().add(1.5, 0.7, -2.3), center.clone().add(1.5, 0.7, 2.3)); //三角(反転)
+<                 line(center.clone().add(-3, 0.7, 0), center.clone().add(1.5, 0.7, 2.3));
+---
+>                 line(center.clone().add(3, 0.7, 0), center.clone().add(1.5, 0.7, 2.3));
+233,270d218
+< 
+<     }
+< 
+<     /**
+<      * ガーディアンビーム
+<      *
+<      * @param player 餌食
+<      * @param sec    秒数
+<      */
+<     public static void laser(Player player, int sec)
+<     {
+< 
+<         final double[] time = {0.0};
+<         final double radius = 2.5;
+< 
+<         BukkitRunnable runnable = new BukkitRunnable()
+<         {
+<             @Override
+<             public void run()
+<             {
+<                 Location c = player.getLocation().clone();
+<                 Location X = new Location(c.getWorld(), particle_x(time[0], radius) + c.getX(), 5.0 + c.getY(), particle_z(time[0], radius) + c.getZ());
+< 
+<                 for (int i = 0; i < 10; i++)
+<                     line(c, X, Particle.TOWN_AURA);
+<                 time[0] += Math.E;
+<             }
+<         };
+< 
+<         runnable.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0L, 1L);
+<         new BukkitRunnable()
+<         {
+<             @Override
+<             public void run()
+<             {
+<                 runnable.cancel();
+<             }
+<         }.runTaskLater(PeyangSuperbAntiCheat.getPlugin(), sec);

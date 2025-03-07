@@ -1,0 +1,187 @@
+38d37
+< import org.cactoos.scalar.UncheckedScalar;
+43d41
+< import org.cactoos.text.UncheckedText;
+52,53c50
+< @SuppressWarnings({"PMD.AvoidCatchingGenericException",
+<     "PMD.AvoidFieldNameMatchingMethodName"})
+---
+> @SuppressWarnings({"PMD.AvoidFieldNameMatchingMethodName", "PMD.AvoidCatchingGenericException"})
+60d56
+<         //@checkstyle LineLengthCheck (1 line)
+96d91
+<             new StickyScalar<>(
+98,99c93
+<                     if (
+<                         new TrimmedText(
+---
+>                 final String trimmed = new TrimmedText(
+101,102c95,96
+<                         ).asString().isEmpty()
+<                     ) {
+---
+>                 ).asString();
+>                 if (trimmed.isEmpty()) {
+107,109c101,102
+<                     final List<Text> pieces =
+<                         new ListOf<>(
+<                             new SplitText(trnsct, ";")
+---
+>                 final List<Text> pieces = new ListOf<>(
+>                     new SplitText(trimmed, ";")
+111,112c104
+<                     // @checkstyle MagicNumberCheck (1 line)
+<                     if (new LengthOf(pieces).intValue() != 7) {
+---
+>                 if (new LengthOf<>(pieces).intValue() != 7) {
+115d106
+<                                 // @checkstyle LineLength (1 line)
+121c112
+<                     return trnsct;
+---
+>                 return trimmed;
+123d113
+<             )
+128d117
+<     @SuppressWarnings("PMD.ShortMethodName")
+130,132c119
+<         final String ident = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+---
+>         final String ident = new ItemAt<>(
+134,136c121
+<                 )
+<             ).value()
+<         ).asString();
+---
+>         ).value();
+139d123
+<                 new UncheckedText(
+141d124
+<                         // @checkstyle LineLength (1 line)
+144d126
+<                     )
+148d129
+<         // @checkstyle MagicNumber (1 line)
+155,156d135
+<             new UncheckedText(
+<                 new IoCheckedScalar<>(
+159,161c138
+<                     )
+<                 ).value()
+<             ).asString(),
+---
+>             ).value(),
+168,170c145
+<         final String amnt = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+---
+>         final String amnt = new ItemAt<>(
+172,174c147
+<                 )
+<             ).value()
+<         ).asString();
+---
+>         ).value();
+177d149
+<                 new UncheckedText(
+179,180c151
+<                         // @checkstyle LineLength (1 line)
+<                         "Invalid amount '%s' expecting 64-bit signed hex string with 16 symbols",
+---
+>                     "Invalid amount '%s', expecting 64-bit signed hex string with 16 symbols",
+182d152
+<                     )
+186d155
+<         // @checkstyle MagicNumber (1 line)
+192,195c161
+<         final String prefix = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+---
+>         final String prefix = new ItemAt<>(
+197,200c163
+<                 )
+<             ).value()
+<         ).asString();
+<         //@checkstyle MagicNumberCheck (1 line)
+---
+>         ).value();
+212,215c175
+<         final String bnf = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+---
+>         final String bnf = new ItemAt<>(
+217,219c177
+<                 )
+<             ).value()
+<         ).asString();
+---
+>         ).value();
+222d179
+<                 new UncheckedText(
+224d180
+<                         // @checkstyle LineLength (1 line)
+227d182
+<                     )
+236,239c191
+<         final String dtls = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+---
+>         final String dtls = new ItemAt<>(
+241,243c193
+<                 )
+<             ).value()
+<         ).asString();
+---
+>         ).value();
+246d195
+<                 new UncheckedText(
+248d196
+<                         // @checkstyle LineLength (1 line)
+251d198
+<                     )
+260,263c207
+<         final String sign = new UncheckedText(
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+---
+>         final String sign = new ItemAt<>(
+265,270c209,210
+<                 )
+<             ).value()
+<         ).asString();
+<         // @checkstyle MagicNumber (1 line)
+<         if (sign.length() != 684
+<             || !RtTransaction.SIGN.matcher(sign).matches()) {
+---
+>         ).value();
+>         if (sign.length() != 684 || !RtTransaction.SIGN.matcher(sign).matches()) {
+272d211
+<                 new UncheckedText(
+274d212
+<                         // @checkstyle LineLength (1 line)
+277d214
+<                     )
+286c223
+<         return new UncheckedScalar<>(this.transaction).value();
+---
+>         return this.transaction.value();
+290d226
+<     @SuppressWarnings("PMD.OnlyOneReturn")
+299c235
+<         return this.transaction.equals(that.transaction);
+---
+>         return this.transaction.value().equals(that.transaction.value());
+304c240
+<         return this.transaction.hashCode();
+---
+>         return this.transaction.value().hashCode();

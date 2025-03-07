@@ -1,0 +1,127 @@
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+25,28d8
+< import com.google.api.services.translate.Translate;
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.api.services.translate.model.TranslationsResource;
+32c12,26
+< import com.google.common.base.Function;
+---
+> import com.google.cloud.translate.spi.v3.TranslateRpc;
+> import com.google.cloud.translate.v3.TranslateClient;
+> import com.google.cloud.translate.v3.TranslateTextRequest;
+> import com.google.cloud.translate.v3.TranslateTextResponse;
+> import com.google.cloud.translate.v3.Translation;
+> import com.google.cloud.translate.v3.LocationName;
+> import com.google.cloud.translate.v3.ListGlossariesRequest;
+> import com.google.cloud.translate.v3.ListGlossariesResponse;
+> import com.google.cloud.translate.v3.Glossary;
+> import com.google.cloud.translate.v3.ListSupportedLanguagesRequest;
+> import com.google.cloud.translate.v3.ListSupportedLanguagesResponse;
+> import com.google.cloud.translate.v3.SupportedLanguage;
+> import com.google.cloud.translate.v3.DetectLanguageRequest;
+> import com.google.cloud.translate.v3.DetectLanguageResponse;
+> import com.google.cloud.translate.v3.DetectedLanguage;
+42c36
+<   private final Translate translate;
+---
+>   private final TranslateClient translate;
+49,53c43
+<     translate =
+<         new Translate.Builder(transport, new JacksonFactory(), initializer)
+<             .setRootUrl(options.getHost())
+<             .setApplicationName(options.getApplicationName())
+<             .build();
+---
+>     translate = TranslateClient.create(transport, new JacksonFactory(), initializer);
+69c59
+<   public List<List<DetectionsResourceItems>> detect(List<String> texts) {
+---
+>   public List<List<DetectedLanguage>> detect(List<String> texts) {
+71,73c61,66
+<       List<List<DetectionsResourceItems>> detections =
+<           translate.detections().list(texts).setKey(options.getApiKey()).execute().getDetections();
+<       return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
+---
+>       DetectLanguageRequest request = DetectLanguageRequest.newBuilder()
+>           .setParent(LocationName.of(options.getProjectId(), options.getLocation()).toString())
+>           .addAllTexts(texts)
+>           .build();
+>       DetectLanguageResponse response = translate.detectLanguage(request);
+>       return response.getLanguagesList();
+80c73
+<   public List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap) {
+---
+>   public List<SupportedLanguage> listSupportedLanguages(Map<Option, ?> optionMap) {
+82,92c75,79
+<       List<LanguagesResource> languages =
+<           translate
+<               .languages()
+<               .list()
+<               .setKey(options.getApiKey())
+<               .setTarget(
+<                   firstNonNull(
+<                       Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()))
+<               .execute()
+<               .getLanguages();
+<       return languages != null ? languages : ImmutableList.<LanguagesResource>of();
+---
+>       ListSupportedLanguagesRequest request = ListSupportedLanguagesRequest.newBuilder()
+>           .setParent(LocationName.of(options.getProjectId(), options.getLocation()).toString())
+>           .build();
+>       ListSupportedLanguagesResponse response = translate.listSupportedLanguages(request);
+>       return response.getLanguagesList();
+99c86
+<   public List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap) {
+---
+>   public List<Translation> translate(List<String> texts, Map<Option, ?> optionMap) {
+101,124c88,95
+<       String targetLanguage =
+<           firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
+<       final String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
+<       List<TranslationsResource> translations =
+<           translate
+<               .translations()
+<               .list(texts, targetLanguage)
+<               .setSource(sourceLanguage)
+<               .setKey(options.getApiKey())
+<               .setModel(Option.MODEL.getString(optionMap))
+<               .setFormat(Option.FORMAT.getString(optionMap))
+<               .execute()
+<               .getTranslations();
+<       return Lists.transform(
+<           translations != null ? translations : ImmutableList.<TranslationsResource>of(),
+<           new Function<TranslationsResource, TranslationsResource>() {
+<             @Override
+<             public TranslationsResource apply(TranslationsResource translationsResource) {
+<               if (translationsResource.getDetectedSourceLanguage() == null) {
+<                 translationsResource.setDetectedSourceLanguage(sourceLanguage);
+<               }
+<               return translationsResource;
+<             }
+<           });
+---
+>       String targetLanguage = firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
+>       TranslateTextRequest request = TranslateTextRequest.newBuilder()
+>           .setParent(LocationName.of(options.getProjectId(), options.getLocation()).toString())
+>           .addAllText(texts)
+>           .setTargetLanguageCode(targetLanguage)
+>           .build();
+>       TranslateTextResponse response = translate.translateText(request);
+>       return response.getTranslationsList();

@@ -1,0 +1,80 @@
+42d41
+< 
+143,144c142,143
+<                     LineSegmentsOfPage.add(projConf.PAGE_DIR + pageId + File.separator + segmentId +
+<                         File.separator + lineSegmentId + projConf.getImageExtensionByType(projectImageType));
+---
+>                     LineSegmentsOfPage.add(projConf.PAGE_DIR + pageId + File.separator +
+>                         segmentId + File.separator + lineSegmentId + projConf.getImageExtensionByType(projectImageType));
+179c178
+<      * @return List of checkpoints
+---
+>      * @return Map of models (key = modelName | value = path)
+193a193
+> 
+198c198
+<      * @param pageIds Identifiers of the pages (e.g 0002,0003)
+---
+>      * @param pageIds Identifiers of the chosen pages (e.g 0002,0003)
+227c227,283
+<                         skewparams.add(segmentListFile.toString());
+---
+>                         segmentListFile.deleteOnExit(); // Delete if OCR4all terminates
+>                         ObjectMapper mapper = new ObjectMapper();
+>                         ArrayNode dataList = mapper.createArrayNode();
+>                         for (String pageId : pageIds) {
+>                                 ArrayNode pageList = mapper.createArrayNode();
+>                                 pageList.add(projConf.PAGE_DIR + pageId + File.separator + pageId + projConf.getImageExtensionByType(projectImageType));
+>                                 final String pageXML = projConf.OCR_DIR + pageId + projConf.CONF_EXT;
+>                                 pageList.add(pageXML);
+> 
+>                                 // Add affected line segment images with their absolute path to the json file
+>                                 dataList.add(pageList);
+>                         }
+>                         ObjectWriter writer = mapper.writer();
+>                         writer.writeValue(segmentListFile, dataList);
+> 
+>             processHandler = new ProcessHandler();
+>             processHandler.setFetchProcessConsole(true);
+>             processHandler.startProcess("ocr4all-helper-scripts", skewparams, false);
+> 
+>                 cmdArgsWork.remove("--estimate_skew");
+>         }
+> 
+>         //// Recognize
+>                 // Reset recognition data
+>                 deleteOldFiles(pageIds);
+>                 initialize(pageIds);
+> 
+>         int index;
+>         if (cmdArgsWork.contains("--checkpoint")) {
+>             index = cmdArgsWork.indexOf("--checkpoint");
+>             for(String ckpt : extractModelsOfJoinedString(cmdArgsWork.get(index + 1))) {
+>                 if (!new File(ckpt).exists())
+>                     throw new IOException("Model does not exist under the specified path");
+>             }
+>         }
+> 
+>         List<String> cmdArgsWork = new ArrayList<>(cmdArgs);
+> 
+>         //// Estimate Skew
+>         if (cmdArgsWork.contains("--estimate_skew")) {
+>                 // Calculate the skew of all regions where none was calculated before
+>                 List<String> skewparams = new ArrayList<>();
+>             skewparams.add("skewestimate");
+>                 final int maxskewIndex = cmdArgsWork.indexOf("--maxskew");
+>                 if(maxskewIndex > -1) {
+>                         skewparams.add(cmdArgsWork.remove(maxskewIndex));
+>                         skewparams.add(cmdArgsWork.remove(maxskewIndex);
+>                 }
+>                 final int skewstepsIndex = cmdArgsWork.indexOf("--skewsteps");
+>                 if(skewstepsIndex > -1) {
+>                         skewparams.add(cmdArgsWork.remove(skewstepsIndex);
+>                         skewparams.add(cmdArgsWork.remove(skewstepsIndex);
+>                 }
+> 
+>                         // Create temp json file with all segment images (to not overload parameter list)
+>                         // Temp file in a temp folder named "skew-<random numbers>.json"
+>                         File segmentListFile = File.createTempFile("skew-",".json");
+251d306
+< 

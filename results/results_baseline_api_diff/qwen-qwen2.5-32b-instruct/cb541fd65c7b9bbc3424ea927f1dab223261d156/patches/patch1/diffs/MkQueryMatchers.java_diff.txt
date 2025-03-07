@@ -1,0 +1,13 @@
+34c34,35
+< import org.hamcrest.Matchers;
+---
+> import org.hamcrest.core.IsEqual;
+> import org.hamcrest.core.StringContains;
+85c86
+<             Matchers.<URI>hasProperty("rawPath", path)
+---
+>             new IsEqual<>(path)
+97c98
+<             Matchers.<URI>hasProperty("rawQuery", query)
+---
+>             new StringContains(query)
