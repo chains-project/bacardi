@@ -1,0 +1,24 @@
+3d2
+< import develop.p2p.lib.*;
+161,162d159
+<         WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
+< 
+179,180c176
+<                         rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
+<                             .get(0.01, true);
+---
+>                         rangeTmp = radius - 0.1 + (Math.sin(System.currentTimeMillis() / 1000.0) * 0.1);
+186c182
+<                         center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
+---
+>                         center.getY() + (count[0] < 20 ? 1.0 : 2.0),
+188,189c184,185
+<                         (float) ypp.getStatic(),
+<                         (float) ypp.get(4.5, false)
+---
+>                         (float) (Math.sin(System.currentTimeMillis() / 1000.0) * 10.0),
+>                         (float) (Math.sin(System.currentTimeMillis() / 1000.0) * 10.0)
+220c216
+<                     ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
+---
+>                     ? Math.sin(System.currentTimeMillis() / 1000.0) * config.getDouble("npc.speed.waveRange")

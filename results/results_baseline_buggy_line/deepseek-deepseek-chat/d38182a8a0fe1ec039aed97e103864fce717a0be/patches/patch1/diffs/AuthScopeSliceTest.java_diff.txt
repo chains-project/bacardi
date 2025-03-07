@@ -1,0 +1,9 @@
+57c57,62
+<                         return Optional.of(new Authentication.User("alice"));
+---
+>                         return Optional.of(new Authentication.User() {
+>                             @Override
+>                             public String name() {
+>                                 return "alice";
+>                             }
+>                         });

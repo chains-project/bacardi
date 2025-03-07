@@ -1,0 +1,122 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+```java
+package com.wire.lithium.server.monitoring;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.RandomAccessFile;
+
+@Api
+@Path("/version")
+@Produces(MediaType.APPLICATION_JSON)
+public class VersionResource {
+    @GET
+    @ApiOperation(value = "Returns version of the running code.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, response = Version.class, message = "Version")
+    })
+    public Response get() {
+        return Response
+                .ok(getVersion())
+                .build();
+    }
+
+    private Version getVersion() {
+        final String path = System.getenv("RELEASE_FILE_PATH");
+
+        String version = null;
+        if (path != null) {
+            try (final RandomAccessFile file = new RandomAccessFile(path, "r")) {
+                version = file.readLine();
+            } catch (Exception ignored) {
+            }
+        }
+
+        if (version == null) {
+            version = "development";
+        }
+        return new Version(version);
+    }
+
+    static class Version {
+        @NotNull
+        @NotEmpty
+        public final String version;
+
+        public Version(String version) {
+            this.version = version;
+        }
+    }
+}
+
+```
+the error is triggered in the following specific lines in the previous code:
+
+```java
+import javax.ws.rs.Path;
+```
+```java
+public Response get() {
+```
+```java
+import javax.ws.rs.GET;
+```
+```java
+@Path("/version")
+```
+```java
+@Produces(MediaType.APPLICATION_JSON)
+```
+```java
+import javax.ws.rs.core.MediaType;
+```
+```java
+import javax.ws.rs.Produces;
+```
+```java
+import javax.ws.rs.core.Response;
+```
+
+
+
+ with the following error information:
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/VersionResource.java:[11,19] package javax.ws.rs does not exist
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/VersionResource.java:[26,12] cannot find symbol
+
+  symbol:   class Response
+  location: class com.wire.lithium.server.monitoring.VersionResource
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/VersionResource.java:[10,19] package javax.ws.rs does not exist
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/VersionResource.java:[18,2] cannot find symbol
+
+  symbol: class Path
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/VersionResource.java:[19,2] cannot find symbol
+
+  symbol: class Produces
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/VersionResource.java:[13,24] package javax.ws.rs.core does not exist
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/VersionResource.java:[12,19] package javax.ws.rs does not exist
+[ERROR] /lithium/src/main/java/com/wire/lithium/server/monitoring/VersionResource.java:[14,24] package javax.ws.rs.core does not exist
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

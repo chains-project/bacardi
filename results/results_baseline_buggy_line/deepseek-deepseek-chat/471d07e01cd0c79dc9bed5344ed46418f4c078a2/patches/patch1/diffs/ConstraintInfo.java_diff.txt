@@ -1,0 +1,65 @@
+18,20c18,20
+< import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
+< import com.google.api.services.cloudresourcemanager.model.Constraint;
+< import com.google.api.services.cloudresourcemanager.model.ListConstraint;
+---
+> import com.google.cloud.resourcemanager.v1.BooleanConstraint;
+> import com.google.cloud.resourcemanager.v1.Constraint;
+> import com.google.cloud.resourcemanager.v1.ListConstraint;
+115c115,118
+<       return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
+---
+>       return ListConstraint.newBuilder()
+>           .setSuggestedValue(suggestedValue)
+>           .setSupportsUnder(supportsUnder)
+>           .build();
+267c270,271
+<     Constraint constraintProto = new Constraint();
+---
+>     Constraint.Builder constraintProto = Constraint.newBuilder();
+>     if (booleanConstraint != null) {
+268a273,274
+>     }
+>     if (constraintDefault != null) {
+269a276,277
+>     }
+>     if (description != null) {
+270a279,280
+>     }
+>     if (displayName != null) {
+271a282
+>     }
+274a286
+>     if (name != null) {
+275a288,289
+>     }
+>     if (version != null) {
+277c291,292
+<     return constraintProto;
+---
+>     }
+>     return constraintProto.build();
+281a297
+>     if (constraintProtobuf.hasBooleanConstraint()) {
+282a299,300
+>     }
+>     if (constraintProtobuf.hasConstraintDefault()) {
+283a302,303
+>     }
+>     if (constraintProtobuf.hasDescription()) {
+284a305,306
+>     }
+>     if (constraintProtobuf.hasDisplayName()) {
+286c308,309
+<     if (constraintProtobuf.getListConstraint() != null) {
+---
+>     }
+>     if (constraintProtobuf.hasListConstraint()) {
+289c312
+<     if (constraintProtobuf.getName() != null && !constraintProtobuf.getName().equals("Unnamed")) {
+---
+>     if (constraintProtobuf.hasName() && !constraintProtobuf.getName().equals("Unnamed")) {
+291a315
+>     if (constraintProtobuf.hasVersion()) {
+292a317
+>     }

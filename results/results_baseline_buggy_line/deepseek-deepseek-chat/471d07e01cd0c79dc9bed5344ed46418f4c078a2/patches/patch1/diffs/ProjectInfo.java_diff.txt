@@ -1,0 +1,48 @@
+146,150c146,151
+<     com.google.api.services.cloudresourcemanager.model.ResourceId toPb() {
+<       com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb =
+<           new com.google.api.services.cloudresourcemanager.model.ResourceId();
+<       resourceIdPb.setId(id);
+<       resourceIdPb.setType(type.toLowerCase());
+---
+>     com.google.cloud.resourcemanager.v1.ResourceId toPb() {
+>       com.google.cloud.resourcemanager.v1.ResourceId resourceIdPb =
+>           com.google.cloud.resourcemanager.v1.ResourceId.newBuilder()
+>               .setId(id)
+>               .setType(type.toLowerCase())
+>               .build();
+154,155c155
+<     static ResourceId fromPb(
+<         com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb) {
+---
+>     static ResourceId fromPb(com.google.cloud.resourcemanager.v1.ResourceId resourceIdPb) {
+392,398c392,398
+<   com.google.api.services.cloudresourcemanager.model.Project toPb() {
+<     com.google.api.services.cloudresourcemanager.model.Project projectPb =
+<         new com.google.api.services.cloudresourcemanager.model.Project();
+<     projectPb.setName(name);
+<     projectPb.setProjectId(projectId);
+<     projectPb.setLabels(labels);
+<     projectPb.setProjectNumber(projectNumber);
+---
+>   com.google.cloud.resourcemanager.v1.Project toPb() {
+>     com.google.cloud.resourcemanager.v1.Project.Builder projectPb =
+>         com.google.cloud.resourcemanager.v1.Project.newBuilder()
+>             .setName(name)
+>             .setProjectId(projectId)
+>             .putAllLabels(labels)
+>             .setProjectNumber(projectNumber);
+411c411
+<     return projectPb;
+---
+>     return projectPb.build();
+414c414
+<   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.model.Project projectPb) {
+---
+>   static ProjectInfo fromPb(com.google.cloud.resourcemanager.v1.Project projectPb) {
+420,421c420,421
+<     if (projectPb.getLabels() != null) {
+<       builder.setLabels(projectPb.getLabels());
+---
+>     if (projectPb.getLabelsMap() != null) {
+>       builder.setLabels(projectPb.getLabelsMap());

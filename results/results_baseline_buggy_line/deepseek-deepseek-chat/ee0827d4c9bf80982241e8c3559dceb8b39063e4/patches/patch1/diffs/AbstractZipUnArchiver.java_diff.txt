@@ -1,0 +1,27 @@
+28d27
+< import org.apache.commons.io.input.BoundedInputStream;
+204,206c203,214
+<                         BoundedInputStream bis = new BoundedInputStream( in, remainingSpace + 1 );
+<                         CountingInputStream cis = new CountingInputStream( bis );
+<                         extractFile( getSourceFile(), outputDirectory, cis,
+---
+>                         long bytesRead = 0;
+>                         byte[] buffer = new byte[8192];
+>                         int read;
+>                         while ( (read = in.read(buffer)) != -1 )
+>                         {
+>                             bytesRead += read;
+>                             if ( bytesRead > remainingSpace )
+>                             {
+>                                 throw new ArchiverException( "Maximum output size limit reached" );
+>                             }
+>                         }
+>                         extractFile( getSourceFile(), outputDirectory, in,
+211,215c219
+<                         remainingSpace -= cis.getByteCount();
+<                         if ( remainingSpace < 0 )
+<                         {
+<                             throw new ArchiverException( "Maximum output size limit reached" );
+<                         }
+---
+>                         remainingSpace -= bytesRead;
