@@ -1,0 +1,82 @@
+24d23
+< import jakarta.servlet.http.HttpSessionContext;
+64,65d62
+<   /** @deprecated */
+<   @Deprecated
+67,75c64,65
+<   public HttpSessionContext getSessionContext() {
+<     return null;
+<   }
+< 
+<   /** @deprecated */
+<   @Deprecated
+<   @Override
+<   public Object getValue(final String s) {
+<     return null;
+---
+>   public boolean isNew() {
+>     return false;
+78,79d67
+<   /** @deprecated */
+<   @Deprecated
+81,82c69
+<   public String[] getValueNames() {
+<     return new String[0];
+---
+>   public void invalidate() {
+86c73,74
+<   public void invalidate() {
+---
+>   public void removeAttribute(final String s) {
+>     attributes.remove(s);
+90,91c78,79
+<   public boolean isNew() {
+<     return false;
+---
+>   public void setAttribute(final String s, final Object o) {
+>     attributes.put(s, o);
+94,95d81
+<   /** @deprecated */
+<   @Deprecated
+97c83
+<   public void putValue(final String s, final Object o) {
+---
+>   public void setMaxInactiveInterval(final int i) {
+101,102c87,88
+<   public void removeAttribute(final String s) {
+<     attributes.remove(s);
+---
+>   public ServletContext getServletContext() {
+>     return null;
+104a91,92
+>   /** @deprecated */
+>   @Deprecated
+106c94,95
+<   public void removeValue(final String s) {
+---
+>   public Object getValue(final String s) {
+>     return null;
+108a98,99
+>   /** @deprecated */
+>   @Deprecated
+110,111c101,102
+<   public void setAttribute(final String s, final Object o) {
+<     attributes.put(s, o);
+---
+>   public String[] getValueNames() {
+>     return new String[0];
+113a105,106
+>   /** @deprecated */
+>   @Deprecated
+115c108
+<   public void setMaxInactiveInterval(final int i) {
+---
+>   public void putValue(final String s, final Object o) {
+117a111,112
+>   /** @deprecated */
+>   @Deprecated
+119,120c114
+<   public ServletContext getServletContext() {
+<     return null;
+---
+>   public void removeValue(final String s) {

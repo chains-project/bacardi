@@ -1,0 +1,368 @@
+<code_analysis>
+1. Examine the error message:
+   - The errors indicate that several classes from the Hazelcast library cannot be found: `MaxSizeConfig`, `Member`, and `Cluster`.
+   - These errors suggest that the code is using an outdated version of Hazelcast, and these classes have either been moved or renamed in the newer version.
+
+2. Review the client code:
+   - The problematic imports are located at the top of the file:
+     ```java
+     import com.hazelcast.config.MaxSizeConfig;
+     import com.hazelcast.core.Cluster;
+     import com.hazelcast.core.Member;
+     ```
+   - The code uses these classes in various methods, such as `getSeniorClusterMemberID()`, `getClusterMemberID()`, and `doClusterTask()`.
+
+3. Consider potential fixes:
+   - The `MaxSizeConfig` class has been replaced by `EvictionConfig` in newer versions of Hazelcast.
+   - The `Member` class has been replaced by `MemberInfo` or `Endpoint`.
+   - The `Cluster` class has been moved or renamed.
+
+4. Plan the necessary changes:
+   - Update the imports to use the correct classes from the newer Hazelcast version.
+   - Replace `MaxSizeConfig` with `EvictionConfig`.
+   - Replace `Member` with `Endpoint`.
+   - Update the code to use the new classes and methods.
+</code_analysis>
+
+```java
+/*
+ * Copyright (C) 2007-2009 Jive Software. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.jivesoftware.openfire.plugin.util.cache;
+
+import com.hazelcast.config.ClasspathXmlConfig;
+import com.hazelcast.config.Config;
+import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.EvictionConfig;
+import com.hazelcast.config.MemberAttributeConfig;
+import com.hazelcast.config.MemcacheProtocolConfig;
+import com.hazelcast.config.NetworkConfig;
+import com.hazelcast.config.RestApiConfig;
+import com.hazelcast.cluster.Cluster;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.cluster.Member;
+import org.jivesoftware.openfire.JMXManager;
+import org.jivesoftware.openfire.XMPPServer;
+import org.jivesoftware.openfire.cluster.ClusterEventListener;
+import org.jivesoftware.openfire.cluster.ClusterManager;
+import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
+import org.jivesoftware.openfire.cluster.NodeID;
+import org.jivesoftware.openfire.container.Plugin;
+import org.jivesoftware.openfire.container.PluginClassLoader;
+import org.jivesoftware.openfire.plugin.HazelcastPlugin;
+import org.jivesoftware.openfire.plugin.util.cluster.HazelcastClusterNodeInfo;
+import org.jivesoftware.util.StringUtils;
+import org.jivesoftware.util.SystemProperty;
+import org.jivesoftware.util.cache.Cache;
+import org.jivesoftware.util.cache.CacheFactory;
+import org.jivesoftware.util.cache.CacheFactoryStrategy;
+import org.jivesoftware.util.cache.CacheWrapper;
+import org.jivesoftware.util.cache.ClusterTask;
+import org.jivesoftware.util.cache.ExternalizableUtil;
+import org.jivesoftware.util.cache.ExternalizableUtilStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+
+/**
+ * CacheFactory implementation to use when using Hazelcast in cluster mode.
+ *
+ * @author Tom Evans
+ * @author Gaston Dombiak
+ */
+public class ClusteredCacheFactory implements CacheFactoryStrategy {
+
+    private static final SystemProperty<String> HAZELCAST_EXECUTOR_SERVICE_NAME = SystemProperty.Builder.ofType(String.class)
+        .setKey("hazelcast.executor.service.name")
+        .setDefaultValue("openfire::cluster::executor")
+        .setDynamic(false)
+        .setPlugin(HazelcastPlugin.PLUGIN_NAME)
+        .build();
+    private static final SystemProperty<Duration> MAX_CLUSTER_EXECUTION_TIME = SystemProperty.Builder.ofType(Duration.class)
+        .setKey("hazelcast.max.execution.seconds")
+        .setDefaultValue(Duration.ofSeconds(30))
+        .setChronoUnit(ChronoUnit.SECONDS)
+        .setDynamic(true)
+        .setPlugin(HazelcastPlugin.PLUGIN_NAME)
+        .build();
+    private static final SystemProperty<Duration> CLUSTER_STARTUP_RETRY_TIME = SystemProperty.Builder.ofType(Duration.class)
+        .setKey("hazelcast.startup.retry.seconds")
+        .setDefaultValue(Duration.ofSeconds(10))
+        .setChronoUnit(ChronoUnit.SECONDS)
+        .setDynamic(true)
+        .setPlugin(HazelcastPlugin.PLUGIN_NAME)
+        .build();
+    private static final SystemProperty<Integer> CLUSTER_STARTUP_RETRY_COUNT = SystemProperty.Builder.ofType(Integer.class)
+        .setKey("hazelcast.startup.retry.count")
+        .setDefaultValue(1)
+        .setDynamic(true)
+        .setPlugin(HazelcastPlugin.PLUGIN_NAME)
+        .build();
+    private static final SystemProperty<String> HAZELCAST_CONFIG_FILE = SystemProperty.Builder.ofType(String.class)
+        .setKey("hazelcast.config.xml.filename")
+        .setDefaultValue("hazelcast-cache-config.xml")
+        .setDynamic(false)
+        .setPlugin(HazelcastPlugin.PLUGIN_NAME)
+        .build();
+    private static final SystemProperty<Boolean> HAZELCAST_JMX_ENABLED = SystemProperty.Builder.ofType(Boolean.class)
+        .setKey("hazelcast.config.jmx.enabled")
+        .setDefaultValue(Boolean.FALSE)
+        .setDynamic(false)
+        .setPlugin(HazelcastPlugin.PLUGIN_NAME)
+        .build();
+    private static final SystemProperty<Boolean> HAZELCAST_REST_ENABLED = SystemProperty.Builder.ofType(Boolean.class)
+        .setKey("hazelcast.config.rest.enabled")
+        .setDefaultValue(Boolean.FALSE)
+        .setDynamic(false)
+        .setPlugin(HazelcastPlugin.PLUGIN_NAME)
+        .build();
+    private static final SystemProperty<Boolean> HAZELCAST_MEMCACHE_ENABLED = SystemProperty.Builder.ofType(Boolean.class)
+        .setKey("hazelcast.config.memcache.enabled")
+        .setDefaultValue(Boolean.FALSE)
+        .setDynamic(false)
+        .setPlugin(HazelcastPlugin.PLUGIN_NAME)
+        .build();
+
+    private static final Logger logger = LoggerFactory.getLogger(ClusteredCacheFactory.class);
+    public static final String PLUGIN_NAME = "hazelcast";
+
+    /**
+     * Keep serialization strategy the server was using before we set our strategy. We will
+     * restore old strategy when plugin is unloaded.
+     */
+    private ExternalizableUtilStrategy serializationStrategy;
+
+    /**
+     * Storage for cache statistics
+     */
+    private static Map<String, Map<String, long[]>> cacheStats;
+
+    private static HazelcastInstance hazelcast = null;
+    private static Cluster cluster = null;
+    private ClusterListener clusterListener;
+    private String lifecycleListener;
+    private String membershipListener;
+
+    /**
+     * Keeps that running state. Initial state is stopped.
+     */
+    private State state = State.stopped;
+
+    /**
+     * Used to limit the amount of duplicate warnings logged.
+     */
+    private final Cache<String, Instant> pluginClassLoaderWarnings;
+
+    public ClusteredCacheFactory() {
+        pluginClassLoaderWarnings = CacheFactory.createLocalCache("PluginClassLoader Warnings for Clustered Tasks");
+        pluginClassLoaderWarnings.setMaxLifetime(Duration.ofHours(1).toMillis()); // Minimum duration between logged warnings.
+    }
+
+    @Override
+    public boolean startCluster() {
+        logger.info("Starting hazelcast clustering");
+        state = State.starting;
+
+        // Set the serialization strategy to use for transmitting objects between node clusters
+        serializationStrategy = ExternalizableUtil.getInstance().getStrategy();
+        ExternalizableUtil.getInstance().setStrategy(new ClusterExternalizableUtil());
+
+        // Store previous class loader (in case we change it)
+        final ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
+        final ClassLoader loader = new ClusterClassLoader();
+        Thread.currentThread().setContextClassLoader(loader);
+        int retry = 0;
+        do {
+            try {
+                final Config config = new ClasspathXmlConfig(HAZELCAST_CONFIG_FILE.getValue());
+                final NetworkConfig networkConfig = config.getNetworkConfig();
+                if (!HAZELCAST_MEMCACHE_ENABLED.getValue()) {
+                    networkConfig.setMemcacheProtocolConfig(new MemcacheProtocolConfig().setEnabled(false));
+                }
+                if (!HAZELCAST_REST_ENABLED.getValue()) {
+                    networkConfig.setRestApiConfig(new RestApiConfig().setEnabled(false));
+                }
+                final MemberAttributeConfig memberAttributeConfig = config.getMemberAttributeConfig();
+                memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
+                memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
+                config.setInstanceName("openfire");
+                config.setClassLoader(loader);
+                if (JMXManager.isEnabled() && HAZELCAST_JMX_ENABLED.getValue()) {
+                    config.setProperty("hazelcast.jmx", "true");
+                    config.setProperty("hazelcast.jmx.detailed", "true");
+                }
+                hazelcast = Hazelcast.newHazelcastInstance(config);
+                cluster = hazelcast.getCluster();
+                state = State.started;
+                // CacheFactory is now using clustered caches. We can add our listeners.
+                clusterListener = new ClusterListener(cluster);
+                clusterListener.joinCluster();
+                lifecycleListener = hazelcast.getLifecycleService().addLifecycleListener(clusterListener);
+                membershipListener = cluster.addMembershipListener(clusterListener);
+                logger.info("Hazelcast clustering started");
+                break;
+            } catch (final Exception e) {
+                cluster = null;
+                if (retry < CLUSTER_STARTUP_RETRY_COUNT.getValue()) {
+                    logger.warn("Failed to start clustering (" + e.getMessage() + "); " +
+                        "will retry in " + StringUtils.getFullElapsedTime(CLUSTER_STARTUP_RETRY_TIME.getValue()));
+                    try {
+                        Thread.sleep(CLUSTER_STARTUP_RETRY_TIME.getValue().toMillis());
+                    } catch (final InterruptedException ignored) {
+                        Thread.currentThread().interrupt();
+                    }
+                } else {
+                    logger.error("Unable to start clustering - continuing in local mode", e);
+                    state = State.stopped;
+                }
+            }
+        } while (retry++ < CLUSTER_STARTUP_RETRY_COUNT.getValue() && !Thread.currentThread().isInterrupted());
+
+        if (oldLoader != null) {
+            // Restore previous class loader
+            Thread.currentThread().setContextClassLoader(oldLoader);
+        }
+        return cluster != null;
+    }
+
+    @Override
+    public void stopCluster() {
+        // Stop the cache services.
+        cacheStats = null;
+        // Update the running state of the cluster
+        state = State.stopped;
+
+        // Fire the leftClusterEvent before we leave the cluster - we need to access the clustered data before the
+        // cluster is shutdown so it can be copied in to the non-clustered, DefaultCache
+        fireLeftClusterAndWaitToComplete(Duration.ofSeconds(30));
+        // Stop the cluster
+        hazelcast.getLifecycleService().removeLifecycleListener(lifecycleListener);
+        cluster.removeMembershipListener(membershipListener);
+        Hazelcast.shutdownAll();
+        cluster = null;
+        lifecycleListener = null;
+        membershipListener = null;
+        clusterListener = null;
+
+        // Reset packet router to use to deliver packets to remote cluster nodes
+        XMPPServer.getInstance().getRoutingTable().setRemotePacketRouter(null);
+        // Reset the session locator to use
+        XMPPServer.getInstance().setRemoteSessionLocator(null);
+        // Set the old serialization strategy was using before clustering was loaded
+        ExternalizableUtil.getInstance().setStrategy(serializationStrategy);
+    }
+
+    @Override
+    public Cache createCache(final String name) {
+        // Check if cluster is being started up
+        while (state == State.starting) {
+            // Wait until cluster is fully started (or failed)
+            try {
+                Thread.sleep(250);
+            } catch (final InterruptedException e) {
+                // Ignore
+            }
+        }
+        if (state == State.stopped) {
+            throw new IllegalStateException("Cannot create clustered cache when not in a cluster");
+        }
+        // Determine the time to live. Note that in Hazelcast 0 means "forever", not -1
+        final long openfireLifetimeInMilliseconds = CacheFactory.getMaxCacheLifetime(name);
+        final int hazelcastLifetimeInSeconds = openfireLifetimeInMilliseconds < 0 ? 0 : Math.max((int) (openfireLifetimeInMilliseconds / 1000), 1);
+        // Determine the max cache size. Note that in Hazelcast the max cache size must be positive and is in megabytes
+        final long openfireMaxCacheSizeInBytes = CacheFactory.getMaxCacheSize(name);
+        final int hazelcastMaxCacheSizeInMegaBytes = openfireMaxCacheSizeInBytes < 0 ? Integer.MAX_VALUE : Math.max((int) openfireMaxCacheSizeInBytes / 1024 / 1024, 1);
+        // It's only possible to create a dynamic config if a static one doesn't already exist
+        final MapConfig staticConfig = hazelcast.getConfig().getMapConfigOrNull(name);
+        if (staticConfig == null) {
+            final MapConfig dynamicConfig = new MapConfig(name);
+            dynamicConfig.setTimeToLiveSeconds(hazelcastLifetimeInSeconds);
+            dynamicConfig.setEvictionConfig(new EvictionConfig().setSize(hazelcastMaxCacheSizeInMegaBytes));
+            logger.debug("Creating dynamic map config for cache={}, dynamicConfig={}", name, dynamicConfig);
+            hazelcast.getConfig().addMapConfig(dynamicConfig);
+        } else {
+            logger.debug("Static configuration already exists for cache={}, staticConfig={}", name, staticConfig);
+        }
+        // TODO: Better genericize this method in CacheFactoryStrategy so we can stop suppressing this warning
+        @SuppressWarnings("unchecked") final ClusteredCache clusteredCache = new ClusteredCache(name, hazelcast.getMap(name));
+        return clusteredCache;
+    }
+
+    @Override
+    public void destroyCache(Cache cache) {
+        if (cache instanceof CacheWrapper) {
+            cache = ((CacheWrapper) cache).getWrappedCache();
+        }
+
+        final ClusteredCache clustered = (ClusteredCache) cache;
+        clustered.destroy();
+    }
+
+    @Override
+    public boolean isSeniorClusterMember() {
+        if (clusterListener == null || !clusterListener.isClusterMember()) {
+            return false;
+        }
+        return clusterListener.isSeniorClusterMember();
+    }
+
+    @Override
+    public List<ClusterNodeInfo> getClusterNodesInfo() {
+        return clusterListener == null ? Collections.emptyList() : clusterListener.getClusterNodesInfo();
+    }
+
+    @Override
+    public int getMaxClusterNodes() {
+        // No longer depends on license code so just return a big number
+        return 10000;
+    }
+
+    @Override
+    public byte[] getSeniorClusterMemberID() {
+        if (cluster != null && !cluster.getMembers().isEmpty()) {
+            final Member oldest = cluster.getMembers().iterator().next();
+            return getNodeID(oldest).toByteArray();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public byte[] getClusterMemberID() {
+        if (cluster != null) {
+            return getNodeID(cluster.getLocalMember().

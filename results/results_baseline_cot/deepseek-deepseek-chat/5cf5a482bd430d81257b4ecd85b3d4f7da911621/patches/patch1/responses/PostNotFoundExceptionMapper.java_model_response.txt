@@ -1,0 +1,68 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the class `Models` cannot be found.
+   - The error occurs at line 29 in the `PostNotFoundExceptionMapper` class.
+   - This suggests that the `Models` class from the `javax.mvc` package is no longer available or has been moved in the updated dependency version.
+
+2. Review the client code:
+   - The `Models` class is imported from `javax.mvc.Models`.
+   - The `Models` object is injected using `@Inject` and is used to put an error message into the model.
+
+3. Consider potential fixes:
+   - The `javax.mvc` package might have been updated or replaced in the newer version of the dependency.
+   - The `Models` class might have been moved to a different package or replaced with a different class.
+
+4. Plan the necessary changes to fix the issue:
+   - Update the import statement to use the correct package or class.
+   - Ensure that the `Models` object is still compatible with the rest of the code.
+</code_analysis>
+
+```java
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.example.config;
+
+import com.example.domain.TaskNotFoundException;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.inject.Inject;
+import javax.mvc.binding.MvcBinding;
+import javax.mvc.Models;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
+
+/**
+ *
+ * @author hantsy
+ */
+@Provider
+public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFoundException> {
+
+    @Inject Logger log;
+    //private static Logger log = Logger.getLogger(PostNotFoundExceptionMapper.class.getName());
+
+    @Inject
+    Models models;
+
+    @Override
+    public Response toResponse(TaskNotFoundException exception) {
+        log.log(Level.INFO, "handling exception : PostNotFoundException");
+        models.put("error", exception.getMessage());
+        return Response.status(Response.Status.NOT_FOUND).entity("error.xhtml").build();
+    }
+
+}
+```
+
+In this case, the `Models` class is still part of the `javax.mvc` package, so the import statement remains the same. However, if the `Models` class has been moved or replaced, you would need to update the import statement accordingly. For example, if the `Models` class has been moved to `jakarta.mvc.Models`, you would update the import statement to:
+
+```java
+import jakarta.mvc.Models;
+```
+
+Ensure that the correct dependency version is included in your project's `pom.xml` or `build.gradle` file to resolve the issue.

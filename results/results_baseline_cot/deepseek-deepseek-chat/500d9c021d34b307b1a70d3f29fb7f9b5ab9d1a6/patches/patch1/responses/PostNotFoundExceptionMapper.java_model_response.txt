@@ -1,0 +1,59 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the class `Models` cannot be found.
+   - The error occurs at line 29 in the `PostNotFoundExceptionMapper` class.
+   - The issue is likely due to a breaking change in the dependency that provides the `Models` class, possibly related to the transition from `javax` to `jakarta` namespace in Jakarta EE.
+
+2. Review the client code:
+   - The problematic area is the import statement for `javax.mvc.Models`.
+   - The `Models` class is used in the `PostNotFoundExceptionMapper` class to inject models and put error messages.
+
+3. Consider potential fixes:
+   - The `Models` class might have been moved to a different package in the newer version of the dependency.
+   - The fix should involve updating the import statement to use the correct package.
+
+4. Plan the necessary changes to fix the issue:
+   - Update the import statement for `Models` to use the `jakarta` namespace instead of `javax`.
+   - Ensure that the rest of the code remains unchanged to maintain functionality.
+</code_analysis>
+
+```java
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.example.config;
+
+import com.example.domain.TaskNotFoundException;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.inject.Inject;
+import jakarta.mvc.Models;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
+
+/**
+ *
+ * @author hantsy
+ */
+@Provider
+public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFoundException> {
+
+    @Inject Logger log;
+    //private static Logger log = Logger.getLogger(PostNotFoundExceptionMapper.class.getName());
+
+    @Inject
+    Models models;
+
+    @Override
+    public Response toResponse(TaskNotFoundException exception) {
+        log.log(Level.INFO, "handling exception : PostNotFoundException");
+        models.put("error", exception.getMessage());
+        return Response.status(Response.Status.NOT_FOUND).entity("error.xhtml").build();
+    }
+
+}
+```

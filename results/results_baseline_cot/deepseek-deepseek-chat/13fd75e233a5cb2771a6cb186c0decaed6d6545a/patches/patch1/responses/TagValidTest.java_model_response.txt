@@ -1,0 +1,93 @@
+<code_analysis>
+1. Examine the error message:
+   - The error occurs in the `TagValidTest` class at lines 62 and 63.
+   - The issue is related to the `StringContains` constructor in the `org.hamcrest.core.StringContains` class.
+   - The error indicates that the constructor `StringContains(boolean, String)` is being used, but the constructor `StringContains(String)` is expected.
+
+2. Review the client code:
+   - The problematic code is in the `shouldFailToGetValueWhenInvalid` method where `StringContains` is instantiated with a boolean and a string.
+   - The code is trying to use a constructor that no longer exists or has changed in the updated version of the Hamcrest library.
+
+3. Consider potential fixes:
+   - The `StringContains` class in the newer version of Hamcrest likely does not support the `StringContains(boolean, String)` constructor.
+   - The fix should use the correct constructor or method that matches the updated Hamcrest library.
+
+4. Plan the necessary changes:
+   - Replace the `StringContains(boolean, String)` constructor calls with `StringContains(String)`.
+   - Ensure the logic for checking the error message remains intact.
+</code_analysis>
+
+Here is the fixed Java class:
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker;
+
+import com.artipie.docker.error.InvalidTagNameException;
+import java.util.Arrays;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.core.AllOf;
+import org.hamcrest.core.IsEqual;
+import org.hamcrest.core.StringContains;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
+/**
+ * Tests for {@link Tag.Valid}.
+ *
+ * @since 0.2
+ */
+class TagValidTest {
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "latest",
+        "1.0",
+        "my-tag",
+        "MY_TAG",
+        "My.Tag.1",
+        "_some_tag",
+        //@checkstyle LineLengthCheck (1 line)
+        "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567"
+    })
+    void shouldGetValueWhenValid(final String original) {
+        final Tag.Valid tag = new Tag.Valid(original);
+        MatcherAssert.assertThat(tag.valid(), new IsEqual<>(true));
+        MatcherAssert.assertThat(tag.value(), new IsEqual<>(original));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "",
+        ".0",
+        "*",
+        "\u00ea",
+        "-my-tag",
+        //@checkstyle LineLengthCheck (1 line)
+        "012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678"
+    })
+    void shouldFailToGetValueWhenInvalid(final String original) {
+        final Tag.Valid tag = new Tag.Valid(original);
+        MatcherAssert.assertThat(tag.valid(), new IsEqual<>(false));
+        final Throwable throwable = Assertions.assertThrows(
+            InvalidTagNameException.class,
+            tag::value
+        );
+        MatcherAssert.assertThat(
+            throwable.getMessage(),
+            new AllOf<>(
+                Arrays.asList(
+                    new StringContains("Invalid tag"),
+                    new StringContains(original)
+                )
+            )
+        );
+    }
+}
+```
+
+The fix involves changing the `StringContains` constructor calls to use the single `String` argument constructor, which is the correct usage in the updated Hamcrest library. This ensures that the code compiles and functions as intended.

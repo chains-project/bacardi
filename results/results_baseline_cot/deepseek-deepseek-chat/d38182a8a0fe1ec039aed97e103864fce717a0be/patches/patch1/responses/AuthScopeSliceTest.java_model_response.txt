@@ -1,0 +1,109 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the `User` class cannot be found within the `com.artipie.http.auth.Authentication` interface.
+   - The errors occur at lines 56 and 57 in the `AuthScopeSliceTest` class.
+   - This suggests that the `User` class has been moved or renamed in the updated version of the `com.artipie.http.auth` package.
+
+2. Review the client code:
+   - The problematic code is in the `user()` method where `new Authentication.User("alice")` is instantiated.
+   - The `User` class is being accessed directly from the `Authentication` interface, which is no longer valid in the updated dependency.
+
+3. Consider potential fixes:
+   - The `User` class might have been moved to a different package or renamed.
+   - We need to find the correct import or class name for the `User` class in the updated dependency version.
+   - The fix should involve updating the import statement and the instantiation of the `User` class.
+
+4. Plan the necessary changes:
+   - Update the import statement to include the correct package for the `User` class.
+   - Modify the instantiation of the `User` class to use the correct class name or package.
+</code_analysis>
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker.http;
+
+import com.artipie.asto.Content;
+import com.artipie.http.Headers;
+import com.artipie.http.Response;
+import com.artipie.http.auth.AuthScheme;
+import com.artipie.http.auth.Authentication;
+import com.artipie.http.auth.BasicUser;
+import com.artipie.http.rs.StandardRs;
+import java.nio.ByteBuffer;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.core.IsEqual;
+import org.junit.jupiter.api.Test;
+import org.reactivestreams.Publisher;
+
+/**
+ * Tests for {@link AuthScopeSlice}.
+ *
+ * @since 0.11
+ */
+class AuthScopeSliceTest {
+
+    @Test
+    void testScope() {
+        final String line = "GET /resource.txt HTTP/1.1";
+        final String action = "foo:bar:baz";
+        final AtomicReference<String> caction = new AtomicReference<>();
+        final AtomicReference<String> cline = new AtomicReference<>();
+        new AuthScopeSlice(
+            new ScopeSlice() {
+                @Override
+                public Scope scope(final String rqline) {
+                    cline.set(rqline);
+                    return new Scope.FromString(action);
+                }
+
+                @Override
+                public Response response(
+                    final String line,
+                    final Iterable<Map.Entry<String, String>> headers,
+                    final Publisher<ByteBuffer> body
+                ) {
+                    return StandardRs.OK;
+                }
+            },
+            (headers, rline) -> CompletableFuture.completedFuture(
+                new AuthScheme.Result() {
+                    @Override
+                    public Optional<Authentication.User> user() {
+                        return Optional.of(new BasicUser("alice"));
+                    }
+
+                    @Override
+                    public String challenge() {
+                        return "";
+                    }
+                }
+            ),
+            (user, act) -> {
+                caction.set(act);
+                return true;
+            }
+        ).response(line, Headers.EMPTY, Content.EMPTY).send(
+            (status, headers, body) -> CompletableFuture.allOf()
+        ).toCompletableFuture().join();
+        MatcherAssert.assertThat(
+            "Request line passed to slice",
+            cline.get(),
+            new IsEqual<>(line)
+        );
+        MatcherAssert.assertThat(
+            "Scope passed as action to permissions",
+            caction.get(),
+            new IsEqual<>(action)
+        );
+    }
+}
+```
+
+In this fix, I replaced `new Authentication.User("alice")` with `new BasicUser("alice")` and added the import `import com.artipie.http.auth.BasicUser;`. This assumes that the `User` class has been moved to `BasicUser` in the updated dependency version. This change should resolve the compilation errors while maintaining the intended functionality.

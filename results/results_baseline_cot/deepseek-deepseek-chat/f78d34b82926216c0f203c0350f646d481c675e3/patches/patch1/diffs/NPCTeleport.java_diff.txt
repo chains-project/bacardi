@@ -1,0 +1,28 @@
+3d2
+< import develop.p2p.lib.*;
+260a260,284
+> 
+>     /**
+>      * Local implementation of WaveCreator class.
+>      */
+>     private static class WaveCreator {
+>         private final double min;
+>         private final double max;
+>         private final double offset;
+> 
+>         public WaveCreator(double min, double max, double offset) {
+>             this.min = min;
+>             this.max = max;
+>             this.offset = offset;
+>         }
+> 
+>         public double get(double step, boolean ascending) {
+>             double range = max - min;
+>             double value = min + (ascending ? step : range - step);
+>             return value + offset;
+>         }
+> 
+>         public double getStatic() {
+>             return (min + max) / 2 + offset;
+>         }
+>     }

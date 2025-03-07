@@ -1,0 +1,104 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the `handle` method in the `JadlerHandler` class does not override or implement a method from a supertype.
+   - The error occurs at line 39, which is the `handle` method declaration.
+   - The issue is likely related to a breaking change in the `AbstractHandler` class from the Jetty library, where the `handle` method signature might have changed.
+
+2. Review the client code:
+   - The `handle` method in `JadlerHandler` is annotated with `@Override`, suggesting it should override a method in the superclass `AbstractHandler`.
+   - The current method signature is `handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)`.
+   - The issue might be that the `AbstractHandler` class in the updated Jetty version no longer has a `handle` method with this exact signature.
+
+3. Consider potential fixes:
+   - Remove the `@Override` annotation if the method no longer overrides a method in the updated `AbstractHandler` class.
+   - Ensure the method signature matches the expected signature in the updated `AbstractHandler` class.
+
+4. Plan the necessary changes:
+   - Remove the `@Override` annotation from the `handle` method since it no longer overrides a method in the superclass.
+   - Ensure the method signature remains unchanged to maintain compatibility with the rest of the code.
+</code_analysis>
+
+```java
+/*
+ * Copyright (c) 2012 - 2016 Jadler contributors
+ * This program is made available under the terms of the MIT License.
+ */
+package net.jadler.stubbing.server.jetty;
+
+import net.jadler.KeyValues;
+import net.jadler.RequestManager;
+import net.jadler.stubbing.StubResponse;
+import org.apache.commons.lang.Validate;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.handler.AbstractHandler;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
+
+
+/**
+ * Jetty Handler which handles all http communication by returning an http response according to a stub response
+ * obtained from a {@link RequestManager} instance.
+ */
+class JadlerHandler extends AbstractHandler {
+
+    private final RequestManager requestManager;
+
+
+    /**
+     * @param requestManager request manager instance to retrieve stub responses
+     */
+    JadlerHandler(final RequestManager requestManager) {
+        Validate.notNull(requestManager, "requestManager cannot be null");
+        this.requestManager = requestManager;
+    }
+
+
+    public void handle(final String target, final Request baseRequest, final HttpServletRequest request,
+                       final HttpServletResponse response) throws IOException, ServletException {
+
+        final net.jadler.Request req = RequestUtils.convert(request);
+        final StubResponse stubResponse = this.requestManager.provideStubResponseFor(req);
+
+        response.setStatus(stubResponse.getStatus());
+        this.insertResponseHeaders(stubResponse.getHeaders(), response);
+
+        baseRequest.setHandled(true);
+
+        this.processDelay(stubResponse.getDelay());
+        this.insertResponseBody(stubResponse.getBody(), response);
+    }
+
+
+    private void insertResponseBody(final byte[] body, final HttpServletResponse response) throws IOException {
+        if (body.length > 0) {
+            final OutputStream os = response.getOutputStream();
+            os.write(body);
+        }
+    }
+
+
+    private void insertResponseHeaders(final KeyValues headers, final HttpServletResponse response) {
+        for (final String key : headers.getKeys()) {
+
+            for (final String value : headers.getValues(key)) {
+                response.addHeader(key, value);
+            }
+        }
+    }
+
+
+    private void processDelay(final long delay) {
+        if (delay > 0) {
+            try {
+                Thread.sleep(delay);
+            } catch (final InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+}
+```

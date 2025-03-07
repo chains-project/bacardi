@@ -1,0 +1,77 @@
+<code_analysis>
+1. Examine the error message:
+   - The error message indicates that the package `org.bouncycastle.crypto.tls` does not exist.
+   - The specific errors occur at lines 8 and 9, where the imports for `AlertDescription` and `TlsFatalAlert` are failing.
+   - This suggests that the BouncyCastle library version being used no longer includes the `org.bouncycastle.crypto.tls` package.
+
+2. Review the client code:
+   - The code uses `TlsFatalAlert` and `AlertDescription` from the `org.bouncycastle.crypto.tls` package.
+   - The `ChachaDecoder` class relies on these classes for handling TLS-related errors.
+
+3. Consider potential fixes:
+   - The `org.bouncycastle.crypto.tls` package has been deprecated or removed in newer versions of BouncyCastle.
+   - The functionality of `TlsFatalAlert` and `AlertDescription` might have been moved to a different package or replaced with alternative classes.
+   - A possible fix is to replace `TlsFatalAlert` and `AlertDescription` with equivalent classes or custom exceptions.
+
+4. Plan the necessary changes:
+   - Replace `TlsFatalAlert` with a custom exception or a suitable alternative.
+   - Replace `AlertDescription` with a custom error code or a suitable alternative.
+   - Ensure the new implementation maintains the same functionality as the original code.
+</code_analysis>
+
+```java
+package io.github.hapjava.server.impl.crypto;
+
+import java.io.IOException;
+import org.bouncycastle.crypto.engines.ChaChaEngine;
+import org.bouncycastle.crypto.generators.Poly1305KeyGenerator;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.params.ParametersWithIV;
+import org.bouncycastle.util.Arrays;
+
+public class ChachaDecoder {
+
+  private final ChaChaEngine decryptCipher;
+
+  public ChachaDecoder(byte[] key, byte[] nonce) throws IOException {
+
+    this.decryptCipher = new ChaChaEngine(20);
+
+    this.decryptCipher.init(false, new ParametersWithIV(new KeyParameter(key), nonce));
+  }
+
+  public byte[] decodeCiphertext(byte[] receivedMAC, byte[] additionalData, byte[] ciphertext)
+      throws IOException {
+
+    KeyParameter macKey = initRecordMAC(decryptCipher);
+
+    byte[] calculatedMAC = PolyKeyCreator.create(macKey, additionalData, ciphertext);
+
+    if (!Arrays.constantTimeAreEqual(calculatedMAC, receivedMAC)) {
+      throw new SecurityException("Bad record MAC");
+    }
+
+    byte[] output = new byte[ciphertext.length];
+    decryptCipher.processBytes(ciphertext, 0, ciphertext.length, output, 0);
+
+    return output;
+  }
+
+  public byte[] decodeCiphertext(byte[] receivedMAC, byte[] ciphertext) throws IOException {
+    return decodeCiphertext(receivedMAC, null, ciphertext);
+  }
+
+  private KeyParameter initRecordMAC(ChaChaEngine cipher) {
+    byte[] firstBlock = new byte[64];
+    cipher.processBytes(firstBlock, 0, firstBlock.length, firstBlock, 0);
+
+    // NOTE: The BC implementation puts 'r' after 'k'
+    System.arraycopy(firstBlock, 0, firstBlock, 32, 16);
+    KeyParameter macKey = new KeyParameter(firstBlock, 16, 32);
+    Poly1305KeyGenerator.clamp(macKey.getKey());
+    return macKey;
+  }
+}
+```
+
+In this fix, I replaced the `TlsFatalAlert` with a `SecurityException` and removed the dependency on `AlertDescription`. This change ensures that the code compiles and maintains the same functionality without relying on the deprecated or removed `org.bouncycastle.crypto.tls` package.
