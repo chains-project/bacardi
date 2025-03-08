@@ -219,7 +219,8 @@ public class Bump {
                 PromptPipeline[] pipeline = {
                         PromptPipeline.BASELINE_API_DIFF,
                         PromptPipeline.BASELINE_API_DIFF_BUGGY,
-                        PromptPipeline.BASELINE_COT_API_DIFF};
+                        PromptPipeline.BASELINE_COT_API_DIFF,
+                        PromptPipeline.BASELINE_COT_API_DIFF_BUGGY};
                 if (Arrays.asList(pipeline).contains(PIPELINE)) {
                     getProjectData(preBreakingImage, dockerBuild, clientFolder, null, null, prevoiusJarInContainerPath);
                 }
