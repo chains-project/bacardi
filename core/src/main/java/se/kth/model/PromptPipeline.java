@@ -12,6 +12,7 @@ public enum PromptPipeline {
     BASELINE_BUGGY_LINE,
     BASELINE_API_DIFF_BUGGY,
     BASELINE_COT_API_DIFF,
+    BASELINE_COT_API_DIFF_BUGGY,
     FIX_YOU,
     ADVANCED;
 
@@ -27,6 +28,7 @@ public enum PromptPipeline {
             case "BASELINE_BUGGY_LINE" -> BASELINE_BUGGY_LINE;
             case "BASELINE_ANTHROPIC_BUGGY" -> BASELINE_ANTHROPIC_BUGGY;
             case "BASELINE_COT_API_DIFF" -> BASELINE_COT_API_DIFF;
+            case "BASELINE_COT_API_DIFF_BUGGY" -> BASELINE_COT_API_DIFF_BUGGY;
             case "ADVANCED" -> ADVANCED;
             case "FIX_YOU" -> FIX_YOU;
             default -> {
