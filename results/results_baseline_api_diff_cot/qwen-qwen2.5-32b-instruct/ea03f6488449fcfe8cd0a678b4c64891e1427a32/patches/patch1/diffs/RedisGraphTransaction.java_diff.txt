@@ -1,0 +1,91 @@
+4,11c4,8
+< import redis.clients.jedis.commands.BasicRedisPipeline;
+< import redis.clients.jedis.commands.BinaryRedisPipeline;
+< import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
+< import redis.clients.jedis.commands.ClusterPipeline;
+< import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;
+< import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
+< import redis.clients.jedis.commands.RedisPipeline;
+< import redis.clients.jedis.commands.ScriptingCommandsPipeline;
+---
+> import redis.clients.jedis.commands.MultiKeyCommands;
+> import redis.clients.jedis.commands.ScriptingCommands;
+> import redis.clients.jedis.exceptions.JedisDataException;
+> import redis.clients.jedis.params.ScriptParams;
+> import redis.clients.jedis.util.SafeEncoder;
+21,24c18,20
+<         MultiKeyBinaryRedisPipeline,
+<         MultiKeyCommandsPipeline, ClusterPipeline,
+<         BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
+<         BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
+---
+>         MultiKeyCommands,
+>         ScriptingCommands,
+>         Closeable {
+44,90d39
+<      * @param graphId a graph to perform the query on
+<      * @param query Cypher query
+<      * @param timeout
+<      * @return a response which builds the result set with the query answer.
+<      */
+<     Response<ResultSet> query(String graphId, String query, long timeout);
+< 
+<     /**
+<      * Execute a Cypher read-only query with timeout.
+<      * @param graphId a graph to perform the query on
+<      * @param query Cypher query
+<      * @param timeout
+<      * @return a response which builds the result set with the query answer.
+<      */
+<     Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout);
+< 
+<     /**
+<      * Execute a Cypher query with arguments
+<      * @param graphId a graph to perform the query on
+<      * @param query Cypher query
+<      * @param args
+<      * @return a response which builds the result set with the query answer.
+<      * @deprecated use {@link #query(String, String, Map)} instead.
+<      */
+<     @Deprecated
+<     Response<ResultSet> query(String graphId, String query, Object ...args);
+< 
+<     /**
+<      * Executes a cypher query with parameters.
+<      * @param graphId a graph to perform the query on.
+<      * @param query Cypher query.
+<      * @param params parameters map.
+<      * @return  a response which builds the result set with the query answer.
+<      */
+<     Response<ResultSet> query(String graphId, String query, Map<String, Object> params);
+< 
+<     /**
+<      * Executes a cypher read-only query with parameters.
+<      * @param graphId a graph to perform the query on.
+<      * @param query Cypher query.
+<      * @param params parameters map.
+<      * @return  a response which builds the result set with the query answer.
+<      */
+<     Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params);
+< 
+<     /**
+<      * Executes a cypher query with parameters and timeout.
+111c60
+<      * @param graphId a graph to perform the query on
+---
+>      * @param graphId graph to perform the query on
+119c68
+<      * @param graphId a graph to perform the query on
+---
+>      * @param graphId graph to perform the query on
+128c77
+<      * @param graphId a graph to perform the query on
+---
+>      * @param graphId graph to perform the query on
+143d91
+< 
+151,152c99
+<      * If object is in transaction mode,
+<      * flushes all previously queued commands in a transaction and restores the connection state to normal
+---
+>      * Flushes all previously queued commands in a transaction and restores the connection state to normal

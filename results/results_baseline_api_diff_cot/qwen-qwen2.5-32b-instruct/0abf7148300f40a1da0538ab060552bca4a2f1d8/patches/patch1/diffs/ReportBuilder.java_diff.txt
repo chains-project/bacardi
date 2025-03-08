@@ -1,0 +1,106 @@
+34d33
+< import net.sf.jasperreports.engine.JRLineBox;
+59d57
+< 
+75d72
+<         
+81d77
+<         
+91d86
+<         
+101d95
+<         
+121d114
+<         
+155,213d147
+<         
+<         /**
+<          * 
+<          * @return
+<          */
+<         private int calcMaxHeaderHeight()
+<         {
+<                 
+<                 final JLabel lbl = new JLabel("a");
+<                 int maxHeight = 0;
+<                 
+<                 for(final TemplateColumn col : this.config.getColumns())
+<                 {
+<                         final ColumnStyle style = col.getHeaderColumn().getStyle();
+<                         final Font font = style.getFont();
+<                         lbl.setFont(font);
+<                         //get the normal height of the label
+<                         int lblHeigh = (int)lbl.getPreferredSize().getHeight();
+<                         //add the column border width
+<                         lblHeigh+= style.getColBorder().getLineWidth()*2;
+<                         //Add padding
+<                         lblHeigh+= style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
+<                         
+<                         if(lblHeigh > maxHeight)
+<                         {
+<                                 maxHeight = lblHeigh;
+<                         }
+<                 }
+<                 
+<                 return maxHeight;
+<         }
+<         
+<         private int calcMaxContentHeight()
+<         {
+<                 
+<                 final JLabel lbl = new JLabel("a");
+<                 int maxHeight = 0;
+<                 
+<                 for(final TemplateColumn col : this.config.getColumns())
+<                 {
+<                         final ColumnStyle style = col.getContentColumn().getStyle();
+<                         final Font font = style.getFont();
+<                         lbl.setFont(font);
+<                         int lblHeigh = (int)lbl.getPreferredSize().getHeight();
+<                         //Add border width
+<                         lblHeigh+= style.getColBorder().getLineWidth()*2;
+<                         //Add padding
+<                         lblHeigh+= style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
+<                         
+<                         if(lblHeigh > maxHeight)
+<                         {
+<                                 maxHeight = lblHeigh;
+<                         }
+<                 }
+<                 
+<                 return maxHeight;
+<         }
+<         
+<         
+238d171
+<         
+255d187
+<         
+295d226
+<                                         
+330,333d260
+<                         if(this.config.isBlankWhenNullValue())
+<                         {
+<                                 textField.setBlankWhenNull(true);
+<                         }
+350d276
+<                 txtField.setItalic(Boolean.valueOf(f.isItalic()));
+353d278
+<                 
+360d284
+<         
+369c293,294
+<                 textField.getLineBox().getPen().setLineWidth(border.getLineWidth());
+---
+>                 // Convert int to float for setLineWidth
+>                 textField.getLineBox().getPen().setLineWidth((float) border.getLineWidth());
+379d303
+<                 
+386d309
+<         
+394d316
+<         
+398c320
+<          * the {@link TemplateConfig} object.
+---
+>          * the {@link TemplateConfig}.

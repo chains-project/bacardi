@@ -1,0 +1,81 @@
+package com.github.games647.changeskin.sponge.bungee;
+
+import com.github.games647.changeskin.core.message.NamespaceKey;
+import com.github.games647.changeskin.core.message.CheckPermMessage;
+import com.github.games647.changeskin.core.message.PermResultMessage;
+import com.github.games647.changeskin.core.model.skin.SkinModel;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+import com.google.inject.Inject;
+
+import java.util.UUID;
+
+import org.spongepowered.api.Platform.Type;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.network.ChannelBinding;
+import org.spongepowered.api.network.ChannelBinding.ChannelOutput;
+import org.spongepowered.api.network.ChannelBinding.MessageChannel;
+import org.spongepowered.api.network.EngineConnection;
+import org.spongepowered.api.network.channel.raw.RawDataChannel;
+import org.spongepowered.api.network.channel.raw.handshake.RawHandshakeDataChannel;
+import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
+import org.spongepowered.api.network.channel.packet.PacketDispatcher;
+import org.spongepowered.api.network.channel.packet.RequestPacket;
+import org.spongepowered.api.network.channel.raw.handshake.RawHandshakeDataChannel;
+import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
+
+public class CheckPermissionListener {
+
+    private final ChangeSkinSponge plugin;
+    private final RawDataChannel permissionsResultChannel;
+
+    @Inject
+    CheckPermissionListener(ChangeSkinSponge plugin, ChannelBinding.Factory channelBindingFactory) {
+        this.plugin = plugin;
+
+        String combinedName = new NamespaceKey(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL).getCombinedName();
+        permissionsResultChannel = channelBindingFactory.createRaw(plugin, combinedName);
+    }
+
+    public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+        CheckPermMessage checkMessage = new CheckPermMessage();
+        checkMessage.readFrom(dataInput);
+
+        CheckPermMessage message = new CheckPermMessage();
+        message.readFrom(dataInput);
+
+        checkPermissions((Player) connection, message);
+    }
+
+    private void checkPermissions(Player player, CheckPermMessage permMessage) {
+        UUID receiverUUID = permMessage.getReceiverUUD();
+        boolean op = permMessage.isOp();
+        SkinModel targetSkin = permMessage.getTargetSkin();
+        UUID skinProfile = targetSkin.getProfileId();
+
+        boolean success = op || checkBungeePerms(player, receiverUUID, permMessage.isSkinPerm(), skinProfile);
+        sendResultMessage(player, new PermResultMessage(success, targetSkin, receiverUUID));
+    }
+
+    private boolean checkBungeePerms(Player player, UUID receiverUUID, boolean skinPerm, UUID targetUUID) {
+        if (player.getUniqueId().equals(receiverUUID)) {
+            return checkPerm(player, "command.setskin", null);
+        }
+
+        return checkPerm(player, "command.setskin.other", null);
+    }
+
+    private boolean checkPerm(Player invoker, String node, Object cause) {
+        return invoker.hasPermission(node, cause);
+    }
+
+    private void sendResultMessage(Player receiver, PermResultMessage resultMessage) {
+        ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
+        resultMessage.writeTo(dataOutput);
+        permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+    }
+}

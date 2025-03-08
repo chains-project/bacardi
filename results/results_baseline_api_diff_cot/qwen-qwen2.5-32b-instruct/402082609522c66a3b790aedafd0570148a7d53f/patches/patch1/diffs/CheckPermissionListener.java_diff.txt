@@ -1,0 +1,55 @@
+17,21c17,27
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelBuf;
+< import org.spongepowered.api.network.ChannelRegistrar;
+< import org.spongepowered.api.network.RawDataListener;
+< import org.spongepowered.api.network.RemoteConnection;
+---
+> import org.spongepowered.api.network.ChannelBinding;
+> import org.spongepowered.api.network.ChannelBinding.ChannelOutput;
+> import org.spongepowered.api.network.ChannelBinding.MessageChannel;
+> import org.spongepowered.api.network.EngineConnection;
+> import org.spongepowered.api.network.channel.raw.RawDataChannel;
+> import org.spongepowered.api.network.channel.raw.handshake.RawHandshakeDataChannel;
+> import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
+> import org.spongepowered.api.network.channel.packet.PacketDispatcher;
+> import org.spongepowered.api.network.channel.packet.RequestPacket;
+> import org.spongepowered.api.network.channel.raw.handshake.RawHandshakeDataChannel;
+> import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
+23,26c29
+< import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
+< import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
+< 
+< public class CheckPermissionListener implements RawDataListener {
+---
+> public class CheckPermissionListener {
+32c35
+<     CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+---
+>     CheckPermissionListener(ChangeSkinSponge plugin, ChannelBinding.Factory channelBindingFactory) {
+36c39
+<         permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
+---
+>         permissionsResultChannel = channelBindingFactory.createRaw(plugin, combinedName);
+39d41
+<     @Override
+64,67c66
+<             return checkPerm(player, "command.setskin", skinPerm, targetUUID);
+<         }
+< 
+<         return checkPerm(player, "command.setskin.other", skinPerm, targetUUID);
+---
+>             return checkPerm(player, "command.setskin", null);
+70,74c69
+<     private boolean checkPerm(Player invoker, String node, boolean skinPerm, UUID targetUUID) {
+<         String pluginName = plugin.getName().toLowerCase();
+<         boolean hasCommandPerm = invoker.hasPermission(pluginName +  '.' + node);
+<         if (skinPerm) {
+<             return hasCommandPerm && plugin.hasSkinPermission(invoker, targetUUID, false);
+---
+>         return checkPerm(player, "command.setskin.other", null);
+77c72,73
+<         return hasCommandPerm;
+---
+>     private boolean checkPerm(Player invoker, String node, Object cause) {
+>         return invoker.hasPermission(node, cause);

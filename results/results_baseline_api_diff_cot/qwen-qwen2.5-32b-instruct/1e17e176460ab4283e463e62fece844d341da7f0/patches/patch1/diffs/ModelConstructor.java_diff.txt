@@ -1,0 +1,67 @@
+16a17
+> import org.yaml.snakeyaml.LoaderOptions;
+43,44c44
+<     super(Model.class);
+< 
+---
+>     super(new LoaderOptions());
+90,101d89
+<     desc = new TypeDescription(PluginManagement.class);
+<     desc.putListPropertyType("plugins", Plugin.class);
+<     addTypeDescription(desc);
+< 
+<     desc = new TypeDescription(Plugin.class);
+<     desc.putListPropertyType("executions", PluginExecution.class);
+<     addTypeDescription(desc);
+< 
+<     desc = new TypeDescription(PluginExecution.class);
+<     desc.putListPropertyType("goals", String.class);
+<     addTypeDescription(desc);
+< 
+132,135c120,123
+<     addTypeDescription(new TypeDescription(Scm.class));
+<     addTypeDescription(new TypeDescription(IssueManagement.class));
+<     addTypeDescription(new TypeDescription(Parent.class));
+<     addTypeDescription(new TypeDescription(Organization.class));
+---
+>     addTypeDescription(new TypeDescription(Scm.class);
+>     addTypeDescription(new TypeDescription(IssueManagement.class);
+>     addTypeDescription(new TypeDescription(Parent.class);
+>     addTypeDescription(new TypeDescription(Organization.class);
+168c156
+<           child = toDom(child, (Map) entryValue);
+---
+>           toDom(child, (Map) entryValue);
+182,200d169
+<       // deal with YAML explicit pairs which are mapped to Object[] by SnakeYAML
+<       if (firstItem.getClass().isArray()) {
+<         for (Object item : list) {
+<           Object[] pair = (Object[]) item;
+<           childKey = "" + pair[0];
+<           Xpp3Dom itemNode = new Xpp3Dom(childKey);
+<           if (pair[1] != null && pair[1] instanceof Map)
+<             //noinspection unchecked
+<             toDom(itemNode, (Map) pair[1]);
+<           else
+<             itemNode.setValue("" + pair[1]);
+<           parent.addChild(itemNode);
+<         }
+<       } else { // automagically determine the node's child key using the collection node's name
+<         if (!parentKey.endsWith("s")) {
+<           throw new RuntimeException(format("collection key '%s' does not end in 's'. Please resort to the " +
+<               "documentation on how to use explicit pairs for specifying child node names", parentKey));
+<         }
+< 
+220d188
+<     }
+252,255c220,224
+<           Node keyNode = valueNode.getKeyNode();
+<           Node childValueNode = valueNode.getValueNode();
+<           if (keyNode instanceof ScalarNode && "configuration".equals(((ScalarNode) keyNode).getValue())) {
+<             childValueNode.setTag(XPP3DOM_TAG);
+---
+>           ScalarNode keyNode = (ScalarNode) valueNode.getKeyNode();
+>           String key = keyNode.getValue();
+>           if ("configuration".equals(key)) {
+>             Node valueNodeValue = valueNode.getValueNode();
+>             valueNodeValue.setTag(XPP3DOM_TAG);

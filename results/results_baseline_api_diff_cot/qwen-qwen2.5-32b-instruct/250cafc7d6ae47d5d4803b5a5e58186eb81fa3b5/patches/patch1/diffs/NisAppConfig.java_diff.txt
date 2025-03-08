@@ -1,0 +1,27 @@
+108,112c108,112
+<                 final org.flywaydb.core.Flyway flyway = new Flyway();
+<                 flyway.setDataSource(this.dataSource());
+<                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+<                 flyway.setLocations(prop.getProperty("flyway.locations"));
+<                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+---
+>                 final org.flywaydb.core.Flyway flyway = new Flyway(new org.flywaydb.core.api.configuration.ClassicConfiguration());
+>                 flyway.getConfiguration().setDataSource(this.dataSource());
+>                 flyway.getConfiguration().setLocations(prop.getProperty("flyway.locations").split(","));
+>                 flyway.getConfiguration().setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 flyway.getConfiguration().setClassLoader(NisAppConfig.class.getClassLoader());
+117d116
+<         @DependsOn("flyway")
+129,130c128,129
+<                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
+<                                 this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+---
+>                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
+>                                 this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+197a197,198
+>         // region mappers
+> 
+235c236
+<                 return new SynchronizedNamespaceCache(new DefaultNamespaceCache(mosaicRedefinitionForkHeight));
+---
+>                 return new SynchronizedNamespaceCache(new DefaultNamespaceCache(mosaicReditaionForkHeight));

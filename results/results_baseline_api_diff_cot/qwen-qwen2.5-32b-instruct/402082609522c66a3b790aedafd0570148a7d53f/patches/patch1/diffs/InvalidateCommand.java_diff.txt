@@ -1,0 +1,21 @@
+7a8
+> import org.spongepowered.api.command.Command;
+10,11c11,13
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.CommandParameter;
+> import org.spongepowered.api.command.parameter.managed.ValueParameter;
+16c18
+< public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class InvalidateCommand implements Command {
+27c29
+<         if (!(src instanceof Player)) {
+---
+>         if (!(src instanceof Player)) || src == null) {
+33c35
+<         Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
+---
+>         Task.builder().execute(() -> new SkinInvalidator(plugin, receiver).getUniqueId()).invalidate()).submit(plugin);

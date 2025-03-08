@@ -1,0 +1,24 @@
+15d14
+< import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
+17d15
+< import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
+20d17
+< 
+244c241,247
+<         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+---
+>         final org.jvnet.jaxb2_commons.lang.ToStringStrategy2 strategy = new org.jvnet.jaxb2_commons.lang.ToStringStrategy2() {
+>             @Override
+>             public StringBuilder append(ObjectLocator locator, StringBuilder buffer, Object object) {
+>                 buffer.append(object.toString());
+>                 return buffer;
+>             }
+>         };
+251c254
+<     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+---
+>     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, org.jvnet.jaxb2_commons.lang.ToStringStrategy2 strategy) {
+259c262
+<     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+---
+>     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, org.jvnet.jaxb2_commons.lang.ToStringStrategy2 strategy) {

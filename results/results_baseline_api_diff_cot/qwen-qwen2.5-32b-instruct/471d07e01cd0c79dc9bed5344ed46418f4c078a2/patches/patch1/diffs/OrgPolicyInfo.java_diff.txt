@@ -1,0 +1,99 @@
+1,15d0
+< /*
+<  * Copyright 2020 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+18,21c3,5
+< import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+< import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+---
+> import com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy;
+> import com.google.api.services.cloudresourcemanager.v3.model.Policy;
+> import com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy;
+37a22
+> {
+57d41
+<   private RestoreDefault restoreDefault;
+63a48
+>   {
+122a108
+>   {
+125c111
+<     private final List<java.lang.String> deniedValues;
+---
+>     private final List<String> deniedValues;
+130c116
+<         String allValues,
+---
+>         (String allValues,
+197c183
+<           allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
+---
+>           (allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
+200,201c186,187
+<     ListPolicy toProtobuf() {
+<       return new ListPolicy()
+---
+>     Policy toProtobuf() {
+>       return new Policy()
+209c195
+<     static Policies fromProtobuf(ListPolicy listPolicy) {
+---
+>     static Policies fromProtobuf(Policy listPolicy) {
+211c197
+<           listPolicy.getAllValues(),
+---
+>           (listPolicy.getAllValues(),
+225d210
+<     private RestoreDefault restoreDefault;
+236d220
+<       this.restoreDefault = info.restoreDefault;
+261,265d244
+<     Builder setRestoreDefault(RestoreDefault restoreDefault) {
+<       this.restoreDefault = restoreDefault;
+<       return this;
+<     }
+< 
+286d264
+<     this.restoreDefault = builder.restoreDefault;
+311,315d288
+<   /** Restores the default behavior of the constraint. */
+<   public RestoreDefault getRestoreDefault() {
+<     return restoreDefault;
+<   }
+< 
+339d311
+<         && Objects.equals(restoreDefault, policyInfo.restoreDefault)
+346,347c318,319
+<     return Objects.hash(
+<         boolPolicy, constraint, etag, policies, restoreDefault, updateTime, version);
+---
+>     return Objects.hash
+>         (boolPolicy, constraint, etag, policies, updateTime, version);
+367c339
+<       orgPolicyProto.setListPolicy(policies.toProtobuf());
+---
+>       orgPolicyProto.setPolicy(policies.toProtobuf());
+369d340
+<     orgPolicyProto.setRestoreDefault(restoreDefault);
+382,383c353,354
+<     if (orgPolicyProtobuf.getListPolicy() != null) {
+<       builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getListPolicy()));
+---
+>     if (orgPolicyProtobuf.getPolicy() != null) {
+>       builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getPolicy());
+385d355
+<     builder.setRestoreDefault(orgPolicyProtobuf.getRestoreDefault());

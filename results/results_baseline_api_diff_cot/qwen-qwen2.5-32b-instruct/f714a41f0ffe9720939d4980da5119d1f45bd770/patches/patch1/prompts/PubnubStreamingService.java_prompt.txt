@@ -1,0 +1,271 @@
+ You are an advanced Automatic Program Repair (APR) tool specialized in fixing breaking dependency updates. Your task is to analyze client code that is failing due to changes in an external dependency's API and propose a fix that can be applied to the client code.
+First, review the following information:
+
+1. The client code that is failing:
+```java
+package info.bitrich.xchangestream.service.pubnub;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pubnub.api.PNConfiguration;
+import com.pubnub.api.PubNub;
+import com.pubnub.api.callbacks.SubscribeCallback;
+import com.pubnub.api.enums.PNStatusCategory;
+import com.pubnub.api.models.consumer.PNStatus;
+import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
+import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
+import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
+import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
+import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
+import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
+import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
+import io.reactivex.Completable;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/** Created by Lukas Zaoralek on 14.11.17. */
+public class PubnubStreamingService {
+  private static final Logger LOG = LoggerFactory.getLogger(PubnubStreamingService.class);
+
+  private final PubNub pubnub;
+  private PNStatusCategory pnStatusCategory;
+  private final Map<String, ObservableEmitter<JsonNode>> subscriptions = new ConcurrentHashMap<>();
+  private final ObjectMapper mapper;
+
+  public PubnubStreamingService(String publicKey) {
+    mapper = new ObjectMapper();
+    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    PNConfiguration pnConfiguration = new PNConfiguration();
+    pnConfiguration.setSubscribeKey(publicKey);
+    pubnub = new PubNub(pnConfiguration);
+    pnStatusCategory = PNStatusCategory.PNDisconnectedCategory;
+  }
+
+  public Completable connect() {
+    return Completable.create(
+        e -> {
+          pubnub.addListener(
+              new SubscribeCallback() {
+                @Override
+                public void status(PubNub pubNub, PNStatus pnStatus) {
+                  pnStatusCategory = pnStatus.getCategory();
+                  LOG.debug(
+                      "PubNub status: {} {}",
+                      pnStatusCategory.toString(),
+                      pnStatus.getStatusCode());
+                  if (pnStatusCategory == PNStatusCategory.PNConnectedCategory) {
+                    //              e.onComplete();
+                  } else if (pnStatus.isError()) {
+                    //              e.onError(pnStatus.getErrorData().getThrowable());
+                  }
+                }
+
+                @Override
+                public void message(PubNub pubNub, PNMessageResult pnMessageResult) {
+                  String channelName = pnMessageResult.getChannel();
+                  ObservableEmitter<JsonNode> subscription = subscriptions.get(channelName);
+                  LOG.debug("PubNub Message: {}", pnMessageResult.toString());
+                  if (subscription != null) {
+                    JsonNode jsonMessage = null;
+                    try {
+                      jsonMessage = mapper.readTree(pnMessageResult.getMessage().toString());
+                    } catch (IOException ex) {
+                      ex.printStackTrace();
+                    }
+                    subscription.onNext(jsonMessage);
+                  } else {
+                    LOG.debug("No subscriber for channel {}.", channelName);
+                  }
+                }
+
+                @Override
+                public void presence(PubNub pubNub, PNPresenceEventResult pnPresenceEventResult) {
+                  LOG.debug("PubNub presence: {}", pnPresenceEventResult.toString());
+                }
+
+                @Override
+                public void signal(PubNub pubnub, PNSignalResult pnSignalResult) {
+                  LOG.debug("PubNub signal: {}", pnSignalResult.toString());
+                }
+
+                @Override
+                public void user(PubNub pubnub, PNUserResult pnUserResult) {
+                  LOG.debug("PubNub user: {}", pnUserResult.toString());
+                }
+
+                @Override
+                public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
+                  LOG.debug("PubNub space: {}", pnSpaceResult.toString());
+                }
+
+                @Override
+                public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
+                  LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
+                }
+
+                @Override
+                public void messageAction(
+                    PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
+                  LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
+                }
+              });
+          e.onComplete();
+        });
+  }
+
+  public Observable<JsonNode> subscribeChannel(String channelName) {
+    LOG.info("Subscribing to channel {}.", channelName);
+    return Observable.<JsonNode>create(
+            e -> {
+              if (!subscriptions.containsKey(channelName)) {
+                subscriptions.put(channelName, e);
+                pubnub.subscribe().channels(Collections.singletonList(channelName)).execute();
+                LOG.debug("Subscribe channel: {}", channelName);
+              }
+            })
+        .doOnDispose(
+            () -> {
+              LOG.debug("Unsubscribe channel: {}", channelName);
+              pubnub.unsubscribe().channels(Collections.singletonList(channelName)).execute();
+            })
+        .share();
+  }
+
+  public Completable disconnect() {
+    return Completable.create(
+        completable -> {
+          pubnub.disconnect();
+          completable.onComplete();
+        });
+  }
+
+  public boolean isAlive() {
+    return (pnStatusCategory == PNStatusCategory.PNConnectedCategory);
+  }
+
+  public void useCompressedMessages(boolean compressedMessages) {
+    throw new UnsupportedOperationException();
+  }
+}
+
+```
+
+2. The error information:
+<error_information>
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[99,50] cannot find symbol
+</error_information>
+  symbol: class PNSpaceResult
+
+<error_information>
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[50,39] <anonymous info.bitrich.xchangestream.service.pubnub.PubnubStreamingService$1> is not abstract and does not override abstract method file(com.pubnub.api.PubNub,com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult) in com.pubnub.api.callbacks.SubscribeCallback
+</error_information>
+<error_information>
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[50,39] <anonymous info.bitrich.xchangestream.service.pubnub.PubnubStreamingService$1> is not abstract and does not override abstract method file(com.pubnub.api.PubNub,com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult) in com.pubnub.api.callbacks.SubscribeCallback
+</error_information>
+<error_information>
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[50,39] <anonymous info.bitrich.xchangestream.service.pubnub.PubnubStreamingService$1> is not abstract and does not override abstract method file(com.pubnub.api.PubNub,com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult) in com.pubnub.api.callbacks.SubscribeCallback
+</error_information>
+<error_information>
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[104,55] cannot find symbol
+</error_information>
+  symbol: class PNMembershipResult
+
+<error_information>
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[50,39] <anonymous info.bitrich.xchangestream.service.pubnub.PubnubStreamingService$1> is not abstract and does not override abstract method file(com.pubnub.api.PubNub,com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult) in com.pubnub.api.callbacks.SubscribeCallback
+</error_information>
+<error_information>
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[50,39] <anonymous info.bitrich.xchangestream.service.pubnub.PubnubStreamingService$1> is not abstract and does not override abstract method file(com.pubnub.api.PubNub,com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult) in com.pubnub.api.callbacks.SubscribeCallback
+</error_information>
+<error_information>
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[15,53] cannot find symbol
+</error_information>
+  symbol:   class PNMembershipResult
+  location: package com.pubnub.api.models.consumer.pubsub.objects
+
+<error_information>
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[17,53] cannot find symbol
+</error_information>
+  symbol:   class PNUserResult
+  location: package com.pubnub.api.models.consumer.pubsub.objects
+
+<error_information>
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[50,39] <anonymous info.bitrich.xchangestream.service.pubnub.PubnubStreamingService$1> is not abstract and does not override abstract method file(com.pubnub.api.PubNub,com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult) in com.pubnub.api.callbacks.SubscribeCallback
+</error_information>
+<error_information>
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[40,39] no suitable constructor found for PNConfiguration(no arguments)
+</error_information>
+    constructor com.pubnub.api.PNConfiguration.PNConfiguration(com.pubnub.api.UserId) is not applicable
+      (actual and formal argument lists differ in length)
+    constructor com.pubnub.api.PNConfiguration.PNConfiguration(java.lang.String) is not applicable
+      (actual and formal argument lists differ in length)
+
+<error_information>
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[98,17] method does not override or implement a method from a supertype
+</error_information>
+<error_information>
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[50,39] <anonymous info.bitrich.xchangestream.service.pubnub.PubnubStreamingService$1> is not abstract and does not override abstract method file(com.pubnub.api.PubNub,com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult) in com.pubnub.api.callbacks.SubscribeCallback
+</error_information>
+<error_information>
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[94,49] cannot find symbol
+</error_information>
+  symbol: class PNUserResult
+
+<error_information>
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[93,17] method does not override or implement a method from a supertype
+</error_information>
+<error_information>
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[16,53] cannot find symbol
+</error_information>
+  symbol:   class PNSpaceResult
+  location: package com.pubnub.api.models.consumer.pubsub.objects
+
+
+3. The changes in the API of the dependency:
+<api_changes>
+     Class com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult has been removed in the new version of the dependency.
+     Interface com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult has been removed in the new version of the dependency.
+     Interface com.pubnub.api.models.consumer.pubsub.PNMessageResult has been removed in the new version of the dependency.
+     Class com.pubnub.api.models.consumer.pubsub.objects.PNUserResult has been removed in the new version of the dependency.
+     Class com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult has been removed in the new version of the dependency.
+     Type reference com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult(com.pubnub.api.models.consumer.pubsub.BasePubSubResult,java.lang.String,com.pubnub.api.models.consumer.objects_api.membership.PNMembership) has been added in the new version of the dependency.
+     Interface com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult has been added in the new version of the dependency.
+     Interface com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult has been removed in the new version of the dependency.
+     Interface com.pubnub.api.models.consumer.pubsub.PNSignalResult has been removed in the new version of the dependency.
+     Constructor com.pubnub.api.PNConfiguration() has been removed in the new version of the dependency.
+     Construct com.pubnub.api.PNConfiguration(com.pubnub.api.UserId) has been added in the new version of the dependency.
+     Field com.pubnub.api.PNConfiguration(java.lang.String) has been added in the new version of the dependency.
+
+</api_changes>
+
+
+
+Before proposing a fix, please analyze the situation and plan your approach within <repair_strategy> tags:
+
+1. Identify the specific API changes that are causing the failure in the client code.
+2. Compare the old and new API versions, noting any changes in method signatures, return types, or parameter lists.
+3. Determine which parts of the client code need to be updated to accommodate these API changes.
+4. Consider any constraints or requirements for the fix (e.g., not changing function signatures, potential import adjustments).
+5. Plan the minimal set of changes needed to fix the issue while keeping the code functional and compliant with the new API.
+6. Consider potential side effects of the proposed changes on other parts of the code.
+7. Ensure that the planned changes will result in a complete and compilable class.
+8. If applicable, note any additional imports that may be needed due to the API changes.
+
+Now, implement your fix based on your analysis. When creating your solution, adhere to the following guidelines:
+
+1. Provide a complete and compilable class in a fenced code block.
+2. Do not remove any code that you don't want to update; keep it in the code block.
+3. Do not use placeholders like "// ... (rest of the code remains unchanged)" in your response.
+4. You CANNOT change the function signature of any method, but you may create variables if it simplifies the code.
+5. You CAN remove the @Override annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+6. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+7. Avoid removing any existing code unless it directly causes a compilation or functionality error.
+8. Ensure that your fix addresses the breaking dependency update and returns the whole class, as per the user's feedback.
+
+Return only the fixed class, ensuring it fully compiles and adheres to these constraints. Begin your response with the fenced code block containing the complete, fixed class.

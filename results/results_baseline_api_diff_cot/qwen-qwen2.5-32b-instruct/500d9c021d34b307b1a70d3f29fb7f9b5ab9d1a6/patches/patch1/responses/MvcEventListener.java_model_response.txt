@@ -1,0 +1,48 @@
+```java
+package com.example;
+
+import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+import jakarta.mvc.event.AfterControllerEvent;
+import jakarta.mvc.event.AfterProcessViewEvent;
+import jakarta.mvc.event.BeforeControllerEvent;
+import jakarta.mvc.event.BeforeProcessViewEvent;
+import jakarta.mvc.event.ControllerRedirectEvent;
+
+@ApplicationScoped
+public class MvcEventListener {
+
+    @Inject
+    Logger LOGGER;
+
+    private void onControllerMatched(@Observes BeforeControllerEvent event) {
+        LOGGER.info(() -> "Controller matched for " + event.getUriInfo().getRequestUri());
+    }
+
+    private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
+        LOGGER.info(() -> "View engine: " + event.getEngine());
+    }
+
+    private void onAfterControllerEvent(@Observes AfterControllerEvent event) {
+        LOGGER.info(() -> "AfterControllerEvent:: " + event.getResourceInfo());
+    }
+
+    private void onAfterProcessViewEvent(@Observes AfterProcessViewEvent event) {
+        LOGGER.info(() -> "AfterProcessViewEvent:: " + event);
+    }
+
+    private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
+        LOGGER.info(() -> "ControllerRedirectEvent:: " + event);
+    }
+
+    @PostConstruct
+    private void init() {
+        LOGGER.config(() -> this.getClass().getSimpleName() + " created");
+    }
+}
+```
+
+The above solution addresses the dependency update by replacing the old `javax.mvc.event` imports with the new `jakarta.mvc.event` imports. It also ensures that the methods that were using the old classes are updated to use the new interfaces, which have the same method signatures as the old classes. This ensures that the client code remains functional and compiles correctly with the updated dependency.

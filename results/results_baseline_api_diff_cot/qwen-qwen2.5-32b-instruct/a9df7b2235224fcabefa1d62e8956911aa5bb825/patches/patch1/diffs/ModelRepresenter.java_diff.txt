@@ -1,0 +1,65 @@
+22a23,24
+> import org.yaml.snakeyaml.introspector.BeanAccess;
+> import org.yaml.snakeyaml.introspector.PropertyUtils;
+94d95
+< 
+107a109
+> 
+122,131d123
+<           boolean isList = singularName != null;
+<           if (isList) { // check for eventual list construction
+<             for (int j = 0, grandChildCount = child.getChildCount(); j < grandChildCount; j++) {
+<               String grandChildName = child.getChild(j).getName();
+<               isList &= grandChildName.equals(singularName);
+<             }
+<           }
+<           if (isList) {
+<             childValue = toList(child, singularName);
+<           } else {
+134d125
+<         }
+144,165d134
+< 
+<     private List<Object> toList(Xpp3Dom node, String childName) {
+<       List<Object> list = new ArrayList<>();
+< 
+<       int n = node.getChildCount();
+<       for (int i = 0; i < n; i++) {
+<         Xpp3Dom child = node.getChild(i);
+< 
+<         if (!childName.equals(child.getName())) {
+<           throw new YAMLException(format("child name: '%s' does not match expected name: '%s' at node %s",
+<               child.getName(), childName, node));
+<         }
+< 
+<         Object childValue = child.getValue();
+<         if (childValue == null) {
+<           childValue = toMap(child);
+<         }
+<         list.add(childValue);
+<       }
+< 
+<       return list;
+<     }
+214,219c183
+<   /*
+<    * Change the default order. Important data goes first.
+<    */
+<   @Override
+<   protected Set<Property> getProperties(Class<? extends Object> type)
+<           throws IntrospectionException {
+---
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+231c195
+<       return super.getProperties(type);
+---
+>       return PropertyUtils.getProperties(type, BeanAccess.FIELD);
+235,238c199,201
+<   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+<           throws IntrospectionException {
+<       Set<Property> standard = super.getProperties(type);
+<       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
+---
+>   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+>     Set<Property> standard = PropertyUtils.getProperties(type, BeanAccess.FIELD);
+>     Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));

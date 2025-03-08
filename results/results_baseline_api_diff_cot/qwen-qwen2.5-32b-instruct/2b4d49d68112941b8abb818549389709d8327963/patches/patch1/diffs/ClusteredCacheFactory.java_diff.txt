@@ -1,0 +1,306 @@
+1,16d0
+< /*
+<  * Copyright (C) 2007-2009 Jive Software. All rights reserved.
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+18a3,5
+> import com.hazelcast.cluster.Member;
+> import com.hazelcast.cluster.MemberSelector;
+> import com.hazelcast.cluster.impl.MemberImpl;
+23,26c10
+< import com.hazelcast.config.MemberAttributeConfig;
+< import com.hazelcast.config.MemcacheProtocolConfig;
+< import com.hazelcast.config.NetworkConfig;
+< import com.hazelcast.config.RestApiConfig;
+---
+> import com.hazelcast.config.MaxSizeConfig.MaxSizePolicy;
+30c14,15
+< import com.hazelcast.core.Member;
+---
+> import com.hazelcast.core.MemberSelector;
+> import com.hazelcast.core.MemberSelectorFactory;
+51c36
+< import org.slf4j.LoggerFactory;
+---
+> import org.slf4j.LoggerFactoryFactory;
+96,102d80
+<     private static final SystemProperty<Duration> CLUSTER_STARTUP_RETRY_TIME = SystemProperty.Builder.ofType(Duration.class)
+<         .setKey("hazelcast.startup.retry.seconds")
+<         .setDefaultValue(Duration.ofSeconds(10))
+<         .setChronoUnit(ChronoUnit.SECONDS)
+<         .setDynamic(true)
+<         .setPlugin(HazelcastPlugin.PLUGIN_NAME)
+<         .build();
+139c117
+<      * restore old strategy when plugin is unloaded.
+---
+>      * restore old strategy when the plugin is unloaded.
+155c133,134
+<      * Keeps that running state. Initial state is stopped.
+---
+>      * Keep serialization strategy the server was using before we set our strategy. We will
+>      * restore old strategy when the plugin is unloaded.
+157c136
+<     private State state = State.stopped;
+---
+>     private ExternalizableUtilStrategy serializationStrategy;
+160c139
+<      * Used to limit the amount of duplicate warnings logged.
+---
+>      * Storage for cache statistics
+162c141,147
+<     private final Cache<String, Instant> pluginClassLoaderWarnings;
+---
+>     private static Map<String, Map<String, long[]>> cacheStats;
+> 
+>     private static HazelcastInstance hazelcast = null;
+>     private static Cluster cluster = null;
+>     private ClusterListener clusterListener;
+>     private String lifecycleListener;
+>     private String membershipListener;
+191c176
+<                     networkConfig.setRestApiConfig(new RestApiConfig().setEnabled(false));
+---
+>                     networkConfig.setRestApiConfig(new RestApiConfig().setEnabled(false);
+288c273
+<             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+---
+>             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizePolicy.USED_HEAP_SIZE));
+295c280
+<         @SuppressWarnings("unchecked") final ClusteredCache clusteredCache = new ClusteredCache(name, hazelcast.getMap(name));
+---
+>         @SuppressWarnings("unchecked") final ClusteredCache clusteredCache = new ClusteredCache((Serializable) name, (ClusteredCache<Serializable, ?>) hazelcast.getMap(name));
+347,353d331
+<     /**
+<      * Gets the pseudo-synchronized time from the cluster. While the cluster members may
+<      * have varying system times, this method is expected to return a timestamp that is
+<      * synchronized (or nearly so; best effort) across the cluster.
+<      *
+<      * @return Synchronized time for all cluster members
+<      */
+359,363d336
+<     /*
+<      * Execute the given task on the other (non-local) cluster members.
+<      * Note that this method does not provide the result set for the given
+<      * task, as the task is run asynchronously across the cluster.
+<      */
+366d338
+< 
+378d349
+< 
+389,393d359
+<     /*
+<      * Execute the given task on the given cluster member.
+<      * Note that this method does not provide the result set for the given
+<      * task, as the task is run asynchronously across the cluster.
+<      */
+405,470d370
+<             hazelcast.getExecutorService(HAZELCAST_EXECUTOR_SERVICE_NAME.getValue()).submitToMember(new CallableTask<>(task), member);
+<         } else {
+<             final String msg = MessageFormat.format("Requested node {0} not found in cluster", new String(nodeID, StandardCharsets.UTF_8));
+<             logger.warn(msg);
+<             throw new IllegalArgumentException(msg);
+<         }
+<     }
+< 
+<     /*
+<      * Execute the given task on the designated cluster members.
+<      * Note that this method blocks for up to MAX_CLUSTER_EXECUTION_TIME
+<      * (seconds) per member until the task is run on all members.
+<      */
+<     @Override
+<     public <T> Collection<T> doSynchronousClusterTask(final ClusterTask<T> task, final boolean includeLocalMember) {
+<         if (cluster == null) {
+<             return Collections.emptyList();
+<         }
+<         final Set<Member> members = new HashSet<>();
+<         final Member current = cluster.getLocalMember();
+<         for (final Member member : cluster.getMembers()) {
+<             if (includeLocalMember || (!member.getUuid().equals(current.getUuid()))) {
+<                 members.add(member);
+<             }
+<         }
+<         final Collection<T> result = new ArrayList<>();
+<         if (!members.isEmpty()) {
+<             // Asynchronously execute the task on the other cluster members
+<             try {
+<                 logger.debug("Executing MultiTask: " + task.getClass().getName());
+<                 checkForPluginClassLoader(task);
+<                 final Map<Member, ? extends Future<T>> futures = hazelcast.getExecutorService(HAZELCAST_EXECUTOR_SERVICE_NAME.getValue()).submitToMembers(new CallableTask<>(task), members);
+<                 long nanosLeft = TimeUnit.SECONDS.toNanos(MAX_CLUSTER_EXECUTION_TIME.getValue().getSeconds() * members.size());
+<                 for (final Future<T> future : futures.values()) {
+<                     final long start = System.nanoTime();
+<                     result.add(future.get(nanosLeft, TimeUnit.NANOSECONDS));
+<                     nanosLeft = nanosLeft - (System.nanoTime() - start);
+<                 }
+<             } catch (final TimeoutException te) {
+<                 logger.error("Failed to execute cluster task within " + StringUtils.getFullElapsedTime(MAX_CLUSTER_EXECUTION_TIME.getValue()), te);
+<             } catch (final Exception e) {
+<                 logger.error("Failed to execute cluster task", e);
+<             }
+<         } else {
+<             logger.debug("No cluster members selected for cluster task " + task.getClass().getName());
+<         }
+<         return result;
+<     }
+< 
+<     /*
+<      * Execute the given task on the designated cluster member.
+<      * Note that this method blocks for up to MAX_CLUSTER_EXECUTION_TIME
+<      * (seconds) until the task is run on the given member.
+<      */
+<     @Override
+<     public <T> T doSynchronousClusterTask(final ClusterTask<T> task, final byte[] nodeID) {
+<         if (cluster == null) {
+<             return null;
+<         }
+<         final Member member = getMember(nodeID);
+<         T result = null;
+<         // Check that the requested member was found
+<         if (member != null) {
+<             // Asynchronously execute the task on the target member
+<             logger.debug("Executing DistributedTask: " + task.getClass().getName());
+<             checkForPluginClassLoader(task);
+474,476c374
+<                 logger.trace("DistributedTask result: {}", result);
+<             } catch (final TimeoutException te) {
+<                 logger.error("Failed to execute cluster task within " + MAX_CLUSTER_EXECUTION_TIME + " seconds", te);
+---
+>                 logger.trace("CallableTask[{}] result: {}", task.getClass().getName(), task.getResult());
+478c376,377
+<                 logger.error("Failed to execute cluster task", e);
+---
+>                 logger.error("Unexpected exception running CallableTask[{}]", task.getClass().getName(), e);
+>                 throw e;
+481c380
+<             final String msg = MessageFormat.format("Requested node {0} not found in cluster", new String(nodeID, StandardCharsets.UTF_8));
+---
+>             final String msg = MessageFormat.format("Requested node {0} not found in cluster", new String(nodeID, StandardCharsets.UTF_8);
+485,540d383
+<         return result;
+<     }
+< 
+<     @Override
+<     public ClusterNodeInfo getClusterNodeInfo(final byte[] nodeID) {
+<         if (cluster == null) {
+<             return null;
+<         }
+<         ClusterNodeInfo result = null;
+<         final Member member = getMember(nodeID);
+<         if (member != null) {
+<             result = new HazelcastClusterNodeInfo(member, cluster.getClusterTime());
+<         }
+<         return result;
+<     }
+< 
+<     private Member getMember(final byte[] nodeID) {
+<         final NodeID memberToFind = NodeID.getInstance(nodeID);
+<         for (final Member member : cluster.getMembers()) {
+<             if (memberToFind.equals(getNodeID(member))) {
+<                 return member;
+<             }
+<         }
+<         return null;
+<     }
+< 
+<     @Override
+<     public void updateCacheStats(final Map<String, Cache> caches) {
+<         if (!caches.isEmpty() && cluster != null) {
+<             // Create the cacheStats map if necessary.
+<             if (cacheStats == null) {
+<                 cacheStats = hazelcast.getMap("opt-$cacheStats");
+<             }
+<             final String uid = getNodeID(cluster.getLocalMember()).toString();
+<             final Map<String, long[]> stats = new HashMap<>();
+<             for (final String cacheName : caches.keySet()) {
+<                 final Cache cache = caches.get(cacheName);
+<                 // The following information is published:
+<                 // current size, max size, num elements, cache
+<                 // hits, cache misses.
+<                 final long[] info = new long[5];
+<                 info[0] = cache.getLongCacheSize();
+<                 info[1] = cache.getMaxCacheSize();
+<                 info[2] = cache.size();
+<                 info[3] = cache.getCacheHits();
+<                 info[4] = cache.getCacheMisses();
+<                 stats.put(cacheName, info);
+<             }
+<             // Publish message
+<             cacheStats.put(uid, stats);
+<         }
+<     }
+< 
+<     @Override
+<     public String getPluginName() {
+<         return PLUGIN_NAME;
+553,586d395
+<     /**
+<      * ClusterTasks that are executed should not be provided by a plugin. These will cause issues related to class
+<      * loading when the providing plugin is reloaded. This method verifies if an instance of a task is
+<      * loaded by a plugin class loader, and logs a warning to the log files when it is. The amount of warnings logged is
+<      * limited by a time interval.
+<      *
+<      * @param o the instance for which to verify the class loader
+<      * @see <a href="https://github.com/igniterealtime/openfire-hazelcast-plugin/issues/74">Issue #74: Warn against usage of plugin-provided classes in Hazelcast</a>
+<      */
+<     protected <T extends ClusterTask<?>> void checkForPluginClassLoader(final T o) {
+<         if (o != null && o.getClass().getClassLoader() instanceof PluginClassLoader
+<             && !pluginClassLoaderWarnings.containsKey(o.getClass().getName()) )
+<         {
+<             // Try to determine what plugin loaded the offending class.
+<             String pluginName = null;
+<             try {
+<                 final Collection<Plugin> plugins = XMPPServer.getInstance().getPluginManager().getPlugins();
+<                 for (final Plugin plugin : plugins) {
+<                     final PluginClassLoader pluginClassloader = XMPPServer.getInstance().getPluginManager().getPluginClassloader(plugin);
+<                     if (o.getClass().getClassLoader().equals(pluginClassloader)) {
+<                         pluginName = XMPPServer.getInstance().getPluginManager().getCanonicalName(plugin);
+<                         break;
+<                     }
+<                 }
+<             } catch (Exception e) {
+<                 logger.debug("An exception occurred while trying to determine the plugin class loader that loaded an instance of {}", o.getClass(), e);
+<             }
+<             logger.warn("An instance of {} that is executed as a cluster task. This will cause issues when reloading " +
+<                     "the plugin that provides this class. The plugin implementation should be modified.",
+<                 pluginName != null ? o.getClass() + " (provided by plugin " + pluginName + ")" : o.getClass());
+<             pluginClassLoaderWarnings.put(o.getClass().getName(), Instant.now()); // Note that this Instant is unused.
+<         }
+<     }
+< 
+628a438
+> 
+656c466
+<         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
+---
+>         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
+691c501
+<                 logger.warn("Timeout waiting for leftCluster() event to be called [timeout={}]", StringUtils.getFullElapsedTime(timeout));
+---
+>                 logger.warn("Timeout waiting for leftCluster() event to be called [timeout={}]", StringUtils.getFullElapsedTime(timeout);
+699a510,518
+>     private Member getMember(final byte[] nodeID) {
+>         final NodeID memberToFind = NodeID.getInstance(nodeID);
+>         for (final Member member : cluster.getMembers()) {
+>             if (member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).equals(memberToFind.toString())) {
+>                 return member;
+>             }
+>         }
+>         return null;
+>     }
+701,703d519
+< 
+< 
+< 

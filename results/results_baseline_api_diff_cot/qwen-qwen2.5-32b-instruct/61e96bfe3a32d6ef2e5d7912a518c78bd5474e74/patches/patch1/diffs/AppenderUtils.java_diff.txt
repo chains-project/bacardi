@@ -1,0 +1,70 @@
+1,15d0
+< /**
+<  * Copyright 2019 Pinterest, Inc.
+<  * 
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  * 
+<  *    http://www.apache.org/licenses/LICENSE-2.0
+<  * 
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+22c7
+< import ch.qos.logback.core.encoder.EncoderBase;
+---
+> import ch.qos.logback.core.encoder.Encoder;
+51c36
+<   public static class LogMessageEncoder extends EncoderBase<LogMessage> {
+---
+>   public static class LogMessageEncoder implements Encoder<LogMessage> {
+58,65c43,51
+<     public void init(OutputStream os) {
+<       this.os = os;
+<       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
+<       // log.
+<       final int bufferCapacity = 10;
+<       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
+<           bufferCapacity);
+<       protocol = new TBinaryProtocol(framedTransport);
+---
+>     public void start() {
+>       // No-op
+>     }
+> 
+>     @Override
+>     public void stop() {
+>       if (framedTransport != null) {
+>         framedTransport.close();
+>       }
+79,80c65,81
+<     public void close() throws IOException {
+<       framedTransport.close();
+---
+>     public byte[] headerBytes() {
+>       return new byte[0];
+>     }
+> 
+>     @Override
+>     public byte[] footerBytes() {
+>       return new byte[0];
+>     }
+> 
+>     public void init(OutputStream os) {
+>       this.os = os;
+>       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
+>       // log.
+>       final int bufferCapacity = 10;
+>       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
+>           bufferCapacity);
+>       protocol = new TBinaryProtocol(framedTransport);
+104a106
+>     encoder.init(null); // Initialize with null, as the actual initialization should be handled elsewhere
+108c110
+<     TimeBasedRollingPolicy policy = new TimeBasedRollingPolicy();
+---
+>     TimeBasedRollingPolicy<LogMessage> policy = new TimeBasedRollingPolicy<>();

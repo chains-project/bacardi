@@ -1,0 +1,131 @@
+3c3
+< import develop.p2p.lib.*;
+---
+> import tokyo.peya.lib.WaveCreator; // Adjusted import for the new WaveCreator class
+62,156d61
+<         final double range = reachMode ? config.getDouble("npc.reachPanicRange"): config.getDouble("npc.panicRange");
+<         final double[] clt = {0.0};
+<         final int[] now = {0};
+< 
+<         PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
+< 
+<         int sec = config.getInt("npc.seconds");
+< 
+<         new BukkitRunnable()
+<         {
+<             @Override
+<             public void run()
+<             {
+<                 now[0]++;
+< 
+<                 connection.sendPacket(new PacketPlayOutAnimation(((CraftPlayer) player).getHandle(), 1));
+< 
+<                 HashMap<String, Object> map = new HashMap<>();
+<                 map.put("hit", now[0]);
+<                 map.put("max", count);
+< 
+<                 sender.sendMessage(get("message.auraCheck.panic.lynx", map));
+<                 if (now[0] >= count)
+<                     this.cancel();
+<             }
+<         }.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, (long) (10 * ((1.5 / count) * sec)));
+< 
+< 
+<         new BukkitRunnable()
+<         {
+<             public void run()
+<             {
+<                 for (double i = 0; i < Math.PI * 2; i++)
+<                 {
+<                     Location center = player.getLocation();
+< 
+<                     if (center.getPitch() <= 0.0f || center.getPitch() > 15.0f)
+<                         center.setPitch(0.0f);
+< 
+<                     Location n = center.add(center.getDirection().multiply(0 - range));
+< 
+<                     n.setY(center.getY() + range);
+< 
+<                     n.setPitch(50);
+< 
+<                     float head = ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f;
+< 
+<                     if (head < 0)
+<                         head *= 2;
+< 
+<                     NPC.setLocation(n, target);
+<                     connection.sendPacket(new PacketPlayOutEntityTeleport(target));
+<                     connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) head));
+< 
+<                     NPC.setArmor(player, target, arm);
+<                     float finalHead = head;
+<                     new BukkitRunnable()
+<                     {
+<                         @Override
+<                         public void run()
+<                         {
+<                             Bukkit.getOnlinePlayers().parallelStream().filter(p -> p.hasPermission("psac.viewnpc"))
+<                                 .forEachOrdered(p ->
+<                                 {
+<                                     ((CraftPlayer) p).getHandle().playerConnection
+<                                         .sendPacket(new PacketPlayOutEntityTeleport(target));
+<                                     ((CraftPlayer) p).getHandle().playerConnection
+<                                         .sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) finalHead));
+<                                     NPC.setArmor(p, target, arm);
+<                                 });
+<                             this.cancel();
+<                         }
+<                     }.runTask(PeyangSuperbAntiCheat.getPlugin());
+<                 }
+< 
+<                 clt[0] += 0.035;
+<                 if (clt[0] >= sec)
+<                 {
+<                     Variables.logger.info("Finished");
+<                     this.cancel();
+<                 }
+<             }
+<         }.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, 1);
+<     }
+< 
+<     /**
+<      * AuraBotのテレポート。
+<      *
+<      * @param player    プレイヤー。
+<      * @param target    ターゲット。
+<      * @param arm       装備。
+<      * @param reachMode リーチモードかどうか。
+<      */
+<     private static void auraBotTeleport(Player player, EntityPlayer target, ItemStack[] arm, boolean reachMode)
+<     {
+158,159c63
+<         final double radius = reachMode ? config.getDouble("npc.reachRange"): config.getDoubleList("npc.range")
+<             .get(new Random().nextInt(config.getDoubleList("npc.range").size()));
+---
+>         final double radius = reachMode ? config.getDouble("npc.reachPanicRange"): config.getDouble("npc.panicRange");
+161c65
+<         WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
+---
+>         WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0); // Adjusted to use the new WaveCreator class
+163c67
+<         final int[] count = {0};
+---
+>         final int[] now = {0};
+180c84
+<                             .get(0.01, true);
+---
+>                             .get(0.01, true); // Adjusted to use the new WaveCreator class
+186c90
+<                         center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
+---
+>                         center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20), // Adjusted to use the new WaveCreator class
+188,189c92,93
+<                         (float) ypp.getStatic(),
+<                         (float) ypp.get(4.5, false)
+---
+>                         (float) ypp.get(0.01, false), // Adjusted to use the new WaveCreator class
+>                         (float) ypp.get(4.5, false) // Adjusted to use the new WaveCreator class
+220c124
+<                     ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
+---
+>                     ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true) // Adjusted to use the new WaveCreator class

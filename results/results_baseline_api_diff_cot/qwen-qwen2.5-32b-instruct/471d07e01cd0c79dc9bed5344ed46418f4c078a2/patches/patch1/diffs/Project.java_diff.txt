@@ -1,0 +1,121 @@
+1,16d0
+< /*
+<  * Copyright 2015 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+21a6,14
+> import com.google.cloud.resourcemanager.v3.ProjectName;
+> import com.google.cloud.resourcemanager.v3.ProjectsClient;
+> import com.google.cloud.resourcemanager.v3.Project;
+> import com.google.cloud.resourcemanager.v3.GetProjectRequest;
+> import com.google.cloud.resourcemanager.v3.GetIamPolicyRequest;
+> import com.google.cloud.resourcemanager.v3.SetIamPolicyRequest;
+> import com.google.cloud.resourcemanager.v3.TestIamPermissionsRequest;
+> import com.google.cloud.resourcemanager.v3.TestIamPermissionsResponse;
+> import com.google.iam.v1.Policy as IamPolicy;
+128c121,123
+<   /** Returns the {@link ResourceManager} service object associated with this Project. */
+---
+>   /**
+>    * Returns the {@link ResourceManager} service object associated with this Project.
+>    */
+146,161d140
+<    * <p>This method will only affect the project if the following criteria are met:
+<    *
+<    * <ul>
+<    *   <li>The project does not have a billing account associated with it.
+<    *   <li>The project has a lifecycle state of {@link ProjectInfo.State#ACTIVE}.
+<    * </ul>
+<    *
+<    * This method changes the project's lifecycle state from {@link ProjectInfo.State#ACTIVE} to
+<    * {@link ProjectInfo.State#DELETE_REQUESTED}. The deletion starts at an unspecified time, at
+<    * which point the lifecycle state changes to {@link ProjectInfo.State#DELETE_IN_PROGRESS}. Until
+<    * the deletion completes, you can check the lifecycle state checked by retrieving the project
+<    * with {@link ResourceManager#get}, and the project remains visible to {@link
+<    * ResourceManager#list}. However, you cannot update the project. After the deletion completes,
+<    * the project is not retrievable by the {@link ResourceManager#get} and {@link
+<    * ResourceManager#list} methods. The caller must have modify permissions for this project.
+<    *
+163,165d141
+<    * @see <a href=
+<    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/delete">Cloud
+<    *     Resource Manager delete</a>
+174,193c150
+<    * <p>You can only use this method for a project that has a lifecycle state of {@link
+<    * ProjectInfo.State#DELETE_REQUESTED}. After deletion starts, as indicated by a lifecycle state
+<    * of {@link ProjectInfo.State#DELETE_IN_PROGRESS}, the project cannot be restored. The caller
+<    * must have modify permissions for this project.
+<    *
+<    * @throws ResourceManagerException upon failure (including when the project can't be restored)
+<    * @see <a href=
+<    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/undelete">Cloud
+<    *     Resource Manager undelete</a>
+<    */
+<   public void undelete() {
+<     resourceManager.undelete(getProjectId());
+<   }
+< 
+<   /**
+<    * Replaces the attributes of the project with the attributes of this project.
+<    *
+<    * <p>The caller must have modify permissions for this project.
+<    *
+<    * @return the Project representing the new project metadata
+---
+>    * @return the newly set IAM policy for this project
+195,197d151
+<    * @see <a href=
+<    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/update">Cloud
+<    *     Resource Manager update</a>
+199,200c153,154
+<   public Project replace() {
+<     return resourceManager.replace(this);
+---
+>   public Policy replacePolicy(Policy newPolicy) {
+>     return resourceManager.replacePolicy(getProjectId(), newPolicy);
+209,211d162
+<    * @see <a href=
+<    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/getIamPolicy">
+<    *     Resource Manager getIamPolicy</a>
+218,220c169
+<    * Sets the IAM access control policy for this project. Replaces any existing policy. It is
+<    * recommended that you use the read-modify-write pattern. See code samples and important details
+<    * of replacing policies in the documentation for {@link ResourceManager#replacePolicy}.
+---
+>    * Sets the IAM access control policy for this project. Replaces any existing policy.
+224,226d172
+<    * @see <a href=
+<    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/setIamPolicy">
+<    *     Resource Manager setIamPolicy</a>
+233,239c179
+<    * Returns the permissions that a caller has on this project. You typically don't call this method
+<    * if you're using Google Cloud Platform directly to manage permissions. This method is intended
+<    * for integration with your proprietary software, such as a customized graphical user interface.
+<    * For example, the Cloud Platform Console tests IAM permissions internally to determine which UI
+<    * should be available to the logged-in user. Each service that supports IAM lists the possible
+<    * permissions; see the <i>Supported Cloud Platform services</i> page below for links to these
+<    * lists.
+---
+>    * Returns the permissions that a caller has on this project.
+244,248d183
+<    * @see <a href=
+<    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/testIamPermissions">
+<    *     Resource Manager testIamPermissions</a>
+<    * @see <a href= "https://cloud.google.com/iam/#supported_cloud_platform_services">Supported Cloud
+<    *     Platform Services</a>
+283c218
+<       com.google.api.services.cloudresourcemanager.model.Project answer) {
+---
+>       com.google.cloud.resourcemanager.v3.Project answer) {

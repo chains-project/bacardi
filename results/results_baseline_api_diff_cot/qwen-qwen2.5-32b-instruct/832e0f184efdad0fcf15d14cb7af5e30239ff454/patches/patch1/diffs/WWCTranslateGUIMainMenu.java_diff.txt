@@ -1,0 +1,93 @@
+44d43
+<         /* Get translation info */
+73,74c72,80
+<                         translationMeta.setDisplayName(
+<                                         CommonDefinitions.getMessage("wwctGUITranslationButton"));
+---
+>                         if (!main.getActiveTranslator(targetPlayerUUID).getUUID().equals("")) {
+>                                 translationMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+>                                 translationMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+>                                 translationMeta.setDisplayName(ChatColor.GREEN
+>                                                 + CommonDefinitions.getMessage("wwctGUITranslationButton"));
+>                         } else {
+>                                 translationMeta.setDisplayName(ChatColor.YELLOW
+>                                                 + CommonDefinitions.getMessage("wwctGUITranslationButton"));
+>                         }
+86,91c92,94
+<                                 translationMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+<                                 translationMeta.setDisplayName(CommonDefinitions.getMessage("wwctGUIExistingTranslationButton"));
+<                                 List<String> outLore = new ArrayList<>();
+<                                 outLore.add(ChatColor.LIGHT_PURPLE + CommonDefinitions.getMessage("wwctGUIExistingTranslationInput", new String[] {ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + targetTranslator.getInLangCode()}));
+<                                 outLore.add(ChatColor.LIGHT_PURPLE + CommonDefinitions.getMessage("wwctGUIExistingTranslationOutput", new String[] {ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + targetTranslator.getOutLangCode()}));
+<                                 translationMeta.setLore(outLore);
+---
+>                                 translationMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+>                                 translationMeta.setDisplayName(ChatColor.GREEN
+>                                                 + CommonDefinitions.getMessage("wwctGUITranslationButton"));
+103,104c106
+<                                                 args = new String[] { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName(),
+<                                                                 "stop" };
+---
+>                                                 args = new String[] { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName(), "stop" };
+109c111
+<                                                 WWCTranslate translate = new WWCGlobal((CommandSender) player, null, null, args);
+---
+>                                                 WWCGlobal translate = new WWCGlobal((CommandSender) player, null, null, args);
+121,122d122
+<                                         ConversationFactory rateConvo = new ConversationFactory(main).withModality(true)
+<                                                         .withFirstPrompt(new RateLimitConversation(targetTranslator));
+127c127
+<                                                 rateMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+---
+>                                                 rateMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+135a136,137
+>                                                 ConversationFactory rateConvo = new ConversationFactory(main).withModality(true)
+>                                                                 .withFirstPrompt(new RateLimitConversation(targetTranslator));
+145a148,149
+>                                                 bookMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+>                                                 bookMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+148,149d151
+<                                                 bookMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+<                                                 bookMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+166d167
+<                                         /* Init item, ensure pre-1.14 compatibility */
+169a171,172
+>                                                 signMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+>                                                 signMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+172,173d174
+<                                                 signMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+<                                                 signMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+192a194,195
+>                                                 itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+>                                                 itemMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+195,196d197
+<                                                 itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+<                                                 itemMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+217c218
+<                                                 entityMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+---
+>                                                 entityMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+226c227
+<                                                 String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).getName() };
+---
+>                                                 String[] args = { main.getServer().getPlayer(UUID.fromString(targetPlayerUUID)).name(), "stop" };
+235,237c236,238
+<                                                 && ((targetPlayerUUID.equals(player.getUniqueId().toString()) && (player.hasPermission("worldwidechat.wwctco") || player.hasPermission("worldwidechat.wwctci"))) 
+<                                                                 || (!targetPlayerUUID.equals(player.getUniqueId().toString()) && (player.hasPermission("worldwidechat.wwctco.otherplayers") || player.hasPermission("worldwidechat.wwctci.otherplayers"))))) {
+<                                         ItemStack chatButton = XMaterial.PAINTING.parseItem();
+---
+>                                                 && player.hasPermission("worldwidechat.wwctc")
+>                                                 && (player.hasPermission("worldwidechat.wwctc.otherplayers") || player.getUniqueId().toString().equals(targetPlayerUUID))) {
+>                                         ItemStack chatButton = XMaterial.PAPER.parseItem();
+239c240
+<                                         if (targetTranslator.getTranslatingChatOutgoing() || targetTranslator.getTranslatingChatIncoming()) {
+---
+>                                         if (targetTranslator.getTranslatingChat()) {
+241,245c242
+<                                                 chatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+<                                                 List<String> outLoreChat = new ArrayList<>();
+<                                                 outLoreChat.add(ChatColor.LIGHT_PURPLE + CommonDefinitions.getMessage("wwctGUIExistingChatIncomingEnabled", new String[] {ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + targetTranslator.getTranslatingChatIncoming()}));
+<                                                 outLoreChat.add(ChatColor.LIGHT_PURPLE + CommonDefinitions.getMessage("wwctGUIExistingChatOutgoingEnabled", new String[] {ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + targetTranslator.getTranslatingChatOutgoing()}));
+<                                                 chatMeta.setLore(outLoreChat);
+---
+>                                                 chatMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);

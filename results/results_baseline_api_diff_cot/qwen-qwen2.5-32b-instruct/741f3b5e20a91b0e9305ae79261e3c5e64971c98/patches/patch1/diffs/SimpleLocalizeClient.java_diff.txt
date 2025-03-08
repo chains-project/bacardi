@@ -1,0 +1,33 @@
+3a4,7
+> import com.fasterxml.jackson.databind.JavaType;
+> import com.fasterxml.jackson.core.type.TypeReference;
+> import com.fasterxml.jackson.databind.JsonNode;
+> import com.fasterxml.jackson.databind.ObjectReader;
+14a19,20
+> import java.io.InputStream;
+> import java.io.Reader;
+22d27
+< import java.time.Duration;
+26,29d30
+< import java.util.Optional;
+< 
+< import static io.simplelocalize.cli.TemplateKeys.LANGUAGE_TEMPLATE_KEY;
+< import static io.simplelocalize.cli.TemplateKeys.NAMESPACE_TEMPLATE_KEY;
+88,89c89,90
+<     ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
+<     return exportResponse.getFiles();
+---
+>     JavaType type = objectMapper.getTypeFactory().constructCollectionType(List.class, DownloadableFile.class);
+>     return objectMapper.readValue(body, type);
+127,129c128,131
+<     Boolean passed = JsonPath.read(json, "$.data.passed");
+<     String message = JsonPath.read(json, "$.data.message");
+<     int status = JsonPath.read(json, "$.data.status");
+---
+>     JsonNode jsonNode = objectMapper.readTree(json);
+>     Boolean passed = jsonNode.path("data").path("passed").asBoolean();
+>     String message = jsonNode.path("data").path("message").asText();
+>     int status = jsonNode.path("data").path("status").asInt();
+165,166d166
+< 
+< 
