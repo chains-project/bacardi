@@ -1,0 +1,31 @@
+27,28c27
+< import org.spongepowered.api.event.game.state.GameInitializationEvent;
+< import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+---
+> import org.spongepowered.api.event.game.state.GameStartingServerEvent;
+30c29
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+---
+> import org.spongepowered.api.network.ChannelBinding;
+32a32
+> import org.spongepowered.api.text.Text;
+43a44
+> {
+62c63
+<     public void onPreInit(GamePreInitializationEvent preInitEvent) {
+---
+>     public void onPreInit(GameStartingServerEvent preInitEvent) {
+73c74
+<     public void onInit(GameInitializationEvent initEvent) {
+---
+>     public void onInit(GameStartingServerEvent initEvent) {
+91,94c92,95
+<         String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
+<         String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
+<         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
+<         RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
+---
+>         String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName());
+>         String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName());
+>         ChannelBinding.RawDataChannel updateChannel = channelReg.getOrCreateRaw(updateChannelName);
+>         ChannelBinding.RawDataChannel permChannel = channelReg.getOrCreateRaw(permissionChannelName);

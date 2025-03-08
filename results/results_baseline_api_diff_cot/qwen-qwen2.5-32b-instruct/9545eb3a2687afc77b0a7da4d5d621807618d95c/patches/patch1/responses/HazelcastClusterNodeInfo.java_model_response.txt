@@ -1,0 +1,59 @@
+```java
+package org.jivesoftware.openfire.plugin.util.cluster;
+
+import org.jivesoftware.openfire.cluster.ClusterManager;
+import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
+import org.jivesoftware.openfire.cluster.NodeID;
+import org.jivesoftware.openfire.plugin.util.cache.ClusteredCacheFactory;
+
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.impl.MemberImpl;
+
+/**
+ * Cluster Node information as provided by Hazelcast.
+ *
+ * @author Tom Evans
+ * @author Gaston Dombiak
+ */
+public class HazelcastClusterNodeInfo implements ClusterNodeInfo {
+
+    public static final String HOST_NAME_ATTRIBUTE = "hostname";
+    public static final String NODE_ID_ATTRIBUTE = "node-id";
+    private final String hostname;
+    private final NodeID nodeID;
+    private final long joinedTime;
+    private final boolean seniorMember;
+
+    public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {
+        this.hostname = member.getAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";
+        this.nodeID = ClusteredCacheFactory.getNodeID(member);
+        this.joinedTime = joinedTime;
+        this.seniorMember = ClusterManager.getSeniorClusterMember().equals(nodeID);
+    }
+
+    public String getHostName() {
+        return hostname;
+    }
+
+    public NodeID getNodeID() {
+        return nodeID;
+    }
+
+    public long getJoinedTime() {
+        return joinedTime;
+    }
+
+    public boolean isSeniorMember() {
+        return seniorMember;
+    }
+}
+```
+
+### Explanation of the Repair Strategy:
+- **Identified API Changes**: The `Member` class from `com.hazelcast.core` has been removed and replaced with a new `Member` class in the `com.hazelcast.cluster` package. The `getStringAttribute` method has been replaced with `getAttribute`.
+- **Adjustments Made**:
+  - Updated the import statement for `Member` to `com.hazelcast.cluster.Member`.
+  - Replaced `member.getStringAttribute(HOST_NAME_ATTRIBUTE)` with `member.getAttribute(HOST_NAME_ATTRIBUTE)` to match the new API.
+  - Adjusted the import statement for `MemberImpl` to ensure the correct class is used for any internal handling of `Member` instances.
+- **Ensured Compatibility**: The changes are minimal and only affect the parts of the code that directly interact with the `Member` class, ensuring that the rest of the class remains unchanged and functional.
+- **Compilation and Functionality**: The class now uses the updated API and should compile without errors, assuming the rest of the project is correctly configured to use the new Hazelcast version.

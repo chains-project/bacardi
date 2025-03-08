@@ -1,0 +1,180 @@
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+44a29
+> {
+50a36
+>   {
+59c45
+<         RpcBatch.Callback<ManagedZonesListResponse> callback, Map<DnsRpc.Option, ?> options) {
+---
+>     (RpcBatch.Callback<ManagedZonesListResponse> callback, Map<DnsRpc.Option, ?> options) {
+68,69c54,55
+<     public void addCreateZone(
+<         ManagedZone zone, RpcBatch.Callback<ManagedZone> callback, Map<Option, ?> options) {
+---
+>     public void addCreateZone
+>     (ManagedZone zone, RpcBatch.Callback<ManagedZone> callback, Map<Option, ?> options) {
+78,79c64,65
+<     public void addGetZone(
+<         String zoneName, RpcBatch.Callback<ManagedZone> callback, Map<Option, ?> options) {
+---
+>     public void addGetZone
+>     (String zoneName, RpcBatch.Callback<ManagedZone> callback, Map<Option, ?> options) {
+81c67
+<         getZoneCall(zoneName, options).queue(batch, toJsonCallback(callback));
+---
+>         getZoneCall(zoneName, options).queue(batch, toJsonCallback(callback);
+90c76
+<         deleteZoneCall(zoneName).queue(batch, toJsonCallback(callback));
+---
+>         deleteZoneCall(zoneName).queue(batch, toJsonCallback(callback);
+99c85
+<         getProjectCall(options).queue(batch, toJsonCallback(callback));
+---
+>         getProjectCall(options).queue(batch, toJsonCallback(callback);
+106,109c92,93
+<     public void addListRecordSets(
+<         String zoneName,
+<         RpcBatch.Callback<ResourceRecordSetsListResponse> callback,
+<         Map<DnsRpc.Option, ?> options) {
+---
+>     public void addListRecordSets
+>     (String zoneName, RpcBatch.Callback<ResourceRecordSetsListResponse> callback, Map<DnsRpc.Option, ?> options) {
+111c95
+<         listRecordSetsCall(zoneName, options).queue(batch, toJsonCallback(callback));
+---
+>         listRecordSetsCall(zoneName, options).queue(batch, toJsonCallback(callback);
+118,121c102,103
+<     public void addListChangeRequests(
+<         String zoneName,
+<         RpcBatch.Callback<ChangesListResponse> callback,
+<         Map<DnsRpc.Option, ?> options) {
+---
+>     public void addListChangeRequests
+>     (String zoneName, RpcBatch.Callback<ChangesListResponse> callback, Map<DnsRpc.Option, ?> options) {
+123c105
+<         listChangeRequestsCall(zoneName, options).queue(batch, toJsonCallback(callback));
+---
+>         listChangeRequestsCall(zoneName, options).queue(batch, toJsonCallback(callback);
+130,134c112,113
+<     public void addGetChangeRequest(
+<         String zoneName,
+<         String changeRequestId,
+<         RpcBatch.Callback<Change> callback,
+<         Map<DnsRpc.Option, ?> options) {
+---
+>     public void addGetChangeRequest
+>     (String zoneName, String changeRequestId, RpcBatch.Callback<Change> callback, Map<DnsRpc.Option, ?> options) {
+136,137c115
+<         getChangeRequestCall(zoneName, changeRequestId, options)
+<             .queue(batch, toJsonCallback(callback));
+---
+>         getChangeRequestCall(zoneName, changeRequestId, options).queue(batch, toJsonCallback(callback);
+144,148c122,123
+<     public void addApplyChangeRequest(
+<         String zoneName,
+<         Change change,
+<         RpcBatch.Callback<Change> callback,
+<         Map<DnsRpc.Option, ?> options) {
+---
+>     public void addApplyChangeRequest
+>     (String zoneName, Change change, RpcBatch.Callback<Change> callback, Map<Option, ?> options) {
+150c125
+<         applyChangeRequestCall(zoneName, change, options).queue(batch, toJsonCallback(callback));
+---
+>         applyChangeRequestCall(zoneName, change, options).queue(batch, toJsonCallback(callback);
+211c186
+<         .create(this.options.getProjectId(), zone)
+---
+>         .create(this.options.getProjectId(), this.options.getProjectId(), zone)
+233c208
+<         .setFields(Option.FIELDS.getString(options));
+---
+>         .setFields(Option.FIELDS.getString(options);
+241c216
+<       return ListResult.of(zoneList.getNextPageToken(), zoneList.getManagedZones());
+---
+>       return ListResult.of(zoneList.getNextPageToken(), zoneList.getManagedZones();
+249c224
+<         .list(this.options.getProjectId())
+---
+>         .list(this.options.getProjectId(), this.options.getProjectId())
+271c246
+<     return dns.managedZones().delete(this.options.getProjectId(), zoneName);
+---
+>     return dns.managedZones().delete(this.options.getProjectId(), this.options.getProjectId(), zoneName);
+279c254
+<       return ListResult.of(response.getNextPageToken(), response.getRrsets());
+---
+>       return ListResult.of(response.getNextPageToken(), response.getRrsets();
+289c264
+<         .list(this.options.getProjectId(), zoneName)
+---
+>         .list(this.options.getProjectId(), zoneName, this.options.getProjectId())
+294c269
+<         .setType(Option.DNS_TYPE.getString(options));
+---
+>         .setType(Option.DNS_TYPE.getString(options);
+308,309c283,284
+<         .get(this.options.getProjectId())
+<         .setFields(Option.FIELDS.getString(options));
+---
+>         .get(this.options.getProjectId(), this.options.getProjectId())
+>         .setFields(Option.FIELDS.getString(options);
+322,323c297,298
+<   private Dns.Changes.Create applyChangeRequestCall(
+<       String zoneName, Change changeRequest, Map<Option, ?> options) throws IOException {
+---
+>   private Dns.Changes.Create applyChangeRequestCall
+>   (String zoneName, Change changeRequest, Map<Option, ?> options) throws IOException {
+325,326c300,301
+<         .create(this.options.getProjectId(), zoneName, changeRequest)
+<         .setFields(Option.FIELDS.getString(options));
+---
+>         .create(this.options.getProjectId(), zoneName, this.options.getProjectId(), changeRequest)
+>         .setFields(Option.FIELDS.getString(options);
+349,350c324,325
+<   private Dns.Changes.Get getChangeRequestCall(
+<       String zoneName, String changeRequestId, Map<Option, ?> options) throws IOException {
+---
+>   private Dns.Changes.Get getChangeRequestCall
+>   (String zoneName, String changeRequestId, Map<Option, ?> options) throws IOException {
+353c328
+<         .setFields(Option.FIELDS.getString(options));
+---
+>         .setFields(Option.FIELDS.getString(options);
+361c336
+<       return ListResult.of(response.getNextPageToken(), response.getChanges());
+---
+>       return ListResult.of(response.getNextPageToken(), response.getChanges();
+372c347
+<             .list(this.options.getProjectId(), zoneName)
+---
+>             .list(this.options.getProjectId(), zoneName, this.options.getProjectId())
+375c350
+<             .setPageToken(Option.PAGE_TOKEN.getString(options));
+---
+>             .setPageToken(Option.PAGE_TOKEN.getString(options);
+378c353
+<       request = request.setSortBy(SORT_BY).setSortOrder(Option.SORTING_ORDER.getString(options));
+---
+>       request = request.setSortBy(SORT_BY).setSortOrder(Option.SORTING_ORDER.getString(options);
+385c360
+<     return new DefaultRpcBatch(dns.batch());
+---
+>     return new DefaultRpcBatch(dns.batch();

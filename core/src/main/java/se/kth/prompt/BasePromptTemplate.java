@@ -26,11 +26,9 @@ public class BasePromptTemplate extends AbstractPromptTemplate {
         try {
             String classCode = Files.readString(Path.of(promptModel.getClassInfo()));
             return """
-                    the following client code fails:
-                    
                     ```java
-                    %s
-                    ```
+                      %s
+                      ```
                     """.formatted(classCode);
         } catch (IOException e) {
             log.error("Error reading the class file", e);
@@ -69,7 +67,7 @@ public class BasePromptTemplate extends AbstractPromptTemplate {
                  %s
                  %s
                  %s
-
+                
                  propose a patch that can be applied to the code to fix the issue.
                  Return only a complete and compilable class in a fenced code block.
                  Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.

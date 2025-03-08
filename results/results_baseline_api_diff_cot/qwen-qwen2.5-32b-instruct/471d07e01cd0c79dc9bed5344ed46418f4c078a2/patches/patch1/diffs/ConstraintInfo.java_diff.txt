@@ -1,0 +1,40 @@
+1,15d0
+< /*
+<  * Copyright 2020 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+18,20c3,5
+< import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
+< import com.google.api.services.cloudresourcemanager.model.Constraint;
+< import com.google.api.services.cloudresourcemanager.model.ListConstraint;
+---
+> import com.google.api.services.cloudresourcemanager.v3.model.BooleanConstraint;
+> import com.google.api.services.cloudresourcemanager.v3.model.ListConstraint;
+> import com.google.api.services.cloudresourcemanager.v3.model.Constraint;
+34a20
+> {
+115c101
+<       return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
+---
+>       return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder));
+253c239
+<         booleanConstraint, constraintDefault, description, displayName, constraints, name, version);
+---
+>         (booleanConstraint, constraintDefault, description, displayName, constraints, name, version);
+289,290c275,276
+<     if (constraintProtobuf.getName() != null && !constraintProtobuf.getName().equals("Unnamed")) {
+<       builder.setName(constraintProtobuf.getName());
+---
+>     if (constraintProtobuf.getName() != null && !constraintProtobuf.name().equals("Unnamed")) {
+>       builder.setName(constraintProtobuf.name());

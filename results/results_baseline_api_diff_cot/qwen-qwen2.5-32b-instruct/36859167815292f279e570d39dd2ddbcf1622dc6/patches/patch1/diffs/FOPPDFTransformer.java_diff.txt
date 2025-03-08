@@ -1,0 +1,76 @@
+1,18d0
+< /*
+<  * Copyright (C) 2017 Premium Minds.
+<  *
+<  * This file is part of billy GIN.
+<  *
+<  * billy GIN is free software: you can redistribute it and/or modify it under
+<  * the terms of the GNU Lesser General Public License as published by the Free
+<  * Software Foundation, either version 3 of the License, or (at your option) any
+<  * later version.
+<  *
+<  * billy GIN is distributed in the hope that it will be useful, but WITHOUT ANY
+<  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+<  * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+<  * details.
+<  *
+<  * You should have received a copy of the GNU Lesser General Public License
+<  * along with billy GIN. If not, see <http://www.gnu.org/licenses/>.
+<  */
+34d15
+< import java.io.IOException;
+54d34
+< import org.apache.fop.apps.FOPException;
+58c38,39
+< import org.apache.xmlgraphics.util.MimeConstants;
+---
+> import org.apache.fop.apps.FopFactoryBuilder;
+> import org.apache.fop.apps.MimeConstants;
+112,133d92
+<         StreamSource transformSource = new StreamSource(templateStream);
+< 
+<         // create an instance of fop factory
+<         FopFactory fopFactory = FopFactory.newInstance();
+<         // a user agent is needed for transformation
+<         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
+<         // to store output
+< 
+<         Optional<Node<String, String>> qrCodeString = documentParams
+<             .getRoot()
+<             .getChildren()
+<             .stream()
+<             .filter(stringStringNode -> stringStringNode.getKey().equals(QR_CODE))
+<             .findAny();
+< 
+<         Path qr = null;
+<         try {
+<             if(qrCodeString.isPresent() && !qrCodeString.get().getValue().isEmpty()){
+<                 qr = createQR(qrCodeString.get().getValue());
+<                 documentParams.getRoot().addChild(QR_CODE_PATH, qr.toString());
+<             }
+<             // the XML file from which we take the name
+136c95
+<             Transformer xslfoTransformer = this.getTransformer(transformSource);
+---
+>         Transformer xslfoTransformer = this.getTransformer(templateStream);
+138a98,99
+>         FopFactory fopFactory = FopFactoryBuilder.newInstance().build();
+>         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
+148,156d108
+<         } catch (FOPException e) {
+<             throw new ExportServiceException("Error using FOP to open the template", e);
+<         } catch (TransformerException e) {
+<             throw new ExportServiceException("Error generating pdf from template and data source", e);
+<         } catch (IOException | WriterException e) {
+<             throw new ExportServiceException("Error generating qrCode", e);
+<         } finally {
+<             deleteTempFileIfExists(qr);
+<         }
+173,174c125,126
+<     private Transformer getTransformer(StreamSource streamSource) throws TransformerConfigurationException {
+<         return this.transformerFactory.newTransformer(streamSource);
+---
+>     private Transformer getTransformer(InputStream streamSource) throws TransformerConfigurationException {
+>         return this.transformerFactory.newTransformer(new StreamSource(streamSource));
+208d159
+< 

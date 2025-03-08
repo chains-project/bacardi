@@ -64,6 +64,10 @@ public class GeneratePrompt {
                 promptTemplate = new BasePromptApiDiffBuggyLineTemplate();
                 promptTemplate.setPromptModel(promptModel);
                 break;
+            case BASELINE_COT_API_DIFF_BUGGY:
+                promptTemplate =  new BasePromptCotBuggyLineApiDiffTemplate();
+                promptTemplate.setPromptModel(promptModel);
+                break;
             case FIX_YOU:
                 promptTemplate = new FixYouPromptTemplate();
                 promptTemplate.setPromptModel(promptModel);

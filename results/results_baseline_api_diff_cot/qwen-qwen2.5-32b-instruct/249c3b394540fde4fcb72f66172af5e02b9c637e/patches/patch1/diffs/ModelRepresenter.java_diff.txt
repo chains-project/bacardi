@@ -1,0 +1,62 @@
+67c67
+<       if (skipString(property, "type", propertyValue, "jar")) return null;
+---
+>       if (skipBoolean(property, "type", propertyValue, "jar")) return null;
+94d93
+< 
+107a107
+> 
+122,131d121
+<           boolean isList = singularName != null;
+<           if (isList) { // check for eventual list construction
+<             for (int j = 0, grandChildCount = child.getChildCount(); j < grandChildCount; j++) {
+<               String grandChildName = child.getChild(j).getName();
+<               isList &= grandChildName.equals(singularName);
+<             }
+<           }
+<           if (isList) {
+<             childValue = toList(child, singularName);
+<           } else {
+134d123
+<         }
+144,165d132
+< 
+<     private List<Object> toList(Xpp3Dom node, String childName) {
+<       List<Object> list = new ArrayList<>();
+< 
+<       int n = node.getChildCount();
+<       for (int i = 0; i < n; i++) {
+<         Xpp3Dom child = node.getChild(i);
+< 
+<         if (!childName.equals(child.getName())) {
+<           throw new YAMLException(format("child name: '%s' does not match expected name: '%s' at node %s",
+<               child.getName(), childName, node));
+<         }
+< 
+<         Object childValue = child.getValue();
+<         if (childValue == null) {
+<           childValue = toMap(child);
+<         }
+<         list.add(childValue);
+<       }
+< 
+<       return list;
+<     }
+214,219c181,182
+<   /*
+<    * Change the default order. Important data goes first.
+<    */
+<   @Override
+<   protected Set<Property> getProperties(Class<? extends Object> type)
+<           throws IntrospectionException {
+---
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+>     try {
+232a196,198
+>     } catch (IntrospectionException e) {
+>       throw new RuntimeException(e);
+>     }
+238c204
+<       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
+---
+>     Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));

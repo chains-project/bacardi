@@ -1,0 +1,9 @@
+19c19
+< import com.google.api.services.translate.model.LanguagesResource;
+---
+> import com.google.cloud.translate.v3.LanguagesResource; // Adjusted import for the new API
+85c85,86
+<     return new Language(languagePb.getLanguage(), languagePb.getName());
+---
+>     // Adjusted to use the new API's method to get the language code and name
+>     return new Language(languagePb.getLanguageCode(), languagePb.getLanguageName());

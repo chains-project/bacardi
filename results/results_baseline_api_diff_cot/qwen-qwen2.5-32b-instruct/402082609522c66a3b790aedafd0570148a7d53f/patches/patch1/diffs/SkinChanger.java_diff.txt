@@ -1,0 +1,20 @@
+7,8c7,10
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.text.serializer.TextSerializers;
+---
+> import org.spongepowered.api.text.Text;
+> import org.spongepowered.api.text.format.TextColors;
+> import org.spongepowered.api.world.World;
+> import org.spongepowered.api.entity.living.player.Player;
+12c14
+<     private final CommandSource invoker;
+---
+>     private final Player invoker;
+14c16
+<     public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandSource invoker) {
+---
+>     public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, Player invoker) {
+22c24
+<         invoker.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage));
+---
+>         invoker.sendMessage(Text.of(TextColors.RED, localeMessage));

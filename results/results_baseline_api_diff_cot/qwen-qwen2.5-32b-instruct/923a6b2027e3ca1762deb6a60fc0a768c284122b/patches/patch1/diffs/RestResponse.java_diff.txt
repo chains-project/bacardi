@@ -1,0 +1,103 @@
+1,29d0
+< /*
+<  * Copyright (c) 2011-2017, jcabi.com
+<  * All rights reserved.
+<  *
+<  * Redistribution and use in source and binary forms, with or without
+<  * modification, are permitted provided that the following conditions
+<  * are met: 1) Redistributions of source code must retain the above
+<  * copyright notice, this list of conditions and the following
+<  * disclaimer. 2) Redistributions in binary form must reproduce the above
+<  * copyright notice, this list of conditions and the following
+<  * disclaimer in the documentation and/or other materials provided
+<  * with the distribution. 3) Neither the name of the jcabi.com nor
+<  * the names of its contributors may be used to endorse or promote
+<  * products derived from this software without specific prior written
+<  * permission.
+<  *
+<  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+<  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+<  * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+<  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+<  * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+<  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+<  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+<  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+<  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+<  * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+<  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+<  * OF THE POSSIBILITY OF SUCH DAMAGE.
+<  */
+48d18
+< import org.hamcrest.Matchers;
+54c24
+<  * HTTP response and manipulate with it afterwords, for example:
+---
+>  * HTTP response and manipulate with it afterwards, for example:
+92c62,64
+<             String.format("HTTP response is not valid: %s", this),
+---
+>             String.format(
+>                 "HTTP response is not valid: %s", this
+>             ),
+103c75
+<      * @return The same object
+---
+>      * @return This object
+114,115c86
+<             this,
+<             new RestResponse.StatusMatch(message, status)
+---
+>             this.status(), new StatusMatch(message, status)
+175c146
+<      * <p>The iterator for the matcher will always be a real object an never
+---
+>      * <p>The iterator for the matcher will always be a real object and never
+210c181
+<         return this.assertHeader(name, Matchers.hasItems(value));
+---
+>         return this.assertHeader(name, new HeaderMatch(value));
+246c217
+<             Matchers.not(Matchers.emptyIterableOf(String.class))
+---
+>             new HeaderMatch()
+284c255
+<             Matchers.notNullValue()
+---
+>             new NotNullMatch()
+332a304,338
+>     /**
+>      * Header match.
+>      */
+>     private static final class HeaderMatch extends CustomMatcher<Iterable<String>> {
+> 
+>         /**
+>          * Ctor.
+>          */
+>         HeaderMatch() {
+>             super("Header match");
+>         }
+> 
+>         @Override
+>         public boolean matches(final Object item) {
+>             return !((Iterable<String>) item).iterator().hasNext();
+>         }
+>     }
+> 
+>     /**
+>      * Not null match.
+>      */
+>     private static final class NotNullMatch extends CustomMatcher<Object> {
+> 
+>         /**
+>          * Ctor.
+>          */
+>         NotNullMatch() {
+>             super("Not null match");
+>         }
+> 
+>         @Override
+>         public boolean matches(final Object item) {
+>             return item != null;
+>         }
+>     }

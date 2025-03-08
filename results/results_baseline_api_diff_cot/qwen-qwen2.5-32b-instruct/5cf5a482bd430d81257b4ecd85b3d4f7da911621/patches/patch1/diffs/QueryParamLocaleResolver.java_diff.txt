@@ -1,0 +1,17 @@
+10,12c10,12
+< import javax.mvc.locale.LocaleResolver;
+< import javax.mvc.locale.LocaleResolverContext;
+< import javax.ws.rs.core.UriInfo;
+---
+> import jakarta.mvc.locale.LocaleResolver;
+> import jakarta.mvc.event.AfterControllerEvent;
+> import jakarta.ws.rs.core.UriInfo;
+41,44c41,43
+<     public Locale resolveLocale(final LocaleResolverContext context) {
+<         final String queryLang = context.getUriInfo()
+<                 .getQueryParameters()
+<                 .getFirst("lang");
+---
+>     public Locale resolveLocale(final AfterControllerEvent event) {
+>         final UriInfo uriInfo = event.getUriInfo();
+>         final String queryLang = uriInfo.getQueryParameters().getFirst("lang");

@@ -1,0 +1,53 @@
+```java
+package com.github.games647.changeskin.sponge.bungee;
+
+import com.github.games647.changeskin.core.message.SkinUpdateMessage;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.github.games647.changeskin.sponge.task.SkinApplier;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteStreams;
+import com.google.inject.Inject;
+
+import java.util.Optional;
+
+import org.spongepowered.api.Platform.Type;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.network.channel.ChannelBuf;
+import org.spongepowered.api.network.channel.ChannelRegistrar;
+import org.spongepowered.api.scheduler.Task;
+
+public class UpdateSkinListener {
+
+    @Inject
+    private ChangeSkinSponge plugin;
+
+    public UpdateSkinListener(ChannelRegistrar channelRegistrar) {
+        channelRegistrar.register(this);
+    }
+
+    public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+        SkinUpdateMessage updateMessage = new SkinUpdateMessage();
+        updateMessage.readFrom(dataInput);
+
+        String playerName = updateMessage.getPlayerName();
+        Optional<Player> receiver = Sponge.server().player(playerName);
+        if (receiver.isPresent()) {
+            Runnable skinUpdater = new SkinApplier(plugin, connection, receiver.get(), null, false);
+            Task.builder().execute(skinUpdater).submit(plugin);
+        }
+    }
+}
+```
+
+In this solution, I've made the following changes to address the API changes:
+
+1. Removed the `RawDataListener` interface implementation as it has been removed in the new version of the dependency.
+2. Added a constructor to register the listener with `ChannelRegistrar` which is a common pattern for registering listeners in Sponge API.
+3. Replaced `Sponge.getServer().getPlayer(playerName)` with `Sponge.server().player(playerName)` to use the new method for getting a player by name.
+4. Removed the `@Override` annotation from the `handlePayload` method since `RawDataListener` is no longer implemented.
+5. Adjusted the import statements to remove `RawDataListener` and `CommandSource` as they are no longer needed or available in the new API version.
+6. Added `ChannelRegistrar` as a parameter to the constructor to register the listener, assuming that the registration mechanism has changed to this new approach.
+
+This solution assumes that the `ChannelRegistrar` is passed to the constructor when creating an instance of `UpdateSkinListener`. This is a common pattern in Sponge plugins for registering listeners and channels. If the actual registration mechanism differs, adjustments may be necessary.

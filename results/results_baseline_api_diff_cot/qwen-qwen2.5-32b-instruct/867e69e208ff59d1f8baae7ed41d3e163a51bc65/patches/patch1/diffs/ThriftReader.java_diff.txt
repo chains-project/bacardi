@@ -1,0 +1,13 @@
+23d22
+< import org.apache.thrift.transport.TFramedTransport;
+24a24
+> import org.apache.thrift.transport.layered.TFramedTransport; // Adjusted import for TFramedTransport
+64c64
+<   private final TFramedTransport framedTransport;
+---
+>   private final TFramedTransport framedTransport; // Adjusted type to the new TFramedTransport
+80,81c80
+<     this.framedTransport = new TFramedTransport(new TIOStreamTransport(this
+<         .byteOffsetInputStream), maxMessageSize);
+---
+>     this.framedTransport = new TFramedTransport(new TIOStreamTransport(this.byteOffsetInputStream), maxMessageSize); // Adjusted constructor call

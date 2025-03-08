@@ -1,0 +1,44 @@
+4c4
+< import com.github.games647.changeskin.sponge.PomData;
+---
+> import com.github.games647.changesSkin.sponge.PomData;
+10,12c10,15
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.CommandException;
+> import org.spongepowered.api.command.Command;
+> import org.spongepowered.api.command.CommandMapping;
+> import org.spongepowered.api.command.CommandSpec;
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+14a18
+> import org.spongepowered.api.text.Text;
+16,17c20
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import java.util.Optional;
+19c22
+< public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> import static org.spongepowered.api.command.parameter.Parameter.string;
+20a24,26
+> public class SelectCommand implements Command, ChangeSkinCommand {
+> 
+> {
+29,30c35,36
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         if (!(src instanceof Player)) {
+---
+>     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+>         if (!(src instanceof Player)) || !args.hasAny("skinName")) {
+40c46
+<             Task.builder().async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+---
+>             Task.builder().execute(() -> new SkinSelector(plugin, receiver, targetId).)).submit(plugin);
+52c58
+<                 .arguments(string(of("skinName")))
+---
+>                 .arguments(string(Text.of("skinName")))

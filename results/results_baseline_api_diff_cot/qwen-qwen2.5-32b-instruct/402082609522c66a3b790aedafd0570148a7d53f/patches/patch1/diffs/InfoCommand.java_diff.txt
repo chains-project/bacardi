@@ -1,0 +1,38 @@
+17,19c17,19
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.CommandParameter;
+> import org.spongepowered.api.command.parameter.managed.ValueParameter;
+23a24
+> import org.spongepowered.api.command.Command;
+25c26
+< public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class InfoCommand implements Command {
+33d33
+< 
+35,37c35,37
+<     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+---
+>     public CommandResult execute(CommandContext context) throws CommandException {
+>         if (!(context.source() instanceof Player)) {
+>             plugin.sendMessage(context.source(), "no-console");
+41c41
+<         UUID uniqueId = ((Player) src).getUniqueId();
+---
+>         UUID uniqueId = ((Player) context.source()).uniqueId();
+53,54c53,54
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command.Parameterized build() {
+>         return Command.builder()
+61c61
+<         Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
+---
+>         Optional<Player> optPlayer = Sponge.server().player(uuid);

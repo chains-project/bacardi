@@ -1,0 +1,102 @@
+6c6
+<  * http://www.eclipse.org/legal/epl-v10.html
+---
+>  * http://maven.apache.org/xsd/maven-4.0.0.xsd
+22a23
+> import org.yaml.snakeyaml.DumperOptions;
+37a39
+>     super(new DumperOptions());
+94d95
+< 
+107a109
+> 
+122,131d123
+<           boolean isList = singularName != null;
+<           if (isList) { // check for eventual list construction
+<             for (int j = 0, grandChildCount = child.getChildCount(); j < grandChildCount; j++) {
+<               String grandChildName = child.getChild(j).getName();
+<               isList &= grandChildName.equals(singularName);
+<             }
+<           }
+<           if (isList) {
+<             childValue = toList(child, singularName);
+<           } else {
+134d125
+<         }
+144,165d134
+< 
+<     private List<Object> toList(Xpp3Dom node, String childName) {
+<       List<Object> list = new ArrayList<>();
+< 
+<       int n = node.getChildCount();
+<       for (int i = 0; i < n; i++) {
+<         Xpp3Dom child = node.getChild(i);
+< 
+<         if (!childName.equals(child.getName())) {
+<           throw new YAMLException(format("child name: '%s' does not match expected name: '%s' at node %s",
+<               child.getName(), childName, node));
+<         }
+< 
+<         Object childValue = child.getValue();
+<         if (childValue == null) {
+<           childValue = toMap(child);
+<         }
+<         list.add(childValue);
+<       }
+< 
+<       return list;
+<     }
+190,202c159
+<           "ciManagement",
+< 
+<           "properties",
+<           "prerequisites",
+<           "modules",
+<           "dependencyManagement",
+<           "dependencies",
+<           "distributionManagement",
+<           //"repositories",
+<           //"pluginRepositories",
+<           "build",
+<           "profiles",
+<           "reporting"
+---
+>           "ciManagement"
+205c162,163
+<                   "name", "id", "email"));
+---
+>           "name", "id", "email"
+>   ));
+207c165,166
+<                   "name", "id", "email"));
+---
+>           "name", "id", "email"
+>   ));
+209c168,169
+<                   "groupId", "artifactId", "version", "type", "classifier", "scope"));
+---
+>           "groupId", "artifactId", "version", "type", "classifier", "scope"
+>   ));
+211c171,172
+<                   "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
+---
+>           "groupId", "artifactId", "version", "inherited", "extensions", "configuration"
+>   ));
+214,219c175
+<   /*
+<    * Change the default order. Important data goes first.
+<    */
+<   @Override
+<   protected Set<Property> getProperties(Class<? extends Object> type)
+<           throws IntrospectionException {
+---
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+235,238c191,193
+<   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+<           throws IntrospectionException {
+<       Set<Property> standard = super.getProperties(type);
+<       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
+---
+>   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+>     Set<Property> standard = PropertyUtils.getProperties(type);
+>     Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));
