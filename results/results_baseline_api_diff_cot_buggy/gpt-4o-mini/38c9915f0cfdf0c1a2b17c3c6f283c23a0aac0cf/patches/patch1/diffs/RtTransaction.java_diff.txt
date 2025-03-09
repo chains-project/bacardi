@@ -1,0 +1,86 @@
+35d34
+< import org.cactoos.scalar.IoCheckedScalar;
+37d35
+< import org.cactoos.scalar.StickyScalar;
+40d37
+< import org.cactoos.text.SplitText;
+42,43d38
+< import org.cactoos.text.TrimmedText;
+< import org.cactoos.text.UncheckedText;
+88c83
+<     private final IoCheckedScalar<String> transaction;
+---
+>     private final UncheckedScalar<String> transaction;
+95,96c90
+<         this.transaction = new IoCheckedScalar<>(
+<             new StickyScalar<>(
+---
+>         this.transaction = new UncheckedScalar<>(
+99,101c93
+<                         new TrimmedText(
+<                             new TextOf(trnsct)
+<                         ).asString().isEmpty()
+---
+>                     trnsct.trim().isEmpty()
+109c101
+<                             new SplitText(trnsct, ";")
+---
+>                         new org.cactoos.text.SplitText(trnsct, ";")
+123d114
+<             )
+131c122
+<             new IoCheckedScalar<>(
+---
+>             new UncheckedScalar<>(
+133c124
+<                     0, new SplitText(this.transaction.value(), ";")
+---
+>                     0, new org.cactoos.text.SplitText(this.transaction.value(), ";")
+156c147
+<                 new IoCheckedScalar<>(
+---
+>                 new UncheckedScalar<>(
+158c149
+<                         1, new SplitText(this.transaction.value(), ";")
+---
+>                         1, new org.cactoos.text.SplitText(this.transaction.value(), ";")
+169c160
+<             new IoCheckedScalar<>(
+---
+>             new UncheckedScalar<>(
+171c162
+<                     2, new SplitText(this.transaction.value(), ";")
+---
+>                     2, new org.cactoos.text.SplitText(this.transaction.value(), ";")
+193c184
+<             new IoCheckedScalar<>(
+---
+>             new UncheckedScalar<>(
+196c187
+<                     3, new SplitText(this.transaction.value(), ";")
+---
+>                     3, new org.cactoos.text.SplitText(this.transaction.value(), ";")
+213c204
+<             new IoCheckedScalar<>(
+---
+>             new UncheckedScalar<>(
+216c207
+<                     4, new SplitText(this.transaction.value(), ";")
+---
+>                     4, new org.cactoos.text.SplitText(this.transaction.value(), ";")
+237c228
+<             new IoCheckedScalar<>(
+---
+>             new UncheckedScalar<>(
+240c231
+<                     5, new SplitText(this.transaction.value(), ";")
+---
+>                     5, new org.cactoos.text.SplitText(this.transaction.value(), ";")
+261c252
+<             new IoCheckedScalar<>(
+---
+>             new UncheckedScalar<>(
+264c255
+<                     6, new SplitText(this.transaction.value(), ";")
+---
+>                     6, new org.cactoos.text.SplitText(this.transaction.value(), ";")

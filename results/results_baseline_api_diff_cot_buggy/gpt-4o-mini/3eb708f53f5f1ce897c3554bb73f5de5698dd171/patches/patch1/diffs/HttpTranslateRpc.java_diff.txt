@@ -1,0 +1,74 @@
+25,28c25,28
+< import com.google.api.services.translate.Translate;
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.api.services.translate.model.TranslationsResource;
+---
+> import com.google.api.services.translate.v3.Translate;
+> import com.google.api.services.translate.v3.model.Detections;
+> import com.google.api.services.translate.v3.model.Languages;
+> import com.google.api.services.translate.v3.model.Translations;
+51d50
+<             .setRootUrl(options.getHost())
+61c60
+<     GenericUrl genericUrl = new GenericUrl(translate.getBaseUrl() + "v2/" + path);
+---
+>     GenericUrl genericUrl = new GenericUrl(translate.getBaseUrl() + "v3/" + path);
+69c68
+<   public List<List<DetectionsResourceItems>> detect(List<String> texts) {
+---
+>   public List<List<Detections.DetectionsResourceItems>> detect(List<String> texts) {
+71,73c70,76
+<       List<List<DetectionsResourceItems>> detections =
+<           translate.detections().list(texts).setKey(options.getApiKey()).execute().getDetections();
+<       return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
+---
+>       List<List<Detections.DetectionsResourceItems>> detections =
+>           translate.projects().locations().detectLanguage("projects/" + options.getProjectId())
+>               .setKey(options.getApiKey())
+>               .setContent(texts)
+>               .execute()
+>               .getDetections();
+>       return detections != null ? detections : ImmutableList.<List<Detections.DetectionsResourceItems>>of();
+80c83
+<   public List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap) {
+---
+>   public List<Languages> listSupportedLanguages(Map<Option, ?> optionMap) {
+82,85c85,86
+<       List<LanguagesResource> languages =
+<           translate
+<               .languages()
+<               .list()
+---
+>       List<Languages> languages =
+>           translate.projects().locations().getSupportedLanguages("projects/" + options.getProjectId())
+87,89d87
+<               .setTarget(
+<                   firstNonNull(
+<                       Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()))
+92c90
+<       return languages != null ? languages : ImmutableList.<LanguagesResource>of();
+---
+>       return languages != null ? languages : ImmutableList.<Languages>of();
+99c97
+<   public List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap) {
+---
+>   public List<Translations> translate(List<String> texts, Map<Option, ?> optionMap) {
+104,107c102,103
+<       List<TranslationsResource> translations =
+<           translate
+<               .translations()
+<               .list(texts, targetLanguage)
+---
+>       List<Translations> translations =
+>           translate.projects().locations().translateText("projects/" + options.getProjectId(), texts, targetLanguage)
+115,116c111,112
+<           translations != null ? translations : ImmutableList.<TranslationsResource>of(),
+<           new Function<TranslationsResource, TranslationsResource>() {
+---
+>           translations != null ? translations : ImmutableList.<Translations>of(),
+>           new Function<Translations, Translations>() {
+118c114
+<             public TranslationsResource apply(TranslationsResource translationsResource) {
+---
+>             public Translations apply(Translations translationsResource) {

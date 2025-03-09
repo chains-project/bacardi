@@ -1,0 +1,35 @@
+18,21c18,21
+< import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+< import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+---
+> import com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy;
+> import com.google.api.services.cloudresourcemanager.v3.model.ListPolicy;
+> import com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy;
+> import com.google.api.services.cloudresourcemanager.v3.model.RestoreDefault;
+125d124
+<     private final List<java.lang.String> deniedValues;
+132d130
+<         List<String> deniedValues,
+137d134
+<       this.deniedValues = deniedValues;
+152,156d148
+<     /** Returns the list of denied values of this resource. */
+<     List<String> getDeniedValues() {
+<       return deniedValues;
+<     }
+< 
+172d163
+<           .add("deniedValues", getDeniedValues())
+189d179
+<           && Objects.equals(deniedValues, policies.deniedValues)
+196,197c186
+<       return Objects.hash(
+<           allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
+---
+>       return Objects.hash(allValues, allowedValues, inheritFromParent, suggestedValue);
+204d192
+<           .setDeniedValues(deniedValues)
+213d200
+<           listPolicy.getDeniedValues(),

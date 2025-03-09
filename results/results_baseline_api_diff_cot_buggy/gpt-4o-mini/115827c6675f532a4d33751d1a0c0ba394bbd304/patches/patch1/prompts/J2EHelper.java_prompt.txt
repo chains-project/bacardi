@@ -1,0 +1,185 @@
+You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates. Your task is to analyze the provided code, error information, and API changes, then propose and apply a patch to fix the issue while adhering to specific constraints.
+
+Here is the Java code that is failing:
+
+```java
+package org.pac4j.dropwizard;
+
+import java.util.EnumSet;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.FilterRegistration;
+
+import org.pac4j.core.config.Config;
+import org.pac4j.dropwizard.Pac4jFactory.ServletCallbackFilterConfiguration;
+import org.pac4j.dropwizard.Pac4jFactory.ServletLogoutFilterConfiguration;
+import org.pac4j.dropwizard.Pac4jFactory.ServletSecurityFilterConfiguration;
+
+import io.dropwizard.setup.Environment;
+import org.pac4j.jee.filter.AbstractConfigFilter;
+import org.pac4j.jee.filter.CallbackFilter;
+import org.pac4j.jee.filter.LogoutFilter;
+import org.pac4j.jee.filter.SecurityFilter;
+
+/**
+ *
+ * @author Evan Meagher
+ * @author Victor Noel - Linagora
+ * @since 1.1.0
+ *
+ */
+public final class J2EHelper {
+
+    private J2EHelper() {
+        // utility class
+    }
+
+    public static void registerSecurityFilter(Environment environment,
+            Config config, ServletSecurityFilterConfiguration fConf) {
+
+        final SecurityFilter filter = new SecurityFilter();
+
+        filter.setClients(fConf.getClients());
+        filter.setAuthorizers(fConf.getAuthorizers());
+        filter.setMatchers(fConf.getMatchers());
+        filter.setMultiProfile(fConf.getMultiProfile());
+
+        registerFilter(environment, config, filter, fConf.getMapping());
+    }
+
+    public static void registerCallbackFilter(Environment environment,
+            Config config, ServletCallbackFilterConfiguration fConf) {
+
+        final CallbackFilter filter = new CallbackFilter();
+
+        filter.setDefaultUrl(fConf.getDefaultUrl());
+        filter.setMultiProfile(fConf.getMultiProfile());
+        filter.setRenewSession(fConf.getRenewSession());
+
+        registerFilter(environment, config, filter, fConf.getMapping());
+    }
+
+    public static void registerLogoutFilter(Environment environment,
+            Config config, ServletLogoutFilterConfiguration fConf) {
+
+        final LogoutFilter filter = new LogoutFilter();
+
+        filter.setDefaultUrl(fConf.getDefaultUrl());
+        filter.setLogoutUrlPattern(fConf.getLogoutUrlPattern());
+        filter.setLocalLogout(fConf.getLocalLogout());
+        filter.setDestroySession(fConf.getDestroySession());
+        filter.setCentralLogout(fConf.getCentralLogout());
+
+        registerFilter(environment, config, filter, fConf.getMapping());
+    }
+
+    private static void registerFilter(Environment environment, Config config,
+                                       AbstractConfigFilter filter, String mapping) {
+
+        filter.setConfigOnly(config);
+
+        final FilterRegistration.Dynamic filterRegistration = environment
+                .servlets().addFilter(filter.getClass().getName(), filter);
+
+        filterRegistration.addMappingForUrlPatterns(
+                EnumSet.of(DispatcherType.REQUEST), true, mapping);
+    }
+}
+
+```
+
+The errors are triggered in the following specific line:
+
+<error_lines>
+```java
+.servlets().addFilter(filter.getClass().getName(), filter);
+```
+```java
+EnumSet.of(DispatcherType.REQUEST), true, mapping);
+```
+```java
+import javax.servlet.FilterRegistration;
+```
+```java
+final FilterRegistration.Dynamic filterRegistration = environment
+```
+```java
+filter.setClients(fConf.getClients());
+```
+```java
+import javax.servlet.DispatcherType;
+```
+```java
+final FilterRegistration.Dynamic filterRegistration = environment
+```
+</error_lines>
+
+The API of the dependency has changed. Here are the relevant changes:
+
+     Interface jakarta.servlet.DispatcherType has been added in the new version of the dependency.
+     Class javax.servlet.DispatcherType has been removed in the new version of the dependency.
+     Class javax.servlet.FilterRegistration has been removed in the new version of the dependency.
+     Interface jakarta.servlet.FilterRegistration has been added in the new version of the dependency.
+     Class javax.servlet.FilterRegistration$Dynamic has been removed in the new version of the dependency.
+     Interface jakarta.servlet.FilterRegistration$Dynamic has been added in the new version of the dependency.
+
+Additional error information:
+
+<error_information>
+[ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[77,28] no suitable method found for addFilter(java.lang.String,org.pac4j.jee.filter.AbstractConfigFilter)
+    method io.dropwizard.jetty.setup.ServletEnvironment.addFilter(java.lang.String,javax.servlet.Filter) is not applicable
+      (argument mismatch; org.pac4j.jee.filter.AbstractConfigFilter cannot be converted to javax.servlet.Filter)
+    method io.dropwizard.jetty.setup.ServletEnvironment.addFilter(java.lang.String,java.lang.Class<? extends javax.servlet.Filter>) is not applicable
+      (argument mismatch; org.pac4j.jee.filter.AbstractConfigFilter cannot be converted to java.lang.Class<? extends javax.servlet.Filter>)
+    method io.dropwizard.jetty.setup.ServletEnvironment.addFilter(java.lang.String,org.eclipse.jetty.servlet.FilterHolder) is not applicable
+      (argument mismatch; org.pac4j.jee.filter.AbstractConfigFilter cannot be converted to org.eclipse.jetty.servlet.FilterHolder)
+
+[ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[80,28] cannot find symbol
+  symbol:   variable DispatcherType
+  location: class org.pac4j.dropwizard.J2EHelper
+
+[ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[6,21] package javax.servlet does not exist
+
+[ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[76,33] package FilterRegistration does not exist
+
+[ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[37,15] cannot access javax.servlet.Filter
+  class file for javax.servlet.Filter not found
+
+[ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[5,21] package javax.servlet does not exist
+
+[ERROR] /dropwizard-pac4j/src/main/java/org/pac4j/dropwizard/J2EHelper.java:[76,33] package FilterRegistration does not exist
+<error_information>
+
+Your task is to fix the issue by modifying only the client code. Follow these steps:
+
+1. Analyze the problem and propose changes by wrapping the work inside fix_planning tags. This analysis is for your internal use only and will not be included in the final output. In your analysis:
+   a. Quote relevant parts of the code and API changes
+   b. Identify the specific API changes causing the issue
+   c. List the affected lines of code
+   d. Propose potential fixes for each affected line
+   e. Consider any potential side effects of the proposed changes
+   f. Explicitly check if the proposed changes adhere to all the given constraints
+   g. Provide a final summary of the chosen fix and why it's the best solution
+
+2. Apply the fix to the Java code.
+
+3. Output the complete, fixed Java class in a fenced code block. This should be the only visible output in your response.
+
+Constraints:
+1. Do not change the function signature of any method.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error.
+6. Include all code, even unchanged portions, in your final output.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
+
+Your final output should only contain the complete, fixed Java class in a fenced code block, without any explanations or analysis visible. The <fix_planning> section is for your internal use only.
+
+Example output structure:
+
+```java
+[Complete, fixed Java class]
+```
+
+Please proceed with your analysis and solution.

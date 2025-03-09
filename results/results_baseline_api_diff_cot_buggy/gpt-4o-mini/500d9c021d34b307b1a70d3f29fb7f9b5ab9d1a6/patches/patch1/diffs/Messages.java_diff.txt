@@ -1,0 +1,27 @@
+1d0
+< 
+2a2
+> import java.util.Locale; // New import for Locale
+6,7c6,8
+< import javax.mvc.MvcContext;
+< //https://www.mvc-spec.org/learn/cookbook/multilang_en.html
+---
+> import javax.mvc.locale.LocaleResolver; // New import for LocaleResolver
+> import javax.mvc.MvcContext; // This import will be removed
+> 
+9c10
+<  * Provides I18n messages for the UI per request. To get the correct locale, the method {@link MvcContext#getLocale()}
+---
+>  * Provides I18n messages for the UI per request. To get the correct locale, the method {@link LocaleResolver#getLocale()}
+13c14
+<  * @see MvcContext#getLocale()
+---
+>  * @see LocaleResolver#getLocale()
+23c24
+<     private MvcContext mvcContext;
+---
+>     private LocaleResolver localeResolver; // Changed from MvcContext to LocaleResolver
+33c34
+<         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
+---
+>         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, localeResolver.getLocale()); // Updated to use localeResolver

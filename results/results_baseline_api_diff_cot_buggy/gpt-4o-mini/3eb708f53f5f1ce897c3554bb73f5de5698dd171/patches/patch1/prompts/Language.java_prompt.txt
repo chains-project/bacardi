@@ -1,0 +1,208 @@
+You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates. Your task is to analyze the provided code, error information, and API changes, then propose and apply a patch to fix the issue while adhering to specific constraints.
+
+Here is the Java code that is failing:
+
+```java
+/*
+ * Copyright 2016 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.cloud.translate;
+
+import com.google.api.services.translate.model.LanguagesResource;
+import com.google.common.base.Function;
+import com.google.common.base.MoreObjects;
+import java.io.Serializable;
+import java.util.Objects;
+
+/**
+ * Information about a language supported by Google Translation. Objects of this class contain the
+ * language's code and the language name.
+ *
+ * @see <a href="https://cloud.google.com/translate/v2/discovering-supported-languages-with-rest">
+ *     Discovering Supported Languages</a>
+ * @see <a href="https://cloud.google.com/translate/docs/languages">Supported Languages</a>
+ */
+public class Language implements Serializable {
+
+  private static final long serialVersionUID = 5205240279371907020L;
+  static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
+      new Function<LanguagesResource, Language>() {
+        @Override
+        public Language apply(LanguagesResource languagePb) {
+          return Language.fromPb(languagePb);
+        }
+      };
+
+  private final String code;
+  private final String name;
+
+  private Language(String code, String name) {
+    this.code = code;
+    this.name = name;
+  }
+
+  /** Returns the code of the language. */
+  public String getCode() {
+    return code;
+  }
+
+  /** Returns the name of the language. */
+  public String getName() {
+    return name;
+  }
+
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper(this).add("code", code).add("name", name).toString();
+  }
+
+  @Override
+  public final int hashCode() {
+    return Objects.hash(code, name);
+  }
+
+  @Override
+  public final boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj == null || !obj.getClass().equals(Language.class)) {
+      return false;
+    }
+    Language other = (Language) obj;
+    return Objects.equals(code, other.code) && Objects.equals(name, other.name);
+  }
+
+  static Language fromPb(LanguagesResource languagePb) {
+    return new Language(languagePb.getLanguage(), languagePb.getName());
+  }
+}
+
+```
+
+The errors are triggered in the following specific line:
+
+<error_lines>
+```java
+new Function<LanguagesResource, Language>() {
+```
+```java
+static Language fromPb(LanguagesResource languagePb) {
+```
+```java
+static Language fromPb(LanguagesResource languagePb) {
+```
+```java
+static Language fromPb(LanguagesResource languagePb) {
+```
+```java
+import com.google.api.services.translate.model.LanguagesResource;
+```
+```java
+public Language apply(LanguagesResource languagePb) {
+```
+```java
+static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
+```
+</error_lines>
+
+The API of the dependency has changed. Here are the relevant changes:
+
+     Constructor com.google.api.services.translate.model.LanguagesResource() has been removed in the new version of the dependency.
+     Class com.google.api.services.translate.model.LanguagesResource has been removed in the new version of the dependency.
+     Method com.google.api.services.translate.v3.model.Location.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Glossaries$GlossaryEntries$Get.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Glossaries$GlossaryEntries$Delete.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Operations$Cancel.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Operations$Get.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.Translate$Projects$Locations$List.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Operations$List.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Operations$Delete.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Get.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.model.Glossary.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.model.Operation.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.model.LanguagesResource.getName() has been removed in the new version of the dependency.
+     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Operations$Wait.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Glossaries$Delete.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Glossaries$GlossaryEntries$Patch.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.model.GlossaryEntry.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Glossaries$Get.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.Translate$Projects$Locations$Glossaries$Patch.getName() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.model.DetectionsResourceItems.getLanguage() has been removed in the new version of the dependency.
+     Method com.google.api.services.translate.model.LanguagesResource.getLanguage() has been removed in the new version of the dependency.
+
+Additional error information:
+
+<error_information>
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[37,20] cannot find symbol
+  symbol:   class LanguagesResource
+  location: class com.google.cloud.translate.Language
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[84,26] cannot find symbol
+  symbol:   class LanguagesResource
+  location: class com.google.cloud.translate.Language
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[84,26] cannot find symbol
+  symbol:   class LanguagesResource
+  location: class com.google.cloud.translate.Language
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[84,26] cannot find symbol
+  symbol:   class LanguagesResource
+  location: class com.google.cloud.translate.Language
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[19,47] package com.google.api.services.translate.model does not exist
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[39,31] cannot find symbol
+  symbol: class LanguagesResource
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Language.java:[36,25] cannot find symbol
+  symbol:   class LanguagesResource
+  location: class com.google.cloud.translate.Language
+<error_information>
+
+Your task is to fix the issue by modifying only the client code. Follow these steps:
+
+1. Analyze the problem and propose changes by wrapping the work inside fix_planning tags. This analysis is for your internal use only and will not be included in the final output. In your analysis:
+   a. Quote relevant parts of the code and API changes
+   b. Identify the specific API changes causing the issue
+   c. List the affected lines of code
+   d. Propose potential fixes for each affected line
+   e. Consider any potential side effects of the proposed changes
+   f. Explicitly check if the proposed changes adhere to all the given constraints
+   g. Provide a final summary of the chosen fix and why it's the best solution
+
+2. Apply the fix to the Java code.
+
+3. Output the complete, fixed Java class in a fenced code block. This should be the only visible output in your response.
+
+Constraints:
+1. Do not change the function signature of any method.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error.
+6. Include all code, even unchanged portions, in your final output.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
+
+Your final output should only contain the complete, fixed Java class in a fenced code block, without any explanations or analysis visible. The <fix_planning> section is for your internal use only.
+
+Example output structure:
+
+```java
+[Complete, fixed Java class]
+```
+
+Please proceed with your analysis and solution.
