@@ -1,0 +1,71 @@
+<fix_planning>
+a. Code and API changes:
+- Code: `Models models;`
+- API change: `Class javax.mvc.Models has been removed in the new version of the dependency.` and `Interface jakarta.mvc.Models has been added in the new version of the dependency.`
+
+b. Specific API changes causing the issue:
+The class `javax.mvc.Models` has been removed and replaced by the interface `jakarta.mvc.Models`.
+
+c. Affected lines of code:
+- `Models models;`
+- `@Inject Models models;`
+- The import statement `import javax.mvc.Models;`
+
+d. Proposed fixes:
+1. Replace `javax.mvc.Models` with `jakarta.mvc.Models` in the import statement and in the field declaration.
+
+e. Potential side effects:
+The change should not have any side effects as long as the interface `jakarta.mvc.Models` provides the same functionality as the removed class `javax.mvc.Models`.
+
+f. Adherence to constraints:
+1. The function signature of the `toResponse` method is not changed.
+2. No variables are created.
+3. The `@Override` annotation is kept as the method still overrides a method from an interface.
+4. The import statement is updated to use the correct package and class.
+5. No existing code is removed unless it directly causes a compilation error.
+6. All code is included in the final output.
+
+g. Summary:
+The best solution is to replace `javax.mvc.Models` with `jakarta.mvc.Models` in the import statement and in the field declaration. This fixes the compilation error caused by the removal of the `javax.mvc.Models` class and the introduction of the `jakarta.mvc.Models` interface.
+</fix_planning>
+
+```java
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.example.config;
+
+import com.example.domain.TaskNotFoundException;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.inject.Inject;
+import jakarta.mvc.Models;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
+
+/**
+ *
+ * @author hantsy
+ */
+@Provider
+public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFoundException> {
+
+    @Inject Logger log;
+    //private static Logger log = Logger.getLogger(PostNotFoundExceptionMapper.class.getName());
+
+    @Inject
+    Models models;
+
+    @Override
+    public Response toResponse(TaskNotFoundException exception) {
+        log.log(Level.INFO, "handling exception : PostNotFoundException");
+        models.put("error", exception.getMessage());
+        return Response.status(Response.Status.NOT_FOUND).entity("error.xhtml").build();
+    }
+
+}
+```

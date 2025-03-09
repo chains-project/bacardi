@@ -1,0 +1,116 @@
+<fix_planning>
+a. Code and API changes:
+The code uses `Authentication.User` which has been removed in the new version of the `com.artipie.http` dependency. The error occurs in the line `return Optional.of(new Authentication.User("alice"));`.
+
+b. Specific API changes:
+The class `com.artipie.http.auth.Authentication$User` has been removed.
+
+c. Affected lines of code:
+```java
+return Optional.of(new Authentication.User("alice"));
+```
+
+d. Proposed fixes:
+Since `Authentication.User` is removed, we need to find a replacement. Looking at the `com.artipie.http` library, it seems `com.artipie.http.auth.User` is the replacement. We can try replacing `Authentication.User` with `com.artipie.http.auth.User`. This requires adding an import statement for `com.artipie.http.auth.User`.
+
+e. Potential side effects:
+The change might affect the behavior of the code if the new `User` class has different semantics. However, since it's a direct replacement, it's unlikely to cause major issues.
+
+f. Adherence to constraints:
+The proposed change adheres to all constraints:
+- The function signature is not changed.
+- A new import statement is added.
+- No existing code is removed unless it directly causes a compilation error.
+- All code is included in the final output.
+
+g. Final summary:
+The best solution is to replace `Authentication.User` with `com.artipie.http.auth.User` and add the corresponding import statement. This directly addresses the compilation error caused by the API change and is the most straightforward fix.
+</fix_planning>
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
+ * https://github.com/artipie/docker-adapter/LICENSE.txt
+ */
+package com.artipie.docker.http;
+
+import com.artipie.asto.Content;
+import com.artipie.http.Headers;
+import com.artipie.http.Response;
+import com.artipie.http.auth.AuthScheme;
+import com.artipie.http.auth.Authentication;
+import com.artipie.http.rs.StandardRs;
+import java.nio.ByteBuffer;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.core.IsEqual;
+import org.junit.jupiter.api.Test;
+import org.reactivestreams.Publisher;
+import com.artipie.http.auth.User;
+
+/**
+ * Tests for {@link AuthScopeSlice}.
+ *
+ * @since 0.11
+ */
+class AuthScopeSliceTest {
+
+    @Test
+    void testScope() {
+        final String line = "GET /resource.txt HTTP/1.1";
+        final String action = "foo:bar:baz";
+        final AtomicReference<String> caction = new AtomicReference<>();
+        final AtomicReference<String> cline = new AtomicReference<>();
+        new AuthScopeSlice(
+            new ScopeSlice() {
+                @Override
+                public Scope scope(final String rqline) {
+                    cline.set(rqline);
+                    return new Scope.FromString(action);
+                }
+
+                @Override
+                public Response response(
+                    final String line,
+                    final Iterable<Map.Entry<String, String>> headers,
+                    final Publisher<ByteBuffer> body
+                ) {
+                    return StandardRs.OK;
+                }
+            },
+            (headers, rline) -> CompletableFuture.completedFuture(
+                new AuthScheme.Result() {
+                    @Override
+                    public Optional<Authentication.User> user() {
+                        return Optional.of(new User("alice"));
+                    }
+
+                    @Override
+                    public String challenge() {
+                        return "";
+                    }
+                }
+            ),
+            (user, act) -> {
+                caction.set(act);
+                return true;
+            }
+        ).response(line, Headers.EMPTY, Content.EMPTY).send(
+            (status, headers, body) -> CompletableFuture.allOf()
+        ).toCompletableFuture().join();
+        MatcherAssert.assertThat(
+            "Request line passed to slice",
+            cline.get(),
+            new IsEqual<>(line)
+        );
+        MatcherAssert.assertThat(
+            "Scope passed as action to permissions",
+            caction.get(),
+            new IsEqual<>(action)
+        );
+    }
+}
+```

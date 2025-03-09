@@ -1,0 +1,1 @@
+if (tree.size() == 0 || tree.query1NN(coords).dist() > distanceTolerance) {

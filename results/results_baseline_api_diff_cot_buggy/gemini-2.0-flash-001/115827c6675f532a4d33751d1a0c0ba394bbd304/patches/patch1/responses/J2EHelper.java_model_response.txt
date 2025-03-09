@@ -1,0 +1,139 @@
+<fix_planning>
+a. Relevant parts of the code and API changes:
+- Code:
+```java
+import javax.servlet.DispatcherType;
+import javax.servlet.FilterRegistration;
+...
+final FilterRegistration.Dynamic filterRegistration = environment
+                .servlets().addFilter(filter.getClass().getName(), filter);
+...
+filterRegistration.addMappingForUrlPatterns(
+                EnumSet.of(DispatcherType.REQUEST), true, mapping);
+```
+- API Changes:
+  - `javax.servlet.FilterRegistration` has been removed, and `jakarta.servlet.FilterRegistration` has been added.
+  - `javax.servlet.DispatcherType` has been removed, and `jakarta.servlet.DispatcherType` has been added.
+  - `javax.servlet.FilterRegistration$Dynamic` has been removed, and `jakarta.servlet.FilterRegistration$Dynamic` has been added.
+
+b. Specific API changes causing the issue:
+  - The `javax.servlet` package has been replaced with `jakarta.servlet`. This affects the imports and the types used in the code.
+  - `addFilter` method in `io.dropwizard.jetty.setup.ServletEnvironment` now expects a `jakarta.servlet.Filter` instead of `javax.servlet.Filter`.
+
+c. Affected lines of code:
+  - Line 5: `import javax.servlet.DispatcherType;`
+  - Line 6: `import javax.servlet.FilterRegistration;`
+  - Line 37: `filter.setClients(fConf.getClients());` (Indirectly, because it uses javax.servlet.Filter)
+  - Line 77: `final FilterRegistration.Dynamic filterRegistration = environment.servlets().addFilter(filter.getClass().getName(), filter);`
+  - Line 80: `EnumSet.of(DispatcherType.REQUEST), true, mapping);`
+
+d. Proposed fixes for each affected line:
+  - Line 5: Replace `javax.servlet.DispatcherType` with `jakarta.servlet.DispatcherType`.
+  - Line 6: Replace `javax.servlet.FilterRegistration` with `jakarta.servlet.FilterRegistration`.
+  - Line 37: No direct change needed here, but the filter needs to implement `jakarta.servlet.Filter`.
+  - Line 77:
+    - Option 1: Cast the filter to `jakarta.servlet.Filter`. This requires `AbstractConfigFilter` to implement `jakarta.servlet.Filter`.
+    - Option 2: Use `addFilter(String name, Filter filter)` method.
+  - Line 80: Replace `DispatcherType.REQUEST` with `jakarta.servlet.DispatcherType.REQUEST`.
+
+e. Potential side effects of the proposed changes:
+  - Casting the filter to `jakarta.servlet.Filter` might cause issues if `AbstractConfigFilter` or its subclasses don't implement the interface correctly.
+  - Ensure that all classes using `DispatcherType` and `FilterRegistration` are updated to use the `jakarta.servlet` versions.
+
+f. Adherence to constraints:
+  - The function signatures are not changed.
+  - Variables can be created if needed.
+  - `@Override` annotations are not present in the given code.
+  - Missing imports are addressed with the correct package.
+  - No existing code is removed unless it causes errors.
+  - All code is included in the final output.
+
+g. Final summary of the chosen fix:
+The best solution is to:
+1. Replace the `javax.servlet` imports with `jakarta.servlet` imports.
+2. Cast the `filter` to `jakarta.servlet.Filter` when calling `addFilter`. This requires `AbstractConfigFilter` to implement `jakarta.servlet.Filter`. Since `org.pac4j.jee.filter.AbstractConfigFilter` extends `javax.servlet.Filter`, and we are migrating to `jakarta.servlet`, we need to ensure that `AbstractConfigFilter` implements `jakarta.servlet.Filter`. However, we are only allowed to modify the client code, so we will cast the filter to `jakarta.servlet.Filter` assuming that the underlying implementation has been updated to implement the new interface.
+
+```java
+package org.pac4j.dropwizard;
+
+import java.util.EnumSet;
+
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.FilterRegistration;
+
+import org.pac4j.core.config.Config;
+import org.pac4j.dropwizard.Pac4jFactory.ServletCallbackFilterConfiguration;
+import org.pac4j.dropwizard.Pac4jFactory.ServletLogoutFilterConfiguration;
+import org.pac4j.dropwizard.Pac4jFactory.ServletSecurityFilterConfiguration;
+
+import io.dropwizard.setup.Environment;
+import org.pac4j.jee.filter.AbstractConfigFilter;
+import org.pac4j.jee.filter.CallbackFilter;
+import org.pac4j.jee.filter.LogoutFilter;
+import org.pac4j.jee.filter.SecurityFilter;
+
+/**
+ *
+ * @author Evan Meagher
+ * @author Victor Noel - Linagora
+ * @since 1.1.0
+ *
+ */
+public final class J2EHelper {
+
+    private J2EHelper() {
+        // utility class
+    }
+
+    public static void registerSecurityFilter(Environment environment,
+            Config config, ServletSecurityFilterConfiguration fConf) {
+
+        final SecurityFilter filter = new SecurityFilter();
+
+        filter.setClients(fConf.getClients());
+        filter.setAuthorizers(fConf.getAuthorizers());
+        filter.setMatchers(fConf.getMatchers());
+        filter.setMultiProfile(fConf.getMultiProfile());
+
+        registerFilter(environment, config, filter, fConf.getMapping());
+    }
+
+    public static void registerCallbackFilter(Environment environment,
+            Config config, ServletCallbackFilterConfiguration fConf) {
+
+        final CallbackFilter filter = new CallbackFilter();
+
+        filter.setDefaultUrl(fConf.getDefaultUrl());
+        filter.setMultiProfile(fConf.getMultiProfile());
+        filter.setRenewSession(fConf.getRenewSession());
+
+        registerFilter(environment, config, filter, fConf.getMapping());
+    }
+
+    public static void registerLogoutFilter(Environment environment,
+            Config config, ServletLogoutFilterConfiguration fConf) {
+
+        final LogoutFilter filter = new LogoutFilter();
+
+        filter.setDefaultUrl(fConf.getDefaultUrl());
+        filter.setLogoutUrlPattern(fConf.getLogoutUrlPattern());
+        filter.setLocalLogout(fConf.getLocalLogout());
+        filter.setDestroySession(fConf.getDestroySession());
+        filter.setCentralLogout(fConf.getCentralLogout());
+
+        registerFilter(environment, config, filter, fConf.getMapping());
+    }
+
+    private static void registerFilter(Environment environment, Config config,
+                                       AbstractConfigFilter filter, String mapping) {
+
+        filter.setConfigOnly(config);
+
+        final FilterRegistration.Dynamic filterRegistration = environment
+                .servlets().addFilter(filter.getClass().getName(), (jakarta.servlet.Filter) filter);
+
+        filterRegistration.addMappingForUrlPatterns(
+                EnumSet.of(jakarta.servlet.DispatcherType.REQUEST), true, mapping);
+    }
+}
+```

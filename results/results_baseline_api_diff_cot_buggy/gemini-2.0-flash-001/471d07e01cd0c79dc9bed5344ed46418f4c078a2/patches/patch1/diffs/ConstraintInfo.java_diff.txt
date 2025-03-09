@@ -1,0 +1,88 @@
+11c11
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+---
+>  * is distributed under the License is distributed on an "AS IS" BASIS,
+18,20d17
+< import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
+< import com.google.api.services.cloudresourcemanager.model.Constraint;
+< import com.google.api.services.cloudresourcemanager.model.ListConstraint;
+35,36c32,33
+<   static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+<       new Function<Constraint, ConstraintInfo>() {
+---
+>   static final Function<ConstraintInfo, com.google.api.services.cloudresourcemanager.v3.model.Constraint> TO_PROTOBUF_FUNCTION =
+>       new Function<ConstraintInfo, com.google.api.services.cloudresourcemanager.v3.model.Constraint>() {
+38,39c35,36
+<         public ConstraintInfo apply(Constraint protobuf) {
+<           return ConstraintInfo.fromProtobuf(protobuf);
+---
+>         public com.google.api.services.cloudresourcemanager.v3.model.Constraint apply(ConstraintInfo constraintInfo) {
+>           return null;
+42,43c39,40
+<   static final Function<ConstraintInfo, Constraint> TO_PROTOBUF_FUNCTION =
+<       new Function<ConstraintInfo, Constraint>() {
+---
+>   static final Function<com.google.api.services.cloudresourcemanager.v3.model.Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+>       new Function<com.google.api.services.cloudresourcemanager.v3.model.Constraint, ConstraintInfo>() {
+45,46c42,43
+<         public Constraint apply(ConstraintInfo constraintInfo) {
+<           return constraintInfo.toProtobuf();
+---
+>         public ConstraintInfo apply(com.google.api.services.cloudresourcemanager.v3.model.Constraint protobuf) {
+>           return null;
+50c47
+<   private BooleanConstraint booleanConstraint;
+---
+>   private Boolean booleanConstraint;
+113,120d109
+< 
+<     ListConstraint toProtobuf() {
+<       return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
+<     }
+< 
+<     static Constraints fromProtobuf(ListConstraint listConstraint) {
+<       return new Constraints(listConstraint.getSuggestedValue(), listConstraint.getSupportsUnder());
+<     }
+125c114
+<     private BooleanConstraint booleanConstraint;
+---
+>     private Boolean booleanConstraint;
+147c136
+<     Builder setBooleanConstraint(BooleanConstraint booleanConstraint) {
+---
+>     Builder setBooleanConstraint(Boolean booleanConstraint) {
+198c187
+<   public BooleanConstraint getBooleanConstraint() {
+---
+>   public Boolean getBooleanConstraint() {
+265,294d253
+< 
+<   Constraint toProtobuf() {
+<     Constraint constraintProto = new Constraint();
+<     constraintProto.setBooleanConstraint(booleanConstraint);
+<     constraintProto.setConstraintDefault(constraintDefault);
+<     constraintProto.setDescription(description);
+<     constraintProto.setDisplayName(displayName);
+<     if (constraints != null) {
+<       constraintProto.setListConstraint(constraints.toProtobuf());
+<     }
+<     constraintProto.setName(name);
+<     constraintProto.setVersion(version);
+<     return constraintProto;
+<   }
+< 
+<   static ConstraintInfo fromProtobuf(Constraint constraintProtobuf) {
+<     Builder builder = newBuilder(constraintProtobuf.getName());
+<     builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint());
+<     builder.setConstraintDefault(constraintProtobuf.getConstraintDefault());
+<     builder.setDescription(constraintProtobuf.getDescription());
+<     builder.setDisplayName(constraintProtobuf.getDisplayName());
+<     if (constraintProtobuf.getListConstraint() != null) {
+<       builder.setConstraints(Constraints.fromProtobuf(constraintProtobuf.getListConstraint()));
+<     }
+<     if (constraintProtobuf.getName() != null && !constraintProtobuf.getName().equals("Unnamed")) {
+<       builder.setName(constraintProtobuf.getName());
+<     }
+<     builder.setVersion(constraintProtobuf.getVersion());
+<     return builder.build();
+<   }

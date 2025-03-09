@@ -1,0 +1,74 @@
+<fix_planning>
+a. Code and API changes:
+- The code uses `javax.mvc.MvcContext`.
+- The API change states: "Class javax.mvc.MvcContext has been removed in the new version of the dependency."
+
+b. Specific API changes causing the issue:
+- The removal of `javax.mvc.MvcContext` is the direct cause of the compilation error.
+
+c. Affected lines of code:
+- `import javax.mvc.MvcContext;`
+- `private MvcContext mvcContext;`
+- `final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());`
+
+d. Proposed fixes:
+1. Remove the import statement `import javax.mvc.MvcContext;` and the field `private MvcContext mvcContext;`. This will require finding an alternative way to obtain the locale.
+2. Replace `mvcContext.getLocale()` with a different way to obtain the locale. Since `MvcContext` is no longer available, we need to find another way to get the locale. A common approach is to inject `javax.servlet.http.HttpServletRequest` and use `request.getLocale()`.
+
+e. Potential side effects:
+1. Removing `MvcContext` might affect other parts of the application if they also rely on it. However, based on the provided code, the only usage is to get the locale.
+2. Using `HttpServletRequest` directly introduces a dependency on the Servlet API.
+
+f. Adherence to constraints:
+1. The function signature of `get(String key)` remains unchanged.
+2. We might need to create a new variable for `HttpServletRequest`.
+3. We will remove the import statement for `javax.mvc.MvcContext`.
+4. We will add an import statement for `javax.servlet.http.HttpServletRequest`.
+5. We are only removing code that directly causes a compilation error.
+6. All code will be included in the final output.
+
+g. Final summary:
+The best solution is to replace the usage of `MvcContext` with `HttpServletRequest` to obtain the locale. This involves injecting `HttpServletRequest`, removing the `MvcContext` injection, and updating the `get` method to use `request.getLocale()`. This approach addresses the compilation error caused by the removal of `MvcContext` while adhering to the given constraints.
+</fix_planning>
+
+```java
+import java.util.ResourceBundle;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
+//https://www.mvc-spec.org/learn/cookbook/multilang_en.html
+/**
+ * Provides I18n messages for the UI per request. To get the correct locale, the method {@link HttpServletRequest#getLocale()}
+ * is used.
+ *
+ * @author Tobias Erdle
+ * @see HttpServletRequest#getLocale()
+ */
+@RequestScoped
+@Named("msg")
+public class Messages {
+
+    private static final String BASE_NAME = "messages";
+
+    @Inject
+    private HttpServletRequest request;
+
+    /**
+     * Get the assigned message to some key based on the {@link java.util.Locale} of the current request.
+     *
+     * @param key the message key to use
+     * @return the correct translation assigned to the key for the request locale, a fallback translation or a
+     * placeholder for unknown keys.
+     */
+    public final String get(final String key) {
+        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, request.getLocale());
+
+        return bundle.containsKey(key) ? bundle.getString(key) : formatUnknownKey(key);
+    }
+
+    private static String formatUnknownKey(final String key) {
+        return String.format("???%s???", key);
+    }
+}
+```

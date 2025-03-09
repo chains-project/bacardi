@@ -1,0 +1,217 @@
+You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates. Your task is to analyze the provided code, error information, and API changes, then propose and apply a patch to fix the issue while adhering to specific constraints.
+
+Here is the Java code that is failing:
+
+```java
+package org.codehaus.plexus.archiver;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Enumeration;
+
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.codehaus.plexus.PlexusTestCase;
+import org.codehaus.plexus.archiver.tar.TarArchiver;
+import org.codehaus.plexus.archiver.tar.TarLongFileMode;
+import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.util.FileUtils;
+
+/**
+ * @author Erik Engstrom
+ */
+public class DuplicateFilesTest
+    extends PlexusTestCase
+{
+
+    private static final File file1 = getTestFile( "src/test/resources/group-writable/foo.txt" );
+
+    private static final File file2 = getTestFile( "src/test/resources/world-writable/foo.txt" );
+
+    private static final File destination = getTestFile( "target/output/duplicateFiles" );
+
+    public void setUp()
+        throws Exception
+    {
+        super.setUp();
+        getContainer().getLoggerManager().setThreshold( Logger.LEVEL_DEBUG );
+    }
+
+    public void testZipArchiver()
+        throws Exception
+    {
+        Archiver archiver = (Archiver) lookup( Archiver.ROLE, "zip" );
+        archiver.setDuplicateBehavior( Archiver.DUPLICATES_SKIP );
+
+        File archive = createArchive( archiver, "zip" );
+
+        org.apache.commons.compress.archivers.zip.ZipFile zf =
+            new org.apache.commons.compress.archivers.zip.ZipFile( archive );
+
+        Enumeration<ZipArchiveEntry> e = zf.getEntries();
+        int entryCount = 0;
+        while ( e.hasMoreElements() )
+        {
+            ZipArchiveEntry entry = e.nextElement();
+            System.out.println( entry.getName() );
+            entryCount++;
+        }
+        zf.close();
+
+        // Zip file should have 2 entries, 1 for the directory and one for foo.txt
+        assertEquals( 2, entryCount );
+        testArchive( archive, "zip" );
+    }
+
+    public void testDirArchiver()
+        throws Exception
+    {
+        Archiver archiver = (Archiver) lookup( Archiver.ROLE, "dir" );
+        createArchive( archiver, "dir" );
+        testFinalFile( "target/output/duplicateFiles.dir/duplicateFiles/foo.txt" );
+
+    }
+
+    public void testTarArchiver()
+        throws Exception
+    {
+        TarArchiver archiver = (TarArchiver) lookup( Archiver.ROLE, "tar" );
+        archiver.setLongfile( TarLongFileMode.posix );
+        archiver.setDuplicateBehavior( Archiver.DUPLICATES_SKIP );
+
+        File archive = createArchive( archiver, "tar" );
+        TarArchiveInputStream tis;
+
+        tis = new TarArchiveInputStream( new BufferedInputStream( Files.newInputStream( archive.toPath() ) ) );
+        int entryCount = 0;
+        while ( ( tis.getNextEntry() ) != null )
+        {
+            entryCount++;
+        }
+        assertEquals( 1, entryCount );
+        testArchive( archive, "tar" );
+        tis.close();
+    }
+
+    private File createArchive( Archiver archiver, String outputFileExt )
+        throws Exception
+    {
+        archiver.addFile( file1, "duplicateFiles/foo.txt" );
+        archiver.addFile( file2, "duplicateFiles/foo.txt" );
+
+        // delete it if it exists to ensure it is actually empty
+        if ( destination.exists() )
+        {
+            destination.delete();
+        }
+
+        File archive = getTestFile( "target/output/duplicateFiles." + outputFileExt );
+        if ( archive.exists() )
+        {
+            if ( archive.isDirectory() )
+            {
+                FileUtils.deleteDirectory( archive );
+            }
+            else
+            {
+                archive.delete();
+            }
+        }
+
+        archiver.setDestFile( archive );
+        archiver.createArchive();
+        return archive;
+    }
+
+    private void testArchive( File archive, String role )
+        throws Exception
+    {
+        // Check the content of the archive by extracting it
+
+        UnArchiver unArchiver = (UnArchiver) lookup( UnArchiver.ROLE, role );
+        unArchiver.setSourceFile( archive );
+
+        unArchiver.setDestDirectory( getTestFile( "target/output/" ) );
+        unArchiver.extract();
+
+        assertTrue( destination.exists() );
+        assertTrue( destination.isDirectory() );
+        testFinalFile( "target/output/duplicateFiles/foo.txt" );
+    }
+
+    private void testFinalFile( String path )
+        throws Exception
+    {
+        File outputFile = getTestFile( path );
+        assertTrue( outputFile.exists() );
+        BufferedReader reader = Files.newBufferedReader( outputFile.toPath(), StandardCharsets.UTF_8 );
+        String firstLine = reader.readLine();
+        reader.close();
+        reader = Files.newBufferedReader( file2.toPath(), StandardCharsets.UTF_8 );
+        String expectedFirstLine = reader.readLine();
+        reader.close();
+        assertEquals( expectedFirstLine, firstLine );
+    }
+
+}
+
+```
+
+The error is triggered in the following specific lines:
+
+<error_lines>
+```java
+getContainer().getLoggerManager().setThreshold( Logger.LEVEL_DEBUG );
+```
+</error_lines>
+
+The API of the dependency has changed. Here are the relevant changes:
+
+     Method org.codehaus.plexus.PlexusContainer.getLoggerManager() has been removed in the new version of the dependency.
+
+Additional error information:
+
+<error_information>
+[ERROR] /plexus-archiver/src/test/java/org/codehaus/plexus/archiver/DuplicateFilesTest.java:[37,23] cannot find symbol
+  symbol:   method getLoggerManager()
+  location: interface org.codehaus.plexus.PlexusContainer
+<error_information>
+
+Your task is to fix the issue by modifying only the client code. Follow these steps:
+
+1. Analyze the problem and propose changes by wrapping the work inside fix_planning tags. This analysis is for your internal use only and will not be included in the final output. In your analysis:
+   a. Quote relevant parts of the code and API changes
+   b. Identify the specific API changes causing the issue
+   c. List the affected lines of code
+   d. Propose potential fixes for each affected line
+   e. Consider any potential side effects of the proposed changes
+   f. Explicitly check if the proposed changes adhere to all the given constraints
+   g. Provide a final summary of the chosen fix and why it's the best solution
+
+2. Apply the fix to the Java code.
+
+3. Output the complete, fixed Java class in a fenced code block. This should be the only visible output in your response.
+
+Constraints:
+1. Do not change the function signature of any method.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error.
+6. Include all code, even unchanged portions, in your final output.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
+
+Your final output should only contain the complete, fixed Java class in a fenced code block, without any explanations or analysis visible. The <fix_planning> section is for your internal use only.
+
+Example output structure:
+
+```java
+[Complete, fixed Java class]
+```
+
+Please proceed with your analysis and solution.

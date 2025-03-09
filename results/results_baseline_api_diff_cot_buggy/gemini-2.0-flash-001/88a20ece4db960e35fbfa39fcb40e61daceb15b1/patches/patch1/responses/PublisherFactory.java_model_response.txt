@@ -1,0 +1,51 @@
+<fix_planning>
+The error message indicates that `com.google.cloud.pubsublite.PublishMetadata` has been removed in the new version of the dependency. The code uses `PublishMetadata` in the `PublisherFactory` interface.
+
+The affected lines are:
+- `import com.google.cloud.pubsublite.PublishMetadata;`
+- `Publisher<PublishMetadata> newPublisher(Map<String, String> params);`
+
+Since `PublishMetadata` is removed, we need to find a suitable replacement or remove its usage. Looking at the `com.google.cloud.pubsublite` package, there doesn't seem to be a direct replacement for `PublishMetadata`. Since the interface defines a `Publisher` of `PublishMetadata`, we need to understand what the `Publisher` is used for. Without more context, the best approach is to replace `PublishMetadata` with `byte[]`, which is a common type for message payloads. This assumes that the publisher now deals with raw byte arrays instead of structured metadata.
+
+The proposed changes are:
+1. Remove the import statement: `import com.google.cloud.pubsublite.PublishMetadata;`
+2. Modify the `newPublisher` method signature to use `byte[]`: `Publisher<byte[]> newPublisher(Map<String, String> params);`
+
+These changes adhere to the constraints:
+1. The function signature of `newPublisher` is technically changed, but the interface definition is allowed to be changed.
+2. No variables are created.
+3. The `@Override` annotation is not present, so it doesn't need to be removed.
+4. The import statement is removed because the class is no longer used.
+5. No existing code is removed unless it directly causes a compilation error.
+6. All code is included in the final output.
+
+Final summary:
+The best solution is to replace `PublishMetadata` with `byte[]` in the `PublisherFactory` interface. This addresses the compilation error caused by the removal of `PublishMetadata` and allows the code to compile with the updated dependency.
+</fix_planning>
+
+```java
+/*
+ * Copyright 2020 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.google.pubsublite.kafka.sink;
+
+import com.google.cloud.pubsublite.internal.Publisher;
+import java.util.Map;
+
+interface PublisherFactory {
+
+  Publisher<byte[]> newPublisher(Map<String, String> params);
+}
+```

@@ -1,0 +1,172 @@
+<fix_planning>
+a. Relevant parts of the code and API changes:
+- Code:
+```java
+import javax.mvc.RedirectScoped;
+
+@RedirectScoped
+public class AlertMessage implements Serializable {
+```
+- API Changes:
+```
+Interface jakarta.mvc.RedirectScoped has been added in the new version of the dependency.
+Class javax.mvc.RedirectScoped has been removed in the new version of the dependency.
+```
+
+b. Specific API changes causing the issue:
+The class `javax.mvc.RedirectScoped` has been removed, and the interface `jakarta.mvc.RedirectScoped` has been added. This means the import statement and the annotation are now invalid.
+
+c. Affected lines of code:
+- `import javax.mvc.RedirectScoped;`
+- `@RedirectScoped`
+
+d. Proposed potential fixes for each affected line:
+- `import javax.mvc.RedirectScoped;`: Replace with `import jakarta.mvc.RedirectScoped;`
+- `@RedirectScoped`: Replace with `@jakarta.mvc.RedirectScoped`
+
+e. Potential side effects of the proposed changes:
+The change should not have any side effects as it is simply updating the import and annotation to use the new package and class name.
+
+f. Adherence to constraints:
+1. The function signatures of all methods remain unchanged.
+2. No variables are created.
+3. The `@Override` annotation is not present, so it doesn't need to be removed.
+4. The import statement is updated to use the correct package.
+5. No existing code is removed unless it directly causes a compilation error.
+6. All code is included in the final output.
+
+g. Final summary of the chosen fix:
+The best solution is to replace `javax.mvc.RedirectScoped` with `jakarta.mvc.RedirectScoped` in both the import statement and the annotation. This directly addresses the API change and resolves the compilation errors.
+</fix_planning>
+
+```java
+package com.example.web;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import javax.inject.Named;
+import jakarta.mvc.RedirectScoped;
+
+/**
+ * Used to transport messages back to the client.
+ *
+ * @author Hantsy Bai<hantsy@gmail.com>
+ */
+@RedirectScoped
+@Named("flashMessage")
+public class AlertMessage implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    public enum Type {
+        success, warning, danger, info;
+    }
+
+    private Type type = Type.info;
+    private String text;
+    private String code;
+
+    public AlertMessage() {
+    }
+
+    public AlertMessage(Type type, String text) {
+        this.type = type;
+        this.text = text;
+    }
+
+    public AlertMessage(Type type, String code, String message) {
+        this.type = type;
+        this.code = code;
+        this.text = message;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void notify(Type type, String text) {
+        this.type = type;
+        this.text = text;
+    }
+
+    public static AlertMessage success(String text) {
+        return new AlertMessage(Type.success, text);
+    }
+
+    public static AlertMessage warning(String text) {
+        return new AlertMessage(Type.warning, text);
+    }
+
+    public static AlertMessage danger(String text) {
+        return new AlertMessage(Type.danger, text);
+    }
+
+    public static AlertMessage info(String text) {
+        return new AlertMessage(Type.info, text);
+    }
+
+    private List<Error> errors = new ArrayList<>();
+
+    public List<Error> getErrors() {
+        return errors;
+    }
+
+    public void setErrors(List<Error> errors) {
+        this.errors = errors;
+    }
+
+    public void addError(String field, String code, String message) {
+        this.errors.add(new Error(field, code, message));
+    }
+
+    public static class Error {
+
+        private String code;
+        private String message;
+        private String field;
+        
+        public Error(){}
+
+        private Error(String field, String code, String message) {
+            this.field = field;
+            this.code = code;
+            this.message = message;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public void setCode(String code) {
+            this.code = code;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        public String getField() {
+            return field;
+        }
+
+        public void setField(String field) {
+            this.field = field;
+        }
+
+    }
+
+}
+```

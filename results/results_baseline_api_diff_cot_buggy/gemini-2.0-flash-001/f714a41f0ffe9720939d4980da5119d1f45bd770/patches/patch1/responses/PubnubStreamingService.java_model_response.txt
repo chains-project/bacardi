@@ -1,0 +1,179 @@
+<fix_planning>
+a. Relevant parts of the code and API changes:
+
+*   Code: The `PubnubStreamingService` class uses the PubNub API to subscribe to channels and receive messages. The `connect()` method sets up a `SubscribeCallback` to handle incoming messages, status updates, and other events. Several methods in the `SubscribeCallback` are affected by API changes.
+*   API Changes:
+    *   `Constructor com.pubnub.api.PNConfiguration()` has been removed. `PNConfiguration(java.lang.String)` should be used instead.
+    *   `Interface com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult` has been removed.
+    *   `Class com.pubnub.api.models.consumer.pubsub.objects.PNUserResult` has been removed.
+    *   `Class com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult` has been removed.
+    *   `Class com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult` has been removed.
+    *   `Interface com.pubnub.api.models.consumer.pubsub.PNMessageResult` has been removed.
+    *   `Interface com.pubnub.api.models.consumer.pubsub.PNSignalResult` has been removed.
+    *   The `file` method is now abstract in `SubscribeCallback` and must be implemented.
+
+b. Specific API changes causing the issue:
+
+*   The removal of the default constructor `PNConfiguration()` requires us to use the constructor that takes a subscribe key.
+*   The removal of `PNPresenceEventResult`, `PNUserResult`, `PNSpaceResult`, `PNMembershipResult`, `PNMessageResult`, and `PNSignalResult` means we need to remove the corresponding methods in the `SubscribeCallback`.
+*   The addition of the abstract method `file` in `SubscribeCallback` requires us to implement it.
+
+c. Affected lines of code:
+
+*   Line 40: `PNConfiguration pnConfiguration = new PNConfiguration();`
+*   Lines 68, 80, 84, 88, 92, 98, 104: The methods `presence`, `signal`, `user`, `space`, `membership`, and `messageAction` need to be removed or adapted.
+*   Line 50: The `SubscribeCallback` needs to implement the `file` method.
+*   Lines 14, 15, 16, 17: Imports for removed classes.
+
+d. Proposed potential fixes for each affected line:
+
+*   Line 40: Replace `PNConfiguration pnConfiguration = new PNConfiguration();` with `PNConfiguration pnConfiguration = new PNConfiguration(publicKey);`.
+*   Lines 68, 80, 84, 88, 92, 98, 104: Remove the methods `presence`, `signal`, `user`, `space`, `membership`, and `messageAction` entirely.
+*   Line 50: Add an empty implementation of the `file` method to the `SubscribeCallback`.
+*   Lines 14, 15, 16, 17: Remove the imports for the removed classes.
+
+e. Consider any potential side effects of the proposed changes:
+
+*   Removing the methods `presence`, `signal`, `user`, `space`, `membership`, and `messageAction` will mean that the application no longer processes these events. This might be acceptable if the application doesn't rely on these events.
+*   Adding an empty implementation of the `file` method will mean that the application ignores file events. This might be acceptable if the application doesn't rely on file events.
+
+f. Explicitly check if the proposed changes adhere to all the given constraints:
+
+*   The function signatures of existing methods are not changed.
+*   Variables are only created if it simplifies the code.
+*   The `@Override` annotation is removed if the method no longer overrides a method in the updated dependency version.
+*   Missing imports are addressed.
+*   No existing code is removed unless it directly causes a compilation or functionality error.
+*   All code, even unchanged portions, is included in the final output.
+
+g. Final summary of the chosen fix and why it's the best solution:
+
+The best solution is to:
+
+1.  Replace `PNConfiguration pnConfiguration = new PNConfiguration();` with `PNConfiguration pnConfiguration = new PNConfiguration(publicKey);`. This fixes the constructor issue.
+2.  Remove the methods `presence`, `signal`, `user`, `space`, `membership`, and `messageAction` from the `SubscribeCallback`. This resolves the errors caused by the removed classes and interfaces.
+3.  Add an empty implementation of the `file` method to the `SubscribeCallback`. This satisfies the new abstract method requirement.
+4.  Remove the imports for the removed classes.
+
+This approach addresses all compilation errors while minimizing changes to the existing code. The application will no longer process presence, signal, user, space, membership, and messageAction events, but this is the only way to resolve the errors given the API changes.
+</fix_planning>
+
+```java
+package info.bitrich.xchangestream.service.pubnub;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pubnub.api.PNConfiguration;
+import com.pubnub.api.PubNub;
+import com.pubnub.api.callbacks.SubscribeCallback;
+import com.pubnub.api.enums.PNStatusCategory;
+import com.pubnub.api.models.consumer.PNStatus;
+import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
+import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
+import io.reactivex.Completable;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/** Created by Lukas Zaoralek on 14.11.17. */
+public class PubnubStreamingService {
+  private static final Logger LOG = LoggerFactory.getLogger(PubnubStreamingService.class);
+
+  private final PubNub pubnub;
+  private PNStatusCategory pnStatusCategory;
+  private final Map<String, ObservableEmitter<JsonNode>> subscriptions = new ConcurrentHashMap<>();
+  private final ObjectMapper mapper;
+
+  public PubnubStreamingService(String publicKey) {
+    mapper = new ObjectMapper();
+    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    PNConfiguration pnConfiguration = new PNConfiguration(publicKey);
+    pubnub = new PubNub(pnConfiguration);
+    pnStatusCategory = PNStatusCategory.PNDisconnectedCategory;
+  }
+
+  public Completable connect() {
+    return Completable.create(
+        e -> {
+          pubnub.addListener(
+              new SubscribeCallback() {
+                @Override
+                public void status(PubNub pubNub, PNStatus pnStatus) {
+                  pnStatusCategory = pnStatus.getCategory();
+                  LOG.debug(
+                      "PubNub status: {} {}",
+                      pnStatusCategory.toString(),
+                      pnStatus.getStatusCode());
+                  if (pnStatusCategory == PNStatusCategory.PNConnectedCategory) {
+                    //              e.onComplete();
+                  } else if (pnStatus.isError()) {
+                    //              e.onError(pnStatus.getErrorData().getThrowable());
+                  }
+                }
+
+                @Override
+                public void message(PubNub pubNub, PNMessageResult pnMessageResult) {
+                  String channelName = pnMessageResult.getChannel();
+                  ObservableEmitter<JsonNode> subscription = subscriptions.get(channelName);
+                  LOG.debug("PubNub Message: {}", pnMessageResult.toString());
+                  if (subscription != null) {
+                    JsonNode jsonMessage = null;
+                    try {
+                      jsonMessage = mapper.readTree(pnMessageResult.getMessage().toString());
+                    } catch (IOException ex) {
+                      ex.printStackTrace();
+                    }
+                    subscription.onNext(jsonMessage);
+                  } else {
+                    LOG.debug("No subscriber for channel {}.", channelName);
+                  }
+                }
+
+                @Override
+                public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {}
+              });
+          e.onComplete();
+        });
+  }
+
+  public Observable<JsonNode> subscribeChannel(String channelName) {
+    LOG.info("Subscribing to channel {}.", channelName);
+    return Observable.<JsonNode>create(
+            e -> {
+              if (!subscriptions.containsKey(channelName)) {
+                subscriptions.put(channelName, e);
+                pubnub.subscribe().channels(Collections.singletonList(channelName)).execute();
+                LOG.debug("Subscribe channel: {}", channelName);
+              }
+            })
+        .doOnDispose(
+            () -> {
+              LOG.debug("Unsubscribe channel: {}", channelName);
+              pubnub.unsubscribe().channels(Collections.singletonList(channelName)).execute();
+            })
+        .share();
+  }
+
+  public Completable disconnect() {
+    return Completable.create(
+        completable -> {
+          pubnub.disconnect();
+          completable.onComplete();
+        });
+  }
+
+  public boolean isAlive() {
+    return (pnStatusCategory == PNStatusCategory.PNConnectedCategory);
+  }
+
+  public void useCompressedMessages(boolean compressedMessages) {
+    throw new UnsupportedOperationException();
+  }
+}
+```

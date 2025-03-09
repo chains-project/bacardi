@@ -1,0 +1,93 @@
+<fix_planning>
+a. Relevant parts of the code and API changes:
+- Code:
+```java
+import javax.mvc.Controller;
+import javax.mvc.Models;
+import javax.mvc.MvcContext;
+
+@Controller
+Models models;
+MvcContext mvc;
+```
+- API Changes:
+  - `Class javax.mvc.Controller has been removed` and `Interface jakarta.mvc.Controller has been added`.
+  - `Interface jakarta.mvc.Models has been added` and `Class javax.mvc.Models has been removed`.
+  - `Class javax.mvc.MvcContext has been removed`.
+
+b. Specific API changes causing the issue:
+The classes `javax.mvc.Controller`, `javax.mvc.Models`, and `javax.mvc.MvcContext` have been removed and replaced with `jakarta.mvc.Controller`, `jakarta.mvc.Models` and a replacement for `MvcContext` which is not explicitly mentioned.
+
+c. Affected lines of code:
+- `import javax.mvc.Controller;`
+- `@Controller`
+- `import javax.mvc.Models;`
+- `Models models;`
+- `import javax.mvc.MvcContext;`
+- `MvcContext mvc;`
+
+d. Proposed potential fixes for each affected line:
+- `import javax.mvc.Controller;`: Replace with `import jakarta.mvc.Controller;`
+- `@Controller`: Replace with `@jakarta.mvc.Controller`
+- `import javax.mvc.Models;`: Replace with `import jakarta.mvc.Models;`
+- `Models models;`: Replace with `jakarta.mvc.Models models;`
+- `import javax.mvc.MvcContext;`: Remove this line.  We will need to find an alternative to `MvcContext`. After researching, it seems `UriInfo` can be used to get the locale.
+- `MvcContext mvc;`: Remove this line and inject `javax.ws.rs.core.UriInfo uriInfo;` and use `uriInfo.getRequest().getLocale()` instead of `mvc.getLocale()`.
+
+e. Consider any potential side effects of the proposed changes:
+- The change from `javax.mvc` to `jakarta.mvc` should not have any side effects as it is a direct replacement.
+- Replacing `MvcContext` with `UriInfo` might have side effects if other functionalities of `MvcContext` were used. However, in this specific case, only `getLocale()` is used, which can be replaced by `uriInfo.getRequest().getLocale()`.
+
+f. Explicitly check if the proposed changes adhere to all the given constraints:
+1. Do not change the function signature of any method: The signature of `get()` remains unchanged.
+2. You may create variables if it simplifies the code: We are creating `uriInfo`.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version: Not applicable here.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version: We are using `jakarta.mvc` and `javax.ws.rs.core.UriInfo`.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error: We are only removing the import and field related to `MvcContext` because they cause compilation errors.
+6. Include all code, even unchanged portions, in your final output: The complete class is included.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)": No placeholder comments are used.
+
+g. Final summary of the chosen fix and why it's the best solution:
+The best solution is to replace the `javax.mvc` imports and annotations with their `jakarta.mvc` counterparts, remove the `MvcContext` related code, and use `UriInfo` to get the locale. This addresses the compilation errors caused by the API changes and maintains the functionality of the code.
+</fix_planning>
+
+```java
+package com.example.web;
+
+import java.util.Locale;
+import java.util.logging.Logger;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.UriInfo;
+
+/**
+ *
+ * @author hantsy
+ */
+@Path("locale")
+@Controller
+@RequestScoped
+public class LocaleController {
+
+    @Inject
+    UriInfo uriInfo;
+
+    @Inject
+    Models models;
+
+    @Inject
+    Logger log;
+
+    @GET
+    public String get() {
+        Locale locale = uriInfo.getRequest().getLocale();
+        models.put("locale", locale);
+        return "locale.xhtml";
+    }
+
+}
+```

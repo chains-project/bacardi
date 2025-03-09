@@ -1,0 +1,125 @@
+21,22c21,22
+<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+<  * SOFTWARE.
+---
+>  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+>  * THE SOFTWARE.
+29a30
+> import java.util.Arrays;
+33d33
+< import org.cactoos.iterable.LengthOf;
+35d34
+< import org.cactoos.scalar.IoCheckedScalar;
+37,38d35
+< import org.cactoos.scalar.StickyScalar;
+< import org.cactoos.scalar.UncheckedScalar;
+40d36
+< import org.cactoos.text.SplitText;
+42d37
+< import org.cactoos.text.TrimmedText;
+44a40
+> import org.cactoos.scalar.LengthOf;
+88c84
+<     private final IoCheckedScalar<String> transaction;
+---
+>     private final String transaction;
+95,102c91,92
+<         this.transaction = new IoCheckedScalar<>(
+<             new StickyScalar<>(
+<                 () -> {
+<                     if (
+<                         new TrimmedText(
+<                             new TextOf(trnsct)
+<                         ).asString().isEmpty()
+<                     ) {
+---
+>         try {
+>             if (trnsct.trim().isEmpty()) {
+109c99
+<                             new SplitText(trnsct, ";")
+---
+>                     Arrays.asList(trnsct.split(";"))
+112c102
+<                     if (new LengthOf(pieces).intValue() != 7) {
+---
+>             if (new LengthOf(pieces).value().intValue() != 7) {
+121c111,113
+<                     return trnsct;
+---
+>             this.transaction = trnsct;
+>         } catch (final IOException ex) {
+>             throw new IllegalArgumentException(ex);
+123,124d114
+<             )
+<         );
+131,133c121,122
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     0, new SplitText(this.transaction.value(), ";")
+---
+>             new TextOf(
+>                 Arrays.asList(this.transaction.split(";")).get(0)
+135d123
+<             ).value()
+156,158c144,145
+<                 new IoCheckedScalar<>(
+<                     new ItemAt<>(
+<                         1, new SplitText(this.transaction.value(), ";")
+---
+>                 new TextOf(
+>                     Arrays.asList(this.transaction.split(";")).get(1)
+160d146
+<                 ).value()
+169,171c155,156
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     2, new SplitText(this.transaction.value(), ";")
+---
+>             new TextOf(
+>                 Arrays.asList(this.transaction.split(";")).get(2)
+173d157
+<             ).value()
+193,196c177,178
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+<                     3, new SplitText(this.transaction.value(), ";")
+---
+>             new TextOf(
+>                 Arrays.asList(this.transaction.split(";")).get(3)
+198d179
+<             ).value()
+213,216c194,195
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+<                     4, new SplitText(this.transaction.value(), ";")
+---
+>             new TextOf(
+>                 Arrays.asList(this.transaction.split(";")).get(4)
+218d196
+<             ).value()
+237,240c215,216
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+<                     5, new SplitText(this.transaction.value(), ";")
+---
+>             new TextOf(
+>                 Arrays.asList(this.transaction.split(";")).get(5)
+242d217
+<             ).value()
+261,264c236,237
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+<                     6, new SplitText(this.transaction.value(), ";")
+---
+>             new TextOf(
+>                 Arrays.asList(this.transaction.split(";")).get(6)
+266d238
+<             ).value()
+286c258
+<         return new UncheckedScalar<>(this.transaction).value();
+---
+>         return this.transaction;

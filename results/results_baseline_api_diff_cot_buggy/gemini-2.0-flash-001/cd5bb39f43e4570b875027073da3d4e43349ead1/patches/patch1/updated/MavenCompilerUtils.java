@@ -1,0 +1,132 @@
+/*
+ * Copyright 2019 Danny van Heumen
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.simplify4u.plugins.utils;
+
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.repository.RepositorySystem;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.StringReader;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import static java.util.Arrays.stream;
+import static java.util.Collections.emptySet;
+import static java.util.Objects.requireNonNull;
+
+/**
+ * Utilities specific for org.apache.maven.plugins:maven-compiler-plugin.
+ */
+public final class MavenCompilerUtils {
+
+    private static final String GROUPID = "org.apache.maven.plugins";
+    private static final String ARTIFACTID = "maven-compiler-plugin";
+
+    private static final String PACKAGING = "jar";
+
+    private MavenCompilerUtils() {
+        // No need to instantiate utility class.
+    }
+
+    /**
+     * Check if provided plugin is org.apache.maven.plugins:maven-compiler-plugin.
+     *
+     * @param plugin any plugin instance
+     * @return Returns true iff plugin is maven-compiler-plugin.
+     */
+    public static boolean checkCompilerPlugin(Plugin plugin) {
+        return GROUPID.equals(plugin.getGroupId()) && ARTIFACTID.equals(plugin.getArtifactId());
+    }
+
+    /**
+     * Extract annotation processors for maven-compiler-plugin configuration.
+     *
+     * @param system maven repository system
+     * @param plugin maven-compiler-plugin plugin
+     * @return Returns set of maven artifacts configured as annotation processors.
+     */
+    public static Set<Artifact> extractAnnotationProcessors(RepositorySystem system, Plugin plugin) {
+        requireNonNull(system);
+        if (!checkCompilerPlugin(plugin)) {
+            throw new IllegalArgumentException("Plugin is not '" + GROUPID + ":" + ARTIFACTID + "'.");
+        }
+        final Object config = plugin.getConfiguration();
+        if (config == null) {
+            return emptySet();
+        }
+
+        try {
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            String configString = config.toString();
+            InputSource is = new InputSource(new StringReader(configString));
+            Document doc = dBuilder.parse(is);
+            doc.getDocumentElement().normalize();
+
+            NodeList annotationProcessorPathsList = doc.getElementsByTagName("annotationProcessorPaths");
+
+            Stream<Node> annotationProcessorPathsStream = IntStream.range(0, annotationProcessorPathsList.getLength())
+                    .mapToObj(annotationProcessorPathsList::item);
+
+            return annotationProcessorPathsStream
+                    .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
+                    .flatMap(aggregate -> {
+                        Element aggregateElement = (Element) aggregate;
+                        NodeList pathList = aggregateElement.getElementsByTagName("path");
+                        return IntStream.range(0, pathList.getLength()).mapToObj(pathList::item);
+                    })
+                    .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
+                    .map(processor -> system.createArtifact(
+                            extractChildValue((Element) processor, "groupId"),
+                            extractChildValue((Element) processor, "artifactId"),
+                            extractChildValue((Element) processor, "version"),
+                            PACKAGING))
+                    // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
+                    // therefore there is little use in logging incomplete paths that are filtered out.
+                    .filter(a -> !a.getGroupId().isEmpty())
+                    .filter(a -> !a.getArtifactId().isEmpty())
+                    .filter(a -> !a.getVersion().isEmpty())
+                    .collect(Collectors.toSet());
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Extract child value if child is present, or return empty string if absent.
+     *
+     * @param node the parent node
+     * @param name the child node name
+     * @return Returns child value if child node present or otherwise empty string.
+     */
+    private static String extractChildValue(Element node, String name) {
+        NodeList nodeList = node.getElementsByTagName(name);
+        if (nodeList.getLength() > 0) {
+            return nodeList.item(0).getTextContent();
+        }
+        return "";
+    }
+}
