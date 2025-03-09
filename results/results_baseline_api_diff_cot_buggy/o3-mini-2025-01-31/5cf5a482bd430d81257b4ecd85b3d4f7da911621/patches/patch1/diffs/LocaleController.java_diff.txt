@@ -1,0 +1,23 @@
+7,11c7,12
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.MvcContext;
+< import javax.ws.rs.GET;
+< import javax.ws.rs.Path;
+---
+> import jakarta.mvc.Controller;
+> import jakarta.mvc.Models;
+> import jakarta.servlet.http.HttpServletRequest;
+> import jakarta.ws.rs.GET;
+> import jakarta.ws.rs.Path;
+> import jakarta.ws.rs.core.Context;
+22,23c23,24
+<     @Inject
+<     MvcContext mvc;
+---
+>     @Context
+>     private HttpServletRequest request;
+33c34
+<         Locale locale = mvc.getLocale();
+---
+>         Locale locale = request.getLocale();

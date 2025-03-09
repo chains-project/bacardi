@@ -1,0 +1,49 @@
+1,4d0
+< /*
+<  * Copyright (c) 2012 - 2016 Jadler contributors
+<  * This program is made available under the terms of the MIT License.
+<  */
+9a6,9
+> import org.eclipse.jetty.server.ServerConnector;
+> import org.eclipse.jetty.server.HttpConfiguration;
+> import org.eclipse.jetty.server.HttpConnectionFactory;
+> import org.eclipse.jetty.util.thread.QueuedThreadPool;
+13,15d12
+< import org.eclipse.jetty.server.Connector;
+< import org.eclipse.jetty.server.nio.SelectChannelConnector;
+< 
+17,19d13
+< /**
+<  * Default stub http server implementation using Jetty as an http server.
+<  */
+24c18
+<     private final Connector httpConnector;
+---
+>     private final ServerConnector httpConnector;
+30d23
+< 
+32,34c25,26
+<         this.server = new Server();
+<         this.server.setSendServerVersion(false);
+<         this.server.setSendDateHeader(true);
+---
+>         // Initialize the Jetty server with a default thread pool.
+>         this.server = new Server(new QueuedThreadPool());
+36c28,34
+<         this.httpConnector = new SelectChannelConnector();
+---
+>         // Set up HTTP configuration with the desired headers.
+>         HttpConfiguration httpConfiguration = new HttpConfiguration();
+>         httpConfiguration.setSendServerVersion(false);
+>         httpConfiguration.setSendDateHeader(true);
+>         
+>         // Create and configure the ServerConnector with the new API.
+>         this.httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfiguration));
+41d38
+< 
+52d48
+< 
+63d58
+< 
+74d68
+< 

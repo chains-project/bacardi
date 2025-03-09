@@ -1,0 +1,98 @@
+28a29
+> import java.nio.file.Files;
+30c31,32
+< import org.cactoos.collection.Filtered;
+---
+> import java.util.List;
+> import java.util.Collections;
+34a37
+> import org.cactoos.iterable.Filtered;
+36d38
+< import org.cactoos.scalar.CheckedScalar;
+38d39
+< import org.cactoos.scalar.UncheckedScalar;
+40d40
+< import org.cactoos.text.SplitText;
+201,213c201,205
+<             return new CheckedScalar<>(
+<                 () -> Long.parseUnsignedLong(
+<                     new ListOf<>(
+<                         new SplitText(
+<                             new TextOf(this.path),
+<                             "\n"
+<                         )
+<                     ).get(2).asString(),
+<                     // @checkstyle MagicNumber (1 line)
+<                     16
+<                 ),
+<                 e -> new IOException(e)
+<             ).value();
+---
+>             List<String> lines = Files.readAllLines(this.path);
+>             if (lines.size() < 3) {
+>                 throw new IOException("File does not contain enough lines to extract ID");
+>             }
+>             return Long.parseUnsignedLong(lines.get(2), 16);
+240,241c232
+<                             other.id(),
+<                             this.id()
+---
+>                             this.id(), other.id()
+248,260c239,255
+<                 incoming -> new Filtered<>(
+<                     origin -> new UncheckedScalar<>(
+<                         new Or(
+<                             () -> incoming.equals(origin),
+<                             () -> incoming.id() == origin.id()
+<                                 && incoming.bnf().equals(origin.bnf()),
+<                             () -> incoming.id() == origin.id()
+<                                 && incoming.amount() < 0L,
+<                             () -> incoming.prefix().equals(origin.prefix())
+<                         )
+<                     ).value(),
+<                     ledger
+<                 ).isEmpty(),
+---
+>                 incoming -> {
+>                     boolean found = false;
+>                     for (Transaction origin : ledger) {
+>                         try {
+>                             if (incoming.equals(origin)
+>                                 || (incoming.id() == origin.id() && incoming.bnf().equals(origin.bnf()))
+>                                 || (incoming.id() == origin.id() && incoming.amount() < 0L)
+>                                 || incoming.prefix().equals(origin.prefix())) {
+>                                 found = true;
+>                                 break;
+>                             }
+>                         } catch (Exception e) {
+>                             throw new RuntimeException(e);
+>                         }
+>                     }
+>                     return !found;
+>                 },
+270a266,275
+>             List<String> lines;
+>             try {
+>                 lines = Files.readAllLines(this.path);
+>             } catch (IOException ex) {
+>                 throw new RuntimeException(ex);
+>             }
+>             if (lines.size() <= 5) {
+>                 return Collections.emptyList();
+>             }
+>             List<String> txLines = lines.subList(5, lines.size());
+272,282c277,278
+<                 txt -> new RtTransaction(txt.asString()),
+<                 new Skipped<>(
+<                     new ListOf<>(
+<                         new SplitText(
+<                             new TextOf(this.path),
+<                             "\\n"
+<                         )
+<                     ),
+<                     // @checkstyle MagicNumberCheck (1 line)
+<                     5
+<                 )
+---
+>                 line -> new RtTransaction(line),
+>                 txLines

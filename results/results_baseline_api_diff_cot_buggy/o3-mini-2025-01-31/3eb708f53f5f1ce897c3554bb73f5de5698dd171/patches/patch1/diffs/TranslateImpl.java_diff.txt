@@ -1,0 +1,51 @@
+23,25d22
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.api.services.translate.model.TranslationsResource;
+43,45c40,41
+<   private static final Function<List<DetectionsResourceItems>, Detection>
+<       DETECTION_FROM_PB_FUNCTION =
+<           new Function<List<DetectionsResourceItems>, Detection>() {
+---
+>   private static final Function<List<Object>, Detection> DETECTION_FROM_PB_FUNCTION =
+>       new Function<List<Object>, Detection>() {
+47c43
+<             public Detection apply(List<DetectionsResourceItems> detectionPb) {
+---
+>         public Detection apply(List<Object> detectionPb) {
+62c58
+<               new Callable<List<LanguagesResource>>() {
+---
+>               new Callable<List<Object>>() {
+64c60
+<                 public List<LanguagesResource> call() {
+---
+>                 public List<Object> call() {
+80c76
+<       List<List<DetectionsResourceItems>> detectionsPb =
+---
+>       List<List<Object>> detectionsPb =
+82c78
+<               new Callable<List<List<DetectionsResourceItems>>>() {
+---
+>               new Callable<List<List<Object>>>() {
+84c80
+<                 public List<List<DetectionsResourceItems>> call() {
+---
+>                 public List<List<Object>> call() {
+91c87
+<       Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
+---
+>       Iterator<List<Object>> detectionIterator = detectionsPb.iterator();
+94c90
+<         List<DetectionsResourceItems> detectionPb = detectionIterator.next();
+---
+>         List<Object> detectionPb = detectionIterator.next();
+121c117
+<               new Callable<List<TranslationsResource>>() {
+---
+>               new Callable<List<Object>>() {
+123c119
+<                 public List<TranslationsResource> call() {
+---
+>                 public List<Object> call() {

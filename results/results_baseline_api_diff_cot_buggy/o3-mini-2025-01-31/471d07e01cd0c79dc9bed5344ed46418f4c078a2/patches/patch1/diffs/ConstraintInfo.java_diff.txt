@@ -1,0 +1,127 @@
+18,20d17
+< import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
+< import com.google.api.services.cloudresourcemanager.model.Constraint;
+< import com.google.api.services.cloudresourcemanager.model.ListConstraint;
+28,29c25
+<  * @see <a
+<  *     href="https://cloud.google.com/resource-manager/reference/rest/v1/ListAvailableOrgPolicyConstraintsResponse#Constraint">Constraint</a>
+---
+>  * @see <a href="https://cloud.google.com/resource-manager/reference/rest/v1/ListAvailableOrgPolicyConstraintsResponse#Constraint">Constraint</a>
+34a31,147
+>   public static class BooleanConstraint {
+>     @Override
+>     public boolean equals(Object obj) {
+>       return (obj instanceof BooleanConstraint);
+>     }
+> 
+>     @Override
+>     public int hashCode() {
+>       return 1;
+>     }
+> 
+>     @Override
+>     public String toString() {
+>       return "BooleanConstraint{}";
+>     }
+>   }
+> 
+>   public static class ListConstraint {
+>     private String suggestedValue;
+>     private Boolean supportsUnder;
+> 
+>     public ListConstraint() {}
+> 
+>     public String getSuggestedValue() {
+>       return suggestedValue;
+>     }
+> 
+>     public ListConstraint setSuggestedValue(String suggestedValue) {
+>       this.suggestedValue = suggestedValue;
+>       return this;
+>     }
+> 
+>     public Boolean getSupportsUnder() {
+>       return supportsUnder;
+>     }
+> 
+>     public ListConstraint setSupportsUnder(Boolean supportsUnder) {
+>       this.supportsUnder = supportsUnder;
+>       return this;
+>     }
+>   }
+> 
+>   public static class Constraint {
+>     private BooleanConstraint booleanConstraint;
+>     private String constraintDefault;
+>     private String description;
+>     private String displayName;
+>     private ListConstraint listConstraint;
+>     private String name;
+>     private Integer version;
+> 
+>     public Constraint() {}
+> 
+>     public BooleanConstraint getBooleanConstraint() {
+>       return booleanConstraint;
+>     }
+> 
+>     public Constraint setBooleanConstraint(BooleanConstraint booleanConstraint) {
+>       this.booleanConstraint = booleanConstraint;
+>       return this;
+>     }
+> 
+>     public String getConstraintDefault() {
+>       return constraintDefault;
+>     }
+> 
+>     public Constraint setConstraintDefault(String constraintDefault) {
+>       this.constraintDefault = constraintDefault;
+>       return this;
+>     }
+> 
+>     public String getDescription() {
+>       return description;
+>     }
+> 
+>     public Constraint setDescription(String description) {
+>       this.description = description;
+>       return this;
+>     }
+> 
+>     public String getDisplayName() {
+>       return displayName;
+>     }
+> 
+>     public Constraint setDisplayName(String displayName) {
+>       this.displayName = displayName;
+>       return this;
+>     }
+> 
+>     public ListConstraint getListConstraint() {
+>       return listConstraint;
+>     }
+> 
+>     public Constraint setListConstraint(ListConstraint listConstraint) {
+>       this.listConstraint = listConstraint;
+>       return this;
+>     }
+> 
+>     public String getName() {
+>       return name;
+>     }
+> 
+>     public Constraint setName(String name) {
+>       this.name = name;
+>       return this;
+>     }
+> 
+>     public Integer getVersion() {
+>       return version;
+>     }
+> 
+>     public Constraint setVersion(Integer version) {
+>       this.version = version;
+>       return this;
+>     }
+>   }
+> 

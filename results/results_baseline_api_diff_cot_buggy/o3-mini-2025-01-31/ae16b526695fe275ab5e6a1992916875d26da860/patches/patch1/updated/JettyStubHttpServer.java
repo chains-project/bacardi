@@ -1,0 +1,76 @@
+package net.jadler.stubbing.server.jetty;
+
+import net.jadler.RequestManager;
+import net.jadler.stubbing.server.StubHttpServer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.Validate;
+
+public class JettyStubHttpServer implements StubHttpServer {
+
+    private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
+    private final Server server;
+    private final ServerConnector httpConnector;
+
+    public JettyStubHttpServer() {
+        this(0);
+    }
+    
+    public JettyStubHttpServer(final int port) {
+        // Initialize the Jetty server with a default thread pool.
+        this.server = new Server(new QueuedThreadPool());
+        
+        // Set up HTTP configuration with the desired headers.
+        HttpConfiguration httpConfiguration = new HttpConfiguration();
+        httpConfiguration.setSendServerVersion(false);
+        httpConfiguration.setSendDateHeader(true);
+        
+        // Create and configure the ServerConnector with the new API.
+        this.httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfiguration));
+        this.httpConnector.setPort(port);
+        server.addConnector(this.httpConnector);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void registerRequestManager(final RequestManager ruleProvider) {
+        Validate.notNull(ruleProvider, "ruleProvider cannot be null");
+
+        server.setHandler(new JadlerHandler(ruleProvider));
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void start() throws Exception {
+        logger.debug("starting jetty");
+        server.start();
+        logger.debug("jetty started");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void stop() throws Exception {
+        logger.debug("stopping jetty");
+        server.stop();
+        logger.debug("jetty stopped");
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getPort() {
+        return httpConnector.getLocalPort();
+    }
+}

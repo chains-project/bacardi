@@ -1,0 +1,101 @@
+3d2
+< import de.gwdg.metadataqa.api.json.JsonBranch;
+24d22
+< 
+27d24
+< 
+47,49d43
+< /**
+<  * Factory class to create MarcRecord from JsonPathCache
+<  */
+67c61,70
+<     for (JsonBranch branch : schema.getPaths()) {
+---
+>     // Wrap the objects returned by schema.getPaths() into our local JsonBranch wrapper.
+>     for (Object obj : schema.getPaths()) {
+>       JsonBranch branch;
+>       if (obj instanceof JsonBranch) {
+>         branch = (JsonBranch) obj;
+>       } else if (obj instanceof String) {
+>         branch = new JsonBranch((String) obj);
+>       } else {
+>         continue;
+>       }
+84,85c87
+<           marcRecord.setControl006(
+<             new Control006(extractFirst(cache, branch), marcRecord));
+---
+>           marcRecord.setControl006(new Control006(extractFirst(cache, branch), marcRecord));
+88,89c90
+<           marcRecord.setControl007(
+<             new Control007(extractFirst(cache, branch), marcRecord));
+---
+>           marcRecord.setControl007(new Control007(extractFirst(cache, branch), marcRecord));
+92,93c93
+<           marcRecord.setControl008(
+<             new Control008(extractFirst(cache, branch), marcRecord));
+---
+>           marcRecord.setControl008(new Control008(extractFirst(cache, branch), marcRecord));
+172,173d171
+<     // marcRecord.setSchemaType(SchemaType.PICA);
+< 
+175d172
+< 
+177d173
+< 
+190c186,187
+<           marcRecord.setControl001(new Control001(data)); break;
+---
+>           marcRecord.setControl001(new Control001(data));
+>           break;
+192c189,190
+<           marcRecord.setControl003(new Control003(data)); break;
+---
+>           marcRecord.setControl003(new Control003(data));
+>           break;
+194c192,193
+<           marcRecord.setControl005(new Control005(data, marcRecord)); break;
+---
+>           marcRecord.setControl005(new Control005(data, marcRecord));
+>           break;
+196c195,196
+<           marcRecord.setControl006(new Control006(data, marcRecord)); break;
+---
+>           marcRecord.setControl006(new Control006(data, marcRecord));
+>           break;
+198c198,199
+<           marcRecord.setControl007(new Control007(data, marcRecord)); break;
+---
+>           marcRecord.setControl007(new Control007(data, marcRecord));
+>           break;
+200c201,202
+<           marcRecord.setControl008(new Control008(data, marcRecord)); break;
+---
+>           marcRecord.setControl008(new Control008(data, marcRecord));
+>           break;
+230d231
+<         // System.err.println("getTag: " + dataField.getTag() + " ----");
+472d472
+<       // String tag = schema.containsKey(line.getQualifiedTag()) ? line.getQualifiedTag() : line.getTag();
+484a485,505
+>   
+>   // Dummy replacement for the removed de.gwdg.metadataqa.api.json.JsonBranch class.
+>   private static class JsonBranch {
+>     private final String path;
+>     
+>     public JsonBranch(String path) {
+>       this.path = path;
+>     }
+>     
+>     public String getJsonPath() {
+>       return this.path;
+>     }
+>     
+>     public String getLabel() {
+>       return this.path;
+>     }
+>     
+>     public Object getParent() {
+>       return null;
+>     }
+>   }

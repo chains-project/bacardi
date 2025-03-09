@@ -1,0 +1,163 @@
+You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates. Your task is to analyze the provided code, error information, and API changes, then propose and apply a patch to fix the issue while adhering to specific constraints.
+
+Here is the Java code that is failing:
+
+```java
+/*
+ * Copyright (c) 2011-2022, jcabi.com
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met: 1) Redistributions of source code must retain the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer. 2) Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials provided
+ * with the distribution. 3) Neither the name of the jcabi.com nor
+ * the names of its contributors may be used to endorse or promote
+ * products derived from this software without specific prior written
+ * permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+ * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+ * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package com.jcabi.http.mock;
+
+import java.net.URI;
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
+
+/**
+ * Convenient set of matchers for {@link MkQuery}.
+ *
+ * @since 1.5
+ */
+@SuppressWarnings("PMD.ProhibitPublicStaticMethods")
+public final class MkQueryMatchers {
+
+    /**
+     * Private ctor.
+     */
+    private MkQueryMatchers() {
+        // Utility class - cannot instantiate
+    }
+
+    /**
+     * Matches the value of the MkQuery's body against the given matcher.
+     *
+     * @param matcher The matcher to use.
+     * @return Matcher for checking the body of MkQuery
+     */
+    public static Matcher<MkQuery> hasBody(final Matcher<String> matcher) {
+        return new MkQueryBodyMatcher(matcher);
+    }
+
+    /**
+     * Matches the content of the MkQuery's header against the given matcher.
+     * Note that for a valid match to occur, the header entry must exist
+     * <i>and</i> its value(s) must match the given matcher.
+     *
+     * @param header The header to check.
+     * @param matcher The matcher to use.
+     * @return Matcher for checking the body of MkQuery
+     */
+    public static Matcher<MkQuery> hasHeader(
+        final String header,
+        final Matcher<Iterable<? extends String>> matcher
+    ) {
+        return new MkQueryHeaderMatcher(header, matcher);
+    }
+
+    /**
+     * Matches the path of the MkQuery.
+     *
+     * @param path The path to check.
+     * @return Matcher for checking the path of MkQuery
+     */
+    public static Matcher<MkQuery> hasPath(final Matcher<String> path) {
+        return new MkQueryUriMatcher(
+            Matchers.<URI>hasProperty("rawPath", path)
+        );
+    }
+
+    /**
+     * Matches the query of the MkQuery.
+     *
+     * @param query The query to check.
+     * @return Matcher for checking the query of MkQuery
+     */
+    public static Matcher<MkQuery> hasQuery(final Matcher<String> query) {
+        return new MkQueryUriMatcher(
+            Matchers.<URI>hasProperty("rawQuery", query)
+        );
+    }
+
+}
+
+```
+
+The error is triggered in the following specific line:
+
+<error_lines>
+```java
+import org.hamcrest.Matchers;
+```
+</error_lines>
+
+The API of the dependency has changed. Here are the relevant changes:
+
+     Class org.hamcrest.Matchers has been removed in the new version of the dependency.
+     Constructor org.hamcrest.Matchers() has been removed in the new version of the dependency.
+
+Additional error information:
+
+<error_information>
+[ERROR] /jcabi-http/src/main/java/com/jcabi/http/mock/MkQueryMatchers.java:[34,20] cannot find symbol
+  symbol:   class Matchers
+  location: package org.hamcrest
+<error_information>
+
+Your task is to fix the issue by modifying only the client code. Follow these steps:
+
+1. Analyze the problem and propose changes by wrapping the work inside fix_planning tags. This analysis is for your internal use only and will not be included in the final output. In your analysis:
+   a. Quote relevant parts of the code and API changes
+   b. Identify the specific API changes causing the issue
+   c. List the affected lines of code
+   d. Propose potential fixes for each affected line
+   e. Consider any potential side effects of the proposed changes
+   f. Explicitly check if the proposed changes adhere to all the given constraints
+   g. Provide a final summary of the chosen fix and why it's the best solution
+
+2. Apply the fix to the Java code.
+
+3. Output the complete, fixed Java class in a fenced code block. This should be the only visible output in your response.
+
+Constraints:
+1. Do not change the function signature of any method.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error.
+6. Include all code, even unchanged portions, in your final output.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
+
+Your final output should only contain the complete, fixed Java class in a fenced code block, without any explanations or analysis visible. The <fix_planning> section is for your internal use only.
+
+Example output structure:
+
+```java
+[Complete, fixed Java class]
+```
+
+Please proceed with your analysis and solution.

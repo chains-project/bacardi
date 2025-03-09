@@ -1,0 +1,136 @@
+2a3,5
+> import static com.github.games647.changeskin.core.message.CheckPermMessage.CHECK_PERM_CHANNEL;
+> import static com.github.games647.changeskin.core.message.SkinUpdateMessage.UPDATE_SKIN_CHANNEL;
+> 
+5d7
+< import com.github.games647.changeskin.core.message.NamespaceKey;
+16d17
+< 
+19c20,21
+< 
+---
+> import net.kyori.adventure.audience.Audience;
+> import net.kyori.adventure.text.serializer.LegacyComponentSerializer;
+21c23
+< import org.spongepowered.api.Platform.Type;
+---
+> import org.spongepowered.api.ResourceKey;
+23,24d24
+< import org.spongepowered.api.command.CommandManager;
+< import org.spongepowered.api.command.CommandSource;
+27,37c27,34
+< import org.spongepowered.api.event.game.state.GameInitializationEvent;
+< import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+< import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelRegistrar;
+< import org.spongepowered.api.plugin.Plugin;
+< import org.spongepowered.api.text.serializer.TextSerializers;
+< 
+< import static com.github.games647.changeskin.core.message.CheckPermMessage.CHECK_PERM_CHANNEL;
+< import static com.github.games647.changeskin.core.message.SkinUpdateMessage.UPDATE_SKIN_CHANNEL;
+< import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
+---
+> import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
+> import org.spongepowered.api.event.lifecycle.RegisterChannelEvent;
+> import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+> import org.spongepowered.api.event.lifecycle.StopEvent;
+> import org.spongepowered.plugin.Plugin;
+> import org.spongepowered.plugin.PluginContainer;
+> import com.github.games647.changeskin.sponge.PomData;
+> import com.github.games647.changeskin.sponge.LoginListener;
+40c37
+< @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+---
+> @Plugin(id = PomData.ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+42c39
+< public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
+---
+> public class ChangeSkinSponge implements PlatformPlugin<Audience> {
+53c50,52
+<     //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
+---
+>     @Inject
+>     private PluginContainer pluginContainer;
+> 
+62,63c61
+<     public void onPreInit(GamePreInitializationEvent preInitEvent) {
+<         //load config and database
+---
+>     public void onConstruct(ConstructPluginEvent event) {
+69a68,70
+>         if (initialized) {
+>             Sponge.eventManager().registerListeners(pluginContainer, injector.getInstance(LoginListener.class));
+>         }
+73,74c74,75
+<     public void onInit(GameInitializationEvent initEvent) {
+<         if (!initialized)
+---
+>     public void onRegisterCommands(RegisterCommandEvent event) {
+>         if (!initialized) {
+75a77,83
+>         }
+>         event.register(pluginContainer, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+>         event.register(pluginContainer, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+>         event.register(pluginContainer, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+>         event.register(pluginContainer, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+>         event.register(pluginContainer, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
+>     }
+77,96c85,93
+<         CommandManager cmdManager = Sponge.getCommandManager();
+< 
+<         //command and event register
+<         cmdManager.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+<         cmdManager.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+<         cmdManager.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+<         cmdManager.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+<         cmdManager.register(this, injector.getInstance(InvalidateCommand.class)
+<                 .buildSpec(), "skininvalidate", "skin-invalidate");
+< 
+<         Sponge.getEventManager().registerListeners(this, injector.getInstance(LoginListener.class));
+< 
+<         //incoming channel
+<         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
+<         String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
+<         String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
+<         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
+<         RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
+<         updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
+<         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
+---
+>     @Listener
+>     public void onRegisterChannels(RegisterChannelEvent event) {
+>         if (!initialized) {
+>             return;
+>         }
+>         ResourceKey updateChannelKey = ResourceKey.of(PomData.ARTIFACT_ID, UPDATE_SKIN_CHANNEL);
+>         event.register(updateChannelKey, UpdateSkinListener.class);
+>         ResourceKey permissionChannelKey = ResourceKey.of(PomData.ARTIFACT_ID, CHECK_PERM_CHANNEL);
+>         event.register(permissionChannelKey, CheckPermissionListener.class);
+100c97
+<     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
+---
+>     public void onStop(StopEvent event) {
+109,110c106,109
+<     public boolean hasSkinPermission(CommandSource invoker, UUID uuid, boolean sendMessage) {
+<         if (invoker.hasPermission(PomData.ARTIFACT_ID + ".skin.whitelist." + uuid)) {
+---
+>     public boolean hasSkinPermission(Audience invoker, UUID uuid, boolean sendMessage) {
+>         if (invoker instanceof org.spongepowered.api.service.permission.Subject) {
+>             org.spongepowered.api.service.permission.Subject subject = (org.spongepowered.api.service.permission.Subject) invoker;
+>             if (subject.hasPermission(PomData.ARTIFACT_ID + ".skin.whitelist." + uuid)) {
+113,114c112
+< 
+<         //disallow - not whitelisted or blacklisted
+---
+>         }
+118d115
+< 
+142c139
+<     public void sendMessage(CommandSource receiver, String key) {
+---
+>     public void sendMessage(Audience receiver, String key) {
+145c142
+<             receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
+---
+>             receiver.sendMessage(LegacyComponentSerializer.legacySection().deserialize(message));

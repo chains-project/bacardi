@@ -1,0 +1,96 @@
+You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates. Your task is to analyze the provided code, error information, and API changes, then propose and apply a patch to fix the issue while adhering to specific constraints.
+
+Here is the Java code that is failing:
+
+```java
+package de.hilling.junit.cdi.annotations;
+
+import de.hilling.junit.cdi.scope.TestScoped;
+import org.immutables.value.Value;
+
+import javax.annotation.Priority;
+import javax.enterprise.inject.Alternative;
+import javax.enterprise.inject.Stereotype;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+/**
+ * Use this annotation to mark Alternatives that should globally replace
+ * production implementations.
+ * <p>
+ *     These services cannot be disabled or enabled on a per test basis
+ *     because the container is only started once.
+ * </p>
+ */
+@Alternative
+@TestScoped
+@Stereotype
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+@Priority(100)
+@Value.Immutable
+public @interface GlobalTestImplementation {
+}
+
+```
+
+The errors are triggered in the following specific lines:
+
+<error_lines>
+```java
+import javax.annotation.Priority;
+```
+```java
+@Priority(100)
+```
+</error_lines>
+
+The API of the dependency has changed. Here are the relevant changes:
+
+     Class javax.annotation.Priority has been removed in the new version of the dependency.
+     Interface jakarta.annotation.Priority has been added in the new version of the dependency.
+
+Additional error information:
+
+<error_information>
+[ERROR] /cdi-test/cdi-test-api/src/main/java/de/hilling/junit/cdi/annotations/GlobalTestImplementation.java:[6,24] package javax.annotation does not exist
+
+[ERROR] /cdi-test/cdi-test-api/src/main/java/de/hilling/junit/cdi/annotations/GlobalTestImplementation.java:[27,2] cannot find symbol
+  symbol: class Priority
+<error_information>
+
+Your task is to fix the issue by modifying only the client code. Follow these steps:
+
+1. Analyze the problem and propose changes by wrapping the work inside fix_planning tags. This analysis is for your internal use only and will not be included in the final output. In your analysis:
+   a. Quote relevant parts of the code and API changes
+   b. Identify the specific API changes causing the issue
+   c. List the affected lines of code
+   d. Propose potential fixes for each affected line
+   e. Consider any potential side effects of the proposed changes
+   f. Explicitly check if the proposed changes adhere to all the given constraints
+   g. Provide a final summary of the chosen fix and why it's the best solution
+
+2. Apply the fix to the Java code.
+
+3. Output the complete, fixed Java class in a fenced code block. This should be the only visible output in your response.
+
+Constraints:
+1. Do not change the function signature of any method.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error.
+6. Include all code, even unchanged portions, in your final output.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
+
+Your final output should only contain the complete, fixed Java class in a fenced code block, without any explanations or analysis visible. The <fix_planning> section is for your internal use only.
+
+Example output structure:
+
+```java
+[Complete, fixed Java class]
+```
+
+Please proceed with your analysis and solution.

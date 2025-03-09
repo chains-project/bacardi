@@ -1,0 +1,22 @@
+27c27
+< import org.hibernate.engine.spi.SessionImplementor;
+---
+> import org.hibernate.engine.spi.SharedSessionContractImplementor;
+69c69
+<   public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor sessionImplementor, Object owner)
+---
+>   public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor session, Object owner)
+85c85
+<   public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor sessionImplementor)
+---
+>   public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor session)
+97,98c97
+<   public Object assemble(Serializable cached, Object owner)
+<       throws HibernateException {
+---
+>   public Object assemble(Serializable cached, Object owner) throws HibernateException {
+108,109c107
+<   public Object replace(Object original, Object target, Object owner)
+<       throws HibernateException {
+---
+>   public Object replace(Object original, Object target, Object owner) throws HibernateException {

@@ -1,0 +1,40 @@
+48c48,50
+< import org.hamcrest.Matchers;
+---
+> import static org.hamcrest.core.IsCollectionContaining.hasItem;
+> import static org.hamcrest.CoreMatchers.not;
+> import static org.hamcrest.CoreMatchers.notNullValue;
+61c63
+<  *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
+---
+>  *   .assertHeader("Content-Type", hasItem("text/plain"))
+210c212
+<         return this.assertHeader(name, Matchers.hasItems(value));
+---
+>         return this.assertHeader(name, hasItem(value));
+246c248
+<             Matchers.not(Matchers.emptyIterableOf(String.class))
+---
+>             not(emptyIterableOf(String.class))
+284c286
+<             Matchers.notNullValue()
+---
+>             notNullValue()
+332a335,351
+>     /**
+>      * Creates a matcher that matches an empty iterable.
+>      * @param <T> type of items
+>      * @param clazz Class of the items
+>      * @return Matcher that matches an empty iterable.
+>      */
+>     private static <T> Matcher<Iterable<T>> emptyIterableOf(final Class<T> clazz) {
+>         return new CustomMatcher<Iterable<T>>("an empty iterable of " + clazz.getSimpleName()) {
+>             @Override
+>             public boolean matches(final Object item) {
+>                 if (!(item instanceof Iterable)) {
+>                     return false;
+>                 }
+>                 return !((Iterable<?>) item).iterator().hasNext();
+>             }
+>         };
+>     }

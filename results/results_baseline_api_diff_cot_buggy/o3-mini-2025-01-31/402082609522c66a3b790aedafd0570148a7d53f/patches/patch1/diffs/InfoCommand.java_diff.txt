@@ -1,0 +1,70 @@
+9d8
+< 
+12d10
+< 
+14,19c12,16
+< import org.spongepowered.api.command.CommandException;
+< import org.spongepowered.api.command.CommandResult;
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.Command;
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.source.CommandSource;
+21,23c18,19
+< import org.spongepowered.api.scheduler.Task;
+< import org.spongepowered.api.text.Text;
+< import org.spongepowered.api.text.serializer.TextSerializers;
+---
+> import net.kyori.adventure.text.Component;
+> import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+33d28
+< 
+42,43c37
+<         Task.builder().async()
+<                 .execute(() -> {
+---
+>         Sponge.getScheduler().asyncExecutor(plugin).execute(() -> {
+45,47c39,40
+<                     Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).submit(plugin);
+<                 })
+<                 .submit(plugin);
+---
+>             Sponge.getScheduler().syncExecutor(plugin).execute(() -> sendSkinDetails(uniqueId, preferences));
+>         });
+52,54c45,46
+<     @Override
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command buildSpec() {
+>         return Command.builder()
+61c53
+<         Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
+---
+>         Optional<Player> optPlayer = Sponge.server().player(uuid);
+64d55
+< 
+69,71c60,61
+< 
+<                 Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
+<                 player.sendMessage(text);
+---
+>                 Component message = LegacyComponentSerializer.legacySection().deserialize(formatted);
+>                 player.sendMessage(message);
+76a67,77
+> 
+>     public static class CommandResult {
+> 
+>         public static CommandResult empty() {
+>             return new CommandResult();
+>         }
+> 
+>         public static CommandResult success() {
+>             return new CommandResult();
+>         }
+>     }
