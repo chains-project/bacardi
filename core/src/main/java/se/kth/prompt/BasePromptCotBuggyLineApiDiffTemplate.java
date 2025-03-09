@@ -186,5 +186,35 @@ public class BasePromptCotBuggyLineApiDiffTemplate extends AbstractPromptTemplat
                 
                 Please proceed with your analysis and solution.
                 """.formatted(header(), classCode(), buggyLine(), errorLog());
+
+    }
+
+    public String parseLLMResponce(String response) {
+
+        String startMarker = "```java";
+        String packageMarker = "package";
+
+        int startIndex = response.indexOf(startMarker);
+        if (startIndex == -1) {
+            return "";
+        }
+
+        startIndex += startMarker.length();
+
+        // Buscar el package después del marcador inicial
+        int packageIndex = response.indexOf(packageMarker, startIndex);
+        if (packageIndex == -1) {
+            return null; // No se encontró la declaración de package
+        }
+
+        // Buscar el final del bloque de código
+        int endIndex = response.indexOf("```", packageIndex);
+        if (endIndex == -1) {
+            // Si no hay marcador de fin, tomar hasta el final del texto
+            return response.substring(packageIndex);
+        }
+
+        // Extraer el contenido desde la declaración del package hasta el final del bloque
+        return response.substring(packageIndex, endIndex).trim();
     }
 }
