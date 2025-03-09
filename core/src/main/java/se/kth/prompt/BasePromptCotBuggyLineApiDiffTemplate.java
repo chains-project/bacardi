@@ -201,20 +201,17 @@ public class BasePromptCotBuggyLineApiDiffTemplate extends AbstractPromptTemplat
 
         startIndex += startMarker.length();
 
-        // Buscar el package después del marcador inicial
         int packageIndex = response.indexOf(packageMarker, startIndex);
         if (packageIndex == -1) {
-            return null; // No se encontró la declaración de package
+            return null;
         }
 
-        // Buscar el final del bloque de código
         int endIndex = response.indexOf("```", packageIndex);
         if (endIndex == -1) {
-            // Si no hay marcador de fin, tomar hasta el final del texto
+
             return response.substring(packageIndex);
         }
 
-        // Extraer el contenido desde la declaración del package hasta el final del bloque
         return response.substring(packageIndex, endIndex).trim();
     }
 }
