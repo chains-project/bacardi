@@ -1,0 +1,61 @@
+113c113
+<         throw translate(ex, false);
+---
+>         throw translate(ex, true);
+125c125
+<         throw translate(ex, false);
+---
+>         throw translate(ex, true);
+211c211
+<         .create(this.options.getProjectId(), zone)
+---
+>         .create(this.options.getProjectId(), zone.getName(), zone)
+232c232
+<         .get(this.options.getProjectId(), zoneName)
+---
+>         .get(this.options.getProjectId(), zoneName, "")
+247a248
+>     String dnsName = Option.DNS_NAME.getString(options);
+249c250
+<         .list(this.options.getProjectId())
+---
+>         .list(this.options.getProjectId(), dnsName != null ? dnsName : "")
+252c253
+<         .setDnsName(Option.DNS_NAME.getString(options))
+---
+>         .setDnsName(dnsName)
+271c272
+<     return dns.managedZones().delete(this.options.getProjectId(), zoneName);
+---
+>     return dns.managedZones().delete(this.options.getProjectId(), zoneName, "");
+287d287
+<     // options are fields, page token, dns name, type
+289c289
+<         .list(this.options.getProjectId(), zoneName)
+---
+>         .list(this.options.getProjectId(), zoneName, "")
+308c308
+<         .get(this.options.getProjectId())
+---
+>         .get(this.options.getProjectId(), "")
+325c325
+<         .create(this.options.getProjectId(), zoneName, changeRequest)
+---
+>         .create(this.options.getProjectId(), zoneName, "", changeRequest)
+352c352
+<         .get(this.options.getProjectId(), zoneName, changeRequestId)
+---
+>         .get(this.options.getProjectId(), zoneName, changeRequestId, "")
+369d368
+<     // options are fields, page token, page size, sort order
+372c371
+<             .list(this.options.getProjectId(), zoneName)
+---
+>             .list(this.options.getProjectId(), zoneName, Option.PAGE_TOKEN.getString(options))
+374,375c373
+<             .setMaxResults(Option.PAGE_SIZE.getInt(options))
+<             .setPageToken(Option.PAGE_TOKEN.getString(options));
+---
+>             .setMaxResults(Option.PAGE_SIZE.getInt(options));
+377d374
+<       // todo check and change if more sorting options are implemented, issue #604

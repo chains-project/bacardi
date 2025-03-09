@@ -1,0 +1,121 @@
+package info.bitrich.xchangestream.service.pubnub;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pubnub.api.PNConfiguration;
+import com.pubnub.api.PubNub;
+import com.pubnub.api.callbacks.SubscribeCallback;
+import com.pubnub.api.enums.PNStatusCategory;
+import com.pubnub.api.models.consumer.PNStatus;
+import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
+import io.reactivex.Completable;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class PubnubStreamingService {
+  private static final Logger LOG = LoggerFactory.getLogger(PubnubStreamingService.class);
+
+  private final PubNub pubnub;
+  private PNStatusCategory pnStatusCategory;
+  private final Map<String, ObservableEmitter<JsonNode>> subscriptions = new ConcurrentHashMap<>();
+  private final ObjectMapper mapper;
+
+  public PubnubStreamingService(String publicKey) {
+    mapper = new ObjectMapper();
+    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    PNConfiguration pnConfiguration = new PNConfiguration(publicKey);
+    pubnub = new PubNub(pnConfiguration);
+    pnStatusCategory = PNStatusCategory.PNDisconnectedCategory;
+  }
+
+  public Completable connect() {
+    return Completable.create(e -> {
+      pubnub.addListener(new SubscribeCallback() {
+        @Override
+        public void status(PubNub pubNub, PNStatus pnStatus) {
+          pnStatusCategory = pnStatus.getCategory();
+          LOG.debug("PubNub status: {} {}", pnStatus.getCategory().toString(), pnStatus.getStatusCode());
+          if (pnStatus.getCategory() == PNStatusCategory.PNConnectedCategory) {
+            // e.onComplete();
+          } else if (pnStatus.isError()) {
+            // e.onError(pnStatus.getErrorData().getThrowable());
+          }
+        }
+
+        @Override
+        public void message(PubNub pubnub, Object messageEvent) {
+          if (messageEvent instanceof Map) {
+            Map<?, ?> msgMap = (Map<?, ?>) messageEvent;
+            Object chan = msgMap.get("channel");
+            if (chan != null) {
+              String channelName = chan.toString();
+              ObservableEmitter<JsonNode> subscription = subscriptions.get(channelName);
+              LOG.debug("PubNub Message: {}", messageEvent.toString());
+              if (subscription != null) {
+                Object msgContent = msgMap.get("message");
+                if (msgContent != null) {
+                  try {
+                    JsonNode jsonMessage = mapper.readTree(msgContent.toString());
+                    subscription.onNext(jsonMessage);
+                  } catch (IOException ex) {
+                    ex.printStackTrace();
+                  }
+                }
+              } else {
+                LOG.debug("No subscriber for channel {}.", channelName);
+              }
+            } else {
+              LOG.debug("Missing channel info in message: {}", messageEvent.toString());
+            }
+          } else {
+            LOG.debug("PubNub Message in unexpected format: {}", messageEvent);
+          }
+        }
+
+        @Override
+        public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
+          LOG.debug("PubNub file event: {}", pnFileEventResult.toString());
+        }
+      });
+      e.onComplete();
+    });
+  }
+
+  public Observable<JsonNode> subscribeChannel(String channelName) {
+    LOG.info("Subscribing to channel {}.", channelName);
+    return Observable.<JsonNode>create(e -> {
+          if (!subscriptions.containsKey(channelName)) {
+            subscriptions.put(channelName, e);
+            pubnub.subscribe().channels(Collections.singletonList(channelName)).execute();
+            LOG.debug("Subscribe channel: {}", channelName);
+          }
+        })
+        .doOnDispose(() -> {
+          LOG.debug("Unsubscribe channel: {}", channelName);
+          pubnub.unsubscribe().channels(Collections.singletonList(channelName)).execute();
+        })
+        .share();
+  }
+
+  public Completable disconnect() {
+    return Completable.create(completable -> {
+      pubnub.disconnect();
+      completable.onComplete();
+    });
+  }
+
+  public boolean isAlive() {
+    return (pnStatusCategory == PNStatusCategory.PNConnectedCategory);
+  }
+
+  public void useCompressedMessages(boolean compressedMessages) {
+    throw new UnsupportedOperationException();
+  }
+}

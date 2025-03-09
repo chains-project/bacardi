@@ -1,0 +1,16 @@
+38d37
+< import org.tinspin.index.PointIndex;
+39a39
+> import org.tinspin.index.IndexConfig;
+164,168c164
+<                 final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {
+<                         final double deltaX = p1[0] - p2[0];
+<                         final double deltaY = p1[1] - p2[1];
+<                         return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+<                 });
+---
+>                 final KDTree<Vertex> tree = KDTree.create(new IndexConfig(2));
+174c170
+<                         final Vertex near = tree.query1NN(midpoint).value();
+---
+>                         final Vertex near = tree.nn(midpoint).value();

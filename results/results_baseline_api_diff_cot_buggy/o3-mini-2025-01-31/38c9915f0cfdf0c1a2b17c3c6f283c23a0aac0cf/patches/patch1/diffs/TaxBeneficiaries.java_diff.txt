@@ -1,0 +1,14 @@
+29d28
+< import org.cactoos.iterable.LengthOf;
+30a30
+> import org.cactoos.scalar.LengthOf;
+49c49,55
+<                 n -> new LengthOf(n.score().suffixes()).intValue() >= 16,
+---
+>                 n -> {
+>                     try {
+>                         return new LengthOf(n.score().suffixes()).value() >= 16;
+>                     } catch (Exception ex) {
+>                         throw new RuntimeException(ex);
+>                     }
+>                 },

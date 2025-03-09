@@ -1,0 +1,237 @@
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+25,28d8
+< import com.google.api.services.translate.Translate;
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.api.services.translate.model.TranslationsResource;
+32d11
+< import com.google.common.base.Function;
+34d12
+< import com.google.common.collect.Lists;
+35a14
+> import java.util.ArrayList;
+37a17,25
+> import com.google.api.services.translate.v3.Translate;
+> import com.google.api.services.translate.v3.model.DetectLanguageRequest;
+> import com.google.api.services.translate.v3.model.DetectLanguageResponse;
+> import com.google.api.services.translate.v3.model.Detection;
+> import com.google.api.services.translate.v3.model.GetSupportedLanguagesResponse;
+> import com.google.api.services.translate.v3.model.SupportedLanguages;
+> import com.google.api.services.translate.v3.model.TranslateTextRequest;
+> import com.google.api.services.translate.v3.model.TranslateTextResponse;
+> import com.google.api.services.translate.v3.model.Translation;
+61c49
+<     GenericUrl genericUrl = new GenericUrl(translate.getBaseUrl() + "v2/" + path);
+---
+>     GenericUrl genericUrl = new GenericUrl(options.getHost() + "v3/" + path);
+71,73c59,77
+<       List<List<DetectionsResourceItems>> detections =
+<           translate.detections().list(texts).setKey(options.getApiKey()).execute().getDetections();
+<       return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
+---
+>       String parent = "projects/_/locations/global";
+>       List<List<DetectionsResourceItems>> detectionResults = new ArrayList<>();
+>       for (String text : texts) {
+>         DetectLanguageRequest req = new DetectLanguageRequest();
+>         req.setContent(text);
+>         DetectLanguageResponse response = translate.projects().locations()
+>             .detectLanguage(parent, req)
+>             .setKey(options.getApiKey())
+>             .execute();
+>         List<DetectionsResourceItems> items = new ArrayList<>();
+>         List<Detection> detections = response.getDetections();
+>         if (detections != null) {
+>           for (Detection d : detections) {
+>             items.add(new DetectionsResourceItems(d.getLanguage(), d.getConfidence()));
+>           }
+>         }
+>         detectionResults.add(items);
+>       }
+>       return detectionResults != null ? detectionResults : ImmutableList.<List<DetectionsResourceItems>>of();
+75c79
+<       throw translate(ex);
+---
+>       throw HttpTranslateRpc.translate(ex);
+82,85c86,90
+<       List<LanguagesResource> languages =
+<           translate
+<               .languages()
+<               .list()
+---
+>       String parent = "projects/_/locations/global";
+>       String targetLanguage =
+>           firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
+>       GetSupportedLanguagesResponse response = translate.projects().locations()
+>           .getSupportedLanguages(parent)
+87,92c92,101
+<               .setTarget(
+<                   firstNonNull(
+<                       Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()))
+<               .execute()
+<               .getLanguages();
+<       return languages != null ? languages : ImmutableList.<LanguagesResource>of();
+---
+>           .setTargetLanguageCode(targetLanguage)
+>           .execute();
+>       List<LanguagesResource> result = new ArrayList<>();
+>       List<SupportedLanguages.Language> langs = response.getLanguages();
+>       if (langs != null) {
+>         for (SupportedLanguages.Language lang : langs) {
+>           result.add(new LanguagesResource(lang.getLanguage(), lang.getDisplayName()));
+>         }
+>       }
+>       return result != null ? result : ImmutableList.<LanguagesResource>of();
+94c103
+<       throw translate(ex);
+---
+>       throw HttpTranslateRpc.translate(ex);
+104,108c113,128
+<       List<TranslationsResource> translations =
+<           translate
+<               .translations()
+<               .list(texts, targetLanguage)
+<               .setSource(sourceLanguage)
+---
+>       String parent = "projects/_/locations/global";
+>       TranslateTextRequest req = new TranslateTextRequest();
+>       req.setContents(texts);
+>       req.setTargetLanguageCode(targetLanguage);
+>       if (sourceLanguage != null) {
+>         req.setSourceLanguageCode(sourceLanguage);
+>       }
+>       String format = Option.FORMAT.getString(optionMap);
+>       if (format != null && format.equalsIgnoreCase("html")) {
+>         req.setMimeType("text/html");
+>       } else {
+>         req.setMimeType("text/plain");
+>       }
+>       req.setModel(Option.MODEL.getString(optionMap));
+>       TranslateTextResponse response = translate.projects().locations()
+>           .translateText(parent, req)
+110,120c130,139
+<               .setModel(Option.MODEL.getString(optionMap))
+<               .setFormat(Option.FORMAT.getString(optionMap))
+<               .execute()
+<               .getTranslations();
+<       return Lists.transform(
+<           translations != null ? translations : ImmutableList.<TranslationsResource>of(),
+<           new Function<TranslationsResource, TranslationsResource>() {
+<             @Override
+<             public TranslationsResource apply(TranslationsResource translationsResource) {
+<               if (translationsResource.getDetectedSourceLanguage() == null) {
+<                 translationsResource.setDetectedSourceLanguage(sourceLanguage);
+---
+>           .execute();
+>       List<Translation> translations = response.getTranslations();
+>       List<TranslationsResource> result = new ArrayList<>();
+>       if (translations != null) {
+>         for (Translation t : translations) {
+>           String detectedSource = t.getDetectedLanguage();
+>           if (detectedSource == null) {
+>             detectedSource = sourceLanguage;
+>           }
+>           result.add(new TranslationsResource(t.getTranslatedText(), detectedSource));
+122d140
+<               return translationsResource;
+124c142
+<           });
+---
+>       return result;
+126c144,222
+<       throw translate(ex);
+---
+>       throw HttpTranslateRpc.translate(ex);
+>     }
+>   }
+> 
+>   public static class DetectionsResourceItems {
+>     private String language;
+>     private Float confidence;
+> 
+>     public DetectionsResourceItems(String language, Float confidence) {
+>       this.language = language;
+>       this.confidence = confidence;
+>     }
+> 
+>     public String getLanguage() {
+>       return language;
+>     }
+> 
+>     public void setLanguage(String language) {
+>       this.language = language;
+>     }
+> 
+>     public Float getConfidence() {
+>       return confidence;
+>     }
+> 
+>     public void setConfidence(Float confidence) {
+>       this.confidence = confidence;
+>     }
+>   }
+> 
+>   public static class TranslationsResource {
+>     private String translatedText;
+>     private String detectedSourceLanguage;
+> 
+>     public TranslationsResource(String translatedText, String detectedSourceLanguage) {
+>       this.translatedText = translatedText;
+>       this.detectedSourceLanguage = detectedSourceLanguage;
+>     }
+> 
+>     public String getTranslatedText() {
+>       return translatedText;
+>     }
+> 
+>     public void setTranslatedText(String translatedText) {
+>       this.translatedText = translatedText;
+>     }
+> 
+>     public String getDetectedSourceLanguage() {
+>       return detectedSourceLanguage;
+>     }
+> 
+>     public void setDetectedSourceLanguage(String detectedSourceLanguage) {
+>       this.detectedSourceLanguage = detectedSourceLanguage;
+>     }
+>   }
+> 
+>   public static class LanguagesResource {
+>     private String language;
+>     private String name;
+> 
+>     public LanguagesResource(String language, String name) {
+>       this.language = language;
+>       this.name = name;
+>     }
+> 
+>     public String getLanguage() {
+>       return language;
+>     }
+> 
+>     public void setLanguage(String language) {
+>       this.language = language;
+>     }
+> 
+>     public String getName() {
+>       return name;
+>     }
+> 
+>     public void setName(String name) {
+>       this.name = name;

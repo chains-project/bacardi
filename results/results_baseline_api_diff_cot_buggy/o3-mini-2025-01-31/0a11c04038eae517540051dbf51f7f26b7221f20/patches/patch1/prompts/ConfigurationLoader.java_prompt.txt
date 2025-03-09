@@ -1,0 +1,130 @@
+You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates. Your task is to analyze the provided code, error information, and API changes, then propose and apply a patch to fix the issue while adhering to specific constraints.
+
+Here is the Java code that is failing:
+
+```java
+package io.simplelocalize.cli.configuration;
+
+import io.simplelocalize.cli.exception.ConfigurationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+
+public final class ConfigurationLoader
+{
+
+  private static final Path DEFAULT_CONFIG_FILE_NAME = Path.of("simplelocalize.yml");
+
+  private final Logger log = LoggerFactory.getLogger(ConfigurationLoader.class);
+
+  public Configuration loadOrGetDefault(Path configurationFilePath)
+  {
+    ConfigurationLoader configurationLoader = new ConfigurationLoader();
+
+    if (configurationFilePath == null)
+    {
+      configurationFilePath = DEFAULT_CONFIG_FILE_NAME;
+    }
+
+    return configurationLoader.load(configurationFilePath);
+  }
+
+  private Configuration load(Path configurationFilePath)
+  {
+    File file = new File(URLDecoder.decode(String.valueOf(configurationFilePath.toFile()), StandardCharsets.UTF_8));
+    Constructor yamlTargetClass = new Constructor(Configuration.class);
+    Yaml yaml = new Yaml(yamlTargetClass);
+
+    log.info("Loading configuration file from: {}", configurationFilePath);
+    Configuration configuration;
+    try
+    {
+      InputStream inputStream = new FileInputStream(file);
+      configuration = yaml.load(inputStream);
+      log.info("Configuration file loaded successfully");
+    } catch (FileNotFoundException e)
+    {
+      log.info("Configuration file not present");
+      return new Configuration();
+    } catch (Exception e)
+    {
+      log.error("Unable to load configuration: {}", e.getMessage());
+      throw new ConfigurationException();
+    }
+    return configuration;
+
+  }
+
+}
+
+```
+
+The error is triggered in the following specific line:
+
+<error_lines>
+```java
+Constructor yamlTargetClass = new Constructor(Configuration.class);
+```
+</error_lines>
+
+The API of the dependency has changed. Here are the relevant changes:
+
+     Construct org.yaml.snakeyaml.constructor.Constructor(java.lang.String,org.yaml.snakeyaml.LoaderOptions) has been added in the new version of the dependency.
+     Construct org.yaml.snakeyaml.constructor.Constructor(java.lang.Class,org.yaml.snakeyaml.LoaderOptions) has been added in the new version of the dependency.
+     Construct org.yaml.snakeyaml.constructor.Constructor(org.yaml.snakeyaml.TypeDescription,java.util.Collection,org.yaml.snakeyaml.LoaderOptions) has been added in the new version of the dependency.
+     Constructor org.yaml.snakeyaml.constructor.Constructor(java.lang.String) has been removed in the new version of the dependency.
+     Constructor org.yaml.snakeyaml.constructor.Constructor(org.yaml.snakeyaml.TypeDescription) has been removed in the new version of the dependency.
+     Construct org.yaml.snakeyaml.constructor.Constructor(org.yaml.snakeyaml.LoaderOptions) has been added in the new version of the dependency.
+     Constructor org.yaml.snakeyaml.constructor.Constructor() has been removed in the new version of the dependency.
+     Constructor org.yaml.snakeyaml.constructor.Constructor(java.lang.Class) has been removed in the new version of the dependency.
+     Constructor org.yaml.snakeyaml.constructor.Constructor(org.yaml.snakeyaml.TypeDescription,java.util.Collection) has been removed in the new version of the dependency.
+     Construct org.yaml.snakeyaml.constructor.Constructor(org.yaml.snakeyaml.TypeDescription,org.yaml.snakeyaml.LoaderOptions) has been added in the new version of the dependency.
+
+Additional error information:
+
+<error_information>
+[ERROR] /simplelocalize-cli/src/main/java/io/simplelocalize/cli/configuration/ConfigurationLoader.java:[39,64] incompatible types: java.lang.Class<io.simplelocalize.cli.configuration.Configuration> cannot be converted to org.yaml.snakeyaml.LoaderOptions
+<error_information>
+
+Your task is to fix the issue by modifying only the client code. Follow these steps:
+
+1. Analyze the problem and propose changes by wrapping the work inside fix_planning tags. This analysis is for your internal use only and will not be included in the final output. In your analysis:
+   a. Quote relevant parts of the code and API changes
+   b. Identify the specific API changes causing the issue
+   c. List the affected lines of code
+   d. Propose potential fixes for each affected line
+   e. Consider any potential side effects of the proposed changes
+   f. Explicitly check if the proposed changes adhere to all the given constraints
+   g. Provide a final summary of the chosen fix and why it's the best solution
+
+2. Apply the fix to the Java code.
+
+3. Output the complete, fixed Java class in a fenced code block. This should be the only visible output in your response.
+
+Constraints:
+1. Do not change the function signature of any method.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error.
+6. Include all code, even unchanged portions, in your final output.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
+
+Your final output should only contain the complete, fixed Java class in a fenced code block, without any explanations or analysis visible. The <fix_planning> section is for your internal use only.
+
+Example output structure:
+
+```java
+[Complete, fixed Java class]
+```
+
+Please proceed with your analysis and solution.

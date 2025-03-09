@@ -1,0 +1,66 @@
+138c138,141
+<       return obj instanceof ResourceId && Objects.equals(toPb(), ((ResourceId) obj).toPb());
+---
+>       if (this == obj) return true;
+>       if (!(obj instanceof ResourceId)) return false;
+>       ResourceId other = (ResourceId) obj;
+>       return Objects.equals(id, other.id) && Objects.equals(type, other.type);
+146,151c149,162
+<     com.google.api.services.cloudresourcemanager.model.ResourceId toPb() {
+<       com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb =
+<           new com.google.api.services.cloudresourcemanager.model.ResourceId();
+<       resourceIdPb.setId(id);
+<       resourceIdPb.setType(type.toLowerCase());
+<       return resourceIdPb;
+---
+>     // Converts to a string representation in the format "type/id"
+>     String toPb() {
+>       return type.toLowerCase() + "/" + id;
+>     }
+> 
+>     // Parses the string representation to create a ResourceId.
+>     static ResourceId fromPb(String parentPb) {
+>       if (parentPb == null) {
+>         return null;
+>       }
+>       String[] parts = parentPb.split("/");
+>       if (parts.length == 2) {
+>         // parts[0] is type, parts[1] is id.
+>         return new ResourceId(parts[1], parts[0]);
+153,156c164,165
+< 
+<     static ResourceId fromPb(
+<         com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb) {
+<       return new ResourceId(resourceIdPb.getId(), resourceIdPb.getType());
+---
+>       // Fallback in case the format is unexpected.
+>       return new ResourceId(parentPb, "");
+392,394c401,403
+<   com.google.api.services.cloudresourcemanager.model.Project toPb() {
+<     com.google.api.services.cloudresourcemanager.model.Project projectPb =
+<         new com.google.api.services.cloudresourcemanager.model.Project();
+---
+>   com.google.api.services.cloudresourcemanager.v3.model.Project toPb() {
+>     com.google.api.services.cloudresourcemanager.v3.model.Project projectPb =
+>         new com.google.api.services.cloudresourcemanager.v3.model.Project();
+398,401d406
+<     projectPb.setProjectNumber(projectNumber);
+<     if (state != null) {
+<       projectPb.setLifecycleState(state.toString());
+<     }
+404,405c409
+<           DateTimeFormatter.ISO_DATE_TIME
+<               .withZone(ZoneOffset.UTC)
+---
+>           DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneOffset.UTC)
+414,416c418,419
+<   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.model.Project projectPb) {
+<     Builder builder =
+<         newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
+---
+>   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) {
+>     Builder builder = newBuilder(projectPb.getProjectId());
+423,425d425
+<     if (projectPb.getLifecycleState() != null) {
+<       builder.setState(State.valueOf(projectPb.getLifecycleState()));
+<     }

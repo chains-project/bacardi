@@ -62,9 +62,9 @@ public class BasePromptCotBuggyLineApiDiffTemplate extends AbstractPromptTemplat
         String numberOfLines = "";
 
         if (promptModel.getDetectedFileWithErrors().size() > 1) {
-            numberOfLines = "The errors are triggered in the following specific line:";
+            numberOfLines = "The errors are triggered in the following specific lines:";
         } else {
-            numberOfLines = "The error is triggered in the following specific lines:";
+            numberOfLines = "The error is triggered in the following specific line:";
         }
 
         return """

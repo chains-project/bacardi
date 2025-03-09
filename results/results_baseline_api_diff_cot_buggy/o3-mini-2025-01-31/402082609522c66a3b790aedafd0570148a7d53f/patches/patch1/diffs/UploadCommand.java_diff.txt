@@ -1,0 +1,63 @@
+9d8
+< 
+11,16c10,14
+< 
+< import org.spongepowered.api.command.CommandResult;
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.Command;
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+18,20c16,17
+< 
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import net.kyori.adventure.audience.Audience;
+> import net.kyori.adventure.text.Component;
+28c25
+<     UploadCommand(ChangeSkinSponge plugin, ChangeSkinCore core) {
+---
+>     public UploadCommand(ChangeSkinSponge plugin, ChangeSkinCore core) {
+34,35c31,34
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         String url = args.<String>getOne("url").get();
+---
+>     public int execute(CommandContext context) throws CommandException {
+>         Audience sender = context.cause().first(Audience.class)
+>                 .orElseThrow(() -> new CommandException(Component.text("No command sender found")));
+>         String url = context.requireOne("url", String.class);
+39c38
+<                 plugin.sendMessage(src, "no-accounts");
+---
+>                 plugin.sendMessage(sender, "no-accounts");
+42c41
+<                 Runnable skinUploader = new SkinUploader(plugin, src, uploadAccount, url);
+---
+>                 Runnable skinUploader = new SkinUploader(plugin, sender, uploadAccount, url);
+46c45
+<             plugin.sendMessage(src, "no-valid-url");
+---
+>             plugin.sendMessage(sender, "no-valid-url");
+48,49c47
+< 
+<         return CommandResult.success();
+---
+>         return 1;
+52,54c50,52
+<     @Override
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     // This method no longer overrides a method from the updated dependency version
+>     public Command buildSpec() {
+>         return Command.builder()
+56c54
+<                 .arguments(string(of("url")))
+---
+>                 .addParameter(Parameter.string().key("url").build())

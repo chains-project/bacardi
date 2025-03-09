@@ -1,0 +1,18 @@
+18c18
+<  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+---
+>  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+30d29
+< import org.cactoos.scalar.IoCheckedScalar;
+66,67c65,66
+<         return new IoCheckedScalar<>(
+<             new Reduced<>(
+---
+>         try {
+>             return new Reduced<>(
+73d71
+<             )
+74a73,75
+>         } catch (Exception ex) {
+>             throw new IOException(ex);
+>         }

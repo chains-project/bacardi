@@ -1,0 +1,54 @@
+9d8
+< 
+11c10,11
+< 
+---
+> import org.spongepowered.api.command.Command;
+> import org.spongepowered.api.command.CommandExecutor;
+13,17c13,16
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.args.GenericArguments;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+> import org.spongepowered.api.command.source.CommandSource;
+21,24d19
+< import static org.spongepowered.api.command.args.GenericArguments.flags;
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+< 
+37c32,33
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+---
+>     public CommandResult execute(CommandContext args) throws CommandException {
+>         CommandSource src = args.cause().first(CommandSource.class).orElse(null);
+43c39,40
+<         UUID uniqueId = ((Player) src).getUniqueId();
+---
+>         Player receiver = (Player) src;
+>         UUID uniqueId = receiver.getUniqueId();
+49,51c46,47
+<         Player receiver = (Player) src;
+<         String targetSkin = args.<String>getOne("skin").get();
+<         boolean keepSkin = args.hasAny("keep");
+---
+>         String targetSkin = args.requireOne("skin");
+>         boolean keepSkin = args.getOne("keep").orElse(false);
+75,77c71,72
+<     @Override
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command.Parameterized buildSpec() {
+>         return Command.builder()
+79,81c74,75
+<                 .arguments(
+<                         string(of("skin")),
+<                         flags().flag("keep").buildWith(GenericArguments.none()))
+---
+>                 .addParameter(Parameter.string().key("skin").build())
+>                 .addParameter(Parameter.bool().key("keep").optional().build())

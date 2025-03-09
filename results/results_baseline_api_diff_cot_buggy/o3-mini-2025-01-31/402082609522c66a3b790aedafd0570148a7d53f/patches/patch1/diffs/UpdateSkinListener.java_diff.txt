@@ -1,0 +1,23 @@
+14d13
+< import org.spongepowered.api.command.CommandSource;
+16,17c15
+< import org.spongepowered.api.network.ChannelBuf;
+< import org.spongepowered.api.network.RawDataListener;
+---
+> import org.spongepowered.api.network.channel.ChannelBuf;
+21c19
+< public class UpdateSkinListener implements RawDataListener {
+---
+> public class UpdateSkinListener {
+26d23
+<     @Override
+33c30
+<         Optional<Player> receiver = Sponge.getServer().getPlayer(playerName);
+---
+>         Optional<Player> receiver = Sponge.server().player(playerName);
+35,36c32,33
+<             Runnable skinUpdater = new SkinApplier(plugin, (CommandSource) connection, receiver.get(), null, false);
+<             Task.builder().execute(skinUpdater).submit(plugin);
+---
+>             Runnable skinUpdater = new SkinApplier(plugin, connection, receiver.get(), null, false);
+>             Sponge.server().scheduler().submit(skinUpdater, plugin);
