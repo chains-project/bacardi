@@ -1,0 +1,186 @@
+You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates. Your task is to analyze the provided code, error information, and API changes, then propose and apply a patch to fix the issue while adhering to specific constraints.
+
+Here is the Java code that is failing:
+
+```java
+package com.example;
+
+import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+import javax.mvc.event.AfterControllerEvent;
+import javax.mvc.event.AfterProcessViewEvent;
+import javax.mvc.event.BeforeControllerEvent;
+import javax.mvc.event.BeforeProcessViewEvent;
+import javax.mvc.event.ControllerRedirectEvent;
+
+@ApplicationScoped
+public class MvcEventListener {
+
+    @Inject
+    Logger LOGGER;
+
+    private void onControllerMatched(@Observes BeforeControllerEvent event) {
+        LOGGER.info(() -> "Controller matched for " + event.getUriInfo().getRequestUri());
+    }
+
+    private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
+        LOGGER.info(() -> "View engine: " + event.getEngine());
+    }
+
+    private void onAfterControllerEvent(@Observes AfterControllerEvent event) {
+        LOGGER.info(() -> "AfterControllerEvent:: " + event.getResourceInfo());
+    }
+
+    private void onAfterProcessViewEvent(@Observes AfterProcessViewEvent event) {
+        LOGGER.info(() -> "AfterProcessViewEvent:: " + event);
+    }
+    
+     private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
+        LOGGER.info(() -> "ControllerRedirectEvent:: " + event);
+    }
+
+    @PostConstruct
+    private void init() {
+        LOGGER.config(() -> this.getClass().getSimpleName() + " created");
+    }
+}
+
+```
+
+The errors are triggered in the following specific line:
+
+<error_lines>
+```java
+import javax.mvc.event.BeforeControllerEvent;
+```
+```java
+private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
+```
+```java
+import javax.mvc.event.BeforeProcessViewEvent;
+```
+```java
+import javax.mvc.event.AfterProcessViewEvent;
+```
+```java
+import javax.mvc.event.AfterControllerEvent;
+```
+```java
+private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
+```
+```java
+private void onControllerMatched(@Observes BeforeControllerEvent event) {
+```
+```java
+import javax.mvc.event.ControllerRedirectEvent;
+```
+```java
+private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
+```
+```java
+private void onAfterProcessViewEvent(@Observes AfterProcessViewEvent event) {
+```
+```java
+private void onAfterControllerEvent(@Observes AfterControllerEvent event) {
+```
+```java
+private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
+```
+</error_lines>
+
+The API of the dependency has changed. Here are the relevant changes:
+
+     Class javax.mvc.event.BeforeControllerEvent has been removed in the new version of the dependency.
+     Interface jakarta.mvc.event.BeforeControllerEvent has been added in the new version of the dependency.
+     Method jakarta.mvc.event.BeforeProcessViewEvent.getEngine() has been added in the new version of the dependency.
+     Method javax.mvc.event.BeforeProcessViewEvent.getEngine() has been removed in the new version of the dependency.
+     Method javax.mvc.event.AfterProcessViewEvent.getEngine() has been removed in the new version of the dependency.
+     Method jakarta.mvc.event.AfterProcessViewEvent.getEngine() has been added in the new version of the dependency.
+     Interface jakarta.mvc.event.BeforeProcessViewEvent has been added in the new version of the dependency.
+     Class javax.mvc.event.BeforeProcessViewEvent has been removed in the new version of the dependency.
+     Class javax.mvc.event.AfterProcessViewEvent has been removed in the new version of the dependency.
+     Interface jakarta.mvc.event.AfterProcessViewEvent has been added in the new version of the dependency.
+     Class javax.mvc.event.AfterControllerEvent has been removed in the new version of the dependency.
+     Interface jakarta.mvc.event.AfterControllerEvent has been added in the new version of the dependency.
+     Class javax.mvc.engine.ViewEngine has been removed in the new version of the dependency.
+     Interface jakarta.mvc.event.ControllerRedirectEvent has been added in the new version of the dependency.
+     Class javax.mvc.event.ControllerRedirectEvent has been removed in the new version of the dependency.
+
+Additional error information:
+
+<error_information>
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[10,23] package javax.mvc.event does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[24,49] cannot find symbol
+  symbol:   class BeforeProcessViewEvent
+  location: class com.example.MvcEventListener
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[11,23] package javax.mvc.event does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[9,23] package javax.mvc.event does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[8,23] package javax.mvc.event does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[24,49] cannot find symbol
+  symbol:   class BeforeProcessViewEvent
+  location: class com.example.MvcEventListener
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[20,48] cannot find symbol
+  symbol:   class BeforeControllerEvent
+  location: class com.example.MvcEventListener
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[12,23] package javax.mvc.event does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[24,49] cannot find symbol
+  symbol:   class BeforeProcessViewEvent
+  location: class com.example.MvcEventListener
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[32,52] cannot find symbol
+  symbol:   class AfterProcessViewEvent
+  location: class com.example.MvcEventListener
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[28,51] cannot find symbol
+  symbol:   class AfterControllerEvent
+  location: class com.example.MvcEventListener
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[36,55] cannot find symbol
+  symbol:   class ControllerRedirectEvent
+  location: class com.example.MvcEventListener
+<error_information>
+
+Your task is to fix the issue by modifying only the client code. Follow these steps:
+
+1. Analyze the problem and propose changes by wrapping the work inside fix_planning tags. This analysis is for your internal use only and will not be included in the final output. In your analysis:
+   a. Quote relevant parts of the code and API changes
+   b. Identify the specific API changes causing the issue
+   c. List the affected lines of code
+   d. Propose potential fixes for each affected line
+   e. Consider any potential side effects of the proposed changes
+   f. Explicitly check if the proposed changes adhere to all the given constraints
+   g. Provide a final summary of the chosen fix and why it's the best solution
+
+2. Apply the fix to the Java code.
+
+3. Output the complete, fixed Java class in a fenced code block. This should be the only visible output in your response.
+
+Constraints:
+1. Do not change the function signature of any method.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error.
+6. Include all code, even unchanged portions, in your final output.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
+
+Your final output should only contain the complete, fixed Java class in a fenced code block, without any explanations or analysis visible. The <fix_planning> section is for your internal use only.
+
+Example output structure:
+
+```java
+[Complete, fixed Java class]
+```
+
+Please proceed with your analysis and solution.

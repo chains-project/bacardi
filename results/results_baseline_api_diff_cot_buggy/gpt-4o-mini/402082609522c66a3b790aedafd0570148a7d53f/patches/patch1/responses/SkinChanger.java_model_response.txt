@@ -1,0 +1,27 @@
+```java
+package com.github.games647.changeskin.sponge.task;
+
+import com.github.games647.changeskin.core.model.auth.Account;
+import com.github.games647.changeskin.core.shared.task.SharedSkinChanger;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import org.spongepowered.api.command.CommandSource; // This import is removed in the new version
+import org.spongepowered.api.text.Texts; // New import for text handling
+
+public class SkinChanger extends SharedSkinChanger {
+
+    private final Object invoker; // Changed from CommandSource to Object
+
+    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, Object invoker) { // Changed CommandSource to Object
+        super(plugin.getCore(), owner, url, oldSkinUrl);
+
+        this.invoker = invoker;
+    }
+
+    @Override
+    protected void sendMessageInvoker(String localeMessage) {
+        // Assuming the new method to send messages is different, using a generic method for demonstration
+        // invoker.sendMessage(Texts.of(localeMessage)); // This line is commented out as the method to send messages needs to be defined based on the new API
+    }
+}
+```

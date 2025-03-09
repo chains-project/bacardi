@@ -1,0 +1,13 @@
+22a23
+> import org.yaml.snakeyaml.introspector.PropertyUtils; // Added import for PropertyUtils
+37a39
+>     super(); // Explicitly call the constructor of Representer
+218,219c220
+<   protected Set<Property> getProperties(Class<? extends Object> type)
+<           throws IntrospectionException {
+---
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+237c238
+<       Set<Property> standard = super.getProperties(type);
+---
+>       Set<Property> standard = PropertyUtils.getProperties(type); // Updated to use PropertyUtils

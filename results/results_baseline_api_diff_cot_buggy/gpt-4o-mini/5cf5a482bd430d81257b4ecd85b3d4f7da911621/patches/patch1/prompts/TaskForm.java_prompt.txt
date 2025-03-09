@@ -1,0 +1,164 @@
+You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates. Your task is to analyze the provided code, error information, and API changes, then propose and apply a patch to fix the issue while adhering to specific constraints.
+
+Here is the Java code that is failing:
+
+```java
+package com.example.web;
+
+import java.io.Serializable;
+import java.util.Objects;
+import javax.mvc.binding.MvcBinding;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+import javax.ws.rs.FormParam;
+
+public class TaskForm implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @FormParam("id")
+    private Long id;
+
+    @NotBlank
+    @FormParam("name")
+    @MvcBinding
+    private String name;
+
+    @NotBlank
+    @Size(min = 10, max = 2000)
+    @FormParam("description")
+    @MvcBinding
+    private String description;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 61 * hash + Objects.hashCode(this.id);
+        hash = 61 * hash + Objects.hashCode(this.name);
+        hash = 61 * hash + Objects.hashCode(this.description);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final TaskForm other = (TaskForm) obj;
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.description, other.description)) {
+            return false;
+        }
+        if (!Objects.equals(this.id, other.id)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "TaskForm{" + "id=" + id + ", name=" + name + ", description=" + description + '}';
+    }
+  
+}
+
+```
+
+The errors are triggered in the following specific line:
+
+<error_lines>
+```java
+@MvcBinding
+```
+```java
+import javax.mvc.binding.MvcBinding;
+```
+```java
+@MvcBinding
+```
+</error_lines>
+
+The API of the dependency has changed. Here are the relevant changes:
+
+     Interface jakarta.mvc.binding.MvcBinding has been added in the new version of the dependency.
+     Class javax.mvc.binding.MvcBinding has been removed in the new version of the dependency.
+
+Additional error information:
+
+<error_information>
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/TaskForm.java:[25,6] cannot find symbol
+  symbol:   class MvcBinding
+  location: class com.example.web.TaskForm
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/TaskForm.java:[5,25] package javax.mvc.binding does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/TaskForm.java:[19,6] cannot find symbol
+  symbol:   class MvcBinding
+  location: class com.example.web.TaskForm
+<error_information>
+
+Your task is to fix the issue by modifying only the client code. Follow these steps:
+
+1. Analyze the problem and propose changes by wrapping the work inside fix_planning tags. This analysis is for your internal use only and will not be included in the final output. In your analysis:
+   a. Quote relevant parts of the code and API changes
+   b. Identify the specific API changes causing the issue
+   c. List the affected lines of code
+   d. Propose potential fixes for each affected line
+   e. Consider any potential side effects of the proposed changes
+   f. Explicitly check if the proposed changes adhere to all the given constraints
+   g. Provide a final summary of the chosen fix and why it's the best solution
+
+2. Apply the fix to the Java code.
+
+3. Output the complete, fixed Java class in a fenced code block. This should be the only visible output in your response.
+
+Constraints:
+1. Do not change the function signature of any method.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error.
+6. Include all code, even unchanged portions, in your final output.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
+
+Your final output should only contain the complete, fixed Java class in a fenced code block, without any explanations or analysis visible. The <fix_planning> section is for your internal use only.
+
+Example output structure:
+
+```java
+[Complete, fixed Java class]
+```
+
+Please proceed with your analysis and solution.

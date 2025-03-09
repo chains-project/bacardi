@@ -1,0 +1,388 @@
+You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates. Your task is to analyze the provided code, error information, and API changes, then propose and apply a patch to fix the issue while adhering to specific constraints.
+
+Here is the Java code that is failing:
+
+```java
+package ml.peya.plugins.Objects;
+
+import develop.p2p.lib.WaveCreator;
+import ml.peya.plugins.PeyangSuperbAntiCheat;
+import ml.peya.plugins.Variables;
+import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
+
+/**
+ * でこれーしょん☆！
+ */
+public class Decorations
+{
+    /**
+     * 雷
+     *
+     * @param player 餌食
+     */
+    public static void lighting(Player player)
+    {
+        player.getWorld().strikeLightningEffect(player.getLocation());
+    }
+
+    /**
+     * Pit想像しろ
+     *
+     * @param player  餌食
+     * @param seconds 秒数
+     */
+    public static void flame(Player player, int seconds)
+    {
+        final int[] sec = {0};
+        new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                if (sec[0] > (seconds))
+                    this.cancel();
+
+                player.getWorld().spawnParticle(
+                    Particle.FLAME,
+                    player.getLocation().add(0, 0.5, 0),
+                    30,
+                    0,
+                    0,
+                    0,
+                    0.65
+                );
+
+                sec[0] += 5;
+            }
+        }.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0L, 5L);
+    }
+
+    /**
+     * パーティクルを出すよ！
+     *
+     * @param location だすとこ
+     * @param size     だすりょー
+     */
+    public static void particle(Location location, int size)
+    {
+        particle(location, size, Particle.CRIT_MAGIC);
+    }
+
+    /**
+     * パーティクルを出すよ！
+     *
+     * @param location だすとこ
+     * @param size     だすりょー
+     * @param particle 種類
+     */
+    public static void particle(Location location, int size, Particle particle)
+    {
+        location.getWorld().spawnParticle(
+            particle,
+            location,
+            size,
+            0,
+            0,
+            0,
+            0.001
+        ); //XXX: 誰だよこんな引数多く設計したやつ
+    }
+
+    /**
+     * パーティクルを出すよ！
+     *
+     * @param location だすとこ
+     */
+    public static void particle(Location location)
+    {
+        particle(location, 5);
+    }
+
+    /**
+     * 線を引くよ！
+     *
+     * @param path 開始位置
+     * @param to   終了位置
+     */
+    public static void line(Location path, Location to)
+    {
+        line(path, to, Particle.ENCHANTMENT_TABLE);
+    }
+
+    /**
+     * 線を引くよ！
+     *
+     * @param path 開始位置
+     * @param to   終了位置
+     * @param p    パーティクル
+     */
+    public static void line(Location path, Location to, Particle p)
+    {
+        double distance = path.distance(to);
+
+        Vector vP = path.toVector();
+        Vector tP = to.toVector();
+
+        Vector line = tP.clone().subtract(vP).normalize().multiply(0.2);
+
+        for (double d = 0; distance > d; )
+        {
+            vP.add(line);
+            particle(vP.toLocation(path.getWorld()), 1, p);
+            d += 0.2;
+        }
+    }
+
+    /**
+     * えん
+     *
+     * @param center 真ん中の位置
+     * @param count  カウント！
+     * @param radius はんけー
+     */
+    public static void circle(Location center, int count, double radius)
+    {
+        Location n = new Location(
+            center.getWorld(),
+            particle_x(count, radius) + center.getX(),
+            center.getY(),
+            particle_z(count, radius) + center.getZ()
+        );
+
+        particle(n);
+
+    }
+
+    /**
+     * えん
+     *
+     * @param center   真ん中の位置
+     * @param count    カウント！
+     * @param radius   はんけー
+     * @param particle ぱーてぃくる
+     */
+    public static void circle(Location center, int count, double radius, Particle particle)
+    {
+        Location n = new Location(
+            center.getWorld(),
+            particle_x(count, radius) + center.getX(),
+            center.getY(),
+            particle_z(count, radius) + center.getZ()
+        );
+
+        particle(n, 5, particle);
+
+    }
+
+    /**
+     * まほーじん！！
+     *
+     * @param player  餌食
+     * @param seconds 秒数
+     */
+    public static void magic(Player player, int seconds)
+    {
+        final int[] count = {0};
+        WaveCreator wave = new WaveCreator(0.8, 1.8, 0.1);
+
+        BukkitRunnable runnable = new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                for (double i = 0; i < Math.PI * 2; i++)
+                {
+                    Location center = player.getLocation();
+
+                    circle(center.clone().add(0, 0.9, 0), count[0], 3, Particle.CRIT);
+
+                    circle(center.add(0, 0.7, 0), count[0], 2.7, Particle.ENCHANTMENT_TABLE);
+
+                    circle(center.clone().add(0, wave.get(0.01, false), 0), count[0], wave.getStatic());
+
+                    circle(center.clone().add(3.2, 0.7, 3.2), count[0], 1.5);
+                    circle(center.clone().add(-3.2, 0.7, -3.2), count[0], 1.5);
+                    circle(center.clone().add(-3.2, 0.7, 3.2), count[0], 1.5);
+                    circle(center.clone().add(3.2, 0.7, -3.2), count[0], 1.5);
+
+                    circle(center.clone().add(0, 1.5, 0), count[0], 5, Particle.SPELL_WITCH);
+
+                    count[0]++;
+                }
+
+                Location center = player.getLocation();
+
+                line(center.clone().add(3, 0.7, 0), center.clone().add(-1.5, 0.7, 2.3));
+                line(center.clone().add(-1.5, 0.7, 2.3), center.clone().add(-1.5, 0.7, -2.3)); //三角
+                line(center.clone().add(3, 0.7, 0), center.clone().add(-1.5, 0.7, -2.3));
+
+                line(center.clone().add(-3, 0.7, 0), center.clone().add(1.5, 0.7, -2.3));
+                line(center.clone().add(1.5, 0.7, -2.3), center.clone().add(1.5, 0.7, 2.3)); //三角(反転)
+                line(center.clone().add(-3, 0.7, 0), center.clone().add(1.5, 0.7, 2.3));
+            }
+        };
+
+        runnable.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0L, 1L);
+        new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                runnable.cancel();
+            }
+        }.runTaskLater(PeyangSuperbAntiCheat.getPlugin(), seconds);
+
+    }
+
+    /**
+     * ガーディアンビーム
+     *
+     * @param player 餌食
+     * @param sec    秒数
+     */
+    public static void laser(Player player, int sec)
+    {
+
+        final double[] time = {0.0};
+        final double radius = 2.5;
+
+        BukkitRunnable runnable = new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                Location c = player.getLocation().clone();
+                Location X = new Location(c.getWorld(), particle_x(time[0], radius) + c.getX(), 5.0 + c.getY(), particle_z(time[0], radius) + c.getZ());
+
+                for (int i = 0; i < 10; i++)
+                    line(c, X, Particle.TOWN_AURA);
+                time[0] += Math.E;
+            }
+        };
+
+        runnable.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0L, 1L);
+        new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                runnable.cancel();
+            }
+        }.runTaskLater(PeyangSuperbAntiCheat.getPlugin(), sec);
+    }
+
+    /**
+     * パーティクルのZ。
+     *
+     * @param time   時間。
+     * @param radius 半径。
+     * @return 位置。
+     */
+    private static double particle_z(double time, double radius)
+    {
+        return Math.sin(time) * radius * Math.cos(Math.PI / 180 * 360.0);
+    }
+
+    /**
+     * パーティクルのX
+     *
+     * @param time   時間。
+     * @param radius 半径。
+     * @return 位置。
+     */
+    private static double particle_x(double time, double radius)
+    {
+        return Math.cos(time) * radius;
+    }
+
+    /**
+     * デコ要素すべて展開するやつ
+     *
+     * @param player 被験者
+     */
+    public static void decoration(Player player)
+    {
+        if (Variables.config.getBoolean("decoration.flame"))
+            flame(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20));
+        if (Variables.config.getBoolean("decoration.circle"))
+            magic(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20));
+        if (Variables.config.getBoolean("decoration.laser"))
+            laser(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20));
+    }
+
+}
+
+```
+
+The errors are triggered in the following specific line:
+
+<error_lines>
+```java
+import develop.p2p.lib.WaveCreator;
+```
+```java
+WaveCreator wave = new WaveCreator(0.8, 1.8, 0.1);
+```
+```java
+WaveCreator wave = new WaveCreator(0.8, 1.8, 0.1);
+```
+</error_lines>
+
+The API of the dependency has changed. Here are the relevant changes:
+
+     Class develop.p2p.lib.WaveCreator has been removed in the new version of the dependency.
+     Type reference tokyo.peya.lib.WaveCreator(double,double,double) has been added in the new version of the dependency.
+     Constructor develop.p2p.lib.WaveCreator(double,double,double) has been removed in the new version of the dependency.
+     Construct tokyo.peya.lib.WaveCreator(double,double,double) has been added in the new version of the dependency.
+
+Additional error information:
+
+<error_information>
+[ERROR] /PeyangSuperbAntiCheat/src/main/java/ml/peya/plugins/Objects/Decorations.java:[3,23] package develop.p2p.lib does not exist
+
+[ERROR] /PeyangSuperbAntiCheat/src/main/java/ml/peya/plugins/Objects/Decorations.java:[185,9] cannot find symbol
+  symbol:   class WaveCreator
+  location: class ml.peya.plugins.Objects.Decorations
+
+[ERROR] /PeyangSuperbAntiCheat/src/main/java/ml/peya/plugins/Objects/Decorations.java:[185,9] cannot find symbol
+  symbol:   class WaveCreator
+  location: class ml.peya.plugins.Objects.Decorations
+<error_information>
+
+Your task is to fix the issue by modifying only the client code. Follow these steps:
+
+1. Analyze the problem and propose changes by wrapping the work inside fix_planning tags. This analysis is for your internal use only and will not be included in the final output. In your analysis:
+   a. Quote relevant parts of the code and API changes
+   b. Identify the specific API changes causing the issue
+   c. List the affected lines of code
+   d. Propose potential fixes for each affected line
+   e. Consider any potential side effects of the proposed changes
+   f. Explicitly check if the proposed changes adhere to all the given constraints
+   g. Provide a final summary of the chosen fix and why it's the best solution
+
+2. Apply the fix to the Java code.
+
+3. Output the complete, fixed Java class in a fenced code block. This should be the only visible output in your response.
+
+Constraints:
+1. Do not change the function signature of any method.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error.
+6. Include all code, even unchanged portions, in your final output.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
+
+Your final output should only contain the complete, fixed Java class in a fenced code block, without any explanations or analysis visible. The <fix_planning> section is for your internal use only.
+
+Example output structure:
+
+```java
+[Complete, fixed Java class]
+```
+
+Please proceed with your analysis and solution.

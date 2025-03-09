@@ -1,0 +1,142 @@
+You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates. Your task is to analyze the provided code, error information, and API changes, then propose and apply a patch to fix the issue while adhering to specific constraints.
+
+Here is the Java code that is failing:
+
+```java
+package io.github.hapjava.server.impl.crypto;
+
+import java.io.IOException;
+import org.bouncycastle.crypto.engines.ChaChaEngine;
+import org.bouncycastle.crypto.generators.Poly1305KeyGenerator;
+import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.crypto.params.ParametersWithIV;
+import org.bouncycastle.crypto.tls.AlertDescription;
+import org.bouncycastle.crypto.tls.TlsFatalAlert;
+import org.bouncycastle.util.Arrays;
+
+public class ChachaDecoder {
+
+  private final ChaChaEngine decryptCipher;
+
+  public ChachaDecoder(byte[] key, byte[] nonce) throws IOException {
+
+    this.decryptCipher = new ChaChaEngine(20);
+
+    this.decryptCipher.init(false, new ParametersWithIV(new KeyParameter(key), nonce));
+  }
+
+  public byte[] decodeCiphertext(byte[] receivedMAC, byte[] additionalData, byte[] ciphertext)
+      throws IOException {
+
+    KeyParameter macKey = initRecordMAC(decryptCipher);
+
+    byte[] calculatedMAC = PolyKeyCreator.create(macKey, additionalData, ciphertext);
+
+    if (!Arrays.constantTimeAreEqual(calculatedMAC, receivedMAC)) {
+      throw new TlsFatalAlert(AlertDescription.bad_record_mac);
+    }
+
+    byte[] output = new byte[ciphertext.length];
+    decryptCipher.processBytes(ciphertext, 0, ciphertext.length, output, 0);
+
+    return output;
+  }
+
+  public byte[] decodeCiphertext(byte[] receivedMAC, byte[] ciphertext) throws IOException {
+    return decodeCiphertext(receivedMAC, null, ciphertext);
+  }
+
+  private KeyParameter initRecordMAC(ChaChaEngine cipher) {
+    byte[] firstBlock = new byte[64];
+    cipher.processBytes(firstBlock, 0, firstBlock.length, firstBlock, 0);
+
+    // NOTE: The BC implementation puts 'r' after 'k'
+    System.arraycopy(firstBlock, 0, firstBlock, 32, 16);
+    KeyParameter macKey = new KeyParameter(firstBlock, 16, 32);
+    Poly1305KeyGenerator.clamp(macKey.getKey());
+    return macKey;
+  }
+}
+
+```
+
+The errors are triggered in the following specific line:
+
+<error_lines>
+```java
+throw new TlsFatalAlert(AlertDescription.bad_record_mac);
+```
+```java
+throw new TlsFatalAlert(AlertDescription.bad_record_mac);
+```
+```java
+import org.bouncycastle.crypto.tls.TlsFatalAlert;
+```
+```java
+throw new TlsFatalAlert(AlertDescription.bad_record_mac);
+```
+```java
+import org.bouncycastle.crypto.tls.AlertDescription;
+```
+</error_lines>
+
+The API of the dependency has changed. Here are the relevant changes:
+
+     Constructor org.bouncycastle.crypto.tls.TlsFatalAlert(short) has been removed in the new version of the dependency.
+     Class org.bouncycastle.crypto.tls.TlsFatalAlert has been removed in the new version of the dependency.
+     Constructor org.bouncycastle.crypto.tls.AlertDescription() has been removed in the new version of the dependency.
+     Class org.bouncycastle.crypto.tls.AlertDescription has been removed in the new version of the dependency.
+
+Additional error information:
+
+<error_information>
+[ERROR] /HAP-Java/src/main/java/io/github/hapjava/server/impl/crypto/ChachaDecoder.java:[31,17] cannot find symbol
+  symbol:   class TlsFatalAlert
+  location: class io.github.hapjava.server.impl.crypto.ChachaDecoder
+
+[ERROR] /HAP-Java/src/main/java/io/github/hapjava/server/impl/crypto/ChachaDecoder.java:[31,17] cannot find symbol
+  symbol:   class TlsFatalAlert
+  location: class io.github.hapjava.server.impl.crypto.ChachaDecoder
+
+[ERROR] /HAP-Java/src/main/java/io/github/hapjava/server/impl/crypto/ChachaDecoder.java:[9,35] package org.bouncycastle.crypto.tls does not exist
+
+[ERROR] /HAP-Java/src/main/java/io/github/hapjava/server/impl/crypto/ChachaDecoder.java:[31,17] cannot find symbol
+  symbol:   class TlsFatalAlert
+  location: class io.github.hapjava.server.impl.crypto.ChachaDecoder
+
+[ERROR] /HAP-Java/src/main/java/io/github/hapjava/server/impl/crypto/ChachaDecoder.java:[8,35] package org.bouncycastle.crypto.tls does not exist
+<error_information>
+
+Your task is to fix the issue by modifying only the client code. Follow these steps:
+
+1. Analyze the problem and propose changes by wrapping the work inside fix_planning tags. This analysis is for your internal use only and will not be included in the final output. In your analysis:
+   a. Quote relevant parts of the code and API changes
+   b. Identify the specific API changes causing the issue
+   c. List the affected lines of code
+   d. Propose potential fixes for each affected line
+   e. Consider any potential side effects of the proposed changes
+   f. Explicitly check if the proposed changes adhere to all the given constraints
+   g. Provide a final summary of the chosen fix and why it's the best solution
+
+2. Apply the fix to the Java code.
+
+3. Output the complete, fixed Java class in a fenced code block. This should be the only visible output in your response.
+
+Constraints:
+1. Do not change the function signature of any method.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error.
+6. Include all code, even unchanged portions, in your final output.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
+
+Your final output should only contain the complete, fixed Java class in a fenced code block, without any explanations or analysis visible. The <fix_planning> section is for your internal use only.
+
+Example output structure:
+
+```java
+[Complete, fixed Java class]
+```
+
+Please proceed with your analysis and solution.

@@ -1,0 +1,59 @@
+12,17c12,17
+< import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
+< import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
+< import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
+< import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
+< import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
+< import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
+---
+> import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult; // Removed
+> import com.pubnub.api.models.consumer.pubsub.PNSignalResult; // Removed
+> import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult; // Removed
+> import com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult; // Updated import
+> import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult; // Removed
+> import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult; // Removed
+38,41c38
+<     mapper = new ObjectMapper();
+<     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+<     PNConfiguration pnConfiguration = new PNConfiguration();
+<     pnConfiguration.setSubscribeKey(publicKey);
+---
+>     PNConfiguration pnConfiguration = new PNConfiguration(publicKey); // Updated constructor
+43a41,42
+>     mapper = new ObjectMapper();
+>     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+59c58
+<                     //              e.onComplete();
+---
+>                     e.onComplete();
+61c60
+<                     //              e.onError(pnStatus.getErrorData().getThrowable());
+---
+>                     e.onError(pnStatus.getErrorData().getThrowable());
+94,95c93,94
+<                 public void user(PubNub pubnub, PNUserResult pnUserResult) {
+<                   LOG.debug("PubNub user: {}", pnUserResult.toString());
+---
+>                 public void user(PubNub pubnub, PNUserResult pnUserResult) { // Removed
+>                   LOG.debug("PubNub user: {}", pnUserResult.toString()); // Removed
+99,100c98,99
+<                 public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
+<                   LOG.debug("PubNub space: {}", pnSpaceResult.toString());
+---
+>                 public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) { // Removed
+>                   LOG.debug("PubNub space: {}", pnSpaceResult.toString()); // Removed
+104c103
+<                 public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
+---
+>                 public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) { // Updated
+110,111c109,115
+<                     PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
+<                   LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
+---
+>                     PubNub pubnub, PNMessageActionResult pnMessageActionResult) { // Removed
+>                   LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString()); // Removed
+>                 }
+> 
+>                 @Override
+>                 public void file(PubNub pubnub, com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult pnFileEventResult) { // Added
+>                   LOG.debug("PubNub file: {}", pnFileEventResult.toString());

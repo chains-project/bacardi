@@ -1,0 +1,331 @@
+You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates. Your task is to analyze the provided code, error information, and API changes, then propose and apply a patch to fix the issue while adhering to specific constraints.
+
+Here is the Java code that is failing:
+
+```java
+package com.github.games647.changeskin.sponge.bungee;
+
+import com.github.games647.changeskin.core.message.NamespaceKey;
+import com.github.games647.changeskin.core.message.CheckPermMessage;
+import com.github.games647.changeskin.core.message.PermResultMessage;
+import com.github.games647.changeskin.core.model.skin.SkinModel;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+import com.google.inject.Inject;
+
+import java.util.UUID;
+
+import org.spongepowered.api.Platform.Type;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+import org.spongepowered.api.network.ChannelBuf;
+import org.spongepowered.api.network.ChannelRegistrar;
+import org.spongepowered.api.network.RawDataListener;
+import org.spongepowered.api.network.RemoteConnection;
+
+import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
+import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
+
+public class CheckPermissionListener implements RawDataListener {
+
+    private final ChangeSkinSponge plugin;
+    private final RawDataChannel permissionsResultChannel;
+
+    @Inject
+    CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+        this.plugin = plugin;
+
+        String combinedName = new NamespaceKey(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL).getCombinedName();
+        permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
+    }
+
+    @Override
+    public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+        CheckPermMessage checkMessage = new CheckPermMessage();
+        checkMessage.readFrom(dataInput);
+
+        CheckPermMessage message = new CheckPermMessage();
+        message.readFrom(dataInput);
+
+        checkPermissions((Player) connection, message);
+    }
+
+    private void checkPermissions(Player player, CheckPermMessage permMessage) {
+        UUID receiverUUID = permMessage.getReceiverUUD();
+        boolean op = permMessage.isOp();
+        SkinModel targetSkin = permMessage.getTargetSkin();
+        UUID skinProfile = targetSkin.getProfileId();
+
+        boolean success = op || checkBungeePerms(player, receiverUUID, permMessage.isSkinPerm(), skinProfile);
+        sendResultMessage(player, new PermResultMessage(success, targetSkin, receiverUUID));
+    }
+
+    private boolean checkBungeePerms(Player player, UUID receiverUUID, boolean skinPerm, UUID targetUUID) {
+        if (player.getUniqueId().equals(receiverUUID)) {
+            return checkPerm(player, "command.setskin", skinPerm, targetUUID);
+        }
+
+        return checkPerm(player, "command.setskin.other", skinPerm, targetUUID);
+    }
+
+    private boolean checkPerm(Player invoker, String node, boolean skinPerm, UUID targetUUID) {
+        String pluginName = plugin.getName().toLowerCase();
+        boolean hasCommandPerm = invoker.hasPermission(pluginName +  '.' + node);
+        if (skinPerm) {
+            return hasCommandPerm && plugin.hasSkinPermission(invoker, targetUUID, false);
+        }
+
+        return hasCommandPerm;
+    }
+
+    private void sendResultMessage(Player receiver, PermResultMessage resultMessage) {
+        ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
+        resultMessage.writeTo(dataOutput);
+        permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+    }
+}
+
+```
+
+The errors are triggered in the following specific line:
+
+<error_lines>
+```java
+CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+```
+```java
+import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+```
+```java
+public class CheckPermissionListener implements RawDataListener {
+```
+```java
+public class CheckPermissionListener implements RawDataListener {
+```
+```java
+import org.spongepowered.api.network.ChannelBuf;
+```
+```java
+CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+```
+```java
+public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+```
+```java
+import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+```
+```java
+public class CheckPermissionListener implements RawDataListener {
+```
+```java
+public class CheckPermissionListener implements RawDataListener {
+```
+```java
+public class CheckPermissionListener implements RawDataListener {
+```
+```java
+private final RawDataChannel permissionsResultChannel;
+```
+```java
+public class CheckPermissionListener implements RawDataListener {
+```
+```java
+public class CheckPermissionListener implements RawDataListener {
+```
+```java
+public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+```
+```java
+public class CheckPermissionListener implements RawDataListener {
+```
+```java
+public class CheckPermissionListener implements RawDataListener {
+```
+```java
+private final RawDataChannel permissionsResultChannel;
+```
+```java
+public class CheckPermissionListener implements RawDataListener {
+```
+```java
+import org.spongepowered.api.network.ChannelRegistrar;
+```
+```java
+import org.spongepowered.api.network.RawDataListener;
+```
+```java
+CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+```
+```java
+CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+```
+```java
+public class CheckPermissionListener implements RawDataListener {
+```
+</error_lines>
+
+The API of the dependency has changed. Here are the relevant changes:
+
+     Class org.spongepowered.api.network.ChannelRegistrar has been removed in the new version of the dependency.
+     Class org.spongepowered.api.network.ChannelBinding has been removed in the new version of the dependency.
+     Interface org.spongepowered.api.service.pagination.PaginationList$Builder.sendTo(net.kyori.adventure.audience.Audience) has been added in the new version of the dependency.
+     Method org.spongepowered.api.network.ChannelBinding$IndexedMessageChannel.sendTo(org.spongepowered.api.entity.living.player.Player,org.spongepowered.api.network.Message) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.network.channel.packet.PacketDispatcher.sendTo(org.spongepowered.api.network.EngineConnection,org.spongepowered.api.network.channel.packet.Packet) has been added in the new version of the dependency.
+     Method org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel.sendTo(org.spongepowered.api.entity.living.player.server.ServerPlayer,java.util.function.Consumer) has been added in the new version of the dependency.
+     Method org.spongepowered.api.network.channel.packet.TransactionalPacketDispatcher.sendTo(org.spongepowered.api.entity.living.player.server.ServerPlayer,org.spongepowered.api.network.channel.packet.RequestPacket) has been added in the new version of the dependency.
+     Method org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel.sendTo(org.spongepowered.api.network.EngineConnection,java.util.function.Consumer) has been added in the new version of the dependency.
+     Method org.spongepowered.api.service.pagination.PaginationList.sendTo(org.spongepowered.api.text.channel.MessageReceiver,int) has been removed in the new version of the dependency.
+     Interface org.spongepowered.api.service.pagination.PaginationList.sendTo(net.kyori.adventure.audience.Audience) has been added in the new version of the dependency.
+     Method org.spongepowered.api.network.channel.raw.handshake.RawHandshakeDataChannel.sendTo(org.spongepowered.api.network.EngineConnection,java.util.function.Consumer) has been added in the new version of the dependency.
+     Method org.spongepowered.api.service.pagination.PaginationList$Builder.sendTo(org.spongepowered.api.text.channel.MessageReceiver) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.network.channel.packet.TransactionalPacketDispatcher.sendTo(org.spongepowered.api.network.EngineConnection,org.spongepowered.api.network.channel.packet.RequestPacket) has been added in the new version of the dependency.
+     Method org.spongepowered.api.service.pagination.PaginationList.sendTo(org.spongepowered.api.text.channel.MessageReceiver) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.service.pagination.PaginationList.sendTo(net.kyori.adventure.audience.Audience,int) has been added in the new version of the dependency.
+     Method org.spongepowered.api.network.channel.packet.PacketDispatcher.sendTo(org.spongepowered.api.entity.living.player.server.ServerPlayer,org.spongepowered.api.network.channel.packet.Packet) has been added in the new version of the dependency.
+     Method org.spongepowered.api.network.ChannelBinding$RawDataChannel.sendTo(org.spongepowered.api.entity.living.player.Player,java.util.function.Consumer) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.network.ChannelBuf.writeByteArray(byte[],int,int) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.network.channel.ChannelBuf.writeByteArray(byte[],int,int) has been added in the new version of the dependency.
+     Method org.spongepowered.api.network.ChannelBuf.writeByteArray(byte[]) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.network.channel.ChannelBuf.writeByteArray(byte[]) has been added in the new version of the dependency.
+     Class org.spongepowered.api.network.ChannelBuf has been removed in the new version of the dependency.
+     Class org.spongepowered.api.network.ChannelBinding$RawDataChannel has been removed in the new version of the dependency.
+     Method org.spongepowered.api.network.ChannelBuf.array() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.network.channel.ChannelBuf.array() has been added in the new version of the dependency.
+     Class org.spongepowered.api.network.RawDataListener has been removed in the new version of the dependency.
+     Method org.spongepowered.api.util.Identifiable.getUniqueId() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.storage.WorldProperties.getUniqueId() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.network.ChannelBuf.getUniqueId(int) has been removed in the new version of the dependency.
+     Method org.spongepowered.api.world.World.getUniqueId() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.entity.EntitySnapshot.getUniqueId() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.network.channel.ChannelBuf.getUniqueId(int) has been added in the new version of the dependency.
+     Method org.spongepowered.api.text.action.HoverAction$ShowEntity$Ref.getUniqueId() has been removed in the new version of the dependency.
+     Method org.spongepowered.api.network.ChannelRegistrar.getOrCreateRaw(java.lang.Object,java.lang.String) has been removed in the new version of the dependency.
+     Interface org.spongepowered.api.service.permission.Subject.hasPermission(java.lang.String,java.util.Set) has been added in the new version of the dependency.
+     Method org.spongepowered.api.service.permission.SubjectProxy.hasPermission(java.lang.String) has been added in the new version of the dependency.
+     Method org.spongepowered.api.service.permission.SubjectProxy.hasPermission(java.lang.String,org.spongepowered.api.event.Cause) has been added in the new version of the dependency.
+     Method org.spongepowered.api.service.permission.SubjectProxy.hasPermission(java.lang.String,java.util.Set) has been added in the new version of the dependency.
+     Method org.spongepowered.api.service.permission.Subject.hasPermission(java.util.Set,java.lang.String) has been removed in the new version of the dependency.
+     Interface org.spongepowered.api.service.permission.Subject.hasPermission(java.lang.String,org.spongepowered.api.event.Cause) has been added in the new version of the dependency.
+
+Additional error information:
+
+<error_information>
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[32,54] cannot find symbol
+  symbol:   class ChannelRegistrar
+  location: class com.github.games647.changeskin.sponge.bungee.CheckPermissionListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[17,52] package org.spongepowered.api.network.ChannelBinding does not exist
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[26,49] cannot find symbol
+  symbol: class RawDataListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[26,49] cannot find symbol
+  symbol: class RawDataListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[18,37] cannot find symbol
+  symbol:   class ChannelBuf
+  location: package org.spongepowered.api.network
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[32,54] cannot find symbol
+  symbol:   class ChannelRegistrar
+  location: class com.github.games647.changeskin.sponge.bungee.CheckPermissionListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[40,31] cannot find symbol
+  symbol:   class ChannelBuf
+  location: class com.github.games647.changeskin.sponge.bungee.CheckPermissionListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[17,52] package org.spongepowered.api.network.ChannelBinding does not exist
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[26,49] cannot find symbol
+  symbol: class RawDataListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[26,49] cannot find symbol
+  symbol: class RawDataListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[26,49] cannot find symbol
+  symbol: class RawDataListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[29,19] cannot find symbol
+  symbol:   class RawDataChannel
+  location: class com.github.games647.changeskin.sponge.bungee.CheckPermissionListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[26,49] cannot find symbol
+  symbol: class RawDataListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[26,49] cannot find symbol
+  symbol: class RawDataListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[40,31] cannot find symbol
+  symbol:   class ChannelBuf
+  location: class com.github.games647.changeskin.sponge.bungee.CheckPermissionListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[26,49] cannot find symbol
+  symbol: class RawDataListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[26,49] cannot find symbol
+  symbol: class RawDataListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[29,19] cannot find symbol
+  symbol:   class RawDataChannel
+  location: class com.github.games647.changeskin.sponge.bungee.CheckPermissionListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[26,49] cannot find symbol
+  symbol: class RawDataListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[19,37] cannot find symbol
+  symbol:   class ChannelRegistrar
+  location: package org.spongepowered.api.network
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[20,37] cannot find symbol
+  symbol:   class RawDataListener
+  location: package org.spongepowered.api.network
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[32,54] cannot find symbol
+  symbol:   class ChannelRegistrar
+  location: class com.github.games647.changeskin.sponge.bungee.CheckPermissionListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[32,54] cannot find symbol
+  symbol:   class ChannelRegistrar
+  location: class com.github.games647.changeskin.sponge.bungee.CheckPermissionListener
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/bungee/CheckPermissionListener.java:[26,49] cannot find symbol
+  symbol: class RawDataListener
+<error_information>
+
+Your task is to fix the issue by modifying only the client code. Follow these steps:
+
+1. Analyze the problem and propose changes by wrapping the work inside fix_planning tags. This analysis is for your internal use only and will not be included in the final output. In your analysis:
+   a. Quote relevant parts of the code and API changes
+   b. Identify the specific API changes causing the issue
+   c. List the affected lines of code
+   d. Propose potential fixes for each affected line
+   e. Consider any potential side effects of the proposed changes
+   f. Explicitly check if the proposed changes adhere to all the given constraints
+   g. Provide a final summary of the chosen fix and why it's the best solution
+
+2. Apply the fix to the Java code.
+
+3. Output the complete, fixed Java class in a fenced code block. This should be the only visible output in your response.
+
+Constraints:
+1. Do not change the function signature of any method.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error.
+6. Include all code, even unchanged portions, in your final output.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
+
+Your final output should only contain the complete, fixed Java class in a fenced code block, without any explanations or analysis visible. The <fix_planning> section is for your internal use only.
+
+Example output structure:
+
+```java
+[Complete, fixed Java class]
+```
+
+Please proceed with your analysis and solution.

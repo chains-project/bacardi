@@ -1,0 +1,328 @@
+You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates. Your task is to analyze the provided code, error information, and API changes, then propose and apply a patch to fix the issue while adhering to specific constraints.
+
+Here is the Java code that is failing:
+
+```java
+package com.fluxtion.compiler.builder.factory;
+
+import com.fluxtion.compiler.generation.util.MultipleSepTargetInProcessTest;
+import com.fluxtion.runtime.annotations.OnEventHandler;
+import com.fluxtion.runtime.annotations.OnParentUpdate;
+import com.fluxtion.runtime.annotations.OnTrigger;
+import com.fluxtion.runtime.annotations.builder.ExcludeNode;
+import com.fluxtion.runtime.node.NamedNode;
+import lombok.Data;
+import org.junit.Test;
+import org.yaml.snakeyaml.TypeDescription;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.DoubleSupplier;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
+    public GraphOfInstancesTest(boolean compiledSep) {
+        super(compiledSep);
+    }
+
+    @Test(expected = NoSuchFieldException.class)
+    public void buildWithoutYaml() {
+        sep(c -> {
+            StringHandler stringHandlerA = new StringHandler("A");
+            StringHandler stringHandlerB = new StringHandler("B");
+            StringHandler stringHandlerC = new StringHandler("C");
+            StringHandler stringHandlerADuplicate = new StringHandler("A");
+            StringHandler stringHandlerN = new StringHandler("N");
+            DoubleSum aggregator = new DoubleSum();
+            aggregator.getDoubleSuppliers().add(stringHandlerA);
+            aggregator.getDoubleSuppliers().add(stringHandlerB);
+
+
+            InstanceHolder instanceHolder = new InstanceHolder();
+            instanceHolder.getNodeList().add(aggregator);
+            c.addNode(instanceHolder);
+            c.addNode(stringHandlerC);
+            c.addNode(stringHandlerN);
+        });
+
+        DoubleSum aggregator = getField("aggregator");
+        StringHandler handlerC = getField("stringHandler_C");
+        onEvent("A");
+        assertThat(aggregator.sum, is(1.0));
+        assertThat(handlerC.value, is(0));
+        onEvent("A");
+        assertThat(aggregator.sum, is(2.0));
+        assertThat(handlerC.value, is(0));
+        onEvent("B");
+        assertThat(aggregator.sum, is(3.0));
+        assertThat(handlerC.value, is(0));
+        onEvent("C");
+        assertThat(aggregator.sum, is(3.0));
+        assertThat(handlerC.value, is(1));
+
+        getField("instanceHolder");
+    }
+
+    @Test(expected = NoSuchFieldException.class)
+    public void driveFromYaml() {
+        String config = "nodeList:\n" +
+                "- !doubleSum\n" +
+                "  doubleSuppliers:\n" +
+                "  - !stringHandler\n" +
+                "    id: A\n" +
+                "  - !stringHandler\n" +
+                "    id: B\n" +
+                "- !stringHandler\n" +
+                "  id: C";
+        sep(c -> {
+            Constructor constructor = new Constructor();
+            constructor.addTypeDescription(new TypeDescription(DoubleSum.class, "!doubleSum"));
+            constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
+            Yaml yaml = new Yaml(constructor);
+            c.addNode(yaml.loadAs(config, InstanceHolder.class));
+        });
+        DoubleSum aggregator = getField("aggregator");
+        StringHandler handlerC = getField("stringHandler_C");
+        onEvent("A");
+        assertThat(aggregator.sum, is(1.0));
+        assertThat(handlerC.value, is(0));
+        onEvent("A");
+        assertThat(aggregator.sum, is(2.0));
+        assertThat(handlerC.value, is(0));
+        onEvent("B");
+        assertThat(aggregator.sum, is(3.0));
+        assertThat(handlerC.value, is(0));
+        onEvent("C");
+        assertThat(aggregator.sum, is(3.0));
+        assertThat(handlerC.value, is(1));
+
+        getField("instanceHolder");
+    }
+
+    @Test(expected = NoSuchFieldException.class)
+    public void driveAsListFromYaml() {
+        String config = "" +
+                "- !doubleSum\n" +
+                "  doubleSuppliers:\n" +
+                "  - !stringHandler\n" +
+                "    id: A\n" +
+                "  - !stringHandler\n" +
+                "    id: B\n" +
+                "- !stringHandler\n" +
+                "  id: C";
+        sep(c -> {
+            Constructor constructor = new Constructor();
+            constructor.addTypeDescription(new TypeDescription(DoubleSum.class, "!doubleSum"));
+            constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
+            Yaml yaml = new Yaml(constructor);
+            yaml.loadAs("nodeList:\n" + config, InstanceHolder.class).getNodeList().forEach(c::addNode);
+        });
+        DoubleSum aggregator = getField("aggregator");
+        StringHandler handlerC = getField("stringHandler_C");
+        onEvent("A");
+        assertThat(aggregator.sum, is(1.0));
+        assertThat(handlerC.value, is(0));
+        onEvent("A");
+        assertThat(aggregator.sum, is(2.0));
+        assertThat(handlerC.value, is(0));
+        onEvent("B");
+        assertThat(aggregator.sum, is(3.0));
+        assertThat(handlerC.value, is(0));
+        onEvent("C");
+        assertThat(aggregator.sum, is(3.0));
+        assertThat(handlerC.value, is(1));
+
+        getField("instanceHolder");
+    }
+
+    @Test
+    public void buildWithYaml() {
+
+    }
+
+
+    @Data
+    @ExcludeNode
+    public static class InstanceHolder implements NamedNode {
+        private List<Object> nodeList = new ArrayList<>();
+
+        @Override
+        public String getName() {
+            return "instanceHolder";
+        }
+    }
+
+
+    public static class StringHandler implements DoubleSupplier, NamedNode {
+
+        private String id;
+        transient int value;
+
+        public StringHandler(String id) {
+            this.id = id;
+        }
+
+        public StringHandler() {
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        @OnEventHandler
+        public boolean myStringHandler(String s) {
+            value += Objects.equals(s, id) ? 1 : 0;
+            return true;
+        }
+
+        @Override
+        public double getAsDouble() {
+            return value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return "StringHandler{" +
+                    "id='" + id + '\'' +
+                    ", value=" + value +
+                    '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            StringHandler that = (StringHandler) o;
+            return id.equals(that.id);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id);
+        }
+
+        @Override
+        public String getName() {
+            return "stringHandler_" + id;
+        }
+    }
+
+
+    @Data
+    public static class DoubleSum implements NamedNode {
+
+        private List<DoubleSupplier> doubleSuppliers = new ArrayList<>();
+        double sum;
+
+        @OnParentUpdate
+        public void doubleSupplierUpdated(DoubleSupplier doubleSupplier) {
+
+        }
+
+        @OnTrigger
+        public boolean sumSuppliers() {
+            sum = doubleSuppliers.stream().mapToDouble(DoubleSupplier::getAsDouble).sum();
+            return true;
+        }
+
+        @Override
+        public String getName() {
+            return "aggregator";
+        }
+    }
+}
+
+```
+
+The errors are triggered in the following specific line:
+
+<error_lines>
+```java
+Constructor constructor = new Constructor();
+```
+```java
+Constructor constructor = new Constructor();
+```
+</error_lines>
+
+The API of the dependency has changed. Here are the relevant changes:
+
+     Constructor org.yaml.snakeyaml.constructor.Constructor(java.lang.String) has been removed in the new version of the dependency.
+     Constructor org.yaml.snakeyaml.constructor.Constructor(java.lang.Class) has been removed in the new version of the dependency.
+     Constructor org.yaml.snakeyaml.constructor.Constructor() has been removed in the new version of the dependency.
+     Constructor org.yaml.snakeyaml.constructor.Constructor(org.yaml.snakeyaml.TypeDescription) has been removed in the new version of the dependency.
+
+Additional error information:
+
+<error_information>
+[ERROR] /fluxtion/compiler/src/test/java/com/fluxtion/compiler/builder/factory/GraphOfInstancesTest.java:[78,39] no suitable constructor found for Constructor(no arguments)
+    constructor org.yaml.snakeyaml.constructor.Constructor.Constructor(org.yaml.snakeyaml.LoaderOptions) is not applicable
+      (actual and formal argument lists differ in length)
+    constructor org.yaml.snakeyaml.constructor.Constructor.Constructor(java.lang.Class<? extends java.lang.Object>,org.yaml.snakeyaml.LoaderOptions) is not applicable
+      (actual and formal argument lists differ in length)
+    constructor org.yaml.snakeyaml.constructor.Constructor.Constructor(org.yaml.snakeyaml.TypeDescription,org.yaml.snakeyaml.LoaderOptions) is not applicable
+      (actual and formal argument lists differ in length)
+    constructor org.yaml.snakeyaml.constructor.Constructor.Constructor(org.yaml.snakeyaml.TypeDescription,java.util.Collection<org.yaml.snakeyaml.TypeDescription>,org.yaml.snakeyaml.LoaderOptions) is not applicable
+      (actual and formal argument lists differ in length)
+    constructor org.yaml.snakeyaml.constructor.Constructor.Constructor(java.lang.String,org.yaml.snakeyaml.LoaderOptions) is not applicable
+      (actual and formal argument lists differ in length)
+
+[ERROR] /fluxtion/compiler/src/test/java/com/fluxtion/compiler/builder/factory/GraphOfInstancesTest.java:[114,39] no suitable constructor found for Constructor(no arguments)
+    constructor org.yaml.snakeyaml.constructor.Constructor.Constructor(org.yaml.snakeyaml.LoaderOptions) is not applicable
+      (actual and formal argument lists differ in length)
+    constructor org.yaml.snakeyaml.constructor.Constructor.Constructor(java.lang.Class<? extends java.lang.Object>,org.yaml.snakeyaml.LoaderOptions) is not applicable
+      (actual and formal argument lists differ in length)
+    constructor org.yaml.snakeyaml.constructor.Constructor.Constructor(org.yaml.snakeyaml.TypeDescription,org.yaml.snakeyaml.LoaderOptions) is not applicable
+      (actual and formal argument lists differ in length)
+    constructor org.yaml.snakeyaml.constructor.Constructor.Constructor(org.yaml.snakeyaml.TypeDescription,java.util.Collection<org.yaml.snakeyaml.TypeDescription>,org.yaml.snakeyaml.LoaderOptions) is not applicable
+      (actual and formal argument lists differ in length)
+    constructor org.yaml.snakeyaml.constructor.Constructor.Constructor(java.lang.String,org.yaml.snakeyaml.LoaderOptions) is not applicable
+      (actual and formal argument lists differ in length)
+<error_information>
+
+Your task is to fix the issue by modifying only the client code. Follow these steps:
+
+1. Analyze the problem and propose changes by wrapping the work inside fix_planning tags. This analysis is for your internal use only and will not be included in the final output. In your analysis:
+   a. Quote relevant parts of the code and API changes
+   b. Identify the specific API changes causing the issue
+   c. List the affected lines of code
+   d. Propose potential fixes for each affected line
+   e. Consider any potential side effects of the proposed changes
+   f. Explicitly check if the proposed changes adhere to all the given constraints
+   g. Provide a final summary of the chosen fix and why it's the best solution
+
+2. Apply the fix to the Java code.
+
+3. Output the complete, fixed Java class in a fenced code block. This should be the only visible output in your response.
+
+Constraints:
+1. Do not change the function signature of any method.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error.
+6. Include all code, even unchanged portions, in your final output.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
+
+Your final output should only contain the complete, fixed Java class in a fenced code block, without any explanations or analysis visible. The <fix_planning> section is for your internal use only.
+
+Example output structure:
+
+```java
+[Complete, fixed Java class]
+```
+
+Please proceed with your analysis and solution.
