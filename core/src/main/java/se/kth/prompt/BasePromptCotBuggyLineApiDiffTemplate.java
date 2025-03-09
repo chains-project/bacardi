@@ -13,6 +13,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class BasePromptCotBuggyLineApiDiffTemplate extends AbstractPromptTemplate {
 
@@ -191,27 +193,13 @@ public class BasePromptCotBuggyLineApiDiffTemplate extends AbstractPromptTemplat
 
     public String parseLLMResponce(String response) {
 
-        String startMarker = "```java";
-        String packageMarker = "package";
+        Pattern pattern = Pattern.compile("```java\\s*\\n(package[\\s\\S]*?)```");
+        Matcher matcher = pattern.matcher(response);
 
-        int startIndex = response.indexOf(startMarker);
-        if (startIndex == -1) {
-            return "";
+        if (matcher.find()) {
+            return matcher.group(1);
         }
 
-        startIndex += startMarker.length();
-
-        int packageIndex = response.indexOf(packageMarker, startIndex);
-        if (packageIndex == -1) {
-            return null;
-        }
-
-        int endIndex = response.indexOf("```", packageIndex);
-        if (endIndex == -1) {
-
-            return response.substring(packageIndex);
-        }
-
-        return response.substring(packageIndex, endIndex).trim();
+        return null;
     }
 }
