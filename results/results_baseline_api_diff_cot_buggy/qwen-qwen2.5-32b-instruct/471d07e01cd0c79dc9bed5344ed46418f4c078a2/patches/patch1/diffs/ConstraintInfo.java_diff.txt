@@ -1,0 +1,87 @@
+18,20c18,19
+< import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
+< import com.google.api.services.cloudresourcemanager.model.Constraint;
+< import com.google.api.services.cloudresourcemanager.model.ListConstraint;
+---
+> import com.google.api.services.cloudresourcemanager.v3.model.Constraint as ConstraintV3;
+> import com.google.api.services.cloudresourcemanager.v3.model.ListConstraint as ListConstraintV3;
+35,36c34,36
+<   static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+<       new Function<Constraint, ConstraintInfo>() {
+---
+> {
+>   static final Function<ConstraintV3, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+>       new Function<ConstraintV3, ConstraintInfo>() {
+38c38
+<         public ConstraintInfo apply(Constraint protobuf) {
+---
+>         public ConstraintInfo apply(ConstraintV3 protobuf) {
+42,43c42,43
+<   static final Function<ConstraintInfo, Constraint> TO_PROTOBUF_FUNCTION =
+<       new Function<ConstraintInfo, Constraint>() {
+---
+>   static final Function<ConstraintInfo, ConstraintV3> TO_PROTOBUF_FUNCTION =
+>       new Function<ConstraintInfo, ConstraintV3>() {
+45c45
+<         public Constraint apply(ConstraintInfo constraintInfo) {
+---
+>         public ConstraintV3 apply(ConstraintInfo constraintInfo) {
+50c50
+<   private BooleanConstraint booleanConstraint;
+---
+>   private Boolean booleanConstraint;
+114,115c114,117
+<     ListConstraint toProtobuf() {
+<       return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
+---
+>     ListConstraintV3 toProtobuf() {
+>       ListConstraintV3 listConstraint = new ListConstraintV3();
+>       listConstraint.setSuggestedValue(suggestedValue);
+>       return listConstraint;
+118,119c120,121
+<     static Constraints fromProtobuf(ListConstraint listConstraint) {
+<       return new Constraints(listConstraint.getSuggestedValue(), listConstraint.getSupportsUnder());
+---
+>     static Constraints fromProtobuf(ListConstraintV3 listConstraint) {
+>       return new Constraints(listConstraint.getSuggestedValue(), null);
+125c127
+<     private BooleanConstraint booleanConstraint;
+---
+>     private Boolean booleanConstraint;
+147c149
+<     Builder setBooleanConstraint(BooleanConstraint booleanConstraint) {
+---
+>     Builder setBooleanConstraint(Boolean booleanConstraint) {
+198c200
+<   public BooleanConstraint getBooleanConstraint() {
+---
+>   public Boolean getBooleanConstraint() {
+253c255
+<         booleanConstraint, constraintDefault, description, displayName, constraints, name, version);
+---
+>         (booleanConstraint, constraintDefault, description, displayName, constraints, name, version);
+266,267c268,269
+<   Constraint toProtobuf() {
+<     Constraint constraintProto = new Constraint();
+---
+>   ConstraintV3 toProtobuf() {
+>     ConstraintV3 constraintProto = new ConstraintV3();
+269,271d270
+<     constraintProto.setConstraintDefault(constraintDefault);
+<     constraintProto.setDescription(description);
+<     constraintProto.setDisplayName(displayName);
+276d274
+<     constraintProto.setVersion(version);
+280c278
+<   static ConstraintInfo fromProtobuf(Constraint constraintProtobuf) {
+---
+>   static ConstraintInfo fromProtobuf(ConstraintV3 constraintProtobuf) {
+283,285d280
+<     builder.setConstraintDefault(constraintProtobuf.getConstraintDefault());
+<     builder.setDescription(constraintProtobuf.getDescription());
+<     builder.setDisplayName(constraintProtobuf.getDisplayName());
+289d283
+<     if (constraintProtobuf.getName() != null && !constraintProtobuf.getName().equals("Unnamed")) {
+291,292d284
+<     }
+<     builder.setVersion(constraintProtobuf.getVersion());

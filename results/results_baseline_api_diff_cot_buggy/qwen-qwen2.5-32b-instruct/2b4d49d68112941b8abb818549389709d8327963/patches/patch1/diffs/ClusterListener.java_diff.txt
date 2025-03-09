@@ -1,0 +1,86 @@
+1,15d0
+< /*
+<  * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+18,26c3,10
+< import com.hazelcast.core.Cluster;
+< import com.hazelcast.core.EntryListener;
+< import com.hazelcast.core.LifecycleEvent;
+< import com.hazelcast.core.LifecycleEvent.LifecycleState;
+< import com.hazelcast.core.LifecycleListener;
+< import com.hazelcast.core.Member;
+< import com.hazelcast.core.MemberAttributeEvent;
+< import com.hazelcast.core.MembershipEvent;
+< import com.hazelcast.core.MembershipListener;
+---
+> import com.hazelcast.cluster.Cluster;
+> import com.hazelcast.cluster.Member;
+> import com.hazelcast.cluster.MemberAttributeEvent;
+> import com.hazelcast.cluster.MembershipEvent;
+> import com.hazelcast.cluster.MembershipListener;
+> import com.hazelcast.cluster.LifecycleEvent;
+> import com.hazelcast.cluster.LifecycleListener;
+> import com.hazelcast.cluster.LifecycleState;
+37c21
+< import org.slf4j.LoggerFactory;
+---
+> import org.slf4j.LoggerFactoryFactory;
+53a38
+> {
+76a62,63
+>     {
+> 
+122c109
+<             new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), seniorClusterMember});
+---
+>             new Object[]{ClusteredCacheFactory.nodeID(cluster.getLocalMember()), cluster.localMember().getUuid(), seniorClusterMember});
+129c116
+<         return members.next().getUuid().equals(cluster.getLocalMember().getUuid());
+---
+>         return members.next().getUuid().equals(cluster.localMember().getUuid());
+150c137
+<             new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), wasSeniorClusterMember});
+---
+>             new Object[]{ClusteredCacheFactory.nodeID(cluster.localMember()), cluster.localMember().getUuid(), wasSeniorClusterMember});
+161c148
+<         final NodeID nodeID = ClusteredCacheFactory.getNodeID(event.getMember());
+---
+>         final NodeID nodeID = ClusteredCacheFactory.nodeID(event.getMember());
+169c156
+<                 logger.debug("Firing joinedCluster() event");
+---
+>                 logger.debug("Firinging joinedCluster() event");
+181d167
+<                 // TODO Instead of the 30 second wait, we should look (and then wait) for some trigger or event that signifies that local handling has completed and caches have stabilized.
+232c218
+<         final NodeID nodeID = ClusteredCacheFactory.getNodeID(event.getMember());
+---
+>         final NodeID nodeID = ClusteredCacheFactory.nodeID(event.getMember());
+256,260d241
+<     @SuppressWarnings("WeakerAccess")
+<     public List<ClusterNodeInfo> getClusterNodesInfo() {
+<         return new ArrayList<>(clusterNodesInfo.values());
+<     }
+< 
+265c246
+<         } else if (event.getState().equals(LifecycleState.STARTED)) {
+---
+>         } else if (event.state().equals(LifecycleState.STARTED)) {
+274,275c255,256
+<         final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));
+<         clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(event.getMember()),
+---
+>         final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.nodeID(event.getMember()));
+>         clusterNodesInfo.put(ClusteredCacheFactory.nodeID(event.getMember()),

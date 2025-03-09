@@ -1,0 +1,34 @@
+package com.example.web;
+
+import java.util.Locale;
+import java.util.logging.Logger;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import jakarta.mvc.annotation.MvcContext;
+
+/**
+ *
+ * @author hantsy
+ */
+@Path("locale")
+@Controller
+@RequestScoped
+public class LocaleController {
+
+    @Inject
+    @MvcContext
+    Models models;
+
+    @Inject
+    Logger log;
+
+    @GET
+    public String get() {
+        Locale locale = Locale.getDefault(); // Assuming default locale as MvcContext is no longer available
+        models.put("locale", locale);
+        return "locale.xhtml";
+    }
+
+}

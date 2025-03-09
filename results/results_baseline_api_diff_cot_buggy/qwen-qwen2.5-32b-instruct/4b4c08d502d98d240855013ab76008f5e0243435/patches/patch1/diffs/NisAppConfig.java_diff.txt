@@ -1,0 +1,26 @@
+103c103
+<         @Bean(initMethod = "migrate")
+---
+>         @Bean
+108,112c108,111
+<                 final org.flywaydb.core.Flyway flyway = new Flyway();
+<                 flyway.setDataSource(this.dataSource());
+<                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+<                 flyway.setLocations(prop.getProperty("flyway.locations"));
+<                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+---
+>                 final Flyway flyway = Flyway.configure().dataSource(this.dataSource()).load();
+>                 flyway.configure().locations(prop.getProperty("flyway.locations").split(",")).load();
+>                 flyway.configure().validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate"))).load();
+> 
+117,118c116
+<         @DependsOn("flyway")
+<         public SessionFactory sessionFactory() throws IOException {
+---
+>         protected SessionFactory sessionFactory() throws IOException {
+129,130c127,128
+<                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
+<                                 this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+---
+>                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
+>                                 this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());

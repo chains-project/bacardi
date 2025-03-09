@@ -1,0 +1,29 @@
+3d2
+< import com.flowpowered.math.vector.Vector3d;
+12,13d10
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.data.key.Keys;
+15d11
+< import org.spongepowered.api.entity.living.player.tab.TabListEntry;
+23c19
+<     private final CommandSource invoker;
+---
+>     private final Object invoker;
+26c22
+<     public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
+---
+>     public SkinApplier(ChangeSkinSponge plugin, Object invoker, Player receiver, SkinModel targetSkin
+84,85c80,81
+<         receiver.offer(Keys.VANISH, true);
+<         receiver.offer(Keys.VANISH, false);
+---
+>         receiver.offer(Sponge.getRegistry().getType(org.spongepowered.api.data.key.Key.class, "vanish").get(), true);
+>         receiver.offer(Sponge.getRegistry().getType(org.spongepowered.api.data.key.Key.class, "vanish").get(), false);
+91c87
+<                 .displayName(receiver.getDisplayNameData().displayName().get())
+---
+>                 .displayName(receiver.getName())
+94c90
+<                 .gameMode(receiver.getGameModeData().type().get())
+---
+>                 .gameMode(receiver.getGameMode())

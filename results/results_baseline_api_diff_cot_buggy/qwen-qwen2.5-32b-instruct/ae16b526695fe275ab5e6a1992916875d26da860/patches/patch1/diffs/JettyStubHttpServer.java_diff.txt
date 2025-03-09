@@ -1,0 +1,25 @@
+1,4d0
+< /*
+<  * Copyright (c) 2012 - 2016 Jadler contributors
+<  * This program is made available under the terms of the MIT License.
+<  */
+9a6,7
+> import org.eclipse.jetty.server.ServerConnector;
+> import org.eclipse.jetty.server.HttpConfiguration;
+13,15d10
+< import org.eclipse.jetty.server.Connector;
+< import org.eclipse.jetty.server.nio.SelectChannelConnector;
+< 
+24c19
+<     private final Connector httpConnector;
+---
+>     private final ServerConnector httpConnector;
+33,36c28,30
+<         this.server.setSendServerVersion(false);
+<         this.server.setSendDateHeader(true);
+<         
+<         this.httpConnector = new SelectChannelConnector();
+---
+>         HttpConfiguration httpConfig = new HttpConfiguration();
+>         httpConfig.setSendDateHeader(true);
+>         this.httpConnector = new ServerConnector(server, new HttpConfiguration[]{httpConfig});

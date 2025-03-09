@@ -1,0 +1,34 @@
+37d36
+< import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneGlobalConfiguration;
+46d44
+< import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader.Configuration;
+49d46
+< import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginRequirementsCheckResult;
+67c64
+<     // The only instance of this singleton class
+---
+>     // The only instance of this class
+70c67
+<     // We need to reinitialise it before starting analysis of any source files on any rules.
+---
+>     // We need to reinitialize it before starting analysis of any source files on any rules.
+77c74
+<         this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, null);
+---
+>         this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, logOutput);
+147c144
+<                 pluginInstancesByKeys, new PluginInstancesLoader());
+---
+>                 pluginInstancesByKeys, instancesLoader);
+163c160
+<                 .addEnabledLanguages(globalConfig.getEnabledLanguages())
+---
+>                 .setLanguages(globalConfig.getEnabledLanguages())
+189,193d185
+<     @Override
+<     public AnalysisEngine getAnalysisEngine() {
+<         return analysisEngine;
+<     }
+< 
+223d214
+<                                             logOutput),

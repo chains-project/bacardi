@@ -1,0 +1,92 @@
+1,16d0
+< /*
+<  * Licensed to the Apache Software Foundation (ASF) under one or more
+<  * contributor license agreements.  See the NOTICE file distributed with
+<  * this work for additional information regarding copyright ownership.
+<  * The ASF licenses this file to You under the Apache License, Version 2.0
+<  * (the "License"); you may not use this file except in compliance with
+<  * the License.  You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+27a12
+> import org.yaml.snakeyaml.LoaderOptions;
+114c99,101
+<             return (YamlNode) new Yaml(new Constructor(YamlNode.class)).load(in);
+---
+>             LoaderOptions options = new LoaderOptions();
+>             options.setAllowDuplicateKeys(false);
+>             return new Yaml(new Constructor(YamlNode.class, options)).load(in);
+126a114,145
+>    public static final Function<Node, YamlNode> nodeToYamlNode = new Function<Node, YamlNode>() {
+>       @Override
+>       public YamlNode apply(Node arg0) {
+>          if (arg0 == null)
+>             return null;
+>          YamlNode yaml = new YamlNode();
+>          yaml.id = arg0.getId();
+>          yaml.name = arg0.getName();
+>          yaml.description = arg0.getDescription();
+>          yaml.hostname = arg0.getHostname();
+>          yaml.location_id = arg0.getLocationId();
+>          yaml.os_arch = arg0.getOsArch();
+>          yaml.os_family = arg0.getOsFamily();
+>          yaml.os_description = arg0.getOsDescription();
+>          yaml.os_version = arg0.getOsVersion();
+>          yaml.os_64bit = arg0.isOs64Bit();
+>          yaml.login_port = arg0.getLoginPort();
+>          yaml.group = arg0.getGroup();
+>          yaml.tags = ImmutableList.copyOf(arg0.getTags());
+>          yaml.metadata = ImmutableMap.copyOf(arg0.getMetadata());
+>          yaml.username = arg0.getUsername();
+>          yaml.credential = arg0.getCredential();
+>          yaml.credential_url = arg0.getCredentialUrl() != null ? arg0.getCredentialUrl().toASCIIString() : null;
+>          yaml.sudo_password = arg0.getSudoPassword();
+>          return yaml;
+>       }
+>    };
+> 
+>    public static YamlNode fromNode(Node in) {
+>       return nodeToYamlNode.apply(in);
+>    }
+> 
+178,210d196
+< 
+<    public static YamlNode fromNode(Node in) {
+<       return nodeToYamlNode.apply(in);
+<    }
+< 
+<    public static final Function<Node, YamlNode> nodeToYamlNode = new Function<Node, YamlNode>() {
+<       @Override
+<       public YamlNode apply(Node arg0) {
+<          if (arg0 == null)
+<             return null;
+<          YamlNode yaml = new YamlNode();
+<          yaml.id = arg0.getId();
+<          yaml.name = arg0.getName();
+<          yaml.description = arg0.getDescription();
+<          yaml.hostname = arg0.getHostname();
+<          yaml.location_id = arg0.getLocationId();
+<          yaml.os_arch = arg0.getOsArch();
+<          yaml.os_family = arg0.getOsFamily();
+<          yaml.os_description = arg0.getOsDescription();
+<          yaml.os_version = arg0.getOsVersion();
+<          yaml.os_64bit = arg0.isOs64Bit();
+<          yaml.login_port = arg0.getLoginPort();
+<          yaml.group = arg0.getGroup();
+<          yaml.tags = ImmutableList.copyOf(arg0.getTags());
+<          yaml.metadata = ImmutableMap.copyOf(arg0.getMetadata());
+<          yaml.username = arg0.getUsername();
+<          yaml.credential = arg0.getCredential();
+<          yaml.credential_url = arg0.getCredentialUrl() != null ? arg0.getCredentialUrl().toASCIIString() : null;
+<          yaml.sudo_password = arg0.getSudoPassword();
+<          return yaml;
+<       }
+<    };
+< 

@@ -1,0 +1,137 @@
+1,15d0
+< /*
+<  * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+18,26c3,10
+< import com.hazelcast.core.Cluster;
+< import com.hazelcast.core.EntryListener;
+< import com.hazelcast.core.LifecycleEvent;
+< import com.hazelcast.core.LifecycleEvent.LifecycleState;
+< import com.hazelcast.core.LifecycleListener;
+< import com.hazelcast.core.Member;
+< import com.hazelcast.core.MemberAttributeEvent;
+< import com.hazelcast.core.MembershipEvent;
+< import com.hazelcast.core.MembershipListener;
+---
+> import com.hazelcast.cluster.Cluster;
+> import com.hazelcast.cluster.Member;
+> import com.hazelcast.cluster.MembershipEvent;
+> import com.hazelcast.cluster.MembershipListener;
+> import com.hazelcast.cluster.MemberAttributeEvent;
+> import com.hazelcast.cluster.MembershipListener;
+> import com.hazelcast.cluster.LifecycleEvent;
+> import com.hazelcast.cluster.LifecycleListener;
+37c21
+< import org.slf4j.LoggerFactory;
+---
+> import org.slf4j.LoggerFactoryFactory;
+53a38
+> {
+76a62,63
+>     {
+> 
+122c109
+<             new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), seniorClusterMember});
+---
+>             new Object[]{ClusteredCacheFactory.nodeID(cluster.getLocalMember()), cluster.localMember().getUuid(), seniorClusterMember});
+129c116
+<         return members.next().getUuid().equals(cluster.getLocalMember().getUuid());
+---
+>         return members.next().getUuid().equals(cluster.localMember().getUuid());
+150c137
+<             new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), wasSeniorClusterMember});
+---
+>             new Object[]{ClusteredCacheFactory.nodeID(cluster.localMember()), cluster.localMember().getUuid(), wasSeniorClusterMember});
+154d140
+<     @Override
+161c147
+<         final NodeID nodeID = ClusteredCacheFactory.getNodeID(event.getMember());
+---
+>         final NodeID nodeID = ClusteredCacheFactory.nodeID(event.getMember());
+169c155
+<                 logger.debug("Firing joinedCluster() event");
+---
+>                 logger.debug("Firinging joinedCluster() event");
+226a213,224
+>     public void memberAttributeChanged(final MemberAttributeEvent event) {
+>         logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
+>         isSenior = isSeniorClusterMember();
+>         final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.nodeID(event.getMember()));
+>         clusterNodesInfo.put(ClusteredCacheFactory.nodeID(event.getMember()),
+>                 new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));
+>     }
+> 
+>     boolean isClusterMember() {
+>         return clusterMember;
+>     }
+> 
+228,229c226,227
+<     public void memberRemoved(final MembershipEvent event) {
+<         logger.info("Received a Hazelcast memberRemoved event {}", event);
+---
+>     public void memberAdded(final MembershipEvent event) {
+>         logger.info("Received a Hazelcast memberAdded event {}", event);
+232c230
+<         final NodeID nodeID = ClusteredCacheFactory.getNodeID(event.getMember());
+---
+>         final NodeID nodeID = ClusteredCacheFactory.nodeID(event.getMember());
+256,258c254,280
+<     @SuppressWarnings("WeakerAccess")
+<     public List<ClusterNodeInfo> getClusterNodesInfo() {
+<         return new ArrayList<>(clusterNodesInfo.values());
+---
+>     @Override
+>     public void memberRemoved(final MembershipEvent event) {
+>         logger.info("Received a Hazelcast memberRemoved event {}", event);
+> 
+>         isSenior = isSeniorClusterMember();
+>         final NodeID nodeID = ClusteredCacheFactory.nodeID(event.getMember());
+> 
+>         if (event.getMember().localMember()) {
+>             logger.info("Leaving cluster: " + nodeID);
+>             // This node may have realized that it got kicked out of the cluster
+>             leaveCluster();
+>         } else {
+>             // Trigger event that a node left the cluster
+>             ClusterManager.fireLeftCluster(nodeID.toByteArray());
+> 
+>             if (!seniorClusterMember && isSeniorClusterMember()) {
+>                 seniorClusterMember = true;
+>                 ClusterManager.fireMarkedAsSeniorClusterMember();
+>             }
+> 
+>             // Remove traces of directed presences sent from local entities to handlers that no longer exist.
+>             // At this point c2s sessions are gone from the routing table so we can identify expired sessions
+>             XMPPServer.getInstance().getPresenceUpdateHandler().removedExpiredPresences();
+>         }
+>         // Delete nodeID instance (release from memory)
+>         NodeID.deleteInstance(nodeID.toByteArray());
+>         clusterNodesInfo.remove(nodeID);
+265c287
+<         } else if (event.getState().equals(LifecycleState.STARTED)) {
+---
+>         } else if (event.state().equals(LifecycleState.STARTED)) {
+274,275c296,297
+<         final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));
+<         clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(event.getMember()),
+---
+>         final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.nodeID(event.getMember()));
+>         clusterNodesInfo.put(ClusteredCacheFactory.nodeID(event.getMember()),
+279,280c301,302
+<     boolean isClusterMember() {
+<         return clusterMember;
+---
+>     public List<ClusterNodeInfo> getClusterNodesInfo() {
+>         return new ArrayList<>(clusterNodesInfo.values());

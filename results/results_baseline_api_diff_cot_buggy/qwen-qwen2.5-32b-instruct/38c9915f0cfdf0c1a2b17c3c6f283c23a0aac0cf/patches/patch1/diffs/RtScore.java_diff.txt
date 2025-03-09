@@ -1,0 +1,22 @@
+25a26
+> import org.cactoos.scalar.LengthOf;
+27c28,30
+< import org.cactoos.iterable.LengthOf;
+---
+> import org.cactoos.scalar.Sum;
+> 
+> import java.util.stream.Collectors;
+52,53c55,64
+<         return new LengthOf(other.suffixes()).intValue()
+<             - new LengthOf(this.sfxs).intValue();
+---
+>         return new Sum(
+>             new LengthOf(
+>                 other.suffixes().stream().map(Text::asString).collect(Collectors.toList())
+>             )
+>         ).intValue()
+>             - new Sum(
+>                 new LengthOf(
+>                     this.sfxs.stream().map(Text::asString).collect(Collectors.toList())
+>                 )
+>             ).intValue();

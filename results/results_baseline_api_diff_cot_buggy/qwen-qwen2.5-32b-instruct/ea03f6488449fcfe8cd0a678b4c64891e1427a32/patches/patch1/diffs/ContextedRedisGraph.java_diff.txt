@@ -1,0 +1,86 @@
+10c10,11
+< import com.redislabs.redisgraph.impl.resultset.ResultSetImpl;
+---
+> import com.redislabs.redisgraph.impl.transaction.RedisGraphTransaction;
+> import com.redislabs.redisgraph.impl.pipeline.RedisGraphPipeline;
+12d12
+< import redis.clients.jedis.Client;
+13a14
+> import redis.clients.jedis.JedisClientConfig;
+15c16,17
+< import redis.clients.jedis.util.SafeEncoder;
+---
+> import redis.clients.jedis.params.ClientInfoParams;
+> import redis.clients.jedis.params.ClientInfoParam;
+22a25
+> {
+118c121
+<                     graphId, preparedQuery, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING, Long.toString(timeout));
+---
+>                     graphId, preparedQuery, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING, Long.toString(timeout);
+128c131
+<      * @return Returns the instance Jedis connection.
+---
+>      * @return Returns the instance only connection
+142,147c145,151
+<         Client client = jedis.getClient();
+<         client.multi();
+<         client.getOne();
+<         RedisGraphTransaction transaction = new RedisGraphTransaction(client, this);
+<         transaction.setRedisGraphCaches(caches);
+<         return transaction;
+---
+>         // Client client = jedis.getClient();
+>         // client.multi();
+>         // client.getOne();
+>         // RedisGraphTransaction transaction = new RedisGraphTransaction(client, this);
+>         // transaction.setRedisGraphCaches(caches);
+>         // return transaction;
+>         return new RedisGraphTransaction(this);
+157,160c161,165
+<         Client client = jedis.getClient();
+<         RedisGraphPipeline pipeline = new RedisGraphPipeline(client, this);
+<         pipeline.setRedisGraphCaches(caches);
+<         return pipeline;
+---
+>         // Client client = jedis.getClient();
+>         // RedisGraphPipeline pipeline = new RedisGraphPipeline(client, this);
+>         // pipeline.setRedisGraphCaches(caches);
+>         // return pipeline;
+>         return new RedisGraphPipeline(this);
+166c171
+<      * @return "OK"
+---
+>      * @return
+184c189
+<      * @param graphId graph to delete
+---
+>      * @param graphId graph to be deleted
+188c193
+<     public String deleteGraph(String graphId) {
+---
+>     protected String deleteGraph(String graphId) {
+190d194
+<         Object response;
+192,199c196,203
+<             response = conn.sendCommand(RedisGraphCommand.DELETE, graphId);
+<         } catch (Exception e) {
+<             conn.close();
+<             throw e;
+<         }
+<         //clear local state
+<         caches.removeGraphCache(graphId);
+<         return SafeEncoder.encode((byte[]) response);
+---
+>             @SuppressWarnings("unchecked")
+>             List<Object> rawResponse = (List<Object>) conn.sendCommand(RedisGraphCommand.DELETE, graphId);
+>             return SafeEncoder.encode((byte[]) rawResponse.get(0));
+>         } catch (JRedisGraphException rt) {
+>             throw rt;
+>         } catch (JedisDataException j) {
+>             throw new JRedisGraphException(j);
+>         }
+208d211
+< 
+215d217
+< 

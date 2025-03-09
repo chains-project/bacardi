@@ -1,0 +1,72 @@
+59d58
+< 
+156,213d154
+<         /**
+<          * 
+<          * @return
+<          */
+<         private int calcMaxHeaderHeight()
+<         {
+<                 
+<                 final JLabel lbl = new JLabel("a");
+<                 int maxHeight = 0;
+<                 
+<                 for(final TemplateColumn col : this.config.getColumns())
+<                 {
+<                         final ColumnStyle style = col.getHeaderColumn().getStyle();
+<                         final Font font = style.getFont();
+<                         lbl.setFont(font);
+<                         //get the normal height of the label
+<                         int lblHeigh = (int)lbl.getPreferredSize().getHeight();
+<                         //add the column border width
+<                         lblHeigh+= style.getColBorder().getLineWidth()*2;
+<                         //Add padding
+<                         lblHeigh+= style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
+<                         
+<                         if(lblHeigh > maxHeight)
+<                         {
+<                                 maxHeight = lblHeigh;
+<                         }
+<                 }
+<                 
+<                 return maxHeight;
+<         }
+<         
+<         private int calcMaxContentHeight()
+<         {
+<                 
+<                 final JLabel lbl = new JLabel("a");
+<                 int maxHeight = 0;
+<                 
+<                 for(final TemplateColumn col : this.config.getColumns())
+<                 {
+<                         final ColumnStyle style = col.getContentColumn().getStyle();
+<                         final Font font = style.getFont();
+<                         lbl.setFont(font);
+<                         int lblHeigh = (int)lbl.getPreferredSize().getHeight();
+<                         //Add border width
+<                         lblHeigh+= style.getColBorder().getLineWidth()*2;
+<                         //Add padding
+<                         lblHeigh+= style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
+<                         
+<                         if(lblHeigh > maxHeight)
+<                         {
+<                                 maxHeight = lblHeigh;
+<                         }
+<                 }
+<                 
+<                 return maxHeight;
+<         }
+<         
+<         
+277,278c218
+<                                 // If this column has a header the JRDesignStaticText get the
+<                                 // propertys of the Column
+---
+>                                 // If this column has a header the JRDesignStaticText get the propertys of the Column
+303d242
+<                                         // Build label and set x / y
+369c308
+<                 textField.getLineBox().getPen().setLineWidth(border.getLineWidth());
+---
+>                 textField.getLineBox().getPen().setLineWidth(new Float(border.getLineWidth()));

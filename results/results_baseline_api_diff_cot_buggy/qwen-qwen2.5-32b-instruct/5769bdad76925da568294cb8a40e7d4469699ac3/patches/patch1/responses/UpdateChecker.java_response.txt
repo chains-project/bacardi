@@ -1,0 +1,166 @@
+package io.jenkins.tools.incrementals.lib;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.apache.maven.artifact.versioning.ComparableVersion;
+import org.kohsuke.github.GHCommit;
+import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GitHub;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+/**
+ * Looks for updates (incremental or otherwise) to a specific artifact.
+ */
+public final class UpdateChecker {
+
+    private final Log log;
+    private final List<String> repos;
+    /** keys are {@code groupId:artifactId:currentVersion:branch} */
+    private final Map<String, VersionAndRepo> cache = new HashMap<>();
+
+    private final Map<String, String> groupIdCache = new HashMap<>();
+
+    public UpdateChecker(Log log, List<String> repos) {
+        this.log = log;
+        this.repos = repos;
+    }
+
+    public @CheckForNull String findGroupId(String artifactId) throws IOException, InterruptedException {
+        String cacheKey = artifactId;
+        if (groupIdCache.containsKey(cacheKey)) {
+            log.info("Group ID Cache hit on artifact ID: " + artifactId);
+            return groupIdCache.get(cacheKey);
+        }
+
+        //TODO: implement to support non-Incremental formats
+        // Needs to load UC JSON and query it like https://github.com/jenkinsci/docker/pull/668
+        return null;
+    }
+
+    public @CheckForNull VersionAndRepo find(String groupId, String artifactId, String currentVersion, String branch) throws Exception {
+        String cacheKey = groupId + ':' + artifactId + ':' + currentVersion + ':' + branch;
+        if (cache.containsKey(cacheKey)) {
+            log.info("Cache hit on updates to " + groupId + ":" + artifactId + ":" + currentVersion + " within " + branch);
+            return cache.get(cacheKey);
+        }
+        VersionAndRepo result = doFind(groupId, artifactId, currentVersion, branch);
+        cache.put(cacheKey, result);
+        return result;
+    }
+
+    /**
+     * Look for all known versions of a given artifact.
+     * @param repos a set of repository URLs to check
+     * @return a possibly empty set of versions, sorted descending
+     */
+    private SortedSet<VersionAndRepo> loadVersions(String groupId, String artifactId) throws Exception {
+        // TODO consider using official Aether APIs here (could make use of local cache)
+        SortedSet<VersionAndRepo> r = new TreeSet<>();
+        for (String repo : repos) {
+            String mavenMetadataURL = repo + groupId.replace('.', '/') + '/' + artifactId + "/maven-metadata.xml";
+            Document doc;
+            try {
+                doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(mavenMetadataURL);
+            } catch (FileNotFoundException x) {
+                continue; // not even defined in this repo, fine
+            }
+            Element versionsE = theElement(doc, "versions", mavenMetadataURL);
+            NodeList versionEs = versionsE.getElementsByTagName("version");
+            for (int i = 0; i < versionEs.getLength(); i++) {
+                // Not bothering to exclude timestamped snapshots for now, since we are working with release repositories anyway.
+                r.add(new VersionAndRepo(groupId, artifactId, new ComparableVersion(versionEs.item(i).getTextContent()), repo));
+            }
+        }
+        return r;
+    }
+
+    /**
+     * Parses {@code /project/scm/url} and {@code /project/scm/tag} out of a POM, if mapped to a commit.
+     */
+    private static @CheckForNull GitHubCommit loadGitHubCommit(VersionAndRepo vnr) throws Exception {
+        String pom = vnr.fullURL("pom");
+        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(pom);
+        NodeList scmEs = doc.getElementsByTagName("scm");
+        if (scmEs.getLength() != 1) {
+            return null;
+        }
+        Element scmE = (Element) scmEs.item(0);
+        Element urlE = theElement(scmE, "url", pom);
+        String url = urlE.getTextContent();
+        Matcher m = Pattern.compile("https?://github[.]com/([^/]+)/([^/]+?)([.]git)?(/.*)?").matcher(url);
+        if (!m.matches()) {
+            throw new Exception("Unexpected /project/scm/url " + url + " in " + pom + "; expecting https://github.com/owner/repo format");
+        }
+        Element tagE = theElement(scmE, "tag", pom);
+        String tag = tagE.getTextContent();
+        String groupId = m.group(1);
+        String artifactId = m.group(2).replace("${project.artifactId}", vnr.artifactId);
+        if (!tag.matches("[a-f0-9]{40}")) {
+            return null;
+        }
+        return new GitHubCommit(groupId, artifactId, tag);
+    }
+
+    /**
+     * Checks whether a commit is an ancestor of a given branch head.
+     * @param branch may be {@code master} or {@code forker:branch}
+     * @see <a href="https://developer.github.com/v3/repos/commits/#compare-two-commits">Compare two commits</a>
+     * @see <a href="https://stackoverflow.com/a/23970412/12916">Discussion</a>
+     */
+    private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
+        try {
+            GHRepository repo = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo);
+            GHCommit compareCommit = repo.getCommit(ghc.hash);
+            GHCommit branchCommit = repo.getBranch(branch).getCommit();
+            return compareCommit.isAncestorOf(branchCommit);
+        } catch (FileNotFoundException x) {
+            // For example, that branch does not exist in this repository.
+            return false;
+        }
+        // TODO check behavior when the comparison is huge (too many commits or too large diff)
+        // and perhaps fall back to cloning into a temp dir and pulling all PR refs https://gist.github.com/piscisaureus/3342247
+        // Currently https://developer.github.com/v4/object/commit/ does no better than this.
+    }
+
+    private static Element theElement(Document doc, String tagName, String url) throws Exception {
+        return theElement(doc.getElementsByTagName(tagName), tagName, url);
+    }
+
+    private static Element theElement(Element parent, String tagName, String url) throws Exception {
+        return theElement(parent.getElementsByTagName(tagName), tagName, url);
+    }
+
+    private static Element theElement(NodeList nl, String tagName, String url) throws Exception {
+        if (nl.getLength() != 1) {
+            throw new Exception("Could not find <" + tagName + "> in " + url);
+        }
+        return (Element) nl.item(0);
+    }
+
+    public static void main(String... argv) throws Exception {
+        if (argv.length != 4) {
+            throw new IllegalStateException("Usage: java " + UpdateChecker.class.getName() + " <groupId> <artifactId> <currentVersion> <branch>");
+        }
+        VersionAndRepo result = new UpdateChecker(
+                message -> System.err.println(message),
+                Arrays.asList("https://repo.jenkins-ci.org/releases/", "https://repo.jenkins-ci.org/incrementals/")).
+            find(argv[0], argv[1], argv[2], argv[3]);
+        if (result != null) {
+            System.err.println("Found: " + result);
+        } else {
+            System.err.println("Nothing found.");
+        }
+    }
+}

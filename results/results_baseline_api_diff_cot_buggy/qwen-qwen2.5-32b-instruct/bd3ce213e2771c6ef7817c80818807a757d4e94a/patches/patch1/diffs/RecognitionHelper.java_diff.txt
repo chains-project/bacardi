@@ -1,0 +1,23 @@
+6c6,8
+< import java.nio.file.*;
+---
+> import java.nio.file.Files;
+> import java.nio.file.Path;
+> import java.nio.file.StandardOpenOption;
+42d43
+< 
+242c243
+<                         writer.writeValue(segmentListFile, dataList);
+---
+>                         writer.writeValue(segmentListFile.toPath(), dataList);
+251d251
+< 
+283,284c283
+<         segmentListFile.deleteOnExit();
+< 
+---
+>         segmentListFile.deleteOnExit(); // Delete if OCR4all terminates
+465c464
+<         Files.walk(Paths.get(ProjectConfiguration.PROJ_MODEL_DIR), FileVisitOption.FOLLOW_LINKS)
+---
+>         Files.walk(Paths.get(ProjectConfiguration.PROJ_MODEL_DIR), java.nio.file.FileVisitOption.FOLLOW_LINKS)

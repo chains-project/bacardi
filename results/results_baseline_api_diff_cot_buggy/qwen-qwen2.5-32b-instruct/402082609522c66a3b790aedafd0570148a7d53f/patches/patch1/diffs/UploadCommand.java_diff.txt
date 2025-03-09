@@ -1,0 +1,25 @@
+14,16c14,18
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.Command;
+> import org.spongepowered.api.command.CommandMapping;
+> import org.spongepowered.api.command.CommandSpec;
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+19,22c21
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+< 
+< public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class UploadCommand implements Command {
+23a23
+> {
+52d51
+<     @Override
+56c55
+<                 .arguments(string(of("url")))
+---
+>                 .arguments(Parameter.string().key("url").build())

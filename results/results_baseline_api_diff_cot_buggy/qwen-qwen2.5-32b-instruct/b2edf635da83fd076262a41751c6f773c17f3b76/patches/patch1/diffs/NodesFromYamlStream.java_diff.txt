@@ -1,0 +1,16 @@
+34a35
+> import org.yaml.snakeyaml.representer.Representer;
+83,84c84,85
+<       Constructor constructor = new Constructor(Config.class);
+< 
+---
+>       Constructor constructor = new Constructor();
+>       Representer representer = new Representer();
+92c93
+<       Yaml yaml = new Yaml(constructor);
+---
+>       Yaml yaml = new Yaml(constructor, representer);
+97c98
+<          config = (Config) yaml.load(in);
+---
+>          config = yaml.loadAs(in, Config.class);

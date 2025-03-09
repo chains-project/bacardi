@@ -1,0 +1,39 @@
+21d20
+< import org.codehaus.plexus.util.xml.Xpp3Dom;
+70,72c69,76
+<         if (config instanceof Xpp3Dom) {
+<             return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
+<                     .flatMap(aggregate -> stream(aggregate.getChildren("path")))
+---
+>         // Since Xpp3Dom and its methods are removed, we need to handle the configuration differently.
+>         // Assuming the configuration is now a Map<String, Object> for simplicity.
+>         if (config instanceof Map) {
+>             Map<String, Object> configMap = (Map<String, Object>) config;
+>             return configMap.entrySet().stream()
+>                     .filter(entry -> "annotationProcessorPaths".equals(entry.getKey()))
+>                     .flatMap(entry -> ((List<Map<String, Object>>) entry.getValue()).stream())
+>                     .flatMap(path -> ((List<Map<String, Object>>) path.get("path")).stream())
+74,76c78,80
+<                             extractChildValue(processor, "groupId"),
+<                             extractChildValue(processor, "artifactId"),
+<                             extractChildValue(processor, "version"),
+---
+>                             (String) processor.get("groupId"),
+>                             (String) processor.get("artifactId"),
+>                             (String) processor.get("version"),
+78,79d81
+<                     // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
+<                     // therefore there is little use in logging incomplete paths that are filtered out.
+91,102d92
+< 
+<     /**
+<      * Extract child value if child is present, or return empty string if absent.
+<      *
+<      * @param node the parent node
+<      * @param name the child node name
+<      * @return Returns child value if child node present or otherwise empty string.
+<      */
+<     private static String extractChildValue(Xpp3Dom node, String name) {
+<         final Xpp3Dom child = node.getChild(name);
+<         return child == null ? "" : child.getValue();
+<     }

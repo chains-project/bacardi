@@ -1,0 +1,110 @@
+<fix_planning>
+a. Relevant parts of the code and API changes:
+   - The line `(Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.TRACE);` is causing an error because the `Logger` interface and `Level` class have been removed in the new version of the dependency.
+   - The error `[ERROR] /pdb/src/test/java/com/feedzai/commons/sql/abstraction/engine/impl/abs/EngineGeneralTest.java:[181:49] cannot access org.slf4j.spi.LoggingEventAware class file for org.slf4j.spi.LoggingEventAware not found` indicates that the class `LoggingEventAware` is not found, which suggests that the SLF4J API has changed and some classes are no longer available or have been moved.
+
+b. Specific API changes causing the issue:
+   - Removal of `Logger` interface and `Level` class.
+   - Missing `LoggingEventAware` class.
+
+c. Affected lines of code:
+   - `((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.TRACE);`
+
+d. Potential fixes for each affected line:
+   - Replace the usage of `LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)` with `org.slf4j.Logger` and use `org.slf4j.LoggerFactory.getLogger` instead.
+   - Replace `setLevel(Level.TRACE)` with `info`, `debug`, `warn`, `error`, or `trace` methods of `org.slf4j.Logger` depending on the logging level required.
+
+e. Potential side effects:
+   - The logging level might not be set as expected if the new logging method does not support the same level of granularity.
+   - The logging behavior might change if the new logging method does not support the same logging level.
+
+f. Adherence to constraints:
+   - The function signature of any method will not be changed.
+   - No existing code will be removed unless it directly causes a compilation or functionality error.
+   - The correct package or class will be used in accordance with the new dependency version.
+
+   g. Summary of the chosen fix:
+   - Replace the problematic line with a call to `org.slf4j.Logger` and use the `trace` method to log a message. This will ensure that the logging level is set to trace, which is the closest equivalent to the previous `setLevel(Level.TRACE)` call.
+</fix_planning>
+
+```java
+package com.feedzai.commons.sql.abstraction.engine.impl.abs;
+
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.Level;
+import com.feedzai.commons.sql.abstraction.ddl.AlterColumn;
+import com.feedzai.commons.sql.abstraction.ddl.DbColumn;
+import com.feedzai.commons.sql.abstraction.ddl.DbColumnConstraint;
+import com.feedzai.commons.sql.abstraction.ddl.DbColumnType;
+import com.feedzai.commons.sql.abstraction.ddl.DbEntity;
+import com.feedzai.commons.sql.abstraction.ddl.Rename;
+import com.feedzai.commons.sql.abstraction.dml.Expression;
+import com.feedzai.commons.sql.abstraction.dml.K;
+import com.feedzai.commons.sql.abstraction.dml.Query;
+import com.feedzai.commons.sql.abstraction.dml.Truncate;
+import com.feedzai.commons.sql.abstraction.dml.Update;
+import com.feedzai.commons.sql.abstraction.dml.Values;
+import com.feedzai.commons.sql.abstraction.dml.With;
+import com.feedzai.commons.sql.abstraction.dml.dialect.Dialect;
+import com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder;
+import com.feedzai.commons.sql.abstraction.dml.result.ResultColumn;
+import com.feedzai.commons.sql.abstraction.dml.result.ResultIterator;
+import com.feedzai.commons.sql.abstraction.engine.AbstractDatabaseEngine;
+import com.feedzai.commons.sql.abstraction.engine.ConnectionResetException;
+import com.feedzai.commons.sql.abstraction.engine.DatabaseEngine;
+import com.feedzai.commons.sql.abstraction.engine.DatabaseEngineException;
+import com.feedzai.commons.sql.abstraction.engine.DatabaseEngineRuntimeException;
+import com.feedzai.commons.sql.abstraction.exceptions.DatabaseEngineUniqueConstraintViolationException;
+import com.feedzai.commons.sql.abstraction.engine.DatabaseFactory;
+import com.feedzai.commons.sql.abstraction.engine.DatabaseFactoryException;
+import com.feedzai.commons.sql.abstraction.engine.MappedEntity;
+import com.feedzai.commons.sql.abstraction.engine.NameAlreadyException;
+import com.feedzai.commons.sql.abstraction.engine.OperationNotSupportedRuntimeException;
+import com.feedzai.commons.sql.abstraction.engine.impl.cockroach.SkipTestCockroachDB;
+import com.feedzai.commons.sql.abstraction.engine.testconfig.BlobTest;
+import com.feedzai.commons.sql.abstraction.engine.testconfig.DatabaseConfiguration;
+import com.feedzai.commons.sql.abstraction.engine.testconfig.DatabaseTestUtil;
+import com.feedzai.commons.sql.abstraction.entry.EntityEntry;
+import com.google.common.collect.ImmutableSet;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+import java.sql.Connection;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnConstraint.NOT_NULL;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.BLOB;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.BOOLEAN;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.DOUBLE;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.INT;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.LONG;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.STRING;
+import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.L;
+import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.all;
+import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.avg;
+import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.between;
+import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.caseWhen;
+import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.cast;
+import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.ceiling;
+import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.coalesce;
+import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.column;
+import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.concat;
+import static com.util.Arrays;
+import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.max;
+import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.min;
+import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.mod;
+import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.neq;
+import com.util.Collections;
+import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.notBetween
+

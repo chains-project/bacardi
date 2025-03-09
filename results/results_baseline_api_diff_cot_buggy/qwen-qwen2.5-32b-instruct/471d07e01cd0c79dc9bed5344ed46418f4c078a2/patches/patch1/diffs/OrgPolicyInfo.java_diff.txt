@@ -1,0 +1,42 @@
+18,21c18,21
+< import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+< import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+---
+> import com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy;
+> import com.google.api.services.cloudresourcemanager.v3.model.ListPolicy;
+> import com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy;
+> import com.google.api.services.cloudresourcemanager.v3.model.RestoreDefault;
+37a38
+> {
+125c126
+<     private final List<java.lang.String> deniedValues;
+---
+>     private final List<String> deniedValues;
+130c131
+<         String allValues,
+---
+>         (String allValues,
+197c198
+<           allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
+---
+>           (allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
+211c212
+<           listPolicy.getAllValues(),
+---
+>           (listPolicy.getAllValues(),
+346,347c347,348
+<     return Objects.hash(
+<         boolPolicy, constraint, etag, policies, restoreDefault, updateTime, version);
+---
+>     return Objects.hash
+>         (boolPolicy, constraint, etag, policies, restoreDefault, updateTime, version);
+379c380
+<       builder.setBoolPolicy(BoolPolicy.fromProtobuf(orgPolicyProtobuf.getBooleanPolicy()));
+---
+>       builder.setBoolPolicy(BoolPolicy.fromProtobuf(orgPolicyProtobuf.getBooleanPolicy());
+383c384
+<       builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getListPolicy()));
+---
+>       builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getListPolicy());

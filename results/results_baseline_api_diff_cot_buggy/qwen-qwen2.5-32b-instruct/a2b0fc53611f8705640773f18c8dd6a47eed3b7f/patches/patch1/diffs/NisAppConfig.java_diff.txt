@@ -1,0 +1,33 @@
+3a4
+> import org.flywaydb.core.api.configuration.ClassicConfiguration;
+102a104,116
+>         @Bean
+>         public Flyway flyway() throws IOException {
+>                 final Properties prop = new Properties();
+>                 prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+> 
+>                 final ClassicConfiguration configuration = new ClassicConfiguration();
+>                 configuration.setDataSource(this.dataSource());
+>                 configuration.setLocations(prop.getProperty("flyway.locations").split(","));
+>                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+> 
+>                 return new Flyway(configuration);
+>         }
+> 
+108,113c122,127
+<                 final org.flywaydb.core.Flyway flyway = new Flyway();
+<                 flyway.setDataSource(this.dataSource());
+<                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+<                 flyway.setLocations(prop.getProperty("flyway.locations"));
+<                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+<                 return flyway;
+---
+>                 final ClassicConfiguration configuration = new ClassicConfiguration();
+>                 configuration.setDataSource(this.dataSource());
+>                 configuration.setLocations(prop.getProperty("flyway.locations").split(","));
+>                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+> 
+>                 return new Flyway(configuration);
+197a212,213
+>         // region mappers
+> 

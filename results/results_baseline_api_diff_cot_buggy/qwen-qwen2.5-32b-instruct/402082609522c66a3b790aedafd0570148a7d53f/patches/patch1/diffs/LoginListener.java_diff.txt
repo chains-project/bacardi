@@ -1,0 +1,18 @@
+12a13,14
+> import org.spongepowered.api.event.game.state.GameStartedServerEvent;
+> import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+13a16
+> import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
+29c32
+<     public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
+---
+>     public void onPlayerPreLogin(Join joinEvent) {
+31c34
+<         GameProfile profile = preLoginEvent.getProfile();
+---
+>         GameProfile profile = joinEvent.getProfile();
+61,62c64
+<     @Override
+<     protected void save(final UserPreference preferences) {
+---
+>     public void save(final UserPreference preferences) {

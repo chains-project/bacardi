@@ -1,0 +1,107 @@
+16d15
+< import org.snmp4j.agent.mo.snmp.*;
+23d21
+< import org.snmp4j.transport.TransportMappings;
+38,39c36
+<  * This class can be instantiated via the constructor {@link #SnmpmanAgent(com.oneandone.snmpman.configuration.AgentConfiguration)}, which
+<  * requires an instance of the {@link com.oneandone.snmpman.configuration.AgentConfiguration}.
+---
+>  * See {@code AgentConfiguration.name} for more information on the return value.
+124,164d120
+<      * Returns the root OIDs of the bindings.
+<      *
+<      * @param bindings the variable bindings
+<      * @return the roots of the specified variable bindings
+<      */
+<     private static List<OID> getRoots(final SortedMap<OID, Variable> bindings) {
+<         final List<OID> potentialRoots = new ArrayList<>(bindings.size());
+< 
+<         OID last = null;
+<         for (final OID oid : bindings.keySet()) {
+<             if (last != null) {
+<                 int min = Math.min(oid.size(), last.size());
+<                 while (min > 0) {
+<                     if (oid.leftMostCompare(min, last) == 0) {
+<                         OID root = new OID(last.getValue(), 0, min);
+<                         potentialRoots.add(root);
+<                         break;
+<                     }
+<                     min--;
+<                 }
+<             }
+<             last = oid;
+<         }
+<         Collections.sort(potentialRoots);
+< 
+<         final List<OID> roots = new ArrayList<>(potentialRoots.size());
+<         potentialRoots.stream().filter(potentialRoot -> potentialRoot.size() > 0).forEach(potentialRoot -> {
+<             OID trimmedPotentialRoot = new OID(potentialRoot.getValue(), 0, potentialRoot.size() - 1);
+<             while (trimmedPotentialRoot.size() > 0 && Collections.binarySearch(potentialRoots, trimmedPotentialRoot) < 0) {
+<                 trimmedPotentialRoot.trim(1);
+<             }
+<             if (trimmedPotentialRoot.size() == 0 && !roots.contains(potentialRoot)) {
+<                 roots.add(potentialRoot);
+<             }
+<         });
+< 
+<         log.trace("identified roots {}", roots);
+<         return roots;
+<     }
+< 
+<     /**
+241d196
+<     @Override
+256d210
+< 
+258,260d211
+< 
+<                 final OctetString context = new OctetString(String.valueOf(vlan));
+< 
+264,282c215
+<                     final Iterable<VariableBinding> subtree = generateSubtreeBindings(variableBindings, root);
+<                     DefaultMOContextScope scope = new DefaultMOContextScope(context, root, true, root.nextPeer(), false);
+<                     ManagedObject mo = server.lookup(new DefaultMOQuery(scope, false));
+<                     if (mo != null) {
+<                         for (final VariableBinding variableBinding : subtree) {
+<                             group = new MOGroup(variableBinding.getOid(), variableBinding.getOid(), variableBinding.getVariable());
+<                             scope = new DefaultMOContextScope(context, variableBinding.getOid(), true, variableBinding.getOid().nextPeer(), false);
+<                             mo = server.lookup(new DefaultMOQuery(scope, false));
+<                             if (mo != null) {
+<                                 log.warn("could not register single OID at {} because ManagedObject {} is already registered.", variableBinding.getOid(), mo);
+<                             } else {
+<                                 groups.add(group);
+<                                 registerGroupAndContext(group, context);
+<                             }
+<                         }
+<                     } else {
+<                         groups.add(group);
+<                         registerGroupAndContext(group, context);
+<                     }
+---
+>                     registerDefaultGroups(group);
+356c289
+<                 MOContextScope contextScope = new DefaultMOContextScope(new OctetString(), group.getScope());
+---
+>                 MOContextScope contextScope = new DefaultMOContextScope(new OctetString(""), group.getScope());
+423c356
+<                     log.warn("could not parse line \"{}\" of walk file {} with exception: {}", line, configuration.getWalk().getCanonicalPath(), e.getMessage());
+---
+>                     log.warn("could not parse line \"{}\" of walk file {}", line, configuration.getWalk().getCanonicalPath(), e);
+462c395
+<             modifiers = device.getModifiers().stream().filter(modifier -> modifier.isApplicable(binding.getKey())).collect(Collectors.toList());
+---
+>             modifiers = device.getModifiers().stream().filter(modifier -> modifer.isApplicable(binding.getKey())).collect(Collectors.toList());
+475c408
+<                         result.put(binding.getKey(), new ModifiedVariable(binding.getValue(), modifiers));
+---
+>                         result.put(binding.getKey(), new ModifiedVariable(binding.getValue(), modifiers);
+523,527d455
+<         vacmMIB.addAccess(new OctetString("v1v2group"), new OctetString(), SecurityModel.SECURITY_MODEL_ANY, SecurityLevel.NOAUTH_NOPRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
+<         vacmMIB.addAccess(new OctetString("v3group"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.AUTH_PRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
+<         vacmMIB.addAccess(new OctetString("v3restricted"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.NOAUTH_NOPRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("restrictedReadView"), new OctetString("restrictedWriteView"), new OctetString("restrictedNotifyView"), StorageType.nonVolatile);
+<         vacmMIB.addAccess(new OctetString("v3test"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.AUTH_PRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("testReadView"), new OctetString("testWriteView"), new OctetString("testNotifyView"), StorageType.nonVolatile);
+< 
+559c487
+<     private void configureSnmpCommunity(final SnmpCommunityMIB snmpCommunityMIB, final Long context) {
+---
+>     private void configureSnmpCommunity(final SnmpCommunityMIB.SnmpCommunityMIB snmpCommunityMIB, final Long context) {

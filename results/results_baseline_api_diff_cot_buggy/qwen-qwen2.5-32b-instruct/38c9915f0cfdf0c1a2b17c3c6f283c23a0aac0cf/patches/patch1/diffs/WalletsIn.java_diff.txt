@@ -1,0 +1,48 @@
+32,33c32,33
+< import org.cactoos.Scalar;
+< import org.cactoos.func.IoCheckedFunc;
+---
+> import org.cactoos.Func;
+> import org.cactoos.Text;
+37,38c37,38
+< import org.cactoos.scalar.IoCheckedScalar;
+< import org.cactoos.scalar.SolidScalar;
+---
+> import org.cactoos.scalar.CheckedScalar;
+> import org.cactoos.scalar.ScalarOf;
+40d39
+< import org.cactoos.text.JoinedText;
+53c52
+<     private final IoCheckedScalar<Path> path;
+---
+>     private final CheckedScalar<Path> path;
+58c57
+<     private final IoCheckedFunc<Path, Boolean> filter;
+---
+>     private final Func<Path, Boolean> filter;
+98d96
+<      * @param random Randomizer
+99a98
+>      * @param random Randomizer
+103,104c102,103
+<         this.path = new IoCheckedScalar<>(
+<             new SolidScalar<>(pth)
+---
+>         this.path = new CheckedScalar<>(
+>             new ScalarOf<>(pth)
+106,107c105
+<         this.filter = new IoCheckedFunc<Path, Boolean>(
+<             (file) -> file.toFile().isFile()
+---
+>         this.filter = (file) -> file.toFile().isFile()
+110,111c108
+<                 .matches(file)
+<         );
+---
+>             .matches(file);
+119,120c116,117
+<             new JoinedText(
+<                 ".",
+---
+>             new FormattedText(
+>                 "%s.%s",

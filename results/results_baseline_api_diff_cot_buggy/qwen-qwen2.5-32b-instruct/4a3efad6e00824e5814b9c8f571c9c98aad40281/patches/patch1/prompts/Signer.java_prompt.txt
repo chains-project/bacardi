@@ -1,0 +1,231 @@
+You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates. Your task is to analyze the provided code, error information, and API changes, then propose and apply a patch to fix the issue while adhering to specific constraints.
+
+Here is the Java code that is failing:
+
+```java
+package org.openpdfsign;
+
+import com.beust.jcommander.Strings;
+import eu.europa.esig.dss.enumerations.DigestAlgorithm;
+import eu.europa.esig.dss.enumerations.SignatureLevel;
+import eu.europa.esig.dss.model.*;
+import eu.europa.esig.dss.pades.CertificationPermission;
+import eu.europa.esig.dss.pades.PAdESSignatureParameters;
+import eu.europa.esig.dss.pades.SignatureImageParameters;
+import eu.europa.esig.dss.pades.signature.PAdESService;
+import eu.europa.esig.dss.pdf.pdfbox.PdfBoxNativeObjectFactory;
+import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
+import eu.europa.esig.dss.spi.x509.tsp.CompositeTSPSource;
+import eu.europa.esig.dss.spi.x509.tsp.TSPSource;
+import eu.europa.esig.dss.token.JKSSignatureToken;
+import eu.europa.esig.dss.token.KSPrivateKeyEntry;
+import eu.europa.esig.dss.validation.CommonCertificateVerifier;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.openpdfsign.dss.PdfBoxNativeTableObjectFactory;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.KeyStore;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
+
+@Slf4j
+public class Signer {
+
+    //see PDRectangle
+    private static final float POINTS_PER_INCH = 72;
+    private static final float POINTS_PER_MM = 1 / (10 * 2.54f) * POINTS_PER_INCH;
+
+    public void signPdf(Path pdfFile, Path outputFile, byte[] keyStore, char[] keyStorePassword, boolean binary, SignatureParameters params) throws IOException {
+        boolean visibleSignature = params.getPage() != null;
+        //https://github.com/apache/pdfbox/blob/trunk/examples/src/main/java/org/apache/pdfbox/examples/signature/CreateVisibleSignature2.java
+        //https://ec.europa.eu/cefdigital/DSS/webapp-demo/doc/dss-documentation.html
+        //load PDF file
+        //PDDocument doc = PDDocument.load(pdfFile.toFile());
+
+        //load PDF file in DSSDocument format
+        DSSDocument toSignDocument = new FileDocument(pdfFile.toFile());
+
+        //load certificate and private key
+        JKSSignatureToken signingToken = new JKSSignatureToken(keyStore, new KeyStore.PasswordProtection(keyStorePassword));
+
+        log.debug("Keystore created for signing");
+        //PAdES parameters
+        PAdESSignatureParameters signatureParameters = new PAdESSignatureParameters();
+        //signatureParameters.bLevel().setSigningDate(new Date());
+        String keyAlias = "alias";
+        if (signingToken.getKeys().get(0) instanceof KSPrivateKeyEntry) {
+            keyAlias = ((KSPrivateKeyEntry) signingToken.getKeys().get(0)).getAlias();
+        }
+        ;
+        signatureParameters.setSigningCertificate(signingToken.getKey(keyAlias).getCertificate());
+        signatureParameters.setCertificateChain(signingToken.getKey(keyAlias).getCertificateChain());
+        if (params.getUseTimestamp() || !params.getTSA().isEmpty()) {
+            signatureParameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_T);
+        } else {
+            signatureParameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_B);
+        }
+        signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
+
+        // Create common certificate verifier
+        CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
+        // Create PAdESService for signature
+        PAdESService service = new PAdESService(commonCertificateVerifier);
+
+        log.debug("Signature service initialized");
+
+        // Initialize visual signature and configure
+        if (visibleSignature) {
+            SignatureImageParameters imageParameters = new SignatureImageParameters();
+            TableSignatureFieldParameters fieldParameters = new TableSignatureFieldParameters();
+            imageParameters.setFieldParameters(fieldParameters);
+
+            if (!Strings.isStringEmpty(params.getImageFile())) {
+                imageParameters.setImage(new InMemoryDocument(Files.readAllBytes(Paths.get(params.getImageFile()))));
+            } else {
+                imageParameters.setImage(new InMemoryDocument((IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("signature.png")))));
+            }
+
+            if (params.getPage() < 0) {
+                PDDocument pdDocument = PDDocument.load(toSignDocument.openStream());
+                int pageCount = pdDocument.getNumberOfPages();
+                fieldParameters.setPage(pageCount + (1 + params.getPage()));
+                pdDocument.close();
+                log.debug("PDF page count: " + pageCount);
+
+            } else {
+                fieldParameters.setPage(params.getPage());
+            }
+            fieldParameters.setOriginX(params.getLeft() * POINTS_PER_MM * 10f);
+            fieldParameters.setOriginY(params.getTop() * POINTS_PER_MM * 10f);
+            fieldParameters.setWidth(params.getWidth() * POINTS_PER_MM * 10f);
+
+            // Get the SignedInfo segment that need to be signed.
+            // respect local timezone
+            DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneId.systemDefault());
+            // user-provided timezone, if any
+            if (params.getTimezone() != null) {
+                formatter = formatter.withZone(ZoneId.of(params.getTimezone()));
+            }
+            fieldParameters.setSignatureDate(formatter.format(signatureParameters.getSigningDate().toInstant()));
+            fieldParameters.setSignaturString(signingToken.getKey(keyAlias).getCertificate().getSubject().getPrettyPrintRFC2253());
+            if (!Strings.isStringEmpty(params.getHint())) {
+                fieldParameters.setHint(params.getHint());
+            } else {
+                fieldParameters.setHint(Configuration.getInstance().getResourceBundle().getString("hint_text"));
+            }
+
+            signatureParameters.setImageParameters(imageParameters);
+
+
+            PdfBoxNativeObjectFactory pdfBoxNativeObjectFactory = new PdfBoxNativeTableObjectFactory();
+            service.setPdfObjFactory(pdfBoxNativeObjectFactory);
+            log.debug("Visible signature parameters set");
+        }
+
+        //https://gist.github.com/Manouchehri/fd754e402d98430243455713efada710
+        //only use TSP source, if parameter is set
+        //if it is set to an url, us this
+        //otherwise, default
+        if (params.getUseTimestamp() || params.getTSA() != null) {
+            CompositeTSPSource compositeTSPSource = new CompositeTSPSource();
+            Map<String, TSPSource> tspSources = new HashMap<>();
+            compositeTSPSource.setTspSources(tspSources);
+            if (params.getTSA().isEmpty()) {
+                Arrays.stream(Configuration.getInstance().getProperties().getStringArray("tsp_sources")).forEach(source -> {
+                    tspSources.put(source, new OnlineTSPSource(source));
+                });
+            } else {
+                params.getTSA().stream().forEach(source -> {
+                    tspSources.put(source, new OnlineTSPSource(source));
+                });
+            }
+            service.setTspSource(compositeTSPSource);
+        }
+
+        ToBeSigned dataToSign = service.getDataToSign(toSignDocument, signatureParameters);
+
+        // This function obtains the signature value for signed information using the
+        // private key and specified algorithm
+        DigestAlgorithm digestAlgorithm = signatureParameters.getDigestAlgorithm();
+        log.debug("Data to be signed loaded");
+        SignatureValue signatureValue = signingToken.sign(dataToSign, digestAlgorithm, signingToken.getKey(keyAlias));
+
+        /*if (service.isValidSignatureValue(dataToSign, signatureValue, signingToken.getKey("alias").getCertificate())) {
+            log.debug("is true");
+        }*/
+        log.debug("Signature value calculated");
+
+        DSSDocument signedDocument = service.signDocument(toSignDocument, signatureParameters, signatureValue);
+        log.debug("Document signing complete");
+        if (binary) {
+            signedDocument.writeTo(System.out);
+        } else {
+            signedDocument.save(outputFile.toAbsolutePath().toString());
+        }
+    }
+}
+
+```
+
+The error is triggered in the following specific line:
+
+<error_lines>
+```java
+import eu.europa.esig.dss.pades.CertificationPermission;
+```
+</error_lines>
+
+The API of the dependency has changed. Here are the relevant changes:
+
+     Class eu.europa.esig.dss.pades.CertificationPermission has been removed in the new version of the dependency.
+
+Additional error information:
+
+<error_information>
+[ERROR] /open-pdf-sign/src/main/java/org/openpdfsign/Signer.java:[7,32] cannot find symbol
+  symbol:   class CertificationPermission
+  location: package eu.europa.esig.dss.pades
+<error_information>
+
+Your task is to fix the issue by modifying only the client code. Follow these steps:
+
+1. Analyze the problem and propose changes by wrapping the work inside fix_planning tags. This analysis is for your internal use only and will not be included in the final output. In your analysis:
+   a. Quote relevant parts of the code and API changes
+   b. Identify the specific API changes causing the issue
+   c. List the affected lines of code
+   d. Propose potential fixes for each affected line
+   e. Consider any potential side effects of the proposed changes
+   f. Explicitly check if the proposed changes adhere to all the given constraints
+   g. Provide a final summary of the chosen fix and why it's the best solution
+
+2. Apply the fix to the Java code.
+
+3. Output the complete, fixed Java class in a fenced code block. This should be the only visible output in your response.
+
+Constraints:
+1. Do not change the function signature of any method.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error.
+6. Include all code, even unchanged portions, in your final output.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
+
+Your final output should only contain the complete, fixed Java class in a fenced code block, without any explanations or analysis visible. The <fix_planning> section is for your internal use only.
+
+Example output structure:
+
+```java
+[Complete, fixed Java class]
+```
+
+Please proceed with your analysis and solution.

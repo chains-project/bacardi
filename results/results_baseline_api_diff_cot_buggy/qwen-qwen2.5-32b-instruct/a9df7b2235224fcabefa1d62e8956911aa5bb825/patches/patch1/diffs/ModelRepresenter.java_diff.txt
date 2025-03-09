@@ -1,0 +1,238 @@
+16a17
+> import org.yaml.snakeyaml.introspector.BeanAccess;
+17a19
+> import org.yaml.snakeyaml.introspector.PropertyUtils;
+47,57c49,62
+<   protected NodeTuple representJavaBeanProperty(Object javaBean, Property property,
+<                                                 Object propertyValue, Tag customTag) {
+<     if (property != null && property.getName().equals("pomFile")) {
+<       // "pomFile" is not a part of POM http://maven.apache.org/xsd/maven-4.0.0.xsd
+<       return null;
+<     }
+< 
+<     if (propertyValue == null) return null;
+<     if (propertyValue instanceof Map) {
+<       Map map = (Map) propertyValue;
+<       if (map.isEmpty()) return null;
+---
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+>     try {
+>       if (type.isAssignableFrom(Model.class)) {
+>         return sortTypeWithOrder(type, ORDER_MODEL);
+>       } else if (type.isAssignableFrom(Developer.class)) {
+>         return sortTypeWithOrder(type, ORDER_DEVELOPER);
+>       } else if (type.isAssignableFrom(Contributor.class)) {
+>         return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
+>       } else if (type.isAssignableFrom(Dependency.class)) {
+>         return sortTypeWithOrder(type, ORDER_DEPENDENCY);
+>       } else if (type.isAssignableFrom(Plugin.class)) {
+>         return sortTypeWithOrder(type, ORDER_PLUGIN);
+>       } else {
+>         return PropertyUtils.getProperties(type, BeanAccess.FIELD);
+59,61c64,65
+<     if (propertyValue instanceof List) {
+<       List map = (List) propertyValue;
+<       if (map.isEmpty()) return null;
+---
+>     } catch (IntrospectionException e) {
+>       throw new RuntimeException(e);
+63,67d66
+<     if (javaBean instanceof Dependency) {
+<       //skip optional if it is false
+<       if (skipBoolean(property, "optional", propertyValue, false)) return null;
+<       //skip type if it is jar
+<       if (skipString(property, "type", propertyValue, "jar")) return null;
+69,73c68,74
+<     if (javaBean instanceof Plugin) {
+<       //skip extensions if it is false
+<       if (skipBoolean(property, "extensions", propertyValue, false)) return null;
+<       //skip inherited if it is true
+<       if (skipBoolean(property, "inherited", propertyValue, true)) return null;
+---
+> 
+>   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+>           throws IntrospectionException {
+>     Set<Property> standard = PropertyUtils.getProperties(type, BeanAccess.FIELD);
+>     Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));
+>     sorted.addAll(standard);
+>     return sorted;
+75c76,81
+<     return super.representJavaBeanProperty(javaBean, property, propertyValue, customTag);
+---
+> 
+>   private class ModelPropertyComparator implements Comparator<Property> {
+>     private List<String> names;
+> 
+>     public ModelPropertyComparator(List<String> names) {
+>       this.names = names;
+78,81c84,89
+<   private boolean skipString(Property property, String name, Object propertyValue, String value) {
+<     if (name.equals(property.getName())) {
+<       String v = (String) propertyValue;
+<       return (value.equals(v));
+---
+>     public int compare(Property o1, Property o2) {
+>       // important go first
+>       for (String name : names) {
+>         int c = compareByName(o1, o2, name);
+>         if (c != 0) {
+>           return c;
+83c91,93
+<     return false;
+---
+>       }
+>       // all the rest
+>       return o1.compareTo(o2);
+86,89c96,102
+<   private boolean skipBoolean(Property property, String name, Object propertyValue, boolean value) {
+<     if (name.equals(property.getName())) {
+<       Boolean v = (Boolean) propertyValue;
+<       return (v.equals(value));
+---
+>     private int compareByName(Property o1, Property o2, String name) {
+>       if (o1.getName().equals(name)) {
+>         return -1;
+>       } else if (o2.getName().equals(name)) {
+>         return 1;
+>       }
+>       return 0; // compare further
+91d103
+<     return false;
+93d104
+< 
+108d118
+<         String childName = child.getName();
+111,112c121,122
+<         int childNameLength = childName.length();
+<         if ("reportPlugins".equals(childName)) {
+---
+>         int childNameLength = child.getName().length();
+>         if ("reportPlugins".equals(child.getName())) {
+114,117c124,127
+<         } else if (childNameLength > 3 && childName.endsWith("ies")) {
+<           singularName = childName.substring(0, childNameLength - 3);
+<         } else if (childNameLength > 1 && childName.endsWith("s")) {
+<           singularName = childName.substring(0, childNameLength - 1);
+---
+>         } else if (childNameLength > 3 && child.getName().endsWith("ies")) {
+>           singularName = child.getName().substring(0, childNameLength - 3);
+>         } else if (childNameLength > 1 && child.getName().endsWith("s")) {
+>           singularName = child.getName().substring(0, childNameLength - 1);
+122,131d131
+<           boolean isList = singularName != null;
+<           if (isList) { // check for eventual list construction
+<             for (int j = 0, grandChildCount = child.getChildCount(); j < grandChildCount; j++) {
+<               String grandChildName = child.getChild(j).getName();
+<               isList &= grandChildName.equals(singularName);
+<             }
+<           }
+<           if (isList) {
+<             childValue = toList(child, singularName);
+<           } else {
+134,135c134
+<         }
+<         map.put(childName, childValue);
+---
+>         map.put(child.getName(), childValue);
+144,165d142
+< 
+<     private List<Object> toList(Xpp3Dom node, String childName) {
+<       List<Object> list = new ArrayList<>();
+< 
+<       int n = node.getChildCount();
+<       for (int i = 0; i < n; i++) {
+<         Xpp3Dom child = node.getChild(i);
+< 
+<         if (!childName.equals(child.getName())) {
+<           throw new YAMLException(format("child name: '%s' does not match expected name: '%s' at node %s",
+<               child.getName(), childName, node));
+<         }
+< 
+<         Object childValue = child.getValue();
+<         if (childValue == null) {
+<           childValue = toMap(child);
+<         }
+<         list.add(childValue);
+<       }
+< 
+<       return list;
+<     }
+170c147
+<   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
+---
+>   private static List<String> ORDER_MODEL = new ArrayList<>(Arrays.asList(
+204c181
+<   private static List<String> ORDER_DEVELOPER = new ArrayList<String>(Arrays.asList(
+---
+>   private static List<String> ORDER_DEVELOPER = new ArrayList<>(Arrays.asList(
+206c183
+<   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<String>(Arrays.asList(
+---
+>   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<>(Arrays.asList(
+208c185
+<   private static List<String> ORDER_DEPENDENCY = new ArrayList<String>(Arrays.asList(
+---
+>   private static List<String> ORDER_DEPENDENCY = new ArrayList<>(Arrays.asList(
+210c187
+<   private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
+---
+>   private static List<String> ORDER_PLUGIN = new ArrayList<>(Arrays.asList(
+213,270d189
+< 
+<   /*
+<    * Change the default order. Important data goes first.
+<    */
+<   @Override
+<   protected Set<Property> getProperties(Class<? extends Object> type)
+<           throws IntrospectionException {
+<     if (type.isAssignableFrom(Model.class)) {
+<       return sortTypeWithOrder(type, ORDER_MODEL);
+<     } else if (type.isAssignableFrom(Developer.class)) {
+<       return sortTypeWithOrder(type, ORDER_DEVELOPER);
+<     } else if (type.isAssignableFrom(Contributor.class)) {
+<       return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
+<     }  else if (type.isAssignableFrom(Dependency.class)) {
+<       return sortTypeWithOrder(type, ORDER_DEPENDENCY);
+<     }  else if (type.isAssignableFrom(Plugin.class)) {
+<       return sortTypeWithOrder(type, ORDER_PLUGIN);
+<     } else {
+<       return super.getProperties(type);
+<     }
+<   }
+< 
+<   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+<           throws IntrospectionException {
+<       Set<Property> standard = super.getProperties(type);
+<       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
+<       sorted.addAll(standard);
+<       return sorted;
+<   }
+< 
+<   private class ModelPropertyComparator implements Comparator<Property> {
+<     private List<String> names;
+< 
+<     public ModelPropertyComparator(List<String> names) {
+<       this.names = names;
+<     }
+< 
+<     public int compare(Property o1, Property o2) {
+<       // important go first
+<       for (String name : names) {
+<         int c = compareByName(o1, o2, name);
+<         if (c != 0) {
+<           return c;
+<         }
+<       }
+<       // all the rest
+<       return o1.compareTo(o2);
+<     }
+< 
+<     private int compareByName(Property o1, Property o2, String name) {
+<       if (o1.getName().equals(name)) {
+<         return -1;
+<       } else if (o2.getName().equals(name)) {
+<         return 1;
+<       }
+<       return 0;// compare further
+<     }
+<   }

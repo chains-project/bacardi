@@ -1,0 +1,32 @@
+3a4
+> import org.flywaydb.core.api.configuration.ClassicConfiguration;
+103c104
+<         @Bean(initMethod = "migrate")
+---
+>         @Bean
+105,113c106,111
+<                 final Properties prop = new Properties();
+<                 prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+< 
+<                 final org.flywaydb.core.Flyway flyway = new Flyway();
+<                 flyway.setDataSource(this.dataSource());
+<                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+<                 flyway.setLocations(prop.getProperty("flyway.locations"));
+<                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+<                 return flyway;
+---
+>                 final ClassicConfiguration config = new ClassicConfiguration();
+>                 config.setDataSource(this.dataSource());
+>                 config.setLocations(prop.getProperty("flyway.locations").split(","));
+>                 config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 config.setClassLoader(NisAppConfig.class.getClassLoader());
+>                 return new Flyway(config);
+129,130c127,128
+<                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
+<                                 this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+---
+>                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
+>                                 this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+197a196,197
+>         // region mappers
+> 

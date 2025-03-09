@@ -1,0 +1,45 @@
+33d32
+< import com.jcabi.aspects.Tv;
+52d50
+< import org.cactoos.scalar.Unchecked;
+74c72
+<  * {@link Ssh#exec(String, InputStream, OutputStream, OutputStream)},
+---
+>  * {@link #exec(String, InputStream, OutputStream, OutputStream)},
+82c80
+<  *  encrypted/unencrypted private key.
+---
+>  *  encrypted/unencrypted priv. key.
+86c84
+< @SuppressWarnings("PMD.TooManyMethods")
+---
+> @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
+127c125
+<         this(adr, Ssh.PORT, user, priv);
+---
+>         this(adr.getCanonicalHostName(), Ssh.PORT, user, priv);
+140c138
+<         this(adr, Ssh.PORT, user, priv);
+---
+>         this(adr, Ssh.PORT, user, priv, null);
+227d224
+<     @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
+233d229
+<     @Override
+235c231
+<         attempts = Tv.SEVEN,
+---
+>         attempts = 7,
+270,271c266
+<                 this.getLogin(), this.getAddr(), this.getPort(),
+<                 file.length()
+---
+>                 this.getLogin(), this.getAddr(), this.getPort(), file.length()
+292c287
+<         session.setTimeout((int) TimeUnit.MINUTES.toMillis(1L));
+---
+>         session.setTimeout((int) TimeUnit.SECONDS.toMillis(10L));
+294c289
+<         session.setServerAliveCountMax(Tv.MILLION);
+---
+>         session.setServerAliveCountMax(1000000);

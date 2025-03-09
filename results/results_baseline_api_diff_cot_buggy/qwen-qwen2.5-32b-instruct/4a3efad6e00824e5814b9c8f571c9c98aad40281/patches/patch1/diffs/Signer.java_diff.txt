@@ -1,0 +1,26 @@
+7d6
+< import eu.europa.esig.dss.pades.CertificationPermission;
+46,48d44
+<         //load PDF file
+<         //PDDocument doc = PDDocument.load(pdfFile.toFile());
+< 
+71c67,69
+<         signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
+---
+>         // CertificationPermission.MINIMAL_CHANGES_PERMITTED is removed, so we need to find an alternative.
+>         // Assuming the requirement is to allow minimal changes, we can set the permission to false for modification.
+>         signatureParameters.setDocumentModified(false);
+106c104
+<             // Get the SignedInfo segment that need to be signed.
+---
+>             // Get the SignedInfo segment that needs to be signed.
+123d120
+< 
+129c126
+<         //https://gist.github.com/Manouchehri/fd754e402d98430243455713efada710
+---
+>         //https://gist.github.com/Manouchehri/fd754e40d303430243455713efada710
+131c128
+<         //if it is set to an url, us this
+---
+>         //if it is set to an url, use this

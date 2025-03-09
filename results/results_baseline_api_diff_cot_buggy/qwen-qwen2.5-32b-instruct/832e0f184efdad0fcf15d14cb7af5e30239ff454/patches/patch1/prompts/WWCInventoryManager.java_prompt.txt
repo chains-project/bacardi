@@ -1,0 +1,180 @@
+You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates. Your task is to analyze the provided code, error information, and API changes, then propose and apply a patch to fix the issue while adhering to specific constraints.
+
+Here is the Java code that is failing:
+
+```java
+package com.expl0itz.worldwidechat.inventory;
+
+import java.util.UUID;
+
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import com.cryptomorin.xseries.XEnchantment;
+import com.cryptomorin.xseries.XMaterial;
+import com.expl0itz.worldwidechat.WorldwideChat;
+import org.bukkit.scheduler.BukkitRunnable;
+import com.expl0itz.worldwidechat.util.CommonDefinitions;
+
+import fr.minuskube.inv.InventoryManager;
+import fr.minuskube.inv.content.InventoryContents;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+
+public class WWCInventoryManager extends InventoryManager {
+	
+	public WWCInventoryManager(JavaPlugin plugin) {
+		super(plugin);
+	}
+	
+	public static void checkIfPlayerIsMissing(Player player, String targetPlayerUUID) {
+		if (!targetPlayerUUID.equals("GLOBAL-TRANSLATE-ENABLED")) {
+			if (Bukkit.getPlayer(UUID.fromString(targetPlayerUUID)) == null) {
+				// Target player no longer online
+				player.closeInventory();
+				final TextComponent targetPlayerDC = Component.text()
+						.append(Component.text()
+								.content(CommonDefinitions.getMessage("wwctGUITargetPlayerNull"))
+								.color(NamedTextColor.RED).decorate(TextDecoration.ITALIC))
+						.build();
+				CommonDefinitions.sendMessage(player, targetPlayerDC);
+			}
+		}
+	}
+	
+	public static void inventoryError(Player player, Exception e) {
+		final TextComponent inventoryError = Component.text()
+				.append(Component.text().content(
+						CommonDefinitions.getMessage("wwcInventoryErrorPlayer"))
+						.color(NamedTextColor.RED))
+				.build();
+		CommonDefinitions.sendMessage(player, inventoryError);
+		WorldwideChat.instance.getLogger().severe(CommonDefinitions.getMessage("wwcInventoryError", new String[] {player.getName()}));
+		e.printStackTrace();
+	}
+	
+	public static ItemStack getCommonButton(String buttonType) {
+		return getCommonButton(buttonType, new String[0]);
+	}
+	
+	public static ItemStack getCommonButton(String buttonType, String[] args) {
+		ItemStack pageButton = XMaterial.WHITE_STAINED_GLASS.parseItem();
+		ItemMeta pageMeta = pageButton.getItemMeta();
+		pageMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+		if (buttonType.equalsIgnoreCase("Previous")) {
+			pageButton = XMaterial.RED_STAINED_GLASS.parseItem();
+			pageMeta.setDisplayName(ChatColor.RED
+					+ CommonDefinitions.getMessage("wwcConfigGUIPreviousPageButton"));
+		} else if (buttonType.equalsIgnoreCase("Next")) {
+			pageButton = XMaterial.GREEN_STAINED_GLASS.parseItem();
+			pageMeta.setDisplayName(ChatColor.GREEN
+					+ CommonDefinitions.getMessage("wwcConfigGUINextPageButton"));
+		} else if (buttonType.equalsIgnoreCase("Page Number")) {
+			pageButton = XMaterial.LILY_PAD.parseItem();
+			pageMeta.setDisplayName(ChatColor.AQUA
+					+ CommonDefinitions.getMessage("wwcGUIPageNumber", args));
+			if (args[0].equals("1")) {
+				pageMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+			}
+		} else {
+			pageMeta.setDisplayName(ChatColor.RED + "Not a valid button! This is a bug, please report it.");
+		}
+		
+		pageButton.setItemMeta(pageMeta);
+		return pageButton;
+	}
+	
+	public static ItemStack getSaveMainConfigButton() {
+		ItemStack quitButton = XMaterial.BARRIER.parseItem();
+		ItemMeta quitMeta = quitButton.getItemMeta();
+		quitMeta.setDisplayName(ChatColor.RED
+				+ CommonDefinitions.getMessage("wwcConfigGUIQuitButton"));
+		quitButton.setItemMeta(quitMeta);
+		return quitButton;
+	}
+
+	public static void saveMainConfigAndReload(Player player, InventoryContents content) {
+		WorldwideChat.instance.removePlayerUsingConfigurationGUI(player);
+		player.closeInventory();
+		
+		// Ensure that /wwcr is not ran while this is running
+		WorldwideChat.instance.setTranslatorName("Starting");
+		
+		if (!CommonDefinitions.serverIsStopping()) {
+			new BukkitRunnable() {
+				@Override
+				public void run() {
+					// Save config sync/in the same thread because we are already in another thread thanks to Bukkit Scheduler
+					WorldwideChat.instance.getConfigManager().saveMainConfig(false);
+					
+					// Reload
+					WorldwideChat.instance.reload(player);
+				}
+			}.runTaskAsynchronously(WorldwideChat.instance);	
+		}
+	}
+	
+}
+
+```
+
+The error is triggered in the following specific line:
+
+<error_lines>
+```java
+pageMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+```
+</error_lines>
+
+The API of the dependency has changed. Here are the relevant changes:
+
+     Method com.cryptomorin.xseries.XEnchantment.parseEnchantment() has been removed in the new version of the dependency.
+
+Additional error information:
+
+<error_information>
+[ERROR] /WorldwideChat/src/main/java/com/expl0itz/worldwidechat/inventory/WWCInventoryManager.java:[79,98] cannot find symbol
+  symbol:   method parseEnchantment()
+  location: class com.cryptomorin.xseries.XEnchantment
+<error_information>
+
+Your task is to fix the issue by modifying only the client code. Follow these steps:
+
+1. Analyze the problem and propose changes by wrapping the work inside fix_planning tags. This analysis is for your internal use only and will not be included in the final output. In your analysis:
+   a. Quote relevant parts of the code and API changes
+   b. Identify the specific API changes causing the issue
+   c. List the affected lines of code
+   d. Propose potential fixes for each affected line
+   e. Consider any potential side effects of the proposed changes
+   f. Explicitly check if the proposed changes adhere to all the given constraints
+   g. Provide a final summary of the chosen fix and why it's the best solution
+
+2. Apply the fix to the Java code.
+
+3. Output the complete, fixed Java class in a fenced code block. This should be the only visible output in your response.
+
+Constraints:
+1. Do not change the function signature of any method.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error.
+6. Include all code, even unchanged portions, in your final output.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
+
+Your final output should only contain the complete, fixed Java class in a fenced code block, without any explanations or analysis visible. The <fix_planning> section is for your internal use only.
+
+Example output structure:
+
+```java
+[Complete, fixed Java class]
+```
+
+Please proceed with your analysis and solution.

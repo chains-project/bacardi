@@ -1,0 +1,163 @@
+33,38c33
+< import org.cactoos.iterable.LengthOf;
+< import org.cactoos.list.ListOf;
+< import org.cactoos.scalar.IoCheckedScalar;
+< import org.cactoos.scalar.ItemAt;
+< import org.cactoos.scalar.StickyScalar;
+< import org.cactoos.scalar.UncheckedScalar;
+---
+> import org.cactoos.TextOf;
+41,42d35
+< import org.cactoos.text.TextOf;
+< import org.cactoos.text.TrimmedText;
+44c37,40
+< import org.cactoos.time.ZonedDateTimeOf;
+---
+> import org.cactoos.scalar.CheckedScalar;
+> import org.cactoos.scalar.IoCheckedScalar;
+> import org.cactoos.scalar.StickyScalar;
+> import org.cactoos.scalar.UncheckedScalar;
+52,53c48
+< @SuppressWarnings({"PMD.AvoidCatchingGenericException",
+<     "PMD.AvoidFieldNameMatchingMethodName"})
+---
+> @SuppressWarnings({"PMD.AvoidFieldNameMatchingMethodName", "PMD.ShortMethodName"})
+60,62c55
+<         //@checkstyle LineLengthCheck (1 line)
+<         "^([A-Za-z0-9+\\/]{4})*([A-Za-z0-9+\\/]{4}|[A-Za-z0-9+\\/]{3}=|[A-Za-z0-9+\\/]{2}==)$"
+<     );
+---
+>         ("^([A-Za-z0-9+\\/]{4})*([A-Za-z0-9+\\/]{4}|[A-Za-z0-9+\\/]{3}=|[A-Za-z0-9+\\/]{2}==)$");
+96c89
+<             new StickyScalar<>(
+---
+>             new CheckedScalar<>(
+98,102c91
+<                     if (
+<                         new TrimmedText(
+<                             new TextOf(trnsct)
+<                         ).asString().isEmpty()
+<                     ) {
+---
+>                     if (new TextOf(trnsct).asString().trim().isEmpty()) {
+108,112c97,98
+<                         new ListOf<>(
+<                             new SplitText(trnsct, ";")
+<                         );
+<                     // @checkstyle MagicNumberCheck (1 line)
+<                     if (new LengthOf(pieces).intValue() != 7) {
+---
+>                         new SplitText(trnsct, ";").toList();
+>                     if (pieces.size() != 7) {
+115d100
+<                                 // @checkstyle LineLength (1 line)
+131,134c116,117
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     0, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>             new CheckedScalar<>(
+>                 () -> new SplitText(this.transaction.value(), ";").get(0)
+139d121
+<                 new UncheckedText(
+141d122
+<                         // @checkstyle LineLength (1 line)
+144d124
+<                     )
+148d127
+<         // @checkstyle MagicNumber (1 line)
+156,159c135,136
+<                 new IoCheckedScalar<>(
+<                     new ItemAt<>(
+<                         1, new SplitText(this.transaction.value(), ";")
+<                     )
+---
+>                 new CheckedScalar<>(
+>                     () -> new SplitText(this.transaction.value(), ";").get(1)
+169,172c146,147
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     2, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>             new CheckedScalar<>(
+>                 () -> new SplitText(this.transaction.value(), ";").get(2)
+177d151
+<                 new UncheckedText(
+179d152
+<                         // @checkstyle LineLength (1 line)
+182d154
+<                     )
+186d157
+<         // @checkstyle MagicNumber (1 line)
+193,197c164,165
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+<                     3, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>             new CheckedScalar<>(
+>                 () -> new SplitText(this.transaction.value(), ";").get(3)
+200d167
+<         //@checkstyle MagicNumberCheck (1 line)
+213,217c180,181
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+<                     4, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>             new CheckedScalar<>(
+>                 () -> new SplitText(this.transaction.value(), ";").get(4)
+222d185
+<                 new UncheckedText(
+224d186
+<                         // @checkstyle LineLength (1 line)
+227d188
+<                     )
+237,241c198,199
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+<                     5, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>             new CheckedScalar<>(
+>                 () -> new SplitText(this.transaction.value(), ";").get(5)
+246d203
+<                 new UncheckedText(
+248d204
+<                         // @checkstyle LineLength (1 line)
+251d206
+<                     )
+261,265c216,217
+<             new IoCheckedScalar<>(
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
+<                     6, new SplitText(this.transaction.value(), ";")
+<                 )
+---
+>             new CheckedScalar<>(
+>                 () -> new SplitText(this.transaction.value(), ";").get(6)
+268,270c220
+<         // @checkstyle MagicNumber (1 line)
+<         if (sign.length() != 684
+<             || !RtTransaction.SIGN.matcher(sign).matches()) {
+---
+>         if (sign.length() != 684 || !RtTransaction.SIGN.matcher(sign).matches()) {
+272d221
+<                 new UncheckedText(
+274d222
+<                         // @checkstyle LineLength (1 line)
+277d224
+<                     )
+299c246
+<         return this.transaction.equals(that.transaction);
+---
+>         return this.transaction.value().equals(that.transaction.value());
+304c251
+<         return this.transaction.hashCode();
+---
+>         return this.transaction.value().hashCode();

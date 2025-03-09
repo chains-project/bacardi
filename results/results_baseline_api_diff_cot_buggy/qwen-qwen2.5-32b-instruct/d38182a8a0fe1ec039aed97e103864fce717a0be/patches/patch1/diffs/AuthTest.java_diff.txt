@@ -1,0 +1,101 @@
+52c52
+< @SuppressWarnings("PMD.AvoidDuplicateLiterals")
+---
+> @SuppressWarnings("PMD.UnusedPrivateMethod")
+69c69,73
+<             method.slice("whatever").response(line.toString(), Headers.EMPTY, Content.EMPTY),
+---
+>             method.slice("whatever").response(
+>                 line.toString(),
+>                 Headers.EMPTY,
+>                 Content.EMPTY
+>             ),
+192,196d195
+<     @SuppressWarnings("PMD.UnusedPrivateMethod")
+<     private static Stream<Arguments> setups() {
+<         return Stream.of(new Basic(), new Bearer()).flatMap(AuthTest::setups);
+<     }
+< 
+214c213
+<     private static Stream<Arguments> setups(final Method method) {
+---
+>     private static Stream<Arguments> setups() {
+217c216
+<                 method,
+---
+>                 new Basic(),
+222,279c221,223
+<                 method,
+<                 new RequestLine(RqMethod.HEAD, "/v2/my-alpine/manifests/1"),
+<                 "repository:my-alpine:pull"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.GET, "/v2/my-alpine/manifests/2"),
+<                 "repository:my-alpine:pull"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.PUT, "/v2/my-alpine/manifests/latest"),
+<                 "repository:my-alpine:push"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.PUT, "/v2/my-alpine/manifests/latest"),
+<                 "repository:my-alpine:overwrite"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.GET, "/v2/my-alpine/tags/list"),
+<                 "repository:my-alpine:pull"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.HEAD, "/v2/my-alpine/blobs/sha256:123"),
+<                 "repository:my-alpine:pull"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.GET, "/v2/my-alpine/blobs/sha256:012345"),
+<                 "repository:my-alpine:pull"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.POST, "/v2/my-alpine/blobs/uploads/"),
+<                 "repository:my-alpine:push"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.PATCH, "/v2/my-alpine/blobs/uploads/123"),
+<                 "repository:my-alpine:push"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.PUT, "/v2/my-alpine/blobs/uploads/12345"),
+<                 "repository:my-alpine:push"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.GET, "/v2/my-alpine/blobs/uploads/112233"),
+<                 "repository:my-alpine:pull"
+<             ),
+<             Arguments.of(
+<                 method,
+<                 new RequestLine(RqMethod.GET, "/v2/_catalog"),
+<                 "registry:catalog:*"
+---
+>                 new Bearer(),
+>                 new RequestLine(RqMethod.GET, "/v2/"),
+>                 "registry:base:*"
+317d260
+<         @Override
+326d268
+<         @Override
+344d285
+<         @Override
+353d293
+<                             .map(user -> new Authentication.User(user.name()))
+354a295
+>                             .map(user -> new Authentication.User(user.name(), user.permissions()))
+361d301
+<         @Override

@@ -1,0 +1,51 @@
+17,21c17,22
+< import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelBuf;
+< import org.spongepowered.api.network.ChannelRegistrar;
+< import org.spongepowered.api.network.RawDataListener;
+< import org.spongepowered.api.network.RemoteConnection;
+---
+> import org.spongepowered.api.network.channel.packet.Packet;
+> import org.spongepowered.api.network.channel.packet.PacketHandler;
+> import org.spongepowered.api.network.channel.packet.PacketChannel;
+> import org.spongepowered.api.network.channel.packet.PacketChannelManager;
+> import org.spongepowered.api.network.channel.packet.RequestPacket;
+> import org.spongepowered.api.network.channel.packet.TransactionalPacketDispatcher;
+23,26c24
+< import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
+< import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
+< 
+< public class CheckPermissionListener implements RawDataListener {
+---
+> public class CheckPermissionListener implements PacketHandler {
+29c27
+<     private final RawDataChannel permissionsResultChannel;
+---
+>     private final PacketChannel permissionsResultChannel;
+32c30
+<     CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+---
+>     CheckPermissionListener(ChangeSkinSponge plugin, PacketChannelManager channelManager) {
+36c34
+<         permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
+---
+>         this.permissionsResultChannel = channelManager.createChannel(combinedName);
+40c38,43
+<     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+---
+>     public void handle(Packet packet, RemoteConnection connection) {
+>         ChannelBuf data = (ChannelBuf) packet;
+>         handlePayload(data, connection, Type.SERVER);
+>     }
+> 
+>     private void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+71,77c74
+<         String pluginName = plugin.getName().toLowerCase();
+<         boolean hasCommandPerm = invoker.hasPermission(pluginName +  '.' + node);
+<         if (skinPerm) {
+<             return hasCommandPerm && plugin.hasSkinPermission(invoker, targetUUID, false);
+<         }
+< 
+<         return hasCommandPerm;
+---
+>         return invoker.hasPermission(plugin.getName().toLowerCase() + '.' + node);

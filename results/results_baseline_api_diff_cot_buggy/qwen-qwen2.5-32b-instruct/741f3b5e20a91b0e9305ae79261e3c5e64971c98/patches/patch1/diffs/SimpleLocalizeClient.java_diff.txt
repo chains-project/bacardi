@@ -1,0 +1,31 @@
+3a4,5
+> import com.fasterxml.jackson.databind.JsonNode;
+> import com.fasterxml.jackson.core.type.TypeReference;
+28,30d29
+< import static io.simplelocalize.cli.TemplateKeys.LANGUAGE_TEMPLATE_KEY;
+< import static io.simplelocalize.cli.TemplateKeys.NAMESPACE_TEMPLATE_KEY;
+< 
+88c87
+<     ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
+---
+>     ExportResponse exportResponse = objectMapper.readValue(body, new TypeReference<ExportResponse>() {});
+97c96
+<             .replace(LANGUAGE_TEMPLATE_KEY, optionalDownloadableFile.map(DownloadableFile::getLanguage).orElse(""));
+---
+>             .replace(LANGUAGE_TEMPLATE_KEY, optionalDownloadableFile.map(DownloadableFile::getLanguage).orElse("")));
+127,129c126,129
+<     Boolean passed = JsonPath.read(json, "$.data.passed");
+<     String message = JsonPath.read(json, "$.data.message");
+<     int status = JsonPath.read(json, "$.data.status");
+---
+>     JsonNode jsonNode = objectMapper.readTree(json);
+>     Boolean passed = JsonPath.read(jsonNode, "$.data.passed");
+>     String message = JsonPath.read(jsonNode, "$.data.message");
+>     int status = JsonPath.read(jsonNode, "$.data.status");
+144c144
+<       String message = JsonPath.using(parseContext).parse(stringBody).read(ERROR_MESSAGE_PATH);
+---
+>       String message = JsonPath.using(parseContext).parse(stringBody).read(ERROR_MESSAGE_PATH));
+165,166d164
+< 
+< 

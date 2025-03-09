@@ -1,0 +1,149 @@
+3c3
+< import develop.p2p.lib.*;
+---
+> import tokyo.peya.lib.*;
+62,66c62,64
+<         final double range = reachMode ? config.getDouble("npc.reachPanicRange"): config.getDouble("npc.panicRange");
+<         final double[] clt = {0.0};
+<         final int[] now = {0};
+< 
+<         PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
+---
+>         final double[] time = {0.0};
+>         final double radius = reachMode ? config.getDouble("npc.reachRange"): config.getDoubleList("npc.range")
+>             .get(new Random().nextInt(config.getDoubleList("npc.range").size()));
+68c66
+<         int sec = config.getInt("npc.seconds");
+---
+>         WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
+70c68,69
+<         new BukkitRunnable()
+---
+>         final int[] now = {0};
+>         BukkitRunnable r = new BukkitRunnable()
+72d70
+<             @Override
+75,88c73
+<                 now[0]++;
+< 
+<                 connection.sendPacket(new PacketPlayOutAnimation(((CraftPlayer) player).getHandle(), 1));
+< 
+<                 HashMap<String, Object> map = new HashMap<>();
+<                 map.put("hit", now[0]);
+<                 map.put("max", count);
+< 
+<                 sender.sendMessage(get("message.auraCheck.panic.lynx", map));
+<                 if (now[0] >= count)
+<                     this.cancel();
+<             }
+<         }.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, (long) (10 * ((1.5 / count) * sec)));
+< 
+---
+>                 double speed = 0.0;
+90,93c75,78
+<         new BukkitRunnable()
+<         {
+<             public void run()
+<             {
+---
+>                 if (player.hasMetadata("speed"))
+>                     for (MetadataValue value : player.getMetadata("speed"))
+>                         if (value.getOwningPlugin().getName().equals(PeyangSuperbAntiCheat.getPlugin().getName()))
+>                             speed = value.asDouble() * 2.0;
+96,105c81
+<                     Location center = player.getLocation();
+< 
+<                     if (center.getPitch() <= 0.0f || center.getPitch() > 15.0f)
+<                         center.setPitch(0.0f);
+< 
+<                     Location n = center.add(center.getDirection().multiply(0 - range));
+< 
+<                     n.setY(center.getY() + range);
+< 
+<                     n.setPitch(50);
+---
+>                     double rangeTmp = radius;
+107c83,85
+<                     float head = ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f;
+---
+>                     if (config.getBoolean("npc.wave"))
+>                         rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
+>                             .get(0.01, true);
+109,110c87,95
+<                     if (head < 0)
+<                         head *= 2;
+---
+>                     final Location center = player.getLocation();
+>                     final Location n = new Location(
+>                         center.getWorld(),
+>                         auraBotXPos(time[0], rangeTmp + speed) + center.getX(),
+>                         center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
+>                         auraBotZPos(time[0], rangeTmp + speed) + center.getZ(),
+>                         (float) ypp.get(0.01, false),
+>                         (float) ypp.get(4.5, false)
+>                     );
+113,114c98,99
+<                     connection.sendPacket(new PacketPlayOutEntityTeleport(target));
+<                     connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) head));
+---
+>                     ((CraftPlayer) player).getHandle().playerConnection
+>                         .sendPacket(new PacketPlayOutEntityTeleport(target));
+117d101
+<                     float finalHead = head;
+123c107,109
+<                             Bukkit.getOnlinePlayers().parallelStream().filter(p -> p.hasPermission("psac.viewnpc"))
+---
+>                             Bukkit.getOnlinePlayers()
+>                                 .parallelStream()
+>                                 .filter(p -> p.hasPermission("psac.viewnpc"))
+128,129d113
+<                                     ((CraftPlayer) p).getHandle().playerConnection
+<                                         .sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) finalHead));
+134a119,127
+>                     now[0]++;
+>                     CheatDetectNowMeta meta = cheatMeta.getMetaByPlayerUUID(player.getUniqueId());
+>                     if (meta == null) continue;
+>                     meta.setNpcLocation(n.toVector());
+>                 }
+>                 time[0] += config.getDouble("npc.time") + (config.getBoolean("npc.speed.wave")
+>                     ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange"))
+>                         .get(0.001, true)
+>                     : 0.0);
+135a129,130
+>         };
+>         r.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, 1);
+137,138c132,135
+<                 clt[0] += 0.035;
+<                 if (clt[0] >= sec)
+---
+>         new BukkitRunnable()
+>         {
+>             @Override
+>             public void run()
+140c137
+<                     Variables.logger.info("Finished");
+---
+>                 r.cancel();
+143,144c140,141
+<             }
+<         }.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, 1);
+---
+>         }.runTaskLater(PeyangSuperbAntiCheat.getPlugin(), 20 * (config.getLong("npc.seconds")));
+> 
+148c145
+<      * AuraBotのテレポート。
+---
+>      * Aurabotのテレポート。
+188c185
+<                         (float) ypp.getStatic(),
+---
+>                         (float) ypp.get(0.01, false),
+220c217,218
+<                     ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
+---
+>                     ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange"))
+>                         .get(0.001, true)
+247c245
+<         return Math.sin(time) * radius * Math.cos(Math.PI / 180 * 360.0);
+---
+>         return Math.sin(time) * radius;
