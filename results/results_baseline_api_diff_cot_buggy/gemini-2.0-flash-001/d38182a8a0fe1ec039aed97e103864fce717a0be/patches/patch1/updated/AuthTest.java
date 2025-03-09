@@ -1,0 +1,1 @@
+.map(user -> new Authentication.User(user.name()))

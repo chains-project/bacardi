@@ -1,0 +1,19 @@
+16,17d15
+< import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector;
+< import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+29,40c27,28
+<     static ClassLoadingStrategy<ClassLoader> classLoadingStrategy(Class<?> assertClass) {
+<         if (ClassInjector.UsingReflection.isAvailable()) {
+<             return ClassLoadingStrategy.Default.INJECTION;
+<         } else if (ClassInjector.UsingLookup.isAvailable() && PRIVATE_LOOKUP_IN != null) {
+<             try {
+<                 return ClassLoadingStrategy.UsingLookup.of(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));
+<             } catch (Exception e) {
+<                 throw new IllegalStateException("Could not access package of " + assertClass, e);
+<             }
+<         } else {
+<             throw new IllegalStateException("No code generation strategy available");
+<         }
+---
+>     static ClassLoader classLoadingStrategy(Class<?> assertClass) {
+>         return Thread.currentThread().getContextClassLoader();

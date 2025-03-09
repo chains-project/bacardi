@@ -1,0 +1,1 @@
+getContainer().getLoggerManager().setThreshold( Logger.LEVEL_DEBUG );

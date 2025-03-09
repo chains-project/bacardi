@@ -1,0 +1,3 @@
+import static develop.p2p.lib.LearnMath.sigmoid;
+  ...
+  setValue(sigmoid(sum));

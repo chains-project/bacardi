@@ -1,0 +1,96 @@
+<fix_planning>
+a. Relevant parts of the code and API changes:
+- Code:
+  ```java
+  import com.mysql.jdbc.exceptions.MySQLTimeoutException;
+
+  public class MySqlQueryExceptionHandler extends QueryExceptionHandler {
+      @Override
+      public boolean isTimeoutException(final SQLException exception) {
+          return exception instanceof MySQLTimeoutException || super.isTimeoutException(exception);
+      }
+  }
+  ```
+- API Changes:
+  - `Class com.mysql.jdbc.exceptions.MySQLTimeoutException has been removed in the new version of the dependency.`
+  - `Class com.mysql.jdbc.exceptions.jdbc4.MySQLTimeoutException has been removed in the new version of the dependency.`
+  - `Interface com.mysql.cj.jdbc.exceptions.MySQLTimeoutException has been added in the new version of the dependency.`
+  - `Type reference com.mysql.cj.jdbc.exceptions.MySQLTimeoutException() has been added in the new version of the dependency.`
+
+b. Specific API changes causing the issue:
+The class `com.mysql.jdbc.exceptions.MySQLTimeoutException` has been removed. The new class is `com.mysql.cj.jdbc.exceptions.MySQLTimeoutException`.
+
+c. Affected lines of code:
+- `import com.mysql.jdbc.exceptions.MySQLTimeoutException;`
+- `return exception instanceof MySQLTimeoutException || super.isTimeoutException(exception);`
+
+d. Propose potential fixes for each affected line:
+- `import com.mysql.jdbc.exceptions.MySQLTimeoutException;`: Replace with `import com.mysql.cj.jdbc.exceptions.MySQLTimeoutException;`
+- `return exception instanceof MySQLTimeoutException || super.isTimeoutException(exception);`: Replace with `return exception instanceof com.mysql.cj.jdbc.exceptions.MySQLTimeoutException || super.isTimeoutException(exception);`
+
+e. Consider any potential side effects of the proposed changes:
+The change should not have any side effects as it is simply replacing the old class with the new one.
+
+f. Explicitly check if the proposed changes adhere to all the given constraints:
+1. Do not change the function signature of any method: The function signature remains the same.
+2. You may create variables if it simplifies the code: Not needed.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version: The method still overrides a method, so the annotation should remain.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version: The import is updated to the correct package.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error: No code is removed except the old import statement.
+6. Include all code, even unchanged portions, in your final output: All code is included.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)": No placeholder comments are used.
+
+g. Final summary of the chosen fix and why it's the best solution:
+The best solution is to replace the old import statement with the new one and update the class name in the `instanceof` check. This fixes the compilation error and ensures that the code works with the new version of the dependency.
+</fix_planning>
+
+```java
+/*
+ * Copyright 2019 Feedzai
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.feedzai.commons.sql.abstraction.engine.impl.mysql;
+
+import com.feedzai.commons.sql.abstraction.engine.handler.QueryExceptionHandler;
+
+import com.mysql.cj.jdbc.exceptions.MySQLTimeoutException;
+
+import java.sql.SQLException;
+
+/**
+ * A specific implementation of {@link QueryExceptionHandler} for MySQL engine.
+ *
+ * @author José Fidalgo (jose.fidalgo@feedzai.com)
+ * @since 2.5.1
+ */
+public class MySqlQueryExceptionHandler extends QueryExceptionHandler {
+
+    /**
+     * The MySQL error code that indicates a unique constraint violation.
+     */
+    private static final int UNIQUE_CONSTRAINT_VIOLATION_ERROR_CODE = 1062;
+
+    @Override
+    public boolean isTimeoutException(final SQLException exception) {
+        return exception instanceof com.mysql.cj.jdbc.exceptions.MySQLTimeoutException || super.isTimeoutException(exception);
+    }
+
+    @Override
+    public boolean isUniqueConstraintViolationException(final SQLException exception) {
+        return UNIQUE_CONSTRAINT_VIOLATION_ERROR_CODE == exception.getErrorCode()
+                || super.isUniqueConstraintViolationException(exception);
+    }
+}
+```

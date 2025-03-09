@@ -1,0 +1,1 @@
+if (new FilterBuilder().include(regex).apply(s)) {

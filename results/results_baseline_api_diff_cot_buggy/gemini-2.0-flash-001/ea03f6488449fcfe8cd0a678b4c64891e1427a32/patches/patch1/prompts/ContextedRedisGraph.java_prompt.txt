@@ -1,0 +1,382 @@
+You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates. Your task is to analyze the provided code, error information, and API changes, then propose and apply a patch to fix the issue while adhering to specific constraints.
+
+Here is the Java code that is failing:
+
+```java
+package com.redislabs.redisgraph.impl.api;
+
+import java.util.List;
+
+import com.redislabs.redisgraph.RedisGraphContext;
+import com.redislabs.redisgraph.ResultSet;
+import com.redislabs.redisgraph.exceptions.JRedisGraphException;
+import com.redislabs.redisgraph.impl.Utils;
+import com.redislabs.redisgraph.impl.graph_cache.RedisGraphCaches;
+import com.redislabs.redisgraph.impl.resultset.ResultSetImpl;
+
+import redis.clients.jedis.Client;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisDataException;
+import redis.clients.jedis.util.SafeEncoder;
+
+/**
+ * An implementation of RedisGraphContext. Allows sending RedisGraph and some Redis commands,
+ * within a specific connection context
+ */
+public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGraphContext, RedisGraphCacheHolder {
+
+    private final Jedis connectionContext;
+    private RedisGraphCaches caches;
+
+    /**
+     * Generates a new instance with a specific Jedis connection
+     * @param connectionContext
+     */
+    public ContextedRedisGraph(Jedis connectionContext) {
+        this.connectionContext = connectionContext;
+    }
+
+    /**
+     * Overrides the abstract method. Return the instance only connection
+     * @return
+     */
+    @Override
+    protected Jedis getConnection() {
+        return this.connectionContext;
+    }
+
+    /**
+     * Sends the query over the instance only connection
+     * @param graphId graph to be queried
+     * @param preparedQuery prepared query
+     * @return Result set with the query answer
+     */
+    @Override
+    protected ResultSet sendQuery(String graphId, String preparedQuery) {
+        Jedis conn = getConnection();
+        try {
+            @SuppressWarnings("unchecked")
+            List<Object> rawResponse = (List<Object>) conn.sendCommand(RedisGraphCommand.QUERY, graphId, preparedQuery, Utils.COMPACT_STRING);
+            return new ResultSetImpl(rawResponse, this, caches.getGraphCache(graphId));
+        } catch (JRedisGraphException rt) {
+            throw rt;
+        } catch (JedisDataException j) {
+            throw new JRedisGraphException(j);
+        }
+    }
+
+    /**
+     * Sends the read-only query over the instance only connection
+     * @param graphId graph to be queried
+     * @param preparedQuery prepared query
+     * @return Result set with the query answer
+     */
+    @Override
+    protected ResultSet sendReadOnlyQuery(String graphId, String preparedQuery) {
+        Jedis conn = getConnection();
+        try {
+            @SuppressWarnings("unchecked")
+            List<Object> rawResponse = (List<Object>) conn.sendCommand(RedisGraphCommand.RO_QUERY, graphId, preparedQuery, Utils.COMPACT_STRING);
+            return new ResultSetImpl(rawResponse, this, caches.getGraphCache(graphId));
+        } catch (JRedisGraphException ge) {
+            throw ge;
+        } catch (JedisDataException de) {
+            throw new JRedisGraphException(de);
+        }
+    }
+
+    /**
+     * Sends the query over the instance only connection
+     * @param graphId graph to be queried
+     * @param timeout
+     * @param preparedQuery prepared query
+     * @return Result set with the query answer
+     */
+    @Override
+    protected ResultSet sendQuery(String graphId, String preparedQuery, long timeout) {
+        Jedis conn = getConnection();
+        try {
+            @SuppressWarnings("unchecked")
+            List<Object> rawResponse = (List<Object>) conn.sendBlockingCommand(RedisGraphCommand.QUERY,
+                    graphId, preparedQuery, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING, Long.toString(timeout));
+            return new ResultSetImpl(rawResponse, this, caches.getGraphCache(graphId));
+        } catch (JRedisGraphException rt) {
+            throw rt;
+        } catch (JedisDataException j) {
+            throw new JRedisGraphException(j);
+        }
+    }
+
+    /**
+     * Sends the read-only query over the instance only connection
+     * @param graphId graph to be queried
+     * @param timeout
+     * @param preparedQuery prepared query
+     * @return Result set with the query answer
+     */
+    @Override
+    protected ResultSet sendReadOnlyQuery(String graphId, String preparedQuery, long timeout) {
+        Jedis conn = getConnection();
+        try {
+            @SuppressWarnings("unchecked")
+            List<Object> rawResponse = (List<Object>) conn.sendBlockingCommand(RedisGraphCommand.RO_QUERY,
+                    graphId, preparedQuery, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING, Long.toString(timeout));
+            return new ResultSetImpl(rawResponse, this, caches.getGraphCache(graphId));
+        } catch (JRedisGraphException ge) {
+            throw ge;
+        } catch (JedisDataException de) {
+            throw new JRedisGraphException(de);
+        }
+    }
+
+    /**
+     * @return Returns the instance Jedis connection.
+     */
+    @Override
+    public Jedis getConnectionContext() {
+        return this.connectionContext;
+    }
+
+    /**
+     * Creates a new RedisGraphTransaction transactional object
+     * @return new RedisGraphTransaction
+     */
+    @Override
+    public RedisGraphTransaction multi() {
+        Jedis jedis = getConnection();
+        Client client = jedis.getClient();
+        client.multi();
+        client.getOne();
+        RedisGraphTransaction transaction = new RedisGraphTransaction(client, this);
+        transaction.setRedisGraphCaches(caches);
+        return transaction;
+    }
+
+    /**
+     * Creates a new RedisGraphPipeline pipeline object
+     * @return new RedisGraphPipeline
+     */
+    @Override
+    public RedisGraphPipeline pipelined() {
+        Jedis jedis = getConnection();
+        Client client = jedis.getClient();
+        RedisGraphPipeline pipeline = new RedisGraphPipeline(client, this);
+        pipeline.setRedisGraphCaches(caches);
+        return pipeline;
+    }
+
+    /**
+     * Perfrom watch over given Redis keys
+     * @param keys
+     * @return "OK"
+     */
+    @Override
+    public String watch(String... keys) {
+        return this.getConnection().watch(keys);
+    }
+
+    /**
+     * Removes watch from all keys
+     * @return
+     */
+    @Override
+    public String unwatch() {
+        return this.getConnection().unwatch();
+    }
+
+    /**
+     * Deletes the entire graph
+     * @param graphId graph to delete
+     * @return delete running time statistics
+     */
+    @Override
+    public String deleteGraph(String graphId) {
+        Jedis conn = getConnection();
+        Object response;
+        try {
+            response = conn.sendCommand(RedisGraphCommand.DELETE, graphId);
+        } catch (Exception e) {
+            conn.close();
+            throw e;
+        }
+        //clear local state
+        caches.removeGraphCache(graphId);
+        return SafeEncoder.encode((byte[]) response);
+    }
+
+    /**
+     * closes the Jedis connection
+     */
+    @Override
+    public void close() {
+        this.connectionContext.close();
+
+    }
+
+    @Override
+    public void setRedisGraphCaches(RedisGraphCaches caches) {
+        this.caches = caches;
+    }
+
+}
+
+```
+
+The errors are triggered in the following specific line:
+
+<error_lines>
+```java
+Client client = jedis.getClient();
+```
+```java
+Client client = jedis.getClient();
+```
+```java
+import redis.clients.jedis.Client;
+```
+```java
+Client client = jedis.getClient();
+```
+```java
+Client client = jedis.getClient();
+```
+```java
+Client client = jedis.getClient();
+```
+```java
+Client client = jedis.getClient();
+```
+```java
+Client client = jedis.getClient();
+```
+```java
+Client client = jedis.getClient();
+```
+</error_lines>
+
+The API of the dependency has changed. Here are the relevant changes:
+
+     Method redis.clients.jedis.Pipeline.getClient(byte[]) has been removed in the new version of the dependency.
+     Method redis.clients.jedis.BinaryJedis.getClient() has been removed in the new version of the dependency.
+     Method redis.clients.jedis.Jedis.getClient() has been added in the new version of the dependency.
+     Method redis.clients.jedis.PipelineBase.getClient(java.lang.String) has been removed in the new version of the dependency.
+     Method redis.clients.jedis.Transaction.getClient(byte[]) has been removed in the new version of the dependency.
+     Method redis.clients.jedis.Pipeline.getClient(java.lang.String) has been removed in the new version of the dependency.
+     Method redis.clients.jedis.PipelineBase.getClient(byte[]) has been removed in the new version of the dependency.
+     Method redis.clients.jedis.ShardedJedisPipeline.getClient(java.lang.String) has been removed in the new version of the dependency.
+     Method redis.clients.jedis.Transaction.getClient(java.lang.String) has been removed in the new version of the dependency.
+     Method redis.clients.jedis.ShardedJedisPipeline.getClient(byte[]) has been removed in the new version of the dependency.
+     Interface redis.clients.jedis.Jedis has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.Jedis(redis.clients.jedis.JedisShardInfo) has been removed in the new version of the dependency.
+     Type reference redis.clients.jedis.Jedis(java.lang.String,int,redis.clients.jedis.JedisClientConfig) has been added in the new version of the dependency.
+     Type reference redis.clients.jedis.Jedis(redis.clients.jedis.Connection) has been added in the new version of the dependency.
+     Class redis.clients.jedis.Client has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.Client(redis.clients.jedis.HostAndPort,redis.clients.jedis.JedisClientConfig) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.Client(java.lang.String,int) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.Client(java.lang.String) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.Client(redis.clients.jedis.JedisSocketFactory) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.Client(java.lang.String,int,boolean,javax.net.ssl.SSLSocketFactory,javax.net.ssl.SSLParameters,javax.net.ssl.HostnameVerifier) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.Client() has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.Client(java.lang.String,int,boolean) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(java.lang.String,int) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(java.net.URI,int) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(java.lang.String,int,int,int,boolean) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(redis.clients.jedis.JedisSocketFactory,redis.clients.jedis.JedisClientConfig) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(java.lang.String,int,int,boolean) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(java.lang.String,int,redis.clients.jedis.JedisClientConfig) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(redis.clients.jedis.HostAndPort) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(java.net.URI,int,int,int,javax.net.ssl.SSLSocketFactory,javax.net.ssl.SSLParameters,javax.net.ssl.HostnameVerifier) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(java.lang.String,int,boolean,javax.net.ssl.SSLSocketFactory,javax.net.ssl.SSLParameters,javax.net.ssl.HostnameVerifier) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(java.net.URI) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(java.lang.String,int,boolean) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis() has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(java.lang.String) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(java.net.URI,int,int) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(java.net.URI,redis.clients.jedis.JedisClientConfig) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(redis.clients.jedis.HostAndPort,redis.clients.jedis.JedisClientConfig) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(java.lang.String,int,int,int) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(java.lang.String,int,int,int,int) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(redis.clients.jedis.JedisSocketFactory) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(java.lang.String,int,int,int,boolean,javax.net.ssl.SSLSocketFactory,javax.net.ssl.SSLParameters,javax.net.ssl.HostnameVerifier) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(java.net.URI,int,javax.net.ssl.SSLSocketFactory,javax.net.ssl.SSLParameters,javax.net.ssl.HostnameVerifier) has been removed in the new version of the dependency.
+     Class redis.clients.jedis.BinaryJedis has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(redis.clients.jedis.JedisShardInfo) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(java.lang.String,int,int) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(java.net.URI,int,int,javax.net.ssl.SSLSocketFactory,javax.net.ssl.SSLParameters,javax.net.ssl.HostnameVerifier) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(java.lang.String,int,int,boolean,javax.net.ssl.SSLSocketFactory,javax.net.ssl.SSLParameters,javax.net.ssl.HostnameVerifier) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(java.lang.String,int,int,int,int,boolean,javax.net.ssl.SSLSocketFactory,javax.net.ssl.SSLParameters,javax.net.ssl.HostnameVerifier) has been removed in the new version of the dependency.
+     Constructor redis.clients.jedis.BinaryJedis(java.net.URI,javax.net.ssl.SSLSocketFactory,javax.net.ssl.SSLParameters,javax.net.ssl.HostnameVerifier) has been removed in the new version of the dependency.
+
+Additional error information:
+
+<error_information>
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/ContextedRedisGraph.java:[157,9] cannot find symbol
+  symbol:   class Client
+  location: class com.redislabs.redisgraph.impl.api.ContextedRedisGraph
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/ContextedRedisGraph.java:[157,9] cannot find symbol
+  symbol:   class Client
+  location: class com.redislabs.redisgraph.impl.api.ContextedRedisGraph
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/ContextedRedisGraph.java:[12,27] cannot find symbol
+  symbol:   class Client
+  location: package redis.clients.jedis
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/ContextedRedisGraph.java:[142,9] cannot find symbol
+  symbol:   class Client
+  location: class com.redislabs.redisgraph.impl.api.ContextedRedisGraph
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/ContextedRedisGraph.java:[142,9] cannot find symbol
+  symbol:   class Client
+  location: class com.redislabs.redisgraph.impl.api.ContextedRedisGraph
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/ContextedRedisGraph.java:[157,9] cannot find symbol
+  symbol:   class Client
+  location: class com.redislabs.redisgraph.impl.api.ContextedRedisGraph
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/ContextedRedisGraph.java:[142,9] cannot find symbol
+  symbol:   class Client
+  location: class com.redislabs.redisgraph.impl.api.ContextedRedisGraph
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/ContextedRedisGraph.java:[157,9] cannot find symbol
+  symbol:   class Client
+  location: class com.redislabs.redisgraph.impl.api.ContextedRedisGraph
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/impl/api/ContextedRedisGraph.java:[142,9] cannot find symbol
+  symbol:   class Client
+  location: class com.redislabs.redisgraph.impl.api.ContextedRedisGraph
+<error_information>
+
+Your task is to fix the issue by modifying only the client code. Follow these steps:
+
+1. Analyze the problem and propose changes by wrapping the work inside fix_planning tags. This analysis is for your internal use only and will not be included in the final output. In your analysis:
+   a. Quote relevant parts of the code and API changes
+   b. Identify the specific API changes causing the issue
+   c. List the affected lines of code
+   d. Propose potential fixes for each affected line
+   e. Consider any potential side effects of the proposed changes
+   f. Explicitly check if the proposed changes adhere to all the given constraints
+   g. Provide a final summary of the chosen fix and why it's the best solution
+
+2. Apply the fix to the Java code.
+
+3. Output the complete, fixed Java class in a fenced code block. This should be the only visible output in your response.
+
+Constraints:
+1. Do not change the function signature of any method.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error.
+6. Include all code, even unchanged portions, in your final output.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
+
+Your final output should only contain the complete, fixed Java class in a fenced code block, without any explanations or analysis visible. The <fix_planning> section is for your internal use only.
+
+Example output structure:
+
+```java
+[Complete, fixed Java class]
+```
+
+Please proceed with your analysis and solution.

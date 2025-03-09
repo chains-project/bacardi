@@ -1,0 +1,2 @@
+final org.flywaydb.core.api.configuration.ClassicConfiguration configuration = new org.flywaydb.core.api.configuration.ClassicConfiguration();
+    final org.flywaydb.core.Flyway flyway = new org.flywaydb.core.Flyway(configuration);

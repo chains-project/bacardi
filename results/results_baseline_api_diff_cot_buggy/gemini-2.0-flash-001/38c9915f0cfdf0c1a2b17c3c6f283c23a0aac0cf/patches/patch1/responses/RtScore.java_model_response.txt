@@ -1,0 +1,95 @@
+<fix_planning>
+a. Code and API changes:
+- Code: `import org.cactoos.iterable.LengthOf;` and `new LengthOf(other.suffixes()).intValue()` and `new LengthOf(this.sfxs).intValue()`
+- API Changes: `Class org.cactoos.iterable.LengthOf has been removed in the new version of the dependency.` and `Type reference org.cactoos.scalar.LengthOf(java.lang.Iterable) has been added in the new version of the dependency.`
+
+b. Specific API changes causing the issue:
+The class `org.cactoos.iterable.LengthOf` has been removed, and `org.cactoos.scalar.LengthOf` has been added, which takes an Iterable as an argument.
+
+c. Affected lines of code:
+- `import org.cactoos.iterable.LengthOf;`
+- `return new LengthOf(other.suffixes()).intValue()`
+- ` - new LengthOf(this.sfxs).intValue();`
+
+d. Proposed fixes:
+- Replace `import org.cactoos.iterable.LengthOf;` with `import org.cactoos.scalar.LengthOf;`
+- Replace `new LengthOf(other.suffixes()).intValue()` with `new LengthOf(other.suffixes()).value()`
+- Replace `new LengthOf(this.sfxs).intValue()` with `new LengthOf(this.sfxs).value()`
+
+e. Potential side effects:
+The return type of `LengthOf.value()` might be different from `LengthOf.intValue()`. However, in this case, it returns an `int`, so there should be no side effects.
+
+f. Adherence to constraints:
+1. The function signature of `compareTo` is not changed.
+2. No variables are created.
+3. The `@Override` annotation is kept as the method still overrides a method in the interface.
+4. The correct package `org.cactoos.scalar` is used.
+5. No existing code is removed unless it directly causes a compilation error.
+6. All code is included in the final output.
+
+g. Summary:
+The best solution is to replace the import statement and use the new `LengthOf` class from `org.cactoos.scalar` and call the `value()` method instead of `intValue()`. This fixes the compilation error and maintains the original functionality.
+</fix_planning>
+
+```java
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2018-2023 Yegor Bugayenko
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package io.zold.api;
+
+import org.cactoos.Text;
+import org.cactoos.scalar.LengthOf;
+
+/**
+ * Default implementation for {@link Score}.
+ *
+ * @since 1.0
+ */
+public final class RtScore implements Score {
+
+    /**
+     * The suffixes.
+     */
+    private final Iterable<Text> sfxs;
+
+    /**
+     * Ctor.
+     *
+     * @param sfxs The suffixes.
+     */
+    RtScore(final Iterable<Text> sfxs) {
+        this.sfxs = sfxs;
+    }
+
+    @Override
+    public int compareTo(final Score other) {
+        return new LengthOf(other.suffixes()).value()
+            - new LengthOf(this.sfxs).value();
+    }
+
+    @Override
+    public Iterable<Text> suffixes() {
+        return this.sfxs;
+    }
+}
+```

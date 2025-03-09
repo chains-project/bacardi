@@ -1,0 +1,77 @@
+3d2
+< import de.gwdg.metadataqa.api.json.JsonBranch;
+67,68c66,70
+<     for (JsonBranch branch : schema.getPaths()) {
+<       if (branch.getParent() != null)
+---
+>     for (String jsonPath : schema.getPaths()) {
+>       // Assuming schema.getPaths() returns a List<String> of JSON paths
+>       String label = getLabelFromPath(jsonPath); // Implement getLabelFromPath if needed
+> 
+>       if (getParentFromPath(jsonPath) != null) // Implement getParentFromPath if needed
+70c72,73
+<       switch (branch.getLabel()) {
+---
+> 
+>       switch (label) {
+72c75
+<           marcRecord.setLeader(new Leader(extractFirst(cache, branch)));
+---
+>           marcRecord.setLeader(new Leader(extractFirst(cache, jsonPath)));
+75c78
+<           marcRecord.setControl001(new Control001(extractFirst(cache, branch)));
+---
+>           marcRecord.setControl001(new Control001(extractFirst(cache, jsonPath)));
+78c81
+<           marcRecord.setControl003(new Control003(extractFirst(cache, branch)));
+---
+>           marcRecord.setControl003(new Control003(extractFirst(cache, jsonPath)));
+81c84
+<           marcRecord.setControl005(new Control005(extractFirst(cache, branch), marcRecord));
+---
+>           marcRecord.setControl005(new Control005(extractFirst(cache, jsonPath), marcRecord));
+85c88
+<             new Control006(extractFirst(cache, branch), marcRecord));
+---
+>             new Control006(extractFirst(cache, jsonPath), marcRecord));
+89c92
+<             new Control007(extractFirst(cache, branch), marcRecord));
+---
+>             new Control007(extractFirst(cache, jsonPath), marcRecord));
+93c96
+<             new Control008(extractFirst(cache, branch), marcRecord));
+---
+>             new Control008(extractFirst(cache, jsonPath), marcRecord));
+96c99
+<           JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());
+---
+>           JSONArray fieldInstances = (JSONArray) cache.getFragment(jsonPath);
+104c107
+<               marcRecord.addUnhandledTags(branch.getLabel());
+---
+>               marcRecord.addUnhandledTags(label);
+112a116,127
+>   private static String getLabelFromPath(String jsonPath) {
+>     // Implement logic to extract the label from the JSON path
+>     // This is a placeholder implementation
+>     return jsonPath;
+>   }
+> 
+>   private static String getParentFromPath(String jsonPath) {
+>     // Implement logic to extract the parent from the JSON path
+>     // This is a placeholder implementation
+>     return null;
+>   }
+> 
+313,314c328,329
+<   private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
+<     List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());
+---
+>   private static List<String> extractList(JsonPathCache cache, String jsonPath) {
+>     List<XmlFieldInstance> instances = cache.get(jsonPath);
+322,323c337,338
+<   private static String extractFirst(JsonPathCache cache, JsonBranch branch) {
+<     List<String> list = extractList(cache, branch);
+---
+>   private static String extractFirst(JsonPathCache cache, String jsonPath) {
+>     List<String> list = extractList(cache, jsonPath);

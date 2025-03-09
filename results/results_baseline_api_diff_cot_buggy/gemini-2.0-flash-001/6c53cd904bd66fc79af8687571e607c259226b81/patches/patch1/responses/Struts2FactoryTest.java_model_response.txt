@@ -1,0 +1,126 @@
+<fix_planning>
+a. Relevant parts of the code and API changes:
+- Code:
+```java
+import org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter;
+...
+bind(StrutsPrepareAndExecuteFilter.class)
+...
+filter("/*").through(StrutsPrepareAndExecuteFilter.class);
+```
+- API Changes:
+```
+Class org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter has been removed in the new version of the dependency.
+Type reference org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter() has been added in the new version of the dependency.
+```
+
+b. Specific API changes causing the issue:
+The class `org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter` has been removed and replaced by `org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter`.
+
+c. Affected lines of code:
+- Line 19: `import org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter;`
+- Line 55: `bind(StrutsPrepareAndExecuteFilter.class)`
+- Line 57: `filter("/*").through(StrutsPrepareAndExecuteFilter.class);`
+
+d. Proposed potential fixes for each affected line:
+- Line 19: Replace the import with `import org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter;`
+- Line 55: Replace `StrutsPrepareAndExecuteFilter.class` with `org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter.class`
+- Line 57: Replace `StrutsPrepareAndExecuteFilter.class` with `org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter.class`
+
+e. Consider any potential side effects of the proposed changes:
+The change should not have any side effects as it is simply replacing the old class with the new one.
+
+f. Explicitly check if the proposed changes adhere to all the given constraints:
+1. Do not change the function signature of any method: The proposed changes do not modify any method signatures.
+2. You may create variables if it simplifies the code: The proposed changes do not require creating new variables.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version: The proposed changes do not affect the `@Override` annotation.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version: The proposed changes address the missing import by using the correct package and class.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error: The proposed changes only modify the import statement and class references, and do not remove any other code.
+6. Include all code, even unchanged portions, in your final output: The final output will include all code.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)": The final output will not contain any placeholder comments.
+
+g. Final summary of the chosen fix and why it's the best solution:
+The best solution is to replace the old class `org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter` with the new class `org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter` in the import statement and in the `bind` and `filter` methods. This resolves the compilation errors caused by the API change in the dependency.
+</fix_planning>
+
+```java
+/*
+ * Copyright (C) 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.inject.struts2;
+
+import org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.Provides;
+import com.google.inject.servlet.GuiceServletContextListener;
+import com.google.inject.servlet.ServletModule;
+import java.util.Date;
+import junit.framework.TestCase;
+
+/**
+ * Test for Struts2Factory
+ *
+ * @author benmccann.com
+ */
+public class Struts2FactoryTest extends TestCase {
+
+  private static final Date TODAY = new Date();
+
+  public static class TestListener extends GuiceServletContextListener {
+
+    private final Module module;
+
+    public TestListener(Module module) {
+      this.module = module;
+    }
+
+    @Override
+    protected Injector getInjector() {
+      return Guice.createInjector(
+          new Struts2GuicePluginModule(),
+          new ServletModule() {
+            @Override
+            protected void configureServlets() {
+              // Struts 2 setup
+              bind(StrutsPrepareAndExecuteFilter.class)
+                  .in(com.google.inject.Singleton.class);
+              filter("/*").through(StrutsPrepareAndExecuteFilter.class);
+            }
+          },
+          module);
+    }
+  }
+
+  public void testStruts2Factory() {
+    Struts2Factory s2Factory = new Struts2Factory();
+    TestListener testListener =
+        new TestListener(
+            new AbstractModule() {
+
+              @Provides
+              @SuppressWarnings("unused")
+              Date provideDate() {
+                return TODAY;
+              }
+            });
+    assertEquals(TODAY, testListener.getInjector().getInstance(Date.class));
+    assertEquals(TODAY, s2Factory.buildBean(Date.class, null));
+  }
+}
+```

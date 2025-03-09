@@ -1,0 +1,99 @@
+<fix_planning>
+a. Relevant code and API changes:
+- Code: `Constructor yamlTargetClass = new Constructor(Configuration.class);`
+- API Changes:
+  - `Constructor org.yaml.snakeyaml.constructor.Constructor(org.yaml.snakeyaml.TypeDescription) has been removed`
+  - `Constructor org.yaml.snakeyaml.constructor.Constructor(java.lang.Class) has been removed`
+  - `Constructor org.yaml.snakeyaml.constructor.Constructor(org.yaml.snakeyaml.LoaderOptions) has been added`
+  - `Constructor org.yaml.snakeyaml.constructor.Constructor(java.lang.Class,org.yaml.snakeyaml.LoaderOptions) has been added`
+  - Several other constructors have been added/removed, but these are the most relevant.
+
+b. Specific API changes causing the issue:
+The constructor `Constructor(java.lang.Class)` has been removed. The code is using `new Constructor(Configuration.class)` which is no longer valid.
+
+c. Affected lines of code:
+- Line 39: `Constructor yamlTargetClass = new Constructor(Configuration.class);`
+
+d. Proposed potential fixes:
+1. Use the default constructor `new Constructor()`. This might work if SnakeYAML can automatically infer the type from the YAML structure. However, this constructor has also been removed.
+2. Use `new Constructor(LoaderOptions)`. This requires creating a `LoaderOptions` object.
+3. Use `new Constructor(Configuration.class, LoaderOptions)`. This requires creating a `LoaderOptions` object.
+
+e. Potential side effects of the proposed changes:
+1. Using the default constructor might lead to incorrect type mapping if SnakeYAML cannot infer the types correctly.
+2. Using `LoaderOptions` might require additional configuration to ensure correct behavior.
+
+f. Adherence to constraints:
+- All proposed changes adhere to the constraint of not changing the function signature of any method.
+- The changes involve modifying only the client code.
+
+g. Final summary of the chosen fix:
+The best solution is to use the `new Constructor(Configuration.class, new LoaderOptions())` constructor. This explicitly tells SnakeYAML the target class and provides default loading options. This approach avoids potential issues with type inference and ensures compatibility with the updated API.
+
+</fix_planning>
+
+```java
+package io.simplelocalize.cli.configuration;
+
+import io.simplelocalize.cli.exception.ConfigurationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.LoaderOptions;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+
+public final class ConfigurationLoader
+{
+
+  private static final Path DEFAULT_CONFIG_FILE_NAME = Path.of("simplelocalize.yml");
+
+  private final Logger log = LoggerFactory.getLogger(ConfigurationLoader.class);
+
+  public Configuration loadOrGetDefault(Path configurationFilePath)
+  {
+    ConfigurationLoader configurationLoader = new ConfigurationLoader();
+
+    if (configurationFilePath == null)
+    {
+      configurationFilePath = DEFAULT_CONFIG_FILE_NAME;
+    }
+
+    return configurationLoader.load(configurationFilePath);
+  }
+
+  private Configuration load(Path configurationFilePath)
+  {
+    File file = new File(URLDecoder.decode(String.valueOf(configurationFilePath.toFile()), StandardCharsets.UTF_8));
+    Constructor yamlTargetClass = new Constructor(Configuration.class, new LoaderOptions());
+    Yaml yaml = new Yaml(yamlTargetClass);
+
+    log.info("Loading configuration file from: {}", configurationFilePath);
+    Configuration configuration;
+    try
+    {
+      InputStream inputStream = new FileInputStream(file);
+      configuration = yaml.load(inputStream);
+      log.info("Configuration file loaded successfully");
+    } catch (FileNotFoundException e)
+    {
+      log.info("Configuration file not present");
+      return new Configuration();
+    } catch (Exception e)
+    {
+      log.error("Unable to load configuration: {}", e.getMessage());
+      throw new ConfigurationException();
+    }
+    return configuration;
+
+  }
+
+}
+```

@@ -1,0 +1,1 @@
+Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);

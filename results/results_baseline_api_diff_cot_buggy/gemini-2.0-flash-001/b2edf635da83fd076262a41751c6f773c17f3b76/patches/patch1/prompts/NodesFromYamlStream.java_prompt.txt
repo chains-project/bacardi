@@ -1,0 +1,180 @@
+You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates. Your task is to analyze the provided code, error information, and API changes, then propose and apply a patch to fix the issue while adhering to specific constraints.
+
+Here is the Java code that is failing:
+
+```java
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jclouds.byon.functions;
+
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Throwables.propagate;
+import static org.jclouds.util.Closeables2.closeQuietly;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Singleton;
+
+import org.jclouds.byon.Node;
+import org.jclouds.byon.domain.YamlNode;
+import org.yaml.snakeyaml.TypeDescription;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
+import com.google.common.io.ByteSource;
+
+/**
+ * Parses the following syntax.
+ * 
+ * <pre>
+ * nodes:
+ *     - id: cluster-1:
+ *       name: cluster-1
+ *       description: xyz
+ *       hostname: cluster-1.mydomain.com
+ *       location_id: virginia
+ *       os_arch: x86
+ *       os_family: linux
+ *       os_description: redhat
+ *       os_version: 5.3
+ *       group: hadoop
+ *       tags:
+ *           - vanilla
+ *       username: kelvin
+ *       credential: password_or_rsa
+ *         or
+ *       credential_url: password_or_rsa_file ex. resource:///id_rsa will get the classpath /id_rsa; file://path/to/id_rsa
+ *       sudo_password: password
+ * </pre>
+ */
+@Singleton
+public class NodesFromYamlStream implements Function<ByteSource, LoadingCache<String, Node>> {
+
+   /**
+    * Type-safe config class for YAML
+    * 
+    */
+   public static class Config {
+      public List<YamlNode> nodes;
+   }
+
+   @Override
+   public LoadingCache<String, Node> apply(ByteSource source) {
+
+      Constructor constructor = new Constructor(Config.class);
+
+      TypeDescription nodeDesc = new TypeDescription(YamlNode.class);
+      nodeDesc.putListPropertyType("tags", String.class);
+      constructor.addTypeDescription(nodeDesc);
+
+      TypeDescription configDesc = new TypeDescription(Config.class);
+      configDesc.putListPropertyType("nodes", YamlNode.class);
+      constructor.addTypeDescription(configDesc);
+      Yaml yaml = new Yaml(constructor);
+      Config config;
+      InputStream in = null;
+      try {
+         in = source.openStream();
+         config = (Config) yaml.load(in);
+      } catch (IOException ioe) {
+         throw propagate(ioe);
+      } finally {
+         closeQuietly(in);
+      }
+      checkState(config != null, "missing config: class");
+      checkState(config.nodes != null, "missing nodes: collection");
+
+      Map<String, Node> backingMap = Maps.uniqueIndex(Iterables.transform(config.nodes, YamlNode.toNode),
+            new Function<Node, String>() {
+               public String apply(Node node) {
+                  return node.getId();
+               }
+            });
+      LoadingCache<String, Node> cache = CacheBuilder.newBuilder().build(CacheLoader.from(Functions.forMap(backingMap)));
+      for (String node : backingMap.keySet())
+         cache.getUnchecked(node);
+      return cache;
+   }
+}
+
+```
+
+The error is triggered in the following specific lines:
+
+<error_lines>
+```java
+Constructor constructor = new Constructor(Config.class);
+```
+</error_lines>
+
+The API of the dependency has changed. Here are the relevant changes:
+
+     Constructor org.yaml.snakeyaml.constructor.Constructor() has been removed in the new version of the dependency.
+     Constructor org.yaml.snakeyaml.constructor.Constructor(org.yaml.snakeyaml.TypeDescription,java.util.Collection) has been removed in the new version of the dependency.
+     Constructor org.yaml.snakeyaml.constructor.Constructor(java.lang.Class) has been removed in the new version of the dependency.
+     Constructor org.yaml.snakeyaml.constructor.Constructor(org.yaml.snakeyaml.TypeDescription) has been removed in the new version of the dependency.
+     Constructor org.yaml.snakeyaml.constructor.Constructor(java.lang.String) has been removed in the new version of the dependency.
+
+Additional error information:
+
+<error_information>
+[ERROR] /jclouds/apis/byon/src/main/java/org/jclouds/byon/functions/NodesFromYamlStream.java:[83,55] incompatible types: java.lang.Class<org.jclouds.byon.functions.NodesFromYamlStream.Config> cannot be converted to org.yaml.snakeyaml.LoaderOptions
+<error_information>
+
+Your task is to fix the issue by modifying only the client code. Follow these steps:
+
+1. Analyze the problem and propose changes by wrapping the work inside fix_planning tags. This analysis is for your internal use only and will not be included in the final output. In your analysis:
+   a. Quote relevant parts of the code and API changes
+   b. Identify the specific API changes causing the issue
+   c. List the affected lines of code
+   d. Propose potential fixes for each affected line
+   e. Consider any potential side effects of the proposed changes
+   f. Explicitly check if the proposed changes adhere to all the given constraints
+   g. Provide a final summary of the chosen fix and why it's the best solution
+
+2. Apply the fix to the Java code.
+
+3. Output the complete, fixed Java class in a fenced code block. This should be the only visible output in your response.
+
+Constraints:
+1. Do not change the function signature of any method.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error.
+6. Include all code, even unchanged portions, in your final output.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
+
+Your final output should only contain the complete, fixed Java class in a fenced code block, without any explanations or analysis visible. The <fix_planning> section is for your internal use only.
+
+Example output structure:
+
+```java
+[Complete, fixed Java class]
+```
+
+Please proceed with your analysis and solution.

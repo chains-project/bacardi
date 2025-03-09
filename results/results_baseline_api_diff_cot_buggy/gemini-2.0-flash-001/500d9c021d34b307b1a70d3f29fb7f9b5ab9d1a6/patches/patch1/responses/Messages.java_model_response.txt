@@ -1,0 +1,68 @@
+<fix_planning>
+The error message indicates that the class `javax.mvc.MvcContext` cannot be found. The API changes confirm that this class has been removed. The affected line is:
+
+```java
+private MvcContext mvcContext;
+```
+
+The code uses `MvcContext` to get the locale for the current request. Since `MvcContext` is no longer available, we need to find an alternative way to obtain the locale.  A common way to get the locale in a Java EE environment is through `javax.servlet.http.HttpServletRequest`. We can inject `HttpServletRequest` and use its `getLocale()` method.
+
+Here's the proposed fix:
+
+1.  Remove the `@Inject private MvcContext mvcContext;` line.
+2.  Inject `HttpServletRequest` instead: `@Inject private HttpServletRequest request;`
+3.  Replace `mvcContext.getLocale()` with `request.getLocale()` in the `get` method.
+4.  Add the necessary import statement: `import javax.servlet.http.HttpServletRequest;`
+
+This approach adheres to the constraints:
+
+*   It doesn't change any function signatures.
+*   It introduces a new variable (`request`).
+*   It adds a necessary import.
+*   It only removes code that directly causes a compilation error.
+
+Final Summary: The best solution is to replace the usage of the removed `MvcContext` with `HttpServletRequest` to obtain the locale. This involves injecting `HttpServletRequest`, using its `getLocale()` method, and adding the corresponding import statement.
+</fix_planning>
+
+```java
+import java.util.ResourceBundle;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
+//https://www.mvc-spec.org/learn/cookbook/multilang_en.html
+/**
+ * Provides I18n messages for the UI per request. To get the correct locale, the method {@link MvcContext#getLocale()}
+ * is used. This method uses the built-in {@link javax.mvc.locale.LocaleResolver} of the used MVC Implementation.
+ *
+ * @author Tobias Erdle
+ * @see MvcContext#getLocale()
+ * @see javax.mvc.locale.LocaleResolver
+ */
+@RequestScoped
+@Named("msg")
+public class Messages {
+
+    private static final String BASE_NAME = "messages";
+
+    @Inject
+    private HttpServletRequest request;
+
+    /**
+     * Get the assigned message to some key based on the {@link java.util.Locale} of the current request.
+     *
+     * @param key the message key to use
+     * @return the correct translation assigned to the key for the request locale, a fallback translation or a
+     * placeholder for unknown keys.
+     */
+    public final String get(final String key) {
+        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, request.getLocale());
+
+        return bundle.containsKey(key) ? bundle.getString(key) : formatUnknownKey(key);
+    }
+
+    private static String formatUnknownKey(final String key) {
+        return String.format("???%s???", key);
+    }
+}
+```

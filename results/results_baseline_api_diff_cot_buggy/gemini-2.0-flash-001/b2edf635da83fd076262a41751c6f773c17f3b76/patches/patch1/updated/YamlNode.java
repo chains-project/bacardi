@@ -1,0 +1,1 @@
+return (YamlNode) new Yaml(new Constructor(YamlNode.class)).load(in);

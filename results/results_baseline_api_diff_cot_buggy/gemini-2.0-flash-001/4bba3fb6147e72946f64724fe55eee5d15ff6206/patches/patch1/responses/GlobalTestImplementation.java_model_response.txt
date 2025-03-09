@@ -1,0 +1,61 @@
+<fix_planning>
+a. Code and API changes:
+The code uses `javax.annotation.Priority` which has been removed. The new dependency provides `jakarta.annotation.Priority`.
+
+b. Specific API changes causing the issue:
+The removal of `javax.annotation.Priority` and the addition of `jakarta.annotation.Priority`.
+
+c. Affected lines of code:
+- `import javax.annotation.Priority;`
+- `@Priority(100)`
+
+d. Proposed fixes:
+1. Replace `import javax.annotation.Priority;` with `import jakarta.annotation.Priority;` and `@Priority(100)` with `@jakarta.annotation.Priority(100)`.
+
+e. Potential side effects:
+The change should not have any side effects as it's a direct replacement of the annotation.
+
+f. Adherence to constraints:
+1. The function signature is not changed.
+2. No variables are created.
+3. The `@Override` annotation is not present.
+4. The correct package is used.
+5. No existing code is removed unless it directly causes a compilation error.
+6. All code is included in the final output.
+
+g. Final summary:
+The best solution is to replace the import statement and annotation to use the new `jakarta.annotation.Priority`. This directly addresses the compilation error caused by the API change.
+</fix_planning>
+
+```java
+package de.hilling.junit.cdi.annotations;
+
+import de.hilling.junit.cdi.scope.TestScoped;
+import org.immutables.value.Value;
+
+import jakarta.annotation.Priority;
+import javax.enterprise.inject.Alternative;
+import javax.enterprise.inject.Stereotype;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+/**
+ * Use this annotation to mark Alternatives that should globally replace
+ * production implementations.
+ * <p>
+ *     These services cannot be disabled or enabled on a per test basis
+ *     because the container is only started once.
+ * </p>
+ */
+@Alternative
+@TestScoped
+@Stereotype
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+@Priority(100)
+@Value.Immutable
+public @interface GlobalTestImplementation {
+}
+```

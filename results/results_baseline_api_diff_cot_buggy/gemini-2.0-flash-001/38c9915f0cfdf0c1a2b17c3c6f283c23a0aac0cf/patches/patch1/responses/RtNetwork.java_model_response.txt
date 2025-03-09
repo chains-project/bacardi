@@ -1,0 +1,115 @@
+<fix_planning>
+a. Relevant parts of the code and API changes:
+- Code: `import org.cactoos.scalar.IoCheckedScalar;` and the use of `new IoCheckedScalar<>(...)`
+- API Changes: `Class org.cactoos.scalar.IoCheckedScalar has been removed in the new version of the dependency.` and `Constructor org.cactoos.scalar.IoCheckedScalar(org.cactoos.Scalar) has been removed in the new version of the dependency.`
+
+b. Specific API changes causing the issue:
+The class `org.cactoos.scalar.IoCheckedScalar` has been removed.
+
+c. Affected lines of code:
+- `import org.cactoos.scalar.IoCheckedScalar;`
+- `return new IoCheckedScalar<>( ... ).value();`
+
+d. Proposed potential fixes:
+Since `IoCheckedScalar` is removed, we need to find an alternative. `org.cactoos.scalar.Unchecked` seems like a suitable replacement as it provides similar functionality of unwrapping a Scalar and throwing an exception if one occurs.
+
+1. Replace `IoCheckedScalar` with `Unchecked`. This involves changing the import statement and the instantiation.
+
+e. Potential side effects of the proposed changes:
+- `Unchecked` might handle exceptions differently than `IoCheckedScalar`. We need to ensure that the exception handling is still appropriate for the context.
+
+f. Adherence to constraints:
+1. We are not changing any function signatures.
+2. We can create variables if needed.
+3. We are removing the import statement and replacing the class instantiation.
+4. We are using the correct package for the replacement class.
+5. We are not removing any code unless it directly causes a compilation error.
+6. We are including all code in the final output.
+
+g. Final summary of the chosen fix:
+The best solution is to replace `IoCheckedScalar` with `Unchecked`. This addresses the compilation error caused by the removal of `IoCheckedScalar` from the cactoos library. We will also need to update the import statement accordingly.
+</fix_planning>
+
+```java
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2018-2023 Yegor Bugayenko
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package io.zold.api;
+
+import java.io.IOException;
+import java.util.Iterator;
+import org.cactoos.iterable.Mapped;
+import org.cactoos.iterable.Sorted;
+import org.cactoos.scalar.Reduced;
+import org.cactoos.scalar.Unchecked;
+
+/**
+ * Network implementation.
+ *
+ * @since 0.1
+ * @todo #5:30min We must figure out how to 'load' some network. Loading the
+ *  network will be loading a local JSON file that contains data on all
+ *  remote nodes that we know about; we must have a pre configured set of
+ *  remote nodes built in too. See whitepaper for details.
+ */
+public final class RtNetwork implements Network {
+
+    /**
+     * {@link Remote} nodes.
+     */
+    private final Iterable<Remote> nodes;
+
+    /**
+     * Constructor.
+     * @param remotes Remotes of the network
+     */
+    RtNetwork(final Iterable<Remote> remotes) {
+        this.nodes =  remotes;
+    }
+
+    @Override
+    public void push(final Wallet wallet) {
+        this.nodes.forEach(
+            remote -> remote.push(wallet)
+        );
+    }
+
+    @Override
+    public Wallet pull(final long id) throws IOException {
+        return new Unchecked<>(
+            new Reduced<>(
+                Wallet::merge,
+                new Mapped<>(
+                    c -> c::wallet,
+                    new Sorted<>(new Copies(id, this))
+                )
+            )
+        ).value();
+    }
+
+    @Override
+    public Iterator<Remote> iterator() {
+        return this.nodes.iterator();
+    }
+}
+```

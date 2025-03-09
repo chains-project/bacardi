@@ -1,0 +1,3 @@
+import com.jcabi.aspects.Tv;
+...
+final String data = RandomStringUtils.random(Tv.HUNDRED * Tv.THOUSAND);

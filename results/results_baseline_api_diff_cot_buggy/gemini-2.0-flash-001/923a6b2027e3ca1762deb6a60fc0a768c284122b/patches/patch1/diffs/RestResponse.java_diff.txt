@@ -1,0 +1,26 @@
+20,21c20,21
+<  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+<  * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+---
+>  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+>  * COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+48c48,52
+< import org.hamcrest.Matchers;
+---
+> import org.hamcrest.core.IsCollectionContaining;
+> import org.hamcrest.core.IsNull;
+> import org.hamcrest.core.IsNot;
+> import org.hamcrest.core.StringContains;
+> import org.hamcrest.collection.IsEmptyIterable;
+210c214
+<         return this.assertHeader(name, Matchers.hasItems(value));
+---
+>         return this.assertHeader(name, IsCollectionContaining.hasItems(value));
+246c250
+<             Matchers.not(Matchers.emptyIterableOf(String.class))
+---
+>             IsNot.not(IsEmptyIterable.emptyIterable())
+284c288
+<             Matchers.notNullValue()
+---
+>             IsNull.notNullValue()

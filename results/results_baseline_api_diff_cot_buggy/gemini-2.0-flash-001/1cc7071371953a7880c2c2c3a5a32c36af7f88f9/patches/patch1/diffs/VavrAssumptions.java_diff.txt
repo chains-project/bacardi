@@ -1,0 +1,113 @@
+7c7
+<  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+---
+>  * Unless required by applicable law or agreed to in writing, software is distributed on
+24,33d23
+< import org.assertj.core.internal.bytebuddy.ByteBuddy;
+< import org.assertj.core.internal.bytebuddy.TypeCache;
+< import org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey;
+< import org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeValidation;
+< import org.assertj.core.internal.bytebuddy.implementation.Implementation;
+< import org.assertj.core.internal.bytebuddy.implementation.MethodDelegation;
+< import org.assertj.core.internal.bytebuddy.implementation.auxiliary.AuxiliaryType;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.RuntimeType;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This;
+36d25
+< import java.lang.reflect.Constructor;
+40d28
+< import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any;
+42d29
+< import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrategy;
+46,56d32
+<     /**
+<      * This NamingStrategy takes the original class's name and adds a suffix to distinguish it.
+<      * The default is ByteBuddy but for debugging purposes, it makes sense to add AssertJ as a name.
+<      */
+<     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(TypeValidation.DISABLED)
+<             .with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
+< 
+<     private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
+< 
+<     private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
+< 
+59,60c35
+<         @RuntimeType
+<         public static Object intercept(@This AbstractVavrAssert<?, ?> assertion, @SuperCall Callable<Object> proxy) throws Exception {
+---
+>         public static Object intercept(AbstractVavrAssert<?, ?> assertion, Callable<Object> proxy) throws Exception {
+85c60
+<         return asAssumption(EitherAssert.class, Either.class, actual);
+---
+>         return new EitherAssert<>(actual);
+98c73
+<         return asAssumption(LazyAssert.class, Lazy.class, actual);
+---
+>         return new LazyAssert<>(actual);
+112c87
+<         return asAssumption(MapAssert.class, Map.class, actual);
+---
+>         return new MapAssert<>(actual);
+126c101
+<         return asAssumption(MultimapAssert.class, Multimap.class, actual);
+---
+>         return new MultimapAssert<>(actual);
+139c114
+<         return asAssumption(OptionAssert.class, Option.class, actual);
+---
+>         return new OptionAssert<>(actual);
+152c127
+<         return asAssumption(SetAssert.class, Set.class, actual);
+---
+>         return new SetAssert<>(actual);
+165c140
+<         return asAssumption(SeqAssert.class, Seq.class, actual);
+---
+>         return new SeqAssert<>(actual);
+178c153
+<         return asAssumption(TryAssert.class, Try.class, actual);
+---
+>         return new TryAssert<>(actual);
+192c167
+<         return asAssumption(ValidationAssert.class, Validation.class, actual);
+---
+>         return new ValidationAssert<>(actual);
+205,206c180
+<             Class<? extends ASSERTION> type = createAssumptionClass(assertionType);
+<             Constructor<? extends ASSERTION> constructor = type.getConstructor(constructorTypes);
+---
+>             java.lang.reflect.Constructor<? extends ASSERTION> constructor = assertionType.getConstructor(constructorTypes);
+213,229d186
+<     @SuppressWarnings("unchecked")
+<     private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass) {
+<         SimpleKey cacheKey = new SimpleKey(assertClass);
+<         return (Class<ASSERTION>) CACHE.findOrInsert(VavrAssumptions.class.getClassLoader(),
+<                 cacheKey,
+<                 () -> generateAssumptionClass(assertClass));
+<     }
+< 
+<     private static <ASSERTION> Class<? extends ASSERTION> generateAssumptionClass(Class<ASSERTION> assertionType) {
+<         return BYTE_BUDDY.subclass(assertionType)
+<                 .method(any())
+<                 .intercept(ASSUMPTION)
+<                 .make()
+<                 .load(VavrAssumptions.class.getClassLoader(), classLoadingStrategy(assertionType))
+<                 .getLoaded();
+<     }
+< 
+261,267c218,224
+<         if (assertion instanceof LazyAssert) return asAssumption(LazyAssert.class, Lazy.class, actual);
+<         if (assertion instanceof EitherAssert) return asAssumption(EitherAssert.class, Either.class, actual);
+<         if (assertion instanceof MapAssert) return asAssumption(MapAssert.class, Map.class, actual);
+<         if (assertion instanceof OptionAssert) return asAssumption(OptionAssert.class, Option.class, actual);
+<         if (assertion instanceof SeqAssert) return asAssumption(SeqAssert.class, Seq.class, actual);
+<         if (assertion instanceof TryAssert) return asAssumption(TryAssert.class, Try.class, actual);
+<         if (assertion instanceof ValidationAssert) return asAssumption(ValidationAssert.class, Validation.class, actual);
+---
+>         if (assertion instanceof LazyAssert) return new LazyAssert<>((Lazy<?>) actual);
+>         if (assertion instanceof EitherAssert) return new EitherAssert<>((Either<?, ?>) actual);
+>         if (assertion instanceof MapAssert) return new MapAssert<>((Map<?, ?>) actual);
+>         if (assertion instanceof OptionAssert) return new OptionAssert<>((Option<?>) actual);
+>         if (assertion instanceof SeqAssert) return new SeqAssert<>((Seq<?>) actual);
+>         if (assertion instanceof TryAssert) return new TryAssert<>((Try<?>) actual);
+>         if (assertion instanceof ValidationAssert) return new ValidationAssert<>((Validation<?, ?>) actual);

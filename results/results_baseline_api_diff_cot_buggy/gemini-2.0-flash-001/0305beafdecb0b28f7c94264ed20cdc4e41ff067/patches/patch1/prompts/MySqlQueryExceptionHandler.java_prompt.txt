@@ -1,0 +1,128 @@
+You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates. Your task is to analyze the provided code, error information, and API changes, then propose and apply a patch to fix the issue while adhering to specific constraints.
+
+Here is the Java code that is failing:
+
+```java
+/*
+ * Copyright 2019 Feedzai
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.feedzai.commons.sql.abstraction.engine.impl.mysql;
+
+import com.feedzai.commons.sql.abstraction.engine.handler.QueryExceptionHandler;
+
+import com.mysql.jdbc.exceptions.MySQLTimeoutException;
+
+import java.sql.SQLException;
+
+/**
+ * A specific implementation of {@link QueryExceptionHandler} for MySQL engine.
+ *
+ * @author José Fidalgo (jose.fidalgo@feedzai.com)
+ * @since 2.5.1
+ */
+public class MySqlQueryExceptionHandler extends QueryExceptionHandler {
+
+    /**
+     * The MySQL error code that indicates a unique constraint violation.
+     */
+    private static final int UNIQUE_CONSTRAINT_VIOLATION_ERROR_CODE = 1062;
+
+    @Override
+    public boolean isTimeoutException(final SQLException exception) {
+        return exception instanceof MySQLTimeoutException || super.isTimeoutException(exception);
+    }
+
+    @Override
+    public boolean isUniqueConstraintViolationException(final SQLException exception) {
+        return UNIQUE_CONSTRAINT_VIOLATION_ERROR_CODE == exception.getErrorCode()
+                || super.isUniqueConstraintViolationException(exception);
+    }
+}
+
+```
+
+The errors are triggered in the following specific line:
+
+<error_lines>
+```java
+return exception instanceof MySQLTimeoutException || super.isTimeoutException(exception);
+```
+```java
+import com.mysql.jdbc.exceptions.MySQLTimeoutException;
+```
+</error_lines>
+
+The API of the dependency has changed. Here are the relevant changes:
+
+     Constructor com.mysql.jdbc.exceptions.jdbc4.MySQLTimeoutException(java.lang.String,java.lang.String,int) has been removed in the new version of the dependency.
+     Constructor com.mysql.jdbc.exceptions.jdbc4.MySQLTimeoutException(java.lang.String) has been removed in the new version of the dependency.
+     Type reference com.mysql.cj.jdbc.exceptions.MySQLTimeoutException() has been added in the new version of the dependency.
+     Interface com.mysql.cj.jdbc.exceptions.MySQLTimeoutException has been added in the new version of the dependency.
+     Constructor com.mysql.jdbc.exceptions.MySQLTimeoutException() has been removed in the new version of the dependency.
+     Constructor com.mysql.jdbc.exceptions.jdbc4.MySQLTimeoutException(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Constructor com.mysql.jdbc.exceptions.MySQLTimeoutException(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Class com.mysql.jdbc.exceptions.MySQLTimeoutException has been removed in the new version of the dependency.
+     Constructor com.mysql.jdbc.exceptions.jdbc4.MySQLTimeoutException() has been removed in the new version of the dependency.
+     Type reference com.mysql.cj.jdbc.exceptions.MySQLTimeoutException(java.lang.String,java.lang.String,int) has been added in the new version of the dependency.
+     Constructor com.mysql.jdbc.exceptions.MySQLTimeoutException(java.lang.String,java.lang.String,int) has been removed in the new version of the dependency.
+     Type reference com.mysql.cj.jdbc.exceptions.MySQLTimeoutException(java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Type reference com.mysql.cj.jdbc.exceptions.MySQLTimeoutException(java.lang.String) has been added in the new version of the dependency.
+     Class com.mysql.jdbc.exceptions.jdbc4.MySQLTimeoutException has been removed in the new version of the dependency.
+     Constructor com.mysql.jdbc.exceptions.MySQLTimeoutException(java.lang.String) has been removed in the new version of the dependency.
+
+Additional error information:
+
+<error_information>
+[ERROR] /pdb/src/main/java/com/feedzai/commons/sql/abstraction/engine/impl/mysql/MySqlQueryExceptionHandler.java:[40,37] cannot find symbol
+  symbol:   class MySQLTimeoutException
+  location: class com.feedzai.commons.sql.abstraction.engine.impl.mysql.MySqlQueryExceptionHandler
+
+[ERROR] /pdb/src/main/java/com/feedzai/commons/sql/abstraction/engine/impl/mysql/MySqlQueryExceptionHandler.java:[21,33] package com.mysql.jdbc.exceptions does not exist
+<error_information>
+
+Your task is to fix the issue by modifying only the client code. Follow these steps:
+
+1. Analyze the problem and propose changes by wrapping the work inside fix_planning tags. This analysis is for your internal use only and will not be included in the final output. In your analysis:
+   a. Quote relevant parts of the code and API changes
+   b. Identify the specific API changes causing the issue
+   c. List the affected lines of code
+   d. Propose potential fixes for each affected line
+   e. Consider any potential side effects of the proposed changes
+   f. Explicitly check if the proposed changes adhere to all the given constraints
+   g. Provide a final summary of the chosen fix and why it's the best solution
+
+2. Apply the fix to the Java code.
+
+3. Output the complete, fixed Java class in a fenced code block. This should be the only visible output in your response.
+
+Constraints:
+1. Do not change the function signature of any method.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error.
+6. Include all code, even unchanged portions, in your final output.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
+
+Your final output should only contain the complete, fixed Java class in a fenced code block, without any explanations or analysis visible. The <fix_planning> section is for your internal use only.
+
+Example output structure:
+
+```java
+[Complete, fixed Java class]
+```
+
+Please proceed with your analysis and solution.

@@ -1,0 +1,105 @@
+<fix_planning>
+The error message "cannot find symbol symbol: class LengthOf location: package org.cactoos.iterable" indicates that the class `org.cactoos.iterable.LengthOf` is no longer available in the updated cactoos dependency. The API changes confirm that `org.cactoos.iterable.LengthOf` has been removed and `org.cactoos.scalar.LengthOf` has been added.
+
+The affected line is:
+```java
+import org.cactoos.iterable.LengthOf;
+```
+and
+```java
+n -> new LengthOf(n.score().suffixes()).intValue() >= 16,
+```
+
+The fix should replace `org.cactoos.iterable.LengthOf` with `org.cactoos.scalar.LengthOf` and adjust the constructor call accordingly. Since `LengthOf` is now a scalar, we need to create a `LengthOf` object and then call `value()` on it to get the integer value.
+
+Here's the proposed change:
+
+1. Replace the import statement:
+```java
+import org.cactoos.iterable.LengthOf;
+```
+with
+```java
+import org.cactoos.scalar.LengthOf;
+import org.cactoos.iterable.IterableOf;
+```
+
+2. Modify the lambda expression:
+```java
+n -> new LengthOf(n.score().suffixes()).intValue() >= 16,
+```
+with
+```java
+n -> new LengthOf(new IterableOf<>(n.score().suffixes())).value() >= 16,
+```
+
+This change uses the new `org.cactoos.scalar.LengthOf` class and its constructor that accepts an `Iterable`. Also, it calls the `value()` method to get the length as an integer.
+
+The proposed changes adhere to all constraints:
+1. The function signature of the constructor remains unchanged.
+2. A new variable is not created.
+3. The `@Override` annotation is not present.
+4. The correct package `org.cactoos.scalar` is used for the new `LengthOf` class.
+5. No existing code is removed unless it directly causes a compilation error.
+6. All code is included in the final output.
+
+Final summary:
+The best solution is to replace the import statement and modify the lambda expression to use the new `org.cactoos.scalar.LengthOf` class and its `value()` method. This fixes the compilation error and maintains the original functionality of the code.
+</fix_planning>
+
+```java
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2018-2023 Yegor Bugayenko
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of this software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package io.zold.api;
+
+import java.util.Comparator;
+import org.cactoos.iterable.Filtered;
+import org.cactoos.iterable.IterableEnvelope;
+import org.cactoos.scalar.LengthOf;
+import org.cactoos.iterable.IterableOf;
+
+/**
+ * {@link Remote} nodes that should receive taxes.
+ *
+ * @since 1.0
+ */
+public final class TaxBeneficiaries extends IterableEnvelope<Remote> {
+
+    /**
+     * Ctor.
+     *
+     * @param nodes Remote nodes to select from.
+     */
+    public TaxBeneficiaries(final Iterable<Remote> nodes) {
+        super(() -> new Sorted<>(
+            Comparator.comparing(Remote::score),
+            new Filtered<>(
+                // @checkstyle MagicNumberCheck (1 line)
+                n -> new LengthOf(new IterableOf<>(n.score().suffixes())).value() >= 16,
+                nodes
+            )
+        ));
+    }
+}
+```

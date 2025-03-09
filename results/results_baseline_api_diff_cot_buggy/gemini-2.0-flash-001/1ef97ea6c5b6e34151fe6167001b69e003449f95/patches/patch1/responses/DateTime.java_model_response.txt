@@ -1,0 +1,100 @@
+<fix_planning>
+a. Code and API changes:
+- Code:
+```java
+  @Override
+  public Timestamp between(Date from, Date to) throws IllegalArgumentException {
+    return new Timestamp(super.between(from, to).getTime());
+  }
+```
+- API Changes:
+```
+Method net.datafaker.DateAndTime.between(java.util.Date,java.util.Date) has been removed in the new version of the dependency.
+Method net.datafaker.DateAndTime.between(java.sql.Timestamp,java.sql.Timestamp) has been added in the new version of the dependency.
+```
+
+b. Specific API changes causing the issue:
+The `net.datafaker.DateAndTime.between(java.util.Date,java.util.Date)` method has been removed. The code attempts to override this method, but it no longer exists in the superclass. Additionally, the return type of `super.between(from, to)` is now `java.sql.Timestamp`, not `java.util.Date`, so `.getTime()` is not valid.
+
+c. Affected lines of code:
+- Line 43: `@Override`
+- Line 45: `return new Timestamp(super.between(from, to).getTime());`
+
+d. Proposed potential fixes:
+1. Remove the `@Override` annotation and cast the `java.util.Date` objects to `java.sql.Timestamp` before passing them to the `super.between` method. Then, since the return type is already `Timestamp`, remove the `new Timestamp(...getTime())` wrapper.
+2. Remove the method entirely. This is not ideal as it changes the functionality.
+
+e. Potential side effects of the proposed changes:
+1. Removing the `@Override` annotation means the method no longer overrides a superclass method. Casting the input `Date` objects to `Timestamp` will change the behavior of the method to align with the new API.
+2. Removing the method entirely will remove the functionality provided by this method.
+
+f. Adherence to constraints:
+1. The function signature must not change.
+2. Variables can be created.
+3. The `@Override` annotation can be removed if the method no longer overrides a supertype method.
+4. Missing imports can be added.
+5. No existing code should be removed unless it directly causes a compilation or functionality error.
+
+g. Final summary:
+The best solution is to remove the `@Override` annotation and cast the input `Date` objects to `Timestamp` before passing them to the `super.between` method. Then, since the return type is already `Timestamp`, remove the `new Timestamp(...getTime())` wrapper. This adheres to all constraints and fixes the compilation errors.
+
+</fix_planning>
+
+```java
+package com.github.knaufk.flink.faker;
+
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+import net.datafaker.DateAndTime;
+import net.datafaker.Faker;
+
+public class DateTime extends DateAndTime {
+
+  protected DateTime(Faker faker) {
+    super(faker);
+  }
+
+  public Timestamp past(int atMost, TimeUnit unit) {
+    return new Timestamp(super.past(atMost, unit).getTime());
+  }
+
+  public Timestamp past(int atMost, int minimum, TimeUnit unit) {
+    return new Timestamp(super.past(atMost, minimum, unit).getTime());
+  }
+
+  @Override
+  public Timestamp future(int atMost, TimeUnit unit) {
+    return new Timestamp(super.future(atMost, unit).getTime());
+  }
+
+  @Override
+  public Timestamp future(int atMost, int minimum, TimeUnit unit) {
+    return new Timestamp(super.future(atMost, minimum, unit).getTime());
+  }
+
+  @Override
+  public Timestamp future(int atMost, TimeUnit unit, Date referenceDate) {
+    return new Timestamp(super.future(atMost, unit, referenceDate).getTime());
+  }
+
+  @Override
+  public Timestamp past(int atMost, TimeUnit unit, Date referenceDate) {
+    return new Timestamp(super.past(atMost, unit, referenceDate).getTime());
+  }
+
+  public Timestamp between(Date from, Date to) throws IllegalArgumentException {
+    return super.between(new Timestamp(from.getTime()), new Timestamp(to.getTime()));
+  }
+
+  @Override
+  public Timestamp birthday() {
+    return new Timestamp(super.birthday().getTime());
+  }
+
+  @Override
+  public Timestamp birthday(int minAge, int maxAge) {
+    return new Timestamp(super.birthday(minAge, maxAge).getTime());
+  }
+}
+```

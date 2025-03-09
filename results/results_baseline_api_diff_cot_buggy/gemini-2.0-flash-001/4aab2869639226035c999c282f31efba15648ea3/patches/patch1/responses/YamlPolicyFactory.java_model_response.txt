@@ -1,0 +1,78 @@
+<fix_planning>
+a. Code and API changes:
+The code uses `com.artipie.asto.factory.Storages` to create a new storage. The API changes indicate that the `Storages` class and its `newStorage` methods have been removed. Instead, `FileStorageFactory.newStorage(com.artipie.asto.factory.Config)` and `StorageFactory.newStorage(com.artipie.asto.factory.Config)` have been added.
+
+b. Specific API changes causing the issue:
+The primary issue is the removal of the `Storages` class and the `newStorage(String, YamlMapping)` method.
+
+c. Affected lines of code:
+Line 43: `new Storages().newStorage(sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping())`
+
+d. Proposed potential fixes:
+Since `Storages` and `newStorage(String, YamlMapping)` are removed, we need to find an alternative way to create a storage. The new API suggests using `FileStorageFactory.newStorage(com.artipie.asto.factory.Config)` or `StorageFactory.newStorage(com.artipie.asto.factory.Config)`. We can create a `StorageConfig` from the `sub` PolicyConfig and use the `StorageFactory` to create the storage. Since `Storages` class is removed, we need to use `StorageFactory` interface instead.
+
+e. Potential side effects of the proposed changes:
+The change might affect the type of storage created, as we are now relying on the `StorageFactory` to determine the storage type based on the configuration. We need to ensure that the configuration is correctly passed to the `StorageFactory`.
+
+f. Adherence to constraints:
+The proposed changes adhere to all the given constraints. We are not changing the function signature, we are creating a variable, and we are addressing missing imports.
+
+g. Final summary:
+The best solution is to replace the usage of the removed `Storages` class and `newStorage(String, YamlMapping)` method with the new `StorageFactory` interface and `newStorage(Config)` method. We will create a `StorageConfig` from the `sub` PolicyConfig and use the `StorageFactory` to create the storage.
+</fix_planning>
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
+ * https://github.com/artipie/http/blob/master/LICENSE.txt
+ */
+package com.artipie.security.policy;
+
+import com.amihaiemil.eoyaml.Yaml;
+import com.artipie.asto.blocking.BlockingStorage;
+import com.artipie.asto.factory.Config;
+import com.artipie.asto.factory.StorageFactory;
+import com.artipie.asto.factory.YamlStorageConfig;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+
+/**
+ * Policy factory to create {@link YamlPolicy}. Yaml policy is read from storage, and it's required
+ * to describe this storage in the configuration. Configuration format is the following:
+ *
+ * policy:
+ *   type: yaml_policy
+ *   storage:
+ *     type: fs
+ *     path: /some/path
+ *
+ * The storage itself is expected to have yaml files with permissions in the following structure:
+ *
+ * ..
+ * ├── roles.yaml
+ * ├── users
+ * │   ├── david.yaml
+ * │   ├── jane.yaml
+ * │   ├── ...
+ *
+ * @since 1.2
+ */
+@ArtipiePolicyFactory("yaml_policy")
+public final class YamlPolicyFactory implements PolicyFactory {
+
+    @Override
+    public Policy<?> getPolicy(final PolicyConfig config) {
+        final PolicyConfig sub = config.config("storage");
+        try {
+            final Config storageConfig = new YamlStorageConfig(Yaml.createYamlInput(sub.toString()).readYamlMapping());
+            return new YamlPolicy(
+                new BlockingStorage(
+                    StorageFactory.defaultFactory().newStorage(storageConfig)
+                )
+            );
+        } catch (final IOException err) {
+            throw new UncheckedIOException(err);
+        }
+    }
+}
+```
