@@ -193,13 +193,20 @@ public class BasePromptCotBuggyLineApiDiffTemplate extends AbstractPromptTemplat
 
     public String parseLLMResponce(String response) {
 
-        Pattern pattern = Pattern.compile("```java\\s*\\n(package[\\s\\S]*?)```");
-        Matcher matcher = pattern.matcher(response);
+        Pattern patron = Pattern.compile("```java\\s*([\\s\\S]*?)```");
+        Matcher matcher = patron.matcher(response);
 
-        if (matcher.find()) {
-            return matcher.group(1);
+        String lastOccurrence = "";
+
+        while (matcher.find()) {
+            lastOccurrence = matcher.group(1);
         }
 
-        return null;
+        if(lastOccurrence.isEmpty()) {
+            log.error("Error extracting content from the model response");
+            return null;
+        }
+
+        return lastOccurrence;
     }
 }
