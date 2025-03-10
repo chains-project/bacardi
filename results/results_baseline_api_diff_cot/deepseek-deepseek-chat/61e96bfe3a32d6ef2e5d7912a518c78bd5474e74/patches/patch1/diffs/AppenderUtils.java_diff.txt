@@ -1,0 +1,19 @@
+22c22
+< import ch.qos.logback.core.encoder.EncoderBase;
+---
+> import ch.qos.logback.core.encoder.Encoder;
+51c51
+<   public static class LogMessageEncoder extends EncoderBase<LogMessage> {
+---
+>   public static class LogMessageEncoder implements Encoder<LogMessage> {
+81a82,91
+> 
+>     @Override
+>     public byte[] headerBytes() {
+>       return new byte[0];
+>     }
+> 
+>     @Override
+>     public byte[] footerBytes() {
+>       return new byte[0];
+>     }

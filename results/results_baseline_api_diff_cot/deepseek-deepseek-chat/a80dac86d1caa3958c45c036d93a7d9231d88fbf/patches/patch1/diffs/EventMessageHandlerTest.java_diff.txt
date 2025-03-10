@@ -1,0 +1,12 @@
+111c111
+<         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
+---
+>         Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+124c124
+<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+---
+>         when(mockLedgerService.getTransaction(transaction.getTransactionId()).thenReturn(Optional.of(transaction));
+214c214
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+---
+>         verify(mockLogAppender, times(2).doAppend(loggingEventArgumentCaptor.capture());

@@ -1,0 +1,33 @@
+37,38c37
+< import org.cactoos.scalar.IoCheckedScalar;
+< import org.cactoos.scalar.SolidScalar;
+---
+> import org.cactoos.scalar.Unchecked;
+40c39
+< import org.cactoos.text.JoinedText;
+---
+> import org.cactoos.text.TextOf;
+53c52
+<     private final IoCheckedScalar<Path> path;
+---
+>     private final Unchecked<Path> path;
+103,105c102
+<         this.path = new IoCheckedScalar<>(
+<             new SolidScalar<>(pth)
+<         );
+---
+>         this.path = new Unchecked<>(pth);
+119,120c116,118
+<             new JoinedText(
+<                 ".",
+---
+>             new TextOf(
+>                 String.format(
+>                     "%s.%s",
+122a121
+>                 )
+140,143d138
+<     // @todo #65:30min Create the new wallet in the path with all wallets.
+<     //  It should contain the correct content according to the
+<     //  white paper (network, protocol version, id and public RSA key). After
+<     //  this remove exception expect for tests on WalletsInTest.

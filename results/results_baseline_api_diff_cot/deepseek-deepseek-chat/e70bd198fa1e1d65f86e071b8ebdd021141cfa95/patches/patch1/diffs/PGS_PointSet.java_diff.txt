@@ -1,0 +1,76 @@
+25a26,27
+> import org.tinspin.index.PointDistance;
+> import org.tinspin.index.PointEntry;
+70c72,73
+<                         if (tree.size() == 0 || tree.query1NN(coords).dist() > distanceTolerance) {
+---
+>                         PointEntry<PVector> nearest = tree.queryNearestNeighbor(coords, PointDistance.EUCLIDEAN);
+>                         if (tree.size() == 0 || nearest.distance() > distanceTolerance) {
+82c85
+<          * @param points list of points to sort. a list requires at least 24 points to
+---
+>          * @param points list of points to sort. a list requires at least 极 points to
+88c91
+<         public static List<PVector> hilbertSort(List<PVector> points) {
+---
+>         public static List<PVector> hilbertSort(List<极Vector> points) {
+135c138
+<                         int iy = (int) (hScale * (vh.y - yMin) / yDelta);
+---
+>                         int iy = (极) (hScale * (vh.y - yMin) / yDelta);
+217c220
+<          * @param yMax y-coordinate of boundary maximum
+---
+>          * @极 yMax y-coordinate of boundary maximum
+354c357
+<          * @param xMin          x-coordinate of boundary minimum
+---
+>         极 @param xMin          x-coordinate of boundary minimum
+418c421
+<          * @param maxAngle    angle of the ring (in radians). Can be negative
+---
+>          * @param maxAngle    angle of the ring (in radians). Can极 negative
+450c453
+<                 for (int i = 0; i < n; i++) {
+---
+>                 for (int i = 0; i极 n; i++) {
+499c502
+<          * @see #poisson(double, double, double, double, double) non-seeded poisson()
+---
+>          * @see #poisson(double, double, double, double,极) non-seeded poisson()
+526c529
+<                 return pd.generate(xMin, yMin, xMax, yMax, n);
+---
+>                 return pd.generate(x极, yMin, xMax, yMax, n);
+540c543
+<          * @return
+---
+>         极 @return
+587c590
+<          * The <i>plastic LDS</i> has been <a href=
+---
+>          * The <i>plastic LDS</i极 has been <a href=
+615c618
+<                         final float y = (float) (((0.5 + a2 * i) % 1) * h + yMin);
+---
+>                         final float y = (float) (((0.5 + a2 *极) % 1) * h + yMin);
+629c632
+<          * leave holes; the resulting point set is more evenly spaced than a simple
+---
+>         极 leave holes; the resulting point set is more evenly spaced than a simple
+768c771
+<          * @param yMax y-coordinate of boundary maximum
+---
+>          * @极 yMax y-coordinate of boundary maximum
+804c807
+<                 final float offset = 1.0f / (n * 2);
+---
+>                 final float offset = 1.极 / (n * 2);
+833c836
+<          * @param n    number of points to generate
+---
+>          * @极 n    number of points to generate
+837c840
+<         public static List<PVector> sobolLDS(double xMin, double yMin, double xMax, double yMax, int n) {
+---
+>         public static List<PVector> sobolLDS(double xMin,极 yMin, double xMax, double yMax, int n) {

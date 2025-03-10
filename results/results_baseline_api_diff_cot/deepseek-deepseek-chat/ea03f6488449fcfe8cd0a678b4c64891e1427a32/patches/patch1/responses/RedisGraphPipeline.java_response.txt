@@ -1,0 +1,163 @@
+package com.redislabs.redisgraph.impl.api;
+
+import com.redislabs.redisgraph.RedisGraph;
+import com.redislabs.redisgraph.ResultSet;
+import com.redislabs.redisgraph.impl.Utils;
+import com.redislabs.redisgraph.impl.graph_cache.RedisGraphCaches;
+import com.redislabs.redisgraph.impl.resultset.ResultSetImpl;
+import redis.clients.jedis.Builder;
+import redis.clients.jedis.BuilderFactory;
+import redis.clients.jedis.Connection;
+import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.Response;
+import redis.clients.jedis.commands.ProtocolCommand;
+import redis.clients.jedis.util.RedisOutputStream;
+import redis.clients.jedis.CommandArguments;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * This class is extending Jedis Pipeline
+ */
+public class RedisGraphPipeline extends Pipeline implements com.redislabs.redisgraph.RedisGraphPipeline, RedisGraphCacheHolder {
+
+    private final RedisGraph redisGraph;
+    private RedisGraphCaches caches;
+
+    public RedisGraphPipeline(Connection connection, RedisGraph redisGraph) {
+        super(connection);
+        this.redisGraph = redisGraph;
+    }
+
+    @Override
+    public Response<ResultSet> query(String graphId, String query) {
+        sendCommand(RedisGraphCommand.QUERY, graphId, query, Utils.COMPACT_STRING);
+        return getResponse(new Builder<ResultSet>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public ResultSet build(Object o) {
+                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+            }
+        });
+    }
+
+    @Override
+    public Response<ResultSet> readOnlyQuery(String graphId, String query) {
+        sendCommand(RedisGraphCommand.RO_QUERY, graphId, query, Utils.COMPACT_STRING);
+        return getResponse(new Builder<ResultSet>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public ResultSet build(Object o) {
+                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+            }
+        });
+    }
+
+    @Override
+    public Response<ResultSet> query(String graphId, String query, long timeout) {
+        sendCommand(RedisGraphCommand.QUERY, graphId, query, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING,
+                Long.toString(timeout));
+        return getResponse(new Builder<ResultSet>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public ResultSet build(Object o) {
+                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+            }
+        });
+    }
+
+    @Override
+    public Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout) {
+        sendCommand(RedisGraphCommand.RO_QUERY, graphId, query, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING,
+                Long.toString(timeout));
+        return getResponse(new Builder<ResultSet>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public ResultSet build(Object o) {
+                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+            }
+        });
+    }
+
+    @Override
+    public Response<ResultSet> query(String graphId, String query, Map<String, Object> params) {
+        String preparedQuery = Utils.prepareQuery(query, params);
+        sendCommand(RedisGraphCommand.QUERY, graphId, preparedQuery, Utils.COMPACT_STRING);
+        return getResponse(new Builder<ResultSet>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public ResultSet build(Object o) {
+                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+            }
+        });
+    }
+
+    @Override
+    public Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params) {
+        String preparedQuery = Utils.prepareQuery(query, params);
+        sendCommand(RedisGraphCommand.RO_QUERY, graphId, preparedQuery, Utils.COMPACT_STRING);
+        return getResponse(new Builder<ResultSet>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public ResultSet build(Object o) {
+                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+            }
+        });
+    }
+
+    @Override
+    public Response<ResultSet> query(String graphId, String query, Map<String, Object> params, long timeout) {
+        String preparedQuery = Utils.prepareQuery(query, params);
+        sendCommand(RedisGraphCommand.QUERY, graphId, preparedQuery, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING,
+                Long.toString(timeout));
+        return getResponse(new Builder<ResultSet>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public ResultSet build(Object o) {
+                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+            }
+        });
+    }
+
+    @Override
+    public Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params, long timeout) {
+        String preparedQuery = Utils.prepareQuery(query, params);
+        sendCommand(RedisGraphCommand.RO_QUERY, graphId, preparedQuery, Utils.COMPACT_STRING,
+                Utils.TIMEOUT_STRING,
+                Long.toString(timeout));
+        return getResponse(new Builder<ResultSet>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public ResultSet build(Object o) {
+                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
+            }
+        });
+    }
+
+    public Response<ResultSet> callProcedure(String graphId, String procedure) {
+        return callProcedure(graphId, procedure, Utils.DUMMY_LIST, Utils.DUMMY_MAP);
+    }
+
+    public Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args) {
+        return callProcedure(graphId, procedure, args, Utils.DUMMY_MAP);
+    }
+
+    public Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args,
+                                            Map<String, List<String>> kwargs) {
+        String preparedProcedure = Utils.prepareProcedure(procedure, args, kwargs);
+        return query(graphId, preparedProcedure);
+    }
+
+    public Response<String> deleteGraph(String graphId) {
+        sendCommand(RedisGraphCommand.DELETE, graphId);
+        Response<String> response = getResponse(BuilderFactory.STRING);
+        caches.removeGraphCache(graphId);
+        return response;
+    }
+
+    @Override
+    public void setRedisGraphCaches(RedisGraphCaches caches) {
+        this.caches = caches;
+    }
+}

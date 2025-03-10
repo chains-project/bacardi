@@ -1,0 +1,15 @@
+22a23
+> import org.yaml.snakeyaml.introspector.PropertyUtils;
+94d94
+< 
+217,219c217,218
+<   @Override
+<   protected Set<Property> getProperties(Class<? extends Object> type)
+<           throws IntrospectionException {
+---
+>   protected Set<Property> getProperties(Class<? extends Object> type) {
+>     try {
+232a232,234
+>     } catch (IntrospectionException e) {
+>       throw new RuntimeException(e);
+>     }
