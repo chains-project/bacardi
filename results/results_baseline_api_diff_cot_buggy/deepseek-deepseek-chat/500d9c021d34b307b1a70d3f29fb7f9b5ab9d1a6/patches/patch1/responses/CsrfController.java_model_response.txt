@@ -1,0 +1,131 @@
+<fix_planning>
+1. **Analysis of the Problem:**
+   - The code is using classes and annotations from the `javax.mvc` package, which have been removed in the new version of the dependency.
+   - The new version of the dependency uses the `jakarta.mvc` package instead.
+   - The specific API changes causing the issue are:
+     - `javax.mvc.binding.ParamError` → Removed
+     - `javax.mvc.binding.MvcBinding` → Removed
+     - `javax.mvc.binding.BindingResult` → Removed
+     - `javax.mvc.Controller` → Removed
+     - `javax.mvc.security.CsrfProtected` → Removed
+     - `javax.mvc.Models` → Removed
+     - `javax.mvc.UriRef` → Removed
+     - New interfaces in `jakarta.mvc` package:
+       - `jakarta.mvc.binding.MvcBinding`
+       - `jakarta.mvc.Controller`
+       - `jakarta.mvc.security.CsrfProtected`
+       - `jakarta.mvc.Models`
+       - `jakarta.mvc.UriRef`
+
+2. **Affected Lines of Code:**
+   - Import statements:
+     ```java
+     import javax.mvc.binding.ParamError;
+     import javax.mvc.binding.MvcBinding;
+     import javax.mvc.binding.BindingResult;
+     import javax.mvc.Controller;
+     import javax.mvc.security.CsrfProtected;
+     import javax.mvc.Models;
+     import javax.mvc.UriRef;
+     ```
+   - Class fields:
+     ```java
+     BindingResult bindingResult;
+     Models models;
+     ```
+   - Annotations:
+     ```java
+     @Controller
+     @MvcBinding
+     @CsrfProtected
+     ```
+
+3. **Proposed Fixes:**
+   - Replace `javax.mvc` imports with `jakarta.mvc` imports.
+   - Update the class fields to use the new `jakarta.mvc` interfaces.
+   - Update the annotations to use the new `jakarta.mvc` annotations.
+
+4. **Potential Side Effects:**
+   - The functionality should remain the same since the new interfaces and annotations are direct replacements for the old ones.
+   - No changes to method signatures or logic are required.
+
+5. **Adherence to Constraints:**
+   - The function signatures of methods remain unchanged.
+   - No new variables are introduced.
+   - No code is removed unless it directly causes a compilation error.
+   - All necessary imports are updated to the correct package.
+
+6. **Final Summary:**
+   - The best solution is to update the imports and annotations to use the `jakarta.mvc` package, as this directly addresses the breaking changes in the dependency without altering the functionality of the code.
+</fix_planning>
+
+```java
+package com.example.web;
+
+import java.util.logging.Logger;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import jakarta.mvc.UriRef;
+import jakarta.mvc.binding.BindingResult;
+import jakarta.mvc.binding.MvcBinding;
+import jakarta.mvc.binding.ParamError;
+import jakarta.mvc.security.CsrfProtected;
+import javax.validation.constraints.NotBlank;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+
+/**
+ *
+ * @author hantsy
+ */
+@Path("csrf")
+@Controller
+@RequestScoped
+public class CsrfController {
+
+    @Inject
+    BindingResult bindingResult;
+
+    @Inject
+    Models models;
+
+    @Inject
+    AlertMessage flashMessage;
+
+    @Inject
+    Logger log;
+
+    @GET
+    public String get() {
+        return "csrf.xhtml";
+    }
+
+    @POST
+    @CsrfProtected
+    public String post(
+            @FormParam("greeting")
+            @MvcBinding
+            @NotBlank String greeting) {
+        if (bindingResult.isFailed()) {
+            AlertMessage alert = AlertMessage.danger("Validation voilations!");
+            bindingResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
+            models.put("errors", alert);
+            log.info("mvc binding failed.");
+            return "csrf.xhtml";
+        }
+
+        log.info("redirect to greeting page.");
+        flashMessage.notify(AlertMessage.Type.success, "Message:" + greeting);
+        return "redirect:csrf";
+    }
+
+}
+```

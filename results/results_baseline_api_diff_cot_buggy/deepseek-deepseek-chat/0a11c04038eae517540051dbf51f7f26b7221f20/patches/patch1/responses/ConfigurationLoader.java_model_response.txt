@@ -1,0 +1,92 @@
+<fix_planning>
+1. **Relevant parts of the code and API changes:**
+   - The error occurs in the line: `Constructor yamlTargetClass = new Constructor(Configuration.class);`
+   - API changes indicate that `Constructor(java.lang.Class)` has been removed and replaced with `Constructor(java.lang.Class, org.yaml.snakeyaml.LoaderOptions)`.
+
+2. **Specific API changes causing the issue:**
+   - The constructor `Constructor(Class)` is no longer available, and the new version requires a `LoaderOptions` parameter.
+
+3. **Affected lines of code:**
+   - Line 39: `Constructor yamlTargetClass = new Constructor(Configuration.class);`
+
+4. **Proposed fixes:**
+   - Modify the line to use the new constructor by creating a `LoaderOptions` instance and passing it along with the `Configuration.class`.
+
+5. **Potential side effects:**
+   - The `LoaderOptions` might have default settings that could affect the behavior of the YAML parsing. However, using default options should be safe for most use cases.
+
+6. **Adherence to constraints:**
+   - The function signature remains unchanged.
+   - No existing code is removed.
+   - The fix only modifies the line causing the error.
+
+7. **Final summary:**
+   - The best solution is to create a `LoaderOptions` instance and use it in the new constructor. This adheres to the updated API and resolves the compilation error without introducing significant side effects.
+</fix_planning>
+
+```java
+package io.simplelocalize.cli.configuration;
+
+import io.simplelocalize.cli.exception.ConfigurationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.LoaderOptions;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+
+public final class ConfigurationLoader
+{
+
+  private static final Path DEFAULT_CONFIG_FILE_NAME = Path.of("simplelocalize.yml");
+
+  private final Logger log = LoggerFactory.getLogger(ConfigurationLoader.class);
+
+  public Configuration loadOrGetDefault(Path configurationFilePath)
+  {
+    ConfigurationLoader configurationLoader = new ConfigurationLoader();
+
+    if (configurationFilePath == null)
+    {
+      configurationFilePath = DEFAULT_CONFIG_FILE_NAME;
+    }
+
+    return configurationLoader.load(configurationFilePath);
+  }
+
+  private Configuration load(Path configurationFilePath)
+  {
+    File file = new File(URLDecoder.decode(String.valueOf(configurationFilePath.toFile()), StandardCharsets.UTF_8));
+    LoaderOptions loaderOptions = new LoaderOptions();
+    Constructor yamlTargetClass = new Constructor(Configuration.class, loaderOptions);
+    Yaml yaml = new Yaml(yamlTargetClass);
+
+    log.info("Loading configuration file from: {}", configurationFilePath);
+    Configuration configuration;
+    try
+    {
+      InputStream inputStream = new FileInputStream(file);
+      configuration = yaml.load(inputStream);
+      log.info("Configuration file loaded successfully");
+    } catch (FileNotFoundException e)
+    {
+      log.info("Configuration file not present");
+      return new Configuration();
+    } catch (Exception e)
+    {
+      log.error("Unable to load configuration: {}", e.getMessage());
+      throw new ConfigurationException();
+    }
+    return configuration;
+
+  }
+
+}
+```

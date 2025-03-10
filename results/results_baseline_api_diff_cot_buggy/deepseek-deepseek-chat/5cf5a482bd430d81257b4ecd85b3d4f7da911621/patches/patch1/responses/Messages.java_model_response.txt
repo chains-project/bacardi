@@ -1,0 +1,77 @@
+<fix_planning>
+1. **Analyze the problem and propose changes:**
+   a. **Relevant parts of the code and API changes:**
+      - The code uses `javax.mvc.MvcContext` which has been removed in the new version of the dependency.
+      - The error occurs in the line `private MvcContext mvcContext;` because the class `MvcContext` is no longer available.
+   
+   b. **Identify the specific API changes causing the issue:**
+      - The class `javax.mvc.MvcContext` has been removed, which is directly used in the code.
+
+   c. **List the affected lines of code:**
+      - `private MvcContext mvcContext;`
+      - `@Inject private MvcContext mvcContext;`
+      - `final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());`
+
+   d. **Propose potential fixes for each affected line:**
+      - Replace `MvcContext` with a similar class or interface that provides the same functionality, such as `jakarta.mvc.MvcContext` if it exists in the new version.
+      - Alternatively, use `Locale` directly if the locale can be obtained from another context or injected directly.
+
+   e. **Consider any potential side effects of the proposed changes:**
+      - If `MvcContext` is replaced with a different class, ensure that the new class provides the `getLocale()` method.
+      - If `Locale` is used directly, ensure that the locale is correctly obtained from the request context.
+
+   f. **Explicitly check if the proposed changes adhere to all the given constraints:**
+      - The function signatures remain unchanged.
+      - No existing code is removed unless it directly causes a compilation error.
+      - The fix only modifies the client code.
+
+   g. **Final summary of the chosen fix and why it's the best solution:**
+      - The best solution is to replace `javax.mvc.MvcContext` with `jakarta.mvc.MvcContext` if it exists in the new version, as it is the most straightforward replacement that maintains the same functionality.
+
+2. **Apply the fix to the Java code:**
+   - Replace `javax.mvc.MvcContext` with `jakarta.mvc.MvcContext`.
+   - Update the import statement accordingly.
+</fix_planning>
+
+```java
+import java.util.ResourceBundle;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
+import jakarta.mvc.MvcContext;
+
+/**
+ * Provides I18n messages for the UI per request. To get the correct locale, the method {@link MvcContext#getLocale()}
+ * is used. This method uses the built-in {@link jakarta.mvc.locale.LocaleResolver} of the used MVC Implementation.
+ *
+ * @author Tobias Erdle
+ * @see MvcContext#getLocale()
+ * @see jakarta.mvc.locale.LocaleResolver
+ */
+@RequestScoped
+@Named("msg")
+public class Messages {
+
+    private static final String BASE_NAME = "messages";
+
+    @Inject
+    private MvcContext mvcContext;
+
+    /**
+     * Get the assigned message to some key based on the {@link java.util.Locale} of the current request.
+     *
+     * @param key the message key to use
+     * @return the correct translation assigned to the key for the request locale, a fallback translation or a
+     * placeholder for unknown keys.
+     */
+    public final String get(final String key) {
+        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
+
+        return bundle.containsKey(key) ? bundle.getString(key) : formatUnknownKey(key);
+    }
+
+    private static String formatUnknownKey(final String key) {
+        return String.format("???%s???", key);
+    }
+}
+```

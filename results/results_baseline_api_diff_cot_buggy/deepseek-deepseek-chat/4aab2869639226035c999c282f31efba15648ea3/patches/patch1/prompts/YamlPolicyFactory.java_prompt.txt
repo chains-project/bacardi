@@ -1,0 +1,143 @@
+You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates. Your task is to analyze the provided code, error information, and API changes, then propose and apply a patch to fix the issue while adhering to specific constraints.
+
+Here is the Java code that is failing:
+
+```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
+ * https://github.com/artipie/http/blob/master/LICENSE.txt
+ */
+package com.artipie.security.policy;
+
+import com.amihaiemil.eoyaml.Yaml;
+import com.artipie.asto.blocking.BlockingStorage;
+import com.artipie.asto.factory.Storages;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+
+/**
+ * Policy factory to create {@link YamlPolicy}. Yaml policy is read from storage, and it's required
+ * to describe this storage in the configuration. Configuration format is the following:
+ *
+ * policy:
+ *   type: yaml_policy
+ *   storage:
+ *     type: fs
+ *     path: /some/path
+ *
+ * The storage itself is expected to have yaml files with permissions in the following structure:
+ *
+ * ..
+ * ├── roles.yaml
+ * ├── users
+ * │   ├── david.yaml
+ * │   ├── jane.yaml
+ * │   ├── ...
+ *
+ * @since 1.2
+ */
+@ArtipiePolicyFactory("yaml_policy")
+public final class YamlPolicyFactory implements PolicyFactory {
+
+    @Override
+    public Policy<?> getPolicy(final PolicyConfig config) {
+        final PolicyConfig sub = config.config("storage");
+        try {
+            return new YamlPolicy(
+                new BlockingStorage(
+                    new Storages().newStorage(
+                        sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
+                    )
+                )
+            );
+        } catch (final IOException err) {
+            throw new UncheckedIOException(err);
+        }
+    }
+}
+
+```
+
+The errors are triggered in the following specific lines:
+
+<error_lines>
+```java
+new Storages().newStorage(
+```
+```java
+import com.artipie.asto.factory.Storages;
+```
+```java
+new Storages().newStorage(
+```
+```java
+new Storages().newStorage(
+```
+</error_lines>
+
+The API of the dependency has changed. Here are the relevant changes:
+
+     Class com.artipie.asto.factory.Storages has been removed in the new version of the dependency.
+     Constructor com.artipie.asto.factory.Storages() has been removed in the new version of the dependency.
+     Constructor com.artipie.asto.factory.Storages(java.util.Map) has been removed in the new version of the dependency.
+     Method com.artipie.asto.factory.StorageFactory.newStorage(com.artipie.asto.factory.Config) has been added in the new version of the dependency.
+     Method com.artipie.asto.fs.FileStorageFactory.newStorage(com.artipie.asto.factory.StorageConfig) has been removed in the new version of the dependency.
+     Method com.artipie.asto.s3.S3StorageFactory.newStorage(com.artipie.asto.factory.StorageConfig) has been removed in the new version of the dependency.
+     Method com.artipie.asto.etcd.EtcdStorageFactory.newStorage(com.artipie.asto.factory.StorageConfig) has been removed in the new version of the dependency.
+     Method com.artipie.asto.factory.StorageFactory.newStorage(com.artipie.asto.factory.StorageConfig) has been removed in the new version of the dependency.
+     Method com.artipie.asto.fs.FileStorageFactory.newStorage(com.artipie.asto.factory.Config) has been added in the new version of the dependency.
+     Method com.artipie.asto.factory.Storages.newStorage(java.lang.String,com.amihaiemil.eoyaml.YamlMapping) has been removed in the new version of the dependency.
+
+Additional error information:
+
+<error_information>
+[ERROR] /http/src/main/java/com/artipie/security/policy/YamlPolicyFactory.java:[43,25] cannot find symbol
+  symbol:   class Storages
+  location: class com.artipie.security.policy.YamlPolicyFactory
+
+[ERROR] /http/src/main/java/com/artipie/security/policy/YamlPolicyFactory.java:[9,32] cannot find symbol
+  symbol:   class Storages
+  location: package com.artipie.asto.factory
+
+[ERROR] /http/src/main/java/com/artipie/security/policy/YamlPolicyFactory.java:[43,25] cannot find symbol
+  symbol:   class Storages
+  location: class com.artipie.security.policy.YamlPolicyFactory
+
+[ERROR] /http/src/main/java/com/artipie/security/policy/YamlPolicyFactory.java:[43,25] cannot find symbol
+  symbol:   class Storages
+  location: class com.artipie.security.policy.YamlPolicyFactory
+<error_information>
+
+Your task is to fix the issue by modifying only the client code. Follow these steps:
+
+1. Analyze the problem and propose changes by wrapping the work inside fix_planning tags. This analysis is for your internal use only and will not be included in the final output. In your analysis:
+   a. Quote relevant parts of the code and API changes
+   b. Identify the specific API changes causing the issue
+   c. List the affected lines of code
+   d. Propose potential fixes for each affected line
+   e. Consider any potential side effects of the proposed changes
+   f. Explicitly check if the proposed changes adhere to all the given constraints
+   g. Provide a final summary of the chosen fix and why it's the best solution
+
+2. Apply the fix to the Java code.
+
+3. Output the complete, fixed Java class in a fenced code block. This should be the only visible output in your response.
+
+Constraints:
+1. Do not change the function signature of any method.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error.
+6. Include all code, even unchanged portions, in your final output.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
+
+Your final output should only contain the complete, fixed Java class in a fenced code block, without any explanations or analysis visible. The <fix_planning> section is for your internal use only.
+
+Example output structure:
+
+```java
+[Complete, fixed Java class]
+```
+
+Please proceed with your analysis and solution.

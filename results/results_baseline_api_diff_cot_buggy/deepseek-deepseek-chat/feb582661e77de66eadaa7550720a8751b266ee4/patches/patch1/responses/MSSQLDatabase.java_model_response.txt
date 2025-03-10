@@ -1,0 +1,36 @@
+<fix_planning>
+1. Analysis:
+   a. The error occurs in the line `ExecutorService.getInstance().getExecutor(this).execute(...)`.
+   b. The API changes indicate that `ExecutorService.getInstance()` has been removed, and `ExecutorService.getExecutor(String, Database)` has been added.
+   c. The affected line is the one where `ExecutorService.getInstance().getExecutor(this)` is called.
+   d. Potential fix: Replace `ExecutorService.getInstance().getExecutor(this)` with a direct call to `ExecutorService.getExecutor(String, Database)`.
+   e. Side effects: The fix assumes that the new `getExecutor` method can be used directly without needing an instance of `ExecutorService`.
+   f. Constraints: The fix adheres to all constraints, including not changing method signatures and not removing existing code.
+   g. Final summary: The best solution is to replace the deprecated `getInstance().getExecutor(this)` with the new `getExecutor(String, Database)` method.
+
+2. Proposed fix:
+   Replace `ExecutorService.getInstance().getExecutor(this)` with `ExecutorService.getExecutor("default", this)`.
+</fix_planning>
+
+```java
+package liquibase.ext.mssql.database;
+
+import liquibase.CatalogAndSchema;
+import liquibase.exception.LiquibaseException;
+import liquibase.executor.ExecutorService;
+import liquibase.ext.mssql.statement.DropStoredProcedureStatement;
+
+public class MSSQLDatabase extends liquibase.database.core.MSSQLDatabase {
+    
+    @Override
+    public int getPriority() {
+        return PRIORITY_DATABASE;
+    }
+    
+    @Override
+    public void dropDatabaseObjects(CatalogAndSchema schemaToDrop) throws LiquibaseException {
+        super.dropDatabaseObjects(schemaToDrop);
+        ExecutorService.getExecutor("default", this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+    }
+}
+```

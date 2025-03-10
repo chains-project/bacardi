@@ -1,0 +1,93 @@
+<fix_planning>
+1. **Analysis of the Problem:**
+   - The error messages indicate that the `sigmoid` method from the `develop.p2p.lib.LearnMath` class cannot be found.
+   - The API changes show that the `develop.p2p.lib.LearnMath` class and its `sigmoid` method have been removed.
+   - A new `sigmoid` method has been added in the `tokyo.peya.lib.LearnMath` class.
+
+2. **Affected Lines:**
+   - `import static develop.p2p.lib.LearnMath.sigmoid;`
+   - `setValue(sigmoid(sum));`
+
+3. **Proposed Fixes:**
+   - Replace the import statement `import static develop.p2p.lib.LearnMath.sigmoid;` with `import static tokyo.peya.lib.LearnMath.sigmoid;`.
+   - The `setValue(sigmoid(sum));` line can remain unchanged as the method signature is the same, only the package has changed.
+
+4. **Potential Side Effects:**
+   - The change in the import statement should not have any side effects as long as the `sigmoid` method in the new package behaves the same as the one in the old package.
+
+5. **Adherence to Constraints:**
+   - The function signatures remain unchanged.
+   - No variables are created.
+   - No @Override annotations are present to remove.
+   - The correct package is used in the import statement.
+   - No existing code is removed.
+   - All code is included in the final output.
+
+6. **Final Summary:**
+   - The best solution is to update the import statement to use the new package `tokyo.peya.lib.LearnMath`. This change adheres to all constraints and resolves the compilation errors.
+</fix_planning>
+
+```java
+package ml.peya.plugins.Learn;
+
+import java.util.ArrayList;
+
+import static tokyo.peya.lib.LearnMath.sigmoid;
+
+/**
+ * 重みを突っ込む器。
+ */
+public class Neuron
+{
+    /**
+     * 加算したWeight。
+     */
+    private double sum;
+
+    /**
+     * 入力用値。
+     */
+    private double value = 0.0;
+
+    /**
+     * ゲッター。
+     *
+     * @return value参照。
+     */
+    public double getValue()
+    {
+        return value;
+    }
+
+    /**
+     * セッター。
+     *
+     * @param value value参照。
+     */
+    public void setValue(double value)
+    {
+        this.value = value;
+    }
+
+    /**
+     * ReLU関数で値を強めて出力系に入れる。
+     *
+     * @param inputData InputクラスのArrayListデータ。
+     */
+    public void input(ArrayList<Input> inputData)
+    {
+        inputData.parallelStream().forEachOrdered(input -> input(input.getWeightingValue()));
+        setValue(sigmoid(sum));
+    }
+
+    /**
+     * input(ArrayList)のオーバーロード。
+     *
+     * @param value sumに加算する値。
+     */
+    public void input(double value)
+    {
+        sum += value;
+    }
+}
+```

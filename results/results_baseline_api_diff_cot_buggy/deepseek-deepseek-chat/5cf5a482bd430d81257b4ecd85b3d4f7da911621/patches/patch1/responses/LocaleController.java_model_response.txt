@@ -1,0 +1,71 @@
+<fix_planning>
+1. **Analysis of the Problem:**
+   a. The code uses classes and annotations from the `javax.mvc` package, which have been removed in the new version of the dependency.
+   b. The new version of the dependency introduces equivalent classes and annotations in the `jakarta.mvc` package.
+   c. The affected lines are:
+      - `Models models;`
+      - `@Controller`
+      - `MvcContext mvc;`
+      - `import javax.mvc.MvcContext;`
+   d. Proposed fixes:
+      - Replace `javax.mvc.Models` with `jakarta.mvc.Models`.
+      - Replace `javax.mvc.Controller` with `jakarta.mvc.Controller`.
+      - Replace `javax.mvc.MvcContext` with `jakarta.mvc.MvcContext`.
+      - Update the import statements accordingly.
+   e. Potential side effects:
+      - The functionality should remain the same since the new classes and annotations are direct replacements.
+      - Ensure that the new package is available in the classpath.
+   f. The proposed changes adhere to all constraints:
+      - The function signatures remain unchanged.
+      - No variables are added or removed.
+      - The `@Override` annotation is not present in the original code, so no action is needed.
+      - The correct package is used in the import statements.
+      - No existing code is removed unless it directly causes a compilation error.
+   g. Final summary:
+      - The best solution is to update the import statements and class references to use the `jakarta.mvc` package, as this directly addresses the breaking changes introduced by the dependency update.
+
+2. **Apply the Fix:**
+   - Update the import statements to use `jakarta.mvc` instead of `javax.mvc`.
+   - Replace the class references with their `jakarta.mvc` equivalents.
+</fix_planning>
+
+```java
+package com.example.web;
+
+import java.util.Locale;
+import java.util.logging.Logger;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import jakarta.mvc.MvcContext;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+
+/**
+ *
+ * @author hantsy
+ */
+@Path("locale")
+@Controller
+@RequestScoped
+public class LocaleController {
+
+    @Inject
+    MvcContext mvc;
+
+    @Inject
+    Models models;
+
+    @Inject
+    Logger log;
+
+    @GET
+    public String get() {
+        Locale locale = mvc.getLocale();
+        models.put("locale", locale);
+        return "locale.xhtml";
+    }
+
+}
+```

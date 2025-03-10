@@ -1,0 +1,127 @@
+<fix_planning>
+1. **Analysis of the Problem:**
+   - The code is using classes and annotations from the `javax.mvc` package, which have been removed in the new version of the dependency.
+   - The new version of the dependency uses the `jakarta.mvc` package instead.
+   - The specific API changes causing the issue are:
+     - `javax.mvc.binding.BindingResult` → Removed
+     - `javax.mvc.binding.ParamError` → Removed
+     - `javax.mvc.binding.MvcBinding` → Removed
+     - `javax.mvc.security.CsrfProtected` → Removed
+     - `javax.mvc.Models` → Removed
+     - `javax.mvc.UriRef` → Removed
+     - `javax.mvc.Controller` → Removed
+     - New interfaces in `jakarta.mvc` package:
+       - `jakarta.mvc.binding.MvcBinding`
+       - `jakarta.mvc.security.CsrfProtected`
+       - `jakarta.mvc.Models`
+       - `jakarta.mvc.UriRef`
+       - `jakarta.mvc.Controller`
+
+2. **Affected Lines of Code:**
+   - `BindingResult bindingResult;`
+   - `import javax.mvc.binding.ParamError;`
+   - `import javax.mvc.binding.MvcBinding;`
+   - `import javax.mvc.binding.BindingResult;`
+   - `import javax.mvc.security.CsrfProtected;`
+   - `Models models;`
+   - `@MvcBinding`
+   - `import javax.mvc.UriRef;`
+   - `@CsrfProtected`
+   - `@Controller`
+
+3. **Proposed Fixes:**
+   - Replace `javax.mvc` imports with `jakarta.mvc` imports.
+   - Replace `javax.mvc.binding.BindingResult` with `jakarta.mvc.binding.BindingResult`.
+   - Replace `javax.mvc.binding.ParamError` with `jakarta.mvc.binding.ParamError`.
+   - Replace `javax.mvc.binding.MvcBinding` with `jakarta.mvc.binding.MvcBinding`.
+   - Replace `javax.mvc.security.CsrfProtected` with `jakarta.mvc.security.CsrfProtected`.
+   - Replace `javax.mvc.Models` with `jakarta.mvc.Models`.
+   - Replace `javax.mvc.UriRef` with `jakarta.mvc.UriRef`.
+   - Replace `javax.mvc.Controller` with `jakarta.mvc.Controller`.
+
+4. **Potential Side Effects:**
+   - The functionality should remain the same since the new `jakarta.mvc` package is a direct replacement for the old `javax.mvc` package.
+   - No changes to method signatures or logic are required.
+
+5. **Adherence to Constraints:**
+   - The function signatures of methods remain unchanged.
+   - No variables are created or removed.
+   - No `@Override` annotations are present or removed.
+   - Missing imports are addressed by using the correct `jakarta.mvc` package.
+   - No existing code is removed unless it directly causes a compilation error.
+   - All code, including unchanged portions, is included in the final output.
+
+6. **Final Summary:**
+   - The best solution is to replace all `javax.mvc` imports and class references with their `jakarta.mvc` counterparts. This adheres to the constraints and ensures the code compiles and functions correctly with the updated dependency.
+</fix_planning>
+
+```java
+package com.example.web;
+
+import java.util.logging.Logger;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import jakarta.mvc.UriRef;
+import jakarta.mvc.binding.BindingResult;
+import jakarta.mvc.binding.MvcBinding;
+import jakarta.mvc.binding.ParamError;
+import jakarta.mvc.security.CsrfProtected;
+import javax.validation.constraints.NotBlank;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+
+/**
+ *
+ * @author hantsy
+ */
+@Path("csrf")
+@Controller
+@RequestScoped
+public class CsrfController {
+
+    @Inject
+    BindingResult bindingResult;
+
+    @Inject
+    Models models;
+
+    @Inject
+    AlertMessage flashMessage;
+
+    @Inject
+    Logger log;
+
+    @GET
+    public String get() {
+        return "csrf.xhtml";
+    }
+
+    @POST
+    @CsrfProtected
+    public String post(
+            @FormParam("greeting")
+            @MvcBinding
+            @NotBlank String greeting) {
+        if (bindingResult.isFailed()) {
+            AlertMessage alert = AlertMessage.danger("Validation voilations!");
+            bindingResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
+            models.put("errors", alert);
+            log.info("mvc binding failed.");
+            return "csrf.xhtml";
+        }
+
+        log.info("redirect to greeting page.");
+        flashMessage.notify(AlertMessage.Type.success, "Message:" + greeting);
+        return "redirect:csrf";
+    }
+
+}
+```

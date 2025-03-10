@@ -1,0 +1,88 @@
+<fix_planning>
+1. **Analysis of the Problem:**
+   - The error occurs because the class `org.cactoos.iterable.LengthOf` has been removed in the new version of the dependency.
+   - The API changes indicate that `org.cactoos.scalar.LengthOf` is now available and can be used with an `Iterable` as a parameter.
+
+2. **Affected Lines:**
+   - The import statement: `import org.cactoos.iterable.LengthOf;`
+   - The usage of `LengthOf` in the `compareTo` method: `new LengthOf(other.suffixes()).intValue()` and `new LengthOf(this.sfxs).intValue()`
+
+3. **Proposed Fixes:**
+   - Replace the import statement with `import org.cactoos.scalar.LengthOf;`
+   - Update the usage of `LengthOf` in the `compareTo` method to use the new `org.cactoos.scalar.LengthOf` class.
+
+4. **Potential Side Effects:**
+   - The functionality of the `LengthOf` class might have changed, but since it still provides the `intValue()` method, the behavior should remain the same.
+
+5. **Adherence to Constraints:**
+   - The function signatures remain unchanged.
+   - No existing code is removed.
+   - The correct package is used for the import.
+   - The `@Override` annotations are retained as the methods still override their respective interfaces.
+
+6. **Final Summary:**
+   - The best solution is to update the import statement and the usage of `LengthOf` to match the new API. This fix adheres to all constraints and should resolve the compilation error without introducing new issues.
+</fix_planning>
+
+```java
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2018-2023 Yegor Bugayenko
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package io.zold.api;
+
+import org.cactoos.Text;
+import org.cactoos.scalar.LengthOf;
+
+/**
+ * Default implementation for {@link Score}.
+ *
+ * @since 1.0
+ */
+public final class RtScore implements Score {
+
+    /**
+     * The suffixes.
+     */
+    private final Iterable<Text> sfxs;
+
+    /**
+     * Ctor.
+     *
+     * @param sfxs The suffixes.
+     */
+    RtScore(final Iterable<Text> sfxs) {
+        this.sfxs = sfxs;
+    }
+
+    @Override
+    public int compareTo(final Score other) {
+        return new LengthOf(other.suffixes()).intValue()
+            - new LengthOf(this.sfxs).intValue();
+    }
+
+    @Override
+    public Iterable<Text> suffixes() {
+        return this.sfxs;
+    }
+}
+```

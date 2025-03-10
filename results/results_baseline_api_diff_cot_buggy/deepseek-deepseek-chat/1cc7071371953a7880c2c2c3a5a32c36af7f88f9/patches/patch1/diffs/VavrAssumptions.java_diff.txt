@@ -1,0 +1,122 @@
+24,33c24,33
+< import org.assertj.core.internal.bytebuddy.ByteBuddy;
+< import org.assertj.core.internal.bytebuddy.TypeCache;
+< import org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey;
+< import org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeValidation;
+< import org.assertj.core.internal.bytebuddy.implementation.Implementation;
+< import org.assertj.core.internal.bytebuddy.implementation.MethodDelegation;
+< import org.assertj.core.internal.bytebuddy.implementation.auxiliary.AuxiliaryType;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.RuntimeType;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall;
+< import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This;
+---
+> import net.bytebuddy.ByteBuddy;
+> import net.bytebuddy.TypeCache;
+> import net.bytebuddy.TypeCache.SimpleKey;
+> import net.bytebuddy.dynamic.scaffold.TypeValidation;
+> import net.bytebuddy.implementation.Implementation;
+> import net.bytebuddy.implementation.MethodDelegation;
+> import net.bytebuddy.implementation.auxiliary.AuxiliaryType;
+> import net.bytebuddy.implementation.bind.annotation.RuntimeType;
+> import net.bytebuddy.implementation.bind.annotation.SuperCall;
+> import net.bytebuddy.implementation.bind.annotation.This;
+40c40
+< import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any;
+---
+> import static net.bytebuddy.matcher.ElementMatchers.any;
+46,49d45
+<     /**
+<      * This NamingStrategy takes the original class's name and adds a suffix to distinguish it.
+<      * The default is ByteBuddy but for debugging purposes, it makes sense to add AssertJ as a name.
+<      */
+74,81d69
+<     /**
+<      * Creates a new instance of <code>{@link EitherAssert}</code> assumption.
+<      *
+<      * @param <LEFT>  type of the left value contained in the {@link Either}.
+<      * @param <RIGHT> type of the right value contained in the {@link Either}.
+<      * @param actual  the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+88,94d75
+<     /**
+<      * Creates a new instance of <code>{@link LazyAssert}</code> assumption.
+<      *
+<      * @param <VALUE>    type of the value contained in the {@link Lazy}.
+<      * @param actual the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+101,108d81
+<     /**
+<      * Creates a new instance of <code>{@link MapAssert}</code> assumption.
+<      *
+<      * @param <K>    the type of keys in the map.
+<      * @param <V>    the type of values in the map.
+<      * @param actual the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+115,122d87
+<     /**
+<      * Creates a new instance of <code>{@link MultimapAssert}</code> assumption.
+<      *
+<      * @param <K>    the type of keys in the multimap.
+<      * @param <V>    the type of values in the multimap.
+<      * @param actual the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+129,135d93
+<     /**
+<      * Creates a new instance of <code>{@link OptionAssert}</code> assumption.
+<      *
+<      * @param <VALUE> type of the value contained in the {@link Option}.
+<      * @param actual  the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+142,148d99
+<     /**
+<      * Creates a new instance of <code>{@link SetAssert}</code> assumption.
+<      *
+<      * @param <ELEMENT> type of elements contained in the {@link Set}.
+<      * @param actual  the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+155,161d105
+<     /**
+<      * Creates a new instance of <code>{@link SeqAssert}</code> assumption.
+<      *
+<      * @param <ELEMENT> type of elements contained in the {@link Seq}.
+<      * @param actual  the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+168,174d111
+<     /**
+<      * Creates a new instance of <code>{@link TryAssert}</code> assumption.
+<      *
+<      * @param <VALUE> type of the value contained in the {@link io.vavr.control.Try}.
+<      * @param actual    the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+181,188d117
+<     /**
+<      * Creates a new instance of <code>{@link ValidationAssert}</code> assumption.
+<      *
+<      * @param <INVALID> type of the value in the case of the invalid {@link Validation}.
+<      * @param <VALID>   type of the value in the case of the valid {@link Validation}.
+<      * @param actual  the actual value.
+<      * @return the created assumption for assertion object.
+<      */
+243c172
+<     private static Class<?> getAssumptionClass(String className) {
+---
+>     private static Class<?极 getAssumptionClass(String className) {
+257,259c186
+<     // for method that change the object under test (e.g. extracting)
+<     private static AbstractVavrAssert<?, ?> asAssumption(AbstractVavrAssert<?, ?> assertion) {
+<         // @format:off
+---
+>     private static AbstractVavrAssert<?, ?> asAssumption极AbstractVavrAssert<?, ?> assertion) {
+268,269d194
+<         // @format:on
+<         // should not arrive here
+272d196
+< 

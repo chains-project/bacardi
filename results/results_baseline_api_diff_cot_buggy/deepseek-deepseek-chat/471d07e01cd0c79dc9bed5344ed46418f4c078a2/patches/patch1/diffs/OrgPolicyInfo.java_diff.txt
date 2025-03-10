@@ -1,0 +1,48 @@
+18,21c18,21
+< import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
+< import com.google.api.services.cloudresourcemanager.model.ListPolicy;
+< import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
+< import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+---
+> import com.google.api.services.cloudresourcemanager.v3.model.BooleanConstraint;
+> import com.google.api.services.cloudresourcemanager.v3.model.ListConstraint;
+> import com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy;
+> import com.google.api.services.cloudresourcemanager.v3.model.RestoreDefault;
+96,97c96,97
+<     BooleanPolicy toProtobuf() {
+<       return new BooleanPolicy().setEnforced(enforce);
+---
+>     BooleanConstraint toProtobuf() {
+>       return new BooleanConstraint().setEnforced(enforce);
+100,101c100,101
+<     static BoolPolicy fromProtobuf(BooleanPolicy booleanPolicy) {
+<       return new BoolPolicy(booleanPolicy.getEnforced());
+---
+>     static BoolPolicy fromProtobuf(BooleanConstraint booleanConstraint) {
+>       return new BoolPolicy(booleanConstraint.getEnforced());
+125c125
+<     private final List<java.lang.String> deniedValues;
+---
+>     private final List<String> deniedValues;
+200,201c200,201
+<     ListPolicy toProtobuf() {
+<       return new ListPolicy()
+---
+>     ListConstraint toProtobuf() {
+>       return new ListConstraint()
+209c209
+<     static Policies fromProtobuf(ListPolicy listPolicy) {
+---
+>     static Policies fromProtobuf(ListConstraint listConstraint) {
+211,215c211,215
+<           listPolicy.getAllValues(),
+<           listPolicy.getAllowedValues(),
+<           listPolicy.getDeniedValues(),
+<           listPolicy.getInheritFromParent(),
+<           listPolicy.getSuggestedValue());
+---
+>           listConstraint.getAllValues(),
+>           listConstraint.getAllowedValues(),
+>           listConstraint.getDeniedValues(),
+>           listConstraint.getInheritFromParent(),
+>           listConstraint.getSuggestedValue());

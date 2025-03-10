@@ -1,0 +1,69 @@
+30c30,33
+< import org.cactoos.collection.Filtered;
+---
+> import java.util.Arrays;
+> import java.util.List;
+> import java.util.stream.Collectors;
+> import java.util.stream.StreamSupport;
+36d38
+< import org.cactoos.scalar.CheckedScalar;
+38d39
+< import org.cactoos.scalar.UncheckedScalar;
+40d40
+< import org.cactoos.text.SplitText;
+201,202c201,202
+<             return new CheckedScalar<>(
+<                 () -> Long.parseUnsignedLong(
+---
+>             try {
+>                 return Long.parseUnsignedLong(
+204,206c204,205
+<                         new SplitText(
+<                             new TextOf(this.path),
+<                             "\n"
+---
+>                         Arrays.asList(
+>                             new TextOf(this.path).asString().split("\n")
+208c207
+<                     ).get(2).asString(),
+---
+>                     ).get(2),
+211,213c210,213
+<                 ),
+<                 e -> new IOException(e)
+<             ).value();
+---
+>                 );
+>             } catch (final Exception e) {
+>                 throw new IOException(e);
+>             }
+231c231
+<         //  wallet (which exists at the node), it’s ignored; If the paying
+---
+>         //  wallet (which exists at the node), it is ignored; If the paying
+247,250c247,249
+<             final Iterable<Transaction> candidates = new Filtered<>(
+<                 incoming -> new Filtered<>(
+<                     origin -> new UncheckedScalar<>(
+<                         new Or(
+---
+>             final Iterable<Transaction> candidates = StreamSupport.stream(other.ledger().spliterator(), false)
+>                 .filter(incoming -> StreamSupport.stream(ledger.spliterator(), false)
+>                     .noneMatch(origin -> new Or(
+256a256
+>                     ).value())
+258,262c258
+<                     ).value(),
+<                     ledger
+<                 ).isEmpty(),
+<                 other.ledger()
+<             );
+---
+>                 .collect(Collectors.toList());
+275,277c271,272
+<                         new SplitText(
+<                             new TextOf(this.path),
+<                             "\\n"
+---
+>                         Arrays.asList(
+>                             new TextOf(this.path).asString().split("\\n")

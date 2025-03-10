@@ -1,0 +1,56 @@
+23,25c23,25
+< import com.google.api.services.translate.model.DetectionsResourceItems;
+< import com.google.api.services.translate.model.LanguagesResource;
+< import com.google.api.services.translate.model.TranslationsResource;
+---
+> import com.google.cloud.translate.model.DetectionResult;
+> import com.google.cloud.translate.model.LanguageResult;
+> import com.google.cloud.translate.model.TranslationResult;
+43c43
+<   private static final Function<List<DetectionsResourceItems>, Detection>
+---
+>   private static final Function<List<DetectionResult>, Detection>
+45c45
+<           new Function<List<DetectionsResourceItems>, Detection>() {
+---
+>           new Function<List<DetectionResult>, Detection>() {
+47c47
+<             public Detection apply(List<DetectionsResourceItems> detectionPb) {
+---
+>             public Detection apply(List<DetectionResult> detectionPb) {
+62c62
+<               new Callable<List<LanguagesResource>>() {
+---
+>               new Callable<List<LanguageResult>>() {
+64c64
+<                 public List<LanguagesResource> call() {
+---
+>                 public List<LanguageResult> call() {
+80c80
+<       List<List<DetectionsResourceItems>> detectionsPb =
+---
+>       List<List<DetectionResult>> detectionsPb =
+82c82
+<               new Callable<List<List<DetectionsResourceItems>>>() {
+---
+>               new Callable<List<List<DetectionResult>>>() {
+84c84
+<                 public List<List<DetectionsResourceItems>> call() {
+---
+>                 public List<List<DetectionResult>> call() {
+91c91
+<       Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
+---
+>       Iterator<List<DetectionResult>> detectionIterator = detectionsPb.iterator();
+94c94
+<         List<DetectionsResourceItems> detectionPb = detectionIterator.next();
+---
+>         List<DetectionResult> detectionPb = detectionIterator.next();
+121c121
+<               new Callable<List<TranslationsResource>>() {
+---
+>               new Callable<List<TranslationResult>>() {
+123c123
+<                 public List<TranslationsResource> call() {
+---
+>                 public List<TranslationResult> call() {

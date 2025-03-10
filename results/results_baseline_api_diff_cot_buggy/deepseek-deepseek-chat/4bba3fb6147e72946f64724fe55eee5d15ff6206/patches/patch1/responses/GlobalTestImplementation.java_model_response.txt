@@ -1,0 +1,70 @@
+<fix_planning>
+1. Analyze the problem and propose changes:
+   a. Relevant parts of the code and API changes:
+      - The code uses `@Priority(100)` and imports `javax.annotation.Priority`.
+      - The API changes indicate that `javax.annotation.Priority` has been removed and replaced with `jakarta.annotation.Priority`.
+
+   b. Specific API changes causing the issue:
+      - The removal of `javax.annotation.Priority` and its replacement with `jakarta.annotation.Priority`.
+
+   c. Affected lines of code:
+      - `import javax.annotation.Priority;`
+      - `@Priority(100)`
+
+   d. Propose potential fixes for each affected line:
+      - Replace `import javax.annotation.Priority;` with `import jakarta.annotation.Priority;`.
+      - Keep `@Priority(100)` unchanged as the annotation itself remains the same, only the package has changed.
+
+   e. Consider any potential side effects of the proposed changes:
+      - The change in import statement should not have any side effects as long as the new package `jakarta.annotation.Priority` is available in the classpath.
+
+   f. Explicitly check if the proposed changes adhere to all the given constraints:
+      - The function signature of any method is not changed.
+      - No variables are created.
+      - No `@Override` annotations are removed.
+      - The correct package is used in accordance with the newer dependency version.
+      - No existing code is removed unless it directly causes a compilation or functionality error.
+      - All code, even unchanged portions, is included in the final output.
+
+   g. Final summary of the chosen fix and why it's the best solution:
+      - The best solution is to update the import statement to use the new package `jakarta.annotation.Priority`. This change directly addresses the compilation error caused by the missing `javax.annotation.Priority` class and adheres to all constraints.
+
+2. Apply the fix to the Java code:
+   - Replace `import javax.annotation.Priority;` with `import jakarta.annotation.Priority;`.
+   - Keep `@Priority(100)` unchanged.
+
+3. Output the complete, fixed Java class in a fenced code block.
+</fix_planning>
+
+```java
+package de.hilling.junit.cdi.annotations;
+
+import de.hilling.junit.cdi.scope.TestScoped;
+import org.immutables.value.Value;
+
+import jakarta.annotation.Priority;
+import javax.enterprise.inject.Alternative;
+import javax.enterprise.inject.Stereotype;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+/**
+ * Use this annotation to mark Alternatives that should globally replace
+ * production implementations.
+ * <p>
+ *     These services cannot be disabled or enabled on a per test basis
+ *     because the container is only started once.
+ * </p>
+ */
+@Alternative
+@TestScoped
+@Stereotype
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+@Priority(100)
+@Value.Immutable
+public @interface GlobalTestImplementation {
+}
+```

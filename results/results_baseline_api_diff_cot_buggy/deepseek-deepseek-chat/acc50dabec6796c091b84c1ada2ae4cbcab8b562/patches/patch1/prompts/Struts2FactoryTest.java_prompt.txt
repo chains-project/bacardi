@@ -1,0 +1,150 @@
+You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates. Your task is to analyze the provided code, error information, and API changes, then propose and apply a patch to fix the issue while adhering to specific constraints.
+
+Here is the Java code that is failing:
+
+```java
+/*
+ * Copyright (C) 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.inject.struts2;
+
+import org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.Provides;
+import com.google.inject.servlet.GuiceServletContextListener;
+import com.google.inject.servlet.ServletModule;
+import java.util.Date;
+import junit.framework.TestCase;
+
+/**
+ * Test for Struts2Factory
+ *
+ * @author benmccann.com
+ */
+public class Struts2FactoryTest extends TestCase {
+
+  private static final Date TODAY = new Date();
+
+  public static class TestListener extends GuiceServletContextListener {
+
+    private final Module module;
+
+    public TestListener(Module module) {
+      this.module = module;
+    }
+
+    @Override
+    protected Injector getInjector() {
+      return Guice.createInjector(
+          new Struts2GuicePluginModule(),
+          new ServletModule() {
+            @Override
+            protected void configureServlets() {
+              // Struts 2 setup
+              bind(StrutsPrepareAndExecuteFilter.class)
+                  .in(com.google.inject.Singleton.class);
+              filter("/*").through(StrutsPrepareAndExecuteFilter.class);
+            }
+          },
+          module);
+    }
+  }
+
+  public void testStruts2Factory() {
+    Struts2Factory s2Factory = new Struts2Factory();
+    TestListener testListener =
+        new TestListener(
+            new AbstractModule() {
+
+              @Provides
+              @SuppressWarnings("unused")
+              Date provideDate() {
+                return TODAY;
+              }
+            });
+    assertEquals(TODAY, testListener.getInjector().getInstance(Date.class));
+    assertEquals(TODAY, s2Factory.buildBean(Date.class, null));
+  }
+}
+
+```
+
+The errors are triggered in the following specific lines:
+
+<error_lines>
+```java
+filter("/*").through(StrutsPrepareAndExecuteFilter.class);
+```
+```java
+import org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter;
+```
+```java
+bind(StrutsPrepareAndExecuteFilter.class)
+```
+</error_lines>
+
+The API of the dependency has changed. Here are the relevant changes:
+
+     Constructor org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter() has been removed in the new version of the dependency.
+     Type reference org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter() has been added in the new version of the dependency.
+     Class org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter has been removed in the new version of the dependency.
+
+Additional error information:
+
+<error_information>
+[ERROR] /guice/extensions/struts2/test/com/google/inject/struts2/Struts2FactoryTest.java:[57,35] error: cannot find symbol
+
+[ERROR] /guice/extensions/struts2/test/com/google/inject/struts2/Struts2FactoryTest.java:[19,46] error: package org.apache.struts2.dispatcher.ng.filter does not exist
+
+[ERROR] /guice/extensions/struts2/test/com/google/inject/struts2/Struts2FactoryTest.java:[55,19] error: cannot find symbol
+<error_information>
+
+Your task is to fix the issue by modifying only the client code. Follow these steps:
+
+1. Analyze the problem and propose changes by wrapping the work inside fix_planning tags. This analysis is for your internal use only and will not be included in the final output. In your analysis:
+   a. Quote relevant parts of the code and API changes
+   b. Identify the specific API changes causing the issue
+   c. List the affected lines of code
+   d. Propose potential fixes for each affected line
+   e. Consider any potential side effects of the proposed changes
+   f. Explicitly check if the proposed changes adhere to all the given constraints
+   g. Provide a final summary of the chosen fix and why it's the best solution
+
+2. Apply the fix to the Java code.
+
+3. Output the complete, fixed Java class in a fenced code block. This should be the only visible output in your response.
+
+Constraints:
+1. Do not change the function signature of any method.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error.
+6. Include all code, even unchanged portions, in your final output.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
+
+Your final output should only contain the complete, fixed Java class in a fenced code block, without any explanations or analysis visible. The <fix_planning> section is for your internal use only.
+
+Example output structure:
+
+```java
+[Complete, fixed Java class]
+```
+
+Please proceed with your analysis and solution.

@@ -1,0 +1,25 @@
+21c21,22
+< import org.codehaus.plexus.util.xml.Xpp3Dom;
+---
+> import org.apache.maven.model.Configuration;
+> import org.apache.maven.model.PluginConfiguration;
+70,71c71,73
+<         if (config instanceof Xpp3Dom) {
+<             return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
+---
+>         if (config instanceof Configuration) {
+>             PluginConfiguration pluginConfig = new PluginConfiguration((Configuration) config);
+>             return stream(pluginConfig.getChildren("annotationProcessorPaths"))
+78,79d79
+<                     // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
+<                     // therefore there is little use in logging incomplete paths that are filtered out.
+85,87d84
+<         // It is expected that this will never occur due to all Configuration instances of all plugins being provided as
+<         // XML document. If this happens to occur on very old plugin versions, we can safely add the type support and
+<         // simply return an empty set.
+99,100c96,97
+<     private static String extractChildValue(Xpp3Dom node, String name) {
+<         final Xpp3Dom child = node.getChild(name);
+---
+>     private static String extractChildValue(PluginConfiguration node, String name) {
+>         final PluginConfiguration child = node.getChild(name);

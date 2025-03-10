@@ -1,0 +1,84 @@
+<fix_planning>
+1. **Analysis of the Problem:**
+   a. **Relevant Code and API Changes:**
+      - The code uses `javax.mvc.Models`, `javax.mvc.MvcContext`, and `javax.mvc.Controller`.
+      - The API changes indicate that `javax.mvc.Models`, `javax.mvc.MvcContext`, and `javax.mvc.Controller` have been removed.
+      - New interfaces `jakarta.mvc.Models` and `jakarta.mvc.Controller` have been added.
+
+   b. **Specific API Changes Causing the Issue:**
+      - The removal of `javax.mvc.Models`, `javax.mvc.MvcContext`, and `javax.mvc.Controller` is causing the compilation errors.
+      - The addition of `jakarta.mvc.Models` and `jakarta.mvc.Controller` suggests that these should be used instead.
+
+   c. **Affected Lines of Code:**
+      - `Models models;`
+      - `MvcContext mvc;`
+      - `import javax.mvc.MvcContext;`
+      - `@Controller`
+
+   d. **Proposed Fixes:**
+      - Replace `javax.mvc.Models` with `jakarta.mvc.Models`.
+      - Replace `javax.mvc.MvcContext` with `jakarta.mvc.MvcContext` (assuming it exists in the new version).
+      - Replace `javax.mvc.Controller` with `jakarta.mvc.Controller`.
+      - Update the import statements accordingly.
+
+   e. **Potential Side Effects:**
+      - If `jakarta.mvc.MvcContext` does not exist in the new version, this could cause further issues.
+      - The functionality of the code should remain the same if the new interfaces are compatible with the old ones.
+
+   f. **Adherence to Constraints:**
+      - The function signatures remain unchanged.
+      - No variables are created or removed.
+      - The `@Override` annotation is not present, so no changes are needed there.
+      - Missing imports are addressed by using the correct package.
+      - No existing code is removed unless it directly causes a compilation error.
+
+   g. **Final Summary:**
+      - The best solution is to update the imports and class/interface references to use the new `jakarta.mvc` package. This adheres to the constraints and resolves the compilation errors.
+
+2. **Apply the Fix:**
+   - Update the import statements to use `jakarta.mvc` instead of `javax.mvc`.
+   - Replace `javax.mvc.Models` with `jakarta.mvc.Models`.
+   - Replace `javax.mvc.MvcContext` with `jakarta.mvc.MvcContext`.
+   - Replace `javax.mvc.Controller` with `jakarta.mvc.Controller`.
+</fix_planning>
+
+```java
+package com.example.web;
+
+import java.util.Locale;
+import java.util.logging.Logger;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import jakarta.mvc.MvcContext;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+
+/**
+ *
+ * @author hantsy
+ */
+@Path("locale")
+@Controller
+@RequestScoped
+public class LocaleController {
+
+    @Inject
+    MvcContext mvc;
+
+    @Inject
+    Models models;
+
+    @Inject
+    Logger log;
+
+    @GET
+    public String get() {
+        Locale locale = mvc.getLocale();
+        models.put("locale", locale);
+        return "locale.xhtml";
+    }
+
+}
+```

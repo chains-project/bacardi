@@ -1,0 +1,96 @@
+<fix_planning>
+1. **Analysis of the Problem:**
+   a. The error occurs because the class `org.mockito.runners.MockitoJUnitRunner` has been removed in the new version of the dependency.
+   b. The specific API changes causing the issue are:
+      - `org.mockito.runners.MockitoJUnitRunner` has been removed.
+      - The constructor `org.mockito.runners.MockitoJUnitRunner(java.lang.Class)` has been removed.
+   c. The affected lines of code are:
+      - `import org.mockito.runners.MockitoJUnitRunner;`
+      - `@RunWith(MockitoJUnitRunner.class)`
+   d. Potential fixes:
+      - Replace `org.mockito.runners.MockitoJUnitRunner` with `org.mockito.junit.MockitoJUnitRunner` which is the new location of the class in the updated dependency.
+   e. Side effects:
+      - The change should not have any side effects as the new class `org.mockito.junit.MockitoJUnitRunner` is a direct replacement for the removed class.
+   f. Adherence to constraints:
+      - The proposed change adheres to all constraints as it only modifies the import statement and the annotation, without changing any method signatures or removing existing code.
+   g. Final summary:
+      - The best solution is to update the import statement and the annotation to use the new location of `MockitoJUnitRunner` in the `org.mockito.junit` package. This is a straightforward fix that resolves the compilation errors without introducing any side effects.
+
+2. **Proposed Fix:**
+   - Replace `import org.mockito.runners.MockitoJUnitRunner;` with `import org.mockito.junit.MockitoJUnitRunner;`
+   - Keep the `@RunWith(MockitoJUnitRunner.class)` annotation as is, but it will now refer to the new class location.
+</fix_planning>
+
+```java
+package com.pholser.junit.quickcheck.internal.generator;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+
+import com.pholser.junit.quickcheck.generator.GenerationStatus;
+import com.pholser.junit.quickcheck.generator.Generator;
+import com.pholser.junit.quickcheck.internal.ParameterTypeContext;
+import com.pholser.junit.quickcheck.internal.generator.conventiontestclasses.Convention;
+import com.pholser.junit.quickcheck.internal.generator.conventiontestclasses.GeneratesOtherTypes;
+import com.pholser.junit.quickcheck.internal.generator.conventiontestclasses.NotAGenerator;
+import com.pholser.junit.quickcheck.random.SourceOfRandomness;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+@RunWith(MockitoJUnitRunner.class)
+public class RegisterGeneratorsByConventionTest {
+    private GeneratorRepository repo;
+    @Mock private SourceOfRandomness random;
+    @Mock private GenerationStatus generationStatus;
+
+    @Before
+    public void setupRepository() {
+        repo = new GeneratorRepository(random);
+    }
+
+    @Test
+    public void canGenerateValues() {
+        Generator<?> generator =
+            repo.generatorFor(ParameterTypeContext.forClass(Convention.class));
+
+        assertNotNull(generator);
+        assertThat(
+            generator.generate(random, generationStatus),
+            instanceOf(Convention.class));
+    }
+
+    @Test
+    public void classNameFollowsConventionButNotAGenerator() {
+        assertThatNoGeneratorCanBeFound(NotAGenerator.class);
+    }
+
+    @Test
+    public void noValueTypeMatch() {
+        assertThatNoGeneratorCanBeFound(GeneratesOtherTypes.class);
+    }
+
+    @Test
+    public void notAClassFollowingNamingConvention() {
+        assertThatNoGeneratorCanBeFound(this.getClass());
+    }
+
+    private void assertThatNoGeneratorCanBeFound(Class<?> valueClass) {
+        IllegalArgumentException ex =
+            assertThrows(
+                IllegalArgumentException.class,
+                () -> repo.generatorFor(
+                    ParameterTypeContext.forClass(valueClass)));
+
+        assertThat(
+            ex.getMessage(),
+            containsString(
+                "Cannot find generator for " + valueClass.getName()));
+    }
+}
+```

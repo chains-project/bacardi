@@ -1,0 +1,126 @@
+<fix_planning>
+1. Analysis:
+   a. Relevant code parts:
+      - `this.httpConnector = new SelectChannelConnector();`
+      - `this.httpConnector.setPort(port);`
+      - `return httpConnector.getLocalPort();`
+      - `this.server.setSendServerVersion(false);`
+      - `this.server.setSendDateHeader(true);`
+   
+   b. API changes causing issues:
+      - `SelectChannelConnector` class removed
+      - `Connector` class removed
+      - `Server.setSendServerVersion()` removed
+      - `Server.setSendDateHeader()` removed
+      - `Connector.getLocalPort()` removed
+   
+   c. Affected lines:
+      - Lines using removed classes/methods
+   
+   d. Proposed fixes:
+      - Replace `SelectChannelConnector` with `ServerConnector`
+      - Use `HttpConfiguration` for server version and date header settings
+      - Update imports accordingly
+   
+   e. Potential side effects:
+      - Need to ensure new classes are compatible with existing functionality
+      - May need to adjust connector configuration
+   
+   f. Constraints check:
+      - Function signatures remain unchanged
+      - Only client code modified
+      - All necessary imports included
+      - No code removed unless causing errors
+   
+   g. Final solution:
+      - Use `ServerConnector` instead of `SelectChannelConnector`
+      - Configure server settings through `HttpConfiguration`
+      - Update imports to match new API
+      - This solution best addresses all breaking changes while maintaining functionality
+</fix_planning>
+
+```java
+/*
+ * Copyright (c) 2012 - 2016 Jadler contributors
+ * This program is made available under the terms of the MIT License.
+ */
+package net.jadler.stubbing.server.jetty;
+
+import net.jadler.RequestManager;
+import net.jadler.stubbing.server.StubHttpServer;
+import org.eclipse.jetty.server.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.Validate;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.NetworkConnector;
+
+/**
+ * Default stub http server implementation using Jetty as an http server.
+ */
+public class JettyStubHttpServer implements StubHttpServer {
+
+    private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
+    private final Server server;
+    private final ServerConnector httpConnector;
+
+    public JettyStubHttpServer() {
+        this(0);
+    }
+    
+
+    public JettyStubHttpServer(final int port) {
+        this.server = new Server();
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        httpConfig.setSendServerVersion(false);
+        httpConfig.setSendDateHeader(true);
+        
+        this.httpConnector = new ServerConnector(server);
+        this.httpConnector.setPort(port);
+        server.addConnector(this.httpConnector);
+    }
+    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void registerRequestManager(final RequestManager ruleProvider) {
+        Validate.notNull(ruleProvider, "ruleProvider cannot be null");
+
+        server.setHandler(new JadlerHandler(ruleProvider));
+    }
+    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void start() throws Exception {
+        logger.debug("starting jetty");
+        server.start();
+        logger.debug("jetty started");
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void stop() throws Exception {
+        logger.debug("stopping jetty");
+        server.stop();
+        logger.debug("jetty stopped");
+    }
+    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getPort() {
+        return httpConnector.getLocalPort();
+    }
+}
+```

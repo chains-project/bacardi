@@ -1,0 +1,214 @@
+You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates. Your task is to analyze the provided code, error information, and API changes, then propose and apply a patch to fix the issue while adhering to specific constraints.
+
+Here is the Java code that is failing:
+
+```java
+/*
+ * Copyright (c) 2012 - 2016 Jadler contributors
+ * This program is made available under the terms of the MIT License.
+ */
+package net.jadler.stubbing.server.jetty;
+
+import net.jadler.RequestManager;
+import net.jadler.stubbing.server.StubHttpServer;
+import org.eclipse.jetty.server.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.Validate;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.nio.SelectChannelConnector;
+
+
+/**
+ * Default stub http server implementation using Jetty as an http server.
+ */
+public class JettyStubHttpServer implements StubHttpServer {
+
+    private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
+    private final Server server;
+    private final Connector httpConnector;
+
+    public JettyStubHttpServer() {
+        this(0);
+    }
+    
+
+    public JettyStubHttpServer(final int port) {
+        this.server = new Server();
+        this.server.setSendServerVersion(false);
+        this.server.setSendDateHeader(true);
+        
+        this.httpConnector = new SelectChannelConnector();
+        this.httpConnector.setPort(port);
+        server.addConnector(this.httpConnector);
+    }
+    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void registerRequestManager(final RequestManager ruleProvider) {
+        Validate.notNull(ruleProvider, "ruleProvider cannot be null");
+
+        server.setHandler(new JadlerHandler(ruleProvider));
+    }
+    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void start() throws Exception {
+        logger.debug("starting jetty");
+        server.start();
+        logger.debug("jetty started");
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void stop() throws Exception {
+        logger.debug("stopping jetty");
+        server.stop();
+        logger.debug("jetty stopped");
+    }
+    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getPort() {
+        return httpConnector.getLocalPort();
+    }
+}
+```
+
+The errors are triggered in the following specific lines:
+
+<error_lines>
+```java
+this.httpConnector = new SelectChannelConnector();
+```
+```java
+this.httpConnector.setPort(port);
+```
+```java
+import org.eclipse.jetty.server.nio.SelectChannelConnector;
+```
+```java
+return httpConnector.getLocalPort();
+```
+```java
+this.httpConnector = new SelectChannelConnector();
+```
+```java
+this.httpConnector = new SelectChannelConnector();
+```
+```java
+this.httpConnector.setPort(port);
+```
+```java
+return httpConnector.getLocalPort();
+```
+```java
+this.server.setSendServerVersion(false);
+```
+```java
+this.server.setSendServerVersion(false);
+```
+```java
+this.server.setSendDateHeader(true);
+```
+```java
+this.server.setSendDateHeader(true);
+```
+</error_lines>
+
+The API of the dependency has changed. Here are the relevant changes:
+
+     Class org.eclipse.jetty.server.Connector has been removed in the new version of the dependency.
+     Class org.eclipse.jetty.server.nio.SelectChannelConnector has been removed in the new version of the dependency.
+     Constructor org.eclipse.jetty.server.nio.SelectChannelConnector() has been removed in the new version of the dependency.
+     Method org.eclipse.jetty.server.AbstractNetworkConnector.setPort(int) has been added in the new version of the dependency.
+     Method org.eclipse.jetty.server.Connector.setPort(int) has been removed in the new version of the dependency.
+     Method org.eclipse.jetty.server.AbstractConnector.setPort(int) has been removed in the new version of the dependency.
+     Method org.eclipse.jetty.server.bio.SocketConnector.getLocalPort() has been removed in the new version of the dependency.
+     Method org.eclipse.jetty.server.nio.SelectChannelConnector.getLocalPort() has been removed in the new version of the dependency.
+     Method org.eclipse.jetty.server.NetworkConnector.getLocalPort() has been added in the new version of the dependency.
+     Method org.eclipse.jetty.server.Connector.getLocalPort() has been removed in the new version of the dependency.
+     Method org.eclipse.jetty.server.LocalConnector.getLocalPort() has been removed in the new version of the dependency.
+     Method org.eclipse.jetty.server.ServerConnector.getLocalPort() has been added in the new version of the dependency.
+     Method org.eclipse.jetty.server.nio.BlockingChannelConnector.getLocalPort() has been removed in the new version of the dependency.
+     Method org.eclipse.jetty.server.AbstractNetworkConnector.getLocalPort() has been added in the new version of the dependency.
+     Method org.eclipse.jetty.server.HttpConfiguration.setSendServerVersion(boolean) has been added in the new version of the dependency.
+     Method org.eclipse.jetty.server.Server.setSendServerVersion(boolean) has been removed in the new version of the dependency.
+     Method org.eclipse.jetty.server.Server has been removed in the new version of the dependency.
+     Type reference org.eclipse.jetty.server.Server(org.eclipse.jetty.util.thread.ThreadPool) has been added in the new version of the dependency.
+     Method org.eclipse.jetty.server.Server.setSendDateHeader(boolean) has been removed in the new version of the dependency.
+     Method org.eclipse.jetty.server.HttpConfiguration.setSendDateHeader(boolean) has been added in the new version of the dependency.
+
+Additional error information:
+
+<error_information>
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[36,33] error: cannot find symbol
+
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[37,26] error: cannot find symbol
+
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[14,35] error: cannot find symbol
+
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[80,28] error: cannot find symbol
+
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[36,33] error: cannot find symbol
+
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[36,33] error: cannot find symbol
+
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[37,26] error: cannot find symbol
+
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[80,28] error: cannot find symbol
+
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[33,19] error: cannot find symbol
+
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[33,19] error: cannot find symbol
+
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[34,19] error: cannot find symbol
+
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[34,19] error: cannot find symbol
+<error_information>
+
+Your task is to fix the issue by modifying only the client code. Follow these steps:
+
+1. Analyze the problem and propose changes by wrapping the work inside fix_planning tags. This analysis is for your internal use only and will not be included in the final output. In your analysis:
+   a. Quote relevant parts of the code and API changes
+   b. Identify the specific API changes causing the issue
+   c. List the affected lines of code
+   d. Propose potential fixes for each affected line
+   e. Consider any potential side effects of the proposed changes
+   f. Explicitly check if the proposed changes adhere to all the given constraints
+   g. Provide a final summary of the chosen fix and why it's the best solution
+
+2. Apply the fix to the Java code.
+
+3. Output the complete, fixed Java class in a fenced code block. This should be the only visible output in your response.
+
+Constraints:
+1. Do not change the function signature of any method.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error.
+6. Include all code, even unchanged portions, in your final output.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
+
+Your final output should only contain the complete, fixed Java class in a fenced code block, without any explanations or analysis visible. The <fix_planning> section is for your internal use only.
+
+Example output structure:
+
+```java
+[Complete, fixed Java class]
+```
+
+Please proceed with your analysis and solution.

@@ -1,0 +1,61 @@
+<fix_planning>
+1. Analysis:
+   a. The error occurs because `CommandSource` class has been removed in the new version of the dependency.
+   b. The specific API change causing the issue is the removal of `org.spongepowered.api.command.CommandSource`.
+   c. Affected lines:
+      - Import statement: `import org.spongepowered.api.command.CommandSource;`
+      - Field declaration: `private final CommandSource invoker;`
+      - Constructor parameter: `public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url)`
+   d. Potential fixes:
+      - Replace `CommandSource` with its replacement class `CommandCause` from `org.spongepowered.api.command.manager` package.
+   e. Side effects:
+      - The new class might have different methods or behavior, but since we're only using it as a parameter type, it should be compatible.
+   f. Constraints check:
+      - Function signatures remain unchanged
+      - No code is removed
+      - Only client code is modified
+      - All code is included in the final output
+   g. Final solution:
+      - Replace `CommandSource` with `CommandCause` in all affected locations.
+
+2. Chosen fix:
+   - Replace `CommandSource` with `CommandCause` from `org.spongepowered.api.command.manager` package.
+   - This is the best solution because it directly addresses the API change while maintaining the same functionality and adhering to all constraints.
+</fix_planning>
+
+```java
+package com.github.games647.changeskin.sponge.task;
+
+import com.github.games647.changeskin.core.model.auth.Account;
+import com.github.games647.changeskin.core.shared.task.SharedUploader;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+
+import java.util.concurrent.TimeUnit;
+
+import org.spongepowered.api.command.manager.CommandCause;
+import org.spongepowered.api.scheduler.Task;
+
+public class SkinUploader extends SharedUploader {
+
+    private final ChangeSkinSponge plugin;
+    private final CommandCause invoker;
+
+    public SkinUploader(ChangeSkinSponge plugin, CommandCause invoker, Account owner, String url) {
+        super(plugin.getCore(), owner, url);
+
+        this.plugin = plugin;
+        this.invoker = invoker;
+    }
+
+    @Override
+    public void sendMessageInvoker(String key) {
+        plugin.sendMessage(invoker, key);
+    }
+
+    @Override
+    protected void scheduleChangeTask(String oldSkinUrl) {
+        Runnable task = new SkinChanger(plugin, owner, url, oldSkinUrl, invoker);
+        Task.builder().delay(1, TimeUnit.MINUTES).execute(task).async().submit(plugin);
+    }
+}
+```

@@ -1,0 +1,70 @@
+26,28d25
+< import org.tinspin.index.PointDistanceFunction;
+< import org.tinspin.index.PointEntryDist;
+< import org.tinspin.index.covertree.CoverTree;
+56a54,67
+>     private interface DistanceFunction {
+>         double distance(double[] p1, double[] p2);
+>     }
+> 
+>     private static class PointEntry {
+>         final double[] point;
+>         final PVector value;
+> 
+>         PointEntry(double[] point, PVector value) {
+>             this.point = point;
+>             this.value = value;
+>         }
+>     }
+> 
+203c214
+<                 final CoverTree<PVector> tree = CoverTree.create(3, 2, circleDistanceMetric);
+---
+>         final List<PointEntry> tree = new ArrayList<>();
+217c228
+<                 vertices.forEach(p -> tree.insert(new double[] { p.x, p.y, 0 }, p));
+---
+>         vertices.forEach(p -> tree.add(new PointEntry(new double[] { p.x, p.y, 0 }, p)));
+219,222d229
+<                 /*
+<                  * "To find the circle nearest to a center (x, y), do a proximity search at (x,
+<                  * y, R), where R is greater than or equal to the maximum radius of a circle."
+<                  */
+226c233,234
+<                         final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+---
+>             PointEntry nearest = null;
+>             double minDistance = Double.MAX_VALUE;
+228,235c236,248
+<                         /*
+<                          * nn.dist() does not return the radius (since it's a distance metric used to
+<                          * find nearest circle), so calculate maximum radius for candidate circle using
+<                          * 2d euclidean distance between center points minus radius of nearest circle.
+<                          */
+<                         final float dx = p.x - nn.value().x;
+<                         final float dy = p.y - nn.value().y;
+<                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z);
+---
+>             // Find nearest neighbor
+>             for (PointEntry entry : tree) {
+>                 double distance = circleDistanceMetric.distance(new double[] { p.x, p.y, largestR }, entry.point);
+>                 if (distance < minDistance) {
+>                     minDistance = distance;
+>                     nearest = entry;
+>                 }
+>             }
+> 
+>             if (nearest != null) {
+>                 final float dx = p.x - nearest.value.x;
+>                 final float dy = p.y - nearest.value.y;
+>                 final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nearest.value.z);
+239c252
+<                                 tree.insert(new double[] { p.x, p.y, radius }, p); // insert circle into tree
+---
+>                     tree.add(new PointEntry(new double[] { p.x, p.y, radius }, p)); // insert circle into tree
+242a256
+>         }
+645c659
+<         private static final PointDistanceFunction circleDistanceMetric = (p1, p2) -> {
+---
+>     private static final DistanceFunction circleDistanceMetric = (p1, p2) -> {

@@ -1,0 +1,36 @@
+18c18
+< import com.hazelcast.core.Cluster;
+---
+> import com.hazelcast.cluster.Cluster;
+23,26c23,25
+< import com.hazelcast.core.Member;
+< import com.hazelcast.core.MemberAttributeEvent;
+< import com.hazelcast.core.MembershipEvent;
+< import com.hazelcast.core.MembershipListener;
+---
+> import com.hazelcast.cluster.Member;
+> import com.hazelcast.cluster.MembershipEvent;
+> import com.hazelcast.cluster.MembershipListener;
+76d74
+< 
+193,202d190
+<     /**
+<      * Blocks the current thread until the cluster cache is guaranteed to support clustering. This is especially useful
+<      * for executing cluster tasks immediately after joining. If this wait is not performed, the cache factory may still
+<      * be using the 'default' strategy instead of the 'hazelcast' strategy, which leads to cluster tasks being silently
+<      * discarded.
+<      *
+<      * The method will keep trying this for 10 minutes. After that the thread is released regardless of the result.
+<      *
+<      * @return Boolean indicating whether the clustered cache was actually observed to be installed.
+<      */
+268,276d255
+<     }
+< 
+<     @Override
+<     public void memberAttributeChanged(final MemberAttributeEvent event) {
+<         logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
+<         isSenior = isSeniorClusterMember();
+<         final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));
+<         clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(event.getMember()),
+<                 new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));

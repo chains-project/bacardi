@@ -1,0 +1,183 @@
+You are an Automatic Program Repair (APR) tool specialized in fixing Java code issues caused by breaking dependency updates. Your task is to analyze the provided code, error information, and API changes, then propose and apply a patch to fix the issue while adhering to specific constraints.
+
+Here is the Java code that is failing:
+
+```java
+/**
+ * Copyright (C) 2011 Brian Ferris <bdferris@onebusaway.org>
+ * Copyright (C) 2011 Google, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.onebusaway.gtfs.impl;
+
+import java.io.Serializable;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.text.ParseException;
+
+import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.usertype.UserType;
+import org.onebusaway.gtfs.model.calendar.ServiceDate;
+
+public class ServiceDateUserType implements UserType {
+
+  private static final int[] SQL_TYPES = {Types.VARCHAR};
+
+  @Override
+  public Class<?> returnedClass() {
+    return ServiceDate.class;
+  }
+
+  @Override
+  public int[] sqlTypes() {
+    return SQL_TYPES;
+  }
+
+  @Override
+  public boolean equals(Object x, Object y) throws HibernateException {
+    return x == y;
+  }
+
+  @Override
+  public int hashCode(Object x) throws HibernateException {
+    return x.hashCode();
+  }
+
+  @Override
+  public boolean isMutable() {
+    return false;
+  }
+
+  @Override
+  public Object deepCopy(Object value) throws HibernateException {
+    if (value == null) {
+      return null;
+    }
+    return new ServiceDate((ServiceDate) value);
+  }
+
+  @Override
+  public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor sessionImplementor, Object owner)
+      throws HibernateException, SQLException {
+
+    String value = rs.getString(names[0]);
+
+    if (rs.wasNull())
+      return null;
+
+    try {
+      return ServiceDate.parseString(value);
+    } catch (ParseException ex) {
+      throw new SQLException("error parsing service date value: " + value, ex);
+    }
+  }
+
+  @Override
+  public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor sessionImplementor)
+      throws HibernateException, SQLException {
+
+    if (value == null) {
+      st.setNull(index, SQL_TYPES[0]);
+    } else {
+      ServiceDate serviceDate = (ServiceDate) value;
+      st.setString(index, serviceDate.getAsString());
+    }
+  }
+
+  @Override
+  public Object assemble(Serializable cached, Object owner)
+      throws HibernateException {
+    return deepCopy(cached);
+  }
+
+  @Override
+  public Serializable disassemble(Object value) throws HibernateException {
+    return (Serializable) deepCopy(value);
+  }
+
+  @Override
+  public Object replace(Object original, Object target, Object owner)
+      throws HibernateException {
+    if (original == null)
+      return null;
+    return deepCopy(original);
+  }
+}
+
+```
+
+The errors are triggered in the following specific lines:
+
+<error_lines>
+```java
+@Override
+```
+```java
+public class ServiceDateUserType implements UserType {
+```
+```java
+@Override
+```
+</error_lines>
+
+The API of the dependency has changed. Here are the relevant changes:
+
+     Interface org.hibernate.engine.spi.SessionImplementor has been removed in the new version of the dependency.
+
+Additional error information:
+
+<error_information>
+[ERROR] /onebusaway-gtfs-modules/onebusaway-gtfs-hibernate/src/main/java/org/onebusaway/gtfs/impl/ServiceDateUserType.java:[68,3] method does not override or implement a method from a supertype
+
+[ERROR] /onebusaway-gtfs-modules/onebusaway-gtfs-hibernate/src/main/java/org/onebusaway/gtfs/impl/ServiceDateUserType.java:[31,8] org.onebusaway.gtfs.impl.ServiceDateUserType is not abstract and does not override abstract method nullSafeSet(java.sql.PreparedStatement,java.lang.Object,int,org.hibernate.engine.spi.SharedSessionContractImplementor) in org.hibernate.usertype.UserType
+
+[ERROR] /onebusaway-gtfs-modules/onebusaway-gtfs-hibernate/src/main/java/org/onebusaway/gtfs/impl/ServiceDateUserType.java:[84,3] method does not override or implement a method from a supertype
+<error_information>
+
+Your task is to fix the issue by modifying only the client code. Follow these steps:
+
+1. Analyze the problem and propose changes by wrapping the work inside fix_planning tags. This analysis is for your internal use only and will not be included in the final output. In your analysis:
+   a. Quote relevant parts of the code and API changes
+   b. Identify the specific API changes causing the issue
+   c. List the affected lines of code
+   d. Propose potential fixes for each affected line
+   e. Consider any potential side effects of the proposed changes
+   f. Explicitly check if the proposed changes adhere to all the given constraints
+   g. Provide a final summary of the chosen fix and why it's the best solution
+
+2. Apply the fix to the Java code.
+
+3. Output the complete, fixed Java class in a fenced code block. This should be the only visible output in your response.
+
+Constraints:
+1. Do not change the function signature of any method.
+2. You may create variables if it simplifies the code.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error.
+6. Include all code, even unchanged portions, in your final output.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
+
+Your final output should only contain the complete, fixed Java class in a fenced code block, without any explanations or analysis visible. The <fix_planning> section is for your internal use only.
+
+Example output structure:
+
+```java
+[Complete, fixed Java class]
+```
+
+Please proceed with your analysis and solution.

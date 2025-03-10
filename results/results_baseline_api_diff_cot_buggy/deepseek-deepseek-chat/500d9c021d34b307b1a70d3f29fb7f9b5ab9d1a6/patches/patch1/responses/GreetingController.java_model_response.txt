@@ -1,0 +1,110 @@
+<fix_planning>
+1. **Analysis of the Problem:**
+   - The code is using classes and interfaces from the `javax.mvc` package, which have been removed in the new version of the dependency.
+   - The new version of the dependency uses the `jakarta.mvc` package instead.
+   - The specific API changes causing the issue are:
+     - `javax.mvc.binding.ParamError` → Removed
+     - `javax.mvc.Models` → Removed, replaced by `jakarta.mvc.Models`
+     - `javax.mvc.UriRef` → Removed, replaced by `jakarta.mvc.UriRef`
+     - `javax.mvc.binding.MvcBinding` → Removed, replaced by `jakarta.mvc.binding.MvcBinding`
+     - `javax.mvc.Controller` → Removed, replaced by `jakarta.mvc.Controller`
+     - `javax.mvc.binding.BindingResult` → Removed, replaced by `jakarta.mvc.binding.BindingResult`
+     - `javax.mvc.security.CsrfProtected` → Removed, replaced by `jakarta.mvc.security.CsrfProtected`
+
+2. **Affected Lines of Code:**
+   - Import statements for `javax.mvc.binding.ParamError`, `javax.mvc.Models`, `javax.mvc.UriRef`, `javax.mvc.binding.MvcBinding`, `javax.mvc.Controller`, `javax.mvc.binding.BindingResult`, and `javax.mvc.security.CsrfProtected`.
+   - Class annotations `@Controller` and `@UriRef("greeting-post")`.
+   - Field declarations `Models models;` and `BindingResult bindingResult;`.
+   - Method parameter annotation `@MvcBinding`.
+
+3. **Proposed Fixes:**
+   - Replace all `javax.mvc` imports with `jakarta.mvc` imports.
+   - Update the class annotations to use `jakarta.mvc` instead of `javax.mvc`.
+   - Update the field declarations to use `jakarta.mvc` types.
+   - Update the method parameter annotation to use `jakarta.mvc.binding.MvcBinding`.
+
+4. **Potential Side Effects:**
+   - The functionality of the code should remain the same, as the new `jakarta.mvc` package is a direct replacement for the old `javax.mvc` package.
+   - No changes to the method signatures are required, so existing code that interacts with this class should continue to work.
+
+5. **Adherence to Constraints:**
+   - The function signatures of methods are not changed.
+   - No variables are created as it is not necessary.
+   - No `@Override` annotations are present to remove.
+   - Missing imports are addressed by using the correct `jakarta.mvc` package.
+   - No existing code is removed unless it directly causes a compilation error.
+   - All code, including unchanged portions, is included in the final output.
+
+6. **Final Summary:**
+   - The best solution is to replace all `javax.mvc` imports and references with `jakarta.mvc` imports and references. This adheres to the constraints and ensures the code compiles and functions correctly with the updated dependency.
+</fix_planning>
+
+```java
+package com.example.web;
+
+import java.util.logging.Logger;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import jakarta.mvc.UriRef;
+import jakarta.mvc.binding.BindingResult;
+import jakarta.mvc.binding.MvcBinding;
+import jakarta.mvc.security.CsrfProtected;
+import javax.validation.constraints.NotBlank;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+
+/**
+ *
+ * @author hantsy
+ */
+@Path("greeting")
+@Controller
+@RequestScoped
+public class GreetingController {
+
+    @Inject
+    BindingResult bindingResult;
+
+    @Inject
+    Models models;
+
+    @Inject
+    AlertMessage flashMessage;
+
+    @Inject
+    Logger log;
+
+    @GET
+    public String get() {
+        return "greeting.xhtml";
+    }
+
+    @POST
+    @UriRef("greeting-post")
+    public String post(
+            @FormParam("greeting")
+            @MvcBinding
+            @NotBlank String greeting) {
+        if (bindingResult.isFailed()) {
+            AlertMessage alert = AlertMessage.danger("Validation voilations!");
+            bindingResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
+            models.put("errors", alert);
+            log.info("mvc binding failed.");
+            return "greeting.xhtml";
+        }
+
+        log.info("redirect to greeting page.");
+        flashMessage.notify(AlertMessage.Type.success, "Message:" + greeting);
+        return "redirect:greeting";
+    }
+
+}
+```

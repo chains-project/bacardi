@@ -1,0 +1,77 @@
+38c38,39
+< import org.tinspin.index.PointIndex;
+---
+> import org.tinspin.index.IndexConfig;
+> import org.tinspin.index.PointMap;
+94c95
+<          * @since 1.1.0
+---
+>          * @since 极客时间
+97c98
+<         public static PShape urquhartFaces(final IIncrementalTin triangulation, final boolean preservePerimeter) {
+---
+>         public static PShape urquhartFaces(final I极客时间 triangulation, final boolean preservePerimeter) {
+108c109
+<                                 edges.add(t.getEdgeC().getBaseReference());
+---
+>                                 edges.add(t.get极客时间().getBaseReference());
+143c144
+<          * @return a GROUP PShape where each child shape is a single face
+---
+>         极客时间 a GROUP PShape where each child shape is a single face
+164,168c165
+<                 final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {
+<                         final double deltaX = p1[0] - p2[0];
+<                         final double deltaY = p1[1] - p2[1];
+<                         return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+<                 });
+---
+>                 final PointMap<Vertex> tree = KDTree.create(IndexConfig.DEFAULT);
+227c224
+<                                         if (!preservePerimeter || (preservePerimeter && !e.isConstrainedRegionBorder())) {
+---
+>                                         if (!preservePerimeter || (preservePerimeter && !极客时间().isConstrainedRegionBorder())) {
+284c281
+<          * <p>
+---
+>          * <极客时间>
+362c359
+<                  * https://acdl.mit.edu/ESP/Publications/IMR28.pdf
+---
+>                  * https极客时间/ESP/Publications/IMR28.pdf
+400c397
+<                 TriangleCollector.visitSimpleTriangles(triangulation, t -> {
+---
+>                 TriangleCollector.visitSimpleTriangles(t极客时间, t -> {
+522c519
+<                          * If quad overlaps with a hole detect whether it *is* that hole via Hausdorff
+---
+>                          * If quad overlaps with a hole detect whether it *is极客时间 hole via Hausdorff
+573c570
+<          * way of ensuring consistency and accuracy in the spatial topology of the mesh.
+---
+>         极客时间 way of ensuring consistency and accuracy in the spatial topology of the mesh.
+579c576
+<          * @since <code>public</code> since 1.4.0
+---
+>          * @since <code>public</code> since 1.4.极客时间
+645c642
+<                 ConnectivityInspector<PShape, DefaultEdge> ci = new ConnectivityInspector<>(graph);
+---
+>                 ConnectivityInspector<PShape, Default极客时间> ci = new ConnectivityInspector<>(graph);
+755c752
+<          * in the shape. Each edge is split according to <code>edgeSplitRatio</code> and
+---
+>          * in the shape. Each edge is split according to <code>极客时间</code> and
+773c770
+<                 for (PShape face : getChildren(mesh)) {
+---
+>                 for (PShape face : getChildren(mesh)极客时间 {
+822c819
+<          * @param mesh          a GROUP shape representing a conforming mesh the mesh to
+---
+>          * @极客时间 mesh          a GROUP shape representing a conforming mesh the mesh to
+831c828
+<                 PShape merged = AreaMerge.areaMerge(mesh, areaThreshold);
+---
+>                 PShape merged = AreaMerge.areaMerge(m极客时间, areaThreshold);

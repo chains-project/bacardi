@@ -1,0 +1,81 @@
+<fix_planning>
+1. Analysis:
+   a. The error occurs because the class `org.cactoos.iterable.LengthOf` has been removed in the new version of the dependency.
+   b. The specific API change causing the issue is the removal of `org.cactoos.iterable.LengthOf` and the addition of `org.cactoos.scalar.LengthOf`.
+   c. The affected line of code is:
+      ```java
+      import org.cactoos.iterable.LengthOf;
+      ```
+   d. Potential fixes:
+      - Replace the import statement with `import org.cactoos.scalar.LengthOf;`
+      - Modify the usage of `LengthOf` to match the new API.
+   e. Side effects:
+      - The new `LengthOf` class in `org.cactoos.scalar` might have a different interface, so we need to ensure the usage is compatible.
+   f. Constraints check:
+      - The function signature of the constructor remains unchanged.
+      - No existing code is removed.
+      - The correct package is used in the import statement.
+   g. Final summary:
+      - The best solution is to replace the import statement with `import org.cactoos.scalar.LengthOf;` and adjust the usage of `LengthOf` to match the new API.
+
+2. Proposed fix:
+   - Replace `import org.cactoos.iterable.LengthOf;` with `import org.cactoos.scalar.LengthOf;`
+   - Modify the usage of `LengthOf` to match the new API.
+</fix_planning>
+
+```java
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2018-2023 Yegor Bugayenko
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package io.zold.api;
+
+import java.util.Comparator;
+import org.cactoos.iterable.Filtered;
+import org.cactoos.iterable.IterableEnvelope;
+import org.cactoos.iterable.Sorted;
+import org.cactoos.scalar.LengthOf;
+
+/**
+ * {@link Remote} nodes that should receive taxes.
+ *
+ * @since 1.0
+ */
+public final class TaxBeneficiaries extends IterableEnvelope<Remote> {
+
+    /**
+     * Ctor.
+     *
+     * @param nodes Remote nodes to select from.
+     */
+    public TaxBeneficiaries(final Iterable<Remote> nodes) {
+        super(() -> new Sorted<>(
+            Comparator.comparing(Remote::score),
+            new Filtered<>(
+                // @checkstyle MagicNumberCheck (1 line)
+                n -> new LengthOf(n.score().suffixes()).intValue() >= 16,
+                nodes
+            )
+        ));
+    }
+}
+```
