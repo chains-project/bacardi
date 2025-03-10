@@ -1,6 +1,5 @@
 package ml.peya.plugins.Detect;
 
-import tokyo.peya.lib.WaveCreator;
 import ml.peya.plugins.DetectClasses.*;
 import ml.peya.plugins.Enum.*;
 import ml.peya.plugins.*;
@@ -11,6 +10,7 @@ import org.bukkit.craftbukkit.v1_12_R1.entity.*;
 import org.bukkit.entity.*;
 import org.bukkit.metadata.*;
 import org.bukkit.scheduler.*;
+import tokyo.peya.lib.*;
 
 import java.util.*;
 
@@ -176,8 +176,8 @@ public class NPCTeleport
                     double rangeTmp = radius;
 
                     if (config.getBoolean("npc.wave"))
-                        rangeTmp = new tokyo.peya.lib.WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
-                            .get(0.01, true);
+                        rangeTmp = new tokyo.peya.lib.WaveCreator(radius - 0.1, radius, (double) config.getDouble("npc.waveMin"))
+                            .get(0.01, count[0] < 20);
 
                     final Location center = player.getLocation();
                     final Location n = new Location(
@@ -217,7 +217,7 @@ public class NPCTeleport
                     meta.setNpcLocation(n.toVector());
                 }
                 time[0] += config.getDouble("npc.time") + (config.getBoolean("npc.speed.wave")
-                    ? new tokyo.peya.lib.WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
+                    ? new tokyo.peya.lib.WaveCreator(0.0, (double) config.getDouble("npc.speed.waveRange"), (double) (0 - config.getDouble("npc.speed.waveRange"))).get(0.001, true)
                     : 0.0);
             }
         };

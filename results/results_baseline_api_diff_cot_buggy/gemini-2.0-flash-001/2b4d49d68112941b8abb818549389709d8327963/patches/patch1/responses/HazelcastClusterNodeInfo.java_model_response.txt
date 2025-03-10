@@ -1,0 +1,103 @@
+<fix_planning>
+a. Code and API changes:
+- The code uses `com.hazelcast.core.Member`, which has been removed. The new version uses `com.hazelcast.cluster.Member`.
+- The code uses `member.getStringAttribute(HOST_NAME_ATTRIBUTE)`, which has been removed.
+- The code uses `member.getSocketAddress()`, which is now in `com.hazelcast.cluster.Member`.
+
+b. Specific API changes causing the issue:
+- Removal of `com.hazelcast.core.Member` and introduction of `com.hazelcast.cluster.Member`.
+- Removal of `com.hazelcast.core.Member.getStringAttribute(String)`.
+
+c. Affected lines of code:
+- `import com.hazelcast.core.Member;`
+- `public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {`
+- `this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";`
+
+d. Proposed fixes:
+- Replace `import com.hazelcast.core.Member;` with `import com.hazelcast.cluster.Member;`
+- Change the type of `member` in the constructor to `com.hazelcast.cluster.Member`.
+- Replace `member.getStringAttribute(HOST_NAME_ATTRIBUTE)` with a method to retrieve the attribute from the member. Since `getStringAttribute` is removed, we need to find an alternative way to access the hostname.  After researching, it seems the hostname is no longer directly available as an attribute. We can use the `getAddress().getHost()` method instead of `getSocketAddress().getHostString()`. We can also use `member.getAddress().getHost()` to get the hostname.
+
+e. Potential side effects:
+- The change in import and type might affect other parts of the code that use `HazelcastClusterNodeInfo`. However, since the interface `com.hazelcast.cluster.Member` replaces the class `com.hazelcast.core.Member`, the impact should be minimal.
+- The removal of `getStringAttribute` requires a different approach to retrieve the hostname. Using `member.getAddress().getHost()` should provide the correct hostname.
+
+f. Adherence to constraints:
+- The function signature of the constructor is preserved.
+- Variables can be created if needed.
+- The `@Override` annotation is not present, so it doesn't need to be removed.
+- The correct package is used for the import.
+- No existing code is removed unless it directly causes a compilation error.
+- All code is included in the final output.
+
+g. Final summary:
+The best solution is to:
+1. Replace the import statement to use the new `com.hazelcast.cluster.Member` interface.
+2. Update the constructor parameter type to `com.hazelcast.cluster.Member`.
+3. Replace `member.getStringAttribute(HOST_NAME_ATTRIBUTE)` with a method to retrieve the hostname from the member's address. `member.getAddress().getHost()` seems like the best alternative.
+
+```java
+/*
+ * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * is distributed under the License on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.jivesoftware.openfire.plugin.util.cluster;
+
+import org.jivesoftware.openfire.cluster.ClusterManager;
+import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
+import org.jivesoftware.openfire.cluster.NodeID;
+import org.jivesoftware.openfire.plugin.util.cache.ClusteredCacheFactory;
+
+import com.hazelcast.cluster.Member;
+
+/**
+ * Cluster Node information as provided by Hazelcast.
+ *
+ * @author Tom Evans
+ * @author Gaston Dombiak
+ */
+public class HazelcastClusterNodeInfo implements ClusterNodeInfo {
+
+    public static final String HOST_NAME_ATTRIBUTE = "hostname";
+    public static final String NODE_ID_ATTRIBUTE = "node-id";
+    private final String hostname;
+    private final NodeID nodeID;
+    private final long joinedTime;
+    private final boolean seniorMember;
+
+    public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {
+        this.hostname = member.getAddress().getHost() + " (" + member.getSocketAddress().getHostString() + ")";
+        this.nodeID = ClusteredCacheFactory.getNodeID(member);
+        this.joinedTime = joinedTime;
+        this.seniorMember = ClusterManager.getSeniorClusterMember().equals(nodeID);
+    }
+
+    public String getHostName() {
+        return hostname;
+    }
+
+    public NodeID getNodeID() {
+        return nodeID;
+    }
+
+    public long getJoinedTime() {
+        return joinedTime;
+    }
+
+    public boolean isSeniorMember() {
+        return seniorMember;
+    }
+}
+```

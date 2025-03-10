@@ -25,6 +25,7 @@ import java.text.ParseException;
 
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.usertype.UserType;
 import org.onebusaway.gtfs.model.calendar.ServiceDate;
 
@@ -65,7 +66,8 @@ public class ServiceDateUserType implements UserType {
     return new ServiceDate((ServiceDate) value);
   }
 
-  public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor sessionImplementor, Object owner)
+  //@Override  // Removed due to API change
+  public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor sessionImplementor, Object owner)
       throws HibernateException, SQLException {
 
     String value = rs.getString(names[0]);
@@ -80,7 +82,8 @@ public class ServiceDateUserType implements UserType {
     }
   }
 
-  public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor sessionImplementor)
+  //@Override  // Removed due to API change
+  public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor sessionImplementor)
       throws HibernateException, SQLException {
 
     if (value == null) {

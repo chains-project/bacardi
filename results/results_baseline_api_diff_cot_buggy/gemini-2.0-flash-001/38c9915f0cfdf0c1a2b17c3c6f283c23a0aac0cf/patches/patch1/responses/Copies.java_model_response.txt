@@ -1,32 +1,31 @@
 <fix_planning>
-a. Relevant parts of the code and API changes:
-- Code: `import org.cactoos.collection.CollectionOf;` and `new CollectionOf<>(first.ledger()).size()` and `new CollectionOf<>(second.ledger()).size()`
-- API Changes: `Class org.cactoos.collection.CollectionOf has been removed in the new version of the dependency.`
+a. Relevant code and API changes:
+- The code uses `org.cactoos.collection.CollectionOf`.
+- The error message indicates that `org.cactoos.collection.CollectionOf` cannot be found.
+- The API changes state that `Class org.cactoos.collection.CollectionOf has been removed in the new version of the dependency.` and `Constructor org.cactoos.collection.CollectionOf(java.lang.Iterable) has been removed in the new version of the dependency.`
 
 b. Specific API changes causing the issue:
-The class `org.cactoos.collection.CollectionOf` has been removed.
+- The removal of the `org.cactoos.collection.CollectionOf` class.
 
 c. Affected lines of code:
 - `import org.cactoos.collection.CollectionOf;`
 - `).size() == new CollectionOf<>(second.ledger()).size();`
+- `).size() == new CollectionOf<>(first.ledger()).size();`
 
-d. Proposed potential fixes:
-- Remove the import statement `import org.cactoos.collection.CollectionOf;` and replace `new CollectionOf<>(first.ledger()).size()` with `((Collection<?>) first.ledger()).size()` and `new CollectionOf<>(second.ledger()).size()` with `((Collection<?>) second.ledger()).size()`. This uses the standard Java `Collection` interface and its `size()` method. This assumes that `first.ledger()` and `second.ledger()` return a type that implements the `Collection` interface.
+d. Proposed fixes:
+- Replace `CollectionOf` with an alternative that provides similar functionality. Since `CollectionOf` is removed, we can use `java.util.Collection` and convert the `Iterable` to a `Collection` using `java.util.stream.StreamSupport.stream(iterable.spliterator(), false).toList()`.
 
-e. Potential side effects of the proposed changes:
-- The code relies on `first.ledger()` and `second.ledger()` returning a type that implements the `Collection` interface. If they don't, a `ClassCastException` will be thrown.
+e. Potential side effects:
+- The change might affect performance if the conversion to a `List` is inefficient. However, for small collections, the impact should be minimal.
 
 f. Adherence to constraints:
-- Constraint 1: The function signature of any method is not changed.
-- Constraint 2: A variable is not created.
-- Constraint 3: The `@Override` annotation is not present.
-- Constraint 4: The correct package or class is used in accordance with the newer dependency version.
-- Constraint 5: No existing code is removed unless it directly causes a compilation or functionality error.
-- Constraint 6: All code, even unchanged portions, is included in the final output.
-- Constraint 7: No placeholder comments are used.
+- The proposed change does not change any function signatures.
+- The proposed change only modifies the client code.
+- The proposed change addresses the compilation error.
+- The proposed change does not remove any existing code unless it directly causes a compilation error.
 
-g. Final summary of the chosen fix:
-The best solution is to remove the import statement `import org.cactoos.collection.CollectionOf;` and replace `new CollectionOf<>(first.ledger()).size()` with `((Collection<?>) first.ledger()).size()` and `new CollectionOf<>(second.ledger()).size()` with `((Collection<?>) second.ledger()).size()`. This leverages the standard Java `Collection` interface and its `size()` method, avoiding the need for the removed `org.cactoos.collection.CollectionOf` class. This approach assumes that `first.ledger()` and `second.ledger()` return a type that implements the `Collection` interface, which is a reasonable assumption given the context.
+g. Final summary:
+- The best solution is to replace `CollectionOf` with `java.util.stream.StreamSupport.stream(iterable.spliterator(), false).toList()` to convert the `Iterable` to a `List` and then call `.size()` on the resulting list. This addresses the compilation error caused by the removal of `CollectionOf` while preserving the original functionality.
 </fix_planning>
 
 ```java
@@ -57,8 +56,8 @@ package io.zold.api;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.stream.StreamSupport;
 import org.cactoos.iterable.IterableEnvelope;
 import org.cactoos.iterable.IterableOf;
 import org.cactoos.iterable.Joined;
@@ -119,7 +118,8 @@ public final class Copies extends IterableEnvelope<Copy> {
      */
     private static boolean equalWallets(final Wallet first,
         final Wallet second) throws IOException {
-        return first.id() == second.id() && ((Collection<?>) first.ledger()).size() == ((Collection<?>) second.ledger()).size();
+        return first.id() == second.id() && StreamSupport.stream(first.ledger().spliterator(), false).toList()
+            .size() == StreamSupport.stream(second.ledger().spliterator(), false).toList().size();
     }
 
     /**

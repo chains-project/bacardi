@@ -1,0 +1,16 @@
+8d7
+< import org.spongepowered.api.command.CommandSource;
+14c13
+<     private final CommandSource invoker;
+---
+>     private final Object invoker;
+18c17
+<     public NameResolver(ChangeSkinSponge plugin, CommandSource invoker, String targetName, Player receiver
+---
+>     public NameResolver(ChangeSkinSponge plugin, Object invoker, String targetName, Player receiver
+25a25,29
+>     }
+> 
+>     public NameResolver(ChangeSkinSponge plugin, org.spongepowered.api.command.CommandSource invoker, String targetName, Player receiver
+>             , boolean keepSkin) {
+>         this(plugin, (Object) invoker, targetName, receiver, keepSkin);

@@ -1,28 +1,29 @@
 <fix_planning>
-The core issue is the migration from `javax.jws` to `jakarta.jws`. The code uses annotations from the `javax.jws` package, which no longer exists in the updated dependency. This causes compilation errors because the `WebMethod`, `WebResult`, `WebParam`, and `WebService` annotations cannot be found.
+The problem is that the javax.jws annotations have been replaced by jakarta.jws annotations. The code uses `javax.jws.WebMethod`, `javax.jws.WebResult`, `javax.jws.WebParam`, and `javax.jws.WebService`, which are no longer available. We need to replace these with their `jakarta.jws` equivalents.
 
-Here's a breakdown:
+Here's a breakdown of the affected lines and proposed fixes:
 
-*   **API Changes:**
-    *   `javax.jws.WebParam` has been replaced by `jakarta.jws.WebParam`.
-    *   `javax.jws.WebMethod` has been replaced by `jakarta.jws.WebMethod`.
-    *   `javax.jws.WebResult` has been replaced by `jakarta.jws.WebResult`.
-    *   `javax.jws.WebService` has been replaced by `jakarta.jws.WebService`.
+*   `import javax.jws.WebMethod;` -> `import jakarta.jws.WebMethod;`
+*   `import javax.jws.WebParam;` -> `import jakarta.jws.WebParam;`
+*   `import javax.jws.WebResult;` -> `import jakarta.jws.WebResult;`
+*   `import javax.jws.WebService;` -> `import jakarta.jws.WebService;`
+*   `@WebService(name = "SeriesWS", targetNamespace = "http://at.gov.pt/")` -> `@jakarta.jws.WebService(name = "SeriesWS", targetNamespace = "http://at.gov.pt/")`
+*   `@WebMethod` -> `@jakarta.jws.WebMethod`
+*   `@WebResult(name = "registarSerieResp", targetNamespace = "")` -> `@jakarta.jws.WebResult(name = "registarSerieResp", targetNamespace = "")`
+*   `@WebParam(name = "serie", targetNamespace = "")` -> `@jakarta.jws.WebParam(name = "serie", targetNamespace = "")`
+*   `@WebMethod` -> `@jakarta.jws.WebMethod`
+*   `@WebResult(name = "finalizarSerieResp", targetNamespace = "")` -> `@jakarta.jws.WebResult(name = "finalizarSerieResp", targetNamespace = "")`
+*   `@WebParam(name = "serie", targetNamespace = "")` -> `@jakarta.jws.WebParam(name = "serie", targetNamespace = "")`
+*   `@WebMethod` -> `@jakarta.jws.WebMethod`
+*   `@WebResult(name = "consultarSeriesResp", targetNamespace = "")` -> `@jakarta.jws.WebResult(name = "consultarSeriesResp", targetNamespace = "")`
+*   `@WebParam(name = "serie", targetNamespace = "")` -> `@jakarta.jws.WebParam(name = "serie", targetNamespace = "")`
+*   `@WebMethod` -> `@jakarta.jws.WebMethod`
+*   `@WebResult(name = "anularSerieResp", targetNamespace = "")` -> `@jakarta.jws.WebResult(name = "anularSerieResp", targetNamespace = "")`
+*   `@WebParam(name = "serie", targetNamespace = "")` -> `@jakarta.jws.WebParam(name = "serie", targetNamespace = "")`
 
-*   **Affected Lines:** All lines using `@WebMethod`, `@WebResult`, `@WebParam`, and `@WebService` annotations. This includes the interface definition and all method definitions.
+These changes involve replacing the `javax.jws` imports and annotations with their `jakarta.jws` counterparts. This directly addresses the compilation errors caused by the API change. The function signatures remain unchanged, and no code is removed unnecessarily. The constraints are satisfied.
 
-*   **Proposed Fix:** Replace the `javax.jws` imports with `jakarta.jws` imports.
-
-*   **Potential Side Effects:** This change should not have any side effects as it's a direct replacement of the annotation packages. The functionality of the code should remain the same.
-
-*   **Constraints Check:**
-    *   The function signatures of all methods remain unchanged.
-    *   No code is removed unless it directly causes a compilation error.
-    *   The correct package is used for the updated dependency.
-    *   All code is included in the final output.
-
-*   **Summary:** The best solution is to replace all `javax.jws` imports with `jakarta.jws` imports. This directly addresses the compilation errors caused by the API change and adheres to all constraints.
-
+Final Summary: Replace all instances of `javax.jws` with `jakarta.jws` in the import statements and annotations. This will resolve the compilation errors caused by the updated dependency.
 </fix_planning>
 
 ```java

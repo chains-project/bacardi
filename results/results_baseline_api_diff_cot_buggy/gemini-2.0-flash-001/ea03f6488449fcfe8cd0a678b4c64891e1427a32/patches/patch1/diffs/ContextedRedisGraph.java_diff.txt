@@ -8,9 +8,9 @@
 ---
 >         jedis.multi();
 >         jedis.getOne();
->         RedisGraphTransaction transaction = new RedisGraphTransaction(jedis, this);
+>         RedisGraphTransaction transaction = new RedisGraphTransaction(jedis.getClient(), this);
 157,158c155
 <         Client client = jedis.getClient();
 <         RedisGraphPipeline pipeline = new RedisGraphPipeline(client, this);
 ---
->         RedisGraphPipeline pipeline = new RedisGraphPipeline(jedis, this);
+>         RedisGraphPipeline pipeline = new RedisGraphPipeline(jedis.getClient(), this);

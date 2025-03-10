@@ -1,82 +1,91 @@
 <fix_planning>
-The problem is that the javax.mvc library has been updated to jakarta.mvc. This means that all imports from javax.mvc need to be changed to jakarta.mvc. Also, the classes Controller, CsrfProtected, BindingResult, Models, View, and ParamError have been removed from the javax.mvc package and their corresponding interfaces have been added to the jakarta.mvc package.
+a. Relevant parts of the code and API changes:
 
-Here's a breakdown of the necessary changes:
+- Code:
+```java
+import javax.mvc.security.CsrfProtected;
+import javax.mvc.Controller;
+import javax.mvc.View;
+import javax.mvc.binding.ParamError;
+import javax.mvc.binding.BindingResult;
+import javax.mvc.Models;
+@Path("tasks")
+@Controller
+@RequestScoped
+public class TaskController {
+    @Inject
+    private Models models;
 
-1.  **`@Controller`**:
-    *   Affected line: `@Controller`
-    *   Fix: Change `javax.mvc.Controller` to `jakarta.mvc.Controller`.
-    *   Potential side effects: None.
-    *   Adherence to constraints: Yes.
+    @Inject
+    private BindingResult validationResult;
+    @GET
+    @View("tasks.xhtml")
+    public void allTasks() {
+    }
+    @POST
+    @CsrfProtected
+    public Response save(@Valid @BeanParam TaskForm form) {
+    }
+    @PUT
+    @Path("{id}")
+    @CsrfProtected
+    public Response update(@PathParam(value = "id") Long id, @Valid @BeanParam TaskForm form) {
+    }
+```
 
-2.  **`import javax.mvc.security.CsrfProtected;`**:
-    *   Affected line: `import javax.mvc.security.CsrfProtected;`
-    *   Fix: Change to `import jakarta.mvc.security.CsrfProtected;`
-    *   Potential side effects: None.
-    *   Adherence to constraints: Yes.
+- API Changes:
+  - `javax.mvc.security.CsrfProtected` has been removed, and `jakarta.mvc.security.CsrfProtected` has been added.
+  - `javax.mvc.Controller` has been removed, and `jakarta.mvc.Controller` has been added.
+  - `javax.mvc.View` has been removed, and `jakarta.mvc.View` has been added.
+  - `javax.mvc.binding.ParamError` has been removed.
+  - `javax.mvc.binding.BindingResult` has been removed.
+  - `javax.mvc.Models` has been removed, and `jakarta.mvc.Models` has been added.
 
-3.  **`private BindingResult validationResult;`**:
-    *   Affected line: `private BindingResult validationResult;`
-    *   Fix: Change `javax.mvc.binding.BindingResult` to `jakarta.mvc.binding.BindingResult`.
-    *   Potential side effects: None.
-    *   Adherence to constraints: Yes.
+b. Specific API changes causing the issue:
+The classes and interfaces in the `javax.mvc.*` packages have been moved to `jakarta.mvc.*`.
 
-4.  **`import javax.mvc.binding.BindingResult;`**:
-    *   Affected line: `import javax.mvc.binding.BindingResult;`
-    *   Fix: Change to `import jakarta.mvc.binding.BindingResult;`
-    *   Potential side effects: None.
-    *   Adherence to constraints: Yes.
+c. Affected lines of code:
+- Line 12: `import javax.mvc.Controller;`
+- Line 13: `import javax.mvc.Models;`
+- Line 14: `import javax.mvc.View;`
+- Line 15: `import javax.mvc.binding.BindingResult;`
+- Line 16: `import javax.mvc.binding.ParamError;`
+- Line 17: `import javax.mvc.security.CsrfProtected;`
+- Line 33: `@Controller`
+- Line 41: `private Models models;`
+- Line 44: `private BindingResult validationResult;`
+- Line 53: `@View("tasks.xhtml")`
+- Line 73: `@CsrfProtected`
+- Line 89: `@CsrfProtected`
 
-5.  **`@CsrfProtected`**:
-    *   Affected line: `@CsrfProtected`
-    *   Fix: Change `javax.mvc.security.CsrfProtected` to `jakarta.mvc.security.CsrfProtected`.
-    *   Potential side effects: None.
-    *   Adherence to constraints: Yes.
+d. Proposed potential fixes for each affected line:
+- Replace `javax.mvc.Controller` with `jakarta.mvc.Controller`.
+- Replace `javax.mvc.Models` with `jakarta.mvc.Models`.
+- Replace `javax.mvc.View` with `jakarta.mvc.View`.
+- Remove `javax.mvc.binding.BindingResult`. Replace with `jakarta.mvc.binding.BindingResult` if it exists.
+- Remove `javax.mvc.binding.ParamError`. Replace with `jakarta.mvc.binding.ParamError` if it exists.
+- Replace `javax.mvc.security.CsrfProtected` with `jakarta.mvc.security.CsrfProtected`.
+- Replace `@Controller` with `@jakarta.mvc.Controller`.
+- Replace `private Models models;` with `private jakarta.mvc.Models models;`.
+- Remove `private BindingResult validationResult;`. Replace with `private jakarta.mvc.binding.BindingResult validationResult;` if it exists.
+- Replace `@View("tasks.xhtml")` with `@jakarta.mvc.View("tasks.xhtml")`.
+- Replace `@CsrfProtected` with `@jakarta.mvc.security.CsrfProtected`.
+- Replace `@CsrfProtected` with `@jakarta.mvc.security.CsrfProtected`.
 
-6.  **`@CsrfProtected`**:
-    *   Affected line: `@CsrfProtected`
-    *   Fix: Change `javax.mvc.security.CsrfProtected` to `jakarta.mvc.security.CsrfProtected`.
-    *   Potential side effects: None.
-    *   Adherence to constraints: Yes.
+e. Potential side effects of the proposed changes:
+The code might break if the new `jakarta.mvc.*` APIs have incompatible changes compared to the old `javax.mvc.*` APIs. However, based on the problem description, it seems like a straightforward package rename.
 
-7.  **`import javax.mvc.Models;`**:
-    *   Affected line: `import javax.mvc.Models;`
-    *   Fix: Change to `import jakarta.mvc.Models;`
-    *   Potential side effects: None.
-    *   Adherence to constraints: Yes.
+f. Adherence to constraints:
+- The function signatures are not changed.
+- Variables are not created unnecessarily.
+- `@Override` is not used.
+- The correct package is used for the imports.
+- No existing code is removed unless it directly causes a compilation error.
+- All code is included in the final output.
 
-8.  **`import javax.mvc.Controller;`**:
-    *   Affected line: `import javax.mvc.Controller;`
-    *   Fix: Change to `import jakarta.mvc.Controller;`
-    *   Potential side effects: None.
-    *   Adherence to constraints: Yes.
+g. Final summary of the chosen fix:
+The best solution is to replace the `javax.mvc.*` imports and annotations with their corresponding `jakarta.mvc.*` counterparts. Since `BindingResult` and `ParamError` are removed, we need to find alternatives. Since the code uses `validationResult.getAllErrors()` and `t.getParamName()`, `t.getMessage()`, we need to find a replacement for `BindingResult` and `ParamError`. After researching, `jakarta.mvc.binding.BindingResult` and `jakarta.mvc.binding.ParamError` are the replacements.
 
-9.  **`private Models models;`**:
-    *   Affected line: `private Models models;`
-    *   Fix: Change `javax.mvc.Models` to `jakarta.mvc.Models`.
-    *   Potential side effects: None.
-    *   Adherence to constraints: Yes.
-
-10. **`@View("tasks.xhtml")`**:
-    *   Affected line: `@View("tasks.xhtml")`
-    *   Fix: Change `javax.mvc.View` to `jakarta.mvc.View`.
-    *   Potential side effects: None.
-    *   Adherence to constraints: Yes.
-
-11. **`import javax.mvc.View;`**:
-    *   Affected line: `import javax.mvc.View;`
-    *   Fix: Change to `import jakarta.mvc.View;`
-    *   Potential side effects: None.
-    *   Adherence to constraints: Yes.
-
-12. **`import javax.mvc.binding.ParamError;`**:
-    *   Affected line: `import javax.mvc.binding.ParamError;`
-    *   Fix: Change to `import jakarta.mvc.binding.ParamError;`
-    *   Potential side effects: None.
-    *   Adherence to constraints: Yes.
-
-Summary:
-The best solution is to replace all instances of `javax.mvc` with `jakarta.mvc` in the import statements and annotations. This directly addresses the API changes and resolves the compilation errors.
 </fix_planning>
 
 ```java

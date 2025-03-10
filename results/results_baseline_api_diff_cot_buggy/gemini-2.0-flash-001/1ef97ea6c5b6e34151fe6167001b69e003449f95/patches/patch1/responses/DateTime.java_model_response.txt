@@ -8,36 +8,34 @@ a. Code and API changes:
   }
 ```
 - API Changes:
-```
-Method net.datafaker.DateAndTime.between(java.util.Date,java.util.Date) has been removed in the new version of the dependency.
-Method net.datafaker.DateAndTime.between(java.sql.Timestamp,java.sql.Timestamp) has been added in the new version of the dependency.
-```
+"Method net.datafaker.DateAndTime.between(java.util.Date,java.util.Date) has been removed in the new version of the dependency."
+"Method net.datafaker.DateAndTime.between(java.sql.Timestamp,java.sql.Timestamp) has been added in the new version of the dependency."
 
 b. Specific API changes causing the issue:
-The `net.datafaker.DateAndTime.between(java.util.Date,java.util.Date)` method has been removed. The code attempts to override this method, but it no longer exists in the superclass. Additionally, the return type of `super.between(from, to)` is now `java.sql.Timestamp`, not `java.util.Date`, so `.getTime()` is not valid.
+The `net.datafaker.DateAndTime.between(java.util.Date,java.util.Date)` method has been removed, and `net.datafaker.DateAndTime.between(java.sql.Timestamp,java.sql.Timestamp)` has been added. The existing code calls the removed method.
 
 c. Affected lines of code:
-- Line 43: `@Override`
 - Line 45: `return new Timestamp(super.between(from, to).getTime());`
+- Line 43: `@Override`
 
 d. Proposed potential fixes:
-1. Remove the `@Override` annotation and cast the `java.util.Date` objects to `java.sql.Timestamp` before passing them to the `super.between` method. Then, since the return type is already `Timestamp`, remove the `new Timestamp(...getTime())` wrapper.
-2. Remove the method entirely. This is not ideal as it changes the functionality.
+1. Convert `from` and `to` from `java.util.Date` to `java.sql.Timestamp` before calling `super.between`.
+2. Remove the `@Override` annotation since the method no longer overrides a superclass method.
 
-e. Potential side effects of the proposed changes:
-1. Removing the `@Override` annotation means the method no longer overrides a superclass method. Casting the input `Date` objects to `Timestamp` will change the behavior of the method to align with the new API.
-2. Removing the method entirely will remove the functionality provided by this method.
+e. Potential side effects:
+1. Converting `java.util.Date` to `java.sql.Timestamp` might introduce slight data loss if the milliseconds part of the `java.util.Date` is not zero. However, this is acceptable as we are adapting to the new API.
+2. Removing the `@Override` annotation is necessary because the method signature no longer matches a method in the superclass.
 
 f. Adherence to constraints:
-1. The function signature must not change.
-2. Variables can be created.
-3. The `@Override` annotation can be removed if the method no longer overrides a supertype method.
-4. Missing imports can be added.
-5. No existing code should be removed unless it directly causes a compilation or functionality error.
+1. The function signature of the `between` method remains unchanged.
+2. A variable is created to simplify the code.
+3. The `@Override` annotation is removed.
+4. No missing imports need to be added.
+5. No existing code is removed unless it directly causes a compilation error.
+6. All code is included in the final output.
 
 g. Final summary:
-The best solution is to remove the `@Override` annotation and cast the input `Date` objects to `Timestamp` before passing them to the `super.between` method. Then, since the return type is already `Timestamp`, remove the `new Timestamp(...getTime())` wrapper. This adheres to all constraints and fixes the compilation errors.
-
+The best solution is to convert the `java.util.Date` parameters `from` and `to` to `java.sql.Timestamp` before calling the `super.between` method, and remove the `@Override` annotation. This adapts the code to the new API while preserving the original functionality as closely as possible.
 </fix_planning>
 
 ```java
@@ -84,7 +82,9 @@ public class DateTime extends DateAndTime {
   }
 
   public Timestamp between(Date from, Date to) throws IllegalArgumentException {
-    return super.between(new Timestamp(from.getTime()), new Timestamp(to.getTime()));
+    Timestamp fromTimestamp = new Timestamp(from.getTime());
+    Timestamp toTimestamp = new Timestamp(to.getTime());
+    return new Timestamp(super.between(fromTimestamp, toTimestamp).getTime());
   }
 
   @Override

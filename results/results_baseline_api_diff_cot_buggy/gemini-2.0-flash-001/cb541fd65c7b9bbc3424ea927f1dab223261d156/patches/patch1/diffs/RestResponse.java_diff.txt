@@ -4,20 +4,23 @@
 ---
 >  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
 >  * COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-48c48,49
+48c48,52
 < import org.hamcrest.Matchers;
 ---
-> import org.hamcrest.CoreMatchers;
 > import org.hamcrest.collection.IsEmptyIterable;
-210c211
+> import org.hamcrest.core.IsCollectionContaining;
+> import org.hamcrest.core.IsNot;
+> import org.hamcrest.core.IsNull;
+> import org.hamcrest.core.StringContains;
+210c214
 <         return this.assertHeader(name, Matchers.hasItems(value));
 ---
->         return this.assertHeader(name, CoreMatchers.hasItems(value));
-246c247
+>         return this.assertHeader(name, IsCollectionContaining.hasItems(value));
+246c250
 <             Matchers.not(Matchers.emptyIterableOf(String.class))
 ---
->             CoreMatchers.not(IsEmptyIterable.emptyIterableOf(String.class))
-284c285
+>             IsNot.not(IsEmptyIterable.emptyIterableOf(String.class))
+284c288
 <             Matchers.notNullValue()
 ---
->             CoreMatchers.notNullValue()
+>             IsNull.notNullValue()

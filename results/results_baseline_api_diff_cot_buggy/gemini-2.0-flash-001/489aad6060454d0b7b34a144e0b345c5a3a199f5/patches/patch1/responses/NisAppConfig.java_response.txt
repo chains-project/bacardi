@@ -34,7 +34,7 @@ import org.springframework.context.annotation.*;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.flywaydb.core.api.configuration.FluentConfiguration;
+import org.flywaydb.core.api.Location;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -106,13 +106,20 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final FluentConfiguration configuration = new FluentConfiguration();
-		configuration.dataSource(this.dataSource());
-		configuration.classLoader(NisAppConfig.class.getClassLoader());
-		configuration.locations(prop.getProperty("flyway.locations"));
-		configuration.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		final org.flywaydb.core.api.configuration.ClassicConfiguration flywayConfig = new org.flywaydb.core.api.configuration.ClassicConfiguration();
+		final org.flywaydb.core.Flyway flyway = new org.flywaydb.core.Flyway(flywayConfig);
+		flywayConfig.setDataSource(this.dataSource());
+		flywayConfig.setClassLoader(NisAppConfig.class.getClassLoader());
 
-		final org.flywaydb.core.Flyway flyway = new Flyway(configuration);
+		String locationsString = prop.getProperty("flyway.locations");
+		String[] locationsArray = locationsString.split(",");
+		Location[] locations = new Location[locationsArray.length];
+		for (int i = 0; i < locationsArray.length; i++) {
+			locations[i] = new Location(locationsArray[i]);
+		}
+
+		flywayConfig.setLocations(locations);
+		flywayConfig.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 		return flyway;
 	}
 

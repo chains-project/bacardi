@@ -1,41 +1,35 @@
 <fix_planning>
-a. Relevant code:
-```java
-return AnalysisEngineConfiguration.builder()
-                .addEnabledLanguages(globalConfig.getEnabledLanguages())
-                .setClientPid(globalConfig.getClientPid())
-                .setExtraProperties(globalConfig.extraProperties())
-                .setWorkDir(globalConfig.getWorkDir())
-                .setModulesProvider(globalConfig.getModulesProvider())
-                .build();
-```
-API changes:
-"Method org.sonarsource.sonarlint.core.analysis.api.AnalysisEngineConfiguration$Builder.addEnabledLanguages(org.sonarsource.sonarlint.core.commons.Language[]) has been removed in the new version of the dependency.
-Method org.sonarsource.sonarlint.core.analysis.api.AnalysisEngineConfiguration$Builder.addEnabledLanguages(java.util.Collection) has been removed in the new version of the dependency."
+The error message indicates that the `addEnabledLanguages` method in `AnalysisEngineConfiguration.Builder` no longer accepts a `java.util.Set<org.sonarsource.sonarlint.core.commons.Language>` as an argument. The API changes confirm this, stating that the methods accepting `org.sonarsource.sonarlint.core.commons.Language[]` and `java.util.Collection` have been removed.
 
-b. The `addEnabledLanguages` method in `AnalysisEngineConfiguration.Builder` no longer accepts a `Collection` or an array of `Language` objects.
-
-c. Affected line:
+Affected line:
 ```java
 .addEnabledLanguages(globalConfig.getEnabledLanguages())
 ```
 
-d. Potential fixes:
-The `addEnabledLanguages` method has been removed. We need to find a replacement. Inspecting the `AnalysisEngineConfiguration.Builder` class, there doesn't seem to be a direct replacement. We can try to use `addEnabledLanguage` method which takes a single `Language` object. We can iterate through the languages and add them one by one.
+Possible fixes:
 
-e. Side effects:
-The proposed change involves iterating through the languages and adding them individually. This should not have any significant side effects, as the end result should be the same.
+1.  **Iterate and add each language individually:** Iterate through the `globalConfig.getEnabledLanguages()` set and call `addEnabledLanguage` (singular) for each language. This assumes that `addEnabledLanguage` (singular) exists and accepts a single `Language` object.
 
-f. Constraints:
-1. The function signature of any method should not be changed. - Adhered to.
-2. Creating variables is allowed if it simplifies the code. - Adhered to.
-3. Removing the @Override annotation if and only if the method no longer overrides a method in the updated dependency version. - Not applicable.
-4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version. - Not applicable.
-5. Do not remove any existing code unless it directly causes a compilation or functionality error. - Adhered to.
-6. Include all code, even unchanged portions, in your final output. - Adhered to.
+2.  **Convert to array:** Convert the `globalConfig.getEnabledLanguages()` set to an array and use the `addEnabledLanguages` method that accepts an array. However, the API changes indicate that this method has also been removed.
 
-g. Summary:
-The best solution is to iterate through the languages obtained from `globalConfig.getEnabledLanguages()` and add them individually using the `addEnabledLanguage` method of the `AnalysisEngineConfiguration.Builder`. This approach addresses the API change while maintaining the original functionality and adhering to all constraints.
+3.  **Check for a different method:** Investigate if there's a new method in `AnalysisEngineConfiguration.Builder` that handles multiple languages in a different way.
+
+Given the API changes, the most likely solution is to iterate through the set of languages and add them individually using `addEnabledLanguage`.
+
+Chosen fix:
+
+Iterate through the `globalConfig.getEnabledLanguages()` set and call `addEnabledLanguage` for each language. This approach aligns with the API changes and addresses the compilation error.
+
+```java
+globalConfig.getEnabledLanguages().forEach(language -> builder.addEnabledLanguage(language));
+```
+
+This change adheres to all constraints:
+
+*   It does not change any function signatures.
+*   It introduces a local variable `builder` to simplify the code.
+*   It does not remove any existing code unless it directly causes a compilation error.
+*   It includes all code in the final output.
 </fix_planning>
 
 ```java
@@ -201,9 +195,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
         AnalysisEngineConfiguration.Builder builder = AnalysisEngineConfiguration.builder();
-        for (Language language : globalConfig.getEnabledLanguages()) {
-            builder.addEnabledLanguage(language);
-        }
+        globalConfig.getEnabledLanguages().forEach(builder::addEnabledLanguage);
         return builder
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())

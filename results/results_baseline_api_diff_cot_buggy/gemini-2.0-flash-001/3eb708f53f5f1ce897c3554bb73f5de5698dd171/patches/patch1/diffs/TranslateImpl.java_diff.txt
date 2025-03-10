@@ -2,52 +2,45 @@
 < import com.google.api.services.translate.model.DetectionsResourceItems;
 < import com.google.api.services.translate.model.LanguagesResource;
 < import com.google.api.services.translate.model.TranslationsResource;
-43c40
+43,51d39
 <   private static final Function<List<DetectionsResourceItems>, Detection>
----
->   private static final Function<List<Object>, Detection>
-45c42
+<       DETECTION_FROM_PB_FUNCTION =
 <           new Function<List<DetectionsResourceItems>, Detection>() {
----
->           new Function<List<Object>, Detection>() {
-47,48c44,45
+<             @Override
 <             public Detection apply(List<DetectionsResourceItems> detectionPb) {
 <               return Detection.fromPb(detectionPb.get(0));
----
->             public Detection apply(List<Object> detectionPb) {
->               return null;
-59,74c56
-<     try {
+<             }
+<           };
+< 
+60,62c48,49
 <       return Lists.transform(
 <           runWithRetries(
 <               new Callable<List<LanguagesResource>>() {
-<                 @Override
+---
+>       return runWithRetries(
+>           new Callable<List<Language>>() {
+64c51
 <                 public List<LanguagesResource> call() {
-<                   return translateRpc.listSupportedLanguages(optionMap(options));
-<                 }
-<               },
-<               getOptions().getRetrySettings(),
-<               EXCEPTION_HANDLER,
+---
+>             public List<Language> call() {
+70,71c57
 <               getOptions().getClock()),
 <           Language.FROM_PB_FUNCTION);
-<     } catch (RetryHelperException e) {
-<       throw TranslateException.translateAndThrow(e);
-<     }
 ---
->     return Collections.emptyList();
-79,103c61
-<     try {
+>           getOptions().getClock());
+80c66
 <       List<List<DetectionsResourceItems>> detectionsPb =
-<           runWithRetries(
+---
+>       List<Detection> detectionsPb =
+82c68
 <               new Callable<List<List<DetectionsResourceItems>>>() {
-<                 @Override
+---
+>               new Callable<List<Detection>>() {
+84c70
 <                 public List<List<DetectionsResourceItems>> call() {
-<                   return translateRpc.detect(texts);
-<                 }
-<               },
-<               getOptions().getRetrySettings(),
-<               EXCEPTION_HANDLER,
-<               getOptions().getClock());
+---
+>                 public List<Detection> call() {
+91,100c77
 <       Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
 <       Iterator<String> textIterator = texts.iterator();
 <       while (detectionIterator.hasNext() && textIterator.hasNext()) {
@@ -58,27 +51,21 @@
 <         checkState(detectionPb.size() == 1, "Multiple detections found for text: %s", text);
 <       }
 <       return Lists.transform(detectionsPb, DETECTION_FROM_PB_FUNCTION);
-<     } catch (RetryHelperException e) {
-<       throw TranslateException.translateAndThrow(e);
-<     }
 ---
->     return Collections.emptyList();
-118,133c76
-<     try {
+>       return detectionsPb;
+119,121c96,97
 <       return Lists.transform(
 <           runWithRetries(
 <               new Callable<List<TranslationsResource>>() {
-<                 @Override
+---
+>       return runWithRetries(
+>           new Callable<List<Translation>>() {
+123c99
 <                 public List<TranslationsResource> call() {
-<                   return translateRpc.translate(texts, optionMap(options));
-<                 }
-<               },
-<               getOptions().getRetrySettings(),
-<               EXCEPTION_HANDLER,
+---
+>             public List<Translation> call() {
+129,130c105
 <               getOptions().getClock()),
 <           Translation.FROM_PB_FUNCTION);
-<     } catch (RetryHelperException e) {
-<       throw TranslateException.translateAndThrow(e);
-<     }
 ---
->     return Collections.emptyList();
+>           getOptions().getClock());

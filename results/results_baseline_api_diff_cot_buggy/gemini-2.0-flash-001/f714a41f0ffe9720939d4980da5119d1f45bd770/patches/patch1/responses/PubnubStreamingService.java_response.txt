@@ -9,7 +9,12 @@ import com.pubnub.api.callbacks.SubscribeCallback;
 import com.pubnub.api.enums.PNStatusCategory;
 import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
-import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
+import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
+import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
+import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
+import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
+import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
+import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -19,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
 
 /** Created by Lukas Zaoralek on 14.11.17. */
 public class PubnubStreamingService {
@@ -57,7 +63,7 @@ public class PubnubStreamingService {
                 }
 
                 @Override
-                public void message(PubNub pubNub, PNMessageResult pnMessageResult) {
+                public void message(PubNub pubNub, com.pubnub.api.models.consumer.pubsub.PNMessageResult pnMessageResult) {
                   String channelName = pnMessageResult.getChannel();
                   ObservableEmitter<JsonNode> subscription = subscriptions.get(channelName);
                   LOG.debug("PubNub Message: {}", pnMessageResult.toString());
@@ -75,7 +81,40 @@ public class PubnubStreamingService {
                 }
 
                 @Override
-                public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {}
+                public void presence(PubNub pubNub, com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult pnPresenceEventResult) {
+                  LOG.debug("PubNub presence: {}", pnPresenceEventResult.toString());
+                }
+
+                @Override
+                public void signal(PubNub pubnub, com.pubnub.api.models.consumer.pubsub.PNSignalResult pnSignalResult) {
+                  LOG.debug("PubNub signal: {}", pnSignalResult.toString());
+                }
+
+                @Override
+                public void user(PubNub pubnub, com.pubnub.api.models.consumer.pubsub.objects.PNUserResult pnUserResult) {
+                  LOG.debug("PubNub user: {}", pnUserResult.toString());
+                }
+
+                @Override
+                public void space(PubNub pubnub, com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult pnSpaceResult) {
+                  LOG.debug("PubNub space: {}", pnSpaceResult.toString());
+                }
+
+                @Override
+                public void membership(PubNub pubnub, com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult pnMembershipResult) {
+                  LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
+                }
+
+                @Override
+                public void messageAction(
+                    PubNub pubnub, com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult pnMessageActionResult) {
+                  LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
+                }
+
+                  @Override
+                  public void file(PubNub pubNub, PNFileEventResult pnFileEventResult) {
+                      LOG.debug("PubNub file: {}", pnFileEventResult.toString());
+                  }
               });
           e.onComplete();
         });

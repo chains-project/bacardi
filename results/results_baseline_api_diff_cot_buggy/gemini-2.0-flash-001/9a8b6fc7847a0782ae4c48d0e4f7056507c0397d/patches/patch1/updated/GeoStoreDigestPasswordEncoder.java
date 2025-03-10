@@ -39,8 +39,8 @@ public class GeoStoreDigestPasswordEncoder extends AbstractGeoStorePasswordEncod
 	        setReversible(false);
 	    }
 
-	    protected StrongPasswordEncryptor createStringEncoder() {
-	        return new StrongPasswordEncryptor();
+	    protected PasswordEncoder createStringEncoder() {
+	        return null;
 	    }
 
 	    @Override

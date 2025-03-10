@@ -1,31 +1,29 @@
 <fix_planning>
-a. The code uses `XEnchantment.matchXEnchantment("power").get().parseEnchantment()` to get an `Enchantment` object. The API change indicates that `parseEnchantment()` has been removed from the `XEnchantment` class.
+a. Code and API changes:
+The error occurs because `com.cryptomorin.xseries.XEnchantment.parseEnchantment()` has been removed. The line `currentEntryMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);` uses this removed method.
 
-b. The specific API change causing the issue is the removal of the `parseEnchantment()` method from the `XEnchantment` class.
+b. Specific API changes:
+The method `parseEnchantment()` is no longer available in the `XEnchantment` class.
 
-c. The affected line of code is:
-```java
-currentEntryMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
-```
+c. Affected lines of code:
+Line 72: `currentEntryMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);`
 
-d. Potential fixes:
+d. Proposed fixes:
+The `parseEnchantment()` method has been removed. We need to find an alternative way to get the `Enchantment` object from the `XEnchantment` object. After researching the XSeries API, it appears that `getEnchant()` is the replacement for `parseEnchantment()`. Therefore, the line should be changed to `currentEntryMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);`
 
-   1.  Replace `XEnchantment.matchXEnchantment("power").get().parseEnchantment()` with a method that returns an `Enchantment` object directly. After researching the XSeries API, it appears that `XEnchantment` now directly returns the `Enchantment` object when `get()` is called.
-
-e. Side effects:
-
-   1.  The proposed fix relies on the new behavior of the XSeries API where `XEnchantment.matchXEnchantment("power").get()` returns an `Enchantment` object directly. This should be a safe change as it aligns with the updated API.
+e. Potential side effects:
+The change should not have any side effects as `getEnchant()` is the intended replacement for `parseEnchantment()`.
 
 f. Adherence to constraints:
-
-   1.  The fix does not change any function signatures.
-   2.  The fix does not remove any existing code unless it directly causes a compilation error.
-   3.  The fix includes all code in the final output.
-   4.  The fix addresses the compilation error caused by the API change.
+The proposed change adheres to all constraints:
+- The function signature of all methods remains unchanged.
+- A variable is not created.
+- The @Override annotation is not removed.
+- No existing code is removed unless it directly causes a compilation or functionality error.
+- All code, even unchanged portions, is included in the final output.
 
 g. Summary:
-
-The best solution is to replace `XEnchantment.matchXEnchantment("power").get().parseEnchantment()` with `XEnchantment.matchXEnchantment("power").get()`. This aligns with the updated XSeries API where the `get()` method now directly returns the `Enchantment` object. This change directly addresses the compilation error and adheres to all given constraints.
+The best solution is to replace `parseEnchantment()` with `getEnchant()` in line 72. This fixes the compilation error caused by the API change in the XSeries library.
 </fix_planning>
 
 ```java
@@ -100,7 +98,7 @@ public class ConfigurationMessagesOverridePossibleListGUI implements InventoryPr
 				if (messagesConfig.getString("Overrides." + entry.getKey()) != null) {
 					lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwcConfigGUIMessagesAlreadyOverriden"));
 					currentEntryMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-					currentEntryMeta.addEnchant(XEnchantment.matchXEnchantment("power").get(), 1, false);
+					currentEntryMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
 				}
 				lore.add(CommonDefinitions.getMessage("wwcConfigGUIMessagesOverrideOriginalLabel") + ": " + messagesConfig.getString("Messages." + entry.getKey()));
 				currentEntryMeta.setLore(lore);

@@ -1,103 +1,33 @@
 <fix_planning>
-a. Relevant parts of the code and API changes:
-
-*   Code:
-    ```java
-    public ModelRepresenter() {
-        this.representers.put(Xpp3Dom.class, new RepresentXpp3Dom());
-        Represent stringRepresenter = this.representers.get(String.class);
-        this.representers.put(Boolean.class, stringRepresenter);
-        this.multiRepresenters.put(Number.class, stringRepresenter);
-        this.multiRepresenters.put(Date.class, stringRepresenter);
-        this.multiRepresenters.put(Enum.class, stringRepresenter);
-        this.multiRepresenters.put(Calendar.class, stringRepresenter);
-    }
-    ```
-    API Change: "Constructor org.yaml.snakeyaml.representer.Representer() has been removed in the new version of the dependency." and "Constructor org.yaml.snakeyaml.representer.Representer(org.yaml.snakeyaml.DumperOptions) has been added in the new version of the dependency."
-
-*   Code:
-    ```java
-    @Override
-    protected Set<Property> getProperties(Class<? extends Object> type)
-            throws IntrospectionException {
-      if (type.isAssignableFrom(Model.class)) {
-        return sortTypeWithOrder(type, ORDER_MODEL);
-      } else if (type.isAssignableFrom(Developer.class)) {
-        return sortTypeWithOrder(type, ORDER_DEVELOPER);
-      } else if (type.isAssignableFrom(Contributor.class)) {
-        return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
-      }  else if (type.isAssignableFrom(Dependency.class)) {
-        return sortTypeWithOrder(type, ORDER_DEPENDENCY);
-      }  else if (type.isAssignableFrom(Plugin.class)) {
-        return sortTypeWithOrder(type, ORDER_PLUGIN);
-      } else {
-        return super.getProperties(type);
-      }
-    }
-    ```
-    API Change: "Method org.yaml.snakeyaml.representer.Representer.getProperties(java.lang.Class) has been removed in the new version of the dependency." and "Method org.yaml.snakeyaml.introspector.PropertyUtils.getProperties(java.lang.Class) has been added in the new version of the dependency."
+a. Relevant code and API changes:
+- The constructor `Representer()` has been removed. The new constructor is `Representer(DumperOptions)`.
+- The method `getProperties(Class)` in `Representer` no longer throws `IntrospectionException`.
 
 b. Specific API changes causing the issue:
-
-*   The `Representer()` constructor has been removed, requiring a different constructor to be called in the `ModelRepresenter` constructor.
-*   The `Representer.getProperties(Class)` method has been removed.
+- The removal of the default constructor `Representer()` requires an explicit call to a different constructor, such as `Representer(DumperOptions)`.
+- The change in the `getProperties(Class)` method signature, specifically the removal of `throws IntrospectionException`, causes a compilation error because the overriding method still declares that it throws this exception.
 
 c. Affected lines of code:
+- Line 37: `public ModelRepresenter() {` and the implicit call to `super()`.
+- Line 218: `protected Set<Property> getProperties(Class<? extends Object> type)`
 
-*   Line 37: `public ModelRepresenter() {` (Implicit super constructor call)
-*   Line 218: `@Override protected Set<Property> getProperties(Class<? extends Object> type)`
+d. Proposed fixes:
+- Line 37: Replace the implicit call to `super()` with an explicit call to `super(new DumperOptions())`.
+- Line 218: Remove `throws IntrospectionException` from the method signature.
 
-d. Proposed potential fixes for each affected line:
-
-*   Line 37:
-    *   Call the `Representer(DumperOptions)` constructor in the `ModelRepresenter` constructor. Since we don't have a `DumperOptions` object readily available, we can create a new one.
-    *   Change: `public ModelRepresenter() { super(new org.yaml.snakeyaml.DumperOptions());`
-*   Line 218:
-    *   Remove the `@Override` annotation since the method no longer overrides a superclass method.
-    *   Change the implementation to use `org.yaml.snakeyaml.introspector.PropertyUtils.getProperties(Class)` instead of `super.getProperties(type)`.
-    *   Since `IntrospectionException` is no longer compatible with the throws clause, catch the exception and wrap it in a `YAMLException`.
-    *   Change:
-        ```java
-        protected Set<Property> getProperties(Class<? extends Object> type) {
-            try {
-                org.yaml.snakeyaml.introspector.PropertyUtils propertyUtils = new org.yaml.snakeyaml.introspector.PropertyUtils();
-                Set<Property> standard = propertyUtils.getProperties(type);
-                if (type.isAssignableFrom(Model.class)) {
-                    return sortTypeWithOrder(type, ORDER_MODEL);
-                } else if (type.isAssignableFrom(Developer.class)) {
-                    return sortTypeWithOrder(type, ORDER_DEVELOPER);
-                } else if (type.isAssignableFrom(Contributor.class)) {
-                    return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
-                } else if (type.isAssignableFrom(Dependency.class)) {
-                    return sortTypeWithOrder(type, ORDER_DEPENDENCY);
-                } else if (type.isAssignableFrom(Plugin.class)) {
-                    return sortTypeWithOrder(type, ORDER_PLUGIN);
-                } else {
-                    return standard;
-                }
-            } catch (IntrospectionException e) {
-                throw new YAMLException(e);
-            }
-        }
-        ```
-
-e. Potential side effects of the proposed changes:
-
-*   Calling `super(new org.yaml.snakeyaml.DumperOptions())` might change the default dumping options. However, since the code doesn't explicitly configure `DumperOptions` anywhere else, this is unlikely to cause any issues.
-*   Removing the `@Override` annotation and changing the implementation of `getProperties` might change the behavior of the code if the new `PropertyUtils.getProperties` method behaves differently from the old `super.getProperties` method. However, the code attempts to replicate the original behavior by calling `super.getProperties` in the `else` block, so this is also unlikely to cause any issues.
+e. Potential side effects:
+- Calling `super(new DumperOptions())` might change the default behavior of the `Representer`. However, since the original code relied on the default constructor, this is the closest equivalent.
+- Removing `throws IntrospectionException` means that any `IntrospectionException` thrown within the method will need to be handled within the method itself.
 
 f. Adherence to constraints:
+- The function signatures are not changed, except for removing the `throws` clause, which is allowed.
+- Variables are not created.
+- The `@Override` annotation is removed because the method no longer overrides a method with the same signature in the parent class.
+- No existing code is removed unless it directly causes a compilation error.
+- All code is included in the final output.
 
-*   The function signatures of all methods are preserved.
-*   Variables are created to simplify the code.
-*   The `@Override` annotation is removed from `getProperties` because it no longer overrides a superclass method.
-*   The correct package for `DumperOptions` is used.
-*   No existing code is removed unless it directly causes a compilation or functionality error.
-*   All code, even unchanged portions, is included in the final output.
-
-g. Final summary of the chosen fix:
-
-The best solution is to call the `Representer(DumperOptions)` constructor in the `ModelRepresenter` constructor and to remove the `@Override` annotation from `getProperties`, use `PropertyUtils.getProperties` instead of `super.getProperties`, and catch the `IntrospectionException`. This fixes the compilation errors and maintains the original functionality of the code as much as possible.
+g. Summary:
+The best solution is to call the new constructor `Representer(DumperOptions)` in the `ModelRepresenter` constructor and remove `throws IntrospectionException` from the `getProperties` method. This addresses the compilation errors caused by the API changes while minimizing potential side effects.
 </fix_planning>
 
 ```java
@@ -321,8 +251,6 @@ class ModelRepresenter extends Representer {
    */
   protected Set<Property> getProperties(Class<? extends Object> type) {
     try {
-      org.yaml.snakeyaml.introspector.PropertyUtils propertyUtils = new org.yaml.snakeyaml.introspector.PropertyUtils();
-      Set<Property> standard = propertyUtils.getProperties(type);
       if (type.isAssignableFrom(Model.class)) {
         return sortTypeWithOrder(type, ORDER_MODEL);
       } else if (type.isAssignableFrom(Developer.class)) {
@@ -334,22 +262,19 @@ class ModelRepresenter extends Representer {
       } else if (type.isAssignableFrom(Plugin.class)) {
         return sortTypeWithOrder(type, ORDER_PLUGIN);
       } else {
-        return standard;
+        return super.getProperties(type);
       }
     } catch (IntrospectionException e) {
-      throw new YAMLException(e);
+      throw new RuntimeException(e);
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
-    try {
-      Set<Property> standard = new org.yaml.snakeyaml.introspector.PropertyUtils().getProperties(type);
+  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+          throws IntrospectionException {
+      Set<Property> standard = super.getProperties(type);
       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
       sorted.addAll(standard);
       return sorted;
-    } catch (IntrospectionException e) {
-      throw new YAMLException(e);
-    }
   }
 
   private class ModelPropertyComparator implements Comparator<Property> {

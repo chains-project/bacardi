@@ -1,11 +1,7 @@
 19,20d18
 < import com.google.api.services.translate.model.LanguagesResource;
 < import com.google.common.base.Function;
-28a27
->  * @deprecated This class is deprecated and will be removed in a future release.
-32a32
-> @Deprecated
-36,42d35
+36,42d33
 <   static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
 <       new Function<LanguagesResource, Language>() {
 <         @Override
@@ -13,8 +9,9 @@
 <           return Language.fromPb(languagePb);
 <         }
 <       };
-83,86d75
-< 
+84,85c75,76
 <   static Language fromPb(LanguagesResource languagePb) {
 <     return new Language(languagePb.getLanguage(), languagePb.getName());
-<   }
+---
+>   static Language fromPb(String code, String name) {
+>     return new Language(code, name);

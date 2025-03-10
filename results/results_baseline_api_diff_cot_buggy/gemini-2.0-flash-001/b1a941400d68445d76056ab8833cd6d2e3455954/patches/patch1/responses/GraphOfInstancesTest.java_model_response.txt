@@ -1,30 +1,27 @@
 <fix_planning>
-a. Relevant code and API changes:
-The error message indicates that the `Constructor()` constructor has been removed from the `org.yaml.snakeyaml.constructor.Constructor` class. The available constructors now require a `LoaderOptions` object as a parameter.
+The error message "no suitable constructor found for Constructor(no arguments)" indicates that the default constructor `Constructor()` has been removed from the `org.yaml.snakeyaml.constructor.Constructor` class. The error occurs in the `driveFromYaml` and `driveAsListFromYaml` methods.
 
-b. Specific API changes causing the issue:
-The removal of the default constructor `Constructor()` is the root cause.
+The API changes confirm that the default constructor has been removed. The available constructors now require a `LoaderOptions` object, or other parameters along with a `LoaderOptions` object.
 
-c. Affected lines of code:
-- `Constructor constructor = new Constructor();` (line 78)
-- `Constructor constructor = new Constructor();` (line 114)
+Affected lines:
+- `GraphOfInstancesTest.java:78`: `Constructor constructor = new Constructor();`
+- `GraphOfInstancesTest.java:114`: `Constructor constructor = new Constructor();`
 
-d. Proposed potential fixes for each affected line:
-The fix is to use the `Constructor(LoaderOptions loadingConfig)` constructor. We can create a `LoaderOptions` object and pass it to the constructor.
+Possible fixes:
+1. Use the `Constructor(LoaderOptions loadingConfig)` constructor. This requires creating a `LoaderOptions` object.
 
-e. Potential side effects of the proposed changes:
-The change should not have any side effects as we are simply using the new constructor with default `LoaderOptions`.
+Chosen fix:
+The best solution is to use the `Constructor(LoaderOptions loadingConfig)` constructor. This approach aligns with the updated API and avoids any potential issues with deprecated methods or alternative constructors.
 
-f. Adherence to constraints:
-1. The function signatures of all methods remain unchanged.
-2. A `LoaderOptions` variable is created.
-3. The `@Override` annotation is not removed.
-4. No missing imports need to be addressed.
-5. No existing code is removed unless it directly causes a compilation or functionality error.
-6. All code, even unchanged portions, is included in the final output.
+Applying this fix involves the following steps:
+1. Create a `LoaderOptions` object.
+2. Instantiate the `Constructor` with the `LoaderOptions` object.
 
-g. Final summary of the chosen fix:
-The best solution is to replace the `Constructor()` calls with `new Constructor(new org.yaml.snakeyaml.LoaderOptions())`. This addresses the API change by using the new constructor with a default `LoaderOptions` object, ensuring compatibility with the updated dependency.
+This change adheres to all constraints:
+- It only modifies the client code.
+- It does not change any function signatures.
+- It does not remove any existing code unless it directly causes a compilation error.
+- It includes all code in the final output.
 </fix_planning>
 
 ```java
@@ -38,10 +35,10 @@ import com.fluxtion.runtime.annotations.builder.ExcludeNode;
 import com.fluxtion.runtime.node.NamedNode;
 import lombok.Data;
 import org.junit.Test;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.LoaderOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -106,8 +103,8 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
                 "- !stringHandler\n" +
                 "  id: C";
         sep(c -> {
-            LoaderOptions loadingConfig = new LoaderOptions();
-            Constructor constructor = new Constructor(loadingConfig);
+            LoaderOptions loaderOptions = new LoaderOptions();
+            Constructor constructor = new Constructor(loaderOptions);
             constructor.addTypeDescription(new TypeDescription(DoubleSum.class, "!doubleSum"));
             constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
             Yaml yaml = new Yaml(constructor);
@@ -143,8 +140,8 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
                 "- !stringHandler\n" +
                 "  id: C";
         sep(c -> {
-            LoaderOptions loadingConfig = new LoaderOptions();
-            Constructor constructor = new Constructor(loadingConfig);
+            LoaderOptions loaderOptions = new LoaderOptions();
+            Constructor constructor = new Constructor(loaderOptions);
             constructor.addTypeDescription(new TypeDescription(DoubleSum.class, "!doubleSum"));
             constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
             Yaml yaml = new Yaml(constructor);

@@ -160,35 +160,4 @@ public interface ResourceManagerRpc extends ServiceRpc {
       throws IOException;
 
   // TODO(ajaykannan): implement "Organization" functionality when available (issue #319)
-
-  /**
-   * Gets the effective Policy on a resource.
-   *
-   * <p>This is the result of merging Policies in the resource hierarchy. The returned Policy does
-   * not have an etag set because it is a computed Policy across multiple resources. Subtrees of
-   * Resource Manager resource hierarchy with 'under:' prefix will not be expanded.
-   *
-   * @throws ResourceManagerException upon failure
-   */
-
-  /**
-   * Lists all the Constraints that can be applied on the specified resource.
-   *
-   * @throws ResourceManagerException upon failure
-   */
-
-  /**
-   * Lists all the Policies set for a particular resource.
-   *
-   * @throws ResourceManagerException upon failure
-   */
-
-  /**
-   * Updates the specified Policy on the resource. Creates a new Policy for that Constraint on the
-   * resource if one does not exist.
-   *
-   * <p>Not supplying an etag on the request Policy results in an unconditional write of the Policy.
-   *
-   * @throws ResourceManagerException upon failure
-   */
 }

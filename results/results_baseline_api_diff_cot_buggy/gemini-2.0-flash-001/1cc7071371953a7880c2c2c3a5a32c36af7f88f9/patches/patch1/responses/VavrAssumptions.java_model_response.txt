@@ -1,82 +1,53 @@
 <fix_planning>
-The code uses `org.assertj.core.internal.bytebuddy` which has been removed in the newer version of the dependency. The goal is to remove the dependency on `bytebuddy` and find an alternative.
+The code uses the ByteBuddy library, which has undergone significant API changes. Many classes and methods used in the original code have been removed. The goal is to adapt the code to the new ByteBuddy API while preserving the original functionality.
 
-Here's a breakdown of the issues and potential fixes:
+Here's a breakdown of the issues and proposed solutions:
 
-1.  **`ByteBuddy` usage:** The code uses `ByteBuddy` to dynamically create subclasses of assertion classes and intercept method calls. This is done to implement the "assumeThat" functionality, which wraps assertions and throws an exception if they fail. Since `ByteBuddy` is no longer available, this entire dynamic subclassing approach needs to be replaced. A simpler approach would be to directly wrap the assertion calls within the `AssumptionMethodInterceptor` and avoid dynamic class creation altogether.
+1.  **`org.assertj.core.internal.bytebuddy.ByteBuddy`**: The `ByteBuddy` class and its constructor have been removed. The `with` methods used to configure the `ByteBuddy` instance are also gone.
+    *   Affected lines: 50
+    *   Proposed fix: Replace `new ByteBuddy().with(TypeValidation.DISABLED).with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"))` with `new net.bytebuddy.ByteBuddy()`. Remove the calls to `with`. The naming strategy and type validation are likely handled differently now, and we'll need to find alternative approaches if they are still needed. Since `TypeValidation.DISABLED` is removed, we can remove it. `AuxiliaryType.NamingStrategy.SuffixingRandom` is also removed, so we can't use it. We will use the default naming strategy.
+    *   Side effects: The generated class names might change, and type validation will be enabled by default.
+    *   Adherence to constraints: Yes, the function signatures are unchanged.
 
-    *   Affected lines:
-        *   `private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(TypeValidation.DISABLED).with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));`
-        *   `private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);`
-        *   `private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);`
-        *   `private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass)`
-        *   `private static <ASSERTION> Class<? extends ASSERTION> generateAssumptionClass(Class<ASSERTION> assertionType)`
-        *   `.method(any())` (multiple occurrences)
+2.  **`org.assertj.core.internal.bytebuddy.TypeCache`**: The `TypeCache` class and its inner classes like `SimpleKey` and `WithInlineExpunction` have been removed.
+    *   Affected lines: 55, 215
+    *   Proposed fix: Replace `TypeCache` with a `java.util.concurrent.ConcurrentHashMap`. Replace `SimpleKey` with a simple wrapper class around `Class<?>`.
+    *   Side effects: The caching mechanism might behave slightly differently.
+    *   Adherence to constraints: Yes, the function signatures are unchanged.
 
-    *   Proposed fix: Remove the `ByteBuddy` related code and the dynamic subclassing. Modify `AssumptionMethodInterceptor` to directly call the assertion methods.
+3.  **`org.assertj.core.internal.bytebuddy.implementation.Implementation`**: The `Implementation` interface and `MethodDelegation` class have been removed.
+    *   Affected lines: 28, 53, 223
+    *   Proposed fix: Replace `Implementation` with `net.bytebuddy.implementation.Implementation`. Replace `MethodDelegation.to` with `net.bytebuddy.implementation.MethodDelegation.to`. Replace `any()` with `net.bytebuddy.matcher.ElementMatchers.any()`.
+    *   Side effects: None.
+    *   Adherence to constraints: Yes, the function signatures are unchanged.
 
-2.  **`TypeCache` and `SimpleKey`:** These classes are also part of `bytebuddy` and need to be removed along with the `ByteBuddy` usage.
+4.  **`org.assertj.core.internal.bytebuddy.implementation.bind.annotation.RuntimeType`**, **`org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This`**, **`org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall`**: These annotation classes have been removed.
+    *   Affected lines: 31, 32, 33, 59, 60
+    *   Proposed fix: Replace with `net.bytebuddy.implementation.bind.annotation.RuntimeType`, `net.bytebuddy.implementation.bind.annotation.This`, and `net.bytebuddy.implementation.bind.annotation.SuperCall`.
+    *   Side effects: None.
+    *   Adherence to constraints: Yes, the function signatures are unchanged.
 
-    *   Affected lines:
-        *   `import org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey;`
-        *   `import org.assertj.core.internal.bytebuddy.TypeCache;`
-        *   `private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);`
-        *   `SimpleKey cacheKey = new SimpleKey(assertClass);`
+5.  **`org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeValidation`**: The `TypeValidation` class has been removed.
+    *   Affected lines: 27
+    *   Proposed fix: Remove `.with(TypeValidation.DISABLED)` from the `ByteBuddy` instantiation.
+    *   Side effects: Type validation will be enabled.
+    *   Adherence to constraints: Yes, the function signatures are unchanged.
 
-    *   Proposed fix: Remove the `TypeCache` and `SimpleKey` related code. Since we are removing dynamic subclassing, caching is no longer needed.
+6.  **`org.assertj.core.internal.bytebuddy.implementation.auxiliary.AuxiliaryType`**: The `AuxiliaryType` class has been removed.
+    *   Affected lines: 30, 51
+    *   Proposed fix: Remove `.with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"))` from the `ByteBuddy` instantiation.
+    *   Side effects: The generated class names might change.
+    *   Adherence to constraints: Yes, the function signatures are unchanged.
 
-3.  **`Implementation`, `MethodDelegation`, `SuperCall`, `RuntimeType`, `This`:** These classes are also part of `bytebuddy` and need to be removed.
+7.  **`org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any()`**: The `any()` method has been removed.
+    *   Affected lines: 40
+    *   Proposed fix: Replace with `net.bytebuddy.matcher.ElementMatchers.any()`.
+    *   Side effects: None.
+    *   Adherence to constraints: Yes, the function signatures are unchanged.
 
-    *   Affected lines:
-        *   `import org.assertj.core.internal.bytebuddy.implementation.MethodDelegation;`
-        *   `import org.assertj.core.internal.bytebuddy.implementation.Implementation;`
-        *   `import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall;`
-        *   `import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.RuntimeType;`
-        *   `import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This;`
-        *   `private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);`
-        *   `public static Object intercept(@This AbstractVavrAssert<?, ?> assertion, @SuperCall Callable<Object> proxy) throws Exception`
-        *   `@RuntimeType`
+Summary:
 
-    *   Proposed fix: Remove the `Implementation`, `MethodDelegation`, `SuperCall`, `RuntimeType`, `This` related code. Modify `AssumptionMethodInterceptor` to directly call the assertion methods.
-
-4.  **`TypeValidation`, `AuxiliaryType`, `ElementMatchers.any()`:** These classes are also part of `bytebuddy` and need to be removed.
-
-    *   Affected lines:
-        *   `import org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeValidation;`
-        *   `import org.assertj.core.internal.bytebuddy.implementation.auxiliary.AuxiliaryType;`
-        *   `import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any;`
-        *   `.with(TypeValidation.DISABLED)`
-        *   `.with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"))`
-        *   `method(any())`
-
-    *   Proposed fix: Remove the `TypeValidation`, `AuxiliaryType`, `ElementMatchers.any()` related code.
-
-5.  **Assumption Handling:** The `AssumptionMethodInterceptor` currently uses `proxy.call()` to execute the assertion. Since we are removing `ByteBuddy`, we need to directly call the assertion methods within the interceptor.
-
-    *   Affected lines:
-        *   `Object result = proxy.call();`
-
-    *   Proposed fix: Replace `proxy.call()` with direct calls to the assertion methods. This will require casting the `assertion` object to the correct assertion type and calling the appropriate methods.
-
-6.  **Class Loading Strategy:** The `classLoadingStrategy` method is used to load the dynamically created classes. Since we are removing dynamic class creation, this method and its usage can be removed.
-
-    *   Affected lines:
-        *   `import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrategy;`
-        *   `.load(VavrAssumptions.class.getClassLoader(), classLoadingStrategy(assertionType))`
-
-    *   Proposed fix: Remove the import and the usage of `classLoadingStrategy`.
-
-7.  **Adherence to Constraints:** The proposed changes adhere to all the given constraints:
-    *   The function signatures of existing methods are not changed.
-    *   Variables can be created if it simplifies the code.
-    *   The `@Override` annotation is removed if the method no longer overrides a method in the updated dependency version.
-    *   Missing imports are addressed.
-    *   Existing code is not removed unless it directly causes a compilation or functionality error.
-    *   All code, even unchanged portions, is included in the final output.
-
-**Final Summary:**
-
-The best solution is to remove the `ByteBuddy` dependency and the dynamic subclassing approach. This involves removing the `ByteBuddy`, `TypeCache`, `SimpleKey`, `Implementation`, `MethodDelegation`, `SuperCall`, `RuntimeType`, `This`, `TypeValidation`, `AuxiliaryType`, `ElementMatchers.any()` related code. The `AssumptionMethodInterceptor` will be modified to directly call the assertion methods. This approach simplifies the code and removes the dependency on the problematic library.
+The chosen fix involves updating the ByteBuddy library imports and instantiation to align with the new API. The `TypeCache` is replaced with `ConcurrentHashMap`, and the removed `with` calls are removed from the `ByteBuddy` instantiation. The naming strategy and type validation are removed. These changes address the compilation errors while attempting to maintain the original functionality.
 </fix_planning>
 
 ```java
@@ -86,7 +57,7 @@ The best solution is to remove the `ByteBuddy` dependency and the dynamic subcla
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software is distributed on
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  *
@@ -103,18 +74,39 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import io.vavr.control.Validation;
+import java.util.concurrent.ConcurrentHashMap;
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.implementation.Implementation;
+import net.bytebuddy.implementation.MethodDelegation;
+import net.bytebuddy.implementation.bind.annotation.RuntimeType;
+import net.bytebuddy.implementation.bind.annotation.SuperCall;
+import net.bytebuddy.implementation.bind.annotation.This;
+import net.bytebuddy.matcher.ElementMatchers;
 import org.assertj.core.util.CheckReturnValue;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
 
 import static org.assertj.core.util.Arrays.array;
+import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrategy;
 
 public class VavrAssumptions {
 
+    /**
+     * This NamingStrategy takes the original class's name and adds a suffix to distinguish it.
+     * The default is ByteBuddy but for debugging purposes, it makes sense to add AssertJ as a name.
+     */
+    private static final ByteBuddy BYTE_BUDDY = new ByteBuddy();
+
+    private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
+
+    private static final ConcurrentHashMap<Class<?>, Class<?>> CACHE = new ConcurrentHashMap<>();
+
     private static final class AssumptionMethodInterceptor {
 
-        public static Object intercept(AbstractVavrAssert<?, ?> assertion, Callable<Object> proxy) throws Exception {
+        @RuntimeType
+        public static Object intercept(@This AbstractVavrAssert<?, ?> assertion, @SuperCall Callable<Object> proxy) throws Exception {
             try {
                 Object result = proxy.call();
                 if (result != assertion && result instanceof AbstractVavrAssert) {
@@ -139,7 +131,7 @@ public class VavrAssumptions {
     @CheckReturnValue
     @SuppressWarnings("unchecked")
     public static <LEFT, RIGHT> EitherAssert<LEFT, RIGHT> assumeThat(Either<LEFT, RIGHT> actual) {
-        return new EitherAssert<>(actual);
+        return asAssumption(EitherAssert.class, Either.class, actual);
     }
 
     /**
@@ -152,7 +144,7 @@ public class VavrAssumptions {
     @CheckReturnValue
     @SuppressWarnings("unchecked")
     public static <VALUE> LazyAssert<VALUE> assumeThat(Lazy<VALUE> actual) {
-        return new LazyAssert<>(actual);
+        return asAssumption(LazyAssert.class, Lazy.class, actual);
     }
 
     /**
@@ -166,7 +158,7 @@ public class VavrAssumptions {
     @CheckReturnValue
     @SuppressWarnings("unchecked")
     public static <K, V> MapAssert<K, V> assumeThat(Map<K, V> actual) {
-        return new MapAssert<>(actual);
+        return asAssumption(MapAssert.class, Map.class, actual);
     }
 
     /**
@@ -180,7 +172,7 @@ public class VavrAssumptions {
     @CheckReturnValue
     @SuppressWarnings("unchecked")
     public static <K, V> MultimapAssert<K, V> assumeThat(Multimap<K, V> actual) {
-        return new MultimapAssert<>(actual);
+        return asAssumption(MultimapAssert.class, Multimap.class, actual);
     }
 
     /**
@@ -193,7 +185,7 @@ public class VavrAssumptions {
     @CheckReturnValue
     @SuppressWarnings("unchecked")
     public static <VALUE> OptionAssert<VALUE> assumeThat(Option<VALUE> actual) {
-        return new OptionAssert<>(actual);
+        return asAssumption(OptionAssert.class, Option.class, actual);
     }
 
     /**
@@ -206,7 +198,7 @@ public class VavrAssumptions {
     @CheckReturnValue
     @SuppressWarnings("unchecked")
     public static <ELEMENT> SetAssert<ELEMENT> assumeThat(Set<ELEMENT> actual) {
-        return new SetAssert<>(actual);
+        return asAssumption(SetAssert.class, Set.class, actual);
     }
 
     /**
@@ -219,7 +211,7 @@ public class VavrAssumptions {
     @CheckReturnValue
     @SuppressWarnings("unchecked")
     public static <ELEMENT> SeqAssert<ELEMENT> assumeThat(Seq<ELEMENT> actual) {
-        return new SeqAssert<>(actual);
+        return asAssumption(SeqAssert.class, Seq.class, actual);
     }
 
     /**
@@ -232,7 +224,7 @@ public class VavrAssumptions {
     @CheckReturnValue
     @SuppressWarnings("unchecked")
     public static <VALUE> TryAssert<VALUE> assumeThat(Try<VALUE> actual) {
-        return new TryAssert<>(actual);
+        return asAssumption(TryAssert.class, Try.class, actual);
     }
 
     /**
@@ -246,7 +238,7 @@ public class VavrAssumptions {
     @CheckReturnValue
     @SuppressWarnings("unchecked")
     public static <INVALID, VALID> ValidationAssert<INVALID, VALID> assumeThat(Validation<INVALID, VALID> actual) {
-        return new ValidationAssert<>(actual);
+        return asAssumption(ValidationAssert.class, Validation.class, actual);
     }
 
     private static <ASSERTION, ACTUAL> ASSERTION asAssumption(Class<ASSERTION> assertionType,
@@ -259,11 +251,27 @@ public class VavrAssumptions {
                                                       Class<?>[] constructorTypes,
                                                       Object... constructorParams) {
         try {
-            java.lang.reflect.Constructor<? extends ASSERTION> constructor = assertionType.getConstructor(constructorTypes);
+            Class<? extends ASSERTION> type = createAssumptionClass(assertionType);
+            Constructor<? extends ASSERTION> constructor = type.getConstructor(constructorTypes);
             return constructor.newInstance(constructorParams);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
             throw new RuntimeException("Cannot create assumption instance", e);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass) {
+        return (Class<? extends ASSERTION>) CACHE.computeIfAbsent(assertClass,
+                (key) -> generateAssumptionClass(assertClass));
+    }
+
+    private static <ASSERTION> Class<? extends ASSERTION> generateAssumptionClass(Class<ASSERTION> assertionType) {
+        return BYTE_BUDDY.subclass(assertionType)
+                .method(ElementMatchers.any())
+                .intercept(ASSUMPTION)
+                .make()
+                .load(VavrAssumptions.class.getClassLoader(), classLoadingStrategy(assertionType))
+                .getLoaded();
     }
 
     private static RuntimeException assumptionNotMet(AssertionError assertionError) throws ReflectiveOperationException {
@@ -297,13 +305,13 @@ public class VavrAssumptions {
     private static AbstractVavrAssert<?, ?> asAssumption(AbstractVavrAssert<?, ?> assertion) {
         // @format:off
         Object actual = assertion.actual();
-        if (assertion instanceof LazyAssert) return new LazyAssert<>((Lazy<?>) actual);
-        if (assertion instanceof EitherAssert) return new EitherAssert<>((Either<?, ?>) actual);
-        if (assertion instanceof MapAssert) return new MapAssert<>((Map<?, ?>) actual);
-        if (assertion instanceof OptionAssert) return new OptionAssert<>((Option<?>) actual);
-        if (assertion instanceof SeqAssert) return new SeqAssert<>((Seq<?>) actual);
-        if (assertion instanceof TryAssert) return new TryAssert<>((Try<?>) actual);
-        if (assertion instanceof ValidationAssert) return new ValidationAssert<>((Validation<?, ?>) actual);
+        if (assertion instanceof LazyAssert) return asAssumption(LazyAssert.class, Lazy.class, actual);
+        if (assertion instanceof EitherAssert) return asAssumption(EitherAssert.class, Either.class, actual);
+        if (assertion instanceof MapAssert) return asAssumption(MapAssert.class, Map.class, actual);
+        if (assertion instanceof OptionAssert) return asAssumption(OptionAssert.class, Option.class, actual);
+        if (assertion instanceof SeqAssert) return asAssumption(SeqAssert.class, Seq.class, actual);
+        if (assertion instanceof TryAssert) return asAssumption(TryAssert.class, Try.class, actual);
+        if (assertion instanceof ValidationAssert) return asAssumption(ValidationAssert.class, Validation.class, actual);
         // @format:on
         // should not arrive here
         throw new IllegalArgumentException("Unsupported assumption creation for " + assertion.getClass());

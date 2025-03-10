@@ -37,15 +37,6 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
 
   private final TranslateRpc translateRpc;
 
-  private static final Function<List<Object>, Detection>
-      DETECTION_FROM_PB_FUNCTION =
-          new Function<List<Object>, Detection>() {
-            @Override
-            public Detection apply(List<Object> detectionPb) {
-              return null;
-            }
-          };
-
   TranslateImpl(TranslateOptions options) {
     super(options);
     translateRpc = options.getTranslateRpcV2();
@@ -53,12 +44,40 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
 
   @Override
   public List<Language> listSupportedLanguages(final LanguageListOption... options) {
-    return Collections.emptyList();
+    try {
+      return runWithRetries(
+          new Callable<List<Language>>() {
+            @Override
+            public List<Language> call() {
+              return translateRpc.listSupportedLanguages(optionMap(options));
+            }
+          },
+          getOptions().getRetrySettings(),
+          EXCEPTION_HANDLER,
+          getOptions().getClock());
+    } catch (RetryHelperException e) {
+      throw TranslateException.translateAndThrow(e);
+    }
   }
 
   @Override
   public List<Detection> detect(final List<String> texts) {
-    return Collections.emptyList();
+    try {
+      List<Detection> detectionsPb =
+          runWithRetries(
+              new Callable<List<Detection>>() {
+                @Override
+                public List<Detection> call() {
+                  return translateRpc.detect(texts);
+                }
+              },
+              getOptions().getRetrySettings(),
+              EXCEPTION_HANDLER,
+              getOptions().getClock());
+      return detectionsPb;
+    } catch (RetryHelperException e) {
+      throw TranslateException.translateAndThrow(e);
+    }
   }
 
   @Override
@@ -73,7 +92,20 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
 
   @Override
   public List<Translation> translate(final List<String> texts, final TranslateOption... options) {
-    return Collections.emptyList();
+    try {
+      return runWithRetries(
+          new Callable<List<Translation>>() {
+            @Override
+            public List<Translation> call() {
+              return translateRpc.translate(texts, optionMap(options));
+            }
+          },
+          getOptions().getRetrySettings(),
+          EXCEPTION_HANDLER,
+          getOptions().getClock());
+    } catch (RetryHelperException e) {
+      throw TranslateException.translateAndThrow(e);
+    }
   }
 
   @Override

@@ -1,48 +1,22 @@
 19c19
 < import com.google.api.services.translate.model.TranslationsResource;
 ---
-> import com.google.api.services.translate.v3.model.Translation;
+> import com.google.api.services.translate.v3.model.Translation as TranslationV3;
 37,38c37,38
 <   static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =
 <       new Function<TranslationsResource, Translation>() {
 ---
->   static final Function<com.google.api.services.translate.v3.model.Translation, Translation> FROM_PB_FUNCTION =
->       new Function<com.google.api.services.translate.v3.model.Translation, Translation>() {
+>   static final Function<TranslationV3, Translation> FROM_PB_FUNCTION =
+>       new Function<TranslationV3, Translation>() {
 40c40
 <         public Translation apply(TranslationsResource translationPb) {
 ---
->         public Translation apply(com.google.api.services.translate.v3.model.Translation translationPb) {
-46d45
-<   private final String sourceLanguage;
-49c48
-<   private Translation(String translatedText, String sourceLanguage, String model) {
----
->   private Translation(String translatedText, String model) {
-51d49
-<     this.sourceLanguage = sourceLanguage;
-61,68d58
-<    * Returns the language code of the source text. If no source language was provided this value is
-<    * the source language as detected by the Google Translation service.
-<    */
-<   public String getSourceLanguage() {
-<     return sourceLanguage;
-<   }
-< 
-<   /**
-84d73
-<         .add("sourceLanguage", sourceLanguage)
-90c79
-<     return Objects.hash(translatedText, sourceLanguage);
----
->     return Objects.hash(translatedText);
-102,103c91
-<     return Objects.equals(translatedText, other.translatedText)
-<         && Objects.equals(sourceLanguage, other.sourceLanguage);
----
->     return Objects.equals(translatedText, other.translatedText);
-106c94
+>         public Translation apply(TranslationV3 translationPb) {
+106c106
 <   static Translation fromPb(TranslationsResource translationPb) {
 ---
->   static Translation fromPb(Translation translationPb) {
-109d96
+>   static Translation fromPb(TranslationV3 translationPb) {
+109c109
 <         translationPb.getDetectedSourceLanguage(),
+---
+>         null, // Source language is not available in the new Translation class

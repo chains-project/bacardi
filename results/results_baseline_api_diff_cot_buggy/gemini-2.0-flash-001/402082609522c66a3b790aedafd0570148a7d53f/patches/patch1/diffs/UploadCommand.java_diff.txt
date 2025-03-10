@@ -1,0 +1,41 @@
+11a12
+> import org.spongepowered.api.command.CommandCause;
+13,16c14,17
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+> import org.spongepowered.api.command.Command;
+19,22c20
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+< 
+< public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class UploadCommand implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
+33,35c31,32
+<     @Override
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         String url = args.<String>getOne("url").get();
+---
+>     public CommandResult execute(CommandCause src, CommandContext args) throws CommandException {
+>         String url = args.requireOne(Parameter.string().key("url").build(), String.class);
+43c40
+<                 Task.builder().async().execute(skinUploader).submit(plugin);
+---
+>                 plugin.getServer().getScheduler().submit(Task.builder().plugin(plugin).execute(skinUploader).build());
+52,56c49,52
+<     @Override
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+<                 .executor(this)
+<                 .arguments(string(of("url")))
+---
+>     public Command buildSpec() {
+>         return Command.builder()
+>                 .execution(this)
+>                 .addParameter(Parameter.string().key("url").build())

@@ -31,6 +31,7 @@ package com.jcabi.http.mock;
 
 import java.net.URI;
 import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.hamcrest.beans.HasPropertyWithValue;
 
 /**

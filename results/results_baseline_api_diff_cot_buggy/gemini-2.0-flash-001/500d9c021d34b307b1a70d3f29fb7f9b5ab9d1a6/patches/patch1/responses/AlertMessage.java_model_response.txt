@@ -5,13 +5,10 @@ a. Relevant parts of the code and API changes:
 import javax.mvc.RedirectScoped;
 
 @RedirectScoped
-public class AlertMessage implements Serializable {
 ```
 - API Changes:
-```
-Interface jakarta.mvc.RedirectScoped has been added in the new version of the dependency.
-Class javax.mvc.RedirectScoped has been removed in the new version of the dependency.
-```
+"Interface jakarta.mvc.RedirectScoped has been added in the new version of the dependency."
+"Class javax.mvc.RedirectScoped has been removed in the new version of the dependency."
 
 b. Specific API changes causing the issue:
 The class `javax.mvc.RedirectScoped` has been removed, and the interface `jakarta.mvc.RedirectScoped` has been added. This means the import statement and the annotation are now invalid.
@@ -29,9 +26,9 @@ The change should not have any side effects as it is simply updating the import 
 
 f. Adherence to constraints:
 1. The function signatures of all methods remain unchanged.
-2. No variables are created.
+2. No new variables are created.
 3. The `@Override` annotation is not present, so it doesn't need to be removed.
-4. The import statement is updated to use the correct package.
+4. The correct package is used in the import statement.
 5. No existing code is removed unless it directly causes a compilation error.
 6. All code is included in the final output.
 

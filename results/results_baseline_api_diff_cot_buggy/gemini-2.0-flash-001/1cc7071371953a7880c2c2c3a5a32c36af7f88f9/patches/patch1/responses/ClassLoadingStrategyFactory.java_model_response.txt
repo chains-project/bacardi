@@ -1,41 +1,47 @@
 <fix_planning>
-The core issue is that `org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector` and `org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy` along with nested classes `ClassInjector.UsingReflection`, `ClassInjector.UsingLookup`, `ClassLoadingStrategy.Default`, and `ClassLoadingStrategy.UsingLookup` have been removed from the dependency.
+The core issue is that the `org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy`, `org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector`, `org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy.UsingLookup`, `org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy.Default` and `isAvailable()` methods in `ClassInjector` have been removed in the updated dependency. This affects the `ClassLoadingStrategyFactory` class.
 
-Affected lines:
-* `import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector;`
-* `import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy;`
-* `if (ClassInjector.UsingReflection.isAvailable()) {`
-* `} else if (ClassInjector.UsingLookup.isAvailable() && PRIVATE_LOOKUP_IN != null) {`
-* `return ClassLoadingStrategy.Default.INJECTION;`
-* `return ClassLoadingStrategy.UsingLookup.of(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));`
+Here's a breakdown of the affected code and potential fixes:
 
-Possible fixes:
+*   **Affected lines:**
+    *   `import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy;`
+    *   `import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector;`
+    *   `if (ClassInjector.UsingReflection.isAvailable()) {`
+    *   `return ClassLoadingStrategy.Default.INJECTION;`
+    *   `} else if (ClassInjector.UsingLookup.isAvailable() && PRIVATE_LOOKUP_IN != null) {`
+    *   `return ClassLoadingStrategy.UsingLookup.of(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));`
 
-Since `ClassInjector` and `ClassLoadingStrategy` are removed, we need to find a replacement or alternative approach.  The goal is to load classes dynamically.  Since the classes are no longer available, we can't use `ClassInjector.UsingReflection.isAvailable()` or `ClassInjector.UsingLookup.isAvailable()`. We also can't use `ClassLoadingStrategy.Default.INJECTION` or `ClassLoadingStrategy.UsingLookup.of(...)`.
+*   **API Changes:**
+    *   `Class org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy` has been removed.
+    *   `Class org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector` has been removed.
+    *   `Class org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$UsingLookup` has been removed.
+    *   `Class org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default` has been removed.
+    *   `Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingReflection.isAvailable()` has been removed.
+    *   `Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingLookup.isAvailable()` has been removed.
 
-Given the constraints, we cannot change the method signature. We can create variables to simplify the code.
+*   **Proposed Fixes:**
 
-The best approach is to use a default `ClassLoader` based strategy. Since the original code attempts to use reflection or lookup based strategies, we can try to replicate that behavior using the current thread's context class loader.
+    1.  **Remove the imports:** Since `ClassLoadingStrategy` and `ClassInjector` are no longer available, remove the corresponding import statements.
+    2.  **Replace `isAvailable()` calls:** The `isAvailable()` methods are removed. We need to find an alternative way to determine the appropriate class loading strategy. Since the classes `ClassInjector.UsingReflection` and `ClassInjector.UsingLookup` are also removed, we can try to instantiate them and catch the `NoClassDefFoundError` to determine if they are available.
+    3.  **Replace `ClassLoadingStrategy.Default.INJECTION` and `ClassLoadingStrategy.UsingLookup.of(...)`:** Since `ClassLoadingStrategy`, `ClassLoadingStrategy.Default` and `ClassLoadingStrategy.UsingLookup` are removed, we need to use a different approach to return a `ClassLoadingStrategy`. We can use `ClassLoadingStrategy.Default.WRAPPER` as a default strategy.
 
-Here's the proposed fix:
+*   **Potential Side Effects:**
 
-1. Remove the imports for `ClassInjector` and `ClassLoadingStrategy`.
-2. Remove the checks for `ClassInjector.UsingReflection.isAvailable()` and `ClassInjector.UsingLookup.isAvailable()`.
-3. Replace the entire `if-else` block with a simple return of a `ClassLoader` based `ClassLoadingStrategy`.
-4. Since `ClassLoadingStrategy` is removed, we will return `ClassLoader`.
+    *   The new implementation might not be as efficient as the old one.
+    *   The new implementation might not be compatible with all environments.
 
-This approach adheres to all constraints:
+*   **Adherence to Constraints:**
 
-*   The function signature remains unchanged.
-*   Variables can be created if needed.
-*   The `@Override` annotation is not present, so no need to remove it.
-*   Missing imports are addressed by removing them.
-*   Existing code is removed only when it causes compilation errors due to the API changes.
+    *   The function signature of `classLoadingStrategy` is not changed.
+    *   Variables are created to simplify the code.
+    *   The `@Override` annotation is not used.
+    *   The correct package or class is used in accordance with the newer dependency version.
+    *   No existing code is removed unless it directly causes a compilation or functionality error.
+    *   All code, even unchanged portions, is included in the final output.
 
-Final summary:
+*   **Summary:**
 
-The chosen fix involves removing the dependency on the removed `ClassInjector` and `ClassLoadingStrategy` classes and returning the current thread's context class loader. This is the most straightforward solution that addresses the compilation errors while adhering to the given constraints.
-</fix_planning>
+    The best solution is to remove the imports for `ClassLoadingStrategy` and `ClassInjector`, replace the `isAvailable()` calls with try-catch blocks to check for the existence of `ClassInjector.UsingReflection` and `ClassInjector.UsingLookup`, and replace the calls to `ClassLoadingStrategy.Default.INJECTION` and `ClassLoadingStrategy.UsingLookup.of(...)` with `ClassLoadingStrategy.Default.WRAPPER`. This approach addresses the API changes while adhering to all the given constraints.
 
 ```java
 /*
@@ -53,6 +59,8 @@ The chosen fix involves removing the dependency on the removed `ClassInjector` a
 package org.assertj.vavr.api;
 
 import io.vavr.control.Try;
+import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
@@ -64,8 +72,35 @@ class ClassLoadingStrategyFactory {
         () -> MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class)
     ).getOrElse((Method) null);
 
-    static ClassLoader classLoadingStrategy(Class<?> assertClass) {
-        return Thread.currentThread().getContextClassLoader();
+    static ClassLoadingStrategy<ClassLoader> classLoadingStrategy(Class<?> assertClass) {
+        boolean reflectionAvailable = false;
+        try {
+            Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingReflection");
+            reflectionAvailable = true;
+        } catch (ClassNotFoundException e) {
+            // ignore
+        }
+
+        boolean lookupAvailable = false;
+        try {
+            Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingLookup");
+            lookupAvailable = true;
+        } catch (ClassNotFoundException e) {
+            // ignore
+        }
+
+        if (reflectionAvailable) {
+            return ClassLoadingStrategy.Default.WRAPPER;
+        } else if (lookupAvailable && PRIVATE_LOOKUP_IN != null) {
+            try {
+                return ClassLoadingStrategy.Default.WRAPPER;
+                //return ClassLoadingStrategy.UsingLookup.of(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));
+            } catch (Exception e) {
+                throw new IllegalStateException("Could not access package of " + assertClass, e);
+            }
+        } else {
+            throw new IllegalStateException("No code generation strategy available");
+        }
     }
 
 }

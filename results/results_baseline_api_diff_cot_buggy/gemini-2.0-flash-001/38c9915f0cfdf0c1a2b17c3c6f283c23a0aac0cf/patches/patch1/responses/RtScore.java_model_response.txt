@@ -3,32 +3,32 @@ a. Code and API changes:
 - Code: `import org.cactoos.iterable.LengthOf;` and `new LengthOf(other.suffixes()).intValue()` and `new LengthOf(this.sfxs).intValue()`
 - API Changes: `Class org.cactoos.iterable.LengthOf has been removed in the new version of the dependency.` and `Type reference org.cactoos.scalar.LengthOf(java.lang.Iterable) has been added in the new version of the dependency.`
 
-b. Specific API changes causing the issue:
-The class `org.cactoos.iterable.LengthOf` has been removed, and `org.cactoos.scalar.LengthOf` has been added, which takes an Iterable as an argument.
+b. Problem:
+The class `org.cactoos.iterable.LengthOf` has been removed. We need to use `org.cactoos.scalar.LengthOf` instead.
 
-c. Affected lines of code:
+c. Affected lines:
 - `import org.cactoos.iterable.LengthOf;`
 - `return new LengthOf(other.suffixes()).intValue()`
-- ` - new LengthOf(this.sfxs).intValue();`
+- `return new LengthOf(this.sfxs).intValue();`
 
 d. Proposed fixes:
-- Replace `import org.cactoos.iterable.LengthOf;` with `import org.cactoos.scalar.LengthOf;`
-- Replace `new LengthOf(other.suffixes()).intValue()` with `new LengthOf(other.suffixes()).value()`
-- Replace `new LengthOf(this.sfxs).intValue()` with `new LengthOf(this.sfxs).value()`
+1. Replace `import org.cactoos.iterable.LengthOf;` with `import org.cactoos.scalar.LengthOf;`
+2. Replace `new LengthOf(other.suffixes()).intValue()` with `new org.cactoos.scalar.LengthOf(other.suffixes()).intValue()`
+3. Replace `new LengthOf(this.sfxs).intValue()` with `new org.cactoos.scalar.LengthOf(this.sfxs).intValue()`
 
-e. Potential side effects:
-The return type of `LengthOf.value()` might be different from `LengthOf.intValue()`. However, in this case, it returns an `int`, so there should be no side effects.
+e. Side effects:
+The code should compile and run as before, but now using the new API.
 
-f. Adherence to constraints:
+f. Constraint adherence:
 1. The function signature of `compareTo` is not changed.
-2. No variables are created.
+2. Variables are not created.
 3. The `@Override` annotation is kept as the method still overrides a method in the interface.
 4. The correct package `org.cactoos.scalar` is used.
 5. No existing code is removed unless it directly causes a compilation error.
 6. All code is included in the final output.
 
 g. Summary:
-The best solution is to replace the import statement and use the new `LengthOf` class from `org.cactoos.scalar` and call the `value()` method instead of `intValue()`. This fixes the compilation error and maintains the original functionality.
+The best solution is to replace the import statement and use the new `org.cactoos.scalar.LengthOf` class in the `compareTo` method. This fixes the compilation error and adheres to all constraints.
 </fix_planning>
 
 ```java
@@ -41,8 +41,7 @@ The best solution is to replace the import statement and use the new `LengthOf` 
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * copies of the Software, and to permit persons to whom it is furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
@@ -83,8 +82,8 @@ public final class RtScore implements Score {
 
     @Override
     public int compareTo(final Score other) {
-        return new LengthOf(other.suffixes()).value()
-            - new LengthOf(this.sfxs).value();
+        return new LengthOf(other.suffixes()).intValue()
+            - new LengthOf(this.sfxs).intValue();
     }
 
     @Override

@@ -1,0 +1,93 @@
+<fix_planning>
+The core issue is that the Sponge API has undergone significant changes, specifically in the command system. `CommandSource`, `CommandSpec`, `CommandExecutor` (interface), `CommandResult`, and `CommandContext` are either removed or changed.
+
+Here's a breakdown of the problems and potential solutions:
+
+1.  **`org.spongepowered.api.command.CommandSource` is removed:**
+    *   Affected line: `public CommandResult execute(CommandSource src, CommandContext args)`
+    *   `CommandSource` is the type of the `src` parameter. We need to find a suitable replacement. `org.spongepowered.api.command.CommandCause` seems like a reasonable replacement.
+    *   Potential side effects: We need to ensure that the rest of the code within the `execute` method still works with the new `CommandCause` type.
+    *   Also, `src instanceof Player` needs to be adapted. `CommandCause` has a `root()` method that returns the cause of the command. We can check if the root cause is a player.
+
+2.  **`org.spongepowered.api.command.spec.CommandSpec` is removed:**
+    *   Affected line: `public CommandSpec buildSpec()`
+    *   `CommandSpec` is the return type of `buildSpec`. The new API uses `org.spongepowered.api.command.Command.Builder` to create commands. We need to change the return type and the implementation accordingly.
+    *   Potential side effects: The return type of `buildSpec` is now different, so any code that calls this method needs to be updated.
+
+3.  **`org.spongepowered.api.command.spec.CommandExecutor` is removed and `org.spongepowered.api.command.CommandExecutor` is added:**
+    *   Affected line: `public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand`
+    *   The old `CommandExecutor` interface is removed, and a new one is added. The new one is a functional interface with a different `execute` method signature.
+    *   Potential side effects: We need to adapt the `execute` method to match the new interface.
+
+4.  **`org.spongepowered.api.command.args.CommandContext` is removed and `org.spongepowered.api.command.parameter.CommandContext` is added:**
+    *   Affected line: `public CommandResult execute(CommandSource src, CommandContext args)`
+    *   `CommandContext` is the type of the `args` parameter. We need to find a suitable replacement. `org.spongepowered.api.command.parameter.CommandContext` seems like a reasonable replacement.
+
+5.  **`org.spongepowered.api.command.CommandResult` is removed:**
+    *   Affected line: `public CommandResult execute(CommandSource src, CommandContext args)` and `public CommandSpec buildSpec()`
+    *   `CommandResult` is the return type of `execute`. We need to find a suitable replacement. `org.spongepowered.api.command.CommandResult` seems like a reasonable replacement.
+    *   Also, `CommandResult.success()` and `CommandResult.empty()` need to be replaced with the new API.
+
+6.  **`org.spongepowered.api.command.spec.CommandSpec$Builder.permission(java.lang.String)` is removed and `org.spongepowered.api.command.Command$Builder.permission(java.lang.String)` is added:**
+    *   Affected line: `return CommandSpec.builder().executor(this).permission(PomData.ARTIFACT_ID + ".command.skinupdate.base").build();`
+    *   The `permission` method is now on the `Command.Builder` instead of `CommandSpec.Builder`.
+
+**Chosen Fix:**
+
+The best solution is to adapt the code to use the new Sponge API. This involves:
+
+*   Replacing `CommandSource` with `org.spongepowered.api.command.CommandCause` and adapting the `instanceof` check.
+*   Replacing `CommandSpec` with `org.spongepowered.api.command.Command` and using the `Command.Builder` to create the command.
+*   Implementing the new `org.spongepowered.api.command.CommandExecutor` interface.
+*   Replacing `CommandContext` with `org.spongepowered.api.command.parameter.CommandContext`.
+*   Replacing `CommandResult` with `org.spongepowered.api.command.CommandResult`.
+*   Using `Command.Builder.permission` instead of `CommandSpec.Builder.permission`.
+
+This approach ensures that the code is compatible with the new Sponge API and that the plugin continues to function as expected.
+
+```java
+package com.github.games647.changeskin.sponge.command;
+
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.github.games647.changeskin.sponge.PomData;
+import com.github.games647.changeskin.sponge.task.SkinInvalidator;
+import com.google.inject.Inject;
+
+import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.exception.CommandException;
+import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
+
+public class InvalidateCommand implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
+
+    private final ChangeSkinSponge plugin;
+
+    @Inject
+    InvalidateCommand(ChangeSkinSponge plugin) {
+        this.plugin = plugin;
+    }
+
+    @Override
+    public CommandResult execute(CommandCause cause, CommandContext args) throws CommandException {
+        if (!(cause.root() instanceof Player)) {
+            plugin.sendMessage(cause, "no-console");
+            return CommandResult.empty();
+        }
+
+        Player receiver = (Player) cause.root();
+        Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
+        return CommandResult.success();
+    }
+
+    @Override
+    public Command buildSpec() {
+        return Command.builder()
+                .executor(this)
+                .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base")
+                .build();
+    }
+}
+```

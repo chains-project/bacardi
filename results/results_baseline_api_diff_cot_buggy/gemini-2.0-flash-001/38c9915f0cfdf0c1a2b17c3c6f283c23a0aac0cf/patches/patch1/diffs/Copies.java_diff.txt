@@ -6,13 +6,14 @@
 >  * THE SOFTWARE.
 26d25
 < import io.zold.api.Copies.Copy;
-28a28
-> import java.util.Collection;
-30d29
+30c29
 < import org.cactoos.collection.CollectionOf;
-91,93c90
+---
+> import java.util.stream.StreamSupport;
+91,93c90,91
 <         return first.id() == second.id() && new CollectionOf<>(
 <             first.ledger()
 <         ).size() == new CollectionOf<>(second.ledger()).size();
 ---
->         return first.id() == second.id() && ((Collection<?>) first.ledger()).size() == ((Collection<?>) second.ledger()).size();
+>         return first.id() == second.id() && StreamSupport.stream(first.ledger().spliterator(), false).toList()
+>             .size() == StreamSupport.stream(second.ledger().spliterator(), false).toList().size();

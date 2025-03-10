@@ -1,38 +1,62 @@
 <fix_planning>
-a. Relevant code and API changes:
+a. Relevant parts of the code and API changes:
 
-The code uses `org.cactoos.scalar.CheckedScalar`, `org.cactoos.text.SplitText`, `org.cactoos.collection.Filtered`, and `org.cactoos.scalar.UncheckedScalar`. All of these classes have been removed in the newer version of the `cactoos` dependency.
+The code uses `org.cactoos.scalar.UncheckedScalar`, `org.cactoos.collection.Filtered`, `org.cactoos.scalar.CheckedScalar`, and `org.cactoos.text.SplitText`. All of these classes have been removed in the newer version of the `cactoos` dependency.
 
 b. Specific API changes causing the issue:
 
-The removal of the classes mentioned above.
+- `org.cactoos.scalar.UncheckedScalar` has been removed.
+- `org.cactoos.collection.Filtered` has been removed. `org.cactoos.iterable.Filtered` is available.
+- `org.cactoos.scalar.CheckedScalar` has been removed.
+- `org.cactoos.text.SplitText` has been removed.
 
 c. Affected lines of code:
 
-- `import org.cactoos.scalar.CheckedScalar;`
-- `import org.cactoos.text.SplitText;`
-- `import org.cactoos.collection.Filtered;`
-- `import org.cactoos.scalar.UncheckedScalar;`
-- The uses of these classes within the `Wallet.java` file.
+- Line 38: `import org.cactoos.scalar.UncheckedScalar;`
+- Line 30: `import org.cactoos.collection.Filtered;`
+- Line 36: `import org.cactoos.scalar.CheckedScalar;`
+- Line 40: `import org.cactoos.text.SplitText;`
+- Line 158: `return new CheckedScalar<>(`
+- Line 179: `final Iterable<Transaction> candidates = new Filtered<>(`
+- Line 180: `incoming -> new Filtered<>(`
+- Line 181: `origin -> new UncheckedScalar<>(`
+- Line 210: `new ListOf<>(`
+- Line 211: `new SplitText(`
 
-d. Proposed fixes:
+d. Proposed potential fixes for each affected line:
 
-1.  **`CheckedScalar`**: Replace with a try-catch block.
-2.  **`SplitText`**: Replace with `org.cactoos.text.Text.split(java.lang.String)`
-3.  **`Filtered`**: Replace with `org.cactoos.iterable.Filtered`. Note that the constructor arguments have changed.
-4.  **`UncheckedScalar`**: Replace with a try-catch block.
+- Line 38: Remove the import. Replace usages of `UncheckedScalar` with try-catch blocks or other alternatives.
+- Line 30: Remove the import. Replace usages of `Filtered` with `org.cactoos.iterable.Filtered`.
+- Line 36: Remove the import. Replace usages of `CheckedScalar` with try-catch blocks.
+- Line 40: Remove the import. Replace usages of `SplitText` with `org.cactoos.text.Split`.
+- Line 158: Replace `CheckedScalar` with a try-catch block.
+- Line 179: Replace `Filtered` with `org.cactoos.iterable.Filtered`. Also, the constructor arguments have changed.
+- Line 180: Replace `Filtered` with `org.cactoos.iterable.Filtered`. Also, the constructor arguments have changed.
+- Line 181: Replace `UncheckedScalar` with a try-catch block.
+- Line 211: Replace `SplitText` with `org.cactoos.text.Split`. Also, the constructor arguments have changed.
 
-e. Potential side effects:
+e. Potential side effects of the proposed changes:
 
-The try-catch blocks might introduce performance overhead. The change in `Filtered` constructor arguments requires careful adaptation of the filtering logic.
+- Replacing `UncheckedScalar` and `CheckedScalar` with try-catch blocks might make the code more verbose.
+- Using the new `Filtered` and `Split` constructors requires adapting the code to the new API.
 
 f. Adherence to constraints:
 
-The proposed changes adhere to all constraints. The function signatures are not changed. Variables can be created if needed. The `@Override` annotation will be removed if necessary. No code is removed unless it causes a compilation error.
+- The function signatures of methods are not changed.
+- Variables can be created to simplify the code.
+- The `@Override` annotation will be removed if necessary.
+- Missing imports will be addressed.
+- No existing code will be removed unless it directly causes a compilation or functionality error.
+- All code, even unchanged portions, will be included in the final output.
 
-g. Final summary:
+g. Final summary of the chosen fix:
 
-The best solution is to replace the removed classes with their alternatives or equivalent logic. This involves using try-catch blocks for `CheckedScalar` and `UncheckedScalar`, using `org.cactoos.text.Text.split(java.lang.String)` for `SplitText`, and using `org.cactoos.iterable.Filtered` with the updated constructor arguments. This approach addresses the compilation errors while preserving the original functionality as closely as possible.
+The best solution is to replace the usages of the removed classes with their alternatives or equivalent constructs. Specifically:
+
+- Replace `CheckedScalar` with a try-catch block.
+- Replace `org.cactoos.collection.Filtered` with `org.cactoos.iterable.Filtered` and adapt the constructor arguments.
+- Replace `UncheckedScalar` with a try-catch block.
+- Replace `org.cactoos.text.SplitText` with `org.cactoos.text.Split` and adapt the constructor arguments.
 </fix_planning>
 
 ```java
@@ -53,11 +77,11 @@ The best solution is to replace the removed classes with their alternatives or e
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 package io.zold.api;
 
@@ -65,9 +89,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import org.cactoos.iterable.IterableOf;
 import org.cactoos.iterable.Joined;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Skipped;
@@ -76,7 +97,10 @@ import org.cactoos.scalar.Or;
 import org.cactoos.text.FormattedText;
 import org.cactoos.text.TextOf;
 import org.cactoos.text.UncheckedText;
-import org.cactoos.text.Text;
+import org.cactoos.iterable.Filtered;
+import org.cactoos.text.Split;
+import org.cactoos.scalar.Scalar;
+import org.cactoos.scalar.Unchecked;
 
 /**
  * Wallet.
@@ -235,14 +259,18 @@ public interface Wallet {
 
         @Override
         public long id() throws IOException {
+            final Scalar<Long> scalar = () -> Long.parseUnsignedLong(
+                new ListOf<>(
+                    new Split(
+                        new TextOf(this.path),
+                        "\\n"
+                    )
+                ).get(2).asString(),
+                // @checkstyle MagicNumber (1 line)
+                16
+            );
             try {
-                return Long.parseUnsignedLong(
-                    new ListOf<>(
-                        new TextOf(this.path).split("\n")
-                    ).get(2).asString(),
-                    // @checkstyle MagicNumber (1 line)
-                    16
-                );
+                return scalar.value();
             } catch (final Exception e) {
                 throw new IOException(e);
             }
@@ -279,31 +307,27 @@ public interface Wallet {
                 );
             }
             final Iterable<Transaction> ledger = this.ledger();
-            final Iterable<Transaction> otherLedger = other.ledger();
-
-            final Iterable<Transaction> candidates = new org.cactoos.iterable.Filtered<>(
+            final Iterable<Transaction> candidates = new Filtered<>(
+                other.ledger(),
                 incoming -> {
-                    final Iterator<Transaction> iterator = ledger.iterator();
-                    while (iterator.hasNext()) {
-                        final Transaction origin = iterator.next();
-                        try {
-                            if (incoming.equals(origin)
+                    return new Filtered<>(
+                        ledger,
+                        origin -> {
+                            final Scalar<Boolean> or = () -> incoming.equals(origin)
                                 || (incoming.id() == origin.id()
                                 && incoming.bnf().equals(origin.bnf()))
                                 || (incoming.id() == origin.id()
                                 && incoming.amount() < 0L)
-                                || incoming.prefix().equals(origin.prefix())) {
-                                return false;
+                                || incoming.prefix().equals(origin.prefix());
+                            try {
+                                return !or.value();
+                            } catch (final Exception ex) {
+                                throw new IllegalStateException(ex);
                             }
-                        } catch (IOException ex) {
-                            throw new RuntimeException(ex);
                         }
-                    }
-                    return true;
-                },
-                otherLedger
+                    ).isEmpty();
+                }
             );
-
             return new Wallet.Fake(
                 this.id(),
                 new Joined<Transaction>(ledger, candidates)
@@ -313,16 +337,13 @@ public interface Wallet {
         @Override
         public Iterable<Transaction> ledger() {
             return new Mapped<>(
-                txt -> {
-                    try {
-                        return new RtTransaction(txt.asString());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                },
+                txt -> new RtTransaction(txt.asString()),
                 new Skipped<>(
                     new ListOf<>(
-                        new TextOf(this.path).split("\\n")
+                        new Split(
+                            new TextOf(this.path),
+                            "\\n"
+                        )
                     ),
                     // @checkstyle MagicNumberCheck (1 line)
                     5

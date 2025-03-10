@@ -1,45 +1,39 @@
 <fix_planning>
-a. Code and API changes:
-- The import `import develop.p2p.lib.*;` is no longer valid because the package `develop.p2p.lib` does not exist in the new dependency.
-- The class `develop.p2p.lib.WaveCreator` has been removed, and `tokyo.peya.lib.WaveCreator` has been added.
-- The constructor `develop.p2p.lib.WaveCreator(double,double,double)` has been removed, and `tokyo.peya.lib.WaveCreator(double,double,double)` has been added.
-- The method `develop.p2p.lib.WaveCreator.get(double,boolean)` has been removed, and `tokyo.peya.lib.WaveCreator.get(double,boolean)` has been added.
+The core issue is the removal of `develop.p2p.lib.WaveCreator` and the introduction of `tokyo.peya.lib.WaveCreator`. The constructor and `get` method have also changed. We need to replace the old class with the new one and adapt the constructor and method calls accordingly.
 
-b. Specific API changes causing the issue:
-- The missing `tokyo.peya.lib.WaveCreator` class and its constructor.
-- The missing `tokyo.peya.lib.WaveCreator.get(double, boolean)` method.
+Here's a breakdown:
 
-c. Affected lines of code:
-- `import develop.p2p.lib.*;`
-- `WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);` (occurs twice)
-- `center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),` (occurs three times)
-- `rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))` (occurs three times)
-- `? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)` (occurs three times)
+1.  **`import develop.p2p.lib.*;`**: This import is no longer valid and needs to be replaced with `import tokyo.peya.lib.*;`.
 
-d. Proposed fixes:
-- Replace `import develop.p2p.lib.*;` with `import tokyo.peya.lib.WaveCreator;`
-- Replace all instances of `new WaveCreator(...)` with `new tokyo.peya.lib.WaveCreator(...)`.
-- No changes are needed for the `get` method calls as the signature remains the same.
+2.  **`WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);`**:  This line uses the old `WaveCreator` constructor. We need to replace `develop.p2p.lib.WaveCreator` with `tokyo.peya.lib.WaveCreator`.
 
-e. Potential side effects:
-- The change should not have any side effects as it only involves updating the import and class name to reflect the new dependency.
+3.  **`center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),`**: This line uses the old `WaveCreator` constructor and the old `get` method. We need to replace `develop.p2p.lib.WaveCreator` with `tokyo.peya.lib.WaveCreator`.
 
-f. Adherence to constraints:
-- The function signatures are not changed.
-- Variables are not created.
-- The `@Override` annotation is not present in the code.
-- The correct package is used for the updated dependency.
-- No existing code is removed unless it directly causes a compilation error.
-- All code is included in the final output.
+4.  **`rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))`**: This line uses the old `WaveCreator` constructor. We need to replace `develop.p2p.lib.WaveCreator` with `tokyo.peya.lib.WaveCreator`. Also, `config.getDouble("npc.waveMin")` needs to be cast to double.
 
-g. Summary:
-The best solution is to replace the old import statement with the new one and update the class name `WaveCreator` to `tokyo.peya.lib.WaveCreator` to reflect the changes in the dependency. This will resolve the compilation errors caused by the missing class and constructor.
+5.  **`new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)`**: This line uses the old `WaveCreator` constructor and the old `get` method. We need to replace `develop.p2p.lib.WaveCreator` with `tokyo.peya.lib.WaveCreator`. Also, `config.getDouble("npc.speed.waveRange")` needs to be cast to double, and `0 - config.getDouble("npc.speed.waveRange")` needs to be cast to double.
+
+Here's the proposed fix:
+
+1.  Replace `import develop.p2p.lib.*;` with `import tokyo.peya.lib.*;`
+2.  Replace all instances of `new WaveCreator(...)` with `new tokyo.peya.lib.WaveCreator(...)`.
+3.  Cast the arguments of `config.getDouble(...)` to double.
+
+These changes adhere to all constraints:
+
+*   We are only modifying the client code.
+*   We are not changing any function signatures.
+*   We are adding the correct import.
+*   We are not removing any code unless it directly causes a compilation error.
+
+Final Summary:
+
+The best solution is to replace the old `develop.p2p.lib.WaveCreator` with the new `tokyo.peya.lib.WaveCreator` and adapt the constructor calls accordingly. This fixes the compilation errors and ensures the code uses the updated dependency correctly.
 </fix_planning>
 
 ```java
 package ml.peya.plugins.Detect;
 
-import tokyo.peya.lib.WaveCreator;
 import ml.peya.plugins.DetectClasses.*;
 import ml.peya.plugins.Enum.*;
 import ml.peya.plugins.*;
@@ -50,6 +44,7 @@ import org.bukkit.craftbukkit.v1_12_R1.entity.*;
 import org.bukkit.entity.*;
 import org.bukkit.metadata.*;
 import org.bukkit.scheduler.*;
+import tokyo.peya.lib.*;
 
 import java.util.*;
 
@@ -215,8 +210,8 @@ public class NPCTeleport
                     double rangeTmp = radius;
 
                     if (config.getBoolean("npc.wave"))
-                        rangeTmp = new tokyo.peya.lib.WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
-                            .get(0.01, true);
+                        rangeTmp = new tokyo.peya.lib.WaveCreator(radius - 0.1, radius, (double) config.getDouble("npc.waveMin"))
+                            .get(0.01, count[0] < 20);
 
                     final Location center = player.getLocation();
                     final Location n = new Location(
@@ -256,7 +251,7 @@ public class NPCTeleport
                     meta.setNpcLocation(n.toVector());
                 }
                 time[0] += config.getDouble("npc.time") + (config.getBoolean("npc.speed.wave")
-                    ? new tokyo.peya.lib.WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
+                    ? new tokyo.peya.lib.WaveCreator(0.0, (double) config.getDouble("npc.speed.waveRange"), (double) (0 - config.getDouble("npc.speed.waveRange"))).get(0.001, true)
                     : 0.0);
             }
         };

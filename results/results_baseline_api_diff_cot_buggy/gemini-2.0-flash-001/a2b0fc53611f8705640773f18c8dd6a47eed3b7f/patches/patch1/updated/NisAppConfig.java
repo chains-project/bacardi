@@ -1,8 +1,6 @@
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.Location;
-import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -41,8 +39,6 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Configuration
 @ComponentScan(basePackages = {
@@ -109,19 +105,13 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final ClassicConfiguration configuration = new ClassicConfiguration();
-		configuration.setDataSource(this.dataSource());
-		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
-
-		final String locationsString = prop.getProperty("flyway.locations");
-		final Location[] locations = Stream.of(locationsString.split(","))
-				.map(Location::new)
-				.toArray(Location[]::new);
-		configuration.setLocations(locations);
-
-		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-
-		final org.flywaydb.core.Flyway flyway = new Flyway(configuration);
+		org.flywaydb.core.api.configuration.ClassicConfiguration flywayConfiguration = new org.flywaydb.core.api.configuration.ClassicConfiguration();
+		final org.flywaydb.core.Flyway flyway = new Flyway(flywayConfiguration);
+		flywayConfiguration.setDataSource(this.dataSource());
+		flywayConfiguration.setClassLoader(NisAppConfig.class.getClassLoader());
+		String locations = prop.getProperty("flyway.locations");
+		flywayConfiguration.setLocations(new org.flywaydb.core.api.Location(locations));
+		flywayConfiguration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 		return flyway;
 	}
 

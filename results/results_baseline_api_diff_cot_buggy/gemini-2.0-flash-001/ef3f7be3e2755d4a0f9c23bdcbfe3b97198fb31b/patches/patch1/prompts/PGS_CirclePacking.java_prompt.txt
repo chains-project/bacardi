@@ -670,40 +670,40 @@ public final class PGS_CirclePacking {
 
 ```
 
-The errors are triggered in the following specific line:
+The errors are triggered in the following specific lines:
 
 <error_lines>
 ```java
 final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
 ```
 ```java
-import org.tinspin.index.PointEntryDist;
+final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+```
+```java
+final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
 ```
 ```java
 private static final PointDistanceFunction circleDistanceMetric = (p1, p2) -> {
 ```
 ```java
+import org.tinspin.index.PointEntryDist;
+```
+```java
 import org.tinspin.index.PointDistanceFunction;
-```
-```java
-final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
-```
-```java
-final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
 ```
 </error_lines>
 
 The API of the dependency has changed. Here are the relevant changes:
 
+     Method org.tinspin.index.kdtree.KDTree.query1NN(double[]) has been removed in the new version of the dependency.
+     Method org.tinspin.index.PointIndex.query1NN(double[]) has been removed in the new version of the dependency.
+     Method org.tinspin.index.covertree.CoverTree.query1NN(double[]) has been removed in the new version of the dependency.
+     Method org.tinspin.index.rtree.RTree.query1NN(double[]) has been removed in the new version of the dependency.
+     Method org.tinspin.index.PointIndexWrapper.query1NN(double[]) has been removed in the new version of the dependency.
+     Method org.tinspin.index.RectangleIndex.query1NN(double[]) has been removed in the new version of the dependency.
      Interface org.tinspin.index.covertree.CoverTree has been removed in the new version of the dependency.
      Class org.tinspin.index.PointEntryDist has been removed in the new version of the dependency.
      Class org.tinspin.index.PointDistanceFunction has been removed in the new version of the dependency.
-     Method org.tinspin.index.PointIndex.query1NN(double[]) has been removed in the new version of the dependency.
-     Method org.tinspin.index.covertree.CoverTree.query1NN(double[]) has been removed in the new version of the dependency.
-     Method org.tinspin.index.RectangleIndex.query1NN(double[]) has been removed in the new version of the dependency.
-     Method org.tinspin.index.kdtree.KDTree.query1NN(double[]) has been removed in the new version of the dependency.
-     Method org.tinspin.index.PointIndexWrapper.query1NN(double[]) has been removed in the new version of the dependency.
-     Method org.tinspin.index.rtree.RTree.query1NN(double[]) has been removed in the new version of the dependency.
 
 Additional error information:
 
@@ -712,25 +712,25 @@ Additional error information:
   symbol:   class PointEntryDist
   location: class micycle.pgs.PGS_CirclePacking
 
-[ERROR] /PGS/src/main/java/micycle/pgs/PGS_CirclePacking.java:[27,25] cannot find symbol
+[ERROR] /PGS/src/main/java/micycle/pgs/PGS_CirclePacking.java:[226,31] cannot find symbol
   symbol:   class PointEntryDist
-  location: package org.tinspin.index
+  location: class micycle.pgs.PGS_CirclePacking
+
+[ERROR] /PGS/src/main/java/micycle/pgs/PGS_CirclePacking.java:[226,31] cannot find symbol
+  symbol:   class PointEntryDist
+  location: class micycle.pgs.PGS_CirclePacking
 
 [ERROR] /PGS/src/main/java/micycle/pgs/PGS_CirclePacking.java:[645,30] cannot find symbol
   symbol:   class PointDistanceFunction
   location: class micycle.pgs.PGS_CirclePacking
 
+[ERROR] /PGS/src/main/java/micycle/pgs/PGS_CirclePacking.java:[27,25] cannot find symbol
+  symbol:   class PointEntryDist
+  location: package org.tinspin.index
+
 [ERROR] /PGS/src/main/java/micycle/pgs/PGS_CirclePacking.java:[26,25] cannot find symbol
   symbol:   class PointDistanceFunction
   location: package org.tinspin.index
-
-[ERROR] /PGS/src/main/java/micycle/pgs/PGS_CirclePacking.java:[226,31] cannot find symbol
-  symbol:   class PointEntryDist
-  location: class micycle.pgs.PGS_CirclePacking
-
-[ERROR] /PGS/src/main/java/micycle/pgs/PGS_CirclePacking.java:[226,31] cannot find symbol
-  symbol:   class PointEntryDist
-  location: class micycle.pgs.PGS_CirclePacking
 <error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:

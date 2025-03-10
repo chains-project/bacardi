@@ -1,32 +1,43 @@
 <fix_planning>
-a. Relevant code and API changes:
-The code uses `develop.p2p.lib.LeetConverter.convert(String)` which has been removed. The new dependency provides `tokyo.peya.lib.LeetConverter.convert(String)`.
-
-b. Specific API changes causing the issue:
-The removal of `develop.p2p.lib.LeetConverter.convert(String)` and the introduction of `tokyo.peya.lib.LeetConverter.convert(String)`. Also, the class `develop.p2p.lib.LeetConverter` has been removed.
-
-c. Affected lines of code:
+a. Relevant parts of the code and API changes:
+- Code:
 ```java
 first = develop.p2p.lib.LeetConverter.convert(first);
 last = develop.p2p.lib.LeetConverter.convert(last);
 ```
+- API Changes:
+```
+Method tokyo.peya.lib.LeetConverter.convert(java.lang.String) has been added in the new version of the dependency.
+Method develop.p2p.lib.LeetConverter.convert(java.lang.String) has been removed in the new version of the dependency.
+Class develop.p2p.lib.LeetConverter has been removed in the new version of the dependency.
+Type reference tokyo.peya.lib.LeetConverter() has been added in the new version of the dependency.
+```
 
-d. Proposed potential fixes:
-Replace `develop.p2p.lib.LeetConverter.convert(String)` with `tokyo.peya.lib.LeetConverter.convert(String)`.
+b. Specific API changes causing the issue:
+The class `develop.p2p.lib.LeetConverter` and its method `convert(String)` have been removed. The new class is `tokyo.peya.lib.LeetConverter` with the same method `convert(String)`.
 
-e. Potential side effects:
-The functionality of `tokyo.peya.lib.LeetConverter.convert(String)` might be different from `develop.p2p.lib.LeetConverter.convert(String)`. However, since the goal is to fix compilation errors due to dependency updates, this change is acceptable.
+c. Affected lines of code:
+```java
+first = develop.p2p.lib.LeetConverter.convert(first); // Line 113
+last = develop.p2p.lib.LeetConverter.convert(last); // Line 114
+```
+
+d. Proposed potential fixes for each affected line:
+Replace `develop.p2p.lib.LeetConverter` with `tokyo.peya.lib.LeetConverter`.
+
+e. Potential side effects of the proposed changes:
+The code should compile and run as expected, using the new dependency.
 
 f. Adherence to constraints:
 1. The function signature of any method is not changed.
 2. Variables are not created.
-3. The `@Override` annotation is not present.
-4. The correct package `tokyo.peya.lib` is used.
-5. No existing code is removed unless it directly causes a compilation error.
+3. The @Override annotation is not used.
+4. The correct package is used.
+5. No existing code is removed unless it directly causes a compilation or functionality error.
 6. All code is included in the final output.
 
-g. Final summary:
-The best solution is to replace `develop.p2p.lib.LeetConverter.convert(String)` with `tokyo.peya.lib.LeetConverter.convert(String)` and update the import statement. This fixes the compilation error caused by the API change.
+g. Final summary of the chosen fix:
+The best solution is to replace `develop.p2p.lib.LeetConverter` with `tokyo.peya.lib.LeetConverter` in the affected lines. This directly addresses the API change and ensures the code compiles and functions correctly with the updated dependency.
 </fix_planning>
 
 ```java
@@ -68,8 +79,6 @@ import static ml.peya.plugins.Variables.skin;
 /**
  * プレイヤーに関してまとめたやつ！
  */
-import tokyo.peya.lib.LeetConverter;
-
 public class PlayerUtils
 {
     /**
@@ -144,8 +153,8 @@ public class PlayerUtils
 
         if (random.nextBoolean())
         {
-            first = LeetConverter.convert(first);
-            last = LeetConverter.convert(last);
+            first = tokyo.peya.lib.LeetConverter.convert(first);
+            last = tokyo.peya.lib.LeetConverter.convert(last);
         }
 
         String name = first + (random.nextBoolean() ? "_": "") + last + (random.nextBoolean() ? "19" + random.nextInt(120): "");

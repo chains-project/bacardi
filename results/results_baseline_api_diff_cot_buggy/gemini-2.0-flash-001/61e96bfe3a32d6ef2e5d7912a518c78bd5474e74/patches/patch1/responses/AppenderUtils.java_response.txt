@@ -54,6 +54,11 @@ public class AppenderUtils {
     private TProtocol protocol;
     private OutputStream os;
 
+    @Override
+    public void start() {
+        super.start();
+    }
+
     public void init(OutputStream os) {
       this.os = os;
       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
@@ -79,12 +84,12 @@ public class AppenderUtils {
 
     @Override
     public byte[] headerBytes() {
-      return null;
+        return new byte[0];
     }
 
     @Override
     public byte[] footerBytes() {
-      return null;
+      return new byte[0];
     }
   }
 

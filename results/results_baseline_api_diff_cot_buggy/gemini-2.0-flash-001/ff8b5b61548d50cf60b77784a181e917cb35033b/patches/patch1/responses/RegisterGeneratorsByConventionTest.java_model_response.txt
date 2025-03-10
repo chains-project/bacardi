@@ -3,6 +3,7 @@ a. Relevant parts of the code and API changes:
 - Code:
 ```java
 import org.mockito.runners.MockitoJUnitRunner;
+
 @RunWith(MockitoJUnitRunner.class)
 ```
 - API Changes:
@@ -12,28 +13,29 @@ b. Specific API changes causing the issue:
 The `org.mockito.runners.MockitoJUnitRunner` class has been removed.
 
 c. Affected lines of code:
-- `import org.mockito.runners.MockitoJUnitRunner;`
-- `@RunWith(MockitoJUnitRunner.class)`
+- Line 20: `import org.mockito.runners.MockitoJUnitRunner;`
+- Line 22: `@RunWith(MockitoJUnitRunner.class)`
 
 d. Proposed potential fixes:
-The `MockitoJUnitRunner` has been removed. The suggested replacement is `MockitoJUnit.class` or `MockitoExtension.class`.
-- Replace `import org.mockito.runners.MockitoJUnitRunner;` with `import org.mockito.junit.MockitoJUnitRunner;` and `@RunWith(MockitoJUnitRunner.class)` with `@RunWith(MockitoJUnitRunner.class)`.
-- Replace `import org.mockito.runners.MockitoJUnitRunner;` with `import org.mockito.junit.jupiter.MockitoExtension;` and `@RunWith(MockitoJUnitRunner.class)` with `@ExtendWith(MockitoExtension.class)`.
+- Replace `MockitoJUnitRunner` with `MockitoJUnit.class` or `MockitoExtension.class`. `MockitoJUnit` requires a rule, and `MockitoExtension` is used with `@ExtendWith`.
+- Remove the `@RunWith` annotation and use `MockitoAnnotations.initMocks(this)` in the `@Before` method.
 
 e. Potential side effects of the proposed changes:
-- Using `MockitoJUnitRunner` might still result in errors if the package is not available.
-- Using `MockitoExtension` requires JUnit Jupiter.
+- Using `MockitoJUnit.class` requires adding a `MockitoRule`.
+- Using `MockitoExtension.class` requires changing `@RunWith` to `@ExtendWith`.
+- Using `MockitoAnnotations.initMocks(this)` might change the test execution behavior slightly.
 
 f. Adherence to constraints:
-- The function signatures of methods are not changed.
-- Variables can be created if needed.
-- `@Override` annotation is not relevant in this case.
-- Missing imports are addressed.
-- No existing code is removed unless it causes a compilation error.
-- All code is included in the final output.
+- Constraint 1: Not applicable.
+- Constraint 2: Creating variables is allowed.
+- Constraint 3: `@Override` is not used here.
+- Constraint 4: Correct imports will be used.
+- Constraint 5: Only problematic code will be removed/changed.
+- Constraint 6: All code will be included in the final output.
+- Constraint 7: No placeholder comments will be used.
 
-g. Final summary of the chosen fix:
-The best solution is to replace `org.mockito.runners.MockitoJUnitRunner` with `org.mockito.junit.MockitoJUnitRunner` and keep the `@RunWith` annotation. This is because it's the most direct replacement and requires minimal changes to the existing code. If `org.mockito.junit.MockitoJUnitRunner` is not available, then using `MockitoExtension` is the next best option.
+g. Final summary:
+The best solution is to replace `@RunWith(MockitoJUnitRunner.class)` with `@ExtendWith(MockitoExtension.class)` and update the import statement. This approach leverages the modern Mockito extension mechanism and avoids the need for rules or manual initialization. This adheres to all constraints and provides a clean solution.
 </fix_planning>
 
 ```java
@@ -54,11 +56,11 @@ import com.pholser.junit.quickcheck.internal.generator.conventiontestclasses.Not
 import com.pholser.junit.quickcheck.random.SourceOfRandomness;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RegisterGeneratorsByConventionTest {
     private GeneratorRepository repo;
     @Mock private SourceOfRandomness random;

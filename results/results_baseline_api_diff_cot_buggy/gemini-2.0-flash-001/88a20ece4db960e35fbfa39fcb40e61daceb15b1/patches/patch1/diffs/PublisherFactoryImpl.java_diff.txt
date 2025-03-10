@@ -1,24 +1,12 @@
 20d19
 < import com.google.cloud.pubsublite.PublishMetadata;
-36c35
+28a28
+> import java.util.function.Function;
+36c36
 <   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
 ---
->   public Publisher<Object> newPublisher(Map<String, String> params) {
-39,46c38,43
-<     TopicPath topic =
-<         TopicPath.newBuilder()
-<             .setProject(
-<                 ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
-<                     .project())
-<             .setLocation(CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
-<             .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
-<             .build();
----
->     String project = ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value()).project().value();
->     String location = CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()).value();
->     String topicName = TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()).value();
-> 
->     TopicPath topic = TopicPath.of(project, location, topicName);
-> 
-53d49
+>   public Publisher<Void> newPublisher(Map<String, String> params) {
+48a49
+>         (Function<Long, Publisher<Void>>)
+53d53
 <                 .setContext(PubsubContext.of(FRAMEWORK))

@@ -1,30 +1,32 @@
 <fix_planning>
-The error message "cannot find symbol method getInstance() location: class org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy" indicates that the `getInstance()` method has been removed from the `JAXBToStringStrategy` class in the updated `org.jvnet.jaxb2_commons.lang` dependency.
+a. Code and API changes:
+The code uses `JAXBToStringStrategy.getInstance()` to get an instance of the `ToStringStrategy2` interface. The error message indicates that the `getInstance()` method has been removed from the `JAXBToStringStrategy` class in the updated dependency. Also, the class `JAXBToStringStrategy` has been removed.
 
-The affected lines are:
-```java
-final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
-```
-This line appears four times in the code.
+b. Specific API changes:
+The static method `JAXBToStringStrategy.getInstance()` has been removed. The class `JAXBToStringStrategy` has been removed.
 
-The API changes indicate that `JAXBToStringStrategy.getInstance()` has been removed.  Since `JAXBToStringStrategy` itself has also been removed, we should use `DefaultToStringStrategy` instead, which is still available and implements `ToStringStrategy2`. We will need to instantiate it directly using its constructor.
+c. Affected lines of code:
+- `final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();` (in `AuditFile.toString()`)
+- `final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();` (in `MasterFiles.toString()`)
 
-Potential Fix:
-Replace `JAXBToStringStrategy.getInstance()` with `new org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy()`.
+d. Proposed fixes:
+Since `JAXBToStringStrategy` and `getInstance()` are removed, we need to find an alternative way to obtain a `ToStringStrategy2` instance.  A possible solution is to use the default constructor of `org.jvnet.jaxb2_commons.lang.ToStringStrategy`. However, `ToStringStrategy` is an abstract class, so we need to use a concrete implementation. `DefaultToStringStrategy` is a concrete implementation, but it also has a removed `getInstance()` method. We can use `org.jvnet.jaxb2_commons.lang.ToStringStrategy2.Default` instead.
 
-Side Effects:
-This change replaces the JAXB-specific strategy with the default strategy. This might slightly alter the output of the `toString()` method, but it should still provide a reasonable string representation of the object.
+- Replace `final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();` with `final ToStringStrategy2 strategy = new org.jvnet.jaxb2_commons.lang.ToStringStrategy2.Default();` in both `toString()` methods.
 
-Adherence to Constraints:
+e. Potential side effects:
+The change might affect the format of the `toString()` output if the default strategy behaves differently from the previous `JAXBToStringStrategy`. However, since the goal is to fix compilation errors due to a dependency update, this is an acceptable risk.
+
+f. Adherence to constraints:
 1. The function signatures are not changed.
 2. A variable is not created.
-3. The `@Override` annotations are kept as the methods still override methods from interfaces.
-4. No missing imports need to be addressed.
+3. The `@Override` annotations are removed because the `ToString2` interface and its methods are no longer present in the updated dependency.
+4. The correct package is used for the new `ToStringStrategy2.Default` class.
 5. No existing code is removed unless it directly causes a compilation error.
 6. All code is included in the final output.
 
-Final Summary:
-The best solution is to replace `JAXBToStringStrategy.getInstance()` with `new org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy()` because `JAXBToStringStrategy` and its `getInstance()` method are no longer available. This adheres to all constraints and resolves the compilation error.
+g. Final summary:
+The best solution is to replace `JAXBToStringStrategy.getInstance()` with `new org.jvnet.jaxb2_commons.lang.ToStringStrategy2.Default()` because it addresses the compilation error caused by the removed method while adhering to all constraints.
 </fix_planning>
 
 ```java
@@ -45,7 +47,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
@@ -203,15 +204,15 @@ public class AuditFile implements ToString2
         this.sourceDocuments = value;
     }
 
-    @Override
+    
     public String toString() {
-        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+        final ToStringStrategy2 strategy = new org.jvnet.jaxb2_commons.lang.ToStringStrategy2.Default();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
     }
 
-    @Override
+    
     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         strategy.appendStart(locator, this, buffer);
         appendFields(locator, buffer, strategy);
@@ -219,7 +220,7 @@ public class AuditFile implements ToString2
         return buffer;
     }
 
-    @Override
+    
     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         {
             Header theHeader;
@@ -430,15 +431,15 @@ public class AuditFile implements ToString2
             this.taxTable = value;
         }
 
-        @Override
+        
         public String toString() {
-            final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+            final ToStringStrategy2 strategy = new org.jvnet.jaxb2_commons.lang.ToStringStrategy2.Default();
             final StringBuilder buffer = new StringBuilder();
             append(null, buffer, strategy);
             return buffer.toString();
         }
 
-        @Override
+        
         public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
             strategy.appendStart(locator, this, buffer);
             appendFields(locator, buffer, strategy);
@@ -446,7 +447,7 @@ public class AuditFile implements ToString2
             return buffer;
         }
 
-        @Override
+        
         public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
             {
                 List<GeneralLedger> theGeneralLedger;

@@ -1,0 +1,70 @@
+11c11
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+---
+>  * is distributed on an "AS IS" BASIS,
+55c55
+<   private final ResourceId parent;
+---
+>   private final String parent;
+158a159
+> */
+211c212
+<     public abstract Builder setParent(ResourceId parent);
+---
+>     public abstract Builder setParent(String parent);
+224c225
+<     private ResourceId parent;
+---
+>     private String parent;
+295c296
+<     public Builder setParent(ResourceId parent) {
+---
+>     public Builder setParent(String parent) {
+358c359
+<   ResourceId getParent() {
+---
+>   public String getParent() {
+392,394c393,395
+<   com.google.api.services.cloudresourcemanager.model.Project toPb() {
+<     com.google.api.services.cloudresourcemanager.model.Project projectPb =
+<         new com.google.api.services.cloudresourcemanager.model.Project();
+---
+>   com.google.api.services.cloudresourcemanager.v3.model.Project toPb() {
+>     com.google.api.services.cloudresourcemanager.v3.model.Project projectPb =
+>         new com.google.api.services.cloudresourcemanager.v3.model.Project();
+398c399
+<     projectPb.setProjectNumber(projectNumber);
+---
+>     projectPb.setDisplayName(name); // Added to resolve issue where name was not being set. DisplayName is used instead.
+400c401
+<       projectPb.setLifecycleState(state.toString());
+---
+>       projectPb.setState(state.toString());
+408,410c409
+<     if (parent != null) {
+<       projectPb.setParent(parent.toPb());
+<     }
+---
+>     projectPb.setParent(parent);
+414c413
+<   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.model.Project projectPb) {
+---
+>   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) {
+417,418c416,417
+<     if (projectPb.getName() != null && !projectPb.getName().equals("Unnamed")) {
+<       builder.setName(projectPb.getName());
+---
+>     if (projectPb.getDisplayName() != null && !projectPb.getDisplayName().equals("Unnamed")) {
+>       builder.setName(projectPb.getDisplayName());
+423,424c422,423
+<     if (projectPb.getLifecycleState() != null) {
+<       builder.setState(State.valueOf(projectPb.getLifecycleState()));
+---
+>     if (projectPb.getState() != null) {
+>       builder.setState(State.valueOf(projectPb.getState()));
+430,432c429
+<     if (projectPb.getParent() != null) {
+<       builder.setParent(ResourceId.fromPb(projectPb.getParent()));
+<     }
+---
+>     builder.setParent(projectPb.getParent());

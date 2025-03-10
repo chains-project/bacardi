@@ -39,7 +39,7 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.*;
-import org.flywaydb.core.api.configuration.ClassicConfiguration;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.Location;
 
 @Configuration
@@ -107,20 +107,13 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final ClassicConfiguration configuration = new ClassicConfiguration();
-		configuration.setDataSource(this.dataSource());
-		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+		final FluentConfiguration configuration = new FluentConfiguration();
+		configuration.dataSource(this.dataSource());
+		configuration.classLoader(NisAppConfig.class.getClassLoader());
+		configuration.locations(new Location(prop.getProperty("flyway.locations")));
+		configuration.validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 
-		String locations = prop.getProperty("flyway.locations");
-		String[] locationArray = locations.split(",");
-		Location[] flywayLocations = new Location[locationArray.length];
-		for (int i = 0; i < locationArray.length; i++) {
-			flywayLocations[i] = new Location(locationArray[i]);
-		}
-		configuration.setLocations(flywayLocations);
-		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-
-		final org.flywaydb.core.Flyway flyway = new Flyway(configuration);
+		final Flyway flyway = new Flyway(configuration);
 		return flyway;
 	}
 

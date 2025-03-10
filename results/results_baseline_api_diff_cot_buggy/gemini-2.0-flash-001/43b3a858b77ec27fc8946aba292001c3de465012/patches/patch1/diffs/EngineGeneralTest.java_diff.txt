@@ -1,4 +1,4 @@
-1,180d0
+1,3615c1,3
 < /*
 <  * Copyright 2014 Feedzai
 <  *
@@ -179,7 +179,7 @@
 < 
 <     @BeforeClass
 <     public static void initStatic() {
-182,4336d1
+<         ((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.TRACE);
 <     }
 < 
 <     @Before
@@ -3614,8 +3614,11 @@
 <         assertTrue("col2 ok?", test.get(0).get("COL2").toBoolean());
 <         assertEquals("col4 ok?", 1L, (long) test.get(0).get("COL4").toLong());
 < 
-<     }
-< 
+---
+> org.slf4j.Logger rootLogger = LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
+>     if (rootLogger instanceof ch.qos.logback.classic.Logger) {
+>         ((ch.qos.logback.classic.Logger) rootLogger).setLevel(Level.TRACE);
+3618,4336d5
 <     @Test
 <     public void insertWithNoAutoIncAndThatResumeTheAutoIncTest() throws DatabaseEngineException {
 <         DbEntity entity =

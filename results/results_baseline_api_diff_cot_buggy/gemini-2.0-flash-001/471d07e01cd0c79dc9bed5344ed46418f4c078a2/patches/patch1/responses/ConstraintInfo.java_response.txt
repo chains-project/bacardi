@@ -8,7 +8,7 @@
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * is distributed under the License is distributed on an "AS IS" BASIS,
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -29,18 +29,11 @@ import java.util.Objects;
 @Deprecated
 public class ConstraintInfo {
 
-  static final Function<ConstraintInfo, com.google.api.services.cloudresourcemanager.v3.model.Constraint> TO_PROTOBUF_FUNCTION =
-      new Function<ConstraintInfo, com.google.api.services.cloudresourcemanager.v3.model.Constraint>() {
+  static final Function<ConstraintInfo, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+      new Function<ConstraintInfo, ConstraintInfo>() {
         @Override
-        public com.google.api.services.cloudresourcemanager.v3.model.Constraint apply(ConstraintInfo constraintInfo) {
-          return null;
-        }
-      };
-  static final Function<com.google.api.services.cloudresourcemanager.v3.model.Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
-      new Function<com.google.api.services.cloudresourcemanager.v3.model.Constraint, ConstraintInfo>() {
-        @Override
-        public ConstraintInfo apply(com.google.api.services.cloudresourcemanager.v3.model.Constraint protobuf) {
-          return null;
+        public ConstraintInfo apply(ConstraintInfo constraintInfo) {
+          return constraintInfo;
         }
       };
 

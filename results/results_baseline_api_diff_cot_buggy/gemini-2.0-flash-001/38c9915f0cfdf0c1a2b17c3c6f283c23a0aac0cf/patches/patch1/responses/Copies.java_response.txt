@@ -25,8 +25,8 @@ package io.zold.api;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.stream.StreamSupport;
 import org.cactoos.iterable.IterableEnvelope;
 import org.cactoos.iterable.IterableOf;
 import org.cactoos.iterable.Joined;
@@ -87,7 +87,8 @@ public final class Copies extends IterableEnvelope<Copy> {
      */
     private static boolean equalWallets(final Wallet first,
         final Wallet second) throws IOException {
-        return first.id() == second.id() && ((Collection<?>) first.ledger()).size() == ((Collection<?>) second.ledger()).size();
+        return first.id() == second.id() && StreamSupport.stream(first.ledger().spliterator(), false).toList()
+            .size() == StreamSupport.stream(second.ledger().spliterator(), false).toList().size();
     }
 
     /**

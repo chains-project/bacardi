@@ -1,36 +1,47 @@
 <fix_planning>
-Okay, let's analyze the problem and the proposed solution.
+The issue is caused by the removal of `org.tinspin.index.PointIndex` and the change in the `KDTree.create` method signature. The old `KDTree.create` method took an integer (dimension) and a `PointDistanceFunction`. The new `KDTree.create` method takes an `IndexConfig`.
 
-The error messages indicate that `org.tinspin.index.PointIndex` and `org.tinspin.index.PointDistanceFunction` are not found. The API changes confirm that `org.tinspin.index.PointIndex` has been removed, and the `create` method of `org.tinspin.index.kdtree.KDTree` no longer accepts `org.tinspin.index.PointDistanceFunction`.
+Here's the relevant code:
 
-Affected lines:
 ```java
 import org.tinspin.index.PointIndex;
-final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> { ... });
+
+final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {
+    final double deltaX = p1[0] - p2[0];
+    final double deltaY = p1[1] - p2[1];
+    return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+});
 ```
 
-Proposed fixes:
+Affected lines:
+- Line 38: `import org.tinspin.index.PointIndex;`
+- Line 164: `final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {`
 
-1.  Remove the import statement `import org.tinspin.index.PointIndex;` since the class no longer exists.
-2.  Modify the `KDTree.create` call. The API changes indicate that `KDTree.create(int,org.tinspin.index.PointDistanceFunction)` has been removed and `KDTree.create(org.tinspin.index.IndexConfig)` has been added. Since `PointIndex` and `PointDistanceFunction` are removed, we should use the `KDTree.create(int)` method. However, there is no such method. The closest alternative is to use the `KDTree.create(org.tinspin.index.IndexConfig)` method. Since there is no direct replacement, we will use the `KDTree.create()` constructor directly. Also, since `PointIndex` is removed, we will use `KDTree` directly.
+Proposed fix:
 
-Revised code:
+1.  Remove the import statement `import org.tinspin.index.PointIndex;` since `PointIndex` no longer exists.
+2.  Replace `KDTree.create(2, (p1, p2) -> { ... })` with the new `KDTree.create` method using `IndexConfig`. Since there is no direct replacement for the distance function, we can use the default configuration. The return type of `KDTree.create` is now `KDTree`, not `PointIndex`.
+
 ```java
 import org.tinspin.index.kdtree.KDTree;
-final KDTree<Vertex> tree = new KDTree<>(2);
+import org.tinspin.index.IndexConfig;
+
+final KDTree<Vertex> tree = KDTree.create(new IndexConfig());
 ```
 
 Potential side effects:
-The change in the `KDTree` instantiation might affect the performance or behavior of the `gabrielFaces` method. However, since the core logic of the method remains the same, the impact should be minimal.
+- The code might rely on specific functionalities of the old `PointIndex` interface. However, since the code only uses the `tree` for insertion and nearest neighbor queries, the change to `KDTree` should not be a problem.
 
 Adherence to constraints:
-1.  The function signature of `gabrielFaces` remains unchanged.
-2.  A variable `tree` is created.
-3.  The import statement is removed.
-4.  All code is included in the final output.
+1.  The function signature of the `gabrielFaces` method is not changed.
+2.  A variable `tree` is created to store the `KDTree` instance.
+3.  The import statement is removed because the class no longer exists.
+4.  The code is modified to use the new `KDTree.create` method.
+5.  No existing code is removed unless it directly causes a compilation error.
+6.  All code, even unchanged portions, is included in the final output.
 
-Summary:
-The best solution is to remove the import statement for `org.tinspin.index.PointIndex` and instantiate `KDTree` directly using the constructor. This addresses the compilation errors caused by the API changes while minimizing potential side effects.
+Final summary:
+The best solution is to remove the import statement for `PointIndex` and replace the old `KDTree.create` method with the new one using `IndexConfig`. This fixes the compilation errors and preserves the functionality of the code.
 </fix_planning>
 
 ```java
@@ -71,6 +82,7 @@ import org.tinfour.common.IQuadEdge;
 import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
 import org.tinfour.utils.TriangleCollector;
+import org.tinspin.index.IndexConfig;
 import org.tinspin.index.kdtree.KDTree;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
 import micycle.pgs.PGS_Conversion.PShapeData;
@@ -196,7 +208,7 @@ public class PGS_Meshing {
 			}
 		});
 
-		final KDTree<Vertex> tree = new KDTree<>(2);
+		final KDTree<Vertex> tree = KDTree.create(new IndexConfig());
 		vertices.forEach(v -> tree.insert(new double[] { v.x, v.y }, v));
 
 		final HashSet<IQuadEdge> nonGabrielEdges = new HashSet<>(); // base references to edges that should be removed
@@ -651,13 +663,4 @@ public class PGS_Meshing {
 		 */
 		NeighborCache<PShape, DefaultEdge> cache = new NeighborCache<>(graph);
 		graph.vertexSet().forEach(v -> {
-			final int vClass = classes.get(v);
-			List<PShape> neighbours = cache.neighborListOf(v);
-			final int nClass1 = classes.get(neighbours.get(0));
-			if (vClass == nClass1) {
-				return; // certainly not an island
-			}
-
-			neighbours.removeIf(n -> classes.get(n) == nClass1);
-			if (neighbours.isEmpty()) {
-
+			final int vClass = classes.

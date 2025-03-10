@@ -16,7 +16,7 @@
 
 package com.google.cloud.translate;
 
-import com.google.api.services.translate.v3.model.Translation;
+import com.google.api.services.translate.v3.model.Translation as TranslationV3;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
@@ -34,25 +34,35 @@ import java.util.Objects;
 public class Translation implements Serializable {
 
   private static final long serialVersionUID = 2556017420486245581L;
-  static final Function<com.google.api.services.translate.v3.model.Translation, Translation> FROM_PB_FUNCTION =
-      new Function<com.google.api.services.translate.v3.model.Translation, Translation>() {
+  static final Function<TranslationV3, Translation> FROM_PB_FUNCTION =
+      new Function<TranslationV3, Translation>() {
         @Override
-        public Translation apply(com.google.api.services.translate.v3.model.Translation translationPb) {
+        public Translation apply(TranslationV3 translationPb) {
           return Translation.fromPb(translationPb);
         }
       };
 
   private final String translatedText;
+  private final String sourceLanguage;
   private final String model;
 
-  private Translation(String translatedText, String model) {
+  private Translation(String translatedText, String sourceLanguage, String model) {
     this.translatedText = translatedText;
+    this.sourceLanguage = sourceLanguage;
     this.model = model;
   }
 
   /** Returns the translated text. */
   public String getTranslatedText() {
     return translatedText;
+  }
+
+  /**
+   * Returns the language code of the source text. If no source language was provided this value is
+   * the source language as detected by the Google Translation service.
+   */
+  public String getSourceLanguage() {
+    return sourceLanguage;
   }
 
   /**
@@ -71,12 +81,13 @@ public class Translation implements Serializable {
   public String toString() {
     return MoreObjects.toStringHelper(this)
         .add("translatedText", translatedText)
+        .add("sourceLanguage", sourceLanguage)
         .toString();
   }
 
   @Override
   public final int hashCode() {
-    return Objects.hash(translatedText);
+    return Objects.hash(translatedText, sourceLanguage);
   }
 
   @Override
@@ -88,12 +99,14 @@ public class Translation implements Serializable {
       return false;
     }
     Translation other = (Translation) obj;
-    return Objects.equals(translatedText, other.translatedText);
+    return Objects.equals(translatedText, other.translatedText)
+        && Objects.equals(sourceLanguage, other.sourceLanguage);
   }
 
-  static Translation fromPb(Translation translationPb) {
+  static Translation fromPb(TranslationV3 translationPb) {
     return new Translation(
         translationPb.getTranslatedText(),
+        null, // Source language is not available in the new Translation class
         translationPb.getModel());
   }
 }

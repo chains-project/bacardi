@@ -1,4 +1,4 @@
-1,26d0
+1,664d0
 < package micycle.pgs;
 < 
 < import static micycle.pgs.PGS_Conversion.fromPShape;
@@ -25,7 +25,7 @@
 < import org.tinfour.common.SimpleTriangle;
 < import org.tinfour.common.Vertex;
 < import org.tinspin.index.PointDistanceFunction;
-28,225c2
+< import org.tinspin.index.PointEntryDist;
 < import org.tinspin.index.covertree.CoverTree;
 < 
 < import micycle.pgs.commons.FrontChainPacker;
@@ -224,9 +224,7 @@
 <                 float largestR = 0; // the radius of the largest circle in the tree
 < 
 <                 for (PVector p : steinerPoints) {
----
-> import org.tinspin.index.PointDistanceFunction;
-227,644d3
+<                         final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
 < 
 <                         /*
 <                          * nn.dist() does not return the radius (since it's a distance metric used to
@@ -645,7 +643,7 @@
 <          * @param p2 3D point representing the second circle (x2, y2, r2)
 <          * @return the distance between the two points based on the custom metric
 <          */
-646,664d4
+<         private static final PointDistanceFunction circleDistanceMetric = (p1, p2) -> {
 <                 // from https://stackoverflow.com/a/21975136/
 <                 final double dx = p1[0] - p2[0];
 <                 final double dy = p1[1] - p2[1];

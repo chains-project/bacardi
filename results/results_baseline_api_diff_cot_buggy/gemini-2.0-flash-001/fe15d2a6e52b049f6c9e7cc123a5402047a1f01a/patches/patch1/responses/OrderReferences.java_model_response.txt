@@ -1,31 +1,31 @@
 <fix_planning>
-a. Code and API changes:
-The error occurs because `JAXBToStringStrategy.getInstance()` is no longer available. The class `JAXBToStringStrategy` itself has also been removed.
+a. Relevant code and API changes:
+The code uses `JAXBToStringStrategy.getInstance()` to get an instance of the `ToStringStrategy2` interface. The error message indicates that the `getInstance()` method has been removed from the `JAXBToStringStrategy` class in the updated dependency.
 
-b. Specific API changes:
-The method `JAXBToStringStrategy.getInstance()` has been removed. The class `JAXBToStringStrategy` has been removed.
+b. Specific API changes causing the issue:
+The method `org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy.getInstance()` has been removed.
 
 c. Affected lines of code:
 ```java
 final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
 ```
 
-d. Proposed fixes:
-Since `JAXBToStringStrategy` and `JAXBToStringStrategy.getInstance()` are no longer available, we need to use a different `ToStringStrategy2` implementation.  A possible replacement is `DefaultToStringStrategy`. We would need to instantiate it directly.
+d. Proposed potential fixes:
+Since `getInstance()` is removed, we need to find an alternative way to obtain a `JAXBToStringStrategy` object. The simplest solution is to use the default constructor `new JAXBToStringStrategy()`.
 
-e. Potential side effects:
-The `DefaultToStringStrategy` might have a different output format than the original `JAXBToStringStrategy`. However, since the goal is to fix compilation errors due to dependency updates, this is acceptable as long as the code compiles and functions without errors.
+e. Potential side effects of the proposed changes:
+Using the default constructor should not have any significant side effects, as it will create a new instance of the strategy with default settings.
 
 f. Adherence to constraints:
 1. The function signatures are not changed.
-2. A variable is created to hold the new strategy instance.
-3. The `@Override` annotations might need to be removed if the interface is changed.
-4. The correct package is used.
-5. No existing code is removed unless it causes errors.
+2. A variable is not created.
+3. The `@Override` annotations are checked and adjusted if necessary.
+4. No missing imports need to be addressed.
+5. No existing code is removed unless it directly causes a compilation error.
 6. All code is included in the final output.
 
-g. Summary:
-The best solution is to replace `JAXBToStringStrategy.getInstance()` with `new DefaultToStringStrategy()`. This addresses the compilation error caused by the removed method and class, while adhering to all constraints.
+g. Final summary:
+The best solution is to replace `JAXBToStringStrategy.getInstance()` with `new JAXBToStringStrategy()`. This directly addresses the API change and should not introduce any side effects.
 </fix_planning>
 
 ```java
@@ -45,10 +45,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
-import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 
 
 /**
@@ -135,7 +135,7 @@ public class OrderReferences implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();

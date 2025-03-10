@@ -454,52 +454,48 @@ public class NisAppConfig {
 
 ```
 
-The errors are triggered in the following specific line:
+The errors are triggered in the following specific lines:
 
 <error_lines>
 ```java
-flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-```
-```java
-flyway.setDataSource(this.dataSource());
+flyway.setClassLoader(NisAppConfig.class.getClassLoader());
 ```
 ```java
 final org.flywaydb.core.Flyway flyway = new Flyway();
 ```
 ```java
-flyway.setClassLoader(NisAppConfig.class.getClassLoader());
+flyway.setDataSource(this.dataSource());
 ```
 ```java
 flyway.setLocations(prop.getProperty("flyway.locations"));
+```
+```java
+flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 ```
 </error_lines>
 
 The API of the dependency has changed. Here are the relevant changes:
 
+     Method org.flywaydb.core.Flyway.setClassLoader(java.lang.ClassLoader) has been removed in the new version of the dependency.
+     Method org.flywaydb.core.api.configuration.ClassicConfiguration.setClassLoader(java.lang.ClassLoader) has been added in the new version of the dependency.
+     Constructor org.flywaydb.core.Flyway() has been removed in the new version of the dependency.
+     Construct org.flywaydb.core.Flyway(org.flywaydb.core.api.configuration.Configuration) has been added in the new version of the dependency.
+     Method org.flywaydb.core.api.configuration.ClassicConfiguration.setDataSource(javax.sql.DataSource) has been added in the new version of the dependency.
+     Method org.flywaydb.core.Flyway.setDataSource(java.lang.String,java.lang.String,java.lang.String,java.lang.String[]) has been removed in the new version of the dependency.
+     Method org.flywaydb.core.api.configuration.ClassicConfiguration.setDataSource(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Method org.flywaydb.core.Flyway.setDataSource(javax.sql.DataSource) has been removed in the new version of the dependency.
+     Method org.flywaydb.core.api.configuration.ClassicConfiguration.setLocations(org.flywaydb.core.api.Location[]) has been added in the new version of the dependency.
+     Method org.flywaydb.core.internal.configuration.models.FlywayModel.setLocations(java.util.List) has been added in the new version of the dependency.
+     Method org.flywaydb.core.Flyway.setLocations(java.lang.String[]) has been removed in the new version of the dependency.
      Method org.flywaydb.core.api.configuration.ClassicConfiguration.setValidateOnMigrate(java.lang.Boolean) has been added in the new version of the dependency.
      Method org.flywaydb.core.Flyway.setValidateOnMigrate(boolean) has been removed in the new version of the dependency.
      Method org.flywaydb.core.internal.configuration.models.FlywayModel.setValidateOnMigrate(java.lang.Boolean) has been added in the new version of the dependency.
-     Method org.flywaydb.core.api.configuration.ClassicConfiguration.setDataSource(javax.sql.DataSource) has been added in the new version of the dependency.
-     Method org.flywaydb.core.Flyway.setDataSource(javax.sql.DataSource) has been removed in the new version of the dependency.
-     Method org.flywaydb.core.Flyway.setDataSource(java.lang.String,java.lang.String,java.lang.String,java.lang.String[]) has been removed in the new version of the dependency.
-     Method org.flywaydb.core.api.configuration.ClassicConfiguration.setDataSource(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Construct org.flywaydb.core.Flyway(org.flywaydb.core.api.configuration.Configuration) has been added in the new version of the dependency.
-     Constructor org.flywaydb.core.Flyway() has been removed in the new version of the dependency.
-     Method org.flywaydb.core.Flyway.setClassLoader(java.lang.ClassLoader) has been removed in the new version of the dependency.
-     Method org.flywaydb.core.api.configuration.ClassicConfiguration.setClassLoader(java.lang.ClassLoader) has been added in the new version of the dependency.
-     Method org.flywaydb.core.internal.configuration.models.FlywayModel.setLocations(java.util.List) has been added in the new version of the dependency.
-     Method org.flywaydb.core.Flyway.setLocations(java.lang.String[]) has been removed in the new version of the dependency.
-     Method org.flywaydb.core.api.configuration.ClassicConfiguration.setLocations(org.flywaydb.core.api.Location[]) has been added in the new version of the dependency.
 
 Additional error information:
 
 <error_information>
-[ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[112,23] cannot find symbol
-  symbol:   method setValidateOnMigrate(java.lang.Boolean)
-  location: variable flyway of type org.flywaydb.core.Flyway
-
-[ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[109,23] cannot find symbol
-  symbol:   method setDataSource(javax.sql.DataSource)
+[ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[110,23] cannot find symbol
+  symbol:   method setClassLoader(java.lang.ClassLoader)
   location: variable flyway of type org.flywaydb.core.Flyway
 
 [ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[108,57] constructor Flyway in class org.flywaydb.core.Flyway cannot be applied to given types;
@@ -507,12 +503,16 @@ Additional error information:
   found: no arguments
   reason: actual and formal argument lists differ in length
 
-[ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[110,23] cannot find symbol
-  symbol:   method setClassLoader(java.lang.ClassLoader)
+[ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[109,23] cannot find symbol
+  symbol:   method setDataSource(javax.sql.DataSource)
   location: variable flyway of type org.flywaydb.core.Flyway
 
 [ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[111,23] cannot find symbol
   symbol:   method setLocations(java.lang.String)
+  location: variable flyway of type org.flywaydb.core.Flyway
+
+[ERROR] /nem/nis/src/main/java/org/nem/specific/deploy/appconfig/NisAppConfig.java:[112,23] cannot find symbol
+  symbol:   method setValidateOnMigrate(java.lang.Boolean)
   location: variable flyway of type org.flywaydb.core.Flyway
 <error_information>
 

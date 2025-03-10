@@ -1,0 +1,51 @@
+11a12
+> import org.spongepowered.api.command.Command;
+12a14
+> import org.spongepowered.api.command.parameter.CommandContext;
+14,17d15
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.args.GenericArguments;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+19a18
+> import org.spongepowered.api.command.parameter.Parameter;
+21,22c20,21
+< import static org.spongepowered.api.command.args.GenericArguments.flags;
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+---
+> import static org.spongepowered.api.command.CommandResult.success;
+> import static org.spongepowered.api.util.Tuple.of;
+25c24
+< public class SetCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class SetCommand implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
+50c49
+<         String targetSkin = args.<String>getOne("skin").get();
+---
+>         String targetSkin = args.one(Parameter.string().key("skin").build()).orElse("");
+67c66
+<             return CommandResult.success();
+---
+>             return success();
+72c71
+<         return CommandResult.success();
+---
+>         return success();
+76,77c75,78
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command.Builder buildSpec() {
+>         Parameter.Value<String> skinParameter = Parameter.string().key("skin").build();
+> 
+>         return Command.builder()
+79,83c80,82
+<                 .arguments(
+<                         string(of("skin")),
+<                         flags().flag("keep").buildWith(GenericArguments.none()))
+<                 .permission(PomData.ARTIFACT_ID + ".command.setskin.base")
+<                 .build();
+---
+>                 .addParameter(skinParameter)
+>                 .addFlag(Command.Flag.builder().setAliases("keep").build())
+>                 .permission(PomData.ARTIFACT_ID + ".command.setskin.base");

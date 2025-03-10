@@ -1,46 +1,39 @@
-20,22c20,21
-<  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+21,22c21,22
 <  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 <  * SOFTWARE.
 ---
->  * LIABILITY, WHETHER IN AN ACTION, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
->  * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-32c31
-< import org.cactoos.Scalar;
----
-> import java.util.function.Supplier;
-37,38d35
+>  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+>  * THE SOFTWARE.
+37,38d36
 < import org.cactoos.scalar.IoCheckedScalar;
 < import org.cactoos.scalar.SolidScalar;
-40d36
+40d37
 < import org.cactoos.text.JoinedText;
-53c49
+53c50
 <     private final IoCheckedScalar<Path> path;
 ---
->     private final Supplier<Path> path;
-101c97
-<     public WalletsIn(final Scalar<Path> pth, final String ext,
----
->     public WalletsIn(final Supplier<Path> pth, final String ext,
-103,105c99
+>     private final Scalar<Path> path;
+103,105c100
 <         this.path = new IoCheckedScalar<>(
 <             new SolidScalar<>(pth)
 <         );
 ---
 >         this.path = pth;
-118,120c112,114
+118,120c113,117
 <         final Path wpth = this.path.value().resolve(
 <             new JoinedText(
 <                 ".",
 ---
->         final Path base = this.path.get();
->         final String name = String.format(
->             "%s.%s",
-123d116
+>         final Path wpth;
+>         try {
+>             wpth = this.path.value().resolve(
+>                 String.format(
+>                     "%s.%s",
+123c120
 <             ).asString()
-124a118
->         final Path wpth = base.resolve(name);
-156c150
-<                 new Filtered<>(this.filter, new Directory(this.path.value()))
 ---
->                 new Filtered<>(this.filter, new Directory(this.path.get()))
+>                 )
+124a122,124
+>         } catch (final IOException ex) {
+>             throw new IOException("Failed to resolve path", ex);
+>         }

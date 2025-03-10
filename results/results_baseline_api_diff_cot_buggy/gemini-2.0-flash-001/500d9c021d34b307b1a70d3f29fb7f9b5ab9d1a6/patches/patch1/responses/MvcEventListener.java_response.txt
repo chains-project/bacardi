@@ -17,23 +17,23 @@ public class MvcEventListener {
     @Inject
     Logger LOGGER;
 
-    private void onControllerMatched(@Observes jakarta.mvc.event.BeforeControllerEvent event) {
+    private void onControllerMatched(@Observes BeforeControllerEvent event) {
         LOGGER.info(() -> "Controller matched for " + event.getUriInfo().getRequestUri());
     }
 
-    private void onViewEngineSelected(@Observes jakarta.mvc.event.BeforeProcessViewEvent event) {
+    private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
         LOGGER.info(() -> "View engine: " + event.getEngine());
     }
 
-    private void onAfterControllerEvent(@Observes jakarta.mvc.event.AfterControllerEvent event) {
+    private void onAfterControllerEvent(@Observes AfterControllerEvent event) {
         LOGGER.info(() -> "AfterControllerEvent:: " + event.getResourceInfo());
     }
 
-    private void onAfterProcessViewEvent(@Observes jakarta.mvc.event.AfterProcessViewEvent event) {
+    private void onAfterProcessViewEvent(@Observes AfterProcessViewEvent event) {
         LOGGER.info(() -> "AfterProcessViewEvent:: " + event);
     }
     
-     private void onControllerRedirectEvent(@Observes jakarta.mvc.event.ControllerRedirectEvent event) {
+     private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
         LOGGER.info(() -> "ControllerRedirectEvent:: " + event);
     }
 

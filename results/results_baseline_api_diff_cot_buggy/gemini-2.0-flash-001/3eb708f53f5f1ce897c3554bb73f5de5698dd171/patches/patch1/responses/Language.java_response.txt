@@ -24,12 +24,10 @@ import java.util.Objects;
  * Information about a language supported by Google Translation. Objects of this class contain the
  * language's code and the language name.
  *
- * @deprecated This class is deprecated and will be removed in a future release.
  * @see <a href="https://cloud.google.com/translate/v2/discovering-supported-languages-with-rest">
  *     Discovering Supported Languages</a>
  * @see <a href="https://cloud.google.com/translate/docs/languages">Supported Languages</a>
  */
-@Deprecated
 public class Language implements Serializable {
 
   private static final long serialVersionUID = 5205240279371907020L;
@@ -72,5 +70,9 @@ public class Language implements Serializable {
     }
     Language other = (Language) obj;
     return Objects.equals(code, other.code) && Objects.equals(name, other.name);
+  }
+
+  static Language fromPb(String code, String name) {
+    return new Language(code, name);
   }
 }

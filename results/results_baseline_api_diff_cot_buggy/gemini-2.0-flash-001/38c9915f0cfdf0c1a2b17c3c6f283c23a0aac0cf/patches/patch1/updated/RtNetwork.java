@@ -28,7 +28,7 @@ import java.util.Iterator;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Sorted;
 import org.cactoos.scalar.Reduced;
-import org.cactoos.scalar.Unchecked;
+import org.cactoos.Scalar;
 
 /**
  * Network implementation.
@@ -63,15 +63,18 @@ public final class RtNetwork implements Network {
 
     @Override
     public Wallet pull(final long id) throws IOException {
-        return new Unchecked<>(
-            new Reduced<>(
-                Wallet::merge,
-                new Mapped<>(
-                    c -> c::wallet,
-                    new Sorted<>(new Copies(id, this))
-                )
+        final Scalar<Wallet> reduced = new Reduced<>(
+            Wallet::merge,
+            new Mapped<>(
+                c -> c::wallet,
+                new Sorted<>(new Copies(id, this))
             )
-        ).value();
+        );
+        try {
+            return reduced.value();
+        } catch (final Exception ex) {
+            throw new IOException(ex);
+        }
     }
 
     @Override

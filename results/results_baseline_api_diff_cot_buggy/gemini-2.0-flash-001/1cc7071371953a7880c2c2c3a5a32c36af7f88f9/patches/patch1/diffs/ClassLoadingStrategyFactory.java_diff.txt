@@ -1,19 +1,33 @@
-16,17d15
+16d15
 < import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector;
-< import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy;
-29,40c27,28
-<     static ClassLoadingStrategy<ClassLoader> classLoadingStrategy(Class<?> assertClass) {
+17a17
+> import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector;
+30,32c30,48
 <         if (ClassInjector.UsingReflection.isAvailable()) {
 <             return ClassLoadingStrategy.Default.INJECTION;
 <         } else if (ClassInjector.UsingLookup.isAvailable() && PRIVATE_LOOKUP_IN != null) {
-<             try {
-<                 return ClassLoadingStrategy.UsingLookup.of(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));
-<             } catch (Exception e) {
-<                 throw new IllegalStateException("Could not access package of " + assertClass, e);
-<             }
-<         } else {
-<             throw new IllegalStateException("No code generation strategy available");
-<         }
 ---
->     static ClassLoader classLoadingStrategy(Class<?> assertClass) {
->         return Thread.currentThread().getContextClassLoader();
+>         boolean reflectionAvailable = false;
+>         try {
+>             Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingReflection");
+>             reflectionAvailable = true;
+>         } catch (ClassNotFoundException e) {
+>             // ignore
+>         }
+> 
+>         boolean lookupAvailable = false;
+>         try {
+>             Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingLookup");
+>             lookupAvailable = true;
+>         } catch (ClassNotFoundException e) {
+>             // ignore
+>         }
+> 
+>         if (reflectionAvailable) {
+>             return ClassLoadingStrategy.Default.WRAPPER;
+>         } else if (lookupAvailable && PRIVATE_LOOKUP_IN != null) {
+34c50,51
+<                 return ClassLoadingStrategy.UsingLookup.of(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));
+---
+>                 return ClassLoadingStrategy.Default.WRAPPER;
+>                 //return ClassLoadingStrategy.UsingLookup.of(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));

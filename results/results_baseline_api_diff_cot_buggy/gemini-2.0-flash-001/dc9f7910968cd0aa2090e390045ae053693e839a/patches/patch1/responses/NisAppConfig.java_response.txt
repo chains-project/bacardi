@@ -39,6 +39,8 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.*;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
+import org.flywaydb.core.api.Location;
 
 @Configuration
 @ComponentScan(basePackages = {
@@ -105,7 +107,18 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final org.flywaydb.core.Flyway flyway = new org.flywaydb.core.Flyway(org.flywaydb.core.api.configuration.FluentConfiguration.configure().dataSource(this.dataSource()).classLoader(NisAppConfig.class.getClassLoader()).locations(prop.getProperty("flyway.locations")).validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate"))).load());
+		final ClassicConfiguration configuration = new ClassicConfiguration();
+		configuration.setDataSource(this.dataSource());
+		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+		final String locationsString = prop.getProperty("flyway.locations");
+		final Location[] locations = Arrays.stream(locationsString.split(","))
+				.map(String::trim)
+				.map(Location::new)
+				.toArray(Location[]::new);
+		configuration.setLocations(locations);
+		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+
+		final org.flywaydb.core.Flyway flyway = new Flyway(configuration);
 		return flyway;
 	}
 
@@ -209,7 +222,7 @@ public class NisAppConfig {
 
 	@Bean
 	public SynchronizedAccountStateCache accountStateCache() {
-		return new SynchronizedAccountStateCache(new DefaultAccountStateState());
+		return new SynchronizedAccountStateCache(new DefaultAccountStateCache());
 	}
 
 	@Bean

@@ -1,0 +1,10 @@
+24c24
+< import com.hazelcast.core.Member;
+---
+> import com.hazelcast.cluster.Member;
+41,42c41,42
+<     public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {
+<         this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";
+---
+>     public HazelcastClusterNodeInfo(final com.hazelcast.cluster.Member member, final long joinedTime) {
+>         this.hostname = (String) member.getAttributes().get(HOST_NAME_ATTRIBUTE) + " (" + member.getAddress().getHost() + ")";

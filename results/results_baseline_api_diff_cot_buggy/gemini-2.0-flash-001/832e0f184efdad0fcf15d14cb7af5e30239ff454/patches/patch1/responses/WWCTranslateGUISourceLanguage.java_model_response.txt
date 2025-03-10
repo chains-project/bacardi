@@ -1,39 +1,31 @@
 <fix_planning>
-a. Code and API changes:
-The error message indicates that the method `parseEnchantment()` has been removed from the `com.cryptomorin.xseries.XEnchantment` class. The code uses this method in the following lines:
+a. Relevant code and API changes:
+The error message indicates that the `parseEnchantment()` method has been removed from the `com.cryptomorin.xseries.XEnchantment` class. The affected lines are:
 
 ```java
 currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
 skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
+currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
 ```
 
-b. Specific API changes:
-The `parseEnchantment()` method has been removed from the `XEnchantment` class.
+b. Specific API changes causing the issue:
+The `parseEnchantment()` method is no longer available in the updated `XEnchantment` class.
 
 c. Affected lines of code:
-```java
-currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false); // Line 73
-currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false); // Line 76
-skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false); // Line 122
-skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false); // Line 125
-```
+Lines 73, 76, 122, and 125.
 
-d. Proposed fixes:
-The `parseEnchantment()` method is no longer available. We need to find an alternative way to get the `Enchantment` object.  Looking at the XSeries documentation, `XEnchantment.matchXEnchantment("power").get().getEnchant()` seems like the appropriate replacement.
+d. Proposed fixes for each affected line:
+The `parseEnchantment()` method was likely used to obtain an `Enchantment` object from the `XEnchantment` enum. A possible alternative is to use `XEnchantment.getEnchantment()` or `XEnchantment.ENCHANTMENT.getByName()` if available, or directly use `Enchantment.getByName("power")` after obtaining the `XEnchantment` object. Since `XEnchantment` is an enum, we can use `XEnchantment.matchXEnchantment("power").get().getEnchant()` to get the `Enchantment` object.
 
-e. Potential side effects:
-The change might affect the functionality if `getEnchant()` does not return the same `Enchantment` object as `parseEnchantment()` did. However, since the goal is to apply a glow effect, and "power" is a valid enchantment, this should be a safe replacement.
+e. Potential side effects of the proposed changes:
+The change in method might affect the functionality if the new method behaves differently. However, since the goal is to obtain an `Enchantment` object, the side effects should be minimal.
 
 f. Adherence to constraints:
-The proposed change adheres to all constraints:
-- The function signature of the `init` and `update` methods are not changed.
-- Variables can be created if needed.
-- The `@Override` annotation is kept as the methods still override the interface methods.
-- No existing code is removed unless it directly causes a compilation or functionality error.
-- All code, even unchanged portions, is included in the final output.
+The proposed changes adhere to all the given constraints. The function signatures are not changed, variables can be created, the @Override annotation is not removed, missing imports are handled, existing code is not removed unless it causes a compilation error, and all code is included in the final output.
 
-g. Final summary:
-The best solution is to replace `parseEnchantment()` with `getEnchant()` in the affected lines. This addresses the compilation error caused by the API change while maintaining the intended functionality of applying a glow effect.
+g. Final summary of the chosen fix:
+The best solution is to replace `XEnchantment.matchXEnchantment("power").get().parseEnchantment()` with `XEnchantment.matchXEnchantment("power").get().getEnchant()`. This directly retrieves the `Enchantment` object associated with the `XEnchantment` enum value.
 </fix_planning>
 
 ```java

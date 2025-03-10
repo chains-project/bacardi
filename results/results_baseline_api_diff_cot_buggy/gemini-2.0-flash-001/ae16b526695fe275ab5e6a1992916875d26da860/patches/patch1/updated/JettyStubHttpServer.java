@@ -22,7 +22,7 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
     private final Server server;
-    private final Connector httpConnector;
+    private final ServerConnector serverConnector;
 
     public JettyStubHttpServer() {
         this(0);
@@ -31,13 +31,14 @@ public class JettyStubHttpServer implements StubHttpServer {
 
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
-        HttpConfiguration http_config = new HttpConfiguration();
-        http_config.setSendServerVersion(false);
-        http_config.setSendDateHeader(true);
-        ServerConnector connector = new ServerConnector(server, http_config);
-        connector.setPort(port);
-        this.server.addConnector(connector);
-        this.httpConnector = connector;
+        
+        HttpConfiguration httpConfiguration = new HttpConfiguration();
+        httpConfiguration.setSendServerVersion(false);
+        httpConfiguration.setSendDateHeader(true);
+
+        this.serverConnector = new ServerConnector(server, httpConfiguration);
+        this.serverConnector.setPort(port);
+        server.addConnector(this.serverConnector);
     }
     
 
@@ -79,6 +80,6 @@ public class JettyStubHttpServer implements StubHttpServer {
      */
     @Override
     public int getPort() {
-        return ((ServerConnector) httpConnector).getLocalPort();
+        return serverConnector.getLocalPort();
     }
 }

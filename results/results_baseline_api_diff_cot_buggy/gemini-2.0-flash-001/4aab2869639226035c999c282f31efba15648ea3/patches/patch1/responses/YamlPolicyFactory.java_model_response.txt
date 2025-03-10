@@ -1,24 +1,27 @@
 <fix_planning>
-a. Code and API changes:
-The code uses `com.artipie.asto.factory.Storages` to create a new storage. The API changes indicate that the `Storages` class and its `newStorage` methods have been removed. Instead, `FileStorageFactory.newStorage(com.artipie.asto.factory.Config)` and `StorageFactory.newStorage(com.artipie.asto.factory.Config)` have been added.
+a. Relevant parts of the code and API changes:
+- Code: `new Storages().newStorage(sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping())`
+- API Changes: `Class com.artipie.asto.factory.Storages has been removed in the new version of the dependency.` and `Method com.artipie.asto.factory.StorageFactory.newStorage(com.artipie.asto.factory.Config) has been added in the new version of the dependency.`
 
 b. Specific API changes causing the issue:
-The primary issue is the removal of the `Storages` class and the `newStorage(String, YamlMapping)` method.
+The `Storages` class has been removed, and the `newStorage` method now expects a `Config` object instead of a string and a `YamlMapping`.
 
 c. Affected lines of code:
-Line 43: `new Storages().newStorage(sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping())`
+- Line 43: `new Storages().newStorage(`
 
 d. Proposed potential fixes:
-Since `Storages` and `newStorage(String, YamlMapping)` are removed, we need to find an alternative way to create a storage. The new API suggests using `FileStorageFactory.newStorage(com.artipie.asto.factory.Config)` or `StorageFactory.newStorage(com.artipie.asto.factory.Config)`. We can create a `StorageConfig` from the `sub` PolicyConfig and use the `StorageFactory` to create the storage. Since `Storages` class is removed, we need to use `StorageFactory` interface instead.
+Since `Storages` class is removed, we need to find an alternative way to create a storage. The API changes suggest that `newStorage` method now exists in `StorageFactory` and accepts a `Config` object. We can try to instantiate the appropriate `StorageFactory` directly (e.g., `FileStorageFactory`, `S3StorageFactory`, etc.) based on the `type` and then call `newStorage` with a `Config` object created from the `sub` configuration.
 
 e. Potential side effects of the proposed changes:
-The change might affect the type of storage created, as we are now relying on the `StorageFactory` to determine the storage type based on the configuration. We need to ensure that the configuration is correctly passed to the `StorageFactory`.
+We need to determine the correct `StorageFactory` based on the `type` string. This might require adding a switch statement or a similar mechanism. We also need to ensure that the `Config` object is created correctly from the `sub` configuration.
 
 f. Adherence to constraints:
-The proposed changes adhere to all the given constraints. We are not changing the function signature, we are creating a variable, and we are addressing missing imports.
+- We are not changing the function signature of `getPolicy`.
+- We might need to create variables to hold the `StorageFactory` and `Config` objects.
+- We are not removing any existing code unless it directly causes a compilation error.
 
-g. Final summary:
-The best solution is to replace the usage of the removed `Storages` class and `newStorage(String, YamlMapping)` method with the new `StorageFactory` interface and `newStorage(Config)` method. We will create a `StorageConfig` from the `sub` PolicyConfig and use the `StorageFactory` to create the storage.
+g. Final summary of the chosen fix:
+The best solution is to replace the usage of the removed `Storages` class with direct instantiation of the appropriate `StorageFactory` based on the `type` specified in the configuration. We will use a switch statement to determine the correct factory and then call the `newStorage` method with a `Config` object created from the `sub` configuration. This approach aligns with the new API and addresses the compilation errors.
 </fix_planning>
 
 ```java
@@ -32,7 +35,8 @@ import com.amihaiemil.eoyaml.Yaml;
 import com.artipie.asto.blocking.BlockingStorage;
 import com.artipie.asto.factory.Config;
 import com.artipie.asto.factory.StorageFactory;
-import com.artipie.asto.factory.YamlStorageConfig;
+import com.artipie.asto.fs.FileStorageFactory;
+import com.artipie.asto.s3.S3StorageFactory;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
@@ -64,10 +68,22 @@ public final class YamlPolicyFactory implements PolicyFactory {
     public Policy<?> getPolicy(final PolicyConfig config) {
         final PolicyConfig sub = config.config("storage");
         try {
-            final Config storageConfig = new YamlStorageConfig(Yaml.createYamlInput(sub.toString()).readYamlMapping());
+            final String type = sub.string("type");
+            final StorageFactory factory;
+            switch (type) {
+                case "fs":
+                    factory = new FileStorageFactory();
+                    break;
+                case "s3":
+                    factory = new S3StorageFactory();
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown storage type: " + type);
+            }
+            final Config storageConfig = new Config.Yaml(Yaml.createYamlInput(sub.toString()).readYamlMapping());
             return new YamlPolicy(
                 new BlockingStorage(
-                    StorageFactory.defaultFactory().newStorage(storageConfig)
+                    factory.newStorage(storageConfig)
                 )
             );
         } catch (final IOException err) {

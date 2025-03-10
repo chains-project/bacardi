@@ -1,32 +1,23 @@
 <fix_planning>
-a. Relevant code and API changes:
-- The code imports `eu.europa.esig.dss.pades.CertificationPermission`.
-- The API change states that `Class eu.europa.esig.dss.pades.CertificationPermission has been removed in the new version of the dependency`.
+a. The code uses `eu.europa.esig.dss.pades.CertificationPermission`. The API change indicates that `eu.europa.esig.dss.pades.CertificationPermission` has been removed.
+b. The removal of `CertificationPermission` is the root cause of the error.
+c. The affected lines are:
+   - `import eu.europa.esig.dss.pades.CertificationPermission;`
+   - `signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);`
+d. Possible fixes:
+   - Remove the import statement and the line using `CertificationPermission`. This might break the intended functionality if the permission setting is crucial.
+   - Investigate if there's a replacement for `CertificationPermission` in the new API. If there is, replace the old class with the new one.
+   - If the functionality related to `CertificationPermission` is not critical, we can remove the line `signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);` and the import statement. This is the safest option given the constraints, as it avoids introducing potentially incorrect replacements without fully understanding the new API.
 
-b. Specific API changes causing the issue:
-- The removal of the `CertificationPermission` class.
+e. Removing the line might change the default certification permission. We need to assess if this change is acceptable. Given the constraints and lack of information about the new API, this is the safest approach.
 
-c. Affected lines of code:
-- `import eu.europa.esig.dss.pades.CertificationPermission;`
-- `signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);`
+f. The proposed change adheres to all constraints:
+   - The function signature is not changed.
+   - No code is removed unless it directly causes a compilation error.
+   - No placeholder comments are used.
+   - The change addresses the missing import by removing it.
 
-d. Proposed potential fixes:
-- Remove the import statement `import eu.europa.esig.dss.pades.CertificationPermission;`.
-- Remove the line `signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);`.
-- Investigate if there is a replacement for `CertificationPermission` in the new version of the library. If there is, replace the old code with the new one.
-
-e. Potential side effects of the proposed changes:
-- Removing the import statement will only have an effect if the class is not used anywhere else.
-- Removing the line `signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);` will change the signature parameters. This might affect the validity of the signature.
-- If there is a replacement for `CertificationPermission`, using it might require changes in other parts of the code.
-
-f. Adherence to constraints:
-- Removing the import statement and the line of code adheres to all the constraints.
-- Replacing the code with a new one might require creating variables, which is allowed.
-- The function signature of the method is not changed.
-
-g. Final summary of the chosen fix:
-The best solution is to remove the import statement `import eu.europa.esig.dss.pades.CertificationPermission;` and the line `signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);`. This is because the class `CertificationPermission` has been removed from the library, and there is no information about a replacement. Removing the line of code will change the signature parameters, but it is the only way to make the code compile.
+g. The best solution is to remove the import statement and the line that uses the `CertificationPermission` class. This resolves the compilation error caused by the missing class and avoids introducing potentially incorrect replacements.
 </fix_planning>
 
 ```java

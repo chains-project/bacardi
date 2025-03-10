@@ -15,11 +15,11 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 package io.zold.api;
 
@@ -27,9 +27,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import org.cactoos.iterable.IterableOf;
 import org.cactoos.iterable.Joined;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Skipped;
@@ -38,7 +35,10 @@ import org.cactoos.scalar.Or;
 import org.cactoos.text.FormattedText;
 import org.cactoos.text.TextOf;
 import org.cactoos.text.UncheckedText;
-import org.cactoos.text.Text;
+import org.cactoos.iterable.Filtered;
+import org.cactoos.text.Split;
+import org.cactoos.scalar.Scalar;
+import org.cactoos.scalar.Unchecked;
 
 /**
  * Wallet.
@@ -197,14 +197,18 @@ public interface Wallet {
 
         @Override
         public long id() throws IOException {
+            final Scalar<Long> scalar = () -> Long.parseUnsignedLong(
+                new ListOf<>(
+                    new Split(
+                        new TextOf(this.path),
+                        "\\n"
+                    )
+                ).get(2).asString(),
+                // @checkstyle MagicNumber (1 line)
+                16
+            );
             try {
-                return Long.parseUnsignedLong(
-                    new ListOf<>(
-                        new TextOf(this.path).split("\n")
-                    ).get(2).asString(),
-                    // @checkstyle MagicNumber (1 line)
-                    16
-                );
+                return scalar.value();
             } catch (final Exception e) {
                 throw new IOException(e);
             }
@@ -241,31 +245,27 @@ public interface Wallet {
                 );
             }
             final Iterable<Transaction> ledger = this.ledger();
-            final Iterable<Transaction> otherLedger = other.ledger();
-
-            final Iterable<Transaction> candidates = new org.cactoos.iterable.Filtered<>(
+            final Iterable<Transaction> candidates = new Filtered<>(
+                other.ledger(),
                 incoming -> {
-                    final Iterator<Transaction> iterator = ledger.iterator();
-                    while (iterator.hasNext()) {
-                        final Transaction origin = iterator.next();
-                        try {
-                            if (incoming.equals(origin)
+                    return new Filtered<>(
+                        ledger,
+                        origin -> {
+                            final Scalar<Boolean> or = () -> incoming.equals(origin)
                                 || (incoming.id() == origin.id()
                                 && incoming.bnf().equals(origin.bnf()))
                                 || (incoming.id() == origin.id()
                                 && incoming.amount() < 0L)
-                                || incoming.prefix().equals(origin.prefix())) {
-                                return false;
+                                || incoming.prefix().equals(origin.prefix());
+                            try {
+                                return !or.value();
+                            } catch (final Exception ex) {
+                                throw new IllegalStateException(ex);
                             }
-                        } catch (IOException ex) {
-                            throw new RuntimeException(ex);
                         }
-                    }
-                    return true;
-                },
-                otherLedger
+                    ).isEmpty();
+                }
             );
-
             return new Wallet.Fake(
                 this.id(),
                 new Joined<Transaction>(ledger, candidates)
@@ -275,16 +275,13 @@ public interface Wallet {
         @Override
         public Iterable<Transaction> ledger() {
             return new Mapped<>(
-                txt -> {
-                    try {
-                        return new RtTransaction(txt.asString());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                },
+                txt -> new RtTransaction(txt.asString()),
                 new Skipped<>(
                     new ListOf<>(
-                        new TextOf(this.path).split("\\n")
+                        new Split(
+                            new TextOf(this.path),
+                            "\\n"
+                        )
                     ),
                     // @checkstyle MagicNumberCheck (1 line)
                     5

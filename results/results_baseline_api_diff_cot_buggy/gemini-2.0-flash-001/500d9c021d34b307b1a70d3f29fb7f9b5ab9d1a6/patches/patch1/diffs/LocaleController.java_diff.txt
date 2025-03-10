@@ -1,40 +1,16 @@
-1,6d0
-< package com.example.web;
-< 
-< import java.util.Locale;
-< import java.util.logging.Logger;
-< import javax.enterprise.context.RequestScoped;
-< import javax.inject.Inject;
-10,11d3
-< import javax.ws.rs.GET;
-< import javax.ws.rs.Path;
-13,17d4
-< /**
-<  *
-<  * @author hantsy
-<  */
-< @Path("locale")
-19,25d5
-< @RequestScoped
-< public class LocaleController {
-< 
-<     @Inject
-<     MvcContext mvc;
-< 
-<     @Inject
-27,38c7
-< 
-<     @Inject
-<     Logger log;
-< 
-<     @GET
-<     public String get() {
-<         Locale locale = mvc.getLocale();
-<         models.put("locale", locale);
-<         return "locale.xhtml";
-<     }
-< 
-< }
+7,9c7,9
+< import javax.mvc.Controller;
+< import javax.mvc.Models;
+< import javax.mvc.MvcContext;
 ---
-> MvcContext mvc;
-\ No newline at end of file
+> import jakarta.mvc.Controller;
+> import jakarta.mvc.Models;
+> import javax.servlet.http.HttpServletRequest;
+23c23
+<     MvcContext mvc;
+---
+>     HttpServletRequest request;
+33c33
+<         Locale locale = mvc.getLocale();
+---
+>         Locale locale = request.getLocale();

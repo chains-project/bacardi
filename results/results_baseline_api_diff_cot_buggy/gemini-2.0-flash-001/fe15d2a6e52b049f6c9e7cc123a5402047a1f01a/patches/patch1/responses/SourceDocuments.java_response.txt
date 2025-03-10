@@ -1,1 +1,1 @@
-final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+final ToStringStrategy2 strategy = new org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy();

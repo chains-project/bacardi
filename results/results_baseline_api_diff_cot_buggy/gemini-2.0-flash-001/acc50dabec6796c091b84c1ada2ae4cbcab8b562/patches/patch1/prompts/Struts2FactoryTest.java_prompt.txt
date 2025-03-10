@@ -85,17 +85,17 @@ public class Struts2FactoryTest extends TestCase {
 
 ```
 
-The errors are triggered in the following specific line:
+The errors are triggered in the following specific lines:
 
 <error_lines>
-```java
-bind(StrutsPrepareAndExecuteFilter.class)
-```
 ```java
 import org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter;
 ```
 ```java
 filter("/*").through(StrutsPrepareAndExecuteFilter.class);
+```
+```java
+bind(StrutsPrepareAndExecuteFilter.class)
 ```
 </error_lines>
 
@@ -108,11 +108,11 @@ The API of the dependency has changed. Here are the relevant changes:
 Additional error information:
 
 <error_information>
-[ERROR] /guice/extensions/struts2/test/com/google/inject/struts2/Struts2FactoryTest.java:[55,19] error: cannot find symbol
-
 [ERROR] /guice/extensions/struts2/test/com/google/inject/struts2/Struts2FactoryTest.java:[19,46] error: package org.apache.struts2.dispatcher.ng.filter does not exist
 
 [ERROR] /guice/extensions/struts2/test/com/google/inject/struts2/Struts2FactoryTest.java:[57,35] error: cannot find symbol
+
+[ERROR] /guice/extensions/struts2/test/com/google/inject/struts2/Struts2FactoryTest.java:[55,19] error: cannot find symbol
 <error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:

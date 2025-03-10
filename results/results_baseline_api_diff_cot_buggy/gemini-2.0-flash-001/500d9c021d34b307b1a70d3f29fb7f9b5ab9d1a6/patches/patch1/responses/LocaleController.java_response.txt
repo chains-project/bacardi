@@ -1,7 +1,38 @@
-import javax.mvc.Controller;
-import javax.mvc.Models;
-import javax.mvc.MvcContext;
+package com.example.web;
 
+import java.util.Locale;
+import java.util.logging.Logger;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+
+/**
+ *
+ * @author hantsy
+ */
+@Path("locale")
 @Controller
-Models models;
-MvcContext mvc;
+@RequestScoped
+public class LocaleController {
+
+    @Inject
+    HttpServletRequest request;
+
+    @Inject
+    Models models;
+
+    @Inject
+    Logger log;
+
+    @GET
+    public String get() {
+        Locale locale = request.getLocale();
+        models.put("locale", locale);
+        return "locale.xhtml";
+    }
+
+}

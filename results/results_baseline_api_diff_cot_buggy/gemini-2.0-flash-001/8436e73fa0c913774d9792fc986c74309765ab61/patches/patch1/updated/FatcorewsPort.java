@@ -15,7 +15,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
  * 
  */
 @WebService(name = "fatcorewsPort", targetNamespace = "http://factemi.at.min_financas.pt/documents")
-@SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
+@SOAPBinding(parameterStyle = jakarta.jws.soap.SOAPBinding.ParameterStyle.BARE)
 @XmlSeeAlso({
     ObjectFactory.class
 })

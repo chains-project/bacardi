@@ -118,23 +118,17 @@ public class Translation implements Serializable {
 
 ```
 
-The errors are triggered in the following specific line:
+The errors are triggered in the following specific lines:
 
 <error_lines>
-```java
-static Translation fromPb(TranslationsResource translationPb) {
-```
-```java
-static Translation fromPb(TranslationsResource translationPb) {
-```
 ```java
 public Translation apply(TranslationsResource translationPb) {
 ```
 ```java
-static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =
+static Translation fromPb(TranslationsResource translationPb) {
 ```
 ```java
-static Translation fromPb(TranslationsResource translationPb) {
+new Function<TranslationsResource, Translation>() {
 ```
 ```java
 static Translation fromPb(TranslationsResource translationPb) {
@@ -143,48 +137,46 @@ static Translation fromPb(TranslationsResource translationPb) {
 import com.google.api.services.translate.model.TranslationsResource;
 ```
 ```java
-new Function<TranslationsResource, Translation>() {
+static Translation fromPb(TranslationsResource translationPb) {
+```
+```java
+static Translation fromPb(TranslationsResource translationPb) {
+```
+```java
+static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =
 ```
 </error_lines>
 
 The API of the dependency has changed. Here are the relevant changes:
 
-     Method com.google.api.services.translate.model.TranslationsResource.getDetectedSourceLanguage() has been removed in the new version of the dependency.
      Constructor com.google.api.services.translate.model.TranslationsResource() has been removed in the new version of the dependency.
      Class com.google.api.services.translate.model.TranslationsResource has been removed in the new version of the dependency.
-     Method com.google.api.services.translate.v3.model.Translation.getTranslatedText() has been added in the new version of the dependency.
-     Method com.google.api.services.translate.model.TranslationsResource.getTranslatedText() has been removed in the new version of the dependency.
-     Method com.google.api.services.translate.Translate$Languages$List.getModel() has been removed in the new version of the dependency.
-     Method com.google.api.services.translate.Translate$Translations$List.getModel() has been removed in the new version of the dependency.
      Method com.google.api.services.translate.v3.Translate$Projects$Locations$GetSupportedLanguages.getModel() has been added in the new version of the dependency.
-     Method com.google.api.services.translate.model.TranslationsResource.getModel() has been removed in the new version of the dependency.
-     Method com.google.api.services.translate.v3.model.TranslateTextRequest.getModel() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.v3.model.Translation.getModel() has been added in the new version of the dependency.
      Method com.google.api.services.translate.model.TranslateTextRequest.getModel() has been removed in the new version of the dependency.
+     Method com.google.api.services.translate.v3.model.DetectLanguageRequest.getModel() has been added in the new version of the dependency.
      Method com.google.api.services.translate.v3.model.TranslateDocumentRequest.getModel() has been added in the new version of the dependency.
      Method com.google.api.services.translate.v3.model.TranslateDocumentResponse.getModel() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.model.TranslationsResource.getModel() has been removed in the new version of the dependency.
+     Method com.google.api.services.translate.v3.model.TranslateTextRequest.getModel() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.Translate$Translations$List.getModel() has been removed in the new version of the dependency.
+     Method com.google.api.services.translate.Translate$Languages$List.getModel() has been removed in the new version of the dependency.
      Method com.google.api.services.translate.v3.Translate$Projects$GetSupportedLanguages.getModel() has been added in the new version of the dependency.
-     Method com.google.api.services.translate.v3.model.DetectLanguageRequest.getModel() has been added in the new version of the dependency.
-     Method com.google.api.services.translate.v3.model.Translation.getModel() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.model.TranslationsResource.getDetectedSourceLanguage() has been removed in the new version of the dependency.
+     Method com.google.api.services.translate.v3.model.Translation.getTranslatedText() has been added in the new version of the dependency.
+     Method com.google.api.services.translate.model.TranslationsResource.getTranslatedText() has been removed in the new version of the dependency.
 
 Additional error information:
 
 <error_information>
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Translation.java:[106,29] cannot find symbol
-  symbol:   class TranslationsResource
-  location: class com.google.cloud.translate.Translation
-
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Translation.java:[106,29] cannot find symbol
-  symbol:   class TranslationsResource
-  location: class com.google.cloud.translate.Translation
-
 [ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Translation.java:[40,34] cannot find symbol
   symbol: class TranslationsResource
 
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Translation.java:[37,25] cannot find symbol
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Translation.java:[106,29] cannot find symbol
   symbol:   class TranslationsResource
   location: class com.google.cloud.translate.Translation
 
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Translation.java:[106,29] cannot find symbol
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Translation.java:[38,20] cannot find symbol
   symbol:   class TranslationsResource
   location: class com.google.cloud.translate.Translation
 
@@ -194,7 +186,15 @@ Additional error information:
 
 [ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Translation.java:[19,47] package com.google.api.services.translate.model does not exist
 
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Translation.java:[38,20] cannot find symbol
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Translation.java:[106,29] cannot find symbol
+  symbol:   class TranslationsResource
+  location: class com.google.cloud.translate.Translation
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Translation.java:[106,29] cannot find symbol
+  symbol:   class TranslationsResource
+  location: class com.google.cloud.translate.Translation
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Translation.java:[37,25] cannot find symbol
   symbol:   class TranslationsResource
   location: class com.google.cloud.translate.Translation
 <error_information>

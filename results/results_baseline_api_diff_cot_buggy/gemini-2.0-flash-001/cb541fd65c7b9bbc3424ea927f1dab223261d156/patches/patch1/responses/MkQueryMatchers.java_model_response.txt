@@ -1,24 +1,34 @@
 <fix_planning>
-a. The code uses `org.hamcrest.Matchers`. The error message "cannot find symbol symbol: class Matchers location: package org.hamcrest" indicates that this class is no longer available in the updated Hamcrest dependency.
+a. Relevant parts of the code and API changes:
+- Code: `import org.hamcrest.Matchers;`
+- API Change: `Class org.hamcrest.Matchers has been removed in the new version of the dependency.`
 
-b. The API change states: "Class org.hamcrest.Matchers has been removed in the new version of the dependency." This directly causes the compilation error.
+b. Specific API changes causing the issue:
+- The class `org.hamcrest.Matchers` has been removed.
 
-c. The affected line is: `import org.hamcrest.Matchers;` and the lines using `Matchers.hasProperty`.
+c. Affected lines of code:
+- `import org.hamcrest.Matchers;`
+- `Matchers.<URI>hasProperty("rawPath", path)`
+- `Matchers.<URI>hasProperty("rawQuery", query)`
 
-d. Potential fixes:
-    1. Remove the import statement `import org.hamcrest.Matchers;` and replace `Matchers.hasProperty` with `org.hamcrest.beans.HasPropertyWithValue.hasProperty`. This requires adding a new import `import org.hamcrest.beans.HasPropertyWithValue;`.
+d. Proposed potential fixes:
+- Remove the import statement `import org.hamcrest.Matchers;`.
+- Replace `Matchers.<URI>hasProperty("rawPath", path)` with `org.hamcrest.beans.HasPropertyWithValue.<URI>hasProperty("rawPath", path)`.
+- Replace `Matchers.<URI>hasProperty("rawQuery", query)` with `org.hamcrest.beans.HasPropertyWithValue.<URI>hasProperty("rawQuery", query)`.
 
-e. Side effects:
-    1. The change replaces the usage of `org.hamcrest.Matchers.hasProperty` with `org.hamcrest.beans.HasPropertyWithValue.hasProperty`. This should not change the functionality of the code, as it achieves the same goal of matching a property of an object.
+e. Potential side effects of the proposed changes:
+- The code might not compile if `org.hamcrest.beans.HasPropertyWithValue` is not available or if `hasProperty` is not a static method.
 
-f. Constraints:
-    1. The function signatures of all methods are preserved.
-    2. A new import statement is added.
-    3. No existing code is removed unless it directly causes a compilation error.
-    4. All code, even unchanged portions, are included in the final output.
+f. Adherence to constraints:
+- The function signatures of all methods are preserved.
+- Variables can be created if needed.
+- The `@Override` annotation is not present, so it doesn't need to be removed.
+- The correct package or class is used for the import.
+- No existing code is removed unless it directly causes a compilation or functionality error.
+- All code, even unchanged portions, is included in the final output.
 
-g. Summary:
-The best solution is to remove the import statement `import org.hamcrest.Matchers;` and replace `Matchers.hasProperty` with `org.hamcrest.beans.HasPropertyWithValue.hasProperty` and add the import `import org.hamcrest.beans.HasPropertyWithValue;`. This resolves the compilation error caused by the removal of the `org.hamcrest.Matchers` class while maintaining the original functionality of the code.
+g. Final summary of the chosen fix:
+The best solution is to replace `Matchers.hasProperty` with `org.hamcrest.beans.HasPropertyWithValue.hasProperty` and remove the import statement `import org.hamcrest.Matchers;`. This addresses the compilation error caused by the removal of the `Matchers` class and uses the replacement class `org.hamcrest.beans.HasPropertyWithValue` which contains the static method `hasProperty`.
 </fix_planning>
 
 ```java
@@ -55,6 +65,7 @@ package com.jcabi.http.mock;
 
 import java.net.URI;
 import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.hamcrest.beans.HasPropertyWithValue;
 
 /**

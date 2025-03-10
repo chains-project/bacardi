@@ -25,7 +25,7 @@ public class CallRedirectionInterceptor implements Serializable {
     private Instance<InvocationTargetManager> invocationTargetManager;
 
     @AroundInvoke
-    public Object invokeMockableBean(jakarta.interceptor.InvocationContext ctx) throws Throwable {
+    public Object invokeMockableBean(InvocationContext ctx) throws Throwable {
         Class<?> javaClass = ReflectionsUtils.getOriginalClass(ctx.getTarget().getClass());
         if (invocationTargetManager.get().isAlternativeEnabled(javaClass)) {
             return callAlternative(ctx, javaClass);
@@ -37,7 +37,7 @@ public class CallRedirectionInterceptor implements Serializable {
     }
 
     @SuppressWarnings("squid:S00112")
-    private Object callAlternative(jakarta.interceptor.InvocationContext ctx, Class<?> javaClass) throws Throwable {
+    private Object callAlternative(InvocationContext ctx, Class<?> javaClass) throws Throwable {
         Method method = ctx.getMethod();
         Object alternative = BeanProvider
                 .getContextualReference(invocationTargetManager.get().alternativeFor(javaClass));
@@ -52,7 +52,7 @@ public class CallRedirectionInterceptor implements Serializable {
     }
 
     @SuppressWarnings("squid:S00112")
-    private Object callMock(jakarta.interceptor.InvocationContext ctx, Class<?> javaClass) throws Throwable {
+    private Object callMock(InvocationContext ctx, Class<?> javaClass) throws Throwable {
         try {
             return ctx.getMethod().invoke(invocationTargetManager.get().mock(javaClass), ctx.getParameters());
         } catch (InvocationTargetException ite) {

@@ -4,7 +4,7 @@
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software is distributed on
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  *
@@ -21,18 +21,39 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import io.vavr.control.Validation;
+import java.util.concurrent.ConcurrentHashMap;
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.implementation.Implementation;
+import net.bytebuddy.implementation.MethodDelegation;
+import net.bytebuddy.implementation.bind.annotation.RuntimeType;
+import net.bytebuddy.implementation.bind.annotation.SuperCall;
+import net.bytebuddy.implementation.bind.annotation.This;
+import net.bytebuddy.matcher.ElementMatchers;
 import org.assertj.core.util.CheckReturnValue;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
 
 import static org.assertj.core.util.Arrays.array;
+import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrategy;
 
 public class VavrAssumptions {
 
+    /**
+     * This NamingStrategy takes the original class's name and adds a suffix to distinguish it.
+     * The default is ByteBuddy but for debugging purposes, it makes sense to add AssertJ as a name.
+     */
+    private static final ByteBuddy BYTE_BUDDY = new ByteBuddy();
+
+    private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
+
+    private static final ConcurrentHashMap<Class<?>, Class<?>> CACHE = new ConcurrentHashMap<>();
+
     private static final class AssumptionMethodInterceptor {
 
-        public static Object intercept(AbstractVavrAssert<?, ?> assertion, Callable<Object> proxy) throws Exception {
+        @RuntimeType
+        public static Object intercept(@This AbstractVavrAssert<?, ?> assertion, @SuperCall Callable<Object> proxy) throws Exception {
             try {
                 Object result = proxy.call();
                 if (result != assertion && result instanceof AbstractVavrAssert) {
@@ -57,7 +78,7 @@ public class VavrAssumptions {
     @CheckReturnValue
     @SuppressWarnings("unchecked")
     public static <LEFT, RIGHT> EitherAssert<LEFT, RIGHT> assumeThat(Either<LEFT, RIGHT> actual) {
-        return new EitherAssert<>(actual);
+        return asAssumption(EitherAssert.class, Either.class, actual);
     }
 
     /**
@@ -70,7 +91,7 @@ public class VavrAssumptions {
     @CheckReturnValue
     @SuppressWarnings("unchecked")
     public static <VALUE> LazyAssert<VALUE> assumeThat(Lazy<VALUE> actual) {
-        return new LazyAssert<>(actual);
+        return asAssumption(LazyAssert.class, Lazy.class, actual);
     }
 
     /**
@@ -84,7 +105,7 @@ public class VavrAssumptions {
     @CheckReturnValue
     @SuppressWarnings("unchecked")
     public static <K, V> MapAssert<K, V> assumeThat(Map<K, V> actual) {
-        return new MapAssert<>(actual);
+        return asAssumption(MapAssert.class, Map.class, actual);
     }
 
     /**
@@ -98,7 +119,7 @@ public class VavrAssumptions {
     @CheckReturnValue
     @SuppressWarnings("unchecked")
     public static <K, V> MultimapAssert<K, V> assumeThat(Multimap<K, V> actual) {
-        return new MultimapAssert<>(actual);
+        return asAssumption(MultimapAssert.class, Multimap.class, actual);
     }
 
     /**
@@ -111,7 +132,7 @@ public class VavrAssumptions {
     @CheckReturnValue
     @SuppressWarnings("unchecked")
     public static <VALUE> OptionAssert<VALUE> assumeThat(Option<VALUE> actual) {
-        return new OptionAssert<>(actual);
+        return asAssumption(OptionAssert.class, Option.class, actual);
     }
 
     /**
@@ -124,7 +145,7 @@ public class VavrAssumptions {
     @CheckReturnValue
     @SuppressWarnings("unchecked")
     public static <ELEMENT> SetAssert<ELEMENT> assumeThat(Set<ELEMENT> actual) {
-        return new SetAssert<>(actual);
+        return asAssumption(SetAssert.class, Set.class, actual);
     }
 
     /**
@@ -137,7 +158,7 @@ public class VavrAssumptions {
     @CheckReturnValue
     @SuppressWarnings("unchecked")
     public static <ELEMENT> SeqAssert<ELEMENT> assumeThat(Seq<ELEMENT> actual) {
-        return new SeqAssert<>(actual);
+        return asAssumption(SeqAssert.class, Seq.class, actual);
     }
 
     /**
@@ -150,7 +171,7 @@ public class VavrAssumptions {
     @CheckReturnValue
     @SuppressWarnings("unchecked")
     public static <VALUE> TryAssert<VALUE> assumeThat(Try<VALUE> actual) {
-        return new TryAssert<>(actual);
+        return asAssumption(TryAssert.class, Try.class, actual);
     }
 
     /**
@@ -164,7 +185,7 @@ public class VavrAssumptions {
     @CheckReturnValue
     @SuppressWarnings("unchecked")
     public static <INVALID, VALID> ValidationAssert<INVALID, VALID> assumeThat(Validation<INVALID, VALID> actual) {
-        return new ValidationAssert<>(actual);
+        return asAssumption(ValidationAssert.class, Validation.class, actual);
     }
 
     private static <ASSERTION, ACTUAL> ASSERTION asAssumption(Class<ASSERTION> assertionType,
@@ -177,11 +198,27 @@ public class VavrAssumptions {
                                                       Class<?>[] constructorTypes,
                                                       Object... constructorParams) {
         try {
-            java.lang.reflect.Constructor<? extends ASSERTION> constructor = assertionType.getConstructor(constructorTypes);
+            Class<? extends ASSERTION> type = createAssumptionClass(assertionType);
+            Constructor<? extends ASSERTION> constructor = type.getConstructor(constructorTypes);
             return constructor.newInstance(constructorParams);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
             throw new RuntimeException("Cannot create assumption instance", e);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass) {
+        return (Class<? extends ASSERTION>) CACHE.computeIfAbsent(assertClass,
+                (key) -> generateAssumptionClass(assertClass));
+    }
+
+    private static <ASSERTION> Class<? extends ASSERTION> generateAssumptionClass(Class<ASSERTION> assertionType) {
+        return BYTE_BUDDY.subclass(assertionType)
+                .method(ElementMatchers.any())
+                .intercept(ASSUMPTION)
+                .make()
+                .load(VavrAssumptions.class.getClassLoader(), classLoadingStrategy(assertionType))
+                .getLoaded();
     }
 
     private static RuntimeException assumptionNotMet(AssertionError assertionError) throws ReflectiveOperationException {
@@ -215,13 +252,13 @@ public class VavrAssumptions {
     private static AbstractVavrAssert<?, ?> asAssumption(AbstractVavrAssert<?, ?> assertion) {
         // @format:off
         Object actual = assertion.actual();
-        if (assertion instanceof LazyAssert) return new LazyAssert<>((Lazy<?>) actual);
-        if (assertion instanceof EitherAssert) return new EitherAssert<>((Either<?, ?>) actual);
-        if (assertion instanceof MapAssert) return new MapAssert<>((Map<?, ?>) actual);
-        if (assertion instanceof OptionAssert) return new OptionAssert<>((Option<?>) actual);
-        if (assertion instanceof SeqAssert) return new SeqAssert<>((Seq<?>) actual);
-        if (assertion instanceof TryAssert) return new TryAssert<>((Try<?>) actual);
-        if (assertion instanceof ValidationAssert) return new ValidationAssert<>((Validation<?, ?>) actual);
+        if (assertion instanceof LazyAssert) return asAssumption(LazyAssert.class, Lazy.class, actual);
+        if (assertion instanceof EitherAssert) return asAssumption(EitherAssert.class, Either.class, actual);
+        if (assertion instanceof MapAssert) return asAssumption(MapAssert.class, Map.class, actual);
+        if (assertion instanceof OptionAssert) return asAssumption(OptionAssert.class, Option.class, actual);
+        if (assertion instanceof SeqAssert) return asAssumption(SeqAssert.class, Seq.class, actual);
+        if (assertion instanceof TryAssert) return asAssumption(TryAssert.class, Try.class, actual);
+        if (assertion instanceof ValidationAssert) return asAssumption(ValidationAssert.class, Validation.class, actual);
         // @format:on
         // should not arrive here
         throw new IllegalArgumentException("Unsupported assumption creation for " + assertion.getClass());

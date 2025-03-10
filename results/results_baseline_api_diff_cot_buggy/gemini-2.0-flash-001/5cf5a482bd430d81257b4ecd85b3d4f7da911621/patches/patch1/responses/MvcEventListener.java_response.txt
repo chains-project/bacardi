@@ -22,7 +22,7 @@ public class MvcEventListener {
     }
 
     private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
-        LOGGER.info(() -> "View engine: " + event);
+        LOGGER.info(() -> "View engine: " + event.getEngine());
     }
 
     private void onAfterControllerEvent(@Observes AfterControllerEvent event) {

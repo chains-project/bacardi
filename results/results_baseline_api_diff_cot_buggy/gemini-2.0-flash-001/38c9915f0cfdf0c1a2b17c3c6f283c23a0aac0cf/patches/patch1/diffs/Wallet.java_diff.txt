@@ -1,40 +1,52 @@
-30c30,31
-< import org.cactoos.collection.Filtered;
+18c18
+<  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
 ---
-> import java.util.Iterator;
-> import java.util.NoSuchElementException;
-36d36
+>  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+21,22c21,22
+<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+<  * SOFTWARE.
+---
+>  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+>  * THE SOFTWARE.
+30,31d29
+< import org.cactoos.collection.Filtered;
+< import org.cactoos.iterable.IterableOf;
+36d33
 < import org.cactoos.scalar.CheckedScalar;
-38d37
+38d34
 < import org.cactoos.scalar.UncheckedScalar;
-40d38
+40d35
 < import org.cactoos.text.SplitText;
-42a41
-> import org.cactoos.text.Text;
-201,202c200,201
+42a38,41
+> import org.cactoos.iterable.Filtered;
+> import org.cactoos.text.Split;
+> import org.cactoos.scalar.Scalar;
+> import org.cactoos.scalar.Unchecked;
+201,202c200
 <             return new CheckedScalar<>(
 <                 () -> Long.parseUnsignedLong(
 ---
->             try {
->                 return Long.parseUnsignedLong(
-204,207c203
+>             final Scalar<Long> scalar = () -> Long.parseUnsignedLong(
+204c202
 <                         new SplitText(
-<                             new TextOf(this.path),
-<                             "\n"
-<                         )
 ---
->                         new TextOf(this.path).split("\n")
-211,213c207,210
+>                     new Split(
+206c204
+<                             "\n"
+---
+>                         "\\n"
+211,213c209,214
 <                 ),
 <                 e -> new IOException(e)
 <             ).value();
 ---
->                 );
+>             );
+>             try {
+>                 return scalar.value();
 >             } catch (final Exception e) {
 >                 throw new IOException(e);
 >             }
-247,261c244,266
-<             final Iterable<Transaction> candidates = new Filtered<>(
+248,261c249,267
 <                 incoming -> new Filtered<>(
 <                     origin -> new UncheckedScalar<>(
 <                         new Or(
@@ -50,45 +62,26 @@
 <                 ).isEmpty(),
 <                 other.ledger()
 ---
->             final Iterable<Transaction> otherLedger = other.ledger();
-> 
->             final Iterable<Transaction> candidates = new org.cactoos.iterable.Filtered<>(
+>                 other.ledger(),
 >                 incoming -> {
->                     final Iterator<Transaction> iterator = ledger.iterator();
->                     while (iterator.hasNext()) {
->                         final Transaction origin = iterator.next();
->                         try {
->                             if (incoming.equals(origin)
+>                     return new Filtered<>(
+>                         ledger,
+>                         origin -> {
+>                             final Scalar<Boolean> or = () -> incoming.equals(origin)
 >                                 || (incoming.id() == origin.id()
 >                                 && incoming.bnf().equals(origin.bnf()))
 >                                 || (incoming.id() == origin.id()
 >                                 && incoming.amount() < 0L)
->                                 || incoming.prefix().equals(origin.prefix())) {
->                                 return false;
+>                                 || incoming.prefix().equals(origin.prefix());
+>                             try {
+>                                 return !or.value();
+>                             } catch (final Exception ex) {
+>                                 throw new IllegalStateException(ex);
 >                             }
->                         } catch (IOException ex) {
->                             throw new RuntimeException(ex);
 >                         }
->                     }
->                     return true;
->                 },
->                 otherLedger
-262a268
-> 
-272c278,284
-<                 txt -> new RtTransaction(txt.asString()),
----
->                 txt -> {
->                     try {
->                         return new RtTransaction(txt.asString());
->                     } catch (IOException e) {
->                         throw new RuntimeException(e);
->                     }
->                 },
-275,278c287
+>                     ).isEmpty();
+>                 }
+275c281
 <                         new SplitText(
-<                             new TextOf(this.path),
-<                             "\\n"
-<                         )
 ---
->                         new TextOf(this.path).split("\\n")
+>                         new Split(

@@ -1,40 +1,51 @@
 <fix_planning>
-Okay, let's analyze the problem and the proposed solution.
+Okay, let's analyze the problem.
 
-The error messages indicate that `org.tinspin.index.PointIndex`, `org.tinspin.index.kdtree.KDTree.create(int,org.tinspin.index.PointDistanceFunction)` and `org.tinspin.index.PointDistanceFunction` are no longer available in the updated tinspin library.
+a. Relevant code and API changes:
 
-The code uses `KDTree.create(2, (p1, p2) -> ...)` to create a KDTree. The API changes indicate that `KDTree.create(int,org.tinspin.index.PointDistanceFunction)` has been removed, and `org.tinspin.index.PointDistanceFunction` has also been removed. A new method `KDTree.create(org.tinspin.index.IndexConfig)` has been added.
+The code uses `org.tinspin.index.kdtree.KDTree` and `org.tinspin.index.PointIndex`. The API changes indicate that `org.tinspin.index.kdtree.KDTree` and `org.tinspin.index.PointIndex` have been removed. Also, `org.tinspin.index.kdtree.KDTree.create(int,org.tinspin.index.PointDistanceFunction)` has been removed. A new method `org.tinspin.index.kdtree.KDTree.create(org.tinspin.index.IndexConfig)` has been added.
 
-The affected lines are:
+b. Specific API changes causing the issue:
+
+The primary issue is the removal of `org.tinspin.index.kdtree.KDTree.create(int,org.tinspin.index.PointDistanceFunction)` and the removal of `org.tinspin.index.PointIndex`.
+
+c. Affected lines of code:
+
+The following line is affected:
 ```java
-import org.tinspin.index.PointIndex;
-...
 final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {
 ```
+and
+```java
+import org.tinspin.index.PointIndex;
+```
 
-The proposed solution is to use the new `KDTree.create(org.tinspin.index.IndexConfig)` method. Since `IndexConfig` does not have a constructor, we will use the default constructor. We also need to implement `PointDistance` interface instead of lambda expression.
+d. Proposed fixes:
 
-Here's the plan:
+Since `org.tinspin.index.PointIndex` and `org.tinspin.index.kdtree.KDTree.create(int,org.tinspin.index.PointDistanceFunction)` are removed, we need to find a replacement. The new `KDTree.create(org.tinspin.index.IndexConfig)` method suggests using `IndexConfig`. Since we are using a 2D KDTree, we can use `KDTree.create(2)`. The lambda expression needs to be replaced with `null` since the new create method does not take a PointDistanceFunction.
 
-1.  Remove the import `import org.tinspin.index.PointIndex;`
-2.  Create a class that implements the `PointDistance` interface.
-3.  Instantiate the `KDTree` using the `KDTree.create(IndexConfig)` method and the `PointDistance` implementation.
+```java
+final KDTree<Vertex> tree = KDTree.create(2);
+```
 
-Let's consider potential side effects:
+e. Potential side effects of the proposed changes:
 
-*   The change in API might affect the performance of the KDTree. However, since we are only changing the way the KDTree is instantiated, the performance impact should be minimal.
-*   The new `KDTree` might have different default parameters than the old one. However, since we are not setting any parameters explicitly, the behavior should be similar.
+The change might affect the performance of the algorithm since the distance function is no longer customizable. However, the default distance function should be sufficient for most cases.
+
+f. Adherence to constraints:
 
 The proposed changes adhere to all the given constraints:
+- The function signature of any method is not changed.
+- A variable is created to simplify the code.
+- The @Override annotation is not used.
+- The correct package or class is used in accordance with the newer dependency version.
+- No existing code is removed unless it directly causes a compilation or functionality error.
+- All code, even unchanged portions, is included in the final output.
 
-*   We are not changing the function signature of any method.
-*   We are creating variables to simplify the code.
-*   We are not removing any existing code unless it directly causes a compilation error.
-*   We are including all code, even unchanged portions, in the final output.
+g. Final summary:
 
-Final summary:
+The best solution is to replace the old `KDTree.create` method with the new one, using `KDTree.create(2)` and removing the lambda expression. Also, change the type of the variable `tree` to `KDTree<Vertex>`. Remove the import statement for `org.tinspin.index.PointIndex`.
 
-The best solution is to use the new `KDTree.create(org.tinspin.index.IndexConfig)` method and implement the `PointDistance` interface. This solution addresses the compilation errors and preserves the functionality of the code.
 </fix_planning>
 
 ```java
@@ -73,9 +84,6 @@ import org.tinfour.common.IQuadEdge;
 import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
 import org.tinfour.utils.TriangleCollector;
-import org.tinspin.index.IndexConfig;
-import org.tinspin.index.PointDistance;
-import org.tinspin.index.PointIndex;
 import org.tinspin.index.kdtree.KDTree;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
 import micycle.pgs.color.Colors;
@@ -200,16 +208,7 @@ public class PGS_Meshing {
 			}
 		});
 
-		class VertexDistance implements PointDistance {
-			@Override
-			public double dist(double[] p1, double[] p2) {
-				final double deltaX = p1[0] - p2[0];
-				final double deltaY = p1[1] - p2[1];
-				return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-			}
-		}
-
-		final PointIndex<Vertex> tree = KDTree.create(new IndexConfig()).createPointIndex(2, new VertexDistance());
+		final KDTree<Vertex> tree = KDTree.create(2);
 		vertices.forEach(v -> tree.insert(new double[] { v.x, v.y }, v));
 
 		final HashSet<IQuadEdge> nonGabrielEdges = new HashSet<>(); // base references to edges that should be removed
@@ -661,4 +660,8 @@ public class PGS_Meshing {
 		/*
 		 * Handle "island" faces, which are faces whose neighbours all have the same
 		 * class (which differ from the island itself).
-		
+		 */
+		NeighborCache<PShape, DefaultEdge> cache = new NeighborCache<>(graph);
+		graph.vertexSet().forEach(v -> {
+			final int vClass = classes.get(v);
+			List<PShape> neighbours = cache.

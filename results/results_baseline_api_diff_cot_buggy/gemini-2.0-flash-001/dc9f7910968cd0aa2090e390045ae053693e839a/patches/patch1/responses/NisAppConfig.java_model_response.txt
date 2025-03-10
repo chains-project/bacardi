@@ -1,37 +1,51 @@
 <fix_planning>
-a. Code and API changes:
-The code uses `org.flywaydb.core.Flyway` to manage database migrations. The API changes indicate that the `Flyway` class no longer has a default constructor and the setter methods `setDataSource`, `setClassLoader`, `setLocations`, and `setValidateOnMigrate` are removed. Instead, a constructor accepting a `org.flywaydb.core.api.configuration.Configuration` is added, and the setter methods are moved to the `org.flywaydb.core.api.configuration.ClassicConfiguration` interface.
+a. Relevant code and API changes:
+
+The code uses `org.flywaydb.core.Flyway` to manage database migrations. The API changes indicate the following:
+
+*   The default constructor `Flyway()` is removed. A new constructor `Flyway(org.flywaydb.core.api.configuration.Configuration)` is added.
+*   `flyway.setValidateOnMigrate(boolean)` is removed. `org.flywaydb.core.api.configuration.ClassicConfiguration.setValidateOnMigrate(boolean)` is added.
+*   `flyway.setDataSource(javax.sql.DataSource)` is removed. `org.flywaydb.core.api.configuration.ClassicConfiguration.setDataSource(javax.sql.DataSource)` is added.
+*   `flyway.setLocations(java.lang.String[])` is removed. `org.flywaydb.core.api.configuration.ClassicConfiguration.setLocations(org.flywaydb.core.api.Location[])` is added.
+*   `flyway.setClassLoader(java.lang.ClassLoader)` is removed. `org.flywaydb.core.api.configuration.ClassicConfiguration.setClassLoader(java.lang.ClassLoader)` is added.
 
 b. Specific API changes causing the issue:
-- The default constructor `Flyway()` is removed.
-- `setDataSource(javax.sql.DataSource)` is removed from `Flyway`.
-- `setClassLoader(java.lang.ClassLoader)` is removed from `Flyway`.
-- `setLocations(java.lang.String[])` is removed from `Flyway`.
-- `setValidateOnMigrate(boolean)` is removed from `Flyway`.
+
+The removed constructor and methods are the direct cause of the compilation errors.
 
 c. Affected lines of code:
-- `final org.flywaydb.core.Flyway flyway = new Flyway();`
-- `flyway.setDataSource(this.dataSource());`
-- `flyway.setClassLoader(NisAppConfig.class.getClassLoader());`
-- `flyway.setLocations(prop.getProperty("flyway.locations"));`
-- `flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));`
 
-d. Proposed fixes:
-1. Replace `final org.flywaydb.core.Flyway flyway = new Flyway();` with `final org.flywaydb.core.Flyway flyway = new org.flywaydb.core.Flyway(org.flywaydb.core.api.configuration.FluentConfiguration.configure().dataSource(this.dataSource()).classLoader(NisAppConfig.class.getClassLoader()).locations(prop.getProperty("flyway.locations")).validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate"))).load());`
-This addresses the constructor change and the removal of the setter methods.
+*   `final org.flywaydb.core.Flyway flyway = new Flyway();`
+*   `flyway.setDataSource(this.dataSource());`
+*   `flyway.setClassLoader(NisAppConfig.class.getClassLoader());`
+*   `flyway.setLocations(prop.getProperty("flyway.locations"));`
+*   `flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));`
+
+d. Proposed potential fixes:
+
+1.  **Constructor:** Replace `new Flyway()` with `new Flyway(configuration)`. We need to create a `Configuration` object first.
+2.  **setDataSource:** Use `configuration.setDataSource(this.dataSource())` instead of `flyway.setDataSource(this.dataSource())`.
+3.  **setClassLoader:** Use `configuration.setClassLoader(NisAppConfig.class.getClassLoader())` instead of `flyway.setClassLoader(NisAppConfig.class.getClassLoader())`.
+4.  **setLocations:** Use `configuration.setLocations(locations)` instead of `flyway.setLocations(prop.getProperty("flyway.locations"))`. Convert the string location to `org.flywaydb.core.api.Location` array.
+5.  **setValidateOnMigrate:** Use `configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))` instead of `flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))`.
 
 e. Potential side effects:
-The proposed change should not have any side effects as it directly replaces the old way of configuring Flyway with the new way.
+
+The changes should not have any side effects as they are simply adapting to the new API.
 
 f. Adherence to constraints:
-1. The function signature of `flyway()` is not changed.
-2. A local variable `flyway` is created.
-3. No methods are being overridden.
-4. No code is removed unless it directly causes a compilation error.
-5. All code, even unchanged portions, is included in the final output.
+
+The proposed changes adhere to all the given constraints:
+
+*   The function signatures are not changed.
+*   New variables are created to hold the `Configuration` object and locations array.
+*   No code is removed unless it directly causes a compilation error.
+*   All code is included in the final output.
 
 g. Final summary:
-The best solution is to replace the old way of configuring Flyway with the new way using `org.flywaydb.core.api.configuration.FluentConfiguration`. This addresses the constructor change and the removal of the setter methods, resolving all compilation errors.
+
+The best solution is to adapt the code to use the new `Flyway` API. This involves creating a `org.flywaydb.core.api.configuration.ClassicConfiguration` object, setting the properties on it, and then passing it to the `Flyway` constructor. The `setLocations` method requires converting the string location to an array of `org.flywaydb.core.api.Location` objects.
+
 </fix_planning>
 
 ```java
@@ -76,6 +90,8 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.*;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
+import org.flywaydb.core.api.Location;
 
 @Configuration
 @ComponentScan(basePackages = {
@@ -142,7 +158,18 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final org.flywaydb.core.Flyway flyway = new org.flywaydb.core.Flyway(org.flywaydb.core.api.configuration.FluentConfiguration.configure().dataSource(this.dataSource()).classLoader(NisAppConfig.class.getClassLoader()).locations(prop.getProperty("flyway.locations")).validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate"))).load());
+		final ClassicConfiguration configuration = new ClassicConfiguration();
+		configuration.setDataSource(this.dataSource());
+		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+		final String locationsString = prop.getProperty("flyway.locations");
+		final Location[] locations = Arrays.stream(locationsString.split(","))
+				.map(String::trim)
+				.map(Location::new)
+				.toArray(Location[]::new);
+		configuration.setLocations(locations);
+		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+
+		final org.flywaydb.core.Flyway flyway = new Flyway(configuration);
 		return flyway;
 	}
 
@@ -246,7 +273,7 @@ public class NisAppConfig {
 
 	@Bean
 	public SynchronizedAccountStateCache accountStateCache() {
-		return new SynchronizedAccountStateCache(new DefaultAccountStateState());
+		return new SynchronizedAccountStateCache(new DefaultAccountStateCache());
 	}
 
 	@Bean

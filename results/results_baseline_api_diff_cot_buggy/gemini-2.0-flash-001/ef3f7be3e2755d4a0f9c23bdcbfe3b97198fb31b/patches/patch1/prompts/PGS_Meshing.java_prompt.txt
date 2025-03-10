@@ -858,7 +858,7 @@ public class PGS_Meshing {
 
 ```
 
-The errors are triggered in the following specific line:
+The errors are triggered in the following specific lines:
 
 <error_lines>
 ```java
@@ -871,38 +871,38 @@ final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {
 final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {
 ```
 ```java
-final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {
-```
-```java
-final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {
-```
-```java
 import org.tinspin.index.PointIndex;
+```
+```java
+final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {
+```
+```java
+final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {
 ```
 </error_lines>
 
 The API of the dependency has changed. Here are the relevant changes:
 
      Interface org.tinspin.index.kdtree.KDTree has been removed in the new version of the dependency.
+     Class org.tinspin.index.PointDistanceFunction has been removed in the new version of the dependency.
      Class org.tinspin.index.PointIndex has been removed in the new version of the dependency.
-     Method org.tinspin.index.kdtree.KDTree.create(int,org.tinspin.index.PointDistanceFunction) has been removed in the new version of the dependency.
-     Method org.tinspin.index.util.PointMultimapWrapper.create(org.tinspin.index.BoxMultimap) has been added in the new version of the dependency.
-     Method org.tinspin.index.covertree.CoverTree.create(double[],java.lang.Object) has been added in the new version of the dependency.
-     Method org.tinspin.index.phtree.PHTreeP.create(int) has been added in the new version of the dependency.
-     Method org.tinspin.index.PointIndexWrapper.create(org.tinspin.index.RectangleIndex) has been removed in the new version of the dependency.
-     Method org.tinspin.index.covertree.CoverTree.create(int,double,org.tinspin.index.PointDistance) has been added in the new version of the dependency.
      Method org.tinspin.index.util.MinMaxHeap.create(org.tinspin.index.util.MinMaxHeap$Less) has been added in the new version of the dependency.
      Method org.tinspin.index.covertree.CoverTree.create(org.tinspin.index.Index$PointEntry[],double,org.tinspin.index.PointDistance) has been added in the new version of the dependency.
-     Method org.tinspin.index.phtree.PHTreeMMP.create(int) has been added in the new version of the dependency.
      Method org.tinspin.index.util.MinHeap.create(org.tinspin.index.util.MinHeap$Less) has been added in the new version of the dependency.
-     Method org.tinspin.index.covertree.CoverTree.create(org.tinspin.index.covertree.Point[],double,org.tinspin.index.PointDistanceFunction) has been removed in the new version of the dependency.
+     Method org.tinspin.index.phtree.PHTreeMMP.create(int) has been added in the new version of the dependency.
+     Method org.tinspin.index.covertree.CoverTree.create(int,double,org.tinspin.index.PointDistance) has been added in the new version of the dependency.
      Method org.tinspin.index.util.MinHeap.create() has been added in the new version of the dependency.
-     Method org.tinspin.index.covertree.CoverTree.create(double[],java.lang.Object) has been removed in the new version of the dependency.
      Method org.tinspin.index.kdtree.KDTree.create(org.tinspin.index.IndexConfig) has been added in the new version of the dependency.
+     Method org.tinspin.index.covertree.CoverTree.create(double[],java.lang.Object) has been removed in the new version of the dependency.
      Method org.tinspin.index.util.PointMapWrapper.create(org.tinspin.index.BoxMap) has been added in the new version of the dependency.
      Method org.tinspin.index.util.MinMaxHeap.create() has been added in the new version of the dependency.
      Method org.tinspin.index.covertree.CoverTree.create(int,double,org.tinspin.index.PointDistanceFunction) has been removed in the new version of the dependency.
-     Class org.tinspin.index.PointDistanceFunction has been removed in the new version of the dependency.
+     Method org.tinspin.index.PointIndexWrapper.create(org.tinspin.index.RectangleIndex) has been removed in the new version of the dependency.
+     Method org.tinspin.index.covertree.CoverTree.create(double[],java.lang.Object) has been added in the new version of the dependency.
+     Method org.tinspin.index.kdtree.KDTree.create(int,org.tinspin.index.PointDistanceFunction) has been removed in the new version of the dependency.
+     Method org.tinspin.index.util.PointMultimapWrapper.create(org.tinspin.index.BoxMultimap) has been added in the new version of the dependency.
+     Method org.tinspin.index.covertree.CoverTree.create(org.tinspin.index.covertree.Point[],double,org.tinspin.index.PointDistanceFunction) has been removed in the new version of the dependency.
+     Method org.tinspin.index.phtree.PHTreeP.create(int) has been added in the new version of the dependency.
 
 Additional error information:
 
@@ -919,17 +919,17 @@ Additional error information:
   symbol:   class PointIndex
   location: class micycle.pgs.PGS_Meshing
 
-[ERROR] /PGS/src/main/java/micycle/pgs/PGS_Meshing.java:[161,23] cannot find symbol
-  symbol:   class PointIndex
-  location: class micycle.pgs.PGS_Meshing
-
-[ERROR] /PGS/src/main/java/micycle/pgs/PGS_Meshing.java:[161,23] cannot find symbol
-  symbol:   class PointIndex
-  location: class micycle.pgs.PGS_Meshing
-
 [ERROR] /PGS/src/main/java/micycle/pgs/PGS_Meshing.java:[36,25] cannot find symbol
   symbol:   class PointIndex
   location: package org.tinspin.index
+
+[ERROR] /PGS/src/main/java/micycle/pgs/PGS_Meshing.java:[161,23] cannot find symbol
+  symbol:   class PointIndex
+  location: class micycle.pgs.PGS_Meshing
+
+[ERROR] /PGS/src/main/java/micycle/pgs/PGS_Meshing.java:[161,23] cannot find symbol
+  symbol:   class PointIndex
+  location: class micycle.pgs.PGS_Meshing
 <error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:

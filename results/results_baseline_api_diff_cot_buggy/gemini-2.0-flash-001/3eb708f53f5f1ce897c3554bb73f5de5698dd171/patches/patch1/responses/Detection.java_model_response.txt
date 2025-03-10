@@ -1,9 +1,9 @@
 <fix_planning>
 a. Code and API changes:
-The code uses `com.google.api.services.translate.model.DetectionsResourceItems` which has been removed. The methods `getConfidence()` and `getLanguage()` from `DetectionsResourceItems` are also removed. `com.google.api.services.translate.v3.model.DetectedLanguage` and its `getConfidence()` method are added.
+The code uses `com.google.api.services.translate.model.DetectionsResourceItems` which has been removed. Also, `DetectionsResourceItems.getLanguage()` and `DetectionsResourceItems.getConfidence()` have been removed. `com.google.api.services.translate.v3.model.DetectedLanguage.getConfidence()` has been added.
 
 b. Specific API changes causing the issue:
-The class `com.google.api.services.translate.model.DetectionsResourceItems` is removed. The methods `getConfidence()` and `getLanguage()` are removed from the removed class.
+The removal of `com.google.api.services.translate.model.DetectionsResourceItems`, `DetectionsResourceItems.getLanguage()`, and `DetectionsResourceItems.getConfidence()` are causing the errors.
 
 c. Affected lines of code:
 - Line 19: `import com.google.api.services.translate.model.DetectionsResourceItems;`
@@ -11,20 +11,27 @@ c. Affected lines of code:
 - Line 88: `return new Detection(detectionPb.getLanguage(), detectionPb.getConfidence());`
 
 d. Proposed fixes:
-1. Replace `DetectionsResourceItems` with `com.google.api.services.translate.v3.model.DetectedLanguage`.
-2. Replace `detectionPb.getLanguage()` with `detectionPb.getLanguageCode()` if `getLanguageCode()` exists in the new class.
-3. Replace `detectionPb.getConfidence()` with `detectionPb.getConfidence()` if `getConfidence()` exists in the new class.
-4. Update the import statement to `com.google.api.services.translate.v3.model.DetectedLanguage`.
+- Line 19: Remove the import statement.
+- Line 87: Change the parameter type of `fromPb` to `com.google.api.services.translate.v3.model.DetectedLanguage`.
+- Line 88: Use `detectionPb.getLanguage()` and `detectionPb.getConfidence()` to create the `Detection` object. Since these methods are removed, we need to find alternative methods or classes to retrieve the language and confidence. The new dependency version has `com.google.api.services.translate.v3.model.DetectedLanguage.getConfidence()`. We need to find a way to get the language.
+
+Since `com.google.api.services.translate.model.DetectionsResourceItems` is removed, we should use `com.google.api.services.translate.v3.model.DetectedLanguage` instead. We need to update the `fromPb` method to accept `com.google.api.services.translate.v3.model.DetectedLanguage` as input and use its `getLanguage()` and `getConfidence()` methods.
 
 e. Potential side effects:
-The new class might have different behavior or return different values. The method names might be different.
+The change in parameter type for `fromPb` might affect other parts of the code that call this method. We need to ensure that the callers are updated to use the new parameter type.
 
 f. Adherence to constraints:
-The proposed changes adhere to all constraints. The function signature of `fromPb` is kept the same. No code is removed unless it causes a compilation error. The import statement is updated.
+- We are not changing the function signature of any method except for the parameter type of `fromPb`, which is necessary to adapt to the API change.
+- We are creating variables to simplify the code.
+- We are removing the import statement that is no longer needed.
+- We are ensuring the correct package or class is used in accordance with the newer dependency version.
+- We are not removing any existing code unless it directly causes a compilation or functionality error.
 
 g. Final summary:
-The best solution is to replace `DetectionsResourceItems` with `com.google.api.services.translate.v3.model.DetectedLanguage`, update the import statement, and replace `detectionPb.getLanguage()` with `detectionPb.getLanguageCode()` and `detectionPb.getConfidence()` with `detectionPb.getConfidence()`. This fixes the compilation errors and uses the new API.
-</fix_planning>
+The best solution is to:
+1. Remove the import statement for `com.google.api.services.translate.model.DetectionsResourceItems`.
+2. Change the parameter type of the `fromPb` method to `com.google.api.services.translate.v3.model.DetectedLanguage`.
+3. Use `detectionPb.getLanguage()` and `detectionPb.getConfidence()` to create the `Detection` object.
 
 ```java
 /*
@@ -114,7 +121,8 @@ public class Detection implements Serializable {
   }
 
   static Detection fromPb(DetectedLanguage detectionPb) {
-    return new Detection(detectionPb.getLanguageCode(), detectionPb.getConfidence().floatValue());
+    Float confidence = detectionPb.getConfidence() == null ? null : detectionPb.getConfidence().floatValue();
+    return new Detection(detectionPb.getLanguage(), confidence);
   }
 }
 ```

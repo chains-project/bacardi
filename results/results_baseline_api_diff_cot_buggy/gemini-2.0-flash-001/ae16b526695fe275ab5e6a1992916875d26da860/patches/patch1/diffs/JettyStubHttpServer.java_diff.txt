@@ -3,22 +3,26 @@
 ---
 > import org.eclipse.jetty.server.ServerConnector;
 > import org.eclipse.jetty.server.HttpConfiguration;
-33,38c34,40
+24c25
+<     private final Connector httpConnector;
+---
+>     private final ServerConnector serverConnector;
+33,34d33
 <         this.server.setSendServerVersion(false);
 <         this.server.setSendDateHeader(true);
-<         
+36,38c35,41
 <         this.httpConnector = new SelectChannelConnector();
 <         this.httpConnector.setPort(port);
 <         server.addConnector(this.httpConnector);
 ---
->         HttpConfiguration http_config = new HttpConfiguration();
->         http_config.setSendServerVersion(false);
->         http_config.setSendDateHeader(true);
->         ServerConnector connector = new ServerConnector(server, http_config);
->         connector.setPort(port);
->         this.server.addConnector(connector);
->         this.httpConnector = connector;
-80c82
+>         HttpConfiguration httpConfiguration = new HttpConfiguration();
+>         httpConfiguration.setSendServerVersion(false);
+>         httpConfiguration.setSendDateHeader(true);
+> 
+>         this.serverConnector = new ServerConnector(server, httpConfiguration);
+>         this.serverConnector.setPort(port);
+>         server.addConnector(this.serverConnector);
+80c83
 <         return httpConnector.getLocalPort();
 ---
->         return ((ServerConnector) httpConnector).getLocalPort();
+>         return serverConnector.getLocalPort();

@@ -1,4 +1,4 @@
-1,37d0
+1,38d0
 < package micycle.pgs;
 < 
 < import static micycle.pgs.PGS_Conversion.getChildren;
@@ -36,8 +36,8 @@
 < import org.tinfour.common.SimpleTriangle;
 < import org.tinfour.common.Vertex;
 < import org.tinfour.utils.TriangleCollector;
-39,911c2
-< import org.tinspin.index.kdtree.KDTree;
+< import org.tinspin.index.PointIndex;
+40,909c2
 < import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
 < import micycle.pgs.PGS_Conversion.PShapeData;
 < import micycle.pgs.color.Colors;
@@ -908,8 +908,9 @@
 <                 y /= 3;
 <                 return new Vertex(x, y, 0);
 <         }
-< 
+---
+> import org.tinspin.index.IndexConfig;
+911c4
 < }
 ---
-> final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> { ... });
-\ No newline at end of file
+> final KDTree<Vertex> tree = KDTree.create(new IndexConfig());

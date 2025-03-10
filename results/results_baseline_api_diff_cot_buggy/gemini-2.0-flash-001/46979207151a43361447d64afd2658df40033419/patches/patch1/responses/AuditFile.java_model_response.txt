@@ -1,27 +1,33 @@
 <fix_planning>
-a. The code uses `org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy.getInstance()` to get an instance of the `JAXBToStringStrategy`. The API change indicates that the `getInstance()` method has been removed.
+The problem is that `JAXBToStringStrategy.getInstance()` has been removed in the updated dependency. This method was used to get an instance of the `JAXBToStringStrategy` class. Since the `getInstance()` method is no longer available, we need to create a new instance of the `JAXBToStringStrategy` class directly using its constructor.
 
-b. The specific API change causing the issue is the removal of the `getInstance()` method from the `JAXBToStringStrategy` class.
+Here's the analysis:
 
-c. The affected lines of code are:
-   - `final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();` (appears four times)
+*   **Affected code:**
+    ```java
+    final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+    ```
+    This line appears four times in the code.
 
-d. Potential fixes:
-   - Replace `JAXBToStringStrategy.getInstance()` with `new JAXBToStringStrategy()`: This creates a new instance of the class directly, which should work if the class has a public constructor.
-   - Replace `JAXBToStringStrategy.getInstance()` with `DefaultToStringStrategy.getInstance()`: This might work if `DefaultToStringStrategy` is a suitable alternative and its `getInstance()` method still exists. However, the API changes also indicate that `DefaultToStringStrategy.getInstance()` has also been removed.
-   - Replace `JAXBToStringStrategy.getInstance()` with `new DefaultToStringStrategy()`: This creates a new instance of the `DefaultToStringStrategy` directly.
+*   **API change:**
+    `Method org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy.getInstance() has been removed in the new version of the dependency.`
 
-e. Potential side effects:
-   - Using `new JAXBToStringStrategy()` or `new DefaultToStringStrategy()` might change the behavior of the `toString()` method if the `getInstance()` method was doing something special. However, since the goal is to maintain functionality after a dependency update, using the default constructor is the most likely correct approach.
+*   **Proposed fix:**
+    Replace `JAXBToStringStrategy.getInstance()` with `new JAXBToStringStrategy()`.
 
-f. Adherence to constraints:
-   - The proposed changes do not change any function signatures.
-   - The proposed changes create a variable.
-   - The proposed changes do not remove any existing code unless it directly causes a compilation error.
-   - The proposed changes include all code in the final output.
+*   **Side effects:**
+    The `JAXBToStringStrategy` class might have changed its constructor or behavior. However, since we are only replacing the way we get an instance of the class, the impact should be minimal.
 
-g. Final summary:
-   The best solution is to replace `JAXBToStringStrategy.getInstance()` with `new JAXBToStringStrategy()` and `DefaultToStringStrategy.getInstance()` with `new DefaultToStringStrategy()`. This directly instantiates the `JAXBToStringStrategy` and `DefaultToStringStrategy` classes using their default constructors, which should maintain the original functionality as closely as possible. Since `JAXBToStringStrategy` extends `DefaultToStringStrategy`, we will use `new DefaultToStringStrategy()` instead of `new JAXBToStringStrategy()`.
+*   **Constraints:**
+    1.  The function signature of any method is not changed.
+    2.  Variables are created to simplify the code. (Not applicable here)
+    3.  The `@Override` annotation is removed if and only if the method no longer overrides a method in the updated dependency version. (Not applicable here)
+    4.  If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version. (Not applicable here)
+    5.  No existing code is removed unless it directly causes a compilation or functionality error.
+    6.  All code, even unchanged portions, is included in the final output.
+
+*   **Summary:**
+    The best solution is to replace `JAXBToStringStrategy.getInstance()` with `new JAXBToStringStrategy()` in all four occurrences. This directly addresses the API change and should have minimal side effects.
 </fix_planning>
 
 ```java
@@ -33,7 +39,7 @@ g. Final summary:
 //
 
 
-package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_02_01.schema;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +48,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
@@ -58,24 +64,24 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Header"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Header"/&gt;
  *         &lt;element name="MasterFiles"&gt;
  *           &lt;complexType&gt;
  *             &lt;complexContent&gt;
  *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                 &lt;sequence&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GeneralLedger" maxOccurs="unbounded" minOccurs="0"/&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Customer" maxOccurs="unbounded" minOccurs="0"/&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Supplier" maxOccurs="unbounded" minOccurs="0"/&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Product" maxOccurs="unbounded" minOccurs="0"/&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxTable" minOccurs="0"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}GeneralLedger" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Customer" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Supplier" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Product" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxTable" minOccurs="0"/&gt;
  *                 &lt;/sequence&gt;
  *               &lt;/restriction&gt;
  *             &lt;/complexContent&gt;
  *           &lt;/complexType&gt;
  *         &lt;/element&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GeneralLedgerEntries" minOccurs="0"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceDocuments" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}GeneralLedgerEntries" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SourceDocuments" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
@@ -202,7 +208,7 @@ public class AuditFile implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
@@ -252,11 +258,11 @@ public class AuditFile implements ToString2
      *   &lt;complexContent&gt;
      *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *       &lt;sequence&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GeneralLedger" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Customer" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Supplier" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Product" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxTable" minOccurs="0"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}GeneralLedger" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Customer" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Supplier" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Product" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxTable" minOccurs="0"/&gt;
      *       &lt;/sequence&gt;
      *     &lt;/restriction&gt;
      *   &lt;/complexContent&gt;
@@ -429,7 +435,7 @@ public class AuditFile implements ToString2
 
         @Override
         public String toString() {
-            final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+            final ToStringStrategy2 strategy = new JAXBToStringStrategy();
             final StringBuilder buffer = new StringBuilder();
             append(null, buffer, strategy);
             return buffer.toString();

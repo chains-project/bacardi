@@ -1,44 +1,33 @@
 <fix_planning>
-a. Relevant code:
-```java
-import org.cactoos.text.RandomText;
+a. Code and API changes:
+- The code uses `org.cactoos.text.RandomText`.
+- The error message indicates that `org.cactoos.text.RandomText` cannot be found.
+- The API changes confirm that the class `org.cactoos.text.RandomText` has been removed.
 
-public interface Remote {
-    ...
-    public Fake(final int val) {
-        this(new RtScore(
-            new Repeated<>(val, new RandomText())
-        ));
-    }
-    ...
-}
-```
-API changes:
-`Class org.cactoos.text.RandomText has been removed in the new version of the dependency.`
+b. Specific API changes causing the issue:
+- The removal of the class `org.cactoos.text.RandomText` is the direct cause of the compilation error.
 
-b. The `org.cactoos.text.RandomText` class has been removed, causing a compilation error.
+c. Affected lines of code:
+- `import org.cactoos.text.RandomText;`
+- The constructor `new Repeated<>(val, new RandomText())` inside the `Fake` class constructor.
 
-c. Affected line:
-```java
-new Repeated<>(val, new RandomText())
-```
+d. Proposed fixes:
+- Remove the import statement `import org.cactoos.text.RandomText;`.
+- Replace `new RandomText()` with a suitable alternative. Since `RandomText` is no longer available, we can use `new org.cactoos.text.TextOf(UUID.randomUUID().toString())` as a replacement. This will generate a random string. We need to import `java.util.UUID`.
 
-d. Potential fixes:
-Since `RandomText` is removed, we need to find a replacement.  `org.cactoos.text.TextOf` combined with `org.cactoos.scalar.Unchecked` and `java.util.UUID.randomUUID()` can be used to generate random text.
+e. Potential side effects:
+- The change from `RandomText` to `UUID.randomUUID().toString()` might affect the randomness or format of the generated text. However, since this is a `Fake` implementation for testing purposes, the exact format is likely not critical.
 
-e. Side effects:
-The change will replace the old `RandomText` with a new implementation using `TextOf` and `UUID.randomUUID()`. This might have subtle differences in the generated random text, but should not affect the overall functionality.
-
-f. Constraints:
-The proposed change adheres to all constraints:
-- No function signatures are changed.
-- Variables can be created if needed.
-- `@Override` annotations are not affected.
-- No code is removed unless it directly causes an error.
+f. Adherence to constraints:
+- The function signatures are not changed.
+- A variable is not created.
+- The `@Override` annotation is not removed.
+- The correct package is used for the new import.
+- No existing code is removed unless it directly causes a compilation error.
 - All code is included in the final output.
 
 g. Summary:
-The best solution is to replace `new RandomText()` with `new TextOf(new Unchecked<>(UUID::randomUUID).value().toString())`. This uses the `TextOf` class to create a text from a random UUID, effectively replacing the functionality of the removed `RandomText` class.
+The best solution is to replace the usage of the removed `org.cactoos.text.RandomText` class with `UUID.randomUUID().toString()` and add the corresponding import statement. This addresses the compilation error while maintaining the functionality of generating a random string within the `Fake` implementation.
 </fix_planning>
 
 ```java
@@ -51,8 +40,8 @@ The best solution is to replace `new RandomText()` with `new TextOf(new Unchecke
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * copies of the Software, and to permit persons to whom it is furnished to do so,
+ * subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
@@ -70,7 +59,6 @@ package io.zold.api;
 
 import java.util.UUID;
 import org.cactoos.iterable.Repeated;
-import org.cactoos.scalar.Unchecked;
 import org.cactoos.text.TextOf;
 
 /**
@@ -114,7 +102,7 @@ public interface Remote {
          */
         public Fake(final int val) {
             this(new RtScore(
-                new Repeated<>(val, new TextOf(new Unchecked<>(UUID::randomUUID).value().toString()))
+                new Repeated<>(val, new TextOf(UUID.randomUUID().toString()))
             ));
         }
 

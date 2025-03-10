@@ -25,6 +25,7 @@ import com.google.cloud.pubsublite.internal.wire.PubsubContext.Framework;
 import com.google.cloud.pubsublite.internal.wire.RoutingPublisherBuilder;
 import com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisherBuilder;
 import java.util.Map;
+import java.util.function.Function;
 import org.apache.kafka.common.config.ConfigValue;
 
 class PublisherFactoryImpl implements PublisherFactory {
@@ -32,22 +33,25 @@ class PublisherFactoryImpl implements PublisherFactory {
   private static final Framework FRAMEWORK = Framework.of("KAFKA_CONNECT");
 
   @Override
-  public Publisher<Object> newPublisher(Map<String, String> params) {
+  public Publisher<Void> newPublisher(Map<String, String> params) {
     Map<String, ConfigValue> config = ConfigDefs.config().validateAll(params);
     RoutingPublisherBuilder.Builder builder = RoutingPublisherBuilder.newBuilder();
-    String project = ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value()).project().value();
-    String location = CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()).value();
-    String topicName = TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()).value();
-
-    TopicPath topic = TopicPath.of(project, location, topicName);
-
+    TopicPath topic =
+        TopicPath.newBuilder()
+            .setProject(
+                ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
+                    .project())
+            .setLocation(CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
+            .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
+            .build();
     builder.setTopic(topic);
     builder.setPublisherFactory(
-        partition ->
-            SinglePartitionPublisherBuilder.newBuilder()
-                .setTopic(topic)
-                .setPartition(partition)
-                .build());
+        (Function<Long, Publisher<Void>>)
+            partition ->
+                SinglePartitionPublisherBuilder.newBuilder()
+                    .setTopic(topic)
+                    .setPartition(partition)
+                    .build());
     return builder.build();
   }
 }

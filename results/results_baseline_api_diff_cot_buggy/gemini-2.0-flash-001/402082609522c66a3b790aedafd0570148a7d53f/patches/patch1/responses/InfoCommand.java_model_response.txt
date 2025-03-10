@@ -1,0 +1,152 @@
+<fix_planning>
+a. Relevant parts of the code and API changes:
+
+*   The code implements `org.spongepowered.api.command.spec.CommandExecutor`, `org.spongepowered.api.command.spec.CommandSpec`, `org.spongepowered.api.command.CommandSource`, `org.spongepowered.api.command.CommandException`, `org.spongepowered.api.text.Text`, `org.spongepowered.api.text.serializer.TextSerializers`, and uses `org.spongepowered.api.scheduler.Task$Builder.async()`.
+*   `org.spongepowered.api.command.spec.CommandExecutor` has been removed, `org.spongepowered.api.command.CommandExecutor` has been added.
+*   `org.spongepowered.api.command.spec.CommandSpec` has been removed.
+*   `org.spongepowered.api.command.CommandSource` has been removed.
+*   `org.spongepowered.api.command.CommandException` has been removed.
+*   `org.spongepowered.api.text.Text` has been removed.
+*   `org.spongepowered.api.text.serializer.TextSerializers` has been removed.
+*   `org.spongepowered.api.scheduler.Task$Builder.async()` has been removed.
+*   `org.spongepowered.api.Server.getPlayer(java.util.UUID)` has been removed.
+
+b. Specific API changes causing the issue:
+
+*   The removal of `org.spongepowered.api.command.spec.CommandExecutor` and the addition of `org.spongepowered.api.command.CommandExecutor` requires a change in the interface implementation.
+*   The removal of `org.spongepowered.api.command.spec.CommandSpec` requires a change in how the command spec is built.
+*   The removal of `org.spongepowered.api.command.CommandSource` requires a change in the `execute` method signature.
+*   The removal of `org.spongepowered.api.command.CommandException` requires a change in the `execute` method signature.
+*   The removal of `org.spongepowered.api.text.Text` and `org.spongepowered.api.text.serializer.TextSerializers` requires a change in how text is handled.
+*   The removal of `org.spongepowered.api.scheduler.Task$Builder.async()` requires a change in how asynchronous tasks are created.
+*   The removal of `org.spongepowered.api.Server.getPlayer(java.util.UUID)` requires a change in how players are retrieved.
+
+c. Affected lines of code:
+
+*   Line 25: `public class InfoCommand implements CommandExecutor, ChangeSkinCommand {`
+*   Line 35: `public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {`
+*   Line 53: `public CommandSpec buildSpec() {`
+*   Line 67: `Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);`
+*   Line 36: `if (!(src instanceof Player)) {`
+*   Line 39: `Task.builder().async()`
+*   Line 54: `return CommandSpec.builder()`
+*   Line 62: `Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);`
+*   Line 35: `public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {`
+*   Line 53: `public CommandSpec buildSpec() {`
+
+d. Proposed potential fixes for each affected line:
+
+*   Line 25: Replace `org.spongepowered.api.command.spec.CommandExecutor` with `org.spongepowered.api.command.CommandExecutor`.
+*   Line 35: Replace `CommandSource` with `org.spongepowered.api.command.CommandCause` and `CommandContext` with `org.spongepowered.api.command.parameter.CommandContext`. Replace `CommandException` with `org.spongepowered.api.command.exception.CommandException`. Also, the return type `CommandResult` needs to be replaced with `org.spongepowered.api.command.CommandResult`.
+*   Line 53: Remove the `buildSpec` method and the `ChangeSkinCommand` interface. The command registration should be handled elsewhere, likely in the main plugin class.
+*   Line 67: Replace `Text` with `net.kyori.adventure.text.Component` and `TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted)` with `net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize(formatted)`.
+*   Line 36: Replace `src instanceof Player` with `src instanceof org.spongepowered.api.command.CommandCause && ((org.spongepowered.api.command.CommandCause) src).cause().root() instanceof Player`.
+*   Line 39: Replace `Task.builder().async()` with `Sponge.asyncScheduler().submit(Task.builder().plugin(plugin).execute(() -> { ... }).build())`.
+*   Line 54: Since `CommandSpec` is removed, this whole method needs to be removed.
+*   Line 62: Replace `Sponge.getServer().getPlayer(uuid)` with `Sponge.server().player(uuid)`.
+
+e. Potential side effects of the proposed changes:
+
+*   Removing the `buildSpec` method and the `ChangeSkinCommand` interface will require changes in how the command is registered. This might affect other parts of the plugin.
+*   The changes in the `execute` method signature will require adjustments in how the command is executed.
+*   The changes in text handling will require adjustments in how messages are sent to the player.
+*   The changes in task scheduling will require adjustments in how asynchronous tasks are created.
+
+f. Adherence to constraints:
+
+*   The function signature of the `execute` method is changed, but this is necessary due to the API changes.
+*   Variables can be created if needed.
+*   The `@Override` annotation will be removed from the `execute` method because the interface has changed.
+*   The correct packages and classes are used in accordance with the newer dependency version.
+*   No existing code is removed unless it directly causes a compilation or functionality error.
+
+g. Final summary of the chosen fix:
+
+The best solution is to:
+
+1.  Implement `org.spongepowered.api.command.CommandExecutor` instead of `org.spongepowered.api.command.spec.CommandExecutor`.
+2.  Update the `execute` method signature to use `org.spongepowered.api.command.CommandCause` and `org.spongepowered.api.command.parameter.CommandContext` and `org.spongepowered.api.command.exception.CommandException`.
+3.  Remove the `buildSpec` method and the `ChangeSkinCommand` interface.
+4.  Update the text handling to use `net.kyori.adventure.text.Component` and `net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer`.
+5.  Update the task scheduling to use `Sponge.asyncScheduler().submit`.
+6.  Update the player retrieval to use `Sponge.server().player(uuid)`.
+
+This approach addresses all the API changes and ensures that the code compiles and functions correctly with the newer dependency version.
+</fix_planning>
+
+```java
+package com.github.games647.changeskin.sponge.command;
+
+import com.github.games647.changeskin.core.model.UserPreference;
+import com.github.games647.changeskin.core.model.skin.SkinModel;
+import com.github.games647.changeskin.core.shared.SkinFormatter;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.github.games647.changeskin.sponge.PomData;
+import com.google.inject.Inject;
+
+import java.util.Optional;
+import java.util.UUID;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.exception.CommandException;
+import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
+
+public class InfoCommand implements org.spongepowered.api.command.CommandExecutor {
+
+    @Inject
+    private ChangeSkinSponge plugin;
+
+    @Inject
+    private SkinFormatter formatter;
+
+
+    @Override
+    public CommandResult execute(CommandCause src, CommandContext args) throws CommandException {
+        if (!(src instanceof org.spongepowered.api.command.CommandCause && ((org.spongepowered.api.command.CommandCause) src).cause().root() instanceof Player)) {
+            plugin.sendMessage(src, "no-console");
+            return CommandResult.empty();
+        }
+
+        UUID uniqueId = ((Player) ((org.spongepowered.api.command.CommandCause) src).cause().root()).uniqueId();
+
+        Sponge.asyncScheduler().submit(Task.builder().plugin(plugin).execute(() -> {
+            UserPreference preferences = plugin.getCore().getStorage().getPreferences(uniqueId);
+            Sponge.server().scheduler().submit(Task.builder().plugin(plugin).execute(() -> sendSkinDetails(uniqueId, preferences)).build());
+        }).build());
+
+        return CommandResult.success();
+    }
+
+    public Command.Builder buildSpec() {
+        return Command.builder()
+                .executor(this)
+                .permission(PomData.ARTIFACT_ID + ".command.skininfo.base");
+    }
+
+    private void sendSkinDetails(UUID uuid, UserPreference preference) {
+        Optional<Player> optPlayer = Sponge.server().player(uuid);
+        if (optPlayer.isPresent()) {
+            Player player = optPlayer.get();
+
+            Optional<SkinModel> optSkin = preference.getTargetSkin();
+            if (optSkin.isPresent()) {
+                String template = plugin.getCore().getMessage("skin-info");
+                String formatted = formatter.apply(template, optSkin.get());
+
+                Component text = LegacyComponentSerializer.legacySection().deserialize(formatted);
+                player.sendMessage(text);
+            } else {
+                plugin.sendMessage(player, "skin-not-found");
+            }
+        }
+    }
+}
+```

@@ -2,9 +2,10 @@
 < import com.google.api.services.translate.model.DetectionsResourceItems;
 ---
 > import com.google.api.services.translate.v3.model.DetectedLanguage;
-87,88c87,88
+87,88c87,89
 <   static Detection fromPb(DetectionsResourceItems detectionPb) {
 <     return new Detection(detectionPb.getLanguage(), detectionPb.getConfidence());
 ---
 >   static Detection fromPb(DetectedLanguage detectionPb) {
->     return new Detection(detectionPb.getLanguageCode(), detectionPb.getConfidence().floatValue());
+>     Float confidence = detectionPb.getConfidence() == null ? null : detectionPb.getConfidence().floatValue();
+>     return new Detection(detectionPb.getLanguage(), confidence);

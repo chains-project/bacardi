@@ -10,9 +10,8 @@ import org.spongepowered.api.scheduler.Task;
 
 public class SkinUploader extends SharedUploader {
 
-    private final Object invoker;
-
     private final ChangeSkinSponge plugin;
+    private final Object invoker;
 
     public SkinUploader(ChangeSkinSponge plugin, Object invoker, Account owner, String url) {
         super(plugin.getCore(), owner, url);

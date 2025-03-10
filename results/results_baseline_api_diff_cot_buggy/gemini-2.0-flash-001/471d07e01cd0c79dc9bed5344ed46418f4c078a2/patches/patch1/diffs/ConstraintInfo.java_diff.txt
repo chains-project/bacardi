@@ -1,7 +1,3 @@
-11c11
-<  * distributed under the License is distributed on an "AS IS" BASIS,
----
->  * is distributed under the License is distributed on an "AS IS" BASIS,
 18,20d17
 < import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
 < import com.google.api.services.cloudresourcemanager.model.Constraint;
@@ -10,31 +6,26 @@
 <   static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
 <       new Function<Constraint, ConstraintInfo>() {
 ---
->   static final Function<ConstraintInfo, com.google.api.services.cloudresourcemanager.v3.model.Constraint> TO_PROTOBUF_FUNCTION =
->       new Function<ConstraintInfo, com.google.api.services.cloudresourcemanager.v3.model.Constraint>() {
-38,39c35,36
+>   static final Function<ConstraintInfo, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+>       new Function<ConstraintInfo, ConstraintInfo>() {
+38,46c35,36
 <         public ConstraintInfo apply(Constraint protobuf) {
 <           return ConstraintInfo.fromProtobuf(protobuf);
----
->         public com.google.api.services.cloudresourcemanager.v3.model.Constraint apply(ConstraintInfo constraintInfo) {
->           return null;
-42,43c39,40
+<         }
+<       };
 <   static final Function<ConstraintInfo, Constraint> TO_PROTOBUF_FUNCTION =
 <       new Function<ConstraintInfo, Constraint>() {
----
->   static final Function<com.google.api.services.cloudresourcemanager.v3.model.Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
->       new Function<com.google.api.services.cloudresourcemanager.v3.model.Constraint, ConstraintInfo>() {
-45,46c42,43
+<         @Override
 <         public Constraint apply(ConstraintInfo constraintInfo) {
 <           return constraintInfo.toProtobuf();
 ---
->         public ConstraintInfo apply(com.google.api.services.cloudresourcemanager.v3.model.Constraint protobuf) {
->           return null;
-50c47
+>         public ConstraintInfo apply(ConstraintInfo constraintInfo) {
+>           return constraintInfo;
+50c40
 <   private BooleanConstraint booleanConstraint;
 ---
 >   private Boolean booleanConstraint;
-113,120d109
+113,120d102
 < 
 <     ListConstraint toProtobuf() {
 <       return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
@@ -43,19 +34,20 @@
 <     static Constraints fromProtobuf(ListConstraint listConstraint) {
 <       return new Constraints(listConstraint.getSuggestedValue(), listConstraint.getSupportsUnder());
 <     }
-125c114
+125c107
 <     private BooleanConstraint booleanConstraint;
 ---
 >     private Boolean booleanConstraint;
-147c136
+147c129
 <     Builder setBooleanConstraint(BooleanConstraint booleanConstraint) {
 ---
 >     Builder setBooleanConstraint(Boolean booleanConstraint) {
-198c187
+198c180
 <   public BooleanConstraint getBooleanConstraint() {
 ---
 >   public Boolean getBooleanConstraint() {
-265,294d253
+264,293d245
+<   }
 < 
 <   Constraint toProtobuf() {
 <     Constraint constraintProto = new Constraint();
@@ -85,4 +77,3 @@
 <     }
 <     builder.setVersion(constraintProtobuf.getVersion());
 <     return builder.build();
-<   }

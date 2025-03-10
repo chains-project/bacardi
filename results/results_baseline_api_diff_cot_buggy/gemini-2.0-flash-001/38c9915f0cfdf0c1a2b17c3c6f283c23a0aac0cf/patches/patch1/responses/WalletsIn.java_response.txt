@@ -17,8 +17,9 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
- * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 package io.zold.api;
 
@@ -28,7 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Random;
-import java.util.function.Supplier;
+import org.cactoos.Scalar;
 import org.cactoos.func.IoCheckedFunc;
 import org.cactoos.io.Directory;
 import org.cactoos.iterable.Filtered;
@@ -46,7 +47,7 @@ public final class WalletsIn implements Wallets {
     /**
      * Path containing wallets.
      */
-    private final Supplier<Path> path;
+    private final Scalar<Path> path;
 
     /**
      * Filter for matching file extensions.
@@ -94,7 +95,7 @@ public final class WalletsIn implements Wallets {
      * @param random Randomizer
      * @param ext Wallets file extension
      */
-    public WalletsIn(final Supplier<Path> pth, final String ext,
+    public WalletsIn(final Scalar<Path> pth, final String ext,
         final Random random) {
         this.path = pth;
         this.filter = new IoCheckedFunc<Path, Boolean>(
@@ -109,13 +110,18 @@ public final class WalletsIn implements Wallets {
 
     @Override
     public Wallet create() throws IOException {
-        final Path base = this.path.get();
-        final String name = String.format(
-            "%s.%s",
-            Long.toHexString(this.random.nextLong()),
-            this.ext
-        );
-        final Path wpth = base.resolve(name);
+        final Path wpth;
+        try {
+            wpth = this.path.value().resolve(
+                String.format(
+                    "%s.%s",
+                    Long.toHexString(this.random.nextLong()),
+                    this.ext
+                )
+            );
+        } catch (final IOException ex) {
+            throw new IOException("Failed to resolve path", ex);
+        }
         if (wpth.toFile().exists()) {
             throw new IOException(
                 new UncheckedText(
@@ -147,7 +153,7 @@ public final class WalletsIn implements Wallets {
         try {
             return new Mapped<Path, Wallet>(
                 (pth) -> new Wallet.File(pth),
-                new Filtered<>(this.filter, new Directory(this.path.get()))
+                new Filtered<>(this.filter, new Directory(this.path.value()))
             ).iterator();
         } catch (final IOException ex) {
             throw new IllegalStateException(ex);

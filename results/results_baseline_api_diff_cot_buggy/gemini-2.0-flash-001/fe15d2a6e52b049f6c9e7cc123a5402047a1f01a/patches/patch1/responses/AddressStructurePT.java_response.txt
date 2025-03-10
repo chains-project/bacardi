@@ -239,7 +239,7 @@ public class AddressStructurePT implements ToString2
         this.country = value;
     }
 
-    @Override
+    
     public String toString() {
         final ToStringStrategy2 strategy = new DefaultToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
@@ -247,7 +247,7 @@ public class AddressStructurePT implements ToString2
         return buffer.toString();
     }
 
-    @Override
+    
     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         strategy.appendStart(locator, this, buffer);
         appendFields(locator, buffer, strategy);
@@ -255,7 +255,7 @@ public class AddressStructurePT implements ToString2
         return buffer;
     }
 
-    @Override
+    
     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         {
             String theBuildingNumber;

@@ -84,7 +84,7 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 		return keyAliasInKeyStore;
 	}
 
-	
+	@Override
 	protected StandardPBEStringEncryptor createStringEncoder() {
 		byte[] password = lookupPasswordFromKeyStore();
 

@@ -18,15 +18,7 @@ package org.simplify4u.plugins.utils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.repository.RepositorySystem;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.StringReader;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -35,6 +27,10 @@ import java.util.stream.Stream;
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptySet;
 import static java.util.Objects.requireNonNull;
+
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Utilities specific for org.apache.maven.plugins:maven-compiler-plugin.
@@ -60,6 +56,21 @@ public final class MavenCompilerUtils {
         return GROUPID.equals(plugin.getGroupId()) && ARTIFACTID.equals(plugin.getArtifactId());
     }
 
+    private static Stream<Element> nodeListToStream(NodeList nodeList) {
+        return IntStream.range(0, nodeList.getLength())
+                .mapToObj(nodeList::item)
+                .filter(node -> node instanceof Element)
+                .map(node -> (Element) node);
+    }
+
+    private static Element getChildElement(Element parent, String name) {
+        NodeList nodeList = parent.getElementsByTagName(name);
+        if (nodeList.getLength() > 0 && nodeList.item(0) instanceof Element) {
+            return (Element) nodeList.item(0);
+        }
+        return null;
+    }
+
     /**
      * Extract annotation processors for maven-compiler-plugin configuration.
      *
@@ -76,32 +87,21 @@ public final class MavenCompilerUtils {
         if (config == null) {
             return emptySet();
         }
+        if (config instanceof Element) {
+            Element configElement = (Element) config;
+            NodeList annotationProcessorPathsList = configElement.getElementsByTagName("annotationProcessorPaths");
 
-        try {
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            String configString = config.toString();
-            InputSource is = new InputSource(new StringReader(configString));
-            Document doc = dBuilder.parse(is);
-            doc.getDocumentElement().normalize();
-
-            NodeList annotationProcessorPathsList = doc.getElementsByTagName("annotationProcessorPaths");
-
-            Stream<Node> annotationProcessorPathsStream = IntStream.range(0, annotationProcessorPathsList.getLength())
-                    .mapToObj(annotationProcessorPathsList::item);
+            Stream<Element> annotationProcessorPathsStream = nodeListToStream(annotationProcessorPathsList);
 
             return annotationProcessorPathsStream
-                    .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
                     .flatMap(aggregate -> {
-                        Element aggregateElement = (Element) aggregate;
-                        NodeList pathList = aggregateElement.getElementsByTagName("path");
-                        return IntStream.range(0, pathList.getLength()).mapToObj(pathList::item);
+                        NodeList pathList = aggregate.getElementsByTagName("path");
+                        return nodeListToStream(pathList);
                     })
-                    .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
                     .map(processor -> system.createArtifact(
-                            extractChildValue((Element) processor, "groupId"),
-                            extractChildValue((Element) processor, "artifactId"),
-                            extractChildValue((Element) processor, "version"),
+                            extractChildValue(processor, "groupId"),
+                            extractChildValue(processor, "artifactId"),
+                            extractChildValue(processor, "version"),
                             PACKAGING))
                     // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
                     // therefore there is little use in logging incomplete paths that are filtered out.
@@ -109,10 +109,12 @@ public final class MavenCompilerUtils {
                     .filter(a -> !a.getArtifactId().isEmpty())
                     .filter(a -> !a.getVersion().isEmpty())
                     .collect(Collectors.toSet());
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
+        // It is expected that this will never occur due to all Configuration instances of all plugins being provided as
+        // XML document. If this happens to occur on very old plugin versions, we can safely add the type support and
+        // simply return an empty set.
+        throw new UnsupportedOperationException("Please report that an unsupported type of configuration container" +
+                " was encountered: " + config.getClass());
     }
 
     /**
@@ -123,10 +125,7 @@ public final class MavenCompilerUtils {
      * @return Returns child value if child node present or otherwise empty string.
      */
     private static String extractChildValue(Element node, String name) {
-        NodeList nodeList = node.getElementsByTagName(name);
-        if (nodeList.getLength() > 0) {
-            return nodeList.item(0).getTextContent();
-        }
-        return "";
+        Element child = getChildElement(node, name);
+        return child == null ? "" : child.getTextContent();
     }
 }

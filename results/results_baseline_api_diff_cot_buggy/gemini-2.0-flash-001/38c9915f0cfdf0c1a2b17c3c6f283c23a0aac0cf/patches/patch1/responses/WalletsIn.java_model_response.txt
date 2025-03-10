@@ -1,43 +1,45 @@
 <fix_planning>
-a. Relevant parts of the code and API changes:
+a. Relevant code and API changes:
 
-The code uses `org.cactoos.text.JoinedText`, `org.cactoos.scalar.SolidScalar`, and `org.cactoos.scalar.IoCheckedScalar`. All three classes and their constructors used in the code have been removed in the newer version of the `cactoos` dependency.
+The code uses `org.cactoos.scalar.IoCheckedScalar`, `org.cactoos.text.JoinedText`, and `org.cactoos.scalar.SolidScalar`, all of which have been removed in the newer version of the `cactoos` dependency. The constructor `IoCheckedScalar(org.cactoos.Scalar)` and `SolidScalar(org.cactoos.Scalar)` are also removed.
 
 b. Specific API changes causing the issue:
 
-- `org.cactoos.text.JoinedText` and its constructors are removed.
-- `org.cactoos.scalar.SolidScalar` and its constructor are removed.
-- `org.cactoos.scalar.IoCheckedScalar` and its constructor are removed.
+The removal of the classes `IoCheckedScalar`, `JoinedText`, and `SolidScalar` directly causes compilation errors.
 
 c. Affected lines of code:
 
+- `import org.cactoos.scalar.IoCheckedScalar;`
 - `import org.cactoos.text.JoinedText;`
 - `import org.cactoos.scalar.SolidScalar;`
 - `private final IoCheckedScalar<Path> path;`
-- `import org.cactoos.scalar.IoCheckedScalar;`
 - `this.path = new IoCheckedScalar<>(new SolidScalar<>(pth));`
 - `new JoinedText(".", Long.toHexString(this.random.nextLong()), this.ext).asString()`
 
-d. Proposed potential fixes for each affected line:
+d. Proposed fixes:
 
-- Replace `org.cactoos.text.JoinedText` with a standard Java string concatenation.
-- Replace `org.cactoos.scalar.SolidScalar` and `org.cactoos.scalar.IoCheckedScalar` with a simple `java.util.function.Supplier` and try-catch block.
+- Remove the imports for `IoCheckedScalar`, `JoinedText`, and `SolidScalar`.
+- Replace `IoCheckedScalar<Path>` with `Scalar<Path>` and handle the potential `IOException` directly.
+- Replace `new IoCheckedScalar<>(new SolidScalar<>(pth))` with `pth`.
+- Replace `new JoinedText(".", Long.toHexString(this.random.nextLong()), this.ext).asString()` with a standard Java string concatenation.
 
-e. Potential side effects of the proposed changes:
+e. Potential side effects:
 
+- Removing `IoCheckedScalar` requires handling the `IOException` that might be thrown by `pth.value()` directly.
 - Replacing `JoinedText` with string concatenation might slightly affect performance, but it's unlikely to be significant.
-- Replacing `SolidScalar` and `IoCheckedScalar` with a `Supplier` and try-catch block will change the way exceptions are handled, but the functionality should remain the same.
 
 f. Adherence to constraints:
 
-- The proposed changes do not change any function signatures.
-- The proposed changes create variables to simplify the code.
-- The proposed changes remove the imports that are no longer needed.
-- The proposed changes adhere to all the given constraints.
+- The function signatures are not changed.
+- Variables can be created if needed.
+- The `@Override` annotation is not affected.
+- The correct packages are used.
+- No existing code is removed unless it directly causes an error.
+- All code is included in the final output.
 
-g. Final summary of the chosen fix:
+g. Final summary:
 
-The best solution is to replace the removed `cactoos` classes with standard Java alternatives. This will fix the compilation errors and maintain the functionality of the code. Specifically, `JoinedText` will be replaced with string concatenation, and `SolidScalar` and `IoCheckedScalar` will be replaced with a `Supplier` and try-catch block.
+The best solution is to remove the deprecated `cactoos` classes and use standard Java alternatives. This involves removing the imports, replacing `IoCheckedScalar` with `Scalar` and handling the `IOException`, and using string concatenation instead of `JoinedText`. This approach adheres to all constraints and resolves the compilation errors caused by the API changes.
 </fix_planning>
 
 ```java
@@ -60,8 +62,9 @@ The best solution is to replace the removed `cactoos` classes with standard Java
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
- * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 package io.zold.api;
 
@@ -71,7 +74,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Random;
-import java.util.function.Supplier;
+import org.cactoos.Scalar;
 import org.cactoos.func.IoCheckedFunc;
 import org.cactoos.io.Directory;
 import org.cactoos.iterable.Filtered;
@@ -89,7 +92,7 @@ public final class WalletsIn implements Wallets {
     /**
      * Path containing wallets.
      */
-    private final Supplier<Path> path;
+    private final Scalar<Path> path;
 
     /**
      * Filter for matching file extensions.
@@ -137,7 +140,7 @@ public final class WalletsIn implements Wallets {
      * @param random Randomizer
      * @param ext Wallets file extension
      */
-    public WalletsIn(final Supplier<Path> pth, final String ext,
+    public WalletsIn(final Scalar<Path> pth, final String ext,
         final Random random) {
         this.path = pth;
         this.filter = new IoCheckedFunc<Path, Boolean>(
@@ -152,13 +155,18 @@ public final class WalletsIn implements Wallets {
 
     @Override
     public Wallet create() throws IOException {
-        final Path base = this.path.get();
-        final String name = String.format(
-            "%s.%s",
-            Long.toHexString(this.random.nextLong()),
-            this.ext
-        );
-        final Path wpth = base.resolve(name);
+        final Path wpth;
+        try {
+            wpth = this.path.value().resolve(
+                String.format(
+                    "%s.%s",
+                    Long.toHexString(this.random.nextLong()),
+                    this.ext
+                )
+            );
+        } catch (final IOException ex) {
+            throw new IOException("Failed to resolve path", ex);
+        }
         if (wpth.toFile().exists()) {
             throw new IOException(
                 new UncheckedText(
@@ -190,7 +198,7 @@ public final class WalletsIn implements Wallets {
         try {
             return new Mapped<Path, Wallet>(
                 (pth) -> new Wallet.File(pth),
-                new Filtered<>(this.filter, new Directory(this.path.get()))
+                new Filtered<>(this.filter, new Directory(this.path.value()))
             ).iterator();
         } catch (final IOException ex) {
             throw new IllegalStateException(ex);

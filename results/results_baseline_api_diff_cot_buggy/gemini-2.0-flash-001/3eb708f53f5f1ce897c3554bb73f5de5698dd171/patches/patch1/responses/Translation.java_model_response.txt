@@ -1,41 +1,35 @@
 <fix_planning>
-The core issue is the removal of `com.google.api.services.translate.model.TranslationsResource` and its associated methods `getDetectedSourceLanguage()` and `getTranslatedText()` and `getModel()`. We need to migrate to the new API, which seems to be `com.google.api.services.translate.v3.model.Translation`.
+a. Code and API changes:
+The code uses `com.google.api.services.translate.model.TranslationsResource`. The API changes indicate that this class has been removed. Also, `TranslationsResource.getTranslatedText()` and `TranslationsResource.getDetectedSourceLanguage()` and `TranslationsResource.getModel()` have been removed. `com.google.api.services.translate.v3.model.Translation` has `getTranslatedText()` and `getModel()`.
 
-Here's a breakdown:
+b. Specific API changes causing the issue:
+The removal of `com.google.api.services.translate.model.TranslationsResource` and its methods `getTranslatedText()`, `getDetectedSourceLanguage()`, and `getModel()` are the primary causes.
 
-*   **Problem:** `com.google.api.services.translate.model.TranslationsResource` is removed.
-*   **Affected lines:**
-    *   `import com.google.api.services.translate.model.TranslationsResource;`
-    *   `static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =`
-    *   `public Translation apply(TranslationsResource translationPb) {`
-    *   `static Translation fromPb(TranslationsResource translationPb) {`
-*   **API Changes:**
-    *   `com.google.api.services.translate.model.TranslationsResource` removed.
-    *   `com.google.api.services.translate.model.TranslationsResource.getDetectedSourceLanguage()` removed.
-    *   `com.google.api.services.translate.model.TranslationsResource.getTranslatedText()` removed.
-    *   `com.google.api.services.translate.model.TranslationsResource.getModel()` removed.
-    *   `com.google.api.services.translate.v3.model.Translation.getTranslatedText()` added.
-    *   `com.google.api.services.translate.v3.model.Translation.getModel()` added.
+c. Affected lines of code:
+- Line 19: `import com.google.api.services.translate.model.TranslationsResource;`
+- Line 37: `static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =`
+- Line 40: `public Translation apply(TranslationsResource translationPb) {`
+- Line 106: `static Translation fromPb(TranslationsResource translationPb) {`
+These lines all reference the removed `TranslationsResource` class.
 
-*   **Proposed Fix:**
-    1.  Replace `com.google.api.services.translate.model.TranslationsResource` with `com.google.api.services.translate.v3.model.Translation`.
-    2.  Update `fromPb` and `apply` methods to use the new `com.google.api.services.translate.v3.model.Translation` and its `getTranslatedText()` and `getModel()` methods. Since `getDetectedSourceLanguage()` is removed, we need to find an alternative way to get the source language.  Since there is no direct replacement, we will need to remove the source language from the `Translation` object. This will require updating the constructor, fields, and methods that use the source language.
+d. Proposed fixes:
+1. Replace `com.google.api.services.translate.model.TranslationsResource` with `com.google.api.services.translate.v3.model.Translation`.
+2. Modify the `fromPb` method to accept `com.google.api.services.translate.v3.model.Translation` and use its `getTranslatedText()`, `getSourceLanguage()` and `getModel()` methods. Since `getSourceLanguage()` does not exist in the new `Translation` class, it needs to be obtained from a different source. Since we don't have access to the original request, we can't reliably determine the source language. Therefore, we will set it to null.
+3. Modify the `apply` method to use the updated `fromPb` method.
 
-*   **Side Effects:**
-    *   Removing source language will change the behavior of the `Translation` class.
-    *   The `equals` and `hashCode` methods will need to be updated to reflect the removal of the source language.
-    *   The `toString` method will need to be updated to reflect the removal of the source language.
+e. Potential side effects:
+The source language will be null if the source language was not provided.
 
-*   **Constraints Check:**
-    1.  We are not changing any function signatures.
-    2.  We are creating variables where needed.
-    3.  We are removing the `@Override` annotation where appropriate.
-    4.  We are ensuring the correct package or class is used in accordance with the newer dependency version.
-    5.  We are not removing any existing code unless it directly causes a compilation or functionality error.
-    6.  We are including all code, even unchanged portions, in our final output.
+f. Adherence to constraints:
+- The function signatures of existing methods are preserved.
+- Variables can be created if needed.
+- The `@Override` annotation will be removed from the `apply` method as it no longer overrides a method from the `Function` interface after the dependency update.
+- Missing imports will be addressed.
+- No existing code will be removed unless it directly causes a compilation error.
 
-*   **Final Summary:**
-    The best solution is to replace the usage of the deprecated `TranslationsResource` with the new `com.google.api.services.translate.v3.model.Translation`. Since `getDetectedSourceLanguage()` is removed and there is no direct replacement, we will remove the source language from the `Translation` object. This will require updating the constructor, fields, and methods that use the source language. This approach adheres to all constraints and addresses the breaking API changes.
+g. Final summary:
+The best solution is to replace the usage of the old `TranslationsResource` with the new `com.google.api.services.translate.v3.model.Translation`. The `fromPb` method will be updated to use the new class and its methods. The source language will be set to null as it is not available in the new `Translation` class. The `@Override` annotation will be removed from the `apply` method.
+
 </fix_planning>
 
 ```java
@@ -57,7 +51,7 @@ Here's a breakdown:
 
 package com.google.cloud.translate;
 
-import com.google.api.services.translate.v3.model.Translation;
+import com.google.api.services.translate.v3.model.Translation as TranslationV3;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
@@ -75,25 +69,35 @@ import java.util.Objects;
 public class Translation implements Serializable {
 
   private static final long serialVersionUID = 2556017420486245581L;
-  static final Function<com.google.api.services.translate.v3.model.Translation, Translation> FROM_PB_FUNCTION =
-      new Function<com.google.api.services.translate.v3.model.Translation, Translation>() {
+  static final Function<TranslationV3, Translation> FROM_PB_FUNCTION =
+      new Function<TranslationV3, Translation>() {
         @Override
-        public Translation apply(com.google.api.services.translate.v3.model.Translation translationPb) {
+        public Translation apply(TranslationV3 translationPb) {
           return Translation.fromPb(translationPb);
         }
       };
 
   private final String translatedText;
+  private final String sourceLanguage;
   private final String model;
 
-  private Translation(String translatedText, String model) {
+  private Translation(String translatedText, String sourceLanguage, String model) {
     this.translatedText = translatedText;
+    this.sourceLanguage = sourceLanguage;
     this.model = model;
   }
 
   /** Returns the translated text. */
   public String getTranslatedText() {
     return translatedText;
+  }
+
+  /**
+   * Returns the language code of the source text. If no source language was provided this value is
+   * the source language as detected by the Google Translation service.
+   */
+  public String getSourceLanguage() {
+    return sourceLanguage;
   }
 
   /**
@@ -112,12 +116,13 @@ public class Translation implements Serializable {
   public String toString() {
     return MoreObjects.toStringHelper(this)
         .add("translatedText", translatedText)
+        .add("sourceLanguage", sourceLanguage)
         .toString();
   }
 
   @Override
   public final int hashCode() {
-    return Objects.hash(translatedText);
+    return Objects.hash(translatedText, sourceLanguage);
   }
 
   @Override
@@ -129,12 +134,14 @@ public class Translation implements Serializable {
       return false;
     }
     Translation other = (Translation) obj;
-    return Objects.equals(translatedText, other.translatedText);
+    return Objects.equals(translatedText, other.translatedText)
+        && Objects.equals(sourceLanguage, other.sourceLanguage);
   }
 
-  static Translation fromPb(Translation translationPb) {
+  static Translation fromPb(TranslationV3 translationPb) {
     return new Translation(
         translationPb.getTranslatedText(),
+        null, // Source language is not available in the new Translation class
         translationPb.getModel());
   }
 }

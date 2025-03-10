@@ -1,38 +1,45 @@
 <fix_planning>
-a. Relevant code and API changes:
+a. Relevant parts of the code and API changes:
 - Code:
 ```java
-.map(user -> new Authentication.User(user.name()))
-```
-```java
 token -> CompletableFuture.completedFuture(
+    Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
+        .filter(user -> token.equals(token(user)))
+        .map(user -> new Authentication.User(user.name()))
+        .findFirst()
+),
 ```
 - API Changes:
-"Constructor com.artipie.http.auth.Authentication$User(java.lang.String) has been removed in the new version of the dependency."
-"Class com.artipie.http.auth.Authentication$User has been removed in the new version of the dependency."
+```
+Constructor com.artipie.http.auth.Authentication$User(java.lang.String) has been removed in the new version of the dependency.
+Class com.artipie.http.auth.Authentication$User has been removed in the new version of the dependency.
+```
 
 b. Specific API changes causing the issue:
-The `Authentication.User` class and its constructor `Authentication.User(java.lang.String)` have been removed.
+The constructor `Authentication.User(java.lang.String)` has been removed. This means we can no longer create `Authentication.User` objects using just a name.  The class `Authentication.User` itself has also been removed. We need to find a replacement for this class.  Looking at the `artipie-http` library, the `AuthUser` interface and its implementations seem to be the replacement for `Authentication.User`.
 
 c. Affected lines of code:
 - Line 353: `.map(user -> new Authentication.User(user.name()))`
 
-d. Proposed fixes:
-Since `Authentication.User` is removed, we need to find a replacement. Inspecting the `artipie-http` library, it appears that `AuthUser` is the replacement for `Authentication.User`. We should use `AuthUser.Simple(user.name())` instead.
+d. Proposed potential fixes for each affected line:
+- Replace `new Authentication.User(user.name())` with `new com.artipie.http.auth.AuthUser(user.name())`.  This assumes that `AuthUser` is a suitable replacement and has a constructor that takes a name.  However, `AuthUser` is an interface, so we need to find an implementation.  After inspecting the `artipie-http` library, it seems that `com.artipie.http.auth.BasicIdentities.Simple` is a suitable implementation.
+- Replace `new Authentication.User(user.name())` with `() -> user.name()`. This would require changing the return type of the `map` function and potentially the `findFirst` function. This is a more invasive change and might have unintended side effects.
+- Replace `Authentication.User` with `AuthUser` and use `new AuthUser.Simple(user.name())`.
 
 e. Potential side effects of the proposed changes:
-The change should not have any side effects as `AuthUser` serves the same purpose as `Authentication.User`.
+- Using `com.artipie.http.auth.BasicIdentities.Simple` might introduce dependencies on other parts of the `artipie-http` library.
+- Changing the return type of the `map` function could break the existing logic.
 
 f. Adherence to constraints:
-1. The function signature of any method is not changed.
-2. A variable is not created.
-3. The `@Override` annotation is not removed.
-4. The correct package or class is used in accordance with the newer dependency version.
-5. No existing code is removed unless it directly causes a compilation or functionality error.
-6. All code, even unchanged portions, is included in the final output.
+- The proposed changes do not change the function signature of any method.
+- The proposed changes might require creating variables.
+- The proposed changes might require removing the `@Override` annotation if the method no longer overrides a method in the updated dependency version.
+- The proposed changes might require addressing missing imports.
+- The proposed changes do not remove any existing code unless it directly causes a compilation or functionality error.
 
-g. Final summary:
-The best solution is to replace `new Authentication.User(user.name())` with `AuthUser.Simple(user.name())` because `AuthUser` is the replacement for the removed `Authentication.User` class.
+g. Final summary of the chosen fix:
+The best solution is to replace `new Authentication.User(user.name())` with `com.artipie.http.auth.BasicIdentities.Simple.of(user.name())`. This directly addresses the API change by using the new `BasicIdentities.Simple` class, which implements the `AuthUser` interface, and provides a static method `of` to create an instance from a username. This approach minimizes the risk of introducing unintended side effects and adheres to all the given constraints.
+
 </fix_planning>
 
 ```java
@@ -53,7 +60,6 @@ import com.artipie.http.Headers;
 import com.artipie.http.Response;
 import com.artipie.http.Slice;
 import com.artipie.http.auth.Authentication;
-import com.artipie.http.auth.AuthUser;
 import com.artipie.http.auth.BasicAuthScheme;
 import com.artipie.http.auth.BearerAuthScheme;
 import com.artipie.http.auth.Permissions;
@@ -78,6 +84,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import com.artipie.http.auth.AuthUser;
+import com.artipie.http.auth.BasicIdentities;
 
 /**
  * Tests for {@link DockerSlice}.
@@ -389,7 +397,7 @@ public final class AuthTest {
                     token -> CompletableFuture.completedFuture(
                         Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
                             .filter(user -> token.equals(token(user)))
-                            .map(user -> AuthUser.Simple.of(user.name()))
+                            .map(user -> BasicIdentities.Simple.of(user.name()))
                             .findFirst()
                     ),
                     ""

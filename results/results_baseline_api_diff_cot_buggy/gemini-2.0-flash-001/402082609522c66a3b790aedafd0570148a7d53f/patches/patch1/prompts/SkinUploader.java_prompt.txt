@@ -40,17 +40,17 @@ public class SkinUploader extends SharedUploader {
 
 ```
 
-The errors are triggered in the following specific line:
+The errors are triggered in the following specific lines:
 
 <error_lines>
-```java
-private final CommandSource invoker;
-```
 ```java
 public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url) {
 ```
 ```java
 import org.spongepowered.api.command.CommandSource;
+```
+```java
+private final CommandSource invoker;
 ```
 </error_lines>
 
@@ -61,10 +61,6 @@ The API of the dependency has changed. Here are the relevant changes:
 Additional error information:
 
 <error_information>
-[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinUploader.java:[15,19] cannot find symbol
-  symbol:   class CommandSource
-  location: class com.github.games647.changeskin.sponge.task.SkinUploader
-
 [ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinUploader.java:[17,50] cannot find symbol
   symbol:   class CommandSource
   location: class com.github.games647.changeskin.sponge.task.SkinUploader
@@ -72,6 +68,10 @@ Additional error information:
 [ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinUploader.java:[9,37] cannot find symbol
   symbol:   class CommandSource
   location: package org.spongepowered.api.command
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinUploader.java:[15,19] cannot find symbol
+  symbol:   class CommandSource
+  location: class com.github.games647.changeskin.sponge.task.SkinUploader
 <error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:

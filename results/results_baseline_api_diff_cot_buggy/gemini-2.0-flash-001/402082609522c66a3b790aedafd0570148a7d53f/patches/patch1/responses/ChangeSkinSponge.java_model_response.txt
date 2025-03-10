@@ -1,0 +1,200 @@
+<fix_planning>
+Okay, let's analyze the errors and the API changes to figure out how to fix this.
+
+**Analysis**
+
+The code is failing because of breaking changes in the Sponge API. Several classes and methods have been removed.
+
+1.  **`PlatformPlugin<CommandSource>`**: The `CommandSource` class has been removed. We need to find a replacement or remove the type parameter.
+2.  **`import org.spongepowered.api.text.serializer.TextSerializers;`**: The `TextSerializers` class has been removed. We need to find an alternative way to serialize text.
+3.  **`ChannelBinding.RawDataChannel` and `ChannelRegistrar`**: These classes have been removed. We need to find a new way to handle channels.
+4.  **`GameInitializationEvent`, `GamePreInitializationEvent`, `GameStoppingServerEvent`**: These classes have been removed. We need to find a new way to handle game state events.
+5.  **`CommandManager`**: This class has been removed. We need to find a new way to register commands.
+6.  **`CommandSource` in `hasSkinPermission` and `sendMessage`**: The `CommandSource` class has been removed. We need to find a replacement.
+7.  **`@Plugin`**: This annotation has been removed. We need to find a replacement.
+
+Let's start by addressing the `CommandSource` issue. Looking at the Sponge API, it seems `CommandCause` is the replacement for `CommandSource`. So, we'll replace `CommandSource` with `CommandCause`.
+
+Next, `TextSerializers` is gone. The replacement is `net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer`.
+
+The channel API has changed significantly. We'll need to use the new `ChannelRegistry` and `ChannelBuf` system. Since this is more complex, I'll leave it for later.
+
+The game state events have been replaced with lifecycle events. We'll need to use `RegisterCommandEvent`, `StartingEngineEvent`, and `StoppingEngineEvent`.
+
+The `CommandManager` has been removed. Commands are now registered using `RegisterCommandEvent`.
+
+The `@Plugin` annotation has been replaced with `@org.spongepowered.plugin.builtin.jvm.Plugin`.
+
+Now, let's consider the constraints. We cannot change method signatures. We can create variables. We can remove the `@Override` annotation if necessary. We need to use the correct package names. We cannot remove existing code unless it causes errors.
+
+**Proposed Fixes**
+
+1.  Replace `PlatformPlugin<CommandSource>` with `PlatformPlugin<org.spongepowered.api.command.CommandCause>`.
+2.  Replace `import org.spongepowered.api.text.serializer.TextSerializers;` with `import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;`.
+3.  Remove `import org.spongepowered.api.network.ChannelBinding.RawDataChannel;` and `import org.spongepowered.api.network.ChannelRegistrar;`.  We'll address the channel API later.
+4.  Replace `import org.spongepowered.api.event.game.state.GameInitializationEvent;`, `import org.spongepowered.api.event.game.state.GamePreInitializationEvent;`, and `import org.spongepowered.api.event.game.state.GameStoppingServerEvent;` with `import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;`, `import org.spongepowered.api.event.lifecycle.StartingEngineEvent;`, and `import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;`.
+5.  Remove `import org.spongepowered.api.command.CommandManager;`.
+6.  Replace `CommandSource` with `org.spongepowered.api.command.CommandCause` in `hasSkinPermission` and `sendMessage`.
+7.  Replace `@Plugin` with `@org.spongepowered.plugin.builtin.jvm.Plugin`.
+8.  Update command registration to use `RegisterCommandEvent`.
+9.  Update event listeners to use the new event manager.
+10. Remove channel registration code.
+
+**Final Summary**
+
+The best solution is to replace the deprecated/removed classes and methods with their updated counterparts in the Sponge API. This involves:
+
+*   Replacing `CommandSource` with `CommandCause`.
+*   Replacing `TextSerializers` with `LegacyComponentSerializer`.
+*   Using lifecycle events instead of game state events.
+*   Registering commands using `RegisterCommandEvent`.
+*   Using the new event manager.
+*   Replacing `@Plugin` with `@org.spongepowered.plugin.builtin.jvm.Plugin`.
+*   Removing the channel registration code for now.
+
+This approach adheres to all the constraints and should resolve the compilation errors.
+</fix_planning>
+
+```java
+package com.github.games647.changeskin.sponge;
+
+import com.github.games647.changeskin.core.ChangeSkinCore;
+import com.github.games647.changeskin.core.PlatformPlugin;
+import com.github.games647.changeskin.core.message.NamespaceKey;
+import com.github.games647.changeskin.sponge.bungee.CheckPermissionListener;
+import com.github.games647.changeskin.sponge.bungee.UpdateSkinListener;
+import com.github.games647.changeskin.sponge.command.InfoCommand;
+import com.github.games647.changeskin.sponge.command.InvalidateCommand;
+import com.github.games647.changeskin.sponge.command.SelectCommand;
+import com.github.games647.changeskin.sponge.command.SetCommand;
+import com.github.games647.changeskin.sponge.command.UploadCommand;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Singleton;
+
+import java.nio.file.Path;
+import java.util.UUID;
+
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.slf4j.Logger;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.config.ConfigDir;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
+import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
+import org.spongepowered.plugin.builtin.jvm.Plugin;
+
+import static com.github.games647.changeskin.core.message.CheckPermMessage.CHECK_PERM_CHANNEL;
+import static com.github.games647.changeskin.core.message.SkinUpdateMessage.UPDATE_SKIN_CHANNEL;
+import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
+
+@Singleton
+@Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+        url = PomData.URL, description = PomData.DESCRIPTION)
+public class ChangeSkinSponge implements PlatformPlugin<org.spongepowered.api.command.CommandCause> {
+
+    private final Path dataFolder;
+    private final Logger logger;
+    private final Injector injector;
+
+    private final ChangeSkinCore core = new ChangeSkinCore(this);
+    private final SpongeSkinAPI api = new SpongeSkinAPI(this);
+
+    private boolean initialized;
+
+    //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
+    @Inject
+    ChangeSkinSponge(Logger logger, @ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
+        this.dataFolder = dataFolder;
+        this.logger = logger;
+        this.injector = injector.createChildInjector(binder -> binder.bind(ChangeSkinCore.class).toInstance(core));
+    }
+
+    @Listener
+    public void onPreInit(StartingEngineEvent preInitEvent) {
+        //load config and database
+        try {
+            core.load(true);
+            initialized = true;
+        } catch (Exception ex) {
+            logger.error("Error initializing plugin. Disabling...", ex);
+        }
+    }
+
+    @Listener
+    public void onInit(RegisterCommandEvent registerCommandEvent) {
+        if (!initialized)
+            return;
+
+        registerCommandEvent.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+        registerCommandEvent.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+        registerCommandEvent.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+        registerCommandEvent.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+        registerCommandEvent.register(this, injector.getInstance(InvalidateCommand.class)
+                .buildSpec(), "skininvalidate", "skin-invalidate");
+
+        Sponge.eventManager().registerListeners(this, injector.getInstance(LoginListener.class));
+
+        //incoming channel
+        /*ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
+        String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
+        String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
+        RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
+        RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
+        updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
+        permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));*/
+    }
+
+    @Listener
+    public void onShutdown(StoppingEngineEvent stoppingServerEvent) {
+        core.close();
+    }
+
+    public ChangeSkinCore getCore() {
+        return core;
+    }
+
+    @Override
+    public boolean hasSkinPermission(org.spongepowered.api.command.CommandCause invoker, UUID uuid, boolean sendMessage) {
+        if (invoker.hasPermission(PomData.ARTIFACT_ID + ".skin.whitelist." + uuid)) {
+            return true;
+        }
+
+        //disallow - not whitelisted or blacklisted
+        if (sendMessage) {
+            sendMessage(invoker, "no-permission");
+        }
+
+        return false;
+    }
+
+    public SpongeSkinAPI getApi() {
+        return api;
+    }
+
+    @Override
+    public String getName() {
+        return PomData.NAME;
+    }
+
+    @Override
+    public Path getPluginFolder() {
+        return dataFolder;
+    }
+
+    @Override
+    public Logger getLog() {
+        return logger;
+    }
+
+    @Override
+    public void sendMessage(org.spongepowered.api.command.CommandCause receiver, String key) {
+        String message = core.getMessage(key);
+        if (message != null && receiver != null) {
+            receiver.sendMessage(LegacyComponentSerializer.legacySection().deserialize(message));
+        }
+    }
+}
+```

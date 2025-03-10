@@ -54,43 +54,43 @@ public class MySqlQueryExceptionHandler extends QueryExceptionHandler {
 
 ```
 
-The errors are triggered in the following specific line:
+The errors are triggered in the following specific lines:
 
 <error_lines>
 ```java
-return exception instanceof MySQLTimeoutException || super.isTimeoutException(exception);
+import com.mysql.jdbc.exceptions.MySQLTimeoutException;
 ```
 ```java
-import com.mysql.jdbc.exceptions.MySQLTimeoutException;
+return exception instanceof MySQLTimeoutException || super.isTimeoutException(exception);
 ```
 </error_lines>
 
 The API of the dependency has changed. Here are the relevant changes:
 
-     Constructor com.mysql.jdbc.exceptions.jdbc4.MySQLTimeoutException(java.lang.String,java.lang.String,int) has been removed in the new version of the dependency.
-     Constructor com.mysql.jdbc.exceptions.jdbc4.MySQLTimeoutException(java.lang.String) has been removed in the new version of the dependency.
+     Constructor com.mysql.jdbc.exceptions.MySQLTimeoutException(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Constructor com.mysql.jdbc.exceptions.jdbc4.MySQLTimeoutException() has been removed in the new version of the dependency.
      Type reference com.mysql.cj.jdbc.exceptions.MySQLTimeoutException() has been added in the new version of the dependency.
+     Constructor com.mysql.jdbc.exceptions.MySQLTimeoutException(java.lang.String) has been removed in the new version of the dependency.
      Interface com.mysql.cj.jdbc.exceptions.MySQLTimeoutException has been added in the new version of the dependency.
      Constructor com.mysql.jdbc.exceptions.MySQLTimeoutException() has been removed in the new version of the dependency.
-     Constructor com.mysql.jdbc.exceptions.jdbc4.MySQLTimeoutException(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
-     Constructor com.mysql.jdbc.exceptions.MySQLTimeoutException(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
-     Class com.mysql.jdbc.exceptions.MySQLTimeoutException has been removed in the new version of the dependency.
-     Constructor com.mysql.jdbc.exceptions.jdbc4.MySQLTimeoutException() has been removed in the new version of the dependency.
-     Type reference com.mysql.cj.jdbc.exceptions.MySQLTimeoutException(java.lang.String,java.lang.String,int) has been added in the new version of the dependency.
-     Constructor com.mysql.jdbc.exceptions.MySQLTimeoutException(java.lang.String,java.lang.String,int) has been removed in the new version of the dependency.
-     Type reference com.mysql.cj.jdbc.exceptions.MySQLTimeoutException(java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Type reference com.mysql.cj.jdbc.exceptions.MySQLTimeoutException(java.lang.String) has been added in the new version of the dependency.
+     Constructor com.mysql.jdbc.exceptions.jdbc4.MySQLTimeoutException(java.lang.String) has been removed in the new version of the dependency.
      Class com.mysql.jdbc.exceptions.jdbc4.MySQLTimeoutException has been removed in the new version of the dependency.
-     Constructor com.mysql.jdbc.exceptions.MySQLTimeoutException(java.lang.String) has been removed in the new version of the dependency.
+     Constructor com.mysql.jdbc.exceptions.jdbc4.MySQLTimeoutException(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Type reference com.mysql.cj.jdbc.exceptions.MySQLTimeoutException(java.lang.String,java.lang.String,int) has been added in the new version of the dependency.
+     Type reference com.mysql.cj.jdbc.exceptions.MySQLTimeoutException(java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Constructor com.mysql.jdbc.exceptions.jdbc4.MySQLTimeoutException(java.lang.String,java.lang.String,int) has been removed in the new version of the dependency.
+     Constructor com.mysql.jdbc.exceptions.MySQLTimeoutException(java.lang.String,java.lang.String,int) has been removed in the new version of the dependency.
+     Class com.mysql.jdbc.exceptions.MySQLTimeoutException has been removed in the new version of the dependency.
+     Type reference com.mysql.cj.jdbc.exceptions.MySQLTimeoutException(java.lang.String) has been added in the new version of the dependency.
 
 Additional error information:
 
 <error_information>
+[ERROR] /pdb/src/main/java/com/feedzai/commons/sql/abstraction/engine/impl/mysql/MySqlQueryExceptionHandler.java:[21,33] package com.mysql.jdbc.exceptions does not exist
+
 [ERROR] /pdb/src/main/java/com/feedzai/commons/sql/abstraction/engine/impl/mysql/MySqlQueryExceptionHandler.java:[40,37] cannot find symbol
   symbol:   class MySQLTimeoutException
   location: class com.feedzai.commons.sql.abstraction.engine.impl.mysql.MySqlQueryExceptionHandler
-
-[ERROR] /pdb/src/main/java/com/feedzai/commons/sql/abstraction/engine/impl/mysql/MySqlQueryExceptionHandler.java:[21,33] package com.mysql.jdbc.exceptions does not exist
 <error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:

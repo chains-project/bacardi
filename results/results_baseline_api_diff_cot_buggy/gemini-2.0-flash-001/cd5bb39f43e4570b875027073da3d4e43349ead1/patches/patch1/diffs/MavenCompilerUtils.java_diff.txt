@@ -1,72 +1,50 @@
-21,22c21,29
+21d20
 < import org.codehaus.plexus.util.xml.Xpp3Dom;
-< 
----
-> import org.w3c.dom.Document;
+24a24,25
+> import java.util.stream.IntStream;
+> import java.util.stream.Stream;
+29a31,34
 > import org.w3c.dom.Element;
 > import org.w3c.dom.Node;
 > import org.w3c.dom.NodeList;
-> import org.xml.sax.InputSource;
 > 
-> import javax.xml.parsers.DocumentBuilder;
-> import javax.xml.parsers.DocumentBuilderFactory;
-> import java.io.StringReader;
-24a32,33
-> import java.util.stream.IntStream;
-> import java.util.stream.Stream;
-70,72c79,100
+53a59,73
+>     private static Stream<Element> nodeListToStream(NodeList nodeList) {
+>         return IntStream.range(0, nodeList.getLength())
+>                 .mapToObj(nodeList::item)
+>                 .filter(node -> node instanceof Element)
+>                 .map(node -> (Element) node);
+>     }
+> 
+>     private static Element getChildElement(Element parent, String name) {
+>         NodeList nodeList = parent.getElementsByTagName(name);
+>         if (nodeList.getLength() > 0 && nodeList.item(0) instanceof Element) {
+>             return (Element) nodeList.item(0);
+>         }
+>         return null;
+>     }
+> 
+70,72c90,100
 <         if (config instanceof Xpp3Dom) {
 <             return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
 <                     .flatMap(aggregate -> stream(aggregate.getChildren("path")))
 ---
+>         if (config instanceof Element) {
+>             Element configElement = (Element) config;
+>             NodeList annotationProcessorPathsList = configElement.getElementsByTagName("annotationProcessorPaths");
 > 
->         try {
->             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
->             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
->             String configString = config.toString();
->             InputSource is = new InputSource(new StringReader(configString));
->             Document doc = dBuilder.parse(is);
->             doc.getDocumentElement().normalize();
-> 
->             NodeList annotationProcessorPathsList = doc.getElementsByTagName("annotationProcessorPaths");
-> 
->             Stream<Node> annotationProcessorPathsStream = IntStream.range(0, annotationProcessorPathsList.getLength())
->                     .mapToObj(annotationProcessorPathsList::item);
+>             Stream<Element> annotationProcessorPathsStream = nodeListToStream(annotationProcessorPathsList);
 > 
 >             return annotationProcessorPathsStream
->                     .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
 >                     .flatMap(aggregate -> {
->                         Element aggregateElement = (Element) aggregate;
->                         NodeList pathList = aggregateElement.getElementsByTagName("path");
->                         return IntStream.range(0, pathList.getLength()).mapToObj(pathList::item);
+>                         NodeList pathList = aggregate.getElementsByTagName("path");
+>                         return nodeListToStream(pathList);
 >                     })
->                     .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
-74,76c102,104
-<                             extractChildValue(processor, "groupId"),
-<                             extractChildValue(processor, "artifactId"),
-<                             extractChildValue(processor, "version"),
----
->                             extractChildValue((Element) processor, "groupId"),
->                             extractChildValue((Element) processor, "artifactId"),
->                             extractChildValue((Element) processor, "version"),
-83a112,114
-> 
->         } catch (Exception e) {
->             throw new RuntimeException(e);
-85,89d115
-<         // It is expected that this will never occur due to all Configuration instances of all plugins being provided as
-<         // XML document. If this happens to occur on very old plugin versions, we can safely add the type support and
-<         // simply return an empty set.
-<         throw new UnsupportedOperationException("Please report that an unsupported type of configuration container" +
-<                 " was encountered: " + config.getClass());
-99,101c125,130
+99,101c127,129
 <     private static String extractChildValue(Xpp3Dom node, String name) {
 <         final Xpp3Dom child = node.getChild(name);
 <         return child == null ? "" : child.getValue();
 ---
 >     private static String extractChildValue(Element node, String name) {
->         NodeList nodeList = node.getElementsByTagName(name);
->         if (nodeList.getLength() > 0) {
->             return nodeList.item(0).getTextContent();
->         }
->         return "";
+>         Element child = getChildElement(node, name);
+>         return child == null ? "" : child.getTextContent();

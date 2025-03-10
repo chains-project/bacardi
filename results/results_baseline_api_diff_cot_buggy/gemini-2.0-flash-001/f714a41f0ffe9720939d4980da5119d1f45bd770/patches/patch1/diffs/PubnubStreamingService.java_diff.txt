@@ -1,46 +1,41 @@
-12,17c12
-< import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
-< import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
-< import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
-< import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
-< import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
-< import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
----
+26a27
 > import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
-40,41c35
+40,41c41
 <     PNConfiguration pnConfiguration = new PNConfiguration();
 <     pnConfiguration.setSubscribeKey(publicKey);
 ---
 >     PNConfiguration pnConfiguration = new PNConfiguration(publicKey);
-84,112c78
-<                 public void presence(PubNub pubNub, PNPresenceEventResult pnPresenceEventResult) {
-<                   LOG.debug("PubNub presence: {}", pnPresenceEventResult.toString());
-<                 }
-< 
-<                 @Override
-<                 public void signal(PubNub pubnub, PNSignalResult pnSignalResult) {
-<                   LOG.debug("PubNub signal: {}", pnSignalResult.toString());
-<                 }
-< 
-<                 @Override
-<                 public void user(PubNub pubnub, PNUserResult pnUserResult) {
-<                   LOG.debug("PubNub user: {}", pnUserResult.toString());
-<                 }
-< 
-<                 @Override
-<                 public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
-<                   LOG.debug("PubNub space: {}", pnSpaceResult.toString());
-<                 }
-< 
-<                 @Override
-<                 public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
-<                   LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
-<                 }
-< 
-<                 @Override
-<                 public void messageAction(
-<                     PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
-<                   LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
-<                 }
+66c66
+<                 public void message(PubNub pubNub, PNMessageResult pnMessageResult) {
 ---
->                 public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {}
+>                 public void message(PubNub pubNub, com.pubnub.api.models.consumer.pubsub.PNMessageResult pnMessageResult) {
+84c84
+<                 public void presence(PubNub pubNub, PNPresenceEventResult pnPresenceEventResult) {
+---
+>                 public void presence(PubNub pubNub, com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult pnPresenceEventResult) {
+89c89
+<                 public void signal(PubNub pubnub, PNSignalResult pnSignalResult) {
+---
+>                 public void signal(PubNub pubnub, com.pubnub.api.models.consumer.pubsub.PNSignalResult pnSignalResult) {
+94c94
+<                 public void user(PubNub pubnub, PNUserResult pnUserResult) {
+---
+>                 public void user(PubNub pubnub, com.pubnub.api.models.consumer.pubsub.objects.PNUserResult pnUserResult) {
+99c99
+<                 public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
+---
+>                 public void space(PubNub pubnub, com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult pnSpaceResult) {
+104c104
+<                 public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
+---
+>                 public void membership(PubNub pubnub, com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult pnMembershipResult) {
+110c110
+<                     PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
+---
+>                     PubNub pubnub, com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult pnMessageActionResult) {
+112a113,117
+> 
+>                   @Override
+>                   public void file(PubNub pubNub, PNFileEventResult pnFileEventResult) {
+>                       LOG.debug("PubNub file: {}", pnFileEventResult.toString());
+>                   }

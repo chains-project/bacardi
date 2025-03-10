@@ -13,13 +13,10 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Model;
-import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
@@ -27,9 +24,6 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import se.kth.depclean.core.AbstractDebloater;
 import se.kth.depclean.core.analysis.graph.DependencyGraph;
 import se.kth.depclean.core.analysis.model.ProjectDependencyAnalysis;
@@ -164,39 +158,19 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
     getLog().debug("# collectUsedClassesFromProcessors()");
     return Optional.ofNullable(project.getPlugin("org.bsc.maven:maven-processor-plugin"))
         .map(plugin -> plugin.getExecutionsAsMap().get("process"))
-        .map(PluginExecution::getConfiguration)
-        .map(config -> {
-          if (config instanceof org.w3c.dom.Element) {
-            return (org.w3c.dom.Element) config;
-          } else {
-            try {
-              DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-              DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-              org.w3c.dom.Document doc = dBuilder.newDocument();
-              Element rootElement = doc.createElement("configuration");
-              doc.appendChild(rootElement);
-              return rootElement;
-            } catch (Exception e) {
-              logger.error("Error creating document builder: " + e.getMessage());
-              return null;
+        .map(exec -> exec.getConfiguration())
+        .map(config -> (java.util.Map<String, Object>) config)
+        .map(config -> config.get("processors"))
+        .map(processors -> {
+            if (processors instanceof String) {
+                return Set.of(((String) processors).split(","));
+            } else if (processors instanceof java.util.List) {
+                return ((java.util.List<?>) processors).stream()
+                        .map(Object::toString)
+                        .collect(Collectors.toSet());
+            } else {
+                return of();
             }
-          }
-        })
-        .map(config -> config.getElementsByTagName("processors").item(0))
-        .map(processorsNode -> {
-          if (processorsNode != null && processorsNode.hasChildNodes()) {
-            NodeList processorNodes = processorsNode.getChildNodes();
-            Set<String> processors = new HashSet<>();
-            for (int i = 0; i < processorNodes.getLength(); i++) {
-              Node processorNode = processorNodes.item(i);
-              if (processorNode.getNodeType() == Node.ELEMENT_NODE && "processor".equals(processorNode.getNodeName())) {
-                processors.add(processorNode.getTextContent());
-              }
-            }
-            return processors;
-          } else {
-            return of();
-          }
         })
         .orElse(of());
   }

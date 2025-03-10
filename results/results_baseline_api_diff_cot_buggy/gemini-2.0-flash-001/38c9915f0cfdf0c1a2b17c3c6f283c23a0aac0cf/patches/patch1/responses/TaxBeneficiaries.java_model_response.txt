@@ -1,50 +1,54 @@
 <fix_planning>
-The error message "cannot find symbol symbol: class LengthOf location: package org.cactoos.iterable" indicates that the class `org.cactoos.iterable.LengthOf` is no longer available in the updated cactoos dependency. The API changes confirm that `org.cactoos.iterable.LengthOf` has been removed and `org.cactoos.scalar.LengthOf` has been added.
-
-The affected line is:
+a. Relevant code:
 ```java
 import org.cactoos.iterable.LengthOf;
+
+public final class TaxBeneficiaries extends IterableEnvelope<Remote> {
+
+    public TaxBeneficiaries(final Iterable<Remote> nodes) {
+        super(() -> new Sorted<>(
+            Comparator.comparing(Remote::score),
+            new Filtered<>(
+                n -> new LengthOf(n.score().suffixes()).intValue() >= 16,
+                nodes
+            )
+        ));
+    }
+}
 ```
-and
+
+Relevant API changes:
+- `Class org.cactoos.iterable.LengthOf has been removed in the new version of the dependency.`
+- `Type reference org.cactoos.scalar.LengthOf(java.lang.Iterable) has been added in the new version of the dependency.`
+
+b. The class `org.cactoos.iterable.LengthOf` has been removed. The code uses `new LengthOf(n.score().suffixes())`. The `score().suffixes()` method returns an `Iterable`. The new `LengthOf` expects an `Input` or `Text` or `Iterable`. We need to find a replacement for `org.cactoos.iterable.LengthOf` that accepts an `Iterable`. The new `org.cactoos.scalar.LengthOf` can be used with an Iterable.
+
+c. Affected line:
 ```java
 n -> new LengthOf(n.score().suffixes()).intValue() >= 16,
 ```
 
-The fix should replace `org.cactoos.iterable.LengthOf` with `org.cactoos.scalar.LengthOf` and adjust the constructor call accordingly. Since `LengthOf` is now a scalar, we need to create a `LengthOf` object and then call `value()` on it to get the integer value.
+d. Potential fixes:
+1. Replace `org.cactoos.iterable.LengthOf` with `org.cactoos.scalar.LengthOf`. This requires changing the import statement and using `org.cactoos.scalar.LengthOf`.
+2. Use `org.cactoos.collection.LengthOf` instead.
+3. Use `org.cactoos.scalar.LengthOf` and call `value()` instead of `intValue()`.
 
-Here's the proposed change:
+e. Side effects:
+1. Using `org.cactoos.scalar.LengthOf` might require a change in the import statement and using `value()` instead of `intValue()`.
+2. Using `org.cactoos.collection.LengthOf` might require a change in the import statement and using `value()` instead of `intValue()`.
 
-1. Replace the import statement:
-```java
-import org.cactoos.iterable.LengthOf;
-```
-with
-```java
-import org.cactoos.scalar.LengthOf;
-import org.cactoos.iterable.IterableOf;
-```
+f. Constraints:
+1. Do not change the function signature of any method. - The proposed changes do not violate this constraint.
+2. You may create variables if it simplifies the code. - The proposed changes do not violate this constraint.
+3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version. - The proposed changes do not violate this constraint.
+4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version. - The proposed changes adhere to this constraint.
+5. Do not remove any existing code unless it directly causes a compilation or functionality error. - The proposed changes adhere to this constraint.
+6. Include all code, even unchanged portions, in your final output. - The proposed changes adhere to this constraint.
+7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)". - The proposed changes adhere to this constraint.
 
-2. Modify the lambda expression:
-```java
-n -> new LengthOf(n.score().suffixes()).intValue() >= 16,
-```
-with
-```java
-n -> new LengthOf(new IterableOf<>(n.score().suffixes())).value() >= 16,
-```
+g. Summary:
+The best solution is to replace `org.cactoos.iterable.LengthOf` with `org.cactoos.scalar.LengthOf` and use `value()` instead of `intValue()`. This aligns with the updated API and resolves the compilation error.
 
-This change uses the new `org.cactoos.scalar.LengthOf` class and its constructor that accepts an `Iterable`. Also, it calls the `value()` method to get the length as an integer.
-
-The proposed changes adhere to all constraints:
-1. The function signature of the constructor remains unchanged.
-2. A new variable is not created.
-3. The `@Override` annotation is not present.
-4. The correct package `org.cactoos.scalar` is used for the new `LengthOf` class.
-5. No existing code is removed unless it directly causes a compilation error.
-6. All code is included in the final output.
-
-Final summary:
-The best solution is to replace the import statement and modify the lambda expression to use the new `org.cactoos.scalar.LengthOf` class and its `value()` method. This fixes the compilation error and maintains the original functionality of the code.
 </fix_planning>
 
 ```java
@@ -57,7 +61,7 @@ The best solution is to replace the import statement and modify the lambda expre
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of this software, and to permit persons to whom the Software is
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
@@ -68,8 +72,8 @@ The best solution is to replace the import statement and modify the lambda expre
  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package io.zold.api;
 
@@ -77,7 +81,7 @@ import java.util.Comparator;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.IterableEnvelope;
 import org.cactoos.scalar.LengthOf;
-import org.cactoos.iterable.IterableOf;
+import org.cactoos.iterable.Sorted;
 
 /**
  * {@link Remote} nodes that should receive taxes.
@@ -96,7 +100,7 @@ public final class TaxBeneficiaries extends IterableEnvelope<Remote> {
             Comparator.comparing(Remote::score),
             new Filtered<>(
                 // @checkstyle MagicNumberCheck (1 line)
-                n -> new LengthOf(new IterableOf<>(n.score().suffixes())).value() >= 16,
+                n -> new LengthOf(n.score().suffixes()).value().intValue() >= 16,
                 nodes
             )
         ));

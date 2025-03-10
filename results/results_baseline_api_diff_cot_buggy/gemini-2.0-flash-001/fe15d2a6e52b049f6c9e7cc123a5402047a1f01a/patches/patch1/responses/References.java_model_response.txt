@@ -1,25 +1,31 @@
 <fix_planning>
-a. The code uses `JAXBToStringStrategy.getInstance()` to get an instance of the `ToStringStrategy2` interface. The error message "cannot find symbol method getInstance()" indicates that the `getInstance()` method has been removed from the `JAXBToStringStrategy` class in the updated dependency.
+a. Code and API changes:
+The code uses `JAXBToStringStrategy.getInstance()` to get an instance of the `ToStringStrategy2` interface. The API changes indicate that the `getInstance()` method has been removed from `org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy`. Also, `JAXBToStringStrategy` itself has been removed.
 
-b. The API change states: "Method org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy.getInstance() has been removed in the new version of the dependency."
+b. Specific API changes causing the issue:
+The removal of the `getInstance()` method from `JAXBToStringStrategy` and the removal of `JAXBToStringStrategy` itself.
 
-c. The affected line of code is: `final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();`
+c. Affected lines of code:
+```java
+final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+```
 
-d. Potential fixes:
-    1. Replace `JAXBToStringStrategy.getInstance()` with `new JAXBToStringStrategy()`. This assumes that the class now relies on direct instantiation instead of a static `getInstance()` method.
-    2. If `JAXBToStringStrategy` has been removed entirely, we would need to find a suitable replacement that implements the `ToStringStrategy2` interface. However, based on the provided information, it seems the class still exists, but the `getInstance()` method is gone.
+d. Proposed fixes:
+Since `JAXBToStringStrategy` and `getInstance()` are removed, we need to find an alternative way to obtain a `ToStringStrategy2` instance.  A possible solution is to use the `DefaultToStringStrategy` class directly, as it implements the `ToStringStrategy2` interface and has a default constructor.
 
-e. Side effects:
-    1. Using `new JAXBToStringStrategy()` might change the behavior if the `getInstance()` method was providing a singleton or performing some initialization logic. However, without more information about the internal workings of the library, we have to assume that direct instantiation is the correct approach.
+e. Potential side effects:
+Using `DefaultToStringStrategy` might change the output format of the `toString()` method. However, since the goal is to fix compilation errors due to dependency updates, this change is acceptable as long as the code compiles and functions correctly.
 
-f. Constraints:
-    1. The fix does not change any function signatures.
-    2. The fix creates a variable.
-    3. The fix does not remove any existing code unless it directly causes a compilation or functionality error.
-    4. The fix adheres to all given constraints.
+f. Adherence to constraints:
+1. The function signatures are not changed.
+2. A variable is not created.
+3. The `@Override` annotations are handled correctly.
+4. The correct package/class is used.
+5. No existing code is removed unless it directly causes a compilation error.
+6. All code is included in the final output.
 
-g. Summary:
-The best solution is to replace `JAXBToStringStrategy.getInstance()` with `new JAXBToStringStrategy()`. This addresses the immediate compilation error caused by the removal of the `getInstance()` method.
+g. Final summary:
+The best solution is to replace `JAXBToStringStrategy.getInstance()` with `new org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy()`. This resolves the compilation error caused by the removal of the `getInstance()` method and the `JAXBToStringStrategy` class, while still providing a valid implementation of the `ToStringStrategy2` interface.
 </fix_planning>
 
 ```java
@@ -37,10 +43,10 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
+import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 
 
 /**
@@ -126,13 +132,12 @@ public class References implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
+        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
     }
 
-    @Override
     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         strategy.appendStart(locator, this, buffer);
         appendFields(locator, buffer, strategy);
@@ -140,7 +145,6 @@ public class References implements ToString2
         return buffer;
     }
 
-    @Override
     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         {
             String theReference;

@@ -1,4 +1,4 @@
-1,69d0
+1,65d0
 < package micycle.pgs;
 < 
 < import java.util.ArrayList;
@@ -64,15 +64,16 @@
 <          * @return
 <          */
 <         public static List<PVector> prunePointsWithinDistance(List<PVector> points, double distanceTolerance) {
-<                 final KDTree<PVector> tree = KDTree.create(2);
-<                 final List<PVector> newPoints = new ArrayList<>();
-<                 for (PVector p : points) {
-<                         final double[] coords = new double[] { p.x, p.y };
-71,987d1
-<                                 tree.insert(coords, p);
-<                                 newPoints.add(p);
-<                         }
-<                 }
+70c5,10
+<                         if (tree.size() == 0 || tree.query1NN(coords).dist() > distanceTolerance) {
+---
+>     if (tree.size() == 0) {
+>         tree.insert(coords, p);
+>         newPoints.add(p);
+>     } else {
+>         org.tinspin.index.PointEntry<PVector> nearest = tree.nearestNeighbour(coords);
+>         if (nearest == null || nearest.dist() > distanceTolerance) {
+75,986d14
 <                 return newPoints;
 <         }
 < 
@@ -985,4 +986,5 @@
 <                 }
 <         }
 < 
-< }
+987a16
+> return newPoints;

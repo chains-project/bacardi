@@ -1,23 +1,17 @@
 <fix_planning>
-The error message "cannot access com.fasterxml.jackson.core.exc.StreamReadException class file for com.fasterxml.jackson.core.exc.StreamReadException not found" indicates a compilation error related to Jackson library. This usually happens when there's a version mismatch or the required Jackson modules are not available in the classpath. However, since the problem description states that the issue is caused by breaking dependency updates and the task is to fix the issue by modifying only the client code, I will focus on the API changes of the `ObjectMapper.readValue` method.
+The error occurs because the method `objectMapper.readValue(body, ExportResponse.class)` is no longer available in the updated Jackson library. The `body` variable is a `String`. The API changes indicate that `ObjectMapper.readValue(String, Class)` is also removed. However, `ObjectMapper.readValue(String, Class)` has been added.
 
-The relevant code snippet is:
+Affected line:
 ```java
 ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
 ```
 
-The API changes indicate that several `readValue` methods have been added and removed. Specifically, the method `ObjectMapper.readValue(java.lang.String,java.lang.Class)` has been both added and removed in different versions. This suggests a potential compatibility issue with the Jackson version being used.
+Possible fixes:
+1. Use the new `ObjectMapper.readValue(String, Class)` method.
 
-The error message "cannot access com.fasterxml.jackson.core.exc.StreamReadException" suggests that the compiler cannot find the `StreamReadException` class, which is part of the Jackson core library. This could be due to a missing or incompatible Jackson core dependency. However, since the problem description states that the issue is caused by breaking dependency updates and the task is to fix the issue by modifying only the client code, I will assume that the Jackson core dependency is present and compatible.
+Chosen fix:
+The simplest and most direct solution is to use the newly added `ObjectMapper.readValue(String, Class)` method, which directly replaces the functionality of the removed method. This adheres to all constraints, as it only modifies the method call and doesn't change any function signatures or remove any code unnecessarily.
 
-Given the constraints, I will try to address the issue by ensuring that the `readValue` method call is compatible with the available methods in the updated Jackson library. Since the error occurs when calling `objectMapper.readValue(body, ExportResponse.class)`, and `body` is a `String`, I will ensure that the `ObjectMapper` has a `readValue` method that accepts a `String` and a `Class` as arguments.
-
-The API changes indicate that `ObjectMapper.readValue(java.lang.String,java.lang.Class)` has been added in the new version of the dependency. Therefore, the existing code should work fine if the Jackson library is correctly configured. However, the error message suggests that there might be a problem with the classpath or the Jackson library itself.
-
-Since I cannot modify the dependencies or the build configuration, I will try to catch the `IOException` that might be thrown by the `readValue` method and re-throw it as a custom exception. This will at least provide a more informative error message to the user.
-
-Final Summary:
-The error message indicates a potential issue with the Jackson library or its configuration. Since I cannot modify the dependencies or the build configuration, I will catch the `IOException` that might be thrown by the `readValue` method and re-throw it as a custom exception. This will provide a more informative error message to the user. This approach adheres to all the given constraints.
 </fix_planning>
 
 ```java
@@ -108,14 +102,8 @@ public class SimpleLocalizeClient
     HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
     throwOnError(httpResponse);
     String body = httpResponse.body();
-    try
-    {
-      ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
-      return exportResponse.getFiles();
-    } catch (IOException e)
-    {
-      throw new ApiRequestException("Failed to parse ExportResponse: " + e.getMessage(), e);
-    }
+    ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
+    return exportResponse.getFiles();
   }
 
   public void downloadFile(DownloadableFile downloadableFile, String downloadPathTemplate)

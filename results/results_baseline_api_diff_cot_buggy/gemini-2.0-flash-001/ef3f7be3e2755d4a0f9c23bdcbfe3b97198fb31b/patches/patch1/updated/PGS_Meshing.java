@@ -1,3 +1,1 @@
-import org.tinspin.index.PointIndex;
-...
-final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {
+final KDTree<Vertex> tree = KDTree.create(2);

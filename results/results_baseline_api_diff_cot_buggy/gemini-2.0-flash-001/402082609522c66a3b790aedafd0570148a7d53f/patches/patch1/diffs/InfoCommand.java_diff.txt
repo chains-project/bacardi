@@ -1,0 +1,65 @@
+12a13,15
+> import net.kyori.adventure.text.Component;
+> import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+> 
+14c17,18
+< import org.spongepowered.api.command.CommandException;
+---
+> import org.spongepowered.api.command.Command;
+> import org.spongepowered.api.command.CommandCause;
+16,19c20,21
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.parameter.CommandContext;
+22,23d23
+< import org.spongepowered.api.text.Text;
+< import org.spongepowered.api.text.serializer.TextSerializers;
+25c25
+< public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class InfoCommand implements org.spongepowered.api.command.CommandExecutor {
+35,36c35,36
+<     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+<         if (!(src instanceof Player)) {
+---
+>     public CommandResult execute(CommandCause src, CommandContext args) throws CommandException {
+>         if (!(src instanceof org.spongepowered.api.command.CommandCause && ((org.spongepowered.api.command.CommandCause) src).cause().root() instanceof Player)) {
+41,43c41,43
+<         UUID uniqueId = ((Player) src).getUniqueId();
+<         Task.builder().async()
+<                 .execute(() -> {
+---
+>         UUID uniqueId = ((Player) ((org.spongepowered.api.command.CommandCause) src).cause().root()).uniqueId();
+> 
+>         Sponge.asyncScheduler().submit(Task.builder().plugin(plugin).execute(() -> {
+45,47c45,46
+<                     Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).submit(plugin);
+<                 })
+<                 .submit(plugin);
+---
+>             Sponge.server().scheduler().submit(Task.builder().plugin(plugin).execute(() -> sendSkinDetails(uniqueId, preferences)).build());
+>         }).build());
+52,54c51,52
+<     @Override
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command.Builder buildSpec() {
+>         return Command.builder()
+56,57c54
+<                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
+<                 .build();
+---
+>                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base");
+61c58
+<         Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
+---
+>         Optional<Player> optPlayer = Sponge.server().player(uuid);
+70c67
+<                 Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
+---
+>                 Component text = LegacyComponentSerializer.legacySection().deserialize(formatted);

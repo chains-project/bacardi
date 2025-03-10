@@ -60,7 +60,7 @@ public class ChachaDecoder {
 
 ```
 
-The errors are triggered in the following specific line:
+The errors are triggered in the following specific lines:
 
 <error_lines>
 ```java
@@ -73,10 +73,10 @@ throw new TlsFatalAlert(AlertDescription.bad_record_mac);
 throw new TlsFatalAlert(AlertDescription.bad_record_mac);
 ```
 ```java
-throw new TlsFatalAlert(AlertDescription.bad_record_mac);
+import org.bouncycastle.crypto.tls.AlertDescription;
 ```
 ```java
-import org.bouncycastle.crypto.tls.AlertDescription;
+throw new TlsFatalAlert(AlertDescription.bad_record_mac);
 ```
 </error_lines>
 
@@ -100,11 +100,11 @@ Additional error information:
   symbol:   class TlsFatalAlert
   location: class io.github.hapjava.server.impl.crypto.ChachaDecoder
 
+[ERROR] /HAP-Java/src/main/java/io/github/hapjava/server/impl/crypto/ChachaDecoder.java:[8,35] package org.bouncycastle.crypto.tls does not exist
+
 [ERROR] /HAP-Java/src/main/java/io/github/hapjava/server/impl/crypto/ChachaDecoder.java:[31,17] cannot find symbol
   symbol:   class TlsFatalAlert
   location: class io.github.hapjava.server.impl.crypto.ChachaDecoder
-
-[ERROR] /HAP-Java/src/main/java/io/github/hapjava/server/impl/crypto/ChachaDecoder.java:[8,35] package org.bouncycastle.crypto.tls does not exist
 <error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:

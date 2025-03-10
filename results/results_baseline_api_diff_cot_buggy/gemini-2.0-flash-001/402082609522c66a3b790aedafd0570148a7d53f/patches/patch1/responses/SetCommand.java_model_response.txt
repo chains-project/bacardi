@@ -1,0 +1,140 @@
+<fix_planning>
+a. Code and API changes:
+- The code uses `org.spongepowered.api.command.args.GenericArguments`, which has been removed.
+- The code uses `org.spongepowered.api.command.spec.CommandExecutor`, which has been removed, but `org.spongepowered.api.command.CommandExecutor` has been added.
+- The code uses `org.spongepowered.api.command.spec.CommandSpec`, which has been removed.
+- The code uses `org.spongepowered.api.command.CommandSource`, which has been removed.
+- The code uses `org.spongepowered.api.command.args.CommandContext`, which has been removed, but `org.spongepowered.api.command.parameter.CommandContext` has been added.
+
+b. Specific API changes causing the issue:
+- Removal of `org.spongepowered.api.command.args.GenericArguments`
+- Removal of `org.spongepowered.api.command.spec.CommandExecutor` and addition of `org.spongepowered.api.command.CommandExecutor`
+- Removal of `org.spongepowered.api.command.spec.CommandSpec`
+- Removal of `org.spongepowered.api.command.CommandSource`
+- Removal of `org.spongepowered.api.command.args.CommandContext` and addition of `org.spongepowered.api.command.parameter.CommandContext`
+
+c. Affected lines of code:
+- `import org.spongepowered.api.command.args.GenericArguments;`
+- `import org.spongepowered.api.command.spec.CommandExecutor;`
+- `import org.spongepowered.api.command.spec.CommandSpec;`
+- `import org.spongepowered.api.command.CommandSource;`
+- `import org.spongepowered.api.command.args.CommandContext;`
+- `public class SetCommand implements CommandExecutor, ChangeSkinCommand {`
+- `public CommandResult execute(CommandSource src, CommandContext args) {`
+- `return CommandSpec.builder()`
+- `flags().flag("keep").buildWith(GenericArguments.none()))`
+- `string(of("skin")),`
+
+d. Proposed fixes:
+- Remove `import org.spongepowered.api.command.args.GenericArguments;` and replace usages with the new API.
+- Replace `import org.spongepowered.api.command.spec.CommandExecutor;` with `import org.spongepowered.api.command.CommandExecutor;`
+- Remove `import org.spongepowered.api.command.spec.CommandSpec;` and replace usages with the new API.
+- Remove `import org.spongepowered.api.command.CommandSource;` and replace usages with the new API.
+- Remove `import org.spongepowered.api.command.args.CommandContext;` and replace usages with the new API.
+- Update `public class SetCommand implements CommandExecutor, ChangeSkinCommand {` to implement `org.spongepowered.api.command.CommandExecutor`.
+- Update `public CommandResult execute(CommandSource src, CommandContext args) {` to use `org.spongepowered.api.command.CommandSource` and `org.spongepowered.api.command.parameter.CommandContext`.
+- Replace `CommandSpec` with `org.spongepowered.api.command.Command.Builder`.
+- Replace `GenericArguments` with `org.spongepowered.api.command.parameter.Parameter`.
+
+e. Potential side effects:
+- The new Sponge API might have different behavior than the old one, requiring adjustments to the code logic.
+
+f. Adherence to constraints:
+- The function signatures of methods are not changed.
+- Variables can be created if needed.
+- The `@Override` annotation might need to be removed if the method no longer overrides a method in the updated dependency version.
+- Missing imports will be addressed with the correct package or class.
+- No existing code will be removed unless it directly causes a compilation or functionality error.
+- All code, even unchanged portions, will be included in the final output.
+
+g. Final summary:
+The best solution is to replace the deprecated/removed classes with their updated counterparts in the Sponge API. This involves updating the imports, implementing the correct interfaces, and using the new API for command registration and execution. The `@Override` annotation will be removed from the `execute` method as the interface has changed.
+
+</fix_planning>
+
+```java
+package com.github.games647.changeskin.sponge.command;
+
+import com.github.games647.changeskin.core.ChangeSkinCore;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.github.games647.changeskin.sponge.PomData;
+import com.github.games647.changeskin.sponge.task.NameResolver;
+import com.github.games647.changeskin.sponge.task.SkinDownloader;
+import com.google.inject.Inject;
+
+import java.util.UUID;
+
+import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.command.parameter.Parameter;
+
+import static org.spongepowered.api.command.CommandResult.success;
+import static org.spongepowered.api.util.Tuple.of;
+import static org.spongepowered.api.text.Text.of;
+
+public class SetCommand implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
+
+    private final ChangeSkinSponge plugin;
+    private final ChangeSkinCore core;
+
+    @Inject
+    SetCommand(ChangeSkinSponge plugin, ChangeSkinCore core) {
+        this.plugin = plugin;
+        this.core = core;
+    }
+
+    @Override
+    public CommandResult execute(CommandSource src, CommandContext args) {
+        if (!(src instanceof Player)) {
+            plugin.sendMessage(src, "no-console");
+            return CommandResult.empty();
+        }
+
+        UUID uniqueId = ((Player) src).getUniqueId();
+        if (core.getCooldownService().isTracked(uniqueId)) {
+            plugin.sendMessage(src, "cooldown");
+            return CommandResult.empty();
+        }
+
+        Player receiver = (Player) src;
+        String targetSkin = args.one(Parameter.string().key("skin").build()).orElse("");
+        boolean keepSkin = args.hasAny("keep");
+
+        if ("reset".equals(targetSkin)) {
+            targetSkin = receiver.getUniqueId().toString();
+        }
+
+        if (targetSkin.length() > 16) {
+            UUID targetUUID = UUID.fromString(targetSkin);
+
+            if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(src, targetUUID, true)) {
+                return CommandResult.empty();
+            }
+
+            plugin.sendMessage(src, "skin-change-queue");
+            Runnable skinDownloader = new SkinDownloader(plugin, src, receiver, targetUUID, keepSkin);
+            Task.builder().async().execute(skinDownloader).submit(plugin);
+            return success();
+        }
+
+        Runnable nameResolver = new NameResolver(plugin, src, targetSkin, receiver, keepSkin);
+        Task.builder().async().execute(nameResolver).submit(plugin);
+        return success();
+    }
+
+    @Override
+    public Command.Builder buildSpec() {
+        Parameter.Value<String> skinParameter = Parameter.string().key("skin").build();
+
+        return Command.builder()
+                .executor(this)
+                .addParameter(skinParameter)
+                .addFlag(Command.Flag.builder().setAliases("keep").build())
+                .permission(PomData.ARTIFACT_ID + ".command.setskin.base");
+    }
+}
+```

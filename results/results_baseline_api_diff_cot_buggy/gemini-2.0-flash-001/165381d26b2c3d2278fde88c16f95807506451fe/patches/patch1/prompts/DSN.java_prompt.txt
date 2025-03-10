@@ -377,9 +377,12 @@ public class DSN {
 
 ```
 
-The errors are triggered in the following specific line:
+The errors are triggered in the following specific lines:
 
 <error_lines>
+```java
+private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
+```
 ```java
 private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
 ```
@@ -389,20 +392,17 @@ import com.github.javaparser.printer.PrettyPrinterConfiguration;
 ```java
 private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
 ```
-```java
-private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
-```
 </error_lines>
 
 The API of the dependency has changed. Here are the relevant changes:
 
      Constructor com.github.javaparser.printer.PrettyPrinterConfiguration() has been removed in the new version of the dependency.
+     Type reference com.github.javaparser.printer.configuration.PrettyPrinterConfiguration() has been added in the new version of the dependency.
      Interface com.github.javaparser.printer.configuration.PrettyPrinterConfiguration has been added in the new version of the dependency.
      Class com.github.javaparser.printer.PrettyPrinterConfiguration has been removed in the new version of the dependency.
      Construct com.github.javaparser.printer.configuration.PrettyPrinterConfiguration() has been added in the new version of the dependency.
-     Type reference com.github.javaparser.printer.configuration.PrettyPrinterConfiguration() has been added in the new version of the dependency.
-     Method com.github.javaparser.printer.PrettyPrinterConfiguration.setPrintComments(boolean) has been removed in the new version of the dependency.
      Method com.github.javaparser.printer.configuration.PrettyPrinterConfiguration.setPrintComments(boolean) has been added in the new version of the dependency.
+     Method com.github.javaparser.printer.PrettyPrinterConfiguration.setPrintComments(boolean) has been removed in the new version of the dependency.
 
 Additional error information:
 
@@ -411,13 +411,13 @@ Additional error information:
   symbol:   class PrettyPrinterConfiguration
   location: class org.btrplace.safeplace.DSN.UnitTestsVisitor
 
-[ERROR] /scheduler/safeplace/src/test/java/org/btrplace/safeplace/DSN.java:[15,37] cannot find symbol
-  symbol:   class PrettyPrinterConfiguration
-  location: package com.github.javaparser.printer
-
 [ERROR] /scheduler/safeplace/src/test/java/org/btrplace/safeplace/DSN.java:[335,21] cannot find symbol
   symbol:   class PrettyPrinterConfiguration
   location: class org.btrplace.safeplace.DSN.UnitTestsVisitor
+
+[ERROR] /scheduler/safeplace/src/test/java/org/btrplace/safeplace/DSN.java:[15,37] cannot find symbol
+  symbol:   class PrettyPrinterConfiguration
+  location: package com.github.javaparser.printer
 
 [ERROR] /scheduler/safeplace/src/test/java/org/btrplace/safeplace/DSN.java:[335,21] cannot find symbol
   symbol:   class PrettyPrinterConfiguration
