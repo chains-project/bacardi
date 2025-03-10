@@ -1,27 +1,29 @@
 <fix_planning>
 1. Analysis:
-   a. The error occurs because the Logger interface from ch.qos.logback.classic package has been removed in the new version.
-   b. The specific API change is the removal of the Logger interface and its setLevel() method.
+   a. The error occurs because the Logger interface from ch.qos.logback.classic package has been removed in the new version
+   b. The specific API change is the removal of the Logger interface and its setLevel() method
    c. Affected line:
       - ((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.TRACE);
 
 2. Proposed fixes:
    a. Replace the Logger interface usage with the Logger class from org.slf4j package
-   b. Use the standard SLF4J API for setting the log level
+   b. Use the appropriate method to set the log level
 
 3. Side effects:
-   - The change will use the standard SLF4J API instead of the Logback-specific API
-   - The logging behavior should remain the same as it's using the same underlying implementation
+   - The change will affect the logging configuration for the test class
+   - Need to ensure the new logging configuration works as intended
 
 4. Constraints check:
-   - The function signature remains unchanged
-   - No existing code is removed
    - The fix adheres to all constraints
+   - No function signatures are changed
+   - No code is removed
+   - Correct package is used
 
 5. Final solution:
-   Replace the Logback-specific Logger usage with SLF4J Logger class, which is more standard and compatible with different logging implementations.
-
-The best solution is to use the SLF4J Logger class instead of the removed Logback Logger interface, as it provides a more standard and compatible way to set the log level.
+   Replace the Logger usage with org.slf4j.Logger and use the appropriate method to set the log level. This is the best solution because:
+   - It uses the current API
+   - Maintains the same functionality
+   - Adheres to all constraints
 </fix_planning>
 
 ```java
@@ -42,9 +44,9 @@ The best solution is to use the SLF4J Logger class instead of the removed Logbac
  */
 package com.feedzai.commons.sql.abstraction.engine.impl.abs;
 
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import ch.qos.logback.classic.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.feedzai.commons.sql.abstraction.ddl.AlterColumn;
 import com.feedzai.commons.sql.abstraction.ddl.DbColumn;
 import com.feedzai.commons.sql.abstraction.ddl.DbColumnConstraint;
@@ -110,7 +112,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.feedzai.commons.sql.abstraction.ddl.DbColumnConstraint.NET_NULL;
+import static com.feedzai.commons.sql.abstraction.ddl.DbColumnConstraint.NOT_NULL;
 import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.BLOB;
 import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.BOOLEAN;
 import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.CLOB;
@@ -321,120 +323,4 @@ public class EngineGeneralTest {
                 .addColumn("COL1", INT)
                 .addColumn("COL2", BOOLEAN)
                 .addColumn("COL3", DOUBLE)
-                .addColumn("COL4", LONG)
-                .addColumn("COL5", STRING)
-                .pkFields("COL1", "COL3")
-                .addIndex("COL4")
-                .addIndex("COL3")
-                .build();
-
-        engine.addEntity(entity);
-    }
-
-    @Test
-    public void createEntityWithTheSameNameButLowerCasedTest() throws DatabaseEngineException {
-        DbEntity entity = dbEntity()
-                .name("TEST")
-                .addColumn("COL1", INT)
-                .addColumn("COL2", BOOLEAN)
-                .addColumn("COL3", DOUBLE)
-                .addColumn("COL4", LONG)
-                .addColumn("COL5", STRING)
-                .pkFields("COL1", "COL3")
-                .build();
-
-        engine.addEntity(entity);
-
-        DbEntity entity2 = dbEntity()
-                .name("test")
-                .addColumn("COL1", INT)
-                .addColumn("COL2", BOOLEAN)
-                .addColumn("COL3", DOUBLE)
-                .addColumn("COL4", LONG)
-                .addColumn("COL5", STRING)
-                .pkFields("COL1", "COL3")
-                .build();
-
-        engine.addEntity(entity2);
-
-    }
-
-    @Test
-    public void createEntityWithSequencesTest() throws DatabaseEngineException {
-
-        DbEntity entity = dbEntity()
-                .name("TEST")
-                .addColumn("COL1", INT, true)
-                .addColumn("COL2", BOOLEAN)
-                .addColumn("COL3", DOUBLE)
-                .addColumn("COL4", LONG)
-                .addColumn("COL5", STRING)
-                .pkFields("COL1")
-                .build();
-
-        engine.addEntity(entity);
-    }
-
-    @Test
-    public void createEntityWithIndexesTest() throws DatabaseEngineException {
-
-        DbEntity entity = dbEntity()
-                .name("TEST")
-                .addColumn("COL1", INT, true)
-                .addColumn("COL2", BOOLEAN)
-                .addColumn("COL3", DOUBLE)
-                .addColumn("COL4", LONG)
-                .addColumn("COL5", STRING)
-                .addIndex("COL4")
-                .pkFields("COL1")
-                .build();
-
-        engine.addEntity(entity);
-    }
-
-    @Test
-    public void insertWithControlledTransactionTest() throws Exception {
-        create5ColumnsEntity();
-
-        EntityEntry entry = entry().set("COL1", 2).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS").build();
-
-        engine.beginTransaction();
-
-        try {
-
-            engine.persist("TEST", entry);
-            engine.commit();
-        } finally {
-            if (engine.isTransactionActive()) {
-                engine.rollback();
-            }
-        }
-
-        List<Map<String, ResultColumn>> query = engine.query(select(all()).from(table("TEST")));
-
-        assertTrue("COL1 exists", query.get(0).containsKey("COL1");
-        assertEquals("COL1 ok?", 2, (int) query.get(0).get("COL1").toInt());
-
-        assertTrue("COL2 exists", query.get(0).containsKey("COL2");
-        assertFalse("COL2 ok?", query.get(0).get("COL2").toBoolean());
-
-        assertTrue("COL3 exists", query.get(0).containsKey("COL3");
-        assertEquals("COL3 ok?", 2D, query.get(0).get("COL3").toDouble(), 0);
-
-        assertTrue("COL4 exists", query.get(0).containsKey("COL4");
-        assertEquals("COL4 ok?", 3L, (long) query.get(0).get("COL4").toLong());
-
-        assertTrue("COL5 exists", query.get(0).containsKey("COL5");
-        assertEquals("COL5  ok?", "ADEUS", query.get(0).get("COL5").toString());
-    }
-
-    @Test
-    public void insertWithAutoCommitTest() throws Exception {
-        create5ColumnsEntity();
-
-        EntityEntry entry = entry().set("COL1", 2).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS")
-                .build();
-
-        engine.persist("TEST", entry);
-
-        List
+                .

@@ -72,43 +72,25 @@ The errors are triggered in the following specific lines:
 
 <error_lines>
 ```java
-@Interceptor
-```
-```java
 @AroundInvoke
 ```
 ```java
-private Object callMock(InvocationContext ctx, Class<?> javaClass) throws Throwable {
+private Object callAlternative(InvocationContext ctx, Class<?> javaClass) throws Throwable {
 ```
 ```java
 public Object invokeMockableBean(InvocationContext ctx) throws Throwable {
-```
-```java
-private Object callAlternative(InvocationContext ctx, Class<?> javaClass) throws Throwable {
-```
-```java
-private Object callAlternative(InvocationContext ctx, Class<?> javaClass) throws Throwable {
 ```
 ```java
 import javax.interceptor.InvocationContext;
 ```
 ```java
-private Object callMock(InvocationContext ctx, Class<?> javaClass) throws Throwable {
-```
-```java
 public Object invokeMockableBean(InvocationContext ctx) throws Throwable {
 ```
 ```java
 private Object callMock(InvocationContext ctx, Class<?> javaClass) throws Throwable {
 ```
 ```java
-import javax.interceptor.Interceptor;
-```
-```java
-public Object invokeMockableBean(InvocationContext ctx) throws Throwable {
-```
-```java
-import javax.interceptor.AroundInvoke;
+private Object callMock(InvocationContext ctx, Class<?> javaClass) throws Throwable {
 ```
 ```java
 public Object invokeMockableBean(InvocationContext ctx) throws Throwable {
@@ -116,56 +98,59 @@ public Object invokeMockableBean(InvocationContext ctx) throws Throwable {
 ```java
 private Object callAlternative(InvocationContext ctx, Class<?> javaClass) throws Throwable {
 ```
+```java
+private Object callAlternative(InvocationContext ctx, Class<?> javaClass) throws Throwable {
+```
+```java
+public Object invokeMockableBean(InvocationContext ctx) throws Throwable {
+```
+```java
+@Interceptor
+```
+```java
+import javax.interceptor.AroundInvoke;
+```
+```java
+import javax.interceptor.Interceptor;
+```
+```java
+private Object callMock(InvocationContext ctx, Class<?> javaClass) throws Throwable {
+```
 </error_lines>
 
 The API of the dependency has changed. Here are the relevant changes:
 
-     Class javax.interceptor.Interceptor has been removed in the new version of the dependency.
-     Interface jakarta.interceptor.Interceptor has been added in the new version of the dependency.
      Interface jakarta.interceptor.AroundInvoke has been added in the new version of the dependency.
      Class javax.interceptor.AroundInvoke has been removed in the new version of the dependency.
-     Class javax.interceptor.InvocationContext has been removed in the new version of the dependency.
+     Method javax.interceptor.InvocationContext.getMethod() has been removed in the new version of the dependency.
+     Method jakarta.interceptor.InvocationContext.getMethod() has been added in the new version of the dependency.
      Method javax.interceptor.InvocationContext.proceed() has been removed in the new version of the dependency.
      Method jakarta.interceptor.InvocationContext.proceed() has been added in the new version of the dependency.
-     Method jakarta.interceptor.InvocationContext.getMethod() has been added in the new version of the dependency.
-     Method javax.interceptor.InvocationContext.getMethod() has been removed in the new version of the dependency.
-     Method jakarta.interceptor.InvocationContext.getParameters() has been added in the new version of the dependency.
-     Method javax.interceptor.InvocationContext.getParameters() has been removed in the new version of the dependency.
+     Class javax.interceptor.InvocationContext has been removed in the new version of the dependency.
      Method jakarta.interceptor.InvocationContext.getTarget() has been added in the new version of the dependency.
      Method javax.interceptor.InvocationContext.getTarget() has been removed in the new version of the dependency.
+     Method jakarta.interceptor.InvocationContext.getParameters() has been added in the new version of the dependency.
+     Method javax.interceptor.InvocationContext.getParameters() has been removed in the new version of the dependency.
+     Interface jakarta.interceptor.Interceptor has been added in the new version of the dependency.
+     Class javax.interceptor.Interceptor has been removed in the new version of the dependency.
 
 Additional error information:
 
 <error_information>
-[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[18,2] cannot find symbol
-  symbol: class Interceptor
-
 [ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[27,6] cannot find symbol
   symbol:   class AroundInvoke
   location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
 
-[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[55,29] cannot find symbol
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[40,36] cannot find symbol
   symbol:   class InvocationContext
   location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
 
 [ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[28,38] cannot find symbol
-  symbol:   class InvocationContext
-  location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
-
-[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[40,36] cannot find symbol
-  symbol:   class InvocationContext
-  location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
-
-[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[40,36] cannot find symbol
   symbol:   class InvocationContext
   location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
 
 [ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[12,25] package javax.interceptor does not exist
 
-[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[55,29] cannot find symbol
-  symbol:   class InvocationContext
-  location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
-
 [ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[28,38] cannot find symbol
   symbol:   class InvocationContext
   location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
@@ -174,19 +159,34 @@ Additional error information:
   symbol:   class InvocationContext
   location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
 
-[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[11,25] package javax.interceptor does not exist
-
-[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[28,38] cannot find symbol
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[55,29] cannot find symbol
   symbol:   class InvocationContext
   location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
-
-[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[10,25] package javax.interceptor does not exist
 
 [ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[28,38] cannot find symbol
   symbol:   class InvocationContext
   location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
 
 [ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[40,36] cannot find symbol
+  symbol:   class InvocationContext
+  location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
+
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[40,36] cannot find symbol
+  symbol:   class InvocationContext
+  location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
+
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[28,38] cannot find symbol
+  symbol:   class InvocationContext
+  location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
+
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[18,2] cannot find symbol
+  symbol: class Interceptor
+
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[10,25] package javax.interceptor does not exist
+
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[11,25] package javax.interceptor does not exist
+
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[55,29] cannot find symbol
   symbol:   class InvocationContext
   location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
 <error_information>

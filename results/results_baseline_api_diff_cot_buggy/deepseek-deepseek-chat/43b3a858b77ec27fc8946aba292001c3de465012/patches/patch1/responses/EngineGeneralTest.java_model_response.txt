@@ -1,34 +1,29 @@
 <fix_planning>
 1. Analysis:
-   a. The error occurs because the Logger interface from ch.qos.logback.classic has been removed in the new version
-   b. The specific API change is the removal of the Logger interface and its setLevel() method
+   a. The error occurs because the Logger interface from ch.qos.logback.classic package has been removed in the new version
+   b. The specific API change is the removal of Logger interface and its setLevel() method
    c. Affected line:
       - ((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.TRACE);
+   d. Potential fixes:
+      - Use org.slf4j.Logger instead of ch.qos.logback.classic.Logger
+      - Use org.slf4j.LoggerFactory instead of ch.qos.logback.classic.LoggerFactory
+      - Use org.slf4j.event.Level instead of ch.qos.logback.classic.Level
+   e. Side effects:
+      - The logging level setting might behave differently with SLF4J API
+      - Need to ensure the underlying logging implementation supports TRACE level
+   f. Constraints check:
+      - The fix adheres to all constraints as it only changes the logging initialization
+      - No method signatures are changed
+      - No code is removed
+   g. Final solution:
+      - Replace ch.qos.logback.classic.Logger with org.slf4j.Logger
+      - Replace ch.qos.logback.classic.Level with org.slf4j.event.Level
+      - This is the best solution as it uses the standard SLF4J API which is more stable and widely supported
 
-2. Proposed fixes:
-   - Replace the Logger interface usage with the new logging API
-   - Use the root logger directly from LoggerFactory
-   - The fix should maintain the same functionality of setting the log level to TRACE
-
-3. Potential side effects:
-   - The change might affect other parts of the code that depend on the old logging API
-   - Need to ensure the new logging API is compatible with the rest of the code
-
-4. Constraints check:
-   - The fix doesn't change any method signatures
-   - No variables need to be created
-   - No @Override annotations need to be removed
-   - The fix uses the correct package from the newer dependency version
-   - No code is removed, only replaced with equivalent functionality
-
-5. Final solution:
-   Replace the line with:
-   LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME).setLevel(Level.TRACE);
-   This is the best solution because:
-   - It uses the new logging API directly
-   - Maintains the same functionality
-   - Is compatible with the rest of the code
-   - Adheres to all constraints
+2. Changes needed:
+   - Replace Logger import from ch.qos.logback.classic to org.slf4j
+   - Replace Level import from ch.qos.logback.classic to org.slf4j.event
+   - Modify the logging initialization line to use SLF4J API
 </fix_planning>
 
 ```java
@@ -49,8 +44,8 @@
  */
 package com.feedzai.commons.sql.abstraction.engine.impl.abs;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
+import org.slf4j.event.Level;
+import org.slf4j.Logger;
 import com.feedzai.commons.sql.abstraction.ddl.AlterColumn;
 import com.feedzai.commons.sql.abstraction.ddl.DbColumn;
 import com.feedzai.commons.sql.abstraction.ddl.DbColumnConstraint;
@@ -82,7 +77,7 @@ import com.feedzai.commons.sql.abstraction.engine.OperationNotSupportedRuntimeEx
 import com.feedzai.commons.sql.abstraction.engine.impl.cockroach.SkipTestCockroachDB;
 import com.feedzai.commons.sql.abstraction.engine.testconfig.BlobTest;
 import com.feedzai.commons.sql.abstraction.engine.testconfig.DatabaseConfiguration;
-import com.feedzai.commons.sql.abstraction.engine.testconfig.DatabaseTestUtil;
+import com feedzai.commons.sql.abstraction.engine.testconfig.DatabaseTestUtil;
 import com.feedzai.commons.sql.abstraction.entry.EntityEntry;
 import com.google.common.collect.ImmutableSet;
 import java.sql.SQLException;
@@ -212,7 +207,7 @@ public class EngineGeneralTest {
 
     @BeforeClass
     public static void initStatic() {
-        LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME).setLevel(Level.TRACE);
+        LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME).atLevel(Level.TRACE);
     }
 
     @Before
@@ -313,4 +308,108 @@ public class EngineGeneralTest {
                 .addColumn("COL2", BOOLEAN)
                 .addColumn("COL3", DOUBLE)
                 .addColumn("COL4", LONG)
-                .addColumn("COL5
+                .addColumn("COL5", STRING)
+                .pkFields("COL1", "COL3")
+                .addIndex("COL4", "COL3")
+                .build();
+
+        engine.addEntity(entity);
+    }
+
+    @Test
+    public void createTwoIndexesTest() throws DatabaseEngineException {
+        DbEntity entity = dbEntity()
+                .name("TEST")
+                .addColumn("COL1", INT)
+                .addColumn("COL2", BOOLEAN)
+                .addColumn("COL3", DOUBLE)
+                .addColumn("COL4", LONG)
+                .addColumn("COL5", STRING)
+                .pkFields("COL1", "COL3")
+                .addIndex("COL4")
+                .addIndex("COL3")
+                .build();
+
+        engine.addEntity(entity);
+    }
+
+    @Test
+    public void createEntityWithTheSameNameButLowerCasedTest() throws DatabaseEngineException {
+        DbEntity entity = dbEntity()
+                .name("TEST")
+                .addColumn("COL1", INT)
+                .addColumn("COL2", BOOLEAN)
+                .addColumn("COL3", DOUBLE)
+                .addColumn("COL4", LONG)
+                .addColumn("COL5", STRING)
+                .pkFields("COL1", "COL3")
+                .build();
+
+        engine.addEntity(entity);
+
+        DbEntity entity2 = dbEntity()
+                .name("test")
+                .addColumn("COL1", INT)
+                .addColumn("COL2", BOOLEAN)
+                .addColumn("COL3", DOUBLE)
+                .addColumn("COL4", LONG)
+                .addColumn("COL5", STRING)
+                .pkFields("COL1", "COL3")
+                .build();
+
+        engine.addEntity(entity2);
+
+    }
+
+    @Test
+    public void createEntityWithSequencesTest() throws DatabaseEngineException {
+
+        DbEntity entity = dbEntity()
+                .name("TEST")
+                .addColumn("COL1", INT, true)
+                .addColumn("COL2", BOOLEAN)
+                .addColumn("COL3", DOUBLE)
+                .addColumn("COL4", LONG)
+                .addColumn("COL5", STRING)
+                .pkFields("COL1")
+                .build();
+
+        engine.addEntity(entity);
+    }
+
+    @Test
+    public void createEntityWithIndexesTest() throws DatabaseEngineException {
+
+        DbEntity entity = dbEntity()
+                .name("TEST")
+                .addColumn("COL1", INT, true)
+                .addColumn("COL2", BOOLEAN)
+                .addColumn("COL3", DOUBLE)
+                .addColumn("COL4", LONG)
+                .addColumn("COL5", STRING)
+                .addIndex("COL4")
+                .pkFields("COL1")
+                .build();
+
+        engine.addEntity(entity);
+    }
+
+    @Test
+    public void insertWithControlledTransactionTest() throws Exception {
+        create5ColumnsEntity();
+
+        EntityEntry entry = entry().set("COL1", 2).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS").build();
+
+        engine.beginTransaction();
+
+        try {
+
+            engine.persist("TEST", entry);
+            engine.commit();
+        } finally {
+            if (engine.isTransactionActive()) {
+                engine.rollback();
+            }
+        }
+
+        List

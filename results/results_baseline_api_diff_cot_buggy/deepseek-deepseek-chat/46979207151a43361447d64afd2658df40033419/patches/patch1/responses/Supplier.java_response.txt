@@ -80,7 +80,7 @@ public class Supplier implements ToString2
     protected String companyName;
     @XmlElement(name = "Contact")
     protected String contact;
-    @XmlElement(name = "BillingAddress", required极地
+    @XmlElement(name = "BillingAddress", required = true)
     protected SupplierAddressStructure billingAddress;
     @XmlElement(name = "ShipFromAddress")
     protected List<SupplierAddressStructure> shipFromAddress;
@@ -92,7 +92,7 @@ public class Supplier implements ToString2
     protected String email;
     @XmlElement(name = "Website")
     protected String website;
-    @XmlElement(name = "SelfBillingIndicator")
+    @XmlElement(name极="SelfBillingIndicator")
     protected int selfBillingIndicator;
 
     /**
@@ -103,12 +103,12 @@ public class Supplier implements ToString2
      *     {@link String }
      *     
      */
-    public String getSupplier极地
+    public String getSupplierID() {
         return supplierID;
     }
 
     /**
-     * Sets the value of the supplierID property.
+     * Sets the value极 the supplierID property.
      * 
      * @param value
      *     allowed object is
@@ -151,7 +151,7 @@ public class Supplier implements ToString2
      *     {@link String }
      *     
      */
-    public String getSupplierTaxID() {
+   极 String getSupplierTaxID() {
         return supplierTaxID;
     }
 
@@ -159,7 +159,11 @@ public class Supplier implements ToString2
      * Sets the value of the supplierTaxID property.
      * 
      * @param value
-    极地
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setSupplierTaxID(String value) {
         this.supplierTaxID = value;
     }
 
@@ -188,7 +192,7 @@ public class Supplier implements ToString2
     }
 
     /**
-     * Gets极地
+     * Gets the value of the contact property.
      * 
      * @return
      *     possible object is
@@ -378,7 +382,7 @@ public class Supplier implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+        final ToStringStrategy2 strategy = new org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
@@ -402,7 +406,6 @@ public class Supplier implements ToString2
         {
             String theAccountID;
             theAccountID = this.getAccountID();
-            strategy.appendField(locator, this, "极地
             strategy.appendField(locator, this, "accountID", buffer, theAccountID, (this.accountID!= null));
         }
         {
@@ -423,17 +426,17 @@ public class Supplier implements ToString2
         {
             SupplierAddressStructure theBillingAddress;
             theBillingAddress = this.getBillingAddress();
-            strategy.appendField(locator, this, "billingAddress", buffer, theBillingAddress, (this.billingAddress!= null));
+            strategy.appendField(locator, this, "billingAddress", buffer, theBillingAddress极 (this.billingAddress!= null));
         }
         {
             List<SupplierAddressStructure> theShipFromAddress;
             theShipFromAddress = (((this.shipFromAddress!= null)&&(!this.shipFromAddress.isEmpty()))?this.getShipFromAddress():null);
-            strategy.appendField(locator, this, "shipFromAddress", buffer, theShipFromAddress, ((this.shipFromAddress!= null)&&(!this.ship极地
+            strategy.appendField(locator, this, "shipFromAddress", buffer, theShipFromAddress, ((this.shipFromAddress!= null)&&(!this.shipFromAddress.isEmpty())));
         }
         {
             String theTelephone;
             theTelephone = this.getTelephone();
-            strategy.appendField(locator, this, "telephone", buffer, theTelephone, (极地
+            strategy.appendField(locator, this, "telephone", buffer, theTelephone, (this.telephone!= null));
         }
         {
             String theFax;

@@ -1,35 +1,34 @@
 <fix_planning>
 1. Analysis:
    a. The error occurs because:
-      - Class `org.tinspin.index.PointIndex` has been removed
-      - Method `KDTree.create(int, PointDistanceFunction)` has been removed
-      - Class `PointDistanceFunction` has been removed
+      - `PointIndex` class has been removed
+      - `KDTree.create(int, PointDistanceFunction)` method has been removed
    b. The specific API changes causing the issue:
-      - The entire KDTree API has been reworked in the new version
-      - The PointIndex interface and related classes have been removed
+      - Removal of `PointIndex` interface
+      - Removal of old `KDTree.create()` method
+      - Addition of new `KDTree.create(IndexConfig)` method
    c. Affected lines:
-      - Line 161: `final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {`
-      - Import line: `import org.tinspin.index.PointIndex;`
+      - Import statement for `PointIndex`
+      - Line creating KDTree instance
    d. Proposed fixes:
-      - Replace PointIndex with the new KDTree interface
-      - Use the new KDTree.create() method with IndexConfig
-      - Implement distance calculation directly in the code
+      - Remove `PointIndex` import
+      - Replace KDTree creation with new API using `IndexConfig`
    e. Potential side effects:
-      - The new KDTree implementation might have different performance characteristics
-      - The distance calculation logic remains the same, so functionality should be preserved
+      - Need to ensure new KDTree API provides equivalent functionality
+      - May need to adjust distance function implementation
    f. Constraints check:
       - Function signatures remain unchanged
-      - No code is removed, only replaced
-      - New imports are correctly used
+      - No code removed except problematic imports
+      - New imports added as needed
    g. Final solution:
-      - Replace PointIndex with KDTree
-      - Use IndexConfig to create the tree
-      - Keep the same distance calculation logic
-      - This is the best solution as it uses the new API while maintaining the same functionality
+      - Use new KDTree API with IndexConfig
+      - Implement distance function using new approach
+      - This is the best solution as it uses the current API while maintaining functionality
 
 2. Changes needed:
-   - Replace import: `import org.tinspin.index.kdtree.KDTree;`
-   - Replace line 161 with new KDTree creation code
+   - Remove `import org.tinspin.index.PointIndex;`
+   - Replace KDTree creation with new API
+   - Add new import for IndexConfig
 </fix_planning>
 
 ```java
@@ -69,9 +68,10 @@ import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
 import org.tinfour.utils.TriangleCollector;
 import org.tinspin.index.kdtree.KDTree;
+import org.tinspin.index.IndexConfig;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
 import micycle.pgs.color.Colors;
-import micycle.pgs.commons.AAreaMerge;
+import micycle.pgs.commons.AreaMerge;
 import micycle.pgs.commons.IncrementalTinDual;
 import micycle.pgs.commons.PEdge;
 import micycle.pgs.commons.PMesh;
@@ -192,7 +192,7 @@ public class PGS_Meshing {
 			}
 		});
 
-		final KDTree<Vertex> tree = KDTree.create(2);
+		final KDTree<Vertex> tree = KDTree.create(IndexConfig.create(2));
 		vertices.forEach(v -> tree.insert(new double[] { v.x, v.y }, v));
 
 		final HashSet<IQuadEdge> nonGabrielEdges = new HashSet<>(); // base references to edges that should be removed
@@ -458,6 +458,4 @@ public class PGS_Meshing {
 		});
 
 		PShape quads = PGS.polygonizeEdges(meshEdges);
-		if (triangulation.getConstraints().size() < 2) { // assume constraint 1 is the boundary (not a hole)
-			return quads;
-		
+		if

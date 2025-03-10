@@ -1,26 +1,25 @@
 <fix_planning>
 1. Analysis:
-   a. The error occurs because `CommandSource` class has been removed in the new version of the dependency.
-   b. The specific API change causing the issue is the removal of `org.spongepowered.api.command.CommandSource`.
+   a. The error is caused by the removal of the `CommandSource` class in the new version of the dependency.
+   b. The specific API change is the removal of `org.spongepowered.api.command.CommandSource`.
    c. Affected lines:
-      - Import statement: `import org.spongepowered.api.command.CommandSource;`
-      - Field declaration: `private final CommandSource invoker;`
-      - Constructor parameter: `public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url)`
+      - `private final CommandSource invoker;`
+      - `public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url) {`
+      - `import org.spongepowered.api.command.CommandSource;`
    d. Potential fixes:
-      - Replace `CommandSource` with its replacement class `CommandCause` from `org.spongepowered.api.command.manager` package.
+      - Replace `CommandSource` with a suitable alternative from the new API, such as `CommandCause` or `Subject`.
+      - Update the import statement to use the new class.
    e. Side effects:
-      - The new class might have different methods or behavior, but since we're only using it as a parameter type, it should be compatible.
-   f. Constraints check:
-      - Function signatures remain unchanged
-      - No code is removed
-      - Only client code is modified
-      - All code is included in the final output
-   g. Final solution:
-      - Replace `CommandSource` with `CommandCause` in all affected locations.
+      - The new class might have different methods or behavior, which could require additional changes in the code.
+   f. Constraints:
+      - The function signature of methods should not be changed.
+      - The fix should only modify the client code.
+   g. Final summary:
+      - The best solution is to replace `CommandSource` with `Subject`, as it is a common replacement in the Sponge API for command-related classes. This change adheres to all constraints and should resolve the compilation errors.
 
-2. Chosen fix:
-   - Replace `CommandSource` with `CommandCause` from `org.spongepowered.api.command.manager` package.
-   - This is the best solution because it directly addresses the API change while maintaining the same functionality and adhering to all constraints.
+2. Proposed changes:
+   - Replace `CommandSource` with `Subject` in the field declaration and constructor.
+   - Update the import statement to use `org.spongepowered.api.service.permission.Subject`.
 </fix_planning>
 
 ```java
@@ -32,15 +31,15 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import java.util.concurrent.TimeUnit;
 
-import org.spongepowered.api.command.manager.CommandCause;
+import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.scheduler.Task;
 
 public class SkinUploader extends SharedUploader {
 
     private final ChangeSkinSponge plugin;
-    private final CommandCause invoker;
+    private final Subject invoker;
 
-    public SkinUploader(ChangeSkinSponge plugin, CommandCause invoker, Account owner, String url) {
+    public SkinUploader(ChangeSkinSponge plugin, Subject invoker, Account owner, String url) {
         super(plugin.getCore(), owner, url);
 
         this.plugin = plugin;
