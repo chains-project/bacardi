@@ -1,0 +1,57 @@
+<fix_planning>
+a. Code and API changes:
+The code uses `ExecutorService.getInstance().getExecutor(this).execute(...)`.
+The API changes indicate that `liquibase.executor.ExecutorService.getInstance()` has been removed, and `liquibase.executor.ExecutorService.getExecutor(java.lang.String,liquibase.database.Database)` has been added. Also, the interface `liquibase.executor.Executor` has been removed.
+
+b. Specific API changes causing the issue:
+The removal of `ExecutorService.getInstance()` is the direct cause of the compilation error.
+
+c. Affected lines of code:
+```java
+ExecutorService.getInstance().getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+```
+
+d. Proposed fixes:
+Since `ExecutorService.getInstance()` is removed, we need to find a way to get an `Executor` instance. The API changes suggest a new `getExecutor` method in `ExecutorService` that takes a database object. However, `ExecutorService` itself is removed. We need to find where the `ExecutorService` is now located and how to get an `Executor` instance.
+
+Looking at the Liquibase documentation and examples, it seems the `Database` object itself now has the `executor` and we can get it directly from the database object.
+
+Therefore, the proposed fix is to replace `ExecutorService.getInstance().getExecutor(this)` with `getExecutor()`.
+
+e. Potential side effects:
+This change assumes that the `getExecutor()` method is now directly available in the `Database` class (or a parent class) and returns an object that has an `execute` method. This seems to be the intended usage based on the API changes.
+
+f. Adherence to constraints:
+1. The function signature of `dropDatabaseObjects` is not changed.
+2. A variable is not needed.
+3. The `@Override` annotation is kept as the method still overrides a method in the parent class.
+4. No new imports are needed.
+5. No existing code is removed except for the call to the removed `getInstance()` method.
+6. All code is included in the final output.
+
+g. Summary:
+The best solution is to replace `ExecutorService.getInstance().getExecutor(this)` with `getExecutor()`. This directly addresses the compilation error caused by the removal of `ExecutorService.getInstance()` and aligns with the new API usage pattern where the `Database` object provides direct access to the `Executor`.
+</fix_planning>
+
+```java
+package liquibase.ext.mssql.database;
+
+import liquibase.CatalogAndSchema;
+import liquibase.exception.LiquibaseException;
+import liquibase.executor.ExecutorService;
+import liquibase.ext.mssql.statement.DropStoredProcedureStatement;
+
+public class MSSQLDatabase extends liquibase.database.core.MSSQLDatabase {
+    
+    @Override
+    public int getPriority() {
+        return PRIORITY_DATABASE;
+    }
+    
+    @Override
+    public void dropDatabaseObjects(CatalogAndSchema schemaToDrop) throws LiquibaseException {
+        super.dropDatabaseObjects(schemaToDrop);
+        getExecutor().execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+    }
+}
+```
