@@ -89,6 +89,7 @@ public class BasePromptCotBuggyLineApiDiffTemplate extends AbstractPromptTemplat
                 """;
 
         List<DetectedFileWithErrors> detected = promptModel.getDetectedFileWithErrors().stream().toList();
+        Set<String> errorMessageList = new HashSet<>();
         for (DetectedFileWithErrors detectedFileWithErrors : detected) {
             String errorMessage = detectedFileWithErrors.getErrorInfo().getErrorMessage();
             String additionalInfo = detectedFileWithErrors.getErrorInfo().getAdditionalInfo();
@@ -96,7 +97,11 @@ public class BasePromptCotBuggyLineApiDiffTemplate extends AbstractPromptTemplat
                     %s
                     %s
                     """.formatted(errorMessage, additionalInfo);
-            errorInformation = errorInformation.concat(errorLogsForPrompt);
+            if (!errorMessageList.contains(errorMessage)) {
+                errorMessageList.add(errorMessage);
+                errorInformation = errorInformation.concat(errorLogsForPrompt);
+
+            }
 
             Set<ApiChange> apiChangeSet = detectedFileWithErrors.getApiChanges();
 
@@ -139,7 +144,7 @@ public class BasePromptCotBuggyLineApiDiffTemplate extends AbstractPromptTemplat
                 
                 <error_information>
                 %s
-                <error_information>
+                </error_information>
                 """.formatted(apiDiffList.stripTrailing(), errorInformation.stripTrailing()).stripTrailing();
     }
 
@@ -202,7 +207,7 @@ public class BasePromptCotBuggyLineApiDiffTemplate extends AbstractPromptTemplat
             lastOccurrence = matcher.group(1);
         }
 
-        if(lastOccurrence.isEmpty()) {
+        if (lastOccurrence.isEmpty()) {
             log.error("Error extracting content from the model response");
             return null;
         }

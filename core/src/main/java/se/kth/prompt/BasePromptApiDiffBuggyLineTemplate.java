@@ -53,7 +53,7 @@ public class BasePromptApiDiffBuggyLineTemplate extends BasePromptTemplate {
 
         return """
                 the error is triggered in the following specific lines in the previous code:
-
+                
                 %s
                 """.formatted(buggyLine);
     }
@@ -69,6 +69,7 @@ public class BasePromptApiDiffBuggyLineTemplate extends BasePromptTemplate {
                 """;
 
         List<DetectedFileWithErrors> detected = promptModel.getDetectedFileWithErrors().stream().toList();
+        Set<String> errorMessageList = new HashSet<>();
         for (DetectedFileWithErrors detectedFileWithErrors : detected) {
             String errorMessage = detectedFileWithErrors.getErrorInfo().getErrorMessage();
             String additionalInfo = detectedFileWithErrors.getErrorInfo().getAdditionalInfo();
@@ -76,7 +77,11 @@ public class BasePromptApiDiffBuggyLineTemplate extends BasePromptTemplate {
                     %s
                     %s
                     """.formatted(errorMessage, additionalInfo);
-            errorInformation = errorInformation.concat(errorLogsForPrompt);
+            if (!errorMessageList.contains(errorMessage)) {
+                errorMessageList.add(errorMessage);
+                errorInformation = errorInformation.concat(errorLogsForPrompt);
+
+            }
 
             Set<ApiChange> apiChangeSet = detectedFileWithErrors.getApiChanges();
 

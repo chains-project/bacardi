@@ -58,10 +58,15 @@ public class BaseLineCotApiDiffTemplate extends AbstractPromptTemplate {
                 """;
 
         List<DetectedFileWithErrors> detected = promptModel.getDetectedFileWithErrors().stream().toList();
+        Set<String> errorMessageList = new HashSet<>();
         for (DetectedFileWithErrors detectedFileWithErrors : detected) {
             final var errorLogsForPrompt = getErrorSection(detectedFileWithErrors);
 
-            errorInformation = errorInformation.concat(errorLogsForPrompt);
+            if (!errorMessageList.contains(errorLogsForPrompt)) {
+                errorMessageList.add(errorLogsForPrompt);
+                errorInformation = errorInformation.concat(errorLogsForPrompt);
+
+            }
 
             Set<ApiChange> apiChangeSet = detectedFileWithErrors.getApiChanges();
 
@@ -99,9 +104,12 @@ public class BaseLineCotApiDiffTemplate extends AbstractPromptTemplate {
 
 
         return """
+                <error_information>
                 %s
+                </error_information>
+                
                 %s
-                """.formatted(errorInformation, apiDiffList);
+                """.formatted(errorInformation.stripTrailing(), apiDiffList.stripTrailing());
 
     }
 
@@ -110,9 +118,7 @@ public class BaseLineCotApiDiffTemplate extends AbstractPromptTemplate {
         String errorMessage = detectedFileWithErrors.getErrorInfo().getErrorMessage();
         String additionalInfo = detectedFileWithErrors.getErrorInfo().getAdditionalInfo();
         String errorLogsForPrompt = """
-                <error_information>
                 %s
-                </error_information>
                 """.formatted(errorMessage);
         if (additionalInfo != null && !additionalInfo.isEmpty()) {
             errorLogsForPrompt = errorLogsForPrompt.concat("""

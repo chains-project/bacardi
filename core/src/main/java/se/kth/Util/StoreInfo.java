@@ -2,7 +2,6 @@ package se.kth.Util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import se.kth.failure_detection.DetectedFileWithErrors;
 import se.kth.model.SetupPipeline;
 
@@ -11,7 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -148,24 +147,28 @@ public class StoreInfo {
                             .map(Object::toString)
                             .collect(Collectors.toList()));
 
-            Path errorFolder = this.patchFolder.resolve("errors/"+ stage);
+            Path errorFolder = this.patchFolder.resolve("errors/" + stage);
             if (!Files.exists(errorFolder)) {
                 Files.createDirectories(errorFolder);
             }
             for (Map.Entry<String, Set<DetectedFileWithErrors>> entry : listOfFilesWithErrors.entrySet()) {
+                Set<String> uniqueMessage = new HashSet<>();
                 for (DetectedFileWithErrors errorFile : entry.getValue()) {
                     Path errorFilePath = errorFolder.resolve(Path.of(entry.getKey()).getFileName() + ".txt");
-
                     String errormessage = errorFile.getErrorInfo().getErrorMessage();
                     errormessage = errormessage.replaceAll("\\[ERROR\\] .*:\\[\\d+,\\d+\\] ", "");
                     errormessage = errormessage + errorFile.getErrorInfo().getAdditionalInfo().replace("\n", " ");
-                    Files.writeString(errorFilePath,
-                            errorFile.getErrorInfo().getClientLinePosition() + ":" + errormessage + "\n",
-                            StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                    if (!uniqueMessage.contains(errorFile.getErrorInfo().getClientLinePosition() + ":" + errormessage + "\n")) {
+                        uniqueMessage.add(errorFile.getErrorInfo().getClientLinePosition() + ":" + errormessage + "\n");
+                        Files.writeString(errorFilePath,
+                                errorFile.getErrorInfo().getClientLinePosition() + ":" + errormessage + "\n",
+                                StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                    }
+
                 }
             }
         } catch (IOException e) {
-            log.error("Error writing" + stage + "error files", e);
+            log.error("Error writing {} error files", stage, e);
             throw new RuntimeException(e);
         }
     }

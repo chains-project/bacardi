@@ -54,6 +54,7 @@ public class BasePromptApiDiffTemplate extends AbstractPromptTemplate {
                 """;
 
         List<DetectedFileWithErrors> detected = promptModel.getDetectedFileWithErrors().stream().toList();
+        Set<String> errorMessageList = new HashSet<>();
         for (DetectedFileWithErrors detectedFileWithErrors : detected) {
             String errorMessage = detectedFileWithErrors.getErrorInfo().getErrorMessage();
             String additionalInfo = detectedFileWithErrors.getErrorInfo().getAdditionalInfo();
@@ -61,8 +62,11 @@ public class BasePromptApiDiffTemplate extends AbstractPromptTemplate {
                     %s
                     %s
                     """.formatted(errorMessage, additionalInfo);
-            errorInformation = errorInformation.concat(errorLogsForPrompt);
 
+            if (!errorMessageList.contains(errorMessage)) {
+                errorMessageList.add(errorMessage);
+                errorInformation = errorInformation.concat(errorLogsForPrompt);
+            }
             Set<ApiChange> apiChangeSet = detectedFileWithErrors.getApiChanges();
 
             String constructType = ConstructType.getAsCausingConstructs(detectedFileWithErrors.getCodeElement());
