@@ -1,14 +1,16 @@
-214,216d213
-<   /*
-<    * Change the default order. Important data goes first.
-<    */
-218,219c215
+22a23
+> import org.yaml.snakeyaml.introspector.PropertyUtils;
+37a39
+>     super(new org.yaml.snakeyaml.DumperOptions());
+218,219c220
 <   protected Set<Property> getProperties(Class<? extends Object> type)
 <           throws IntrospectionException {
 ---
 >   protected Set<Property> getProperties(Class<? extends Object> type) {
-235,236c231
+235,237c236,237
 <   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
 <           throws IntrospectionException {
+<       Set<Property> standard = super.getProperties(type);
 ---
 >   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+>       Set<Property> standard = PropertyUtils.getProperties(type);

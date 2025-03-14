@@ -9,11 +9,18 @@
 <         } else if (ClassInjector.UsingLookup.isAvailable() && PRIVATE_LOOKUP_IN != null) {
 ---
 >     static Object classLoadingStrategy(Class<?> assertClass) {
-34c28
+34c28,35
 <                 return ClassLoadingStrategy.UsingLookup.of(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));
 ---
->             return Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default").getDeclaredField("INJECTION").get(null);
-36,39c30
+>             return Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingReflection")
+>                 .getMethod("isAvailable")
+>                 .invoke(null) ? 
+>                 Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default")
+>                     .getField("INJECTION").get(null) : 
+>                 Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$UsingLookup")
+>                     .getMethod("of", Class.class, MethodHandles.Lookup.class)
+>                     .invoke(null, assertClass, LOOKUP);
+36,39c37
 <                 throw new IllegalStateException("Could not access package of " + assertClass, e);
 <             }
 <         } else {

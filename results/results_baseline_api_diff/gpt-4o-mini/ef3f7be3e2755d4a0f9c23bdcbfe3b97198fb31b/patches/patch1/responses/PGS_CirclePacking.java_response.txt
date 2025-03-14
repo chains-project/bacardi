@@ -199,9 +199,9 @@ public final class PGS_CirclePacking {
 			long seed) {
 
 		final CoverTree<PVector> tree = CoverTree.create(3, 2, (p1, p2) -> {
-			final double dx = p1[0] - p2[0];
-			final double dy = p1[1] - p2[1];
-			final double dz = p1[2] - p2[2];
+			final double dx = p1.x - p2.x;
+			final double dy = p1.y - p2.y;
+			final double dz = p1.z - p2.z;
 
 			double euclideanDistance = Math.sqrt(dx * dx + dy * dy);
 			double absZDifference = Math.abs(dz);
@@ -229,32 +229,21 @@ public final class PGS_CirclePacking {
 		float largestR = 0; // the radius of the largest circle in the tree
 
 		for (PVector p : steinerPoints) {
-			// Find nearest-neighbour circle
-			PVector nn = null;
-			double minDistance = Double.MAX_VALUE;
-			for (PVector vertex : vertices) {
-				double dx = p.x - vertex.x;
-				double dy = p.y - vertex.y;
-				double distance = Math.sqrt(dx * dx + dy * dy) - vertex.z;
-				if (distance < minDistance) {
-					minDistance = distance;
-					nn = vertex;
-				}
-			}
+			final PVector nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
 
-			if (nn != null) {
-				/*
-				 * nn.dist() does not return the radius (since it's a distance metric used to
-				 * find nearest circle), so calculate maximum radius for candidate circle using
-				 * 2d euclidean distance between center points minus radius of nearest circle.
-				 */
-				final float radius = (float) (minDistance);
-				if (radius > minRadius) {
-					largestR = (radius >= largestR) ? radius : largestR;
-					p.z = radius;
-					tree.insert(new double[] { p.x, p.y, radius }, p); // insert circle into tree
-					out.add(p);
-				}
+			/*
+			 * nn.dist() does not return the radius (since it's a distance metric used to
+			 * find nearest circle), so calculate maximum radius for candidate circle using
+			 * 2d euclidean distance between center points minus radius of nearest circle.
+			 */
+			final float dx = p.x - nn.x;
+			final float dy = p.y - nn.y;
+			final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.z);
+			if (radius > minRadius) {
+				largestR = (radius >= largestR) ? radius : largestR;
+				p.z = radius;
+				tree.insert(new double[] { p.x, p.y, radius }, p); // insert circle into tree
+				out.add(p);
 			}
 		}
 		return out;

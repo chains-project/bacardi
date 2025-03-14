@@ -1,19 +1,3 @@
-/*
- * Copyright 2015 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.google.cloud.resourcemanager;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -52,7 +36,7 @@ public class ProjectInfo implements Serializable {
   private final Long projectNumber;
   private final State state;
   private final Long createTimeMillis;
-  private final ResourceId parent;
+  private final String parent; // Changed from ResourceId to String
 
   /** The project lifecycle states. */
   public static final class State extends StringEnumValue {
@@ -143,13 +127,7 @@ public class ProjectInfo implements Serializable {
       return Objects.hash(id, type);
     }
 
-    com.google.api.services.cloudresourcemanager.v3.model.ResourceId toPb() {
-      com.google.api.services.cloudresourcemanager.v3.model.ResourceId resourceIdPb =
-          new com.google.api.services.cloudresourcemanager.v3.model.ResourceId();
-      resourceIdPb.setId(id);
-      resourceIdPb.setType(type.toLowerCase());
-      return resourceIdPb;
-    }
+    // Removed toPb() method as it is no longer needed
 
     static ResourceId fromPb(
         com.google.api.services.cloudresourcemanager.v3.model.ResourceId resourceIdPb) {
@@ -160,46 +138,16 @@ public class ProjectInfo implements Serializable {
   /** Builder for {@code ProjectInfo}. */
   public abstract static class Builder {
 
-    /**
-     * Set the user-assigned name of the project.
-     *
-     * <p>This field is optional and can remain unset. Allowed characters are: lowercase and
-     * uppercase letters, numbers, hyphen, single-quote, double-quote, space, and exclamation point.
-     * This field can be changed after project creation.
-     */
     public abstract Builder setName(String name);
 
-    /**
-     * Set the unique, user-assigned ID of the project.
-     *
-     * <p>The ID must be 6 to 30 lowercase letters, digits, or hyphens. It must start with a letter.
-     * Trailing hyphens are prohibited. This field cannot be changed after the server creates the
-     * project.
-     */
     public abstract Builder setProjectId(String projectId);
 
-    /**
-     * Add a label associated with this project.
-     *
-     * <p>See {@link #labels} for label restrictions.
-     */
     public abstract Builder addLabel(String key, String value);
 
-    /** Remove a label associated with this project. */
     public abstract Builder removeLabel(String key);
 
-    /** Clear the labels associated with this project. */
     public abstract Builder clearLabels();
 
-    /**
-     * Set the labels associated with this project.
-     *
-     * <p>Label keys must be between 1 and 63 characters long and must conform to the following
-     * regular expression: [a-z]([-a-z0-9]*[a-z0-9])?. Label values must be between 0 and 63
-     * characters long and must conform to the regular expression ([a-z]([-a-z0-9]*[a-z0-9])?)?. No
-     * more than 256 labels can be associated with a given resource. This field can be changed after
-     * project creation.
-     */
     public abstract Builder setLabels(Map<String, String> labels);
 
     abstract Builder setProjectNumber(Long projectNumber);
@@ -208,7 +156,7 @@ public class ProjectInfo implements Serializable {
 
     abstract Builder setCreateTimeMillis(Long createTimeMillis);
 
-    public abstract Builder setParent(ResourceId parent);
+    public abstract Builder setParent(String parent); // Changed from ResourceId to String
 
     public abstract ProjectInfo build();
   }
@@ -221,7 +169,7 @@ public class ProjectInfo implements Serializable {
     private Long projectNumber;
     private State state;
     private Long createTimeMillis;
-    private ResourceId parent;
+    private String parent; // Changed from ResourceId to String
 
     BuilderImpl(String projectId) {
       this.projectId = projectId;
@@ -234,7 +182,7 @@ public class ProjectInfo implements Serializable {
       this.projectNumber = info.projectNumber;
       this.state = info.state;
       this.createTimeMillis = info.createTimeMillis;
-      this.parent = info.parent;
+      this.parent = info.parent; // Changed from ResourceId to String
     }
 
     @Override
@@ -292,7 +240,7 @@ public class ProjectInfo implements Serializable {
     }
 
     @Override
-    public Builder setParent(ResourceId parent) {
+    public Builder setParent(String parent) { // Changed from ResourceId to String
       this.parent = parent;
       return this;
     }
@@ -310,60 +258,33 @@ public class ProjectInfo implements Serializable {
     this.projectNumber = builder.projectNumber;
     this.state = builder.state;
     this.createTimeMillis = builder.createTimeMillis;
-    this.parent = builder.parent;
+    this.parent = builder.parent; // Changed from ResourceId to String
   }
 
-  /**
-   * Get the unique, user-assigned ID of the project.
-   *
-   * <p>This field cannot be changed after the server creates the project.
-   */
   public String getProjectId() {
     return projectId;
   }
 
-  /**
-   * Get the user-assigned name of the project.
-   *
-   * <p>This field is optional, can remain unset, and can be changed after project creation.
-   */
   public String getName() {
     return Data.isNull(name) ? null : name;
   }
 
-  /**
-   * Get number uniquely identifying the project.
-   *
-   * <p>This field is set by the server and is read-only.
-   */
   public Long getProjectNumber() {
     return projectNumber;
   }
 
-  /** Get the immutable map of labels associated with this project. */
   public Map<String, String> getLabels() {
     return labels;
   }
 
-  /**
-   * Get the project's lifecycle state.
-   *
-   * <p>This is a read-only field. To change the lifecycle state of your project, use the {@code
-   * delete} or {@code undelete} method.
-   */
   public State getState() {
     return state;
   }
 
-  ResourceId getParent() {
+  public String getParent() { // Changed from ResourceId to String
     return parent;
   }
 
-  /**
-   * Get the project's creation time (in milliseconds).
-   *
-   * <p>This field is set by the server and is read-only.
-   */
   public Long getCreateTimeMillis() {
     return createTimeMillis;
   }
@@ -406,7 +327,7 @@ public class ProjectInfo implements Serializable {
               .format(Instant.ofEpochMilli(createTimeMillis)));
     }
     if (parent != null) {
-      projectPb.setParent(parent.toPb());
+      projectPb.setParent(parent); // Changed from parent.toPb() to parent
     }
     return projectPb;
   }
@@ -428,7 +349,7 @@ public class ProjectInfo implements Serializable {
           DATE_TIME_FORMATTER.parse(projectPb.getCreateTime(), Instant.FROM).toEpochMilli());
     }
     if (projectPb.getParent() != null) {
-      builder.setParent(ResourceId.fromPb(projectPb.getParent()));
+      builder.setParent(projectPb.getParent()); // Changed from ResourceId.fromPb() to projectPb.getParent()
     }
     return builder.build();
   }

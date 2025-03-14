@@ -30,6 +30,11 @@
 package com.jcabi.ssh;
 
 import com.jcabi.aspects.RetryOnFailure;
+import java.util.concurrent.TimeUnit;
+import com.jcabi.log.Logger;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,7 +44,6 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.concurrent.TimeUnit;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.cactoos.io.TeeInput;
@@ -47,10 +51,6 @@ import org.cactoos.scalar.LengthOf;
 import org.cactoos.scalar.Unchecked;
 import org.cactoos.text.TextOf;
 import org.cactoos.text.UncheckedText;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
-import com.jcabi.log.Logger;
 
 /**
  * Single SSH Channel.

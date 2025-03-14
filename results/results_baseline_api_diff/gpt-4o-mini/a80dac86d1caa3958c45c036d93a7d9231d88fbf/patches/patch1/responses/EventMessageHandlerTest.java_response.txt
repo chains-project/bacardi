@@ -109,7 +109,6 @@ class EventMessageHandlerTest {
 
         var logger = LoggerFactory.getLogger(EventMessageHandler.class);
         logger.info("Logger initialized");
-        logger.addAppender(mockLogAppender);
     }
 
     @Test

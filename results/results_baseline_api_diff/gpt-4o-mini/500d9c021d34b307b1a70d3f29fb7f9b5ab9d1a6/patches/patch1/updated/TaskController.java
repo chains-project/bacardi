@@ -41,6 +41,9 @@ public class TaskController {
     private Models models;
 
     @Inject
+    private BindingResult validationResult;
+
+    @Inject
     TaskRepository taskRepository;
 
     @Inject
@@ -87,9 +90,9 @@ public class TaskController {
     public Response save(@Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "saving new task @{0}", form);
 
-        if (form.getValidationResult().isFailed()) {
-            AlertMessage alert = AlertMessage.danger("Validation violations!");
-            form.getValidationResult().getAllErrors()
+        if (validationResult.isFailed()) {
+            AlertMessage alert = AlertMessage.danger("Validation voilations!");
+            validationResult.getAllErrors()
                     .stream()
                     .forEach((ParamError t) -> {
                         alert.addError(t.getParamName(), "", t.getMessage());
@@ -131,9 +134,9 @@ public class TaskController {
     public Response update(@PathParam(value = "id") Long id, @Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "updating existed task@id:{0}, form data:{1}", new Object[]{id, form});
 
-        if (form.getValidationResult().isFailed()) {
-            AlertMessage alert = AlertMessage.danger("Validation violations!");
-            form.getValidationResult().getAllErrors()
+        if (validationResult.isFailed()) {
+            AlertMessage alert = AlertMessage.danger("Validation voilations!");
+            validationResult.getAllErrors()
                     .stream()
                     .forEach((ParamError t) -> {
                         alert.addError(t.getParamName(), "", t.getMessage());

@@ -3,7 +3,8 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * you may obtain a copy of the License at
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -20,5 +21,5 @@ import java.util.Map;
 
 interface PublisherFactory {
 
-  Publisher<Void> newPublisher(Map<String, String> params);
+  Publisher<Object> newPublisher(Map<String, String> params);
 }

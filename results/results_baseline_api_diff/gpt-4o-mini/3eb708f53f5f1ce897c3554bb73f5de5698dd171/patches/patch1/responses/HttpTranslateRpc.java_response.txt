@@ -42,7 +42,7 @@ public class HttpTranslateRpc implements TranslateRpc {
   }
 
   private GenericUrl buildTargetUrl(String path) {
-    GenericUrl genericUrl = new GenericUrl(translate.getBaseUrl() + "v2/" + path);
+    GenericUrl genericUrl = new GenericUrl(translate.getRootUrl() + "v3/" + path);
     if (options.getApiKey() != null) {
       genericUrl.put("key", options.getApiKey());
     }
@@ -53,7 +53,9 @@ public class HttpTranslateRpc implements TranslateRpc {
   public List<List<DetectLanguageResponse>> detect(List<String> texts) {
     try {
       List<List<DetectLanguageResponse>> detections =
-          translate.projects().locations().detectLanguage("projects/" + options.getProjectId(), texts).execute().getResponses();
+          translate.projects().locations().detectLanguage("projects/" + options.getProjectId())
+              .setKey(options.getApiKey())
+              .execute().getLanguages();
       return detections != null ? detections : ImmutableList.<List<DetectLanguageResponse>>of();
     } catch (IOException ex) {
       throw translate(ex);
@@ -64,10 +66,11 @@ public class HttpTranslateRpc implements TranslateRpc {
   public List<Language> listSupportedLanguages(Map<Option, ?> optionMap) {
     try {
       List<Language> languages =
-          translate
-              .projects()
-              .locations()
-              .getSupportedLanguages("projects/" + options.getProjectId())
+          translate.projects().locations().getSupportedLanguages("projects/" + options.getProjectId())
+              .setKey(options.getApiKey())
+              .setTarget(
+                  firstNonNull(
+                      Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()))
               .execute()
               .getLanguages();
       return languages != null ? languages : ImmutableList.<Language>of();
@@ -83,11 +86,9 @@ public class HttpTranslateRpc implements TranslateRpc {
           firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
       final String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
       List<TranslateTextResponse> translations =
-          translate
-              .projects()
-              .locations()
-              .translateText("projects/" + options.getProjectId(), texts, targetLanguage)
+          translate.projects().locations().translateText("projects/" + options.getProjectId(), texts, targetLanguage)
               .setSource(sourceLanguage)
+              .setKey(options.getApiKey())
               .setModel(Option.MODEL.getString(optionMap))
               .setFormat(Option.FORMAT.getString(optionMap))
               .execute()

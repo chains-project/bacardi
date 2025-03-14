@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 1999-2009 Jive Software. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * you may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.map.EntryEvent;
@@ -42,35 +27,19 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Clustered implementation of the Cache interface using Hazelcast.
- *
- */
 public class ClusteredCache<K extends Serializable, V extends Serializable> implements Cache<K, V> {
 
     private final Logger logger;
 
     private final Set<String> listeners = ConcurrentHashMap.newKeySet();
 
-    /**
-     * The map is used for distributed operations such as get, put, etc.
-     */
     final IMap<K, V> map;
     private String name;
     private long numberOfGets = 0;
 
-    /**
-     * Used to limit the amount of duplicate warnings logged.
-     */
     private Instant lastPluginClassLoaderWarning = Instant.EPOCH;
     private final Duration pluginClassLoaderWarningSupression = Duration.ofHours(1);
 
-    /**
-     * Create a new cache using the supplied named cache as the actual cache implementation
-     *
-     * @param name a name for the cache, which should be unique per vm.
-     * @param cache the cache implementation
-     */
     protected ClusteredCache(final String name, final IMap<K, V> cache) {
         this.map = cache;
         this.name = name;
@@ -222,7 +191,6 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
     public void putAll(final Map<? extends K, ? extends V> entries) {
         map.putAll(entries);
 
-        // Instances are likely all loaded by the same class loader. For resource usage optimization, let's test just one, not all.
         entries.entrySet().stream().findAny().ifPresent(
             e -> {
                 checkForPluginClassLoader(e.getKey());
@@ -313,20 +281,10 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
         }
     }
 
-    /**
-     * Clustered caches should not contain instances of classes that are provided by Openfire plugins. These will cause
-     * issues related to class loading when the providing plugin is reloaded. This method verifies if an instance is
-     * loaded by a plugin class loader, and logs a warning to the log files when it is. The amount of warnings logged is
-     * limited by a time interval.
-     *
-     * @param o the instance for which to verify the class loader
-     * @see <a href="https://github.com/igniterealtime/openfire-hazelcast-plugin/issues/74">Issue #74: Warn against usage of plugin-provided classes in Hazelcast</a>
-     */
     protected void checkForPluginClassLoader(final Object o) {
         if (o != null && o.getClass().getClassLoader() instanceof PluginClassLoader
             && lastPluginClassLoaderWarning.isBefore(Instant.now().minus(pluginClassLoaderWarningSupression)) )
         {
-            // Try to determine what plugin loaded the offending class.
             String pluginName = null;
             try {
                 final Collection<Plugin> plugins = XMPPServer.getInstance().getPluginManager().getPlugins();

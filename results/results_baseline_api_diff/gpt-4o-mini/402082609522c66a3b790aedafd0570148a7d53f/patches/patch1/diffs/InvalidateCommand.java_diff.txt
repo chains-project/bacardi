@@ -1,27 +1,29 @@
-7a8
+8c8
+< import org.spongepowered.api.command.CommandResult;
+---
 > import org.spongepowered.api.command.Command;
-10,12c11
+10,12c10
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
 > import org.spongepowered.api.command.parameter.CommandContext;
-16c15
+16c14
 < public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
 ---
-> public class InvalidateCommand implements Command {
-33c32
+> public class InvalidateCommand implements Command, ChangeSkinCommand {
+33c31
 <         Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
 ---
 >         Task.builder().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
-37,39c36,37
+37,39c35,36
 <     @Override
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
 ---
->     public Command.Builder builder() {
+>     public Command.Builder buildSpec() {
 >         return Command.builder()
-41,42c39
+41,42c38
 <                 .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base")
 <                 .build();
 ---

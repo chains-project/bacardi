@@ -35,7 +35,9 @@ import org.tinfour.common.IQuadEdge;
 import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
 import org.tinfour.utils.TriangleCollector;
-import org.tinspin.index.kdtree.KDTree;
+import org.tinspin.index.phtree.PHTreeMMP;
+import org.tinspin.index.phtree.PHTreeP;
+import org.tinspin.index.util.MinMaxHeap;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
 import micycle.pgs.PGS_Conversion.PShapeData;
 import micycle.pgs.color.Colors;
@@ -66,31 +68,8 @@ public class PGS_Meshing {
 	private PGS_Meshing() {
 	}
 
-	// ... (rest of the code remains unchanged)
+	// ... (rest of the class remains unchanged)
 
-	/**
-	 * Generates a shape consisting of polygonal faces of a <i>Gabriel graph</i>. A
-	 * Gabriel graph is obtained by removing each edge E from a triangulation if a
-	 * vertex lies within a circle of diameter = length(E), centered on the midpoint
-	 * of E.
-	 * <p>
-	 * In practice this is a way to tessellate a shape into polygons (with the
-	 * resulting tessellation being reminiscent of shattering the shape as if it
-	 * were glass).
-	 * <p>
-	 * Note that this method processes a Delaunay triangulation. Process a shape
-	 * using
-	 * {@link PGS_Triangulation#delaunayTriangulationMesh(PShape, Collection, boolean, int, boolean)
-	 * delaunayTriangulationMesh()} first and then feed it to this method.
-	 * 
-	 * @param triangulation     a triangulation mesh
-	 * @param preservePerimeter whether to retain/preserve edges on the perimeter
-	 *                          even if they should be removed according to the
-	 *                          gabriel condition
-	 * @return a GROUP PShape where each child shape is a single face
-	 * @since 1.1.0
-	 * @see #urquhartFaces(IIncrementalTin, boolean)
-	 */
 	public static PShape gabrielFaces(final IIncrementalTin triangulation, final boolean preservePerimeter) {
 		final HashSet<IQuadEdge> edges = new HashSet<>();
 		final HashSet<Vertex> vertices = new HashSet<>();
@@ -108,7 +87,7 @@ public class PGS_Meshing {
 			}
 		});
 
-		final org.tinspin.index.kdtree.KDTree<Vertex> tree = KDTree.create(new org.tinspin.index.IndexConfig());
+		final PHTreeP<Vertex> tree = PHTreeP.create(2);
 		vertices.forEach(v -> tree.insert(new double[] { v.x, v.y }, v));
 
 		final HashSet<IQuadEdge> nonGabrielEdges = new HashSet<>(); // base references to edges that should be removed
@@ -129,5 +108,5 @@ public class PGS_Meshing {
 		return PGS.polygonizeEdges(meshEdges);
 	}
 
-	// ... (rest of the code remains unchanged)
+	// ... (rest of the class remains unchanged)
 }

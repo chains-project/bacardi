@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.command.CommandSource; // This import is removed as CommandSource no longer exists
+import org.spongepowered.api.command.CommandSource; // This import is removed as CommandSource no longer exists
 
 public class NameResolver extends SharedNameResolver {
 

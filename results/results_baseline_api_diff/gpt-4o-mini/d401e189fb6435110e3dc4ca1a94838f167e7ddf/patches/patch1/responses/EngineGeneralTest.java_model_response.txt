@@ -17,7 +17,6 @@
 package com.feedzai.commons.sql.abstraction.engine.impl.abs;
 
 import ch.qos.logback.classic.Level;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.feedzai.commons.sql.abstraction.ddl.AlterColumn;
 import com.feedzai.commons.sql.abstraction.ddl.DbColumn;
@@ -179,8 +178,7 @@ public class EngineGeneralTest {
 
     @BeforeClass
     public static void initStatic() {
-        Logger logger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        logger.setLevel(Level.TRACE);
+        LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME).setLevel(Level.TRACE);
     }
 
     @Before
@@ -1611,4 +1609,6 @@ public class EngineGeneralTest {
      * Tests that an iterator created in a try-with-resources' resource specification header is automatically closed
      * once the block is exited from.
      *
+     * @throws Exception If an unexpected error occurs.
      *
+    

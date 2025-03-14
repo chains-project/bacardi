@@ -1,7 +1,16 @@
-16c16
-< import org.spongepowered.api.command.spec.CommandSpec;
+12c12
+< import org.spongepowered.api.command.CommandResult;
 ---
 > import org.spongepowered.api.command.Command;
+14,16c14,15
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.managed.ValueParameter;
+17a17
+> import org.spongepowered.plugin.PluginContainer;
 19c19
 < import static org.spongepowered.api.command.args.GenericArguments.string;
 ---
@@ -9,11 +18,7 @@
 22c22
 < public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
 ---
-> public class UploadCommand implements CommandExecutor {
-35c35
-<         String url = args.<String>getOne("url").get();
----
->         String url = args.<String>getOne("url").orElse("");
+> public class UploadCommand implements Command {
 43c43
 <                 Task.builder().async().execute(skinUploader).submit(plugin);
 ---
@@ -23,10 +28,12 @@
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
 ---
->     public Command.Builder buildSpec() {
+>     public Command.Builder builder() {
 >         return Command.builder()
-57,58c56
+56,58c55,56
+<                 .arguments(string(of("url")))
 <                 .permission(PomData.ARTIFACT_ID + ".command.skinupload.base")
 <                 .build();
 ---
+>                 .addParameter(string(of("url")))
 >                 .permission(PomData.ARTIFACT_ID + ".command.skinupload.base");

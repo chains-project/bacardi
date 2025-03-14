@@ -2,7 +2,7 @@ package io.zold.api;
 
 import org.cactoos.iterable.Repeated;
 import org.cactoos.text.TextOf;
-import org.cactoos.text.RandomText;
+import org.cactoos.scalar.UncheckedScalar;
 
 /**
  * Remote node.
@@ -45,7 +45,7 @@ public interface Remote {
          */
         public Fake(final int val) {
             this(new RtScore(
-                new Repeated<>(val, new TextOf("random"))
+                new Repeated<>(val, new UncheckedScalar<>(() -> new TextOf("random"))))
             ));
         }
 

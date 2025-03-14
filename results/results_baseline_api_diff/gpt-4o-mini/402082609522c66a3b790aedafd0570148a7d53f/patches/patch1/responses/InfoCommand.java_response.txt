@@ -10,16 +10,17 @@ import com.google.inject.Inject;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
-import net.kyori.adventure.text.Component;
+import org.spongepowered.api.text.Text;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
-public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
+public class InfoCommand implements Command, ChangeSkinCommand {
 
     @Inject
     private ChangeSkinSponge plugin;
@@ -28,10 +29,10 @@ public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
     private SkinFormatter formatter;
 
     @Override
-    public CommandResult execute(CommandSource src, CommandContext args) {
+    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
-            return CommandResult.success();
+            return CommandResult.empty();
         }
 
         UUID uniqueId = ((Player) src).getUniqueId();
@@ -44,14 +45,14 @@ public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
     }
 
     public CommandSpec buildSpec() {
-        return Command.builder()
+        return CommandSpec.builder()
                 .executor(this)
                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
                 .build();
     }
 
     private void sendSkinDetails(UUID uuid, UserPreference preference) {
-        Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
+        Optional<Player> optPlayer = plugin.getServer().getPlayer(uuid);
         if (optPlayer.isPresent()) {
             Player player = optPlayer.get();
 
@@ -60,7 +61,7 @@ public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
                 String template = plugin.getCore().getMessage("skin-info");
                 String formatted = formatter.apply(template, optSkin.get());
 
-                Component text = Component.text(formatted);
+                Text text = GsonComponentSerializer.gson().deserialize(formatted);
                 player.sendMessage(text);
             } else {
                 plugin.sendMessage(player, "skin-not-found");

@@ -10,17 +10,18 @@ import com.google.inject.Inject;
 import java.util.UUID;
 
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.parameter.CommandSource;
+import org.spongepowered.api.command.parameter.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
-import static org.spongepowered.api.command.args.GenericArguments.flags;
-import static org.spongepowered.api.command.args.GenericArguments.string;
+import static org.spongepowered.api.command.parameter.GenericArguments.flags;
+import static org.spongepowered.api.command.parameter.GenericArguments.string;
 import static org.spongepowered.api.text.Text.of;
 
-public class SetCommand implements CommandSource, ChangeSkinCommand {
+public class SetCommand implements CommandExecutor, ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
     private final ChangeSkinCore core;

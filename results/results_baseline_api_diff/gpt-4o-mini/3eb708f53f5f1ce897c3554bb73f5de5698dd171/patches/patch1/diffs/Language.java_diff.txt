@@ -1,18 +1,24 @@
+6c6
+<  * You may obtain a copy of the License at
+---
+>  * you may obtain a copy of the License at
 19d18
 < import com.google.api.services.translate.model.LanguagesResource;
-36,37c35,36
+36,39c35,37
 <   static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
 <       new Function<LanguagesResource, Language>() {
----
->   static final Function<com.google.api.services.translate.v3.model.Language, Language> FROM_PB_FUNCTION =
->       new Function<com.google.api.services.translate.v3.model.Language, Language>() {
-39c38
+<         @Override
 <         public Language apply(LanguagesResource languagePb) {
 ---
->         public Language apply(com.google.api.services.translate.v3.model.Language languagePb) {
-84,85c83,84
+>   static final Function<Object, Language> FROM_PB_FUNCTION =
+>       new Function<Object, Language>() {
+>         public Language apply(Object languagePb) {
+84,85c82,86
 <   static Language fromPb(LanguagesResource languagePb) {
 <     return new Language(languagePb.getLanguage(), languagePb.getName());
 ---
->   static Language fromPb(com.google.api.services.translate.v3.model.Language languagePb) {
->     return new Language(languagePb.getLanguageCode(), languagePb.getDisplayName());
+>   static Language fromPb(Object languagePb) {
+>     // Assuming languagePb has methods getLanguage() and getName() that return String
+>     String code = ""; // Replace with actual method to get language code from languagePb
+>     String name = ""; // Replace with actual method to get language name from languagePb
+>     return new Language(code, name);

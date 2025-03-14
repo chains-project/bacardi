@@ -12,7 +12,6 @@ import org.cactoos.io.Directory;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.scalar.IoCheckedScalar;
-import org.cactoos.scalar.SolidScalar;
 import org.cactoos.text.FormattedText;
 import org.cactoos.text.UncheckedText;
 

@@ -7,7 +7,7 @@
 <  * http://www.eclipse.org/legal/epl-v10.html
 <  */
 22a16
-> import org.yaml.snakeyaml.DumperOptions;
+> import org.yaml.snakeyaml.introspector.BeanAccess;
 29,35d22
 < /**
 <  * YAML model representer.
@@ -46,21 +46,19 @@
 <   /*
 <    * Change the default order. Important data goes first.
 <    */
-218,219c192
-<   protected Set<Property> getProperties(Class<? extends Object> type)
-<           throws IntrospectionException {
+231c205
+<       return super.getProperties(type);
 ---
->   protected Set<Property> getProperties(Class<? extends Object> type) {
-235,236c208
-<   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
-<           throws IntrospectionException {
+>       return super.getProperties(type, BeanAccess.DEFAULT);
+237c211
+<       Set<Property> standard = super.getProperties(type);
 ---
->   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
-251d222
+>     Set<Property> standard = super.getProperties(type, BeanAccess.DEFAULT);
+251d224
 <       // important go first
-258d228
+258d230
 <       // all the rest
-268c238
+268c240
 <       return 0;// compare further
 ---
 >       return 0;

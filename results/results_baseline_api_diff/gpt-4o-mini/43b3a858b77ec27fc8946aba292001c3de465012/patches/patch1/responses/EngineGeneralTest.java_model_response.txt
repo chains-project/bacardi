@@ -4,7 +4,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * you may obtain a copy of the License at
+ * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -18,7 +18,6 @@ package com.feedzai.commons.sql.abstraction.engine.impl.abs;
 
 import ch.qos.logback.classic.Level;
 import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import com.feedzai.commons.sql.abstraction.ddl.AlterColumn;
 import com.feedzai.commons.sql.abstraction.ddl.DbColumn;
 import com.feedzai.commons.sql.abstraction.ddl.DbColumnConstraint;
@@ -179,8 +178,7 @@ public class EngineGeneralTest {
 
     @BeforeClass
     public static void initStatic() {
-        Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        logger.setLevel(Level.TRACE);
+        LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME).setLevel(Level.TRACE);
     }
 
     @Before
@@ -684,73 +682,157 @@ public class EngineGeneralTest {
     }
 
     /**
-     * Tests that on a rollback situation, the prepared statement batches are cleared.
+     * Tests that an iterator created in a try-with-resources' resource specification header is automatically closed
+     * once the block is exited from.
      *
-     * The steps performed on this test are:
-     * <ol>
-     *     <li>Add batch to transaction and purposely fail to flush</li>
-     *     <li>Ensure the existence of the Exception and rollback transaction</li>
-     *     <li>Flush again successfully and ensure that the DB table doesn't have any rows</li>
-     * </ol>
+     * @throws Exception If an unexpected error occurs.
      *
-     * This is a regression test.
-     *
-     * @throws DatabaseEngineException If there is a problem on {@link DatabaseEngine} operations.
      * @since 2.1.12
      */
     @Test
-    public void batchInsertRollback() throws DatabaseEngineException {
-        final CountDownLatch latch = new CountDownLatch(1);
+    public void queryWithIteratorInTryWithResources() throws Exception {
+        create5ColumnsEntity();
 
-        final DbEntity entity = dbEntity()
-                .name("TEST")
-                .addColumn("COL1", INT)
+        final EntityEntry entry = entry()
+                .set("COL1", 1)
+                .set("COL2", false)
+                .set("COL3", 2D)
+                .set("COL4", 3L)
+                .set("COL5", "ADEUS")
                 .build();
+        engine.persist("TEST", entry);
 
-        new MockUp<AbstractDatabaseEngine>() {
-            @Mock
-            public synchronized void flush(final Invocation invocation) throws DatabaseEngineException {
-                if (latch.getCount() == 1) {
-                    throw new DatabaseEngineException("");
-                }
-                invocation.proceed();
-            }
-        };
+        final ResultIterator resultIterator;
+        try (final ResultIterator it = engine.iterator(select(all()).from(table("TEST")))) {
 
-        DatabaseEngineException expectedException = null;
+            resultIterator = it;
 
-        engine.addEntity(entity);
+            assertFalse(
+                    "Result iterator should not be closed before exiting try-with-resources block",
+                    resultIterator.isClosed()
+            );
+        }
+
+        assertTrue(
+                "Result iterator should be closed after exiting try-with-resources block",
+                resultIterator.isClosed()
+        );
+    }
+
+    @Test
+    public void batchInsertTest() throws Exception {
+        create5ColumnsEntity();
+
         engine.beginTransaction();
 
         try {
-            final EntityEntry entry = entry().set("COL1", 1).build();
+            EntityEntry entry = entry().set("COL1", 2).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS")
+                    .build();
 
             engine.addBatch("TEST", entry);
+
+            entry = entry().set("COL1", 3).set("COL2", true).set("COL3", 3D).set("COL4", 4L).set("COL5", "OLA")
+                    .build();
+
+            engine.addBatch("TEST", entry);
+
             engine.flush();
-            fail("Was expecting the flush operation to fail");
-        } catch (final DatabaseEngineException e) {
-            expectedException = e;
+
+            engine.commit();
         } finally {
             if (engine.isTransactionActive()) {
                 engine.rollback();
             }
         }
 
-        // Ensure we had an exception and therefore we didn't insert anything on the DB and that we cleared the batches.
-        assertNotNull("DB returned exception when flushing", expectedException);
+        List<Map<String, ResultColumn>> query = engine.query(select(all()).from(table("TEST")).orderby(column("COL1").asc()));
 
-        latch.countDown();
-        engine.beginTransaction();
+        // 1st
+        assertTrue("COL1 exists", query.get(0).containsKey("COL1"));
+        assertEquals("COL1 ok?", 2, (int) query.get(0).get("COL1").toInt());
+
+        assertTrue("COL2 exists", query.get(0).containsKey("COL2"));
+        assertFalse("COL2 ok?", query.get(0).get("COL2").toBoolean());
+
+        assertTrue("COL3 exists", query.get(0).containsKey("COL3"));
+        assertEquals("COL3 ok?", 2D, query.get(0).get("COL3").toDouble(), 0);
+
+        assertTrue("COL4 exists", query.get(0).containsKey("COL4"));
+        assertEquals("COL4 ok?", 3L, (long) query.get(0).get("COL4").toLong());
+
+        assertTrue("COL5 exists", query.get(0).containsKey("COL5"));
+        assertEquals("COL5  ok?", "ADEUS", query.get(0).get("COL5").toString());
+
+        // 2nd
+
+        assertTrue("COL1 exists", query.get(1).containsKey("COL1"));
+        assertEquals("COL1 ok?", 3, (int) query.get(1).get("COL1").toInt());
+
+        assertTrue("COL2 exists", query.get(1).containsKey("COL2"));
+        assertTrue("COL2 ok?", query.get(1).get("COL2").toBoolean());
+
+        assertTrue("COL3 exists", query.get(1).containsKey("COL3"));
+        assertEquals("COL3 ok?", 3D, query.get(1).get("COL3").toDouble(), 0);
+
+        assertTrue("COL4 exists", query.get(1).containsKey("COL4"));
+        assertEquals("COL4 ok?", 4L, (long) query.get(1).get("COL4").toLong());
+
+        assertTrue("COL5 exists", query.get(1).containsKey("COL5"));
+        assertEquals("COL5  ok?", "OLA", query.get(1).get("COL5").toString());
+    }
+
+    @Test
+    public void batchInsertAutocommitTest() throws Exception {
+        create5ColumnsEntity();
+
+        EntityEntry entry = entry().set("COL1", 2).set("COL2", false).set("COL3", 2D).set("COL4", 3L).set("COL5", "ADEUS")
+                .build();
+
+        engine.addBatch("TEST", entry);
+
+        entry = entry().set("COL1", 3).set("COL2", true).set("COL3", 3D).set("COL4", 4L).set("COL5", "OLA")
+                .build();
+
+        engine.addBatch("TEST", entry);
+
+        // autocommit set to true.
         engine.flush();
-        engine.commit();
 
-        final List<Map<String, ResultColumn>> query = engine.query(select(all())
-                                                                           .from(table("TEST"))
-                                                                           .orderby(column("COL1").asc()));
 
-        // Previously, we rolled back the transaction; now we are trying the flush an empty transaction.
-        // Therefore, we shouldn't have any rows on the table.
-        assertEquals("There are no rows on table TEST", 0, query.size());
+        List<Map<String, ResultColumn>> query = engine.query(select(all()).from(table("TEST")).orderby(column("COL1").asc()));
+
+        // 1st
+        assertTrue("COL1 exists", query.get(0).containsKey("COL1"));
+        assertEquals("COL1 ok?", 2, (int) query.get(0).get("COL1").toInt());
+
+        assertTrue("COL2 exists", query.get(0).containsKey("COL2"));
+        assertFalse("COL2 ok?", query.get(0).get("COL2").toBoolean());
+
+        assertTrue("COL3 exists", query.get(0).containsKey("COL3"));
+        assertEquals("COL3 ok?", 2D, query.get(0).get("COL3").toDouble(), 0);
+
+        assertTrue("COL4 exists", query.get(0).containsKey("COL4"));
+        assertEquals("COL4 ok?", 3L, (long) query.get(0).get("COL4").toLong());
+
+        assertTrue("COL5 exists", query.get(0).containsKey("COL5"));
+        assertEquals("COL5  ok?", "ADEUS", query.get(0).get("COL5").toString());
+
+        // 2nd
+
+        assertTrue("COL1 exists", query.get(1).containsKey("COL1"));
+        assertEquals("COL1 ok?", 3, (int) query.get(1).get("COL1").toInt());
+
+        assertTrue("COL2 exists", query.get(1).containsKey("COL2"));
+        assertTrue("COL2 ok?", query.get(1).get("COL2").toBoolean());
+
+        assertTrue("COL3 exists", query.get(1).containsKey("COL3"));
+        assertEquals("COL3 ok?", 3D, query.get(1).get("COL3").toDouble(), 0);
+
+        assertTrue("COL4 exists", query.get(1).containsKey("COL4"));
+        assertEquals("COL4 ok?", 4L, (long) query.get(1).get("COL4").toLong());
+
+        assertTrue("COL5 exists", query.get(1).containsKey("COL5"));
+        assertEquals("COL5  ok?", "OLA", query.get(1).get("COL5").toString());
     }
 
     @Test
@@ -946,7 +1028,8 @@ public class EngineGeneralTest {
                 .set("COL2", false)
                 .set("COL3", 2D)
                 .set("COL4", 3L)
-                .set("COL5", "ADEUS");
+                .set("COL5", "ADEUS")
+                .set("COL6", 20);
 
         for (int i = 0; i < 20; i++) {
             entry.set("COL1", i);
@@ -1055,7 +1138,8 @@ public class EngineGeneralTest {
                 .set("COL2", false)
                 .set("COL3", 2D)
                 .set("COL4", 3L)
-                .set("COL5", "ADEUS");
+                .set("COL5", "ADEUS")
+                .set("COL6", 2);
 
         for (int i = 0; i < 20; i++) {
             entry.set("COL1", i);
@@ -1761,137 +1845,4 @@ public class EngineGeneralTest {
     /**
      * Tests that the {@link SqlBuilder#notIn(Expression, Expression) negated IN} clause with SELECT filters a row correctly.
      *
-     * @throws DatabaseEngineException If a DB error occurs, thus failing the test.
-     */
-    @Test
-    public void notInSelectTest() throws DatabaseEngineException {
-        runInClauseTest(notIn(
-                column("COL1"),
-                select(column("COL1")).from(table("TEST")).where(eq(column("COL1"), k(2)))
-        ));
-    }
-
-    /**
-     * Tests that the {@link SqlBuilder#notIn(Expression, Expression) negated IN} clause with a value filters a row
-     * correctly, when many values are provided.
-     * <p>
-     * This is a regression test for Oracle, which only supports up to 1000 values in IN clauses; the test uses
-     * 20000 values.
-     *
-     * @throws DatabaseEngineException If a DB error occurs, thus failing the test.
-     */
-    @Test
-    public void notInManyValuesTest() throws DatabaseEngineException {
-        final List<Expression> numExprs = IntStream.rangeClosed(2, 20001)
-                .mapToObj(SqlBuilder::k)
-                .collect(Collectors.toList());
-
-        runInClauseTest(notIn(column("COL1"), L(numExprs)));
-    }
-
-    /**
-     * Common code to run IN clause tests.
-     * <p>
-     * This creates 2 entries in the database:
-     * <table>
-     *     <tr><td>COL1</td><td>COL5</td></tr>
-     *     <tr><td>1</td><td>s1</td></tr>
-     *     <tr><td>2</td><td>s2</td></tr>
-     * </table>
-     * <p>
-     * The verifications expect the provided {@code whereInExpression} to filter the entries such that only the first
-     * one is returned.
-     *
-     * @param whereInExpression The {@link Expression} to use in the WHERE clause of the query.
-     * @throws DatabaseEngineException If a DB error occurs.
-     */
-    private void runInClauseTest(final Expression whereInExpression) throws DatabaseEngineException {
-        create5ColumnsEntity();
-
-        engine.persist("TEST", entry().set("COL1", 1).set("COL5", "s1").build());
-        engine.persist("TEST", entry().set("COL1", 2).set("COL5", "s2").build());
-
-        final List<Map<String, ResultColumn>> results = engine.query(
-                select(all())
-                        .from(table("TEST"))
-                        .where(whereInExpression)
-        );
-
-        assertThat(results)
-                .as("query should return only 1 result")
-                .hasSize(1)
-                .element(0)
-                .as("result should have have value '1'")
-                .extracting(result -> result.get("COL1").toInt())
-                .isEqualTo(1);
-    }
-
-    @Test
-    public void booleanTrueComparisonTest() throws DatabaseEngineException {
-        create5ColumnsEntity();
-
-        EntityEntry entry1 = entry()
-                .set("COL1", 1)
-                .set("COL2", true)
-                .set("COL3", 1)
-                .set("COL4", 1)
-                .set("COL5", "val 1")
-                .build();
-        engine.persist("TEST", entry1, false);
-
-        EntityEntry entry2 = entry()
-                .set("COL1", 1)
-                .set("COL2", false)
-                .set("COL3", 1)
-                .set("COL4", 1)
-                .set("COL5", "val 1")
-                .build();
-        engine.persist("TEST", entry2, false);
-
-        List<Map<String, ResultColumn>> rows = engine.query(
-                select(all())
-                        .from(table("TEST"))
-                        .where(
-                                eq(column("COL2"), k(true))
-                        )
-        );
-
-        assertEquals(1, rows.size());
-    }
-
-    @Test
-    public void booleanFalseComparisonTest() throws DatabaseEngineException {
-        create5ColumnsEntity();
-
-        EntityEntry entry1 = entry()
-                .set("COL1", 1)
-                .set("COL2", true)
-                .set("COL3", 1)
-                .set("COL4", 1)
-                .set("COL5", "val 1")
-                .build();
-        engine.persist("TEST", entry1, false);
-
-        EntityEntry entry2 = entry()
-                .set("COL1", 1)
-                .set("COL2", false)
-                .set("COL3", 1)
-                .set("COL4", 1)
-                .set("COL5", "val 1")
-                .build();
-        engine.persist("TEST", entry2, false);
-
-        List<Map<String, ResultColumn>> rows = engine.query(
-                select(all())
-                        .from(table("TEST"))
-                        .where(
-                                eq(column("COL2"), k(false))
-                        )
-        );
-
-        assertEquals(1, rows.size());
-    }
-
-    @Test
-    public void coalesceTest() throws DatabaseEngineException {
-        create
+     * @throws DatabaseEngine

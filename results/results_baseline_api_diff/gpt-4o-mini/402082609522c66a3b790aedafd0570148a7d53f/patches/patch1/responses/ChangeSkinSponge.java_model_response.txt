@@ -21,16 +21,14 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.GameInitializationEvent;
 import org.spongepowered.api.event.lifecycle.GamePreInitializationEvent;
 import org.spongepowered.api.event.lifecycle.GameStoppingEvent;
-import org.spongepowered.api.network.channel.RawDataChannel;
-import org.spongepowered.api.network.channel.ChannelRegistrar;
-import org.spongepowered.plugin.PluginContainer;
+import org.spongepowered.api.network.ChannelBinding;
+import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
 import static com.github.games647.changeskin.core.message.CheckPermMessage.CHECK_PERM_CHANNEL;
@@ -73,22 +71,22 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
         if (!initialized)
             return;
 
-        CommandManager cmdManager = Sponge.getCommandManager();
-
-        cmdManager.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
-        cmdManager.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
-        cmdManager.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
-        cmdManager.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
-        cmdManager.register(this, injector.getInstance(InvalidateCommand.class)
+        //command and event register
+        Sponge.getCommandManager().register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+        Sponge.getCommandManager().register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+        Sponge.getCommandManager().register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+        Sponge.getCommandManager().register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+        Sponge.getCommandManager().register(this, injector.getInstance(InvalidateCommand.class)
                 .buildSpec(), "skininvalidate", "skin-invalidate");
 
         Sponge.getEventManager().registerListeners(this, injector.getInstance(LoginListener.class));
 
-        ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
+        //incoming channel
+        ChannelBinding channelReg = Sponge.getChannelRegistrar();
         String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
         String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
-        RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
-        RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
+        ChannelBinding.RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
+        ChannelBinding.RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
         updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
     }

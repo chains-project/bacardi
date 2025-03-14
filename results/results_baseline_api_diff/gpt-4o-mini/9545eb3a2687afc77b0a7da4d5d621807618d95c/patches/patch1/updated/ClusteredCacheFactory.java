@@ -114,11 +114,13 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
 
     private ExternalizableUtilStrategy serializationStrategy;
     private static Map<String, Map<String, long[]>> cacheStats;
+
     private static HazelcastInstance hazelcast = null;
-    private Cluster cluster = null;
+    private static Cluster cluster = null;
     private ClusterListener clusterListener;
     private String lifecycleListener;
     private String membershipListener;
+
     private State state = State.stopped;
     private final Cache<String, Instant> pluginClassLoaderWarnings;
 
@@ -194,6 +196,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
     public void stopCluster() {
         cacheStats = null;
         state = State.stopped;
+
         fireLeftClusterAndWaitToComplete(Duration.ofSeconds(30));
         hazelcast.getLifecycleService().removeLifecycleListener(lifecycleListener);
         cluster.removeMembershipListener(membershipListener);
@@ -202,6 +205,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         lifecycleListener = null;
         membershipListener = null;
         clusterListener = null;
+
         XMPPServer.getInstance().getRoutingTable().setRemotePacketRouter(null);
         XMPPServer.getInstance().setRemoteSessionLocator(null);
         ExternalizableUtil.getInstance().setStrategy(serializationStrategy);
@@ -541,7 +545,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
     }
 
     public static NodeID getNodeID(final Member member) {
-        return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
+        return NodeID.getInstance(member.getUuid().getBytes(StandardCharsets.UTF_8));
     }
 
     static void fireLeftClusterAndWaitToComplete(final Duration timeout) {

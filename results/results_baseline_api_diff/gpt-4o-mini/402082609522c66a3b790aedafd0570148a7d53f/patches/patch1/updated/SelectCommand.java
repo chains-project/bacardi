@@ -8,6 +8,7 @@ import com.google.inject.Inject;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
@@ -15,7 +16,7 @@ import org.spongepowered.api.scheduler.Task;
 import static org.spongepowered.api.command.parameter.Parameter.string;
 import static org.spongepowered.api.text.Text.of;
 
-public class SelectCommand implements ChangeSkinCommand {
+public class SelectCommand implements CommandExecutor {
 
     private final ChangeSkinSponge plugin;
 

@@ -34,7 +34,7 @@ import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers; // Ensure this import is correct based on the new version
+import org.hamcrest.Matchers; // This import is removed
 
 /**
  * REST response.
@@ -196,7 +196,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, Matchers.hasItems(value));
+        return this.assertHeader(name, Matchers.hasItem(value)); // Updated to use hasItem
     }
 
     /**

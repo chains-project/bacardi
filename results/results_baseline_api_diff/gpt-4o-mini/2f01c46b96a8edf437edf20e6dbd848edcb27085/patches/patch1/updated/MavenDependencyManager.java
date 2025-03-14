@@ -160,7 +160,7 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
         .map(plugin -> plugin.getExecutionsAsMap().get("process"))
         .map(exec -> exec.getConfiguration())
         .map(config -> config.getChild("processors"))
-        .map(Xpp3Dom::getChildren)
+        .map(config -> config.getChildren())
         .map(arr -> Arrays.stream(arr).map(Xpp3Dom::getValue).collect(Collectors.toSet()))
         .orElse(of());
   }
