@@ -2,12 +2,13 @@ package com.example.web;
 
 import java.util.Locale;
 import java.util.logging.Logger;
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.inject.Inject;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
+import jakarta.mvc.MvcContext;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 
 /**
  *
@@ -19,6 +20,9 @@ import jakarta.ws.rs.Path;
 public class LocaleController {
 
     @Inject
+    MvcContext mvc;
+
+    @Inject
     Models models;
 
     @Inject
@@ -26,7 +30,7 @@ public class LocaleController {
 
     @GET
     public String get() {
-        Locale locale = Locale.getDefault(); // Fallback to default locale
+        Locale locale = mvc.getLocale();
         models.put("locale", locale);
         return "locale.xhtml";
     }

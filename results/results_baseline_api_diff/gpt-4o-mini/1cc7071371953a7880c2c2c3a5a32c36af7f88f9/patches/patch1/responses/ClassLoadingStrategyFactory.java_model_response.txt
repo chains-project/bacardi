@@ -26,7 +26,14 @@ class ClassLoadingStrategyFactory {
 
     static Object classLoadingStrategy(Class<?> assertClass) {
         try {
-            return Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default").getDeclaredField("INJECTION").get(null);
+            return Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingReflection")
+                .getMethod("isAvailable")
+                .invoke(null) ? 
+                Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default")
+                    .getField("INJECTION").get(null) : 
+                Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$UsingLookup")
+                    .getMethod("of", Class.class, MethodHandles.Lookup.class)
+                    .invoke(null, assertClass, LOOKUP);
         } catch (Exception e) {
             throw new IllegalStateException("No code generation strategy available", e);
         }

@@ -26,7 +26,7 @@ public class LoginListener extends SharedListener {
     }
 
     @Listener
-    public void onPlayerPreLogin(ClientConnectionEvent.Pre preLoginEvent) {
+    public void onPlayerPreLogin(ClientConnectionEvent.Login preLoginEvent) {
         SkinStorage storage = core.getStorage();
         GameProfile profile = preLoginEvent.getProfile();
         UUID playerUUID = profile.getUniqueId();
@@ -58,7 +58,6 @@ public class LoginListener extends SharedListener {
         }
     }
 
-    @Override
     protected void save(final UserPreference preferences) {
         Task.builder()
                 .async()

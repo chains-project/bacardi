@@ -1,6 +1,11 @@
-38d37
+38,39c38,40
 < import org.tinspin.index.PointIndex;
-70,122c69
+< import org.tinspin.index.kdtree.KDTree;
+---
+> import org.tinspin.index.phtree.PHTreeMMP;
+> import org.tinspin.index.phtree.PHTreeP;
+> import org.tinspin.index.util.MinMaxHeap;
+70,114c71
 <         /**
 <          * Generates a shape consisting of polygonal faces of an <i>Urquhart graph</i>.
 <          * An Urquhart graph is obtained by removing the longest edge from each triangle
@@ -46,7 +51,9 @@
 <                                 }
 <                         }
 <                 });
-< 
+---
+>         // ... (rest of the class remains unchanged)
+116,146d72
 <                 edges.removeAll(uniqueLongestEdges);
 < 
 <                 final Collection<PEdge> meshEdges = new ArrayList<>(edges.size());
@@ -54,21 +61,43 @@
 < 
 <                 return PGS.polygonizeEdges(meshEdges);
 <         }
----
->         // ... (rest of the code remains unchanged)
-164,168c111
+< 
+<         /**
+<          * Generates a shape consisting of polygonal faces of a <i>Gabriel graph</i>. A
+<          * Gabriel graph is obtained by removing each edge E from a triangulation if a
+<          * vertex lies within a circle of diameter = length(E), centered on the midpoint
+<          * of E.
+<          * <p>
+<          * In practice this is a way to tessellate a shape into polygons (with the
+<          * resulting tessellation being reminiscent of shattering the shape as if it
+<          * were glass).
+<          * <p>
+<          * Note that this method processes a Delaunay triangulation. Process a shape
+<          * using
+<          * {@link PGS_Triangulation#delaunayTriangulationMesh(PShape, Collection, boolean, int, boolean)
+<          * delaunayTriangulationMesh()} first and then feed it to this method.
+<          * 
+<          * @param triangulation     a triangulation mesh
+<          * @param preservePerimeter whether to retain/preserve edges on the perimeter
+<          *                          even if they should be removed according to the
+<          *                          gabriel condition
+<          * @return a GROUP PShape where each child shape is a single face
+<          * @since 1.1.0
+<          * @see #urquhartFaces(IIncrementalTin, boolean)
+<          */
+164,168c90
 <                 final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {
 <                         final double deltaX = p1[0] - p2[0];
 <                         final double deltaY = p1[1] - p2[1];
 <                         return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 <                 });
 ---
->                 final org.tinspin.index.kdtree.KDTree<Vertex> tree = KDTree.create(new org.tinspin.index.IndexConfig());
-174c117
+>                 final PHTreeP<Vertex> tree = PHTreeP.create(2);
+174c96
 <                         final Vertex near = tree.query1NN(midpoint).value();
 ---
 >                         Vertex near = tree.query1NN(midpoint).value();
-189,910c132
+189,910c111
 <         /**
 <          * Generates a shape consisting of polygonal faces of a <i>Relative neighborhood
 <          * graph</i> (RNG).
@@ -792,4 +821,4 @@
 <         }
 < 
 ---
->         // ... (rest of the code remains unchanged)
+>         // ... (rest of the class remains unchanged)

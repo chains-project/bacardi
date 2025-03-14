@@ -1,22 +1,11 @@
 package com.github.games647.changeskin.sponge.command;
 
-import org.spongepowered.api.command.spec.CommandSpec; // This import will be removed
-import org.spongepowered.api.command.CommandResult; // New import for the updated API
-import org.spongepowered.api.command.args.GenericArguments; // New import for argument parsing
-import org.spongepowered.api.command.spec.CommandSpec.Builder; // New import for building command specs
-import org.spongepowered.api.text.Text; // New import for text handling
+import org.spongepowered.api.command.spec.CommandSpecBuilder;
 
 @FunctionalInterface
 public interface ChangeSkinCommand {
 
-    default CommandSpec buildSpec() {
-        return CommandSpec.builder()
-                .description(Text.of("Change Skin Command"))
-                .arguments(GenericArguments.string(Text.of("skinName")))
-                .executor((src, args) -> {
-                    // Command execution logic here
-                    return CommandResult.success();
-                })
-                .build();
+    default CommandSpecBuilder buildSpec() {
+        return new CommandSpecBuilder();
     }
 }

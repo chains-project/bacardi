@@ -4,6 +4,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -19,7 +20,6 @@ package org.simplify4u.plugins.utils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.repository.RepositorySystem;
-import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -68,16 +68,14 @@ public final class MavenCompilerUtils {
         if (config == null) {
             return emptySet();
         }
-        if (config instanceof Xpp3Dom) {
-            return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
+        if (config instanceof org.codehaus.plexus.util.xml.Xpp3Dom) {
+            return stream(((org.codehaus.plexus.util.xml.Xpp3Dom) config).getChildren("annotationProcessorPaths"))
                     .flatMap(aggregate -> stream(aggregate.getChildren("path")))
                     .map(processor -> system.createArtifact(
                             extractChildValue(processor, "groupId"),
                             extractChildValue(processor, "artifactId"),
                             extractChildValue(processor, "version"),
                             PACKAGING))
-                    // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
-                    // therefore there is little use in logging incomplete paths that are filtered out.
                     .filter(a -> !a.getGroupId().isEmpty())
                     .filter(a -> !a.getArtifactId().isEmpty())
                     .filter(a -> !a.getVersion().isEmpty())
@@ -94,11 +92,9 @@ public final class MavenCompilerUtils {
      * @param name the child node name
      * @return Returns child value if child node present or otherwise empty string.
      */
-    private static String extractChildValue(Xpp3Dom node, String name) {
-        return stream(node.getChildren()).filter(child -> name.equals(child.getName()))
-                .findFirst()
-                .map(Xpp3Dom::getValue)
-                .orElse("");
+    private static String extractChildValue(org.codehaus.plexus.util.xml.Xpp3Dom node, String name) {
+        final org.codehaus.plexus.util.xml.Xpp3Dom child = node.getChild(name);
+        return child == null ? "" : child.getValue();
     }
 }
 ```

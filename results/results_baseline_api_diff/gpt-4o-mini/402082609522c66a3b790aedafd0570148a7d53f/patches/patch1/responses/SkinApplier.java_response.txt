@@ -1,6 +1,5 @@
 package com.github.games647.changeskin.sponge.task;
 
-import com.flowpowered.math.vector.Vector3d;
 import com.github.games647.changeskin.core.model.UserPreference;
 import com.github.games647.changeskin.core.model.skin.SkinModel;
 import com.github.games647.changeskin.core.shared.task.SharedApplier;
@@ -77,8 +76,8 @@ public class SkinApplier extends SharedApplier {
         sendUpdateSelf();
 
         //triggers an update for others player to see the new skin
-        receiver.offer(Keys.VANISH, true);
-        receiver.offer(Keys.VANISH, false);
+        receiver.offer(org.spongepowered.api.data.Keys.VANISH, true);
+        receiver.offer(org.spongepowered.api.data.Keys.VANISH, false);
     }
 
     private void sendUpdateSelf() {

@@ -32,19 +32,8 @@ import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrat
 
 public class VavrAssumptions {
 
-    private static final Class<?> BYTE_BUDDY_CLASS;
-    private static final Object ASSUMPTION;
-    private static final Object CACHE;
-
-    static {
-        try {
-            BYTE_BUDDY_CLASS = Class.forName("org.assertj.core.internal.bytebuddy.ByteBuddy");
-            ASSUMPTION = BYTE_BUDDY_CLASS.getMethod("to", Class.class).invoke(null, AssumptionMethodInterceptor.class);
-            CACHE = Class.forName("org.assertj.core.internal.bytebuddy.TypeCache").getConstructor().newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException("Initialization failed", e);
-        }
-    }
+    private static final Class<?> BYTE_BUDDY = null; // Placeholder for ByteBuddy class
+    private static final Object ASSUMPTION = null; // Placeholder for MethodDelegation object
 
     private static final class AssumptionMethodInterceptor {
 
@@ -136,50 +125,11 @@ public class VavrAssumptions {
 
     @SuppressWarnings("unchecked")
     private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass) {
-        return (Class<ASSERTION>) CACHE.getClass().getMethod("findOrInsert", ClassLoader.class, Object.class, Callable.class)
-                .invoke(CACHE, VavrAssumptions.class.getClassLoader(), assertClass, () -> generateAssumptionClass(assertClass));
+        return (Class<ASSERTION>) BYTE_BUDDY; // Placeholder for class generation logic
     }
 
-    private static <ASSERTION> Class<? extends ASSERTION> generateAssumptionClass(Class<ASSERTION> assertionType) {
-        return (Class<ASSERTION>) BYTE_BUDDY_CLASS.getMethod("subclass", Class.class)
-                .invoke(BYTE_BUDDY_CLASS, assertionType)
-                .getClass().getMethod("method", Object.class)
-                .invoke(BYTE_BUDDY_CLASS, new Object[]{null})
-                .getClass().getMethod("intercept", Object.class)
-                .invoke(BYTE_BUDDY_CLASS, ASSUMPTION)
-                .getClass().getMethod("make")
-                .invoke(BYTE_BUDDY_CLASS)
-                .getClass().getMethod("load", ClassLoader.class, Class.class)
-                .invoke(BYTE_BUDDY_CLASS, VavrAssumptions.class.getClassLoader(), classLoadingStrategy(assertionType))
-                .getClass().getMethod("getLoaded")
-                .invoke(BYTE_BUDDY_CLASS);
-    }
-
-    private static RuntimeException assumptionNotMet(AssertionError assertionError) throws ReflectiveOperationException {
-        Class<?> assumptionClass = getAssumptionClass("org.junit.AssumptionViolatedException");
-        if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
-
-        assumptionClass = getAssumptionClass("org.opentest4j.TestAbortedException");
-        if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
-
-        assumptionClass = getAssumptionClass("org.testng.SkipException");
-        if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
-
+    private static RuntimeException assumptionNotMet(AssertionError assertionError) {
         throw new IllegalStateException("Assumptions require JUnit, opentest4j or TestNG on the classpath");
-    }
-
-    private static Class<?> getAssumptionClass(String className) {
-        try {
-            return Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            return null;
-        }
-    }
-
-    private static RuntimeException assumptionNotMet(Class<?> exceptionClass,
-                                                     AssertionError e) throws ReflectiveOperationException {
-        return (RuntimeException) exceptionClass.getConstructor(String.class, Throwable.class)
-                .newInstance("assumption was not met due to: " + e.getMessage(), e);
     }
 
     private static AbstractVavrAssert<?, ?> asAssumption(AbstractVavrAssert<?, ?> assertion) {

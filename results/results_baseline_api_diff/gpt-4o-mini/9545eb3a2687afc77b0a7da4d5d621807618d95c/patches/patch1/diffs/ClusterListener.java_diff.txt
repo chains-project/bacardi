@@ -1,8 +1,20 @@
-6c6
+1,15d0
+< /*
+<  * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
 <  * You may obtain a copy of the License at
----
->  * you may obtain a copy of the License at
-18,26c18,25
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+18,26c3,10
 < import com.hazelcast.core.Cluster;
 < import com.hazelcast.core.EntryListener;
 < import com.hazelcast.core.LifecycleEvent;
@@ -21,11 +33,69 @@
 > import com.hazelcast.cluster.MemberAttributeEvent;
 > import com.hazelcast.cluster.MembershipEvent;
 > import com.hazelcast.cluster.MembershipListener;
-154d152
-<     @Override
-227d224
-<     @Override
-261d257
-<     @Override
-270d265
-<     @Override
+63,67d46
+<     /**
+<      * Flag that indicates if the listener has done all clean up work when noticed that the
+<      * cluster has been stopped. This will force Openfire to wait until all clean
+<      * up (e.g. changing caches implementations) is done before destroying the plugin.
+<      */
+69,71d47
+<     /**
+<      * Flag that indicates if we've joined a cluster or not
+<      */
+89d64
+<                 // Keep track of the listener that we added to the cache
+101c76
+<         if (!isDone()) { // already joined
+---
+>         if (!isDone()) {
+105d79
+<         // Trigger events
+117d90
+<         // Let the other nodes know that we joined the cluster
+127d99
+<         // first cluster member is the oldest
+133c105
+<         if (isDone()) { // not a cluster member
+---
+>         if (isDone()) {
+140,141d111
+<         // Trigger event. Wait until the listeners have processed the event. Caches will be populated
+<         // again with local content.
+145,146d114
+<             // Remove traces of directed presences sent from local entities to handlers that no longer exist
+<             // At this point c2s sessions are gone from the routing table so we can identify expired sessions
+160d127
+<         // local member only
+162c129
+<         if (event.getMember().localMember()) { // We left and re-joined the cluster
+---
+>         if (event.getMember().localMember()) {
+164d130
+< 
+179,181d144
+<                 // The following line was intended to wait until all local handling finishes before informing other
+<                 // nodes. However that proved to be insufficient. Hence the 30 second default wait in the lines above.
+<                 // TODO Instead of the 30 second wait, we should look (and then wait) for some trigger or event that signifies that local handling has completed and caches have stabilized.
+184d146
+<                 // Let the other nodes know that we joined the cluster
+193,202d154
+<     /**
+<      * Blocks the current thread until the cluster cache is guaranteed to support clustering. This is especially useful
+<      * for executing cluster tasks immediately after joining. If this wait is not performed, the cache factory may still
+<      * be using the 'default' strategy instead of the 'hazelcast' strategy, which leads to cluster tasks being silently
+<      * discarded.
+<      *
+<      * The method will keep trying this for 10 minutes. After that the thread is released regardless of the result.
+<      *
+<      * @return Boolean indicating whether the clustered cache was actually observed to be installed.
+<      */
+236d187
+<             // This node may have realized that it got kicked out of the cluster
+239d189
+<             // Trigger event that a node left the cluster
+247,248d196
+<             // Remove traces of directed presences sent from local entities to handlers that no longer exist.
+<             // At this point c2s sessions are gone from the routing table so we can identify expired sessions
+251d198
+<         // Delete nodeID instance (release from memory)

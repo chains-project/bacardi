@@ -1,7 +1,7 @@
 package org.pitest.elements;
 
 import org.pitest.coverage.CoverageDatabase;
-import org.pitest.classinfo.ClassName;
+import org.pitest.classinfo.ClassInfoVisitor;
 import org.pitest.mutationtest.ClassMutationResults;
 import org.pitest.mutationtest.MutationResultListener;
 import org.pitest.mutationtest.SourceLocator;
@@ -102,8 +102,9 @@ public class MutationReportListener implements MutationResultListener {
 
   private MutationTestSummaryData createSummaryData(
       final CoverageDatabase coverage, final ClassMutationResults data) {
+    ClassInfoVisitor classInfoVisitor = coverage.getClassInfoVisitor();
     return new MutationTestSummaryData(data.getFileName(),
-        data.getMutations(), coverage.getClassInfo(ClassName.fromString(data.getMutatedClass())));
+        data.getMutations(), classInfoVisitor.getClassInfo(data.getMutatedClass(), null, 0));
   }
 
   private void updatePackageSummary(

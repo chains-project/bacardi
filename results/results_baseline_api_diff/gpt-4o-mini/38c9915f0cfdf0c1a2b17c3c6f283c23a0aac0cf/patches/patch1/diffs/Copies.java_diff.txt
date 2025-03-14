@@ -22,86 +22,17 @@
 <  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 <  * SOFTWARE.
 <  */
-30d6
+26d2
+< import io.zold.api.Copies.Copy;
+30d5
 < import org.cactoos.collection.CollectionOf;
-34a11
-> import org.cactoos.iterable.IterableOf;
-36,39d12
-< /**
-<  * Multiple copies of a Wallet.
-<  * @since 1.0
-<  */
-42,46d14
-<     /**
-<      * Ctor.
-<      * @param id Id of the wallet to pull.
-<      * @param remotes Remote nodes.
-<      */
-51,58d18
-<     /**
-<      * Builds copies from remotes.
-<      * @param id Wallet's id
-<      * @param remotes List of remotes
-<      * @return Iterable Iterable of Copy
-<      * @throws IOException If fails
-<      */
-<     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-79,88d38
-<     /**
-<      * Checks if content of two wallets is equal.
-<      * @param first First wallet
-<      * @param second Second wallet
-<      * @return Boolean Boolean
-<      * @throws IOException If fails
-<      * @todo #56:30min Compare the entire content of two wallets. In addition
-<      *  to id, compare RSA key and all transactions one by one. Entire content
-<      *  of each transaction should be compared.
-<      */
-91,93c41
+40c15
+< public final class Copies extends IterableEnvelope<Copy> {
+---
+> public final class Copies extends IterableEnvelope<Copies.Copy> {
+91,93c66
 <         return first.id() == second.id() && new CollectionOf<>(
 <             first.ledger()
 <         ).size() == new CollectionOf<>(second.ledger()).size();
 ---
 >         return first.id() == second.id() && first.ledger().size() == second.ledger().size();
-96,99d43
-<     /**
-<      * One copy of a {@link Wallet}.
-<      * @since 1.0
-<      */
-102,104d45
-<         /**
-<          * The wallet.
-<          */
-106,109d46
-< 
-<         /**
-<          * The remote nodes where the wallet was found.
-<          */
-112,116d48
-<         /**
-<          * Ctor.
-<          * @param wallet The wallet.
-<          * @param remotes The remote nodes where the wallet was found.
-<          */
-121,125d52
-<         /**
-<          * Ctor.
-<          * @param wallet The wallet.
-<          * @param remotes The remote nodes where the wallet was found.
-<          */
-131,135d57
-<         /**
-<          * Creates new Copy instance with additional remote.
-<          * @param remote Remote
-<          * @return Copy Copy
-<          */
-140,143d61
-<         /**
-<          * The wallet.
-<          * @return The wallet.
-<          */
-148,151d65
-<         /**
-<          * The summary of the score of all the remote nodes.
-<          * @return The score.
-<          */

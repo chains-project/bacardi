@@ -23,9 +23,12 @@
 <  * SOFTWARE.
 <  */
 < 
-27a4
+28c4,5
+< import org.cactoos.text.RandomText;
+---
 > import org.cactoos.text.TextOf;
+> import org.cactoos.scalar.UncheckedScalar;
 71c48
 <                 new Repeated<>(val, new RandomText())
 ---
->                 new Repeated<>(val, new TextOf("random"))
+>                 new Repeated<>(val, new UncheckedScalar<>(() -> new TextOf("random"))))

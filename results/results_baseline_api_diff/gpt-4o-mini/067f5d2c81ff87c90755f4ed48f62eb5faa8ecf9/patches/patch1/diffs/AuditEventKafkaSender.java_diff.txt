@@ -73,13 +73,10 @@
 <   /**
 <    * KafkaProducer instance to send audit events
 <    */
-118,121c56
+118,120d55
 <   /**
 <    * Serialize key and value to byte[]
 <    */
-<   private TSerializer serializer = new TSerializer();
----
->   private TSerializer serializer;
 123,125d57
 <   /**
 <    *  flag to control the start and stop of the executing thread.
@@ -124,13 +121,11 @@
 <    *  the number of TCP connections from audit client to the Kafka Cluster hosting the audit_event
 <    *  topic.
 <    */
-185a86
->     this.serializer = new TSerializer(); // Updated initialization
-188d88
+188d87
 < 
-198d97
+198d96
 <     // refresh every 30 seconds
-246,252d144
+246,252d143
 <   /**
 <    *  Sender dequeues LoggingAuditEvents and sends them to Kafka cluster. If send to one partition
 <    *  fails, it will choose another partition. For each event, it will try at most
@@ -138,24 +133,24 @@
 <    *  used to track the queue size and usuage, number of events sent out to Kafka successfully, and
 <    *  the number of events dropped.
 <    */
-298d189
+298d188
 < 
-310d200
+310d199
 <       // if exception thrown (i.e. the send failed), the partition is added to badPartitions.
-317,319d206
+317,319d205
 <       // retry the failed event by inserting it at the beginning of the deque.
 <       // If number of tries reaches 3, meaning that 3 partitions have been tried sending to but
 <       // still failed, this event is dropped.
-366,367d252
+366,367d251
 <           // if send is successful, remove the event from the map eventTriedCount if it was added
 <           // LoggingAuditHeaders can uniquely identify an event.
-369d253
+369d252
 <           // if send out successfully, remove the partition from the badPartitions if it was added.
-383,385d266
+383,385d265
 <   /**
 <    *  start the executing thread and let the Sender run.
 <    */
-398,401d278
+398,401d277
 <   /**
 <    *  reserve some time (by default 30 seconds at most)to let AuditEventKafkaSender to send out
 <    *  LoggingAuditEvent in the queue and gracefully stop AuditEventKafkaSender.

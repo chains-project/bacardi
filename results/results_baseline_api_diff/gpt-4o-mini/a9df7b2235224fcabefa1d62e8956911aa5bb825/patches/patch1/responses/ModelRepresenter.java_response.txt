@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2012 to original author or authors
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
 package org.sonatype.maven.polyglot.yaml;
 
 import org.apache.maven.model.Contributor;
@@ -20,21 +13,16 @@ import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
+import org.yaml.snakeyaml.introspector.PropertyUtils;
 
 import java.beans.IntrospectionException;
 import java.util.*;
 
 import static java.lang.String.format;
 
-/**
- * YAML model representer.
- *
- * @author jvanzyl
- * @author bentmann
- * @since 0.7
- */
 class ModelRepresenter extends Representer {
   public ModelRepresenter() {
+    super(new org.yaml.snakeyaml.DumperOptions());
     this.representers.put(Xpp3Dom.class, new RepresentXpp3Dom());
     Represent stringRepresenter = this.representers.get(String.class);
     this.representers.put(Boolean.class, stringRepresenter);
@@ -47,7 +35,6 @@ class ModelRepresenter extends Representer {
   protected NodeTuple representJavaBeanProperty(Object javaBean, Property property,
                                                 Object propertyValue, Tag customTag) {
     if (property != null && property.getName().equals("pomFile")) {
-      // "pomFile" is not a part of POM http://maven.apache.org/xsd/maven-4.0.0.xsd
       return null;
     }
 
@@ -61,15 +48,11 @@ class ModelRepresenter extends Representer {
       if (map.isEmpty()) return null;
     }
     if (javaBean instanceof Dependency) {
-      //skip optional if it is false
       if (skipBoolean(property, "optional", propertyValue, false)) return null;
-      //skip type if it is jar
       if (skipString(property, "type", propertyValue, "jar")) return null;
     }
     if (javaBean instanceof Plugin) {
-      //skip extensions if it is false
       if (skipBoolean(property, "extensions", propertyValue, false)) return null;
-      //skip inherited if it is true
       if (skipBoolean(property, "inherited", propertyValue, true)) return null;
     }
     return super.representJavaBeanProperty(javaBean, property, propertyValue, customTag);
@@ -90,7 +73,6 @@ class ModelRepresenter extends Representer {
     }
     return false;
   }
-
 
   private class RepresentXpp3Dom implements Represent {
     private static final String ATTRIBUTE_PREFIX = "attr/";
@@ -120,7 +102,7 @@ class ModelRepresenter extends Representer {
         Object childValue = child.getValue();
         if (childValue == null) {
           boolean isList = singularName != null;
-          if (isList) { // check for eventual list construction
+          if (isList) {
             for (int j = 0, grandChildCount = child.getChildCount(); j < grandChildCount; j++) {
               String grandChildName = child.getChild(j).getName();
               isList &= grandChildName.equals(singularName);
@@ -165,10 +147,8 @@ class ModelRepresenter extends Representer {
     }
   }
 
-  // Model elements order {
-  //TODO move to polyglot-common, or to org.apache.maven:maven-model
   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
-		  "modelEncoding",
+          "modelEncoding",
           "modelVersion",
           "parent",
           "groupId",
@@ -195,25 +175,19 @@ class ModelRepresenter extends Representer {
           "dependencyManagement",
           "dependencies",
           "distributionManagement",
-          //"repositories",
-          //"pluginRepositories",
           "build",
           "profiles",
           "reporting"
-          ));
+  ));
   private static List<String> ORDER_DEVELOPER = new ArrayList<String>(Arrays.asList(
-		  "name", "id", "email"));
+          "name", "id", "email"));
   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<String>(Arrays.asList(
-		  "name", "id", "email"));
+          "name", "id", "email"));
   private static List<String> ORDER_DEPENDENCY = new ArrayList<String>(Arrays.asList(
-		  "groupId", "artifactId", "version", "type", "classifier", "scope"));
+          "groupId", "artifactId", "version", "type", "classifier", "scope"));
   private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
-		  "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
-  //}
+          "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
 
-  /*
-   * Change the default order. Important data goes first.
-   */
   @Override
   protected Set<Property> getProperties(Class<? extends Object> type)
           throws IntrospectionException {
@@ -223,9 +197,9 @@ class ModelRepresenter extends Representer {
       return sortTypeWithOrder(type, ORDER_DEVELOPER);
     } else if (type.isAssignableFrom(Contributor.class)) {
       return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
-    }  else if (type.isAssignableFrom(Dependency.class)) {
+    } else if (type.isAssignableFrom(Dependency.class)) {
       return sortTypeWithOrder(type, ORDER_DEPENDENCY);
-    }  else if (type.isAssignableFrom(Plugin.class)) {
+    } else if (type.isAssignableFrom(Plugin.class)) {
       return sortTypeWithOrder(type, ORDER_PLUGIN);
     } else {
       return super.getProperties(type);
@@ -234,10 +208,10 @@ class ModelRepresenter extends Representer {
 
   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
           throws IntrospectionException {
-      Set<Property> standard = super.getProperties(type);
-      Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
-      sorted.addAll(standard);
-      return sorted;
+    Set<Property> standard = PropertyUtils.getProperties(type);
+    Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
+    sorted.addAll(standard);
+    return sorted;
   }
 
   private class ModelPropertyComparator implements Comparator<Property> {
@@ -248,14 +222,12 @@ class ModelRepresenter extends Representer {
     }
 
     public int compare(Property o1, Property o2) {
-      // important go first
       for (String name : names) {
         int c = compareByName(o1, o2, name);
         if (c != 0) {
           return c;
         }
       }
-      // all the rest
       return o1.compareTo(o2);
     }
 
@@ -265,7 +237,7 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0;// compare further
+      return 0;
     }
   }
 }

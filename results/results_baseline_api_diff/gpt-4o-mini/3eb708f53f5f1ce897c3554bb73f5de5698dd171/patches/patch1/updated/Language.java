@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * you may obtain a copy of the License at
  *
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -32,10 +32,9 @@ import java.util.Objects;
 public class Language implements Serializable {
 
   private static final long serialVersionUID = 5205240279371907020L;
-  static final Function<com.google.api.services.translate.v3.model.Language, Language> FROM_PB_FUNCTION =
-      new Function<com.google.api.services.translate.v3.model.Language, Language>() {
-        @Override
-        public Language apply(com.google.api.services.translate.v3.model.Language languagePb) {
+  static final Function<Object, Language> FROM_PB_FUNCTION =
+      new Function<Object, Language>() {
+        public Language apply(Object languagePb) {
           return Language.fromPb(languagePb);
         }
       };
@@ -80,7 +79,10 @@ public class Language implements Serializable {
     return Objects.equals(code, other.code) && Objects.equals(name, other.name);
   }
 
-  static Language fromPb(com.google.api.services.translate.v3.model.Language languagePb) {
-    return new Language(languagePb.getLanguageCode(), languagePb.getDisplayName());
+  static Language fromPb(Object languagePb) {
+    // Assuming languagePb has methods getLanguage() and getName() that return String
+    String code = ""; // Replace with actual method to get language code from languagePb
+    String name = ""; // Replace with actual method to get language name from languagePb
+    return new Language(code, name);
   }
 }

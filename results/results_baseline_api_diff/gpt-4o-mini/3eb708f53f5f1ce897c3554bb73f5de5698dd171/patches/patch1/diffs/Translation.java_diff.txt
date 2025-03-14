@@ -23,17 +23,17 @@
 <   static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =
 <       new Function<TranslationsResource, Translation>() {
 ---
->   static final Function<com.google.api.services.translate.v3.model.Translation, Translation> FROM_PB_FUNCTION =
->       new Function<com.google.api.services.translate.v3.model.Translation, Translation>() {
+>   static final Function<Translation, Translation> FROM_PB_FUNCTION =
+>       new Function<Translation, Translation>() {
 40c24
 <         public Translation apply(TranslationsResource translationPb) {
 ---
->         public Translation apply(com.google.api.services.translate.v3.model.Translation translationPb) {
+>         public Translation apply(Translation translationPb) {
 106c90
 <   static Translation fromPb(TranslationsResource translationPb) {
 ---
->   static Translation fromPb(com.google.api.services.translate.v3.model.Translation translationPb) {
+>   static Translation fromPb(Translation translationPb) {
 109c93
 <         translationPb.getDetectedSourceLanguage(),
 ---
->         null, // source language is no longer available
+>         translationPb.getSourceLanguage(),

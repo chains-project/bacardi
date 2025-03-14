@@ -24,161 +24,153 @@
 <  */
 35d11
 < import org.cactoos.scalar.IoCheckedScalar;
-37,38c13
+37d12
 < import org.cactoos.scalar.StickyScalar;
-< import org.cactoos.scalar.UncheckedScalar;
----
-> import org.cactoos.scalar.Unchecked;
-43d17
+40d14
+< import org.cactoos.text.SplitText;
+43d16
 < import org.cactoos.text.UncheckedText;
-88c62
+88c61
 <     private final IoCheckedScalar<String> transaction;
 ---
 >     private final String transaction;
-95,97c69
+95,97d67
 <         this.transaction = new IoCheckedScalar<>(
 <             new StickyScalar<>(
 <                 () -> {
----
->         this.transaction = trnsct;
-99,101c71
+99,101c69
 <                         new TrimmedText(
 <                             new TextOf(trnsct)
 <                         ).asString().isEmpty()
 ---
 >             new TextOf(trnsct).asString().isEmpty()
-103c73
+103c71
 <                         throw new IOException(
 ---
 >             throw new IllegalArgumentException(
-113c83
+109c77
+<                             new SplitText(trnsct, ";")
+---
+>                 new TextOf(trnsct).asString().split(";")
+113c81
 <                         throw new IOException(
 ---
 >             throw new IllegalArgumentException(
-121,124d90
+121,124c89
 <                     return trnsct;
 <                 }
 <             )
 <         );
-130,131c96
+---
+>         this.transaction = trnsct;
+130,136c95,97
 <         final String ident = new UncheckedText(
 <             new IoCheckedScalar<>(
----
->         final String ident = new Unchecked<>(
-133c98
+<                 new ItemAt<>(
 <                     0, new SplitText(this.transaction.value(), ";")
----
->                 0, new SplitText(this.transaction, ";")
-135,136c100
+<                 )
 <             ).value()
 <         ).asString();
 ---
+>         final String ident = new ItemAt<>(
+>             0, this.transaction.split(";")
 >         ).value();
-139c103
+139d99
 <                 new UncheckedText(
----
->                 new Unchecked<>(
-155,156c119
+144d103
+<                     )
+155,156d113
 <             new UncheckedText(
 <                 new IoCheckedScalar<>(
----
->             new Unchecked<>(
-158c121
+158,161c115,116
 <                         1, new SplitText(this.transaction.value(), ";")
----
->                     1, new SplitText(this.transaction, ";")
-160,161c123
+<                     )
 <                 ).value()
 <             ).asString(),
 ---
+>                 1, this.transaction.split(";")
 >             ).value(),
-168,169c130
+168,174c123,125
 <         final String amnt = new UncheckedText(
 <             new IoCheckedScalar<>(
----
->         final String amnt = new Unchecked<>(
-171c132
+<                 new ItemAt<>(
 <                     2, new SplitText(this.transaction.value(), ";")
----
->                 2, new SplitText(this.transaction, ";")
-173,174c134
+<                 )
 <             ).value()
 <         ).asString();
 ---
+>         final String amnt = new ItemAt<>(
+>             2, this.transaction.split(";")
 >         ).value();
-177c137
+177d127
 <                 new UncheckedText(
----
->                 new Unchecked<>(
-192,193c152
+182d131
+<                     )
+192,199c141,143
 <         final String prefix = new UncheckedText(
 <             new IoCheckedScalar<>(
----
->         final String prefix = new Unchecked<>(
-196c155
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
 <                     3, new SplitText(this.transaction.value(), ";")
----
->                 3, new SplitText(this.transaction, ";")
-198,199c157
+<                 )
 <             ).value()
 <         ).asString();
 ---
+>         final String prefix = new ItemAt<>(
+>             3, this.transaction.split(";")
 >         ).value();
-212,213c170
+212,219c156,158
 <         final String bnf = new UncheckedText(
 <             new IoCheckedScalar<>(
----
->         final String bnf = new Unchecked<>(
-216c173
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
 <                     4, new SplitText(this.transaction.value(), ";")
----
->                 4, new SplitText(this.transaction, ";")
-218,219c175
+<                 )
 <             ).value()
 <         ).asString();
 ---
+>         final String bnf = new ItemAt<>(
+>             4, this.transaction.split(";")
 >         ).value();
-222c178
+222d160
 <                 new UncheckedText(
----
->                 new Unchecked<>(
-236,237c192
+227d164
+<                     )
+236,243c173,175
 <         final String dtls = new UncheckedText(
 <             new IoCheckedScalar<>(
----
->         final String dtls = new Unchecked<>(
-240c195
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
 <                     5, new SplitText(this.transaction.value(), ";")
----
->                 5, new SplitText(this.transaction, ";")
-242,243c197
+<                 )
 <             ).value()
 <         ).asString();
 ---
+>         final String dtls = new ItemAt<>(
+>             5, this.transaction.split(";")
 >         ).value();
-246c200
+246d177
 <                 new UncheckedText(
----
->                 new Unchecked<>(
-260,261c214
+251d181
+<                     )
+260,267c190,192
 <         final String sign = new UncheckedText(
 <             new IoCheckedScalar<>(
----
->         final String sign = new Unchecked<>(
-264c217
+<                 new ItemAt<>(
+<                     //@checkstyle MagicNumberCheck (1 line)
 <                     6, new SplitText(this.transaction.value(), ";")
----
->                 6, new SplitText(this.transaction, ";")
-266,267c219
+<                 )
 <             ).value()
 <         ).asString();
 ---
+>         final String sign = new ItemAt<>(
+>             6, this.transaction.split(";")
 >         ).value();
-272c224
+272d196
 <                 new UncheckedText(
----
->                 new Unchecked<>(
-286c238
+277d200
+<                     )
+286c209
 <         return new UncheckedScalar<>(this.transaction).value();
 ---
 >         return this.transaction;

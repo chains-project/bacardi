@@ -54,7 +54,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
 
   private KafkaProducer<byte[], byte[]> kafkaProducer;
 
-  private TSerializer serializer;
+  private TSerializer serializer = new TSerializer();
 
   private AtomicBoolean cancelled = new AtomicBoolean(false);
 
@@ -84,7 +84,6 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
     this.name = name;
     this.stopGracePeriodInSeconds = config.getStopGracePeriodInSeconds();
     this.badPartitions.add(-1);
-    this.serializer = new TSerializer(); // Updated initialization
   }
 
   public KafkaProducer<byte[], byte[]> getKafkaProducer() {

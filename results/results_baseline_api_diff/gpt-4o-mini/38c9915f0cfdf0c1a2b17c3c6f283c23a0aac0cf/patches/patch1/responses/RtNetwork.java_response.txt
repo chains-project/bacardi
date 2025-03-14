@@ -5,28 +5,12 @@ import java.util.Iterator;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Sorted;
 import org.cactoos.scalar.Reduced;
-import org.cactoos.scalar.IoChecked; // Updated import
+import org.cactoos.scalar.IoChecked;
 
-/**
- * Network implementation.
- *
- * @since 0.1
- * @todo #5:30min We must figure out how to 'load' some network. Loading the
- *  network will be loading a local JSON file that contains data on all
- *  remote nodes that we know about; we must have a pre configured set of
- *  remote nodes built in too. See whitepaper for details.
- */
 public final class RtNetwork implements Network {
 
-    /**
-     * {@link Remote} nodes.
-     */
     private final Iterable<Remote> nodes;
 
-    /**
-     * Constructor.
-     * @param remotes Remotes of the network
-     */
     RtNetwork(final Iterable<Remote> remotes) {
         this.nodes =  remotes;
     }

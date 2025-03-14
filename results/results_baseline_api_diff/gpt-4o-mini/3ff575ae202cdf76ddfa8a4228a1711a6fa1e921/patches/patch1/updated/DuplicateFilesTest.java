@@ -36,7 +36,7 @@ public class DuplicateFilesTest
     {
         super.setUp();
         Logger logger = new ConsoleLogger(Logger.LEVEL_DEBUG, "test");
-        getContainer().getLoggerManager().setLogger(logger);
+        getContainer().getLoggerManager().setThreshold(Logger.LEVEL_DEBUG);
     }
 
     public void testZipArchiver()

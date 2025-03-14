@@ -49,7 +49,7 @@ public class CsrfController {
             @MvcBinding
             @NotBlank String greeting) {
         if (bindingResult.isFailed()) {
-            AlertMessage alert = AlertMessage.danger("Validation violations!");
+            AlertMessage alert = AlertMessage.danger("Validation voilations!");
             bindingResult.getAllErrors()
                     .stream()
                     .forEach((ParamError t) -> {

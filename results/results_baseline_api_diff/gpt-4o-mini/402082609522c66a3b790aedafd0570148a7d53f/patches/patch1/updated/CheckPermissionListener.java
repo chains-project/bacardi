@@ -14,9 +14,8 @@ import java.util.UUID;
 
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
 import org.spongepowered.api.network.channel.ChannelBuf;
-import org.spongepowered.api.network.channel.packet.PacketDispatcher;
+import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
 import org.spongepowered.api.network.EngineConnection;
 
 import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
@@ -28,11 +27,9 @@ public class CheckPermissionListener {
     private final RawPlayDataChannel permissionsResultChannel;
 
     @Inject
-    CheckPermissionListener(ChangeSkinSponge plugin, PacketDispatcher packetDispatcher) {
+    CheckPermissionListener(ChangeSkinSponge plugin, RawPlayDataChannel permissionsResultChannel) {
         this.plugin = plugin;
-
-        String combinedName = new NamespaceKey(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL).getCombinedName();
-        permissionsResultChannel = packetDispatcher.getOrCreateRaw(plugin, combinedName);
+        this.permissionsResultChannel = permissionsResultChannel;
     }
 
     public void handlePayload(ChannelBuf data, EngineConnection connection, Type side) {
