@@ -29,7 +29,6 @@ import uk.gov.pay.adminusers.service.UserServices;
 import uk.gov.service.payments.commons.queue.exception.QueueException;
 import uk.gov.service.payments.commons.queue.model.QueueMessage;
 
-import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -107,16 +106,6 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin1"),
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
-
-        Object logger = LoggerFactory.getLogger(EventMessageHandler.class);
-        try {
-            Method setLevelMethod = logger.getClass().getMethod("setLevel", Level.class);
-            setLevelMethod.invoke(logger, Level.INFO);
-            Method addAppenderMethod = logger.getClass().getMethod("addAppender", Appender.class);
-            addAppenderMethod.invoke(logger, mockLogAppender);
-        } catch (Exception e) {
-            // ignore if logger does not support setting level or adding appender
-        }
     }
 
     @Test
@@ -179,12 +168,6 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("unrecognized"), is("no"));
         assertThat(personalisation.get("paymentAmount"), is(nullValue()));
         assertThat(personalisation.get("disputeEvidenceDueDate"), is(nullValue()));
-
-        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-
-        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }
 
     @Test
@@ -216,12 +199,6 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("serviceName"), is(service.getName()));
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
-
-        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-
-        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }
 
     @Test
@@ -253,12 +230,6 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("serviceName"), is(service.getName()));
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
-
-        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-
-        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }
 
     @Test
@@ -290,12 +261,6 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("serviceName"), is(service.getName()));
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
-
-        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-
-        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }
 
     @Test

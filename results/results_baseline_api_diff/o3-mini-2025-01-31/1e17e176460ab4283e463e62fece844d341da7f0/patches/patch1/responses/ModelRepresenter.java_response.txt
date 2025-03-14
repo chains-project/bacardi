@@ -22,6 +22,7 @@ import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
 
+import java.beans.IntrospectionException;
 import java.util.*;
 
 import static java.lang.String.format;
@@ -91,6 +92,7 @@ class ModelRepresenter extends Representer {
     }
     return false;
   }
+
 
   private class RepresentXpp3Dom implements Represent {
     private static final String ATTRIBUTE_PREFIX = "attr/";
@@ -168,47 +170,47 @@ class ModelRepresenter extends Representer {
   // Model elements order {
   //TODO move to polyglot-common, or to org.apache.maven:maven-model
   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
-      "modelEncoding",
-      "modelVersion",
-      "parent",
-      "groupId",
-      "artifactId",
-      "version",
-      "packaging",
+		  "modelEncoding",
+          "modelVersion",
+          "parent",
+          "groupId",
+          "artifactId",
+          "version",
+          "packaging",
 
-      "name",
-      "description",
-      "url",
-      "inceptionYear",
-      "organization",
-      "licenses",
-      "developers",
-      "contributers",
-      "mailingLists",
-      "scm",
-      "issueManagement",
-      "ciManagement",
+          "name",
+          "description",
+          "url",
+          "inceptionYear",
+          "organization",
+          "licenses",
+          "developers",
+          "contributers",
+          "mailingLists",
+          "scm",
+          "issueManagement",
+          "ciManagement",
 
-      "properties",
-      "prerequisites",
-      "modules",
-      "dependencyManagement",
-      "dependencies",
-      "distributionManagement",
-      //"repositories",
-      //"pluginRepositories",
-      "build",
-      "profiles",
-      "reporting"
-  ));
+          "properties",
+          "prerequisites",
+          "modules",
+          "dependencyManagement",
+          "dependencies",
+          "distributionManagement",
+          //"repositories",
+          //"pluginRepositories",
+          "build",
+          "profiles",
+          "reporting"
+          ));
   private static List<String> ORDER_DEVELOPER = new ArrayList<String>(Arrays.asList(
-      "name", "id", "email"));
+		  "name", "id", "email"));
   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<String>(Arrays.asList(
-      "name", "id", "email"));
+		  "name", "id", "email"));
   private static List<String> ORDER_DEPENDENCY = new ArrayList<String>(Arrays.asList(
-      "groupId", "artifactId", "version", "type", "classifier", "scope"));
+		  "groupId", "artifactId", "version", "type", "classifier", "scope"));
   private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
-      "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
+		  "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
   //}
 
   /*
@@ -222,9 +224,9 @@ class ModelRepresenter extends Representer {
       return sortTypeWithOrder(type, ORDER_DEVELOPER);
     } else if (type.isAssignableFrom(Contributor.class)) {
       return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
-    } else if (type.isAssignableFrom(Dependency.class)) {
+    }  else if (type.isAssignableFrom(Dependency.class)) {
       return sortTypeWithOrder(type, ORDER_DEPENDENCY);
-    } else if (type.isAssignableFrom(Plugin.class)) {
+    }  else if (type.isAssignableFrom(Plugin.class)) {
       return sortTypeWithOrder(type, ORDER_PLUGIN);
     } else {
       return super.getProperties(type);
@@ -232,10 +234,10 @@ class ModelRepresenter extends Representer {
   }
 
   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
-    Set<Property> standard = super.getProperties(type);
-    Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
-    sorted.addAll(standard);
-    return sorted;
+      Set<Property> standard = super.getProperties(type);
+      Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
+      sorted.addAll(standard);
+      return sorted;
   }
 
   private class ModelPropertyComparator implements Comparator<Property> {
@@ -263,7 +265,7 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0; // compare further
+      return 0;// compare further
     }
   }
 }

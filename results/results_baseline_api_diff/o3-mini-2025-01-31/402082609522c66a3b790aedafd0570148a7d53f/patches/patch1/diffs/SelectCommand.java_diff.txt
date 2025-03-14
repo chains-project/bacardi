@@ -1,123 +1,64 @@
-7,12d6
+7c7
 < 
-< import org.spongepowered.api.command.CommandResult;
-< import org.spongepowered.api.command.CommandSource;
+---
+> import org.spongepowered.api.command.Command;
+10,12c10,11
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
-14,17c8
-< import org.spongepowered.api.scheduler.Task;
-< 
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+16,19c15
 < import static org.spongepowered.api.command.args.GenericArguments.string;
 < import static org.spongepowered.api.text.Text.of;
+< 
+< public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
 ---
-> import java.util.Optional;
-24c15
+> public class SelectCommand implements ChangeSkinCommand {
+22a19,20
+>     private static final String SKIN_NAME_KEY = "skinName";
+> 
+24c22
 <     SelectCommand(ChangeSkinSponge plugin) {
 ---
 >     public SelectCommand(ChangeSkinSponge plugin) {
-40c31
+28d25
+<     @Override
+32c29,30
+<             return CommandResult.empty();
+---
+>             // CommandResult.empty() has been removed; using success() for no-op.
+>             return CommandResult.success();
+35c33
+<         String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
+---
+>         String skinName = args.one(SKIN_NAME_KEY).get().toLowerCase().replace("skin-", "");
+40c38,39
 <             Task.builder().async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
 ---
->             new Thread(new SkinSelector(plugin, receiver, targetId)).start();
-52c43
+>             // Removed .async() call since Task.builder().async() is no longer available.
+>             Task.builder().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+50,52c49,51
+<         return CommandSpec.builder()
+<                 .executor(this)
 <                 .arguments(string(of("skinName")))
 ---
->                 .arguments(GenericArguments.string(Text.of("skinName")))
-55a47,142
-> 
->     // Compatibility stubs for the removed API classes
-> 
->     public static interface CommandSource {
->         // Marker interface for a command source.
+>         Command<CommandSource> command = Command.builder()
+>                 .addParameter(Parameter.string().key(SKIN_NAME_KEY).build())
+>                 .executor(this::execute)
+54a54,67
+>         return new CommandSpec(command);
 >     }
 > 
->     public static interface CommandExecutor {
->         CommandResult execute(CommandSource src, CommandContext args);
->     }
-> 
->     public static class CommandResult {
->         private final boolean success;
-> 
->         private CommandResult(boolean success) {
->             this.success = success;
->         }
-> 
->         public static CommandResult empty() {
->             return new CommandResult(false);
->         }
-> 
->         public static CommandResult success() {
->             return new CommandResult(true);
->         }
->     }
-> 
+>     // Local shim to replace removed org.spongepowered.api.command.spec.CommandSpec
 >     public static class CommandSpec {
->         private final CommandExecutor executor;
->         private final Object arguments;
->         private final String permission;
+>         private final Command<CommandSource> command;
 > 
->         private CommandSpec(CommandExecutor executor, Object arguments, String permission) {
->             this.executor = executor;
->             this.arguments = arguments;
->             this.permission = permission;
+>         public CommandSpec(Command<CommandSource> command) {
+>             this.command = command;
 >         }
 > 
->         public static Builder builder() {
->             return new Builder();
+>         public Command<CommandSource> getCommand() {
+>             return command;
 >         }
-> 
->         public static class Builder {
->             private CommandExecutor executor;
->             private Object arguments;
->             private String permission;
-> 
->             public Builder executor(CommandExecutor executor) {
->                 this.executor = executor;
->                 return this;
->             }
-> 
->             public Builder arguments(Object arguments) {
->                 this.arguments = arguments;
->                 return this;
->             }
-> 
->             public Builder permission(String permission) {
->                 this.permission = permission;
->                 return this;
->             }
-> 
->             public CommandSpec build() {
->                 return new CommandSpec(executor, arguments, permission);
->             }
->         }
->     }
-> 
->     public static class CommandContext {
->         // Dummy implementation for compatibility with the old API.
->         public <T> Optional<T> getOne(String key) {
->             return Optional.empty();
->         }
->     }
-> 
->     public static class GenericArguments {
->         public static Object string(Text text) {
->             return text;
->         }
->     }
-> 
->     public static class Text {
->         private final String content;
-> 
->         private Text(String content) {
->             this.content = content;
->         }
-> 
->         public static Text of(String content) {
->             return new Text(content);
->         }
->     }
-> 
->     public static interface ChangeSkinCommand {
->         CommandSpec buildSpec();
->     }

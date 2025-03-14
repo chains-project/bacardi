@@ -40,13 +40,14 @@ import java.util.concurrent.TimeUnit;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+/**
+ * SSH channel with authentication by password.
+ * @since 1.4
+ * @see Ssh For SSH channel with authenticaton using private key.
+ */
 @ToString
 @EqualsAndHashCode(of = "password", callSuper = true)
 public final class SshByPassword extends AbstractSshShell {
-
-    private static final int RETRY_ATTEMPTS = 7;
-    private static final int SERVER_ALIVE_INTERVAL_SECONDS = 10;
-    private static final int SERVER_ALIVE_COUNT_MAX = 1000000;
 
     /**
      * User password.
@@ -70,8 +71,9 @@ public final class SshByPassword extends AbstractSshShell {
     }
 
     // @checkstyle ProtectedMethodInFinalClassCheck (10 lines)
+    @Override
     @RetryOnFailure(
-        attempts = RETRY_ATTEMPTS,
+        attempts = 7,
         delay = 1,
         unit = TimeUnit.MINUTES,
         verbose = false,
@@ -92,9 +94,9 @@ public final class SshByPassword extends AbstractSshShell {
             session.setConfig("StrictHostKeyChecking", "no");
             session.setPassword(this.password);
             session.setServerAliveInterval(
-                (int) TimeUnit.SECONDS.toMillis(SERVER_ALIVE_INTERVAL_SECONDS)
+                (int) TimeUnit.SECONDS.toMillis(10L)
             );
-            session.setServerAliveCountMax(SERVER_ALIVE_COUNT_MAX);
+            session.setServerAliveCountMax(1000000);
             session.connect((int) TimeUnit.SECONDS.toMillis(10L));
             return session;
         } catch (final JSchException ex) {

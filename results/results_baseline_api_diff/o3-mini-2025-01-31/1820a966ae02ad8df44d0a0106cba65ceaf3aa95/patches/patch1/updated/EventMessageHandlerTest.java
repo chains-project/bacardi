@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.queue.event;
 
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -79,6 +78,7 @@ class EventMessageHandlerTest {
 
     @Captor
     ArgumentCaptor<Map<String, String>> personalisationCaptor;
+
     @Mock
     private Appender<ILoggingEvent> mockLogAppender;
     @Captor
@@ -106,8 +106,6 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin1"),
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
-
-        // Removed logger configuration to avoid using the removed ch.qos.logback.classic.Logger API
     }
 
     @Test

@@ -1,43 +1,75 @@
-6a7
-> import java.util.Optional;
-7a9
-> import org.spongepowered.api.command.Command;
-9,12c11,13
+7,12c7,9
+< 
+< import org.spongepowered.api.command.CommandResult;
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
 > import org.spongepowered.api.command.CommandExecutor;
-> import org.spongepowered.api.command.exception.CommandException;
+> import org.spongepowered.api.command.CommandCause;
 > import org.spongepowered.api.command.parameter.CommandContext;
-21c22
-<     InvalidateCommand(ChangeSkinSponge plugin) {
+14c11,12
+< import org.spongepowered.api.scheduler.Task;
 ---
->     public InvalidateCommand(ChangeSkinSponge plugin) {
-26,29c27,31
+> 
+> import java.util.Optional;
+26,28c24,28
 <     public CommandResult execute(CommandSource src, CommandContext args) {
 <         if (!(src instanceof Player)) {
 <             plugin.sendMessage(src, "no-console");
-<             return CommandResult.empty();
 ---
->     public CommandResult execute(CommandContext context) throws CommandException {
->         Optional<Player> optionalPlayer = context.cause().first(Player.class);
->         if (!optionalPlayer.isPresent()) {
->             plugin.sendMessage(context.cause().root(), "no-console");
->             return CommandResult.builder().successCount(0).build();
-31,34c33,35
-< 
+>     public CommandResult execute(CommandContext args) {
+>         CommandCause cause = args.cause();
+>         Optional<Player> playerOpt = cause.first(Player.class);
+>         if (!playerOpt.isPresent()) {
+>             plugin.sendMessage(cause.root(), "no-console");
+32,33c32,33
 <         Player receiver = (Player) src;
 <         Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
-<         return CommandResult.success();
 ---
->         Player receiver = optionalPlayer.get();
->         Task.builder().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
->         return CommandResult.builder().successCount(1).build();
-38,39c39,40
-<     public CommandSpec buildSpec() {
-<         return CommandSpec.builder()
----
->     public Command buildSpec() {
->         return Command.builder()
+>         Player receiver = playerOpt.get();
+>         plugin.getScheduler().executor(plugin).execute(new SkinInvalidator(plugin, receiver));
+43a44,85
+> 
+>     public static class CommandSpec {
+> 
+>         public static Builder builder() {
+>             return new Builder();
+>         }
+> 
+>         public static class Builder {
+>             private CommandExecutor executor;
+>             private String permission;
+> 
+>             public Builder executor(CommandExecutor executor) {
+>                 this.executor = executor;
+>                 return this;
+>             }
+> 
+>             public Builder permission(String permission) {
+>                 this.permission = permission;
+>                 return this;
+>             }
+> 
+>             public CommandSpec build() {
+>                 return new CommandSpec();
+>             }
+>         }
+>     }
+> 
+>     public static class CommandResult {
+>         private final boolean success;
+> 
+>         private CommandResult(boolean success) {
+>             this.success = success;
+>         }
+> 
+>         public static CommandResult empty() {
+>             return new CommandResult(false);
+>         }
+> 
+>         public static CommandResult success() {
+>             return new CommandResult(true);
+>         }
+>     }

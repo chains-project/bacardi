@@ -4,8 +4,8 @@
 < 
 ---
 > import org.spongepowered.api.command.Command;
-> import org.spongepowered.api.command.CommandCause;
-13,20c13,15
+> import org.spongepowered.api.command.CommandExecutor;
+13,20c13,17
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
@@ -15,40 +15,44 @@
 < import static org.spongepowered.api.command.args.GenericArguments.string;
 < import static org.spongepowered.api.text.Text.of;
 ---
-> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.exception.CommandException;
 > import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.parameter.Parameter;
-34,35c29,30
+> import org.spongepowered.api.command.CommandCause;
+> import net.kyori.adventure.audience.Audience;
+33,35c30,33
+<     @Override
 <     public CommandResult execute(CommandSource src, CommandContext args) {
 <         String url = args.<String>getOne("url").get();
 ---
->     public CommandResult execute(CommandContext context) {
->         String url = context.requireOne("url");
-37a33
->             CommandCause cause = context.cause();
-39c35
+>     public CommandResult execute(CommandContext args) throws CommandException {
+>         CommandCause cause = args.cause();
+>         Audience audience = cause.audience();
+>         String url = args.requireOne("url");
+39c37
 <                 plugin.sendMessage(src, "no-accounts");
 ---
->                 plugin.sendMessage(cause, "no-accounts");
-42,43c38,39
+>                 plugin.sendMessage(audience, "no-accounts");
+42,43c40,41
 <                 Runnable skinUploader = new SkinUploader(plugin, src, uploadAccount, url);
 <                 Task.builder().async().execute(skinUploader).submit(plugin);
 ---
->                 Runnable skinUploader = new SkinUploader(plugin, cause, uploadAccount, url);
->                 plugin.getScheduler().executor(plugin).submit(skinUploader);
-46c42
+>                 Runnable skinUploader = new SkinUploader(plugin, audience, uploadAccount, url);
+>                 plugin.getGame().scheduler().executor(plugin).submit(skinUploader);
+46c44
 <             plugin.sendMessage(src, "no-valid-url");
 ---
->             plugin.sendMessage(context.cause(), "no-valid-url");
-48d43
+>             plugin.sendMessage(audience, "no-valid-url");
+48d45
 < 
-53,54c48,49
+52,54c49,50
+<     @Override
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
 ---
 >     public Command buildSpec() {
 >         return Command.builder()
-56c51
+56c52
 <                 .arguments(string(of("url")))
 ---
 >                 .addParameter(Parameter.string().key("url").build())

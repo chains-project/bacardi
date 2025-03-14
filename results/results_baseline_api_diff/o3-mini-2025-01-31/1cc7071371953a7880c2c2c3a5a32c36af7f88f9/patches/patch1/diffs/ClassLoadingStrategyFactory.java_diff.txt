@@ -1,37 +1,51 @@
-16,18d15
+1,12d0
+< /*
+<  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+<  * the License. You may obtain a copy of the License at
+<  *
+<  * http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+<  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+<  * specific language governing permissions and limitations under the License.
+<  *
+<  * Copyright 2017-2022 the original author or authors.
+<  */
+16,17d3
 < import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector;
 < import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy;
-< 
-42a40,71
->     // Dummy implementations for removed dependency classes
-> 
->     static class ClassInjector {
->         static class UsingReflection {
->             static boolean isAvailable() {
->                 return false;
->             }
->         }
->         static class UsingLookup {
->             static boolean isAvailable() {
->                 return true;
->             }
->         }
->     }
-> 
->     static class ClassLoadingStrategy<T> {
->         private final Object lookup;
-> 
->         public ClassLoadingStrategy(Object lookup) {
->             this.lookup = lookup;
->         }
-> 
->         static class Default {
->             static final ClassLoadingStrategy<ClassLoader> INJECTION = new ClassLoadingStrategy<>(null);
->         }
-> 
->         static class UsingLookup {
->             static <T> ClassLoadingStrategy<T> of(Object lookup) {
->                 return new ClassLoadingStrategy<>(lookup);
->             }
->         }
+20a7,8
+> import java.util.HashMap;
+> import java.util.Map;
+30,32c18,19
+<         if (ClassInjector.UsingReflection.isAvailable()) {
+<             return ClassLoadingStrategy.Default.INJECTION;
+<         } else if (ClassInjector.UsingLookup.isAvailable() && PRIVATE_LOOKUP_IN != null) {
+---
+>         if (PRIVATE_LOOKUP_IN != null) {
+>             final MethodHandles.Lookup lookup;
+34c21
+<                 return ClassLoadingStrategy.UsingLookup.of(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));
+---
+>                 lookup = (MethodHandles.Lookup) PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP);
+37a25,40
+>             return new ClassLoadingStrategy<ClassLoader>() {
+>                 @Override
+>                 public <S> Map<String, Class<? extends S>> load(ClassLoader classLoader, Map<String, byte[]> types) {
+>                     Map<String, Class<? extends S>> defined = new HashMap<>();
+>                     for (Map.Entry<String, byte[]> entry : types.entrySet()) {
+>                         try {
+>                             @SuppressWarnings("unchecked")
+>                             Class<? extends S> definedClass = (Class<? extends S>) lookup.defineClass(entry.getValue());
+>                             defined.put(entry.getKey(), definedClass);
+>                         } catch (Exception ex) {
+>                             throw new IllegalStateException("Could not define class " + entry.getKey(), ex);
+>                         }
+>                     }
+>                     return defined;
+>                 }
+>             };
+42a46,48
+>     public interface ClassLoadingStrategy<T> {
+>         <S> Map<String, Class<? extends S>> load(T target, Map<String, byte[]> types);
 >     }

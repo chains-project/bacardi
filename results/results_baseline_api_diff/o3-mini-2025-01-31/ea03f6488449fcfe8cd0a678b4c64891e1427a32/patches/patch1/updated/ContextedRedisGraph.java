@@ -138,7 +138,7 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphTransaction multi() {
         Jedis jedis = getConnection();
-        // Start a transaction using Jedis Multi; the returned value is not used directly.
+        // Initiate a transaction using Jedis. The returned Transaction object is ignored, as the transaction context will be managed inside RedisGraphTransaction.
         jedis.multi();
         RedisGraphTransaction transaction = new RedisGraphTransaction(jedis, this);
         transaction.setRedisGraphCaches(caches);
@@ -208,4 +208,5 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     public void setRedisGraphCaches(RedisGraphCaches caches) {
         this.caches = caches;
     }
+
 }

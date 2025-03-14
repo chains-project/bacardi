@@ -1,8 +1,8 @@
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.flywaydb.core.api.Location;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -39,7 +39,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 import java.util.function.*;
 
@@ -106,22 +105,22 @@ public class NisAppConfig {
 	@Bean(initMethod = "migrate")
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
-		try (InputStream is = NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties")) {
-			prop.load(is);
+		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
+		
+		ClassicConfiguration configuration = new ClassicConfiguration();
+		configuration.setDataSource(this.dataSource());
+		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+		
+		String locationsProp = prop.getProperty("flyway.locations");
+		String[] locationsStr = locationsProp.split("\\s*,\\s*");
+		Location[] locations = new Location[locationsStr.length];
+		for (int i = 0; i < locationsStr.length; i++) {
+			locations[i] = new Location(locationsStr[i]);
 		}
-
-		ClassicConfiguration config = new ClassicConfiguration();
-		config.setDataSource(this.dataSource());
-		config.setClassLoader(NisAppConfig.class.getClassLoader());
-		String locations = prop.getProperty("flyway.locations");
-		String[] locationsArray = locations.split(",\\s*");
-		Location[] locationObjects = new Location[locationsArray.length];
-		for (int i = 0; i < locationsArray.length; i++) {
-			locationObjects[i] = new Location(locationsArray[i].trim());
-		}
-		config.setLocations(locationObjects);
-		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		return new Flyway(config);
+		configuration.setLocations(locations);
+		configuration.setValidateOnMigrate(Boolean.parseBoolean(prop.getProperty("flyway.validate")));
+		
+		return new Flyway(configuration);
 	}
 
 	@Bean

@@ -43,8 +43,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "taxTableEntry"
 })
 @XmlRootElement(name = "TaxTable")
-public class TaxTable implements ToString2
-{
+public class TaxTable implements ToString2 {
 
     @XmlElement(name = "TaxTableEntry", required = true)
     protected List<TaxTableEntry> taxTableEntry;
@@ -80,7 +79,7 @@ public class TaxTable implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+        final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();

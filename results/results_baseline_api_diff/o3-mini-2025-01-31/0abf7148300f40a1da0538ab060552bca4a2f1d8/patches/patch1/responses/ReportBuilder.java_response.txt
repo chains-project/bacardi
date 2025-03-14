@@ -366,7 +366,7 @@ public class ReportBuilder
 			return;
 		}
 		
-		// Removed setLineWidth call due to dependency update
+		// Removed call to setLineWidth(border.getLineWidth()) since the method was removed from the dependency.
 		textField.getLineBox().getPen().setLineColor(border.getLineColor());
 		textField.getLineBox().getPen().setLineStyle(border.getLineStyle().getLineStyleEnum());
 	}

@@ -2,36 +2,24 @@
 < import org.tinspin.index.PointDistanceFunction;
 < import org.tinspin.index.PointEntryDist;
 < import org.tinspin.index.covertree.CoverTree;
-57,61d53
-<         /*-
-<          * Roadmap (see/implement): 'A LINEARIZED CIRCLE PACKING ALGORITHM'? 
-<          * 'A note on circle packing' Young Joon AHN.
-<          */
-< 
-158c150
+158c155
 <          *         the center point and .z represents radius.
 ---
 >          *         the center point, and .z represents the radius.
-203c195,196
+203c200
 <                 final CoverTree<PVector> tree = CoverTree.create(3, 2, circleDistanceMetric);
 ---
->                 // Replaced dependency tree with a simple list for nearest-neighbour search.
->                 final List<PVector> circleTree = new ArrayList<>();
-213,214c206
-<                 // Model shape vertices as circles of radius 0, to constrain packed circles
-<                 // within shape edge
----
->                 // Model shape vertices as circles of radius 0, to constrain packed circles within shape edge
-216,217c208,209
-<                 Collections.shuffle(vertices); // shuffle vertices to reduce tree imbalance during insertion
+>                 final List<PVector> tree = new ArrayList<>();
+217c214
 <                 vertices.forEach(p -> tree.insert(new double[] { p.x, p.y, 0 }, p));
 ---
->                 Collections.shuffle(vertices); // shuffle vertices to reduce imbalance during insertion
->                 vertices.forEach(p -> circleTree.add(new PVector(p.x, p.y, 0)));
-226,235c218,221
+>                 vertices.forEach(p -> tree.add(p));
+226,227c223
 <                         final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
 < 
-<                         /*
+---
+>                         final PVector nn = queryNearest(tree, new double[] { p.x, p.y, largestR });
+229,235c225,231
 <                          * nn.dist() does not return the radius (since it's a distance metric used to
 <                          * find nearest circle), so calculate maximum radius for candidate circle using
 <                          * 2d euclidean distance between center points minus radius of nearest circle.
@@ -40,30 +28,22 @@
 <                         final float dy = p.y - nn.value().y;
 <                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z);
 ---
->                         PVector nn = queryNearestCircle(circleTree, new double[] { p.x, p.y, largestR });
+>                          * nn does not provide the stored radius (since it's a simple lookup), so calculate
+>                          * maximum radius for candidate circle using 2d euclidean distance between center
+>                          * points minus radius of nearest circle.
+>                          */
 >                         final float dx = p.x - nn.x;
 >                         final float dy = p.y - nn.y;
 >                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.z);
-239c225
+239c235
 <                                 tree.insert(new double[] { p.x, p.y, radius }, p); // insert circle into tree
 ---
->                                 circleTree.add(new PVector(p.x, p.y, radius)); // insert circle into our list
-286,287c272
-<                                 // if center point not in circle, check whether circle overlaps with shape using
-<                                 // intersects() (somewhat slower)
+>                                 tree.add(p);
+247c243
+<          * Generates a random circle packing of tangential circles with varying radii
 ---
->                                 // if center point not in circle, check whether circle overlaps with shape using intersects() (somewhat slower)
-531,532c516
-<                 // buffer the geometry to use InAreaLocator to test circles for overlap (this
-<                 // works because all circles have the same diameter)
----
->                 // buffer the geometry to use InAreaLocator to test circles for overlap (this works because all circles have the same diameter)
-568,569c552
-<                  * Buffer the geometry to use InAreaLocator to test circles for overlap (this
-<                  * works because all circles have the same diameter).
----
->                  * Buffer the geometry to use InAreaLocator to test circles for overlap (this works because all circles have the same diameter).
-627,656d609
+>          * Generates a circle packing of tangential circles with varying radii
+627,654c623,645
 <          * Calculate the distance between two points in 3D space, where each point
 <          * represents a circle with (x, y, r) coordinates. This custom metric considers
 <          * both the Euclidean distance between the centers of the circles and the
@@ -92,26 +72,25 @@
 <                 double absZDifference = Math.abs(dz);
 <                 return euclideanDistance + absZDifference; // negative if inside
 <         };
-< 
-<         /**
-663a617,638
->         // Helper method to calculate the custom distance between a query point (as a double array)
->         // and a circle represented by a PVector (x, y, z) where z is the radius.
->         private static double customCircleDistance(double[] query, PVector circle) {
->                 double dx = query[0] - circle.x;
->                 double dy = query[1] - circle.y;
->                 double dz = query[2] - circle.z;
->                 return Math.sqrt(dx * dx + dy * dy) + Math.abs(dz);
->         }
-> 
->         // Helper method to perform a linear nearest-neighbour search on a list of circles.
->         private static PVector queryNearestCircle(List<PVector> circles, double[] query) {
+---
+>          * Helper method to perform a nearest neighbor search using a custom 3D metric.
+>          * The metric is defined as: sqrt((x1 - x2)^2 + (y1 - y2)^2) + |r1 - r2|.
+>          *
+>          * @param circles the list of circles to search through
+>          * @param query   the query point represented as an array [x, y, r]
+>          * @return the circle (PVector) closest to the query based on the custom metric
+>          */
+>         private static PVector queryNearest(List<PVector> circles, double[] query) {
 >                 PVector best = null;
 >                 double bestDistance = Double.MAX_VALUE;
+>                 double qx = query[0], qy = query[1], qr = query[2];
 >                 for (PVector circle : circles) {
->                         double d = customCircleDistance(query, circle);
->                         if (d < bestDistance) {
->                                 bestDistance = d;
+>                         double dx = circle.x - qx;
+>                         double dy = circle.y - qy;
+>                         double rDiff = circle.z - qr;
+>                         double dist = Math.sqrt(dx * dx + dy * dy) + Math.abs(rDiff);
+>                         if (dist < bestDistance) {
+>                                 bestDistance = dist;
 >                                 best = circle;
 >                         }
 >                 }

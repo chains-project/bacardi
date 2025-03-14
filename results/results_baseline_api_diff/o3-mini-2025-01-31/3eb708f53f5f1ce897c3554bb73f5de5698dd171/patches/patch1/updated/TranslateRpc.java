@@ -1,19 +1,3 @@
-/*
- * Copyright 2016 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.google.cloud.translate.spi.v2;
 
 import com.google.cloud.ServiceRpc;
@@ -73,17 +57,15 @@ public interface TranslateRpc extends ServiceRpc {
    */
   List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap);
 
-  // Stub classes to replace the removed dependency classes
+  class LanguagesResource {
+    // Stub class to replace com.google.api.services.translate.model.LanguagesResource
+  }
 
   class TranslationsResource {
-    // This stub class maintains compatibility with the removed TranslationsResource.
+    // Stub class to replace com.google.api.services.translate.model.TranslationsResource
   }
 
   class DetectionsResourceItems {
-    // This stub class maintains compatibility with the removed DetectionsResourceItems.
-  }
-
-  class LanguagesResource {
-    // This stub class maintains compatibility with the removed LanguagesResource.
+    // Stub class to replace com.google.api.services.translate.model.DetectionsResourceItems
   }
 }

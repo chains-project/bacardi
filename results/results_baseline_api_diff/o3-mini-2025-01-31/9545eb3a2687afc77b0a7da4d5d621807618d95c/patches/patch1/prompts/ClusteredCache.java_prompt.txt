@@ -357,34 +357,34 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
 ```
 
  with the following error information:
-[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusteredCache.java:[58,11] cannot find symbol
-  symbol:   class IMap
-  location: class org.jivesoftware.openfire.plugin.util.cache.ClusteredCache<K,V>
-
-[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusteredCache.java:[23,29] package com.hazelcast.monitor does not exist
-
-[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusteredCache.java:[74,55] cannot find symbol
-  symbol:   class IMap
-  location: class org.jivesoftware.openfire.plugin.util.cache.ClusteredCache<K,V>
-
 [ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusteredCache.java:[21,26] cannot find symbol
   symbol:   class MapEvent
   location: package com.hazelcast.core
+
+[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusteredCache.java:[23,29] package com.hazelcast.monitor does not exist
 
 [ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusteredCache.java:[20,26] cannot find symbol
   symbol:   class IMap
   location: package com.hazelcast.core
 
+[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusteredCache.java:[74,55] cannot find symbol
+  symbol:   class IMap
+  location: class org.jivesoftware.openfire.plugin.util.cache.ClusteredCache<K,V>
+
+[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cache/ClusteredCache.java:[58,11] cannot find symbol
+  symbol:   class IMap
+  location: class org.jivesoftware.openfire.plugin.util.cache.ClusteredCache<K,V>
+
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
+     Type reference com.hazelcast.map.MapEvent(java.lang.Object,com.hazelcast.cluster.Member,int,int) has been added in the new version of the dependency.
+     Class com.hazelcast.core.MapEvent has been removed in the new version of the dependency.
+     Interface com.hazelcast.map.MapEvent has been added in the new version of the dependency.
+     Constructor com.hazelcast.core.MapEvent(java.lang.Object,com.hazelcast.core.Member,int,int) has been removed in the new version of the dependency.
+     Class com.hazelcast.monitor.LocalMapStats has been removed in the new version of the dependency.
+     Interface com.hazelcast.map.LocalMapStats has been added in the new version of the dependency.
      Class com.hazelcast.core.IMap has been removed in the new version of the dependency.
      Interface com.hazelcast.map.IMap has been added in the new version of the dependency.
-     Interface com.hazelcast.map.LocalMapStats has been added in the new version of the dependency.
-     Class com.hazelcast.monitor.LocalMapStats has been removed in the new version of the dependency.
-     Constructor com.hazelcast.core.MapEvent(java.lang.Object,com.hazelcast.core.Member,int,int) has been removed in the new version of the dependency.
-     Interface com.hazelcast.map.MapEvent has been added in the new version of the dependency.
-     Class com.hazelcast.core.MapEvent has been removed in the new version of the dependency.
-     Type reference com.hazelcast.map.MapEvent(java.lang.Object,com.hazelcast.cluster.Member,int,int) has been added in the new version of the dependency.
 
 
 

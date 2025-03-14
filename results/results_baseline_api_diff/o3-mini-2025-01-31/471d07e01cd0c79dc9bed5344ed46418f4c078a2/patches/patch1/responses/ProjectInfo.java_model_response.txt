@@ -145,11 +145,16 @@ public class ProjectInfo implements Serializable {
       return Objects.hash(id, type);
     }
 
+    // Updated: Convert ResourceId to a String in the format "type/id".
     String toPb() {
       return type.toLowerCase() + "/" + id;
     }
 
+    // Updated: Parse a String of format "type/id" to create a ResourceId.
     static ResourceId fromPb(String parentPb) {
+      if (parentPb == null) {
+        throw new IllegalArgumentException("parentPb cannot be null");
+      }
       String[] parts = parentPb.split("/", 2);
       if (parts.length == 2) {
         return new ResourceId(parts[1], parts[0]);
@@ -391,14 +396,13 @@ public class ProjectInfo implements Serializable {
     return new BuilderImpl(this);
   }
 
+  // Updated: Convert to the new v3 Project model.
   com.google.api.services.cloudresourcemanager.v3.model.Project toPb() {
-    Project projectPb = new Project();
+    com.google.api.services.cloudresourcemanager.v3.model.Project projectPb =
+        new com.google.api.services.cloudresourcemanager.v3.model.Project();
     projectPb.setName(name);
     projectPb.setProjectId(projectId);
     projectPb.setLabels(labels);
-    if (state != null) {
-      projectPb.setState(state.toString());
-    }
     if (createTimeMillis != null) {
       projectPb.setCreateTime(
           DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneOffset.UTC)
@@ -410,16 +414,14 @@ public class ProjectInfo implements Serializable {
     return projectPb;
   }
 
+  // Updated: Accept the new v3 Project model.
   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) {
-    Builder builder = newBuilder(projectPb.getProjectId());
+    Builder builder = newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
     if (projectPb.getName() != null && !projectPb.getName().equals("Unnamed")) {
       builder.setName(projectPb.getName());
     }
     if (projectPb.getLabels() != null) {
       builder.setLabels(projectPb.getLabels());
-    }
-    if (projectPb.getState() != null) {
-      builder.setState(State.valueOf(projectPb.getState()));
     }
     if (projectPb.getCreateTime() != null) {
       builder.setCreateTimeMillis(

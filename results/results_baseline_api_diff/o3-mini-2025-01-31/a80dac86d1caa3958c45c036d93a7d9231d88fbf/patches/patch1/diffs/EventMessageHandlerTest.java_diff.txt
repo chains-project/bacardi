@@ -1,6 +1,20 @@
-4a5
-> import ch.qos.logback.classic.LoggerContext;
-111c112
+4d3
+< import ch.qos.logback.classic.Logger;
+16a16
+> import org.slf4j.Logger;
+32a33
+> import java.lang.reflect.Method;
+111,113c112,120
 <         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
+<         logger.setLevel(Level.INFO);
+<         logger.addAppender(mockLogAppender);
 ---
->         Logger logger = ((LoggerContext) LoggerFactory.getILoggerFactory()).getLogger(EventMessageHandler.class);
+>         Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
+>         try {
+>             Method setLevelMethod = logger.getClass().getMethod("setLevel", Level.class);
+>             setLevelMethod.invoke(logger, Level.INFO);
+>             Method addAppenderMethod = logger.getClass().getMethod("addAppender", Appender.class);
+>             addAppenderMethod.invoke(logger, mockLogAppender);
+>         } catch (Exception e) {
+>             // If the logger does not support these methods, ignore.
+>         }

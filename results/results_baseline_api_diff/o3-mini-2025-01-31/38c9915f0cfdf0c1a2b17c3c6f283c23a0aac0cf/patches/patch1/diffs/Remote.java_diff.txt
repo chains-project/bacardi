@@ -1,8 +1,17 @@
-28c28
+28c28,29
 < import org.cactoos.text.RandomText;
 ---
-> import org.cactoos.text.TextOf;
-71c71
+> import org.cactoos.Text;
+> import java.util.UUID;
+71c72,80
 <                 new Repeated<>(val, new RandomText())
 ---
->                 new Repeated<>(val, new TextOf("random"))
+>                 new Repeated<>(
+>                     val,
+>                     new Text() {
+>                         @Override
+>                         public String asString() {
+>                             return UUID.randomUUID().toString();
+>                         }
+>                     }
+>                 )

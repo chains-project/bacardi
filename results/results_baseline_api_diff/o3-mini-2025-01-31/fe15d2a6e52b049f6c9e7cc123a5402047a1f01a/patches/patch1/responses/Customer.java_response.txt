@@ -15,6 +15,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;

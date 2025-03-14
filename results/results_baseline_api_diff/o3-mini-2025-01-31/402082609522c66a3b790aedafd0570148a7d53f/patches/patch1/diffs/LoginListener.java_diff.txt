@@ -8,17 +8,17 @@
 > import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 24d21
 < 
-29c26
+29,32c26,29
 <     public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
----
->     public void onPlayerPreLogin(ServerSideConnectionEvent.Authenticate preLoginEvent) {
-31,32c28,29
+<         SkinStorage storage = core.getStorage();
 <         GameProfile profile = preLoginEvent.getProfile();
 <         UUID playerUUID = profile.getUniqueId();
 ---
->         GameProfile profile = preLoginEvent.getConnection().getProfile();
->         UUID playerUUID = profile.getId();
-45c42
+>     public void onPlayerPreLogin(ServerSideConnectionEvent.Auth preLoginEvent) {
+>         UUID playerUUID = preLoginEvent.getConnection().getUniqueId();
+>         String playerName = preLoginEvent.getConnection().getName();
+>         GameProfile profile = GameProfile.of(playerUUID, playerName);
+33a31
+>         SkinStorage storage = core.getStorage();
+45d42
 <             String playerName = profile.getName().get();
----
->             String playerName = preLoginEvent.getConnection().getName();

@@ -1,11 +1,25 @@
-24c24,25
+24c24,27
 < import com.hazelcast.core.Member;
 ---
 > import com.hazelcast.cluster.Member;
-> import java.net.InetSocketAddress;
-42c43,45
+> 
+> import java.lang.reflect.Method;
+> import java.util.Map;
+42c45,59
 <         this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";
 ---
->         InetSocketAddress socketAddress = (InetSocketAddress) member.getSocketAddress();
->         String attributeHostname = (String) member.getAttribute(HOST_NAME_ATTRIBUTE);
->         this.hostname = attributeHostname + " (" + socketAddress.getHostString() + ")";
+>         String attributeValue = "";
+>         try {
+>             Method getAttributesMethod = member.getClass().getMethod("getAttributes");
+>             Object attributesObj = getAttributesMethod.invoke(member);
+>             if (attributesObj instanceof Map) {
+>                 Map<?, ?> attributes = (Map<?, ?>) attributesObj;
+>                 Object attrObj = attributes.get(HOST_NAME_ATTRIBUTE);
+>                 if (attrObj != null) {
+>                     attributeValue = attrObj.toString();
+>                 }
+>             }
+>         } catch (Exception e) {
+>             // In case of any exception, use an empty attribute value.
+>         }
+>         this.hostname = attributeValue + " (" + member.getSocketAddress().getHostString() + ")";

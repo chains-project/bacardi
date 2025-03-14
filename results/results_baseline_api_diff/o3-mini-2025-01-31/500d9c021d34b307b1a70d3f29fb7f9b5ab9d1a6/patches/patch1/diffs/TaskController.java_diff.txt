@@ -1,3 +1,7 @@
+9c9
+< import javax.annotation.PostConstruct;
+---
+> import jakarta.annotation.PostConstruct;
 12,17c12,15
 < import javax.mvc.Controller;
 < import javax.mvc.Models;
@@ -14,11 +18,16 @@
 <     private BindingResult validationResult;
 < 
 <     @Inject
-66d60
+61c56,57
+<         log.log(Level.INFO, "got all tasks: todotasks@{0}, doingtasks@{1}, donetasks@{2}", new Object[]{todotasks.size(), doingtasks.size(), donetasks.size()});
+---
+>         log.log(Level.INFO, "got all tasks: todotasks@{0}, doingtasks@{1}, donetasks@{2}",
+>                 new Object[]{todotasks.size(), doingtasks.size(), donetasks.size()});
+66d61
 < 
-90d83
+90d84
 <     //@ValidateOnExecution(type = ExecutableType.NONE)
-94,105d86
+94,105d87
 <         if (validationResult.isFailed()) {
 <             AlertMessage alert = AlertMessage.danger("Validation voilations!");
 <             validationResult.getAllErrors()
@@ -31,7 +40,7 @@
 <             return Response.status(BAD_REQUEST).entity("add.xhtml").build();
 <         }
 < 
-138,149d118
+138,149d119
 <         if (validationResult.isFailed()) {
 <             AlertMessage alert = AlertMessage.danger("Validation voilations!");
 <             validationResult.getAllErrors()
@@ -44,5 +53,5 @@
 <             return Response.status(BAD_REQUEST).entity("edit.xhtml").build();
 <         }
 < 
-164d132
+164d133
 <     //@CsrfProtected

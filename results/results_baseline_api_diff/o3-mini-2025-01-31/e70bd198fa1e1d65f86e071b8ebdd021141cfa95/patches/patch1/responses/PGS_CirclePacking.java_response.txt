@@ -20,13 +20,10 @@ import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.locationtech.jts.operation.distance.IndexedFacetDistance;
 import org.locationtech.jts.util.GeometricShapeFactory;
+
 import org.tinfour.common.IIncrementalTin;
 import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
-// Removed tinspin imports due to API changes
-// import org.tinspin.index.PointDistanceFunction;
-// import org.tinspin.index.PointEntryDist;
-// import org.tinspin.index.covertree.CoverTree;
 
 import micycle.pgs.commons.FrontChainPacker;
 import micycle.pgs.commons.LargestEmptyCircles;
@@ -196,8 +193,7 @@ public final class PGS_CirclePacking {
 	public static List<PVector> stochasticPack(final PShape shape, final int points, final double minRadius, boolean triangulatePoints,
 			long seed) {
 
-		// Replacing CoverTree with a simple list-based structure due to API changes.
-		final List<PVector> tree = new ArrayList<>();
+		final SimplePointIndex tree = new SimplePointIndex();
 		final List<PVector> out = new ArrayList<>();
 
 		List<PVector> steinerPoints = PGS_Processing.generateRandomPoints(shape, points, seed);
@@ -207,24 +203,30 @@ public final class PGS_CirclePacking {
 					.map(PGS_CirclePacking::centroid).collect(Collectors.toList());
 		}
 
-		// Model shape vertices as circles of radius 0, to constrain packed circles within shape edge
+		// Model shape vertices as circles of radius 0, to constrain packed circles
+		// within shape edge
 		final List<PVector> vertices = PGS_Conversion.toPVector(shape);
 		Collections.shuffle(vertices); // shuffle vertices to reduce tree imbalance during insertion
-		vertices.forEach(p -> tree.add(p));
+		vertices.forEach(p -> tree.insert(new double[] { p.x, p.y, 0 }, p));
 
+		/*
+		 * "To find the circle nearest to a center (x, y), do a proximity search at (x,
+		 * y, R), where R is greater than or equal to the maximum radius of a circle."
+		 */
 		float largestR = 0; // the radius of the largest circle in the tree
 
 		for (PVector p : steinerPoints) {
-			PVector nn = getNearest(tree, p.x, p.y, largestR);
+			final PVector nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+			/*
+			 * Calculate maximum radius for candidate circle using 2d euclidean distance between center points minus radius of nearest circle.
+			 */
 			final float dx = p.x - nn.x;
 			final float dy = p.y - nn.y;
 			final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.z);
 			if (radius > minRadius) {
-				if (radius >= largestR) {
-					largestR = radius;
-				}
+				largestR = (radius >= largestR) ? radius : largestR;
 				p.z = radius;
-				tree.add(p);
+				tree.insert(new double[] { p.x, p.y, radius }, p); // insert circle into tree
 				out.add(p);
 			}
 		}
@@ -232,7 +234,7 @@ public final class PGS_CirclePacking {
 	}
 
 	/**
-	 * Generates a circle packing of tangential circles with varying radii
+	 * Generates a random circle packing of tangential circles with varying radii
 	 * that overlap the given shape. The method name references the packing
 	 * algorithm used (Front Chain Packing), rather than any particular
 	 * characteristic of the circle packing.
@@ -270,7 +272,8 @@ public final class PGS_CirclePacking {
 				if (pointLocator.locate(PGS.coordFromPVector(p)) != Location.EXTERIOR) {
 					return false;
 				}
-				// if center point not in circle, check whether circle overlaps with shape using intersects() (somewhat slower)
+				// if center point not in circle, check whether circle overlaps with shape using
+				// intersects() (somewhat slower)
 				circleFactory.setCentre(PGS.coordFromPVector(p));
 				circleFactory.setSize(p.z * 2); // set diameter
 				return !cache.intersects(circleFactory.createCircle());
@@ -316,7 +319,7 @@ public final class PGS_CirclePacking {
 	 * This method finds and returns the maximum inscribed circles with a radius
 	 * equal to or larger than the specified minimum radius. It uses a tolerance
 	 * value to control the accuracy of the LEC algorithm.
-	 * <p>
+	 *
 	 * @param shape     The input shape to pack maximum inscribed circles within.
 	 * @param minRadius The minimum allowed radius for the inscribed circles.
 	 * @param tolerance The tolerance value to control the LEC algorithm's accuracy.
@@ -345,6 +348,7 @@ public final class PGS_CirclePacking {
 	/**
 	 * Generates a circle packing having a pattern of tangencies specified by a
 	 * triangulation.
+	 * 
 	 * <p>
 	 * This is an implementation of 'A circle packing algorithm' by Charles R.
 	 * Collins & Kenneth Stephenson.
@@ -380,6 +384,7 @@ public final class PGS_CirclePacking {
 	 * @return A list of PVectors, each representing one circle: (.x, .y) represent
 	 *         the center point and .z represents radius. The packing is centered on
 	 *         (0, 0) by default.
+	 * @since 1.3.0
 	 */
 	public static List<PVector> tangencyPack(IIncrementalTin triangulation, double[] boundaryRadii) {
 		TangencyPack pack = new TangencyPack(triangulation, boundaryRadii);
@@ -394,7 +399,7 @@ public final class PGS_CirclePacking {
 	 * circles move away from each other until there is no overlap. A packing is
 	 * first computed for the envelope of the shape, and then any circles which do
 	 * not overlap with the shape are discarded.
-	 * <p>
+	 * 
 	 * @param shape     the shape from which to generate a circle packing
 	 * @param radiusMin minimum radius of circles in the packing. the radii
 	 *                  parameters can be the same.
@@ -412,7 +417,17 @@ public final class PGS_CirclePacking {
 		final Geometry g = fromPShape(shape);
 		final Envelope e = g.getEnvelopeInternal();
 
+		/*
+		 * We want spawn N circles, such that there are enough to (theoretically) cover
+		 * the envelope exactly without any overlap, assuming a packing efficiency of
+		 * ~85% (close to optimum).
+		 */
 		double totalArea = e.getArea() * 0.85;
+		/*
+		 * Average area is not a simple mean since circle area is quadratic with regards
+		 * to radius. The actual average area of circles with radii a...b is an integral
+		 * of: pi*r^2 dr from r=a to b.
+		 */
 		double avgCircleArea = ((rMaxA * rMaxA * rMaxA) - (rMinA * rMinA * rMinA));
 		avgCircleArea *= (Math.PI / (3 * (rMaxA - rMinA)));
 		int n = (int) (totalArea / avgCircleArea);
@@ -435,6 +450,11 @@ public final class PGS_CirclePacking {
 	 * (perhaps seeded within a small rectangle), where they may be repulsed from
 	 * each other to fill the shape.
 	 * <p>
+	 * Repulsion-packing involves iterative pair-repulsion, in which overlapping
+	 * circles move away from each other until there is no overlap. A packing is
+	 * first computed for the envelope of the shape, and then any circles which do
+	 * not overlap with the shape are discarded.
+	 * 
 	 * @param shape   the shape from which to generate a circle packing
 	 * @param circles the collection of circles to pack the shape with, specified as
 	 *                PVectors, where .z is the radius (>=1) for each circle
@@ -457,16 +477,18 @@ public final class PGS_CirclePacking {
 		final RepulsionCirclePack packer = new RepulsionCirclePack(circles, e.getMinX() + radiusMin, e.getMaxX() - radiusMin,
 				e.getMinY() + radiusMin, e.getMaxY() - radiusMin, false);
 
-		final List<PVector> packing = packer.getPacking();
+		final List<PVector> packing = packer.getPacking(); // packing result
 
 		IndexedPointInAreaLocator pointLocator;
 		if (radiusMin == radiusMax) {
+			// if every circle same radius, use faster contains check
 			pointLocator = new IndexedPointInAreaLocator(g.buffer(radiusMax));
 			packing.removeIf(p -> pointLocator.locate(PGS.coordFromPVector(p)) == Location.EXTERIOR);
 		} else {
 			pointLocator = new IndexedPointInAreaLocator(g);
 			IndexedFacetDistance distIndex = new IndexedFacetDistance(g);
 			packing.removeIf(p -> {
+				// first test whether shape contains circle center point (somewhat faster)
 				if (pointLocator.locate(PGS.coordFromPVector(p)) != Location.EXTERIOR) {
 					return false;
 				}
@@ -495,6 +517,8 @@ public final class PGS_CirclePacking {
 
 		final Geometry g = fromPShape(shape);
 		final Envelope e = g.getEnvelopeInternal();
+		// buffer the geometry to use InAreaLocator to test circles for overlap (this
+		// works because all circles have the same diameter)
 		final IndexedPointInAreaLocator pointLocator = new IndexedPointInAreaLocator(g.buffer(radius * 0.95));
 		final double w = e.getWidth() + diameter + e.getMinX();
 		final double h = e.getHeight() + diameter + e.getMinY();
@@ -529,13 +553,17 @@ public final class PGS_CirclePacking {
 
 		final Geometry g = fromPShape(shape);
 		final Envelope e = g.getEnvelopeInternal();
+		/*
+		 * Buffer the geometry to use InAreaLocator to test circles for overlap (this
+		 * works because all circles have the same diameter).
+		 */
 		final IndexedPointInAreaLocator pointLocator = new IndexedPointInAreaLocator(g.buffer(radius * 0.95));
 		final double w = e.getWidth() + diameter + e.getMinX();
 		final double h = e.getHeight() + diameter + e.getMinY();
 
 		final List<PVector> out = new ArrayList<>();
 
-		final double z = radius * Math.sqrt(3);
+		final double z = radius * Math.sqrt(3); // hex distance between successive columns
 		double offset = 0;
 		for (double x = e.getMinX(); x < w; x += z) {
 			offset = (offset == radius) ? 0 : radius;
@@ -566,7 +594,7 @@ public final class PGS_CirclePacking {
 		double inCenterY = t.getVertexA().y * a + t.getVertexB().y * b + t.getVertexC().y * c;
 		inCenterY /= (a + b + c);
 
-		final double s = (a + b + c) / 2;
+		final double s = (a + b + c) / 2; // semiPerimeter
 
 		final double r = Math.sqrt(((s - a) * (s - b) * (s - c)) / s);
 
@@ -584,23 +612,51 @@ public final class PGS_CirclePacking {
 		return new PVector((float) x, (float) y);
 	}
 
+	/**
+	 * A streams filter to remove triangulation triangles that share at least one
+	 * edge with the shape edge.
+	 */
 	private static final Predicate<SimpleTriangle> filterBorderTriangles = t -> t.getContainingRegion() != null
 			&& !t.getEdgeA().isConstrainedRegionBorder() && !t.getEdgeB().isConstrainedRegionBorder()
 			&& !t.getEdgeC().isConstrainedRegionBorder();
 
-	// New helper method to perform a linear nearest neighbor search.
-	private static PVector getNearest(List<PVector> tree, double x, double y, double queryRadius) {
-		PVector best = null;
-		double bestDist = Double.POSITIVE_INFINITY;
-		for (PVector candidate : tree) {
-			double dx = x - candidate.x;
-			double dy = y - candidate.y;
-			double dist = Math.sqrt(dx * dx + dy * dy) + Math.abs(queryRadius - candidate.z);
-			if (dist < bestDist) {
-				bestDist = dist;
-				best = candidate;
+	private static double circleDistance(double[] p1, double[] p2) {
+		final double dx = p1[0] - p2[0];
+		final double dy = p1[1] - p2[1];
+		final double dz = p1[2] - p2[2];
+		double euclideanDistance = Math.sqrt(dx * dx + dy * dy);
+		double absZDifference = Math.abs(dz);
+		return euclideanDistance + absZDifference;
+	}
+
+	private static class SimplePointIndex {
+		private static class Entry {
+			double[] coords;
+			PVector value;
+
+			Entry(double[] coords, PVector value) {
+				this.coords = coords;
+				this.value = value;
 			}
 		}
-		return best;
+
+		private final List<Entry> entries = new ArrayList<>();
+
+		public void insert(double[] coords, PVector value) {
+			entries.add(new Entry(coords, value));
+		}
+
+		public PVector query1NN(double[] query) {
+			double bestDist = Double.MAX_VALUE;
+			PVector best = null;
+			for (Entry e : entries) {
+				double d = circleDistance(query, e.coords);
+				if (d < bestDist) {
+					bestDist = d;
+					best = e.value;
+				}
+			}
+			return best;
+		}
 	}
 }

@@ -14,20 +14,121 @@
 > import com.google.api.services.cloudresourcemanager.v3.model.SetIamPolicyRequest;
 > import com.google.api.services.cloudresourcemanager.v3.model.TestIamPermissionsRequest;
 > import com.google.api.services.cloudresourcemanager.v3.model.TestIamPermissionsResponse;
-285c285
+127a128
+>   private final Map<String, String> lifecycleStates = new HashMap<>();
+194d194
+<       // see https://cloud.google.com/resource-manager/reference/rest/
+265d264
+<       // see https://cloud.google.com/resource-manager/reference/rest/
+285c284
 <                     jsonFactory.toString(new Operation().setDone(true).setResponse(project)));
 ---
->                     jsonFactory.toString(new Operation().setDone(true).setName("operations/" + project.getProjectId()).setResponse(project)));
-450c450
+>                     jsonFactory.toString(new Operation().setDone(true).setName("operations/" + project.getProjectId())));
+359d357
+<             // List fields are in the form "projects(field1, field2, ...),nextPageToken"
+449,450d446
+<       project.setLifecycleState("ACTIVE");
 <       project.setProjectNumber(Math.abs(PROJECT_NUMBER_GENERATOR.nextLong() % Long.MAX_VALUE));
+458a455
+>       lifecycleStates.put(project.getProjectId(), "ACTIVE");
+466d462
+<         // Pretend it's not done yet.
+468,469c464
+<             jsonFactory.toString(
+<                 new Operation().setDone(false).setName("operations/" + project.getProjectId()));
 ---
->       // Removed setProjectNumber due to updated dependency removal
-629,631d628
+>             jsonFactory.toString(new Operation().setDone(false).setName("operations/" + project.getProjectId()));
+480,481c475
+<       return Error.PERMISSION_DENIED.response(
+<           "Error when deleting " + projectId + " because the project was not found.");
+---
+>       return Error.PERMISSION_DENIED.response("Error when deleting " + projectId + " because the project was not found.");
+483,485c477,479
+<     if (!project.getLifecycleState().equals("ACTIVE")) {
+<       return Error.FAILED_PRECONDITION.response(
+<           "Error when deleting " + projectId + " because the lifecycle state was not ACTIVE.");
+---
+>     String currentState = lifecycleStates.get(projectId);
+>     if (!"ACTIVE".equals(currentState)) {
+>       return Error.FAILED_PRECONDITION.response("Error when deleting " + projectId + " because the lifecycle state was not ACTIVE.");
+487c481
+<       project.setLifecycleState("DELETE_REQUESTED");
+---
+>       lifecycleStates.put(projectId, "DELETE_REQUESTED");
+498,499c492
+<         return Error.INTERNAL_ERROR.response(
+<             "Error when serializing project " + project.getProjectId());
+---
+>         return Error.INTERNAL_ERROR.response("Error when serializing project " + project.getProjectId());
+532,533c525
+<           return Error.INTERNAL_ERROR.response(
+<               "Error when serializing project " + p.getProjectId());
+---
+>           return Error.INTERNAL_ERROR.response("Error when serializing project " + p.getProjectId());
+540d531
+<     // If fields parameter is set but no project field is selected we must return no projects.
+617,619d607
+<         case "lifecycleState":
+<           project.setLifecycleState(fullProject.getLifecycleState());
+<           break;
+629,631d616
 <         case "projectNumber":
 <           project.setProjectNumber(fullProject.getProjectNumber());
 <           break;
-653,654c650
+640,644c625,627
+<       return Error.PERMISSION_DENIED.response(
+<           "Error when replacing " + projectId + " because the project was not found.");
+<     } else if (!originalProject.getLifecycleState().equals("ACTIVE")) {
+<       return Error.FAILED_PRECONDITION.response(
+<           "Error when replacing " + projectId + " because the lifecycle state was not ACTIVE.");
+---
+>       return Error.PERMISSION_DENIED.response("Error when replacing " + projectId + " because the project was not found.");
+>     } else if (!"ACTIVE".equals(lifecycleStates.get(projectId))) {
+>       return Error.FAILED_PRECONDITION.response("Error when replacing " + projectId + " because the lifecycle state was not ACTIVE.");
+646,648c629
+<       return Error.INVALID_ARGUMENT.response(
+<           "The server currently only supports setting the parent once "
+<               + "and does not allow unsetting it.");
+---
+>       return Error.INVALID_ARGUMENT.response("The server currently only supports setting the parent once and does not allow unsetting it.");
+651d631
+<     project.setLifecycleState(originalProject.getLifecycleState());
+653,654d632
 <     project.setProjectNumber(originalProject.getProjectNumber());
 <     // replace cannot fail because both this method and removeProject are synchronized
+668,670c646,647
+<           Error.PERMISSION_DENIED.response(
+<               "Error when undeleting " + projectId + " because the project was not found.");
+<     } else if (!project.getLifecycleState().equals("DELETE_REQUESTED")) {
 ---
->     // Removed setProjectNumber call due to dependency update.
+>           Error.PERMISSION_DENIED.response("Error when undeleting " + projectId + " because the project was not found.");
+>     } else if (!"DELETE_REQUESTED".equals(lifecycleStates.get(projectId))) {
+673,675c650
+<               "Error when undeleting "
+<                   + projectId
+<                   + " because the lifecycle state was not DELETE_REQUESTED.");
+---
+>               "Error when undeleting " + projectId + " because the lifecycle state was not DELETE_REQUESTED.");
+677c652
+<       project.setLifecycleState("ACTIVE");
+---
+>       lifecycleStates.put(projectId, "ACTIVE");
+691,692c666
+<       return Error.INTERNAL_ERROR.response(
+<           "Error when serializing the IAM policy for " + projectId);
+---
+>       return Error.INTERNAL_ERROR.response("Error when serializing the IAM policy for " + projectId);
+717,718c691
+<       return Error.INTERNAL_ERROR.response(
+<           "Error when serializing the policy for project " + projectId);
+---
+>       return Error.INTERNAL_ERROR.response("Error when serializing the policy for project " + projectId);
+787c760
+<       project.setLifecycleState(lifecycleState);
+---
+>       lifecycleStates.put(projectId, lifecycleState);
+802,803d774
+<     // Because this method is synchronized, any code that relies on non-atomic read/write operations
+<     // should not fail if that code is also synchronized.
+804a776
+>     lifecycleStates.remove(projectId);

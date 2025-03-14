@@ -18,7 +18,6 @@ import javax.xml.bind.annotation.XmlElementRefs;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
-import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
@@ -199,23 +198,23 @@ public class ShippingPointStructure implements ToString2
     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         {
             List<String> theDeliveryID;
-            theDeliveryID = (((this.deliveryID != null) && (!this.deliveryID.isEmpty())) ? this.getDeliveryID() : null);
-            strategy.appendField(locator, this, "deliveryID", buffer, theDeliveryID, ((this.deliveryID != null) && (!this.deliveryID.isEmpty())));
+            theDeliveryID = (((this.deliveryID!= null)&&(!this.deliveryID.isEmpty()))?this.getDeliveryID():null);
+            strategy.appendField(locator, this, "deliveryID", buffer, theDeliveryID, ((this.deliveryID!= null)&&(!this.deliveryID.isEmpty())));
         }
         {
             XMLGregorianCalendar theDeliveryDate;
             theDeliveryDate = this.getDeliveryDate();
-            strategy.appendField(locator, this, "deliveryDate", buffer, theDeliveryDate, (this.deliveryDate != null));
+            strategy.appendField(locator, this, "deliveryDate", buffer, theDeliveryDate, (this.deliveryDate!= null));
         }
         {
             List<JAXBElement<String>> theWarehouseIDAndLocationID;
-            theWarehouseIDAndLocationID = (((this.warehouseIDAndLocationID != null) && (!this.warehouseIDAndLocationID.isEmpty())) ? this.getWarehouseIDAndLocationID() : null);
-            strategy.appendField(locator, this, "warehouseIDAndLocationID", buffer, theWarehouseIDAndLocationID, ((this.warehouseIDAndLocationID != null) && (!this.warehouseIDAndLocationID.isEmpty())));
+            theWarehouseIDAndLocationID = (((this.warehouseIDAndLocationID!= null)&&(!this.warehouseIDAndLocationID.isEmpty()))?this.getWarehouseIDAndLocationID():null);
+            strategy.appendField(locator, this, "warehouseIDAndLocationID", buffer, theWarehouseIDAndLocationID, ((this.warehouseIDAndLocationID!= null)&&(!this.warehouseIDAndLocationID.isEmpty())));
         }
         {
             AddressStructure theAddress;
             theAddress = this.getAddress();
-            strategy.appendField(locator, this, "address", buffer, theAddress, (this.address != null));
+            strategy.appendField(locator, this, "address", buffer, theAddress, (this.address!= null));
         }
         return buffer;
     }

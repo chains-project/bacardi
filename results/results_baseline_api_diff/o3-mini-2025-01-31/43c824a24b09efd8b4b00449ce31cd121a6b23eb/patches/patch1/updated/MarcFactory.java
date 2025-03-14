@@ -20,10 +20,8 @@ import de.gwdg.metadataqa.marc.definition.structure.DataFieldDefinition;
 import de.gwdg.metadataqa.marc.definition.MarcVersion;
 import de.gwdg.metadataqa.marc.definition.structure.SubfieldDefinition;
 import de.gwdg.metadataqa.marc.definition.TagDefinitionLoader;
-
 import de.gwdg.metadataqa.marc.utils.alephseq.AlephseqLine;
 import de.gwdg.metadataqa.marc.utils.MapToDatafield;
-
 import de.gwdg.metadataqa.marc.utils.alephseq.MarcMakerLine;
 import de.gwdg.metadataqa.marc.utils.alephseq.MarclineLine;
 import de.gwdg.metadataqa.marc.utils.pica.PicaFieldDefinition;
@@ -63,8 +61,13 @@ public class MarcFactory {
 
   public static BibliographicRecord create(JsonPathCache cache, MarcVersion version) {
     var marcRecord = new Marc21Record();
-    for (var obj : schema.getPaths()) {
-      JsonBranch branch = new JsonBranch(obj.toString());
+    for (Object branchObj : schema.getPaths()) {
+      JsonBranch branch;
+      if (branchObj instanceof String) {
+        branch = new JsonBranch((String) branchObj);
+      } else {
+        branch = (JsonBranch) branchObj;
+      }
       if (branch.getParent() != null)
         continue;
       switch (branch.getLabel()) {
@@ -81,13 +84,16 @@ public class MarcFactory {
           marcRecord.setControl005(new Control005(extractFirst(cache, branch), marcRecord));
           break;
         case "006":
-          marcRecord.setControl006(new Control006(extractFirst(cache, branch), marcRecord));
+          marcRecord.setControl006(
+            new Control006(extractFirst(cache, branch), marcRecord));
           break;
         case "007":
-          marcRecord.setControl007(new Control007(extractFirst(cache, branch), marcRecord));
+          marcRecord.setControl007(
+            new Control007(extractFirst(cache, branch), marcRecord));
           break;
         case "008":
-          marcRecord.setControl008(new Control008(extractFirst(cache, branch), marcRecord));
+          marcRecord.setControl008(
+            new Control008(extractFirst(cache, branch), marcRecord));
           break;
         default:
           JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());
@@ -261,7 +267,7 @@ public class MarcFactory {
     for (Subfield subfield : dataField.getSubfields()) {
       var code = Character.toString(subfield.getCode());
       SubfieldDefinition subfieldDefinition = definition == null ? null : definition.getSubfield(code);
-      MarcSubfield marcSubfield = null;
+      MarcSubfield marcSubfield;
       if (subfieldDefinition == null) {
         marcSubfield = new MarcSubfield(null, code, subfield.getData());
       } else {
@@ -277,7 +283,7 @@ public class MarcFactory {
   private static DataField extractPicaDataField(org.marc4j.marc.DataField dataField,
                                                 PicaFieldDefinition definition,
                                                 MarcVersion marcVersion) {
-    DataField field = null;
+    DataField field;
     if (definition == null) {
       field = new DataField(dataField.getTag(),
         Character.toString(dataField.getIndicator1()),
@@ -294,7 +300,7 @@ public class MarcFactory {
     for (Subfield subfield : dataField.getSubfields()) {
       var code = Character.toString(subfield.getCode());
       SubfieldDefinition subfieldDefinition = definition == null ? null : definition.getSubfield(code);
-      MarcSubfield marcSubfield = null;
+      MarcSubfield marcSubfield;
       if (subfieldDefinition == null) {
         marcSubfield = new MarcSubfield(null, code, subfield.getData());
       } else {
@@ -482,20 +488,22 @@ public class MarcFactory {
   
   private static class JsonBranch {
     private final String label;
-
+    
     public JsonBranch(String label) {
       this.label = label;
     }
-
+    
+    public Object getParent() {
+      // New dependency no longer defines parent; assume always top-level.
+      return null;
+    }
+    
     public String getLabel() {
       return label;
     }
-
-    public Object getParent() {
-      return null;
-    }
-
+    
     public String getJsonPath() {
+      // In the new API, use the label as the JSON path.
       return label;
     }
   }

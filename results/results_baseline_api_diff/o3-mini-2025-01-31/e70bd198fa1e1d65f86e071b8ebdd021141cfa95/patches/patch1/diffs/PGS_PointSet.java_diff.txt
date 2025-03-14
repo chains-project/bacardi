@@ -1,28 +1,22 @@
-26,27c26
+26,27d25
 < import org.tinspin.index.kdtree.KDTree;
 < 
----
-> // Removed KDTree import since the API has changed
-66d64
+66d63
 <                 final KDTree<PVector> tree = KDTree.create(2);
-69,71c67,74
+67a65
+>                 double toleranceSq = distanceTolerance * distanceTolerance;
+69,71c67,76
 <                         final double[] coords = new double[] { p.x, p.y };
 <                         if (tree.size() == 0 || tree.query1NN(coords).dist() > distanceTolerance) {
 <                                 tree.insert(coords, p);
 ---
 >                         boolean tooClose = false;
->                         for (PVector existing : newPoints) {
->                                 if (PVector.dist(existing, p) <= distanceTolerance) {
+>                         for (PVector np : newPoints) {
+>                                 float dx = p.x - np.x;
+>                                 float dy = p.y - np.y;
+>                                 if (dx * dx + dy * dy <= toleranceSq) {
 >                                         tooClose = true;
 >                                         break;
 >                                 }
 >                         }
 >                         if (!tooClose) {
-415c418
-<          * @param centerY     x coordinate of the center/mean of the ring
----
->          * @param centerY     y coordinate of the center/mean of the ring
-432c435
-<          * @param centerY     x coordinate of the center/mean of the ring
----
->          * @param centerY     y coordinate of the center/mean of the ring

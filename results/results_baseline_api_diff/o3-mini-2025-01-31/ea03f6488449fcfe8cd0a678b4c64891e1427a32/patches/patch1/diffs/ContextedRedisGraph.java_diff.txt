@@ -6,7 +6,7 @@
 <         client.getOne();
 <         RedisGraphTransaction transaction = new RedisGraphTransaction(client, this);
 ---
->         // Start a transaction using Jedis Multi; the returned value is not used directly.
+>         // Initiate a transaction using Jedis. The returned Transaction object is ignored, as the transaction context will be managed inside RedisGraphTransaction.
 >         jedis.multi();
 >         RedisGraphTransaction transaction = new RedisGraphTransaction(jedis, this);
 157,158c155
@@ -15,6 +15,4 @@
 ---
 >         RedisGraphPipeline pipeline = new RedisGraphPipeline(jedis, this);
 208d204
-< 
-215d210
 < 

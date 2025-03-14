@@ -9,7 +9,7 @@ import jakarta.mvc.RedirectScoped;
 /**
  * Used to transport messages back to the client.
  *
- * @author Hantsy Bai
+ * @author Hantsy Bai<hantsy@gmail.com>
  */
 @RedirectScoped
 @Named("flashMessage")

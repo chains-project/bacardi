@@ -2,71 +2,76 @@
 < 
 12d10
 < 
-14,19c12,15
+14c12,14
 < import org.spongepowered.api.command.CommandException;
-< import org.spongepowered.api.command.CommandResult;
+---
+> import org.spongepowered.api.command.Command;
+> import org.spongepowered.api.command.CommandCause;
+> import org.spongepowered.api.command.CommandExecutor;
+16,19c16,17
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
-> import org.spongepowered.api.command.Command;
-> import org.spongepowered.api.command.CommandExecutor;
 > import org.spongepowered.api.command.exception.CommandException;
 > import org.spongepowered.api.command.parameter.CommandContext;
-21,23c17,18
+21,23c19,20
 < import org.spongepowered.api.scheduler.Task;
 < import org.spongepowered.api.text.Text;
 < import org.spongepowered.api.text.serializer.TextSerializers;
 ---
 > import net.kyori.adventure.text.Component;
 > import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-33d27
+33d29
 < 
-35,43c29,37
+35,38c31,36
 <     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 <         if (!(src instanceof Player)) {
 <             plugin.sendMessage(src, "no-console");
 <             return CommandResult.empty();
-<         }
-< 
+---
+>     public CommandResult execute(CommandContext context) throws CommandException {
+>         CommandCause cause = context.cause();
+>         Optional<Player> optionalPlayer = cause.first(Player.class);
+>         if (!optionalPlayer.isPresent()) {
+>             plugin.sendMessage(cause, "no-console");
+>             return CommandResult.builder().successCount(0).build();
+41,43c39,41
 <         UUID uniqueId = ((Player) src).getUniqueId();
 <         Task.builder().async()
 <                 .execute(() -> {
 ---
->     public int execute(CommandContext context) throws CommandException {
->         Optional<Player> playerOpt = context.cause().first(Player.class);
->         if (!playerOpt.isPresent()) {
->             plugin.sendMessage(context.cause().audience(), "no-console");
->             return 0;
->         }
->         Player player = playerOpt.get();
->         UUID uniqueId = player.getUniqueId();
->         Sponge.getScheduler().executor(plugin).execute(() -> {
-45,49c39,41
+>         Player player = optionalPlayer.get();
+>         UUID uniqueId = player.uniqueId();
+>         Sponge.server().scheduler().executor(plugin).submit(() -> {
+45,47c43,44
 <                     Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).submit(plugin);
 <                 })
 <                 .submit(plugin);
-< 
+---
+>             Sponge.server().scheduler().executor(plugin).submit(() -> sendSkinDetails(uniqueId, preferences));
+>         });
+49c46
 <         return CommandResult.success();
 ---
->             Sponge.getScheduler().executor(plugin).execute(() -> sendSkinDetails(uniqueId, preferences));
->         });
->         return 1;
-52,54c44,45
+>         return CommandResult.builder().successCount(1).build();
+52,54c49,50
 <     @Override
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
 ---
 >     public Command buildSpec() {
 >         return Command.builder()
-61c52
+61c57,59
 <         Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
 ---
->         Optional<Player> optPlayer = Sponge.getServer().player(uuid);
-64d54
+>         Optional<Player> optPlayer = Sponge.server().onlinePlayers().stream()
+>                 .filter(player -> player.uniqueId().equals(uuid))
+>                 .findFirst();
+64d61
 < 
-69,71c59,60
+69,71c66,67
 < 
 <                 Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
 <                 player.sendMessage(text);

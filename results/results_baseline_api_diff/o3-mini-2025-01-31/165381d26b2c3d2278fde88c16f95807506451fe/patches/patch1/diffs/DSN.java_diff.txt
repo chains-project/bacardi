@@ -4,15 +4,11 @@
 > import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration;
 97d96
 < 
-285d283
+334,335c333
 < 
-335c333,339
 <       private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
 ---
->       private final PrettyPrinterConfiguration noComments = createNoCommentsConfiguration();
-> 
->       private static PrettyPrinterConfiguration createNoCommentsConfiguration() {
->           PrettyPrinterConfiguration config = new PrettyPrinterConfiguration();
->           config.setPrintComments(false);
->           return config;
->       }
+>       private final PrettyPrinterConfiguration noComments;
+338a337,338
+>             noComments = new PrettyPrinterConfiguration();
+>             noComments.setPrintComments(false);

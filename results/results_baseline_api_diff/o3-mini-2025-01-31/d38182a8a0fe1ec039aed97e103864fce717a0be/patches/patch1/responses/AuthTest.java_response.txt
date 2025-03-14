@@ -42,6 +42,15 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+/**
+ * Tests for {@link DockerSlice}.
+ * Authentication & authorization tests.
+ *
+ * @since 0.8
+ * @checkstyle ClassDataAbstractionCouplingCheck (500 lines)
+ * @todo #434:30min test `shouldReturnForbiddenWhenUserHasNoRequiredPermissionOnSecondManifestPut`
+ *  fails in github actions, locally it works fine. Figure out what is the problem and fix it.
+ */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public final class AuthTest {
 
@@ -343,7 +352,7 @@ public final class AuthTest {
                     token -> CompletableFuture.completedFuture(
                         Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
                             .filter(user -> token.equals(token(user)))
-                            .map(user -> new AuthUserImpl(user.name()))
+                            .map(user -> new SimpleAuthUser(user.name()))
                             .findFirst()
                     ),
                     ""
@@ -367,26 +376,15 @@ public final class AuthTest {
             return String.format("%s:%s", user.name(), user.password());
         }
     }
-
-    /**
-     * Simple implementation of AuthUser for testing purposes.
-     */
-    private static final class AuthUserImpl implements AuthUser {
-
-        private final String username;
-
-        AuthUserImpl(final String username) {
-            this.username = username;
+    
+    private static final class SimpleAuthUser implements AuthUser {
+        private final String name;
+        SimpleAuthUser(final String name) {
+            this.name = name;
         }
-
         @Override
-        public String username() {
-            return this.username;
-        }
-
-        @Override
-        public String toString() {
-            return this.username;
+        public String name() {
+            return this.name;
         }
     }
 }

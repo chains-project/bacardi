@@ -7,10 +7,10 @@ import eu.europa.esig.dss.model.DSSDocument;
 import eu.europa.esig.dss.model.FileDocument;
 import eu.europa.esig.dss.model.InMemoryDocument;
 import eu.europa.esig.dss.model.SignatureValue;
+import eu.europa.esig.dss.model.TableSignatureFieldParameters;
 import eu.europa.esig.dss.model.ToBeSigned;
 import eu.europa.esig.dss.pades.PAdESSignatureParameters;
 import eu.europa.esig.dss.pades.SignatureImageParameters;
-import eu.europa.esig.dss.pades.TableSignatureFieldParameters;
 import eu.europa.esig.dss.pades.signature.PAdESService;
 import eu.europa.esig.dss.pdf.pdfbox.PdfBoxNativeObjectFactory;
 import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
@@ -71,8 +71,9 @@ public class Signer {
         } else {
             signatureParameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_B);
         }
-        // Removed setting permission as CertificationPermission has been removed in the new dependency version.
-        
+        // Removed setPermission call since CertificationPermission has been removed in the new dependency version
+        // signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
+
         // Create common certificate verifier
         CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
         // Create PAdESService for signature
@@ -89,7 +90,7 @@ public class Signer {
             if (!Strings.isStringEmpty(params.getImageFile())) {
                 imageParameters.setImage(new InMemoryDocument(Files.readAllBytes(Paths.get(params.getImageFile()))));
             } else {
-                imageParameters.setImage(new InMemoryDocument((IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("signature.png")))));
+                imageParameters.setImage(new InMemoryDocument(IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("signature.png"))));
             }
 
             if (params.getPage() < 0) {
@@ -98,7 +99,6 @@ public class Signer {
                 fieldParameters.setPage(pageCount + (1 + params.getPage()));
                 pdDocument.close();
                 log.debug("PDF page count: " + pageCount);
-
             } else {
                 fieldParameters.setPage(params.getPage());
             }

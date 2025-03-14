@@ -31,8 +31,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/** @deprecated v3 GAPIC client of ResourceManager is now available */
 @Deprecated
-final class PolicyMarshaller extends Marshaller<com.google.api.services.cloudresourcemanager.v3.model.Policy> {
+final class PolicyMarshaller
+    extends Marshaller<com.google.api.services.cloudresourcemanager.v3.model.Policy> {
 
   static final PolicyMarshaller INSTANCE = new PolicyMarshaller();
 

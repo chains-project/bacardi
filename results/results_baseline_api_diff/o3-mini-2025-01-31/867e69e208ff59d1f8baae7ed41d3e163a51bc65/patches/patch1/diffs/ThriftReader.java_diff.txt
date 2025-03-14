@@ -6,9 +6,8 @@
 <   // The framed framedTransport.
 ---
 >   // The framed transport.
-80,81c80,81
+80,81c80
 <     this.framedTransport = new TFramedTransport(new TIOStreamTransport(this
 <         .byteOffsetInputStream), maxMessageSize);
 ---
->     TFramedTransport.Factory transportFactory = new TFramedTransport.Factory(maxMessageSize);
->     this.framedTransport = transportFactory.getTransport(new TIOStreamTransport(this.byteOffsetInputStream));
+>     this.framedTransport = new TFramedTransport(new TIOStreamTransport(this.byteOffsetInputStream), maxMessageSize);

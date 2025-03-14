@@ -32,7 +32,7 @@ class PublisherFactoryImpl implements PublisherFactory {
   private static final Framework FRAMEWORK = Framework.of("KAFKA_CONNECT");
 
   @Override
-  public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
+  public Publisher<Void> newPublisher(Map<String, String> params) {
     Map<String, ConfigValue> config = ConfigDefs.config().validateAll(params);
     RoutingPublisherBuilder.Builder builder = RoutingPublisherBuilder.newBuilder();
     TopicPath topic =
@@ -40,8 +40,7 @@ class PublisherFactoryImpl implements PublisherFactory {
             .setProject(
                 ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
                     .project())
-            .setLocation(
-                CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
+            .setLocation(CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
             .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
             .build();
     builder.setTopic(topic);
@@ -51,9 +50,6 @@ class PublisherFactoryImpl implements PublisherFactory {
                 .setTopic(topic)
                 .setPartition(partition)
                 .build());
-    return (Publisher<PublishMetadata>) builder.build();
-  }
-
-  public static final class PublishMetadata {
+    return builder.build();
   }
 }

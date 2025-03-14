@@ -5,8 +5,6 @@ public interface ChangeSkinCommand {
 
     CommandSpec buildSpec();
 
-    public static class CommandSpec {
-        public CommandSpec() {
-        }
+    interface CommandSpec {
     }
 }

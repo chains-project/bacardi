@@ -1,4 +1,28 @@
-53c53
+47c47
+< import io.dropwizard.Application;
+---
+> import io.dropwizard.core.Application;
+52,53c52,53
+< import io.dropwizard.setup.Bootstrap;
 < import io.dropwizard.setup.Environment;
 ---
+> import io.dropwizard.core.setup.Bootstrap;
 > import io.dropwizard.core.setup.Environment;
+97c97
+<     @SuppressWarnings("RedundantThrows") // this method can be overridden
+---
+>     @SuppressWarnings("RedundantThrows")
+111c111
+<     @SuppressWarnings("RedundantThrows") // this method can be overridden
+---
+>     @SuppressWarnings("RedundantThrows")
+161d160
+<                 .using(config.getJerseyClient())
+212,214c211,213
+<         addResource(new VersionResource()); // add version endpoint
+<         addResource(new StatusResource()); // empty status for k8s
+<         addResource(new RequestMdcFactoryFilter()); // MDC data
+---
+>         addResource(new VersionResource());
+>         addResource(new StatusResource());
+>         addResource(new RequestMdcFactoryFilter());

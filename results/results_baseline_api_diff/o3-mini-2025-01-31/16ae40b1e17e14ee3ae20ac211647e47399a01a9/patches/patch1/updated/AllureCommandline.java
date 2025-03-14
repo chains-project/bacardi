@@ -1,18 +1,3 @@
-/*
- *  Copyright 2021 Qameta Software OÜ
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
 package io.qameta.allure.maven;
 
 import net.lingala.zip4j.ZipFile;
@@ -47,6 +32,21 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+/*
+ *  Copyright 2021 Qameta Software OÜ
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 @SuppressWarnings({"ClassDataAbstractionCoupling", "ClassFanOutComplexity",
         "MultipleStringLiterals"})
 public class AllureCommandline {
@@ -170,7 +170,6 @@ public class AllureCommandline {
                 unpack(resolved.next().getArtifact().getFile());
             } else {
                 throw new IOException("No allure commandline artifact found.");
-
             }
         } catch (DependencyResolverException e) {
             throw new IOException("Cannot resolve allure commandline dependencies.", e);
@@ -196,7 +195,6 @@ public class AllureCommandline {
                 final String proxyPassword = mavenProxy.getPassword();
 
                 Authenticator.setDefault(new Authenticator() {
-                    @Override
                     public PasswordAuthentication getPasswordAuthentication() {
                         return new PasswordAuthentication(proxyUser, proxyPassword.toCharArray());
                     }

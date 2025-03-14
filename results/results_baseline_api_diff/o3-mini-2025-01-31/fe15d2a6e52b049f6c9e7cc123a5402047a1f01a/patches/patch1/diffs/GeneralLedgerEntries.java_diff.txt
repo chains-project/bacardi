@@ -1,18 +1,46 @@
 8d7
 < 
-226c225
+27d25
+< 
+226c224
 <         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
 ---
->         final ToStringStrategy2 strategy = new JAXBToStringStrategy();
-422c421
+>         final ToStringStrategy2 strategy = new SimpleToStringStrategy();
+422c420
 <             final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
 ---
->             final ToStringStrategy2 strategy = new JAXBToStringStrategy();
-812c811
+>             final ToStringStrategy2 strategy = new SimpleToStringStrategy();
+812c810
 <                 final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
 ---
->                 final ToStringStrategy2 strategy = new JAXBToStringStrategy();
-1113c1112
+>                 final ToStringStrategy2 strategy = new SimpleToStringStrategy();
+1113c1111
 <                     final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
 ---
->                     final ToStringStrategy2 strategy = new JAXBToStringStrategy();
+>                     final ToStringStrategy2 strategy = new SimpleToStringStrategy();
+1172a1171,1195
+>     private static class SimpleToStringStrategy implements ToStringStrategy2 {
+> 
+>         public void appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+>             buffer.append(object.getClass().getSimpleName()).append(" [");
+>         }
+> 
+>         public void appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean notNull) {
+>             buffer.append(fieldName).append("=");
+>             if (value != null) {
+>                 buffer.append(value.toString());
+>             } else {
+>                 buffer.append("null");
+>             }
+>             buffer.append(", ");
+>         }
+> 
+>         public void appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+>             int len = buffer.length();
+>             if (len >= 2 && buffer.substring(len - 2, len).equals(", ")) {
+>                 buffer.delete(len - 2, len);
+>             }
+>             buffer.append("]");
+>         }
+>     }
+> 

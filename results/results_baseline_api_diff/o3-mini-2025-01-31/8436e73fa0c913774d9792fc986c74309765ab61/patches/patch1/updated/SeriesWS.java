@@ -23,6 +23,7 @@ import javax.xml.ws.ResponseWrapper;
 })
 public interface SeriesWS {
 
+
     /**
      * 
      *                 Esta funcionalidade tem como objetivo, permitir a comunicação das séries à AT, através do 
@@ -172,4 +173,5 @@ public interface SeriesWS {
         String motivo,
         @WebParam(name = "declaracaoNaoEmissao", targetNamespace = "")
         boolean declaracaoNaoEmissao);
+
 }

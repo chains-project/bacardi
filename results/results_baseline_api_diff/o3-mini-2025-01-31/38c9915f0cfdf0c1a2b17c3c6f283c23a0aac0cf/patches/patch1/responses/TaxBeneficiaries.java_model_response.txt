@@ -30,11 +30,6 @@ import org.cactoos.iterable.IterableEnvelope;
 import org.cactoos.iterable.Sorted;
 import org.cactoos.scalar.LengthOf;
 
-/**
- * {@link Remote} nodes that should receive taxes.
- *
- * @since 1.0
- */
 public final class TaxBeneficiaries extends IterableEnvelope<Remote> {
 
     /**
@@ -46,11 +41,18 @@ public final class TaxBeneficiaries extends IterableEnvelope<Remote> {
         super(() -> new Sorted<>(
             Comparator.comparing(Remote::score),
             new Filtered<>(
-                // @checkstyle MagicNumberCheck (1 line)
-                n -> new LengthOf(n.score().suffixes()).intValue() >= 16,
+                n -> lengthOf(n.score().suffixes()) >= 16,
                 nodes
             )
         ));
+    }
+
+    private static int lengthOf(final Iterable<?> iterable) {
+        try {
+            return new LengthOf<>(iterable).value();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
 ```

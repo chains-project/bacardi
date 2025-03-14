@@ -69,6 +69,7 @@ public class NPCTeleport
 
         new BukkitRunnable()
         {
+            @Override
             public void run()
             {
                 now[0]++;
@@ -84,6 +85,7 @@ public class NPCTeleport
                     this.cancel();
             }
         }.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, (long) (10 * ((1.5 / count) * sec)));
+
 
         new BukkitRunnable()
         {
@@ -115,6 +117,7 @@ public class NPCTeleport
                     float finalHead = head;
                     new BukkitRunnable()
                     {
+                        @Override
                         public void run()
                         {
                             Bukkit.getOnlinePlayers().parallelStream().filter(p -> p.hasPermission("psac.viewnpc"))
@@ -174,7 +177,7 @@ public class NPCTeleport
 
                     if (config.getBoolean("npc.wave"))
                         rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
-                            .get(0.01, true);
+                            .get(0.01, count[0] < 20);
 
                     final Location center = player.getLocation();
                     final Location n = new Location(
@@ -193,6 +196,7 @@ public class NPCTeleport
                     NPC.setArmor(player, target, arm);
                     new BukkitRunnable()
                     {
+                        @Override
                         public void run()
                         {
                             Bukkit.getOnlinePlayers()
@@ -221,12 +225,14 @@ public class NPCTeleport
 
         new BukkitRunnable()
         {
+            @Override
             public void run()
             {
                 r.cancel();
                 this.cancel();
             }
         }.runTaskLater(PeyangSuperbAntiCheat.getPlugin(), 20 * (config.getLong("npc.seconds")));
+
     }
 
     /**

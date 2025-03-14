@@ -16,7 +16,6 @@
  */
 package com.google.cloud.resourcemanager;
 
-import com.google.api.services.cloudresourcemanager.v3.model.Policy;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.List;
@@ -104,7 +103,17 @@ public class OrgPolicyInfo {
    * The organization ListPolicy object.
    *
    * <p>ListPolicy can define specific values and subtrees of Cloud Resource Manager resource
-   * hierarchy (Organizations, Folders, Projects) that are allowed or denied.
+   * hierarchy (Organizations, Folders, Projects) that are allowed or denied by setting the
+   * allowedValues and deniedValues fields. This is achieved by using the under: and optional is:
+   * prefixes. The under: prefix denotes resource subtree values. The is: prefix is used to denote
+   * specific values, and is required only if the value contains a ":". Values prefixed with "is:"
+   * are treated the same as values with no prefix. Ancestry subtrees must be in one of the
+   * following formats: - "projects/", e.g. "projects/tokyo-rain-123" - "folders/", e.g.
+   * "folders/1234" - "organizations/", e.g. "organizations/1234" The supportsUnder field of the
+   * associated Constraint defines whether ancestry prefixes can be used. You can set allowedValues
+   * and deniedValues in the same Policy if allValues is ALL_VALUES_UNSPECIFIED. ALLOW or DENY are
+   * used to allow or deny all values. If allValues is set to either ALLOW or DENY, allowedValues
+   * and deniedValues must be unset.
    */
   static class Policies {
 
@@ -377,63 +386,18 @@ public class OrgPolicyInfo {
     return builder.build();
   }
 
-  public static class OrgPolicy extends Policy {
-    private BooleanPolicy booleanPolicy;
-    private ListPolicy listPolicy;
-    private RestoreDefault restoreDefault;
-
-    public OrgPolicy() {
-      super();
-    }
-
-    public OrgPolicy setBooleanPolicy(BooleanPolicy bp) {
-      this.booleanPolicy = bp;
-      return this;
-    }
-
-    public BooleanPolicy getBooleanPolicy() {
-      return this.booleanPolicy;
-    }
-
-    public OrgPolicy setListPolicy(ListPolicy lp) {
-      this.listPolicy = lp;
-      return this;
-    }
-
-    public ListPolicy getListPolicy() {
-      return this.listPolicy;
-    }
-
-    public OrgPolicy setRestoreDefault(RestoreDefault rd) {
-      this.restoreDefault = rd;
-      return this;
-    }
-
-    public RestoreDefault getRestoreDefault() {
-      return this.restoreDefault;
-    }
-
-    public OrgPolicy setConstraint(String constraint) {
-      this.set("constraint", constraint);
-      return this;
-    }
-
-    public String getConstraint() {
-      Object value = this.get("constraint");
-      return value == null ? null : value.toString();
-    }
-  }
+  // Stub classes to replace removed dependency classes
 
   public static class BooleanPolicy {
     private Boolean enforced;
 
+    public Boolean getEnforced() {
+      return enforced;
+    }
+
     public BooleanPolicy setEnforced(Boolean enforced) {
       this.enforced = enforced;
       return this;
-    }
-
-    public Boolean getEnforced() {
-      return enforced;
     }
   }
 
@@ -444,9 +408,17 @@ public class OrgPolicyInfo {
     private Boolean inheritFromParent;
     private String suggestedValue;
 
+    public String getAllValues() {
+      return allValues;
+    }
+
     public ListPolicy setAllValues(String allValues) {
       this.allValues = allValues;
       return this;
+    }
+
+    public List<String> getAllowedValues() {
+      return allowedValues;
     }
 
     public ListPolicy setAllowedValues(List<String> allowedValues) {
@@ -454,9 +426,17 @@ public class OrgPolicyInfo {
       return this;
     }
 
+    public List<String> getDeniedValues() {
+      return deniedValues;
+    }
+
     public ListPolicy setDeniedValues(List<String> deniedValues) {
       this.deniedValues = deniedValues;
       return this;
+    }
+
+    public Boolean getInheritFromParent() {
+      return inheritFromParent;
     }
 
     public ListPolicy setInheritFromParent(Boolean inheritFromParent) {
@@ -464,33 +444,91 @@ public class OrgPolicyInfo {
       return this;
     }
 
+    public String getSuggestedValue() {
+      return suggestedValue;
+    }
+
     public ListPolicy setSuggestedValue(String suggestedValue) {
       this.suggestedValue = suggestedValue;
       return this;
     }
+  }
 
-    public String getAllValues() {
-      return allValues;
+  public static class OrgPolicy {
+    private BooleanPolicy booleanPolicy;
+    private String constraint;
+    private ListPolicy listPolicy;
+    private RestoreDefault restoreDefault;
+    private String etag;
+    private String updateTime;
+    private Integer version;
+
+    public BooleanPolicy getBooleanPolicy() {
+      return booleanPolicy;
     }
 
-    public List<String> getAllowedValues() {
-      return allowedValues;
+    public OrgPolicy setBooleanPolicy(BooleanPolicy booleanPolicy) {
+      this.booleanPolicy = booleanPolicy;
+      return this;
     }
 
-    public List<String> getDeniedValues() {
-      return deniedValues;
+    public String getConstraint() {
+      return constraint;
     }
 
-    public Boolean getInheritFromParent() {
-      return inheritFromParent;
+    public OrgPolicy setConstraint(String constraint) {
+      this.constraint = constraint;
+      return this;
     }
 
-    public String getSuggestedValue() {
-      return suggestedValue;
+    public ListPolicy getListPolicy() {
+      return listPolicy;
+    }
+
+    public OrgPolicy setListPolicy(ListPolicy listPolicy) {
+      this.listPolicy = listPolicy;
+      return this;
+    }
+
+    public RestoreDefault getRestoreDefault() {
+      return restoreDefault;
+    }
+
+    public OrgPolicy setRestoreDefault(RestoreDefault restoreDefault) {
+      this.restoreDefault = restoreDefault;
+      return this;
+    }
+
+    public String getEtag() {
+      return etag;
+    }
+
+    public OrgPolicy setEtag(String etag) {
+      this.etag = etag;
+      return this;
+    }
+
+    public String getUpdateTime() {
+      return updateTime;
+    }
+
+    public OrgPolicy setUpdateTime(String updateTime) {
+      this.updateTime = updateTime;
+      return this;
+    }
+
+    public Integer getVersion() {
+      return version;
+    }
+
+    public OrgPolicy setVersion(Integer version) {
+      this.version = version;
+      return this;
     }
   }
 
   public static class RestoreDefault {
+    // Empty stub for removed dependency class.
   }
 }
 ```

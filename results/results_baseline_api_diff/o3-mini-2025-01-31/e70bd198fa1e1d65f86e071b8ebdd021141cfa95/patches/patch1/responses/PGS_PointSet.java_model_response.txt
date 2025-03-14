@@ -24,7 +24,6 @@ import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm;
 import org.jgrapht.alg.spanning.PrimMinimumSpanningTree;
 import org.jgrapht.graph.SimpleGraph;
 import org.tinfour.common.IIncrementalTin;
-// Removed KDTree import since the API has changed
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
 import micycle.pgs.commons.GeometricMedian;
@@ -64,10 +63,13 @@ public final class PGS_PointSet {
 	 */
 	public static List<PVector> prunePointsWithinDistance(List<PVector> points, double distanceTolerance) {
 		final List<PVector> newPoints = new ArrayList<>();
+		double toleranceSq = distanceTolerance * distanceTolerance;
 		for (PVector p : points) {
 			boolean tooClose = false;
-			for (PVector existing : newPoints) {
-				if (PVector.dist(existing, p) <= distanceTolerance) {
+			for (PVector np : newPoints) {
+				float dx = p.x - np.x;
+				float dy = p.y - np.y;
+				if (dx * dx + dy * dy <= toleranceSq) {
 					tooClose = true;
 					break;
 				}
@@ -416,7 +418,7 @@ public final class PGS_PointSet {
 	 * (annulus).
 	 * 
 	 * @param centerX     x coordinate of the center/mean of the ring
-	 * @param centerY     y coordinate of the center/mean of the ring
+	 * @param centerY     x coordinate of the center/mean of the ring
 	 * @param innerRadius radius of the ring's hole
 	 * @param outerRadius outer radius of the ring
 	 * @param maxAngle    angle of the ring (in radians). Can be negative
@@ -433,7 +435,7 @@ public final class PGS_PointSet {
 	 * Generates a set of points that are randomly distributed on a ring (annulus).
 	 * 
 	 * @param centerX     x coordinate of the center/mean of the ring
-	 * @param centerY     y coordinate of the center/mean of the ring
+	 * @param centerY     x coordinate of the center/mean of the ring
 	 * @param innerRadius radius of the ring's hole
 	 * @param outerRadius outer radius of the ring
 	 * @param maxAngle    angle of the ring (in radians). Can be negative

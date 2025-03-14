@@ -60,7 +60,7 @@ public class SnmpmanAgent extends BaseAgent {
     /**
      * The list of managed object groups.
      */
-    private final List<ManagedObject<?>> groups = new ArrayList<>();
+    private final List<MOGroup> groups = new ArrayList<>();
 
     /**
      * Initializes a new instance of an SNMP agent.
@@ -264,14 +264,14 @@ public class SnmpmanAgent extends BaseAgent {
                     MOGroup group = createGroup(root, variableBindings);
                     final Iterable<VariableBinding> subtree = generateSubtreeBindings(variableBindings, root);
                     DefaultMOContextScope scope = new DefaultMOContextScope(context, root, true, root.nextPeer(), false);
-                    ManagedObject<?> mo = server.lookup(new DefaultMOQuery(scope, false));
+                    Object mo = server.lookup(new DefaultMOQuery(scope, false));
                     if (mo != null) {
                         for (final VariableBinding variableBinding : subtree) {
                             group = new MOGroup(variableBinding.getOid(), variableBinding.getOid(), variableBinding.getVariable());
                             scope = new DefaultMOContextScope(context, variableBinding.getOid(), true, variableBinding.getOid().nextPeer(), false);
                             mo = server.lookup(new DefaultMOQuery(scope, false));
                             if (mo != null) {
-                                log.warn("could not register single OID at {} because ManagedObject {} is already registered.", variableBinding.getOid(), mo);
+                                log.warn("could not register single OID at {} because object {} is already registered.", variableBinding.getOid(), mo);
                             } else {
                                 groups.add(group);
                                 registerGroupAndContext(group, context);
@@ -355,7 +355,7 @@ public class SnmpmanAgent extends BaseAgent {
         try {
             if (context == null || context.toString().equals("")) {
                 MOContextScope contextScope = new DefaultMOContextScope(new OctetString(), group.getScope());
-                ManagedObject<?> other = server.lookup(new DefaultMOQuery(contextScope, false));
+                Object other = server.lookup(new DefaultMOQuery(contextScope, false));
                 if (other != null) {
                     log.warn("group {} already existed", group);
                     return;
@@ -384,16 +384,7 @@ public class SnmpmanAgent extends BaseAgent {
      * @param group {@link ManagedObject} to register.
      */
     private void registerHard(final MOGroup group) {
-        try {
-            final Field registry = server.getClass().getDeclaredField("registry");
-            registry.setAccessible(true);
-            final SortedMap<MOScope, ManagedObject<?>> reg = server.getRegistry();
-            DefaultMOContextScope contextScope = new DefaultMOContextScope(new OctetString(""), group.getScope());
-            reg.put(contextScope, group);
-            registry.set(server, reg);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            log.warn("could not set server registry", e);
-        }
+        log.warn("registerHard is not supported with the new dependency version. Group {} not registered with hack.", group);
     }
 
     /**
@@ -438,7 +429,7 @@ public class SnmpmanAgent extends BaseAgent {
     private void unregisterDefaultManagedObjects(final OctetString ctx) {
         final OID startOID = new OID(".1");
         final DefaultMOContextScope hackScope = new DefaultMOContextScope(ctx, startOID, true, startOID.nextPeer(), false);
-        ManagedObject<?> query;
+        Object query;
         while ((query = server.lookup(new DefaultMOQuery(hackScope, false))) != null) {
             server.unregister(query, ctx);
         }
@@ -487,7 +478,7 @@ public class SnmpmanAgent extends BaseAgent {
     @Override
     protected void unregisterManagedObjects() {
         log.trace("unregistered managed objects for agent \"{}\"", agent);
-        for (final ManagedObject<?> mo : groups) {
+        for (final MOGroup mo : groups) {
             server.unregister(mo, null);
         }
     }

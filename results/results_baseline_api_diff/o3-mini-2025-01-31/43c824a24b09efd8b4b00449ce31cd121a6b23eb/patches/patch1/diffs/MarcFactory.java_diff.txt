@@ -1,43 +1,51 @@
 3d2
 < import de.gwdg.metadataqa.api.json.JsonBranch;
-67c66,67
+24d22
+< 
+27d24
+< 
+67c64,70
 <     for (JsonBranch branch : schema.getPaths()) {
 ---
->     for (var obj : schema.getPaths()) {
->       JsonBranch branch = new JsonBranch(obj.toString());
-84,85c84
-<           marcRecord.setControl006(
-<             new Control006(extractFirst(cache, branch), marcRecord));
+>     for (Object branchObj : schema.getPaths()) {
+>       JsonBranch branch;
+>       if (branchObj instanceof String) {
+>         branch = new JsonBranch((String) branchObj);
+>       } else {
+>         branch = (JsonBranch) branchObj;
+>       }
+267c270
+<       MarcSubfield marcSubfield = null;
 ---
->           marcRecord.setControl006(new Control006(extractFirst(cache, branch), marcRecord));
-88,89c87
-<           marcRecord.setControl007(
-<             new Control007(extractFirst(cache, branch), marcRecord));
+>       MarcSubfield marcSubfield;
+283c286
+<     DataField field = null;
 ---
->           marcRecord.setControl007(new Control007(extractFirst(cache, branch), marcRecord));
-92,93c90
-<           marcRecord.setControl008(
-<             new Control008(extractFirst(cache, branch), marcRecord));
+>     DataField field;
+300c303
+<       MarcSubfield marcSubfield = null;
 ---
->           marcRecord.setControl008(new Control008(extractFirst(cache, branch), marcRecord));
-484a482,501
+>       MarcSubfield marcSubfield;
+484a488,509
 >   
 >   private static class JsonBranch {
 >     private final String label;
-> 
+>     
 >     public JsonBranch(String label) {
 >       this.label = label;
 >     }
-> 
+>     
+>     public Object getParent() {
+>       // New dependency no longer defines parent; assume always top-level.
+>       return null;
+>     }
+>     
 >     public String getLabel() {
 >       return label;
 >     }
-> 
->     public Object getParent() {
->       return null;
->     }
-> 
+>     
 >     public String getJsonPath() {
+>       // In the new API, use the label as the JSON path.
 >       return label;
 >     }
 >   }

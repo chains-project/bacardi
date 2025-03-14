@@ -2,6 +2,7 @@ package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
 import redis.clients.jedis.ClusterPipeline;
+
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +55,7 @@ public interface RedisGraphTransaction extends ClusterPipeline, Closeable {
      * @deprecated use {@link #query(String, String, Map)} instead.
      */
     @Deprecated
-    Response<ResultSet> query(String graphId, String query, Object ...args);
+    Response<ResultSet> query(String graphId, String query, Object... args);
 
     /**
      * Executes a cypher query with parameters.

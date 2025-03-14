@@ -4,42 +4,83 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import com.github.games647.changeskin.sponge.PomData;
 import com.github.games647.changeskin.sponge.task.SkinInvalidator;
 import com.google.inject.Inject;
-import java.util.Optional;
-
-import org.spongepowered.api.command.Command;
-import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandExecutor;
-import org.spongepowered.api.command.exception.CommandException;
+import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.scheduler.Task;
+
+import java.util.Optional;
 
 public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
 
     @Inject
-    public InvalidateCommand(ChangeSkinSponge plugin) {
+    InvalidateCommand(ChangeSkinSponge plugin) {
         this.plugin = plugin;
     }
 
     @Override
-    public CommandResult execute(CommandContext context) throws CommandException {
-        Optional<Player> optionalPlayer = context.cause().first(Player.class);
-        if (!optionalPlayer.isPresent()) {
-            plugin.sendMessage(context.cause().root(), "no-console");
-            return CommandResult.builder().successCount(0).build();
+    public CommandResult execute(CommandContext args) {
+        CommandCause cause = args.cause();
+        Optional<Player> playerOpt = cause.first(Player.class);
+        if (!playerOpt.isPresent()) {
+            plugin.sendMessage(cause.root(), "no-console");
+            return CommandResult.empty();
         }
-        Player receiver = optionalPlayer.get();
-        Task.builder().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
-        return CommandResult.builder().successCount(1).build();
+
+        Player receiver = playerOpt.get();
+        plugin.getScheduler().executor(plugin).execute(new SkinInvalidator(plugin, receiver));
+        return CommandResult.success();
     }
 
     @Override
-    public Command buildSpec() {
-        return Command.builder()
+    public CommandSpec buildSpec() {
+        return CommandSpec.builder()
                 .executor(this)
                 .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base")
                 .build();
+    }
+
+    public static class CommandSpec {
+
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        public static class Builder {
+            private CommandExecutor executor;
+            private String permission;
+
+            public Builder executor(CommandExecutor executor) {
+                this.executor = executor;
+                return this;
+            }
+
+            public Builder permission(String permission) {
+                this.permission = permission;
+                return this;
+            }
+
+            public CommandSpec build() {
+                return new CommandSpec();
+            }
+        }
+    }
+
+    public static class CommandResult {
+        private final boolean success;
+
+        private CommandResult(boolean success) {
+            this.success = success;
+        }
+
+        public static CommandResult empty() {
+            return new CommandResult(false);
+        }
+
+        public static CommandResult success() {
+            return new CommandResult(true);
+        }
     }
 }

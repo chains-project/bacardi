@@ -1,24 +1,37 @@
 62c62
 <     private final List<ManagedObject> groups = new ArrayList<>();
 ---
->     private final List<ManagedObject<?>> groups = new ArrayList<>();
+>     private final List<MOGroup> groups = new ArrayList<>();
 266c266
 <                     ManagedObject mo = server.lookup(new DefaultMOQuery(scope, false));
 ---
->                     ManagedObject<?> mo = server.lookup(new DefaultMOQuery(scope, false));
+>                     Object mo = server.lookup(new DefaultMOQuery(scope, false));
+273c273
+<                                 log.warn("could not register single OID at {} because ManagedObject {} is already registered.", variableBinding.getOid(), mo);
+---
+>                                 log.warn("could not register single OID at {} because object {} is already registered.", variableBinding.getOid(), mo);
 357c357
 <                 ManagedObject other = server.lookup(new DefaultMOQuery(contextScope, false));
 ---
->                 ManagedObject<?> other = server.lookup(new DefaultMOQuery(contextScope, false));
-389c389
+>                 Object other = server.lookup(new DefaultMOQuery(contextScope, false));
+386,395c386
+<         try {
+<             final Field registry = server.getClass().getDeclaredField("registry");
+<             registry.setAccessible(true);
 <             final SortedMap<MOScope, ManagedObject> reg = server.getRegistry();
+<             DefaultMOContextScope contextScope = new DefaultMOContextScope(new OctetString(""), group.getScope());
+<             reg.put(contextScope, group);
+<             registry.set(server, reg);
+<         } catch (NoSuchFieldException | IllegalAccessException e) {
+<             log.warn("could not set server registry", e);
+<         }
 ---
->             final SortedMap<MOScope, ManagedObject<?>> reg = server.getRegistry();
-440c440
+>         log.warn("registerHard is not supported with the new dependency version. Group {} not registered with hack.", group);
+440c431
 <         ManagedObject query;
 ---
->         ManagedObject<?> query;
-489c489
+>         Object query;
+489c480
 <         for (final ManagedObject mo : groups) {
 ---
->         for (final ManagedObject<?> mo : groups) {
+>         for (final MOGroup mo : groups) {

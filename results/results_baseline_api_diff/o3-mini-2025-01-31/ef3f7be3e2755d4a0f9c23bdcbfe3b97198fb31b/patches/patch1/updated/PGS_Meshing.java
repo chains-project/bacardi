@@ -27,6 +27,14 @@ import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.index.strtree.STRtree;
 import org.locationtech.jts.noding.SegmentString;
 import org.locationtech.jts.operation.overlayng.OverlayNG;
+import org.tinfour.common.IConstraint;
+import org.tinfour.common.IIncrementalTin;
+import org.tinfour.common.IQuadEdge;
+import org.tinfour.common.SimpleTriangle;
+import org.tinfour.common.Vertex;
+import org.tinfour.utils.TriangleCollector;
+import org.tinspin.index.PointDistance;
+import org.tinspin.index.covertree.CoverTree;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
 import micycle.pgs.color.Colors;
 import micycle.pgs.commons.AreaMerge;
@@ -38,7 +46,6 @@ import micycle.pgs.commons.SpiralQuadrangulation;
 import processing.core.PConstants;
 import processing.core.PShape;
 import processing.core.PVector;
-import org.tinspin.index.IndexConfig;
 
 /**
  * Mesh generation (excluding triangulation) and processing.
@@ -151,11 +158,17 @@ public class PGS_Meshing {
 			}
 		});
 
-		// Replaced KDTree nearest neighbor search with linear search due to dependency update.
+		final CoverTree<Vertex> tree = CoverTree.create(2, 1.3, (p1, p2) -> {
+			final double deltaX = p1[0] - p2[0];
+			final double deltaY = p1[1] - p2[1];
+			return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+		});
+		vertices.forEach(v -> tree.insert(new double[] { v.x, v.y }, v));
+
 		final HashSet<IQuadEdge> nonGabrielEdges = new HashSet<>(); // base references to edges that should be removed
 		edges.forEach(edge -> {
 			final double[] midpoint = midpoint(edge);
-			final Vertex near = findNearest(vertices, midpoint);
+			final Vertex near = tree.query1NN(midpoint).value();
 			if (near != edge.getA() && near != edge.getB()) {
 				if (!preservePerimeter || (preservePerimeter && !edge.isConstrainedRegionBorder())) {
 					nonGabrielEdges.add(edge); // base reference
@@ -834,28 +847,6 @@ public class PGS_Meshing {
 		double y = a.y + b.y + c.y;
 		y /= 3;
 		return new Vertex(x, y, 0);
-	}
-
-	/**
-	 * Performs a linear nearest neighbor search over a collection of vertices.
-	 * 
-	 * @param vertices a collection of vertices to search
-	 * @param point    the query point represented as a double array
-	 * @return the vertex nearest to the query point
-	 */
-	private static Vertex findNearest(Collection<Vertex> vertices, double[] point) {
-		Vertex nearest = null;
-		double bestDist = Double.MAX_VALUE;
-		for (Vertex v : vertices) {
-			double dx = v.x - point[0];
-			double dy = v.y - point[1];
-			double dist = dx * dx + dy * dy;
-			if (dist < bestDist) {
-				bestDist = dist;
-				nearest = v;
-			}
-		}
-		return nearest;
 	}
 
 }

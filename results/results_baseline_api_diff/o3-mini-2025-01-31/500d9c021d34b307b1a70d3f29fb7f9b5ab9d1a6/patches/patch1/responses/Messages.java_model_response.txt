@@ -6,12 +6,10 @@ import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Provides I18n messages for the UI per request. To get the correct locale, the method {@link HttpServletRequest#getLocale()}
- * is used.
- * <p>
- * NOTE: Previously, {@code javax.mvc.MvcContext} was used to obtain the locale. Since it has been removed
- * in the new dependency version, {@link HttpServletRequest#getLocale()} is now used instead.
- * </p>
+ * Provides I18n messages for the UI per request. To get the correct locale, the request's locale is
+ * used. This approach replaces the removed MvcContext.
+ *
+ * @author Tobias Erdle
  */
 @RequestScoped
 @Named("msg")
@@ -23,7 +21,7 @@ public class Messages {
     private HttpServletRequest request;
 
     /**
-     * Get the assigned message to some key based on the {@link java.util.Locale} of the current request.
+     * Get the assigned message to some key based on the Locale of the current request.
      *
      * @param key the message key to use
      * @return the correct translation assigned to the key for the request locale, a fallback translation or a

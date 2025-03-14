@@ -6,25 +6,24 @@
 ---
 > import javax.servlet.http.HttpServletRequest;
 > 
-9,14c8,13
+9,10c8,9
 <  * Provides I18n messages for the UI per request. To get the correct locale, the method {@link MvcContext#getLocale()}
 <  * is used. This method uses the built-in {@link javax.mvc.locale.LocaleResolver} of the used MVC Implementation.
-<  *
-<  * @author Tobias Erdle
+---
+>  * Provides I18n messages for the UI per request. To get the correct locale, the request's locale is
+>  * used. This approach replaces the removed MvcContext.
+13,14d11
 <  * @see MvcContext#getLocale()
 <  * @see javax.mvc.locale.LocaleResolver
----
->  * Provides I18n messages for the UI per request. To get the correct locale, the method {@link HttpServletRequest#getLocale()}
->  * is used.
->  * <p>
->  * NOTE: Previously, {@code javax.mvc.MvcContext} was used to obtain the locale. Since it has been removed
->  * in the new dependency version, {@link HttpServletRequest#getLocale()} is now used instead.
->  * </p>
-23c22
+23c20
 <     private MvcContext mvcContext;
 ---
 >     private HttpServletRequest request;
-33,34c32
+26c23
+<      * Get the assigned message to some key based on the {@link java.util.Locale} of the current request.
+---
+>      * Get the assigned message to some key based on the Locale of the current request.
+33,34c30
 <         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
 < 
 ---

@@ -1,6 +1,5 @@
 package com.github.games647.changeskin.sponge.task;
 
-import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.math.vector.Vector3d;
 import com.github.games647.changeskin.core.model.UserPreference;
 import com.github.games647.changeskin.core.model.skin.SkinModel;
@@ -10,6 +9,7 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import java.util.UUID;
 
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.tab.TabListEntry;
 import org.spongepowered.api.scheduler.Task;
@@ -36,7 +36,7 @@ public class SkinApplier extends SharedApplier {
             return;
         }
 
-        // uuid was successful resolved, we could now make a cooldown check
+        //uuid was successful resolved, we could now make a cooldown check
         if (invoker instanceof Player) {
             UUID uniqueId = ((Player) invoker).getUniqueId();
             core.getCooldownService().trackPlayer(uniqueId);
@@ -77,6 +77,10 @@ public class SkinApplier extends SharedApplier {
 
     private void sendUpdate() {
         sendUpdateSelf();
+
+        // triggers an update for others player to see the new skin
+        receiver.setVanished(true);
+        receiver.setVanished(false);
     }
 
     private void sendUpdateSelf() {

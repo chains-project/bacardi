@@ -36,7 +36,6 @@ import com.jcabi.http.Response;
 import com.jcabi.log.Logger;
 import java.net.HttpCookie;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -47,7 +46,31 @@ import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.collection.IsIterableContainingInAnyOrder;
 
+/**
+ * REST response.
+ *
+ * <p>This response decorator is able to make basic assertions on
+ * HTTP response and manipulate with it afterwords, for example:
+ *
+ * <pre> String name = new JdkRequest("http://my.example.com")
+ *   .fetch()
+ *   .as(RestResponse.class)
+ *   .assertStatus(200)
+ *   .assertBody(org.hamcrest.CoreMatchers.containsString("hello, world!"))
+ *   .assertHeader("Content-Type", IsIterableContainingInAnyOrder.hasItems("text/plain"))
+ *   .jump(URI.create("/users"))
+ *   .fetch();</pre>
+ *
+ * <p>Method {@link #jump(URI)} creates a new instance of class
+ * {@link Request} with all cookies transferred from the current one.
+ *
+ * <p>The class is immutable and thread-safe.
+ *
+ * @since 0.8
+ */
 @Immutable
 @EqualsAndHashCode(callSuper = true)
 @SuppressWarnings("PMD.TooManyMethods")
@@ -186,7 +209,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, Matchers.hasItems(value));
+        return this.assertHeader(name, IsIterableContainingInAnyOrder.hasItems(value));
     }
 
     /**
@@ -222,7 +245,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            Matchers.not(Matchers.emptyIterableOf(String.class))
+            CoreMatchers.not(emptyIterableOf(String.class))
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -260,7 +283,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            Matchers.notNullValue()
+            CoreMatchers.notNullValue()
         );
         assert cookie != null;
         return cookie;
@@ -303,68 +326,20 @@ public final class RestResponse extends AbstractResponse {
             this.status = sts;
         }
 
-        @Override
         public boolean matches(final Object resp) {
             return Response.class.cast(resp).status() == this.status;
         }
     }
 
-    public static final class Matchers {
-        public static <T> Matcher<Iterable<? super T>> hasItems(final T... items) {
-            return new CustomMatcher<Iterable<? super T>>("a collection containing " + Arrays.toString(items)) {
-                @Override
-                public boolean matches(final Object item) {
-                    if (!(item instanceof Iterable)) {
-                        return false;
-                    }
-                    Iterable<?> iterable = (Iterable<?>) item;
-                    for (T expected : items) {
-                        boolean found = false;
-                        for (Object actual : iterable) {
-                            if ((expected == null && actual == null) ||
-                                (expected != null && expected.equals(actual))) {
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found) {
-                            return false;
-                        }
-                    }
-                    return true;
-                }
-            };
-        }
-
-        public static <T> Matcher<T> not(final Matcher<T> matcher) {
-            return new CustomMatcher<T>("not " + matcher) {
-                @Override
-                public boolean matches(final Object item) {
-                    return !matcher.matches(item);
-                }
-            };
-        }
-
-        public static <T> Matcher<Iterable<T>> emptyIterableOf(final Class<T> type) {
-            return new CustomMatcher<Iterable<T>>("an empty iterable of " + type.getSimpleName()) {
-                @Override
-                public boolean matches(final Object item) {
-                    if (!(item instanceof Iterable)) {
-                        return false;
-                    }
+    private static <T> Matcher<Iterable<T>> emptyIterableOf(final Class<T> type) {
+        return new CustomMatcher<Iterable<T>>("an empty iterable of type " + type.getSimpleName()) {
+            public boolean matches(final Object item) {
+                if (item instanceof Iterable) {
                     return !((Iterable<?>) item).iterator().hasNext();
                 }
-            };
-        }
-
-        public static <T> Matcher<T> notNullValue() {
-            return new CustomMatcher<T>("not null") {
-                @Override
-                public boolean matches(final Object item) {
-                    return item != null;
-                }
-            };
-        }
+                return false;
+            }
+        };
     }
 }
 ```

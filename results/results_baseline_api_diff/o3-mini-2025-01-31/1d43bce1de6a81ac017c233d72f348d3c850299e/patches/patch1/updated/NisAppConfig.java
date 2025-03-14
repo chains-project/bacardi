@@ -1,8 +1,8 @@
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.ClassicConfiguration;
+import org.flywaydb.core.api.Location;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -106,11 +106,18 @@ public class NisAppConfig {
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
-		ClassicConfiguration flywayConfig = new ClassicConfiguration();
-		flywayConfig.setDataSource(this.dataSource());
+
+		final NisConfiguration configuration = this.nisConfiguration();
+		final String nemFolder = configuration.getNemFolder();
+		final String jdbcUrl = prop.getProperty("jdbc.url").replace("${nem.folder}", nemFolder)
+				.replace("${nem.network}", configuration.getNetworkName());
+		final String jdbcUsername = prop.getProperty("jdbc.username");
+		final String jdbcPassword = prop.getProperty("jdbc.password");
+
+		final ClassicConfiguration flywayConfig = new ClassicConfiguration();
+		flywayConfig.setDataSource(jdbcUrl, jdbcUsername, jdbcPassword);
 		flywayConfig.setClassLoader(NisAppConfig.class.getClassLoader());
-		String locations = prop.getProperty("flyway.locations");
-		flywayConfig.setLocations(new Location[] { new Location(locations) });
+		flywayConfig.setLocations(new Location[] { new Location(prop.getProperty("flyway.locations")) });
 		flywayConfig.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 		return new Flyway(flywayConfig);
 	}
