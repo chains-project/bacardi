@@ -70,27 +70,7 @@ public class CallRedirectionInterceptor implements Serializable {
 ```
 
  with the following error information:
-[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[40,36] cannot find symbol
-  symbol:   class InvocationContext
-  location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
-
-[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[27,6] cannot find symbol
-  symbol:   class AroundInvoke
-  location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
-
 [ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[28,38] cannot find symbol
-  symbol:   class InvocationContext
-  location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
-
-[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[40,36] cannot find symbol
-  symbol:   class InvocationContext
-  location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
-
-[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[28,38] cannot find symbol
-  symbol:   class InvocationContext
-  location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
-
-[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[55,29] cannot find symbol
   symbol:   class InvocationContext
   location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
 
@@ -98,23 +78,6 @@ public class CallRedirectionInterceptor implements Serializable {
 
 [ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[11,25] package javax.interceptor does not exist
 
-[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[10,25] package javax.interceptor does not exist
-
-[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[28,38] cannot find symbol
-  symbol:   class InvocationContext
-  location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
-
-[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[55,29] cannot find symbol
-  symbol:   class InvocationContext
-  location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
-
-[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[28,38] cannot find symbol
-  symbol:   class InvocationContext
-  location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
-
-[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[18,2] cannot find symbol
-  symbol: class Interceptor
-
 [ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[40,36] cannot find symbol
   symbol:   class InvocationContext
   location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
@@ -123,21 +86,30 @@ public class CallRedirectionInterceptor implements Serializable {
   symbol:   class InvocationContext
   location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
 
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[27,6] cannot find symbol
+  symbol:   class AroundInvoke
+  location: class de.hilling.junit.cdi.scope.CallRedirectionInterceptor
+
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[10,25] package javax.interceptor does not exist
+
+[ERROR] /cdi-test/cdi-test-core/src/main/java/de/hilling/junit/cdi/scope/CallRedirectionInterceptor.java:[18,2] cannot find symbol
+  symbol: class Interceptor
+
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
-     Class javax.interceptor.InvocationContext has been removed in the new version of the dependency.
      Class javax.interceptor.AroundInvoke has been removed in the new version of the dependency.
      Interface jakarta.interceptor.AroundInvoke has been added in the new version of the dependency.
-     Method jakarta.interceptor.InvocationContext.getTarget() has been added in the new version of the dependency.
-     Method javax.interceptor.InvocationContext.getTarget() has been removed in the new version of the dependency.
-     Method javax.interceptor.InvocationContext.getParameters() has been removed in the new version of the dependency.
-     Method jakarta.interceptor.InvocationContext.getParameters() has been added in the new version of the dependency.
-     Class javax.interceptor.Interceptor has been removed in the new version of the dependency.
+     Class javax.interceptor.InvocationContext has been removed in the new version of the dependency.
      Interface jakarta.interceptor.Interceptor has been added in the new version of the dependency.
-     Method jakarta.interceptor.InvocationContext.proceed() has been added in the new version of the dependency.
-     Method javax.interceptor.InvocationContext.proceed() has been removed in the new version of the dependency.
+     Class javax.interceptor.Interceptor has been removed in the new version of the dependency.
      Method jakarta.interceptor.InvocationContext.getMethod() has been added in the new version of the dependency.
      Method javax.interceptor.InvocationContext.getMethod() has been removed in the new version of the dependency.
+     Method javax.interceptor.InvocationContext.proceed() has been removed in the new version of the dependency.
+     Method jakarta.interceptor.InvocationContext.proceed() has been added in the new version of the dependency.
+     Method javax.interceptor.InvocationContext.getParameters() has been removed in the new version of the dependency.
+     Method jakarta.interceptor.InvocationContext.getParameters() has been added in the new version of the dependency.
+     Method jakarta.interceptor.InvocationContext.getTarget() has been added in the new version of the dependency.
+     Method javax.interceptor.InvocationContext.getTarget() has been removed in the new version of the dependency.
 
 
 

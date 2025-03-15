@@ -7,9 +7,9 @@ package com.artipie.security.policy;
 
 import com.amihaiemil.eoyaml.Yaml;
 import com.artipie.asto.blocking.BlockingStorage;
+import com.artipie.asto.fs.FileStorageFactory;
 import com.artipie.asto.factory.Config;
 import com.artipie.asto.factory.StorageFactory;
-import com.artipie.asto.fs.FileStorageFactory;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
@@ -41,11 +41,11 @@ public final class YamlPolicyFactory implements PolicyFactory {
     public Policy<?> getPolicy(final PolicyConfig config) {
         final PolicyConfig sub = config.config("storage");
         try {
-            StorageFactory factory = new FileStorageFactory();
-            Config storageConfig = new Config(Yaml.createYamlInput(sub.toString()).readYamlMapping());
             return new YamlPolicy(
                 new BlockingStorage(
-                    factory.newStorage(storageConfig)
+                    new FileStorageFactory().newStorage(
+                        new Config.Yaml(Yaml.createYamlInput(sub.toString()).readYamlMapping())
+                    )
                 )
             );
         } catch (final IOException err) {

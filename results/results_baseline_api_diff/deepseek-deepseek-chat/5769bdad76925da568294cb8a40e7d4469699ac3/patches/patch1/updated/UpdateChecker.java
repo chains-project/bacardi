@@ -219,11 +219,6 @@ public final class UpdateChecker {
 
     /**
      * Checks whether a commit is an ancestor of a given branch head.
-     * {@code curl -s -u … https://api.github.com/repos/<owner>/<repo>/compare/<branch>...<hash> | jq -r .status}
-     * will return {@code identical} or {@code behind} if so, else {@code diverged} or {@code ahead}.
-     * @param branch may be {@code master} or {@code forker:branch}
-     * @see <a href="https://developer.github.com/v3/repos/commits/#compare-two-commits">Compare two commits</a>
-     * @see <a href="https://stackoverflow.com/a/23970412/12916">Discussion</a>
      */
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {

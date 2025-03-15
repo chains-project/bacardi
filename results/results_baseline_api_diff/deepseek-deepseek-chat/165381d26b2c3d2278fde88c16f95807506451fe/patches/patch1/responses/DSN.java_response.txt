@@ -108,7 +108,7 @@ public class DSN {
             sc.test(Bench.class).forEach(c -> System.out.println(c.go().toString()));
         }
 
-        p = Paths.get root, "testing-speed-trans.csv");
+        p = Paths.get(root, "testing-speed-trans.csv");
         Files.deleteIfExists(p);
 
         for (int i = 1; i <= 30; i+=2) {
@@ -263,7 +263,7 @@ public class DSN {
         Bench.mode = Bench.Mode.REPLAY;
         Bench.population = 1000;
         Bench.scale = 5;
-        Path p = Paths.get root, "errors.csv");
+        Path p = Paths.get(root, "errors.csv");
         Files.deleteIfExists(p);
         Bench.report = new CSVReport(p, "");
         sc.test(Bench.class).stream().forEach(x -> System.out.println(x.go()));

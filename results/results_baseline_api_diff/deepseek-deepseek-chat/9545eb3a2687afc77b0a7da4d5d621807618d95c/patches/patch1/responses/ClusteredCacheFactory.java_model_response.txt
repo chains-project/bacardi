@@ -285,7 +285,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         if (staticConfig == null) {
             final MapConfig dynamicConfig = new MapConfig(name);
             dynamicConfig.setTimeToLiveSeconds(hazelcastLifetimeInSeconds);
-            dynamicConfig.setMaxSizeConfig(new com.hazelcast.config.EvictionConfig().setSize(hazelcastMaxCacheSizeInMegaBytes).setMaxSizePolicy(com.hazelcast.config.EvictionConfig.MaxSizePolicy.USED_HEAP_SIZE));
+            dynamicConfig.setMaxSizeConfig(new com.hazelcast.config.MaxSizePolicy(hazelcastMaxCacheSizeInMegaBytes, com.hazelcast.config.MaxSizePolicy.USED_HEAP_SIZE));
             logger.debug("Creating dynamic map config for cache={}, dynamicConfig={}", name, dynamicConfig);
             hazelcast.getConfig().addMapConfig(dynamicConfig);
         } else {
@@ -375,6 +375,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
             }
         }
 
+
         if (!members.isEmpty()) {
             // Asynchronously execute the task on the other cluster members
             logger.debug("Executing asynchronous MultiTask: " + task.getClass().getName());
@@ -432,4 +433,58 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
             try {
                 logger.debug("Executing MultiTask: " + task.getClass().getName());
                 checkForPluginClassLoader(task);
-                final Map<Member, ? extends Future<T>
+                final Map<Member, ? extends Future<T>> futures = hazelcast.getExecutorService(HAZELCAST_EXECUTOR_SERVICE_NAME.getValue()).submitToMembers(new CallableTask<>(task), members);
+                long nanosLeft = TimeUnit.SECONDS.toNanos(MAX_CLUSTER_EXECUTION_TIME.getValue().getSeconds() * members.size());
+                for (final Future<T> future : futures.values()) {
+                    final long start = System.nanoTime();
+                    result.add(future.get(nanosLeft, TimeUnit.NANOSECONDS));
+                    nanosLeft = nanosLeft - (System.nanoTime() - start);
+                }
+            } catch (final TimeoutException te) {
+                logger.error("Failed to execute cluster task within " + StringUtils.getFullElapsedTime(MAX_CLUSTER_EXECUTION_TIME.getValue()), te);
+            } catch (final Exception e) {
+                logger.error("Failed to execute cluster task", e);
+            }
+        } else {
+            logger.debug("No cluster members selected for cluster task " + task.getClass().getName());
+        }
+        return result;
+    }
+
+    /*
+     * Execute the given task on the designated cluster member.
+     * Note that this method blocks for up to MAX_CLUSTER_EXECUTION_TIME
+     * (seconds) until the task is run on the given member.
+     */
+    @Override
+    public <T> T doSynchronousClusterTask(final ClusterTask<T> task, final byte[] nodeID) {
+        if (cluster == null) {
+            return null;
+        }
+        final Member member = getMember(nodeID);
+        T result = null;
+        // Check that the requested member was found
+        if (member != null) {
+            // Asynchronously execute the task on the target member
+            logger.debug("Executing DistributedTask: " + task.getClass().getName());
+            checkForPluginClassLoader(task);
+            try {
+                final Future<T> future = hazelcast.getExecutorService(HAZELCAST_EXECUTOR_SERVICE_NAME.getValue()).submitToMember(new CallableTask<>(task), member);
+                result = future.get(MAX_CLUSTER_EXECUTION_TIME.getValue().getSeconds(), TimeUnit.SECONDS);
+                logger.trace("DistributedTask result: {}", result);
+            } catch (final TimeoutException te) {
+                logger.error("Failed to execute cluster task within " + MAX_CLUSTER_EXECUTION_TIME + " seconds", te);
+            } catch (final Exception e) {
+                logger.error("Failed to execute cluster task", e);
+            }
+        } else {
+            final String msg = MessageFormat.format("Requested node {0} not found in cluster", new String(nodeID, StandardCharsets.UTF_8));
+            logger.warn(msg);
+            throw new IllegalArgumentException(msg);
+        }
+        return result;
+    }
+
+    @Override
+    public ClusterNodeInfo getClusterNodeInfo(final byte[] nodeID) {
+        if (cluster == null)

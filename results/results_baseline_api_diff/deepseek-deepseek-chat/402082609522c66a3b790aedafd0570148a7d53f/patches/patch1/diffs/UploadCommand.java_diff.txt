@@ -1,0 +1,46 @@
+13,16c13,17
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+> import org.spongepowered.api.command.CommandExecutor;
+> import org.spongepowered.api.command.parameter.CommandParameter;
+> import org.spongepowered.api.command.Command;
+19,20c20
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
+---
+> import static org.spongepowered.api.command.parameter.Parameter.string;
+34,35c34,35
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         String url = args.<String>getOne("url").get();
+---
+>     public CommandResult execute(CommandContext args) {
+>         String url = args.one(Parameter.string("url")).orElse("");
+39c39
+<                 plugin.sendMessage(src, "no-accounts");
+---
+>                 plugin.sendMessage(args.cause().audience(), "no-accounts");
+42,43c42,43
+<                 Runnable skinUploader = new SkinUploader(plugin, src, uploadAccount, url);
+<                 Task.builder().async().execute(skinUploader).submit(plugin);
+---
+>                 Runnable skinUploader = new SkinUploader(plugin, args.cause().audience(), uploadAccount, url);
+>                 Task.builder().execute(skinUploader).submit(plugin);
+46c46
+<             plugin.sendMessage(src, "no-valid-url");
+---
+>             plugin.sendMessage(args.cause().audience(), "no-valid-url");
+53,54c53,54
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command.Parameterized buildSpec() {
+>         return Command.builder()
+56c56
+<                 .arguments(string(of("url")))
+---
+>                 .addParameter(Parameter.string().key("url").build())

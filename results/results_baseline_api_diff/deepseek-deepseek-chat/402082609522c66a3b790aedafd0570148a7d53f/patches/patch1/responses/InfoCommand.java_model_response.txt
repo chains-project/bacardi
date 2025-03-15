@@ -13,9 +13,9 @@ import java.util.UUID;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
-import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.parameter.Parameter;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 import net.kyori.adventure.text.Component;
@@ -30,17 +30,19 @@ public class InfoCommand implements Command, ChangeSkinCommand {
     private SkinFormatter formatter;
 
     @Override
-    public CommandResult execute(CommandCause src, CommandContext args) {
-        if (!(src.subject() instanceof Player)) {
-            plugin.sendMessage(src.subject(), "no-console");
+    public CommandResult execute(CommandContext context) {
+        if (!(context.cause().root() instanceof Player)) {
+            plugin.sendMessage(context.cause().root(), "no-console");
             return CommandResult.success();
         }
 
-        UUID uniqueId = ((Player) src.subject()).getUniqueId();
-        Task.builder().async()
+        UUID uniqueId = ((Player) context.cause().root()).uniqueId();
+        Task.builder()
                 .execute(() -> {
                     UserPreference preferences = plugin.getCore().getStorage().getPreferences(uniqueId);
-                    Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).submit(plugin);
+                    Task.builder()
+                            .execute(() -> sendSkinDetails(uniqueId, preferences))
+                            .submit(plugin);
                 })
                 .submit(plugin);
 

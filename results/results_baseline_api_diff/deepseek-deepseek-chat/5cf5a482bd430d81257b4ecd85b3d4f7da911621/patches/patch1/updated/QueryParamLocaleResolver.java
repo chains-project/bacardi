@@ -17,7 +17,6 @@ public class QueryParamLocaleResolver implements LocaleResolver {
     @Inject
     Logger log;
     
-    @Override
     public Locale resolveLocale(final LocaleResolverContext context) {
         final String queryLang = context.getUriInfo()
                 .getQueryParameters()

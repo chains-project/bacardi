@@ -64,8 +64,6 @@ public class MarcFactory {
   public static BibliographicRecord create(JsonPathCache cache, MarcVersion version) {
     var marcRecord = new Marc21Record();
     for (String path : schema.getPaths()) {
-      if (path.contains("."))
-        continue;
       switch (path) {
         case "leader":
           marcRecord.setLeader(new Leader(extractFirst(cache, path)));

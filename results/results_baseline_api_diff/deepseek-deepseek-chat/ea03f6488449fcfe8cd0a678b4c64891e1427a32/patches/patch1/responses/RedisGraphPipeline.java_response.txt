@@ -1,9 +1,9 @@
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
+import redis.clients.jedis.ClusterPipeline;
 import redis.clients.jedis.commands.BinaryRedisPipeline;
 import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
-import redis.clients.jedis.commands.ClusterPipeline;
 import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;
 import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
 import redis.clients.jedis.commands.RedisPipeline;
@@ -20,7 +20,7 @@ public interface RedisGraphPipeline extends
         MultiKeyBinaryRedisPipeline,
         MultiKeyCommandsPipeline, ClusterPipeline,
         BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
-        BinaryRedisPipeline, Closeable {
+        BinaryRedisPipeline, RedisPipeline, Closeable {
 
     /**
      * Execute a Cypher query.

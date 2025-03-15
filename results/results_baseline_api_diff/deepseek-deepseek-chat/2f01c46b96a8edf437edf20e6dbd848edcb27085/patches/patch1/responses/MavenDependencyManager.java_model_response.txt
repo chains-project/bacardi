@@ -27,7 +27,6 @@ import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
 import org.apache.maven.plugin.Plugin;
 import org.apache.maven.plugin.PluginExecution;
-import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
 import se.kth.depclean.core.AbstractDebloater;
 import se.kth.depclean.core.analysis.graph.DependencyGraph;
 import se.kth.depclean.core.analysis.model.ProjectDependencyAnalysis;
@@ -141,11 +140,15 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
   public Set<String> collectUsedClassesFromProcessors() {
     getLog().debug("# collectUsedClassesFromProcessors()");
     return Optional.ofNullable(project.getPlugin("org.bsc.maven:maven-processor-plugin"))
-        .map(plugin -> plugin.getExecutionsAsMap().get("process"))
-        .map(exec -> exec.getConfiguration())
+        .map(Plugin::getExecutions)
+        .flatMap(executions -> executions.stream()
+            .filter(exec -> "process".equals(exec.getId()))
+            .findFirst())
+        .map(PluginExecution::getConfiguration)
         .map(config -> config.getChild("processors"))
-        .map(processors -> processors.getChildren())
-        .map(arr -> Arrays.stream(arr).map(processor -> processor.getValue()).collect(Collectors.toSet()))
+        .map(processors -> Arrays.stream(processors.getChildren())
+            .map(org.apache.maven.plugin.PluginParameter::getValue)
+            .collect(Collectors.toSet()))
         .orElse(of());
   }
 

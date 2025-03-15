@@ -5,16 +5,18 @@ import com.github.games647.changeskin.sponge.PomData;
 import com.github.games647.changeskin.sponge.task.SkinSelector;
 import com.google.inject.Inject;
 
+import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
-import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.command.CommandExecutor;
+import org.spongepowered.api.command.parameter.CommandParameter;
+import org.spongepowered.api.command.parameter.managed.Flag;
 import org.spongepowered.api.text.Text;
 
-public class SelectCommand implements ChangeSkinCommand {
+public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
 
@@ -23,29 +25,31 @@ public class SelectCommand implements ChangeSkinCommand {
         this.plugin = plugin;
     }
 
-    public CommandResult execute(CommandSource src, CommandContext args) {
-        if (!(src instanceof Player)) {
-            plugin.sendMessage(src, "no-console");
+    @Override
+    public CommandResult execute(CommandContext args) {
+        if (!(args.cause().root() instanceof Player)) {
+            plugin.sendMessage(args.cause().root(), "no-console");
             return CommandResult.empty();
         }
 
-        String skinName = args.one(Parameter.string().key("skinName").build()).get().toLowerCase().replace("skin-", "");
+        String skinName = args.one(Parameter.string().key("skinName").get()).get().toLowerCase().replace("skin-", "");
 
         try {
             int targetId = Integer.parseInt(skinName);
-            Player receiver = (Player) src;
-            Task.builder().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+            Player receiver = (Player) args.cause().root();
+            Task.builder().async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
         } catch (NumberFormatException numberFormatException) {
-            plugin.sendMessage(src, "invalid-skin-name");
+            plugin.sendMessage(args.cause().root(), "invalid-skin-name");
         }
 
         return CommandResult.success();
     }
 
-    public CommandSpec buildSpec() {
-        return CommandSpec.builder()
+    @Override
+    public Command buildSpec() {
+        return Command.builder()
                 .executor(this)
-                .parameter(Parameter.string().key("skinName").build())
+                .addParameter(Parameter.string().key("skinName").build())
                 .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
                 .build();
     }

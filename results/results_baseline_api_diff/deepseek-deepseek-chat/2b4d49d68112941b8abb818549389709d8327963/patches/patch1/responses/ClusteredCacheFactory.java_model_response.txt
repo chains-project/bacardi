@@ -515,4 +515,19 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
             if (cacheStats == null) {
                 cacheStats = hazelcast.getMap("opt-$cacheStats");
             }
+            final String uid = getNodeID(cluster.getLocalMember()).toString();
+            final Map<String, long[]> stats = new HashMap<>();
+            for (final String cacheName : caches.keySet()) {
+                final Cache cache = caches.get(cacheName);
+                // The following information is published:
+                // current size, max size, num elements, cache
+                // hits, cache misses.
+                final long[] info = new long[5];
+                info[0] = cache.getLongCacheSize();
+                info[1] = cache.getMaxCacheSize();
+                info[2] = cache.size();
+                info[3] = cache.getCacheHits();
+                info[4] = cache.getCacheMisses();
+                stats.put(cacheName, info);
+            }
        

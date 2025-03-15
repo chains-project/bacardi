@@ -96,7 +96,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
 
   /**
    * host name
-   */
+ */
   private final String host;
 
   /**
@@ -188,7 +188,6 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
       this.serializer = new TSerializer();
     } catch (TTransportException e) {
       LOG.error("Failed to initialize TSerializer", e);
-      throw new RuntimeException(e);
     }
   }
 
@@ -322,7 +321,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
               "partition=" + this.partition);
 
       // retry the failed event by inserting it at the beginning of the deque.
-      // If number of tries reaches 极, meaning that 3 partitions have been tried sending to but
+      // If number of tries reaches 3, meaning that 3 partitions have been tried sending to but
       // still failed, this event is dropped.
       Integer count = eventTriedCount.get(event.getLoggingAuditHeaders());
       if (count == null){
@@ -366,7 +365,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
       try {
         if (e == null) {
           OpenTsdbMetricConverter
-              .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_EVENTS_ACKED极, 1,
+              .incr(LoggingAuditClientMetrics.AUDIT_CLIENT_SENDER_KAFKA_EVENTS_ACKED, 1,
                   "host=" + host, "stage=" + stage.toString(),
                   "logName=" + event.getLoggingAuditHeaders().getLogName());
 

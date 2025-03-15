@@ -218,7 +218,8 @@ public class SupplierAddressStructure implements ToString2
     /**
      * Gets the value of the country property.
      * 
-    极     possible object is
+     * @return
+     *     possible object is
      *     {@link String }
      *     
      */

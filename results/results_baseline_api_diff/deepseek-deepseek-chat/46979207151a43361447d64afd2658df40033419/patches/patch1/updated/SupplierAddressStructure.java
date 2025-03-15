@@ -35,7 +35,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PostalCode"/&gt;
  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Region" minOccurs="0"/&gt;
  *         &lt;element name="Country" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierCountry"/&gt;
- *       &lt;sequence&gt;
+ *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;

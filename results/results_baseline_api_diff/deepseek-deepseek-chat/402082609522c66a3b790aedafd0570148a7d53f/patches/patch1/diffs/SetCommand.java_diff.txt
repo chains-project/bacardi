@@ -1,0 +1,38 @@
+13,17c13,15
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.args.GenericArguments;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+> import org.spongepowered.api.command.CommandExecutor;
+21,22c19
+< import static org.spongepowered.api.command.args.GenericArguments.flags;
+< import static org.spongepowered.api.command.args.GenericArguments.string;
+---
+> import static org.spongepowered.api.command.parameter.Parameter.string;
+37,39c34,37
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+---
+>     public CommandResult execute(CommandContext args) {
+>         Player src = args.getCause().first(Player.class).orElse(null);
+>         if (src == null) {
+>             plugin.sendMessage(null, "no-console");
+43c41
+<         UUID uniqueId = ((Player) src).getUniqueId();
+---
+>         UUID uniqueId = src.getUniqueId();
+49,50c47,48
+<         Player receiver = (Player) src;
+<         String targetSkin = args.<String>getOne("skin").get();
+---
+>         Player receiver = src;
+>         String targetSkin = args.one(Parameter.string("skin")).orElse("");
+81c79
+<                         flags().flag("keep").buildWith(GenericArguments.none()))
+---
+>                         Parameter.flags().flag("keep").buildWith(Parameter.none()))

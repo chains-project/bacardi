@@ -29,10 +29,10 @@ public class UpdateSkinListener implements RawDataListener {
         updateMessage.readFrom(dataInput);
 
         String playerName = updateMessage.getPlayerName();
-        Optional<Player> receiver = Sponge.getServer().getPlayer(playerName);
+        Optional<Player> receiver = Sponge.server().player(playerName);
         if (receiver.isPresent()) {
             Runnable skinUpdater = new SkinApplier(plugin, receiver.get(), receiver.get(), null, false);
-            TaskExecutorService scheduler = Sponge.getServer().getScheduler();
+            TaskExecutorService scheduler = Sponge.server().scheduler();
             scheduler.submit(skinUpdater);
         }
     }

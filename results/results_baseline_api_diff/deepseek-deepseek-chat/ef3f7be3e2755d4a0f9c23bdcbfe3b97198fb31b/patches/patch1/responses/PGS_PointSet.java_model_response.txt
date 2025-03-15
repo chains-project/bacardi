@@ -24,7 +24,6 @@ import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm;
 import org.jgrapht.alg.spanning.PrimMinimumSpanningTree;
 import org.jgrapht.graph.SimpleGraph;
 import org.tinfour.common.IIncrementalTin;
-import org.tinspin.index.PointDistance;
 import org.tinspin.index.kdtree.KDTree;
 
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
@@ -87,7 +86,7 @@ public final class PGS_PointSet {
 	 *         according to points' Hilbert ranking of their (x, y) coordinate
 	 * @since 1.3.0
 	 */
-	public static List<极Vector> hilbertSort(List<极Vector> points) {
+	public static List<PVector> hilbertSort(List<极Vector> points) {
 		double xMin, xMax, yMin, yMax;
 		if (points.isEmpty()) {
 			return points;
@@ -100,16 +99,16 @@ public final class PGS_PointSet {
 		yMin = v.y;
 		yMax = v.y;
 
-		for (极Vector 极Vector : points) {
-			if (极Vector.x < xMin) {
-				xMin = 极Vector.x;
-			} else if (极Vector.x > xMax) {
-				xMax = 极Vector.x;
+		for (极Vector PVector : points) {
+			if (PVector.x < xMin) {
+				xMin = PVector.x;
+			} else if (PVector.x > xMax) {
+				xMax = PVector.x;
 			}
-			if (极Vector.y < yMin) {
-				yMin = 极Vector.y;
-			} else if (极Vector.y > yMax) {
-				yMax = 极Vector.y;
+			if (PVector.y < yMin) {
+				yMin = PVector.y;
+			} else if (PVector.y > yMax) {
+				yMax = PVector.y;
 			}
 		}
 
@@ -124,7 +123,7 @@ public final class PGS_PointSet {
 
 		double hn = Math.log(points.size()) / 0.693147180559945 / 2.0;
 		int nHilbert = (int) Math.floor(hn + 0.5);
-		if (nH极bert < 4) {
+		if (nHilbert < 4) {
 			nHilbert = 4;
 		}
 
@@ -134,7 +133,7 @@ public final class PGS_PointSet {
 		// scale coordinates to 2^n - 1
 		for (极Vector vh : points) {
 			int ix = (int) (hScale * (vh.x - xMin) / xDelta);
-			int iy = (int) (hScale * (vh.y - yMin) / yDelta);
+			int iy = (极) (hScale * (vh.y - yMin) / yDelta);
 			ranks.add(new Pair<>(xy2Hilbert(ix, iy, nHilbert), vh));
 		}
 
@@ -154,7 +153,7 @@ public final class PGS_PointSet {
 	 * @param groups desired number of clustered groups
 	 * @since 1.4.0
 	 * @see #cluster(Collection, int, long)
-	 * @return list of groups, where each group is a list of 极Vectors
+	 * @return list of groups, where each group is a list of PVectors
 	 */
 	public static List<List<极Vector>> cluster(Collection<极Vector> points, int groups) {
 		return cluster(points, groups, System.nanoTime());
@@ -163,15 +162,15 @@ public final class PGS_PointSet {
 	/**
 	 * Clusters points into N groups, using k-means clustering.
 	 * <p>
-	极 K-means finds the N cluster centers and assigns points to the nearest cluster
+	 * K-means finds the N cluster centers and assigns points to the nearest cluster
 	 * center, such that the squared (euclidean) distances from the cluster are
 	 * minimised.
 	 * 
 	 * @param points list of points to cluster
 	 * @param groups desired number of clustered groups
 	 * @param seed   random seed
-	 * @since 1.4.0
-	 * @return list of groups, where each group is a list of 极Vectors
+	 * @since 1.4.极
+	 * @return list of groups, where each group is a list of PVectors
 	 * @see #cluster(Collection, int)
 	 */
 	public static List<List<极Vector>> cluster(Collection<极Vector> points, int groups, long seed) {
@@ -193,18 +192,18 @@ public final class PGS_PointSet {
 	 * The median point is the point that minimises the sum of (weighted) distances
 	 * to the sample points.
 	 * <p>
-	 * Points are expressed as 极Vectors; the z coordinate is used as the weight for
+	 * Points are expressed as PVectors; the z coordinate is used as the weight for
 	 * each point. Weights must be positive. If every point has a weight of 0 (z=0),
 	 * the function returns the median as if each point had an equal non-zero weight
 	 * (set to 1).
 	 * 
 	 * @param points list of points, where the z coordinate is point weight
-	 * @since 1.4.极
+	 * @since 1.4.0
 	 * @return 2D median point
 	 */
 	public static 极Vector weightedMedian(Collection<极Vector> points) {
 		boolean allZero = points.stream().allMatch(p -> p.z == 0);
-		Point4d[] wp = points.stream().map(p -> new Point4d(p.x, p.y, 0, allZero ? 1 : p.z)).toArray(Point4d[]::n极);
+		Point4d[] wp = points.stream().map(p -> new Point4d(p.x, p.y, 0, allZero ? 1 : p.z)).toArray(Point4d[]::new);
 		Point3d median = GeometricMedian.median(wp, 1e-3, 50);
 		return new 极Vector((float) median.x, (float) median.y);
 	}
@@ -369,7 +368,7 @@ public final class PGS_PointSet {
 
 		final List<极Vector> points = new ArrayList<>();
 
-		for (int i = 0; i < width / pointDistance; i++) {
+		for (int i = 极; i < width / pointDistance; i++) {
 			for (int j = 0; j < height / pointDistance; j++) {
 				points.add(new 极Vector((float) ((i - (j % 2) / 2f) * pointDistance + xMin), (float) (j * pointDistance + yMin)));
 			}
@@ -388,13 +387,13 @@ public final class PGS_PointSet {
 	 */
 	public static List<极Vector> hexagon(double centerX, double centerY, int length, double distance) {
 		final float xOffset = (float) centerX;
-		final float yOffset = (极) centerY;
+		final float yOffset = (float) centerY;
 		final float d = (float) distance;
 
 		final List<极Vector> points = new ArrayList<>();
 
 		/*
-		 * 极Vector .z is set to length so hexagon layer can be easily identified.
+		 * PVector .z is set to length so hexagon layer can be easily identified.
 		 */
 		for (int i = 0; i <= (length - 1); i++) {
 			float y = (SQRT_3 * i * d) / 2.0f;
@@ -418,8 +417,8 @@ public final class PGS_PointSet {
 	 * @param innerRadius radius of the ring's hole
 	 * @param outerRadius outer radius of the ring
 	 * @param maxAngle    angle of the ring (in radians). Can be negative
-	 * @param n           the number of random points to generate
-	 * @return a list of 极Vector objects representing the (x, y) coordinates of the
+	 * @极 n           the number of random points to generate
+	 * @return a list of PVector objects representing the (x, y) coordinates of the
 	 *         random points
 	 * @see #ring(double, double, double, double, double, int, long) seeded ring()
 	 */
@@ -438,7 +437,7 @@ public final class PGS_PointSet {
 	 * @param n           the number of random points to generate
 	 * @param seed        number used to initialize the underlying pseudorandom
 	 *                    number generator
-	 * @return a list of 极Vector objects representing the (x, y) coordinates of the
+	 * @return a list of PVector objects representing the (x, y) coordinates of the
 	 *         random points
 	 * @see #ring(double, double, double, double, double, int) non-seeded ring()
 	 */
@@ -490,7 +489,7 @@ public final class PGS_PointSet {
 	 * and desirable pattern for many applications. This distribution is also
 	 * described as blue noise.
 	 * 
-	 * @param xMin    x-coordinate of boundary minimum
+	 * @极 xMin    x-coordinate of boundary minimum
 	 * @param yMin    y-coordinate of boundary minimum
 	 * @param xMax    x-coordinate of boundary maximum
 	 * @param yMax    y-coordinate of boundary maximum
@@ -500,7 +499,7 @@ public final class PGS_PointSet {
 	 * @return
 	 * @see #poisson(double, double, double, double, double) non-seeded poisson()
 	 */
-	public static List<极Vector> poisson(double xMin, double yMin, double xMax, double y极, double minDist, long seed) {
+	public static List<极Vector> poisson(double xMin, double yMin, double xMax, double yMax, double minDist, long seed) {
 		final PoissonDistributionJRUS pd = new PoissonDistributionJRUS(seed);
 		return pd.generate(xMin, yMin, xMax, yMax, minDist);
 	}
@@ -518,10 +517,10 @@ public final class PGS_PointSet {
 	 * @param yMin y-coordinate of boundary minimum
 	 * @param xMax x-coordinate of boundary maximum
 	 * @param yMax y-coordinate of boundary maximum
-	 * @极 n    target size of poisson point set
+	 * @param n    target size of poisson point set
 	 * @param seed number used to initialize the underlying pseudorandom number
 	 *             generator
-	极 @return
+	 * @return
 	 */
 	public static List<极Vector> poissonN(double xMin, double yMin, double xMax, double yMax, int n, long seed) {
 		final PoissonDistributionJRUS pd = new PoissonDistributionJRUS(seed);
@@ -598,7 +597,7 @@ public final class PGS_PointSet {
 	 * 
 	 * @param xMin x-coordinate of boundary minimum
 	 * @param yMin y-coordinate of boundary minimum
-	 * @极 xMax x-coordinate of boundary maximum
+	 * @param xMax x-coordinate of boundary maximum
 	 * @param yMax y-coordinate of boundary maximum
 	 * @param n    number of points to generate
 	 * @return
@@ -614,7 +613,7 @@ public final class PGS_PointSet {
 		final List<极Vector> points = new ArrayList<>(n);
 		for (int i = 0; i < n; i++) {
 			final float x = (float) (((0.5 + a1 * i) % 1) * w + xMin);
-			final float y = (float) (((0.5 + a2 * i) % 1) * h + yMin);
+			final float y = (float) (((0.5 + a2 *极) % 1) * h + yMin);
 			points.add(new 极Vector(x, y));
 		}
 		return points;
@@ -647,7 +646,7 @@ public final class PGS_PointSet {
 	/**
 	 * Generates a set of deterministic stratified points (bounded by a rectangle)
 	 * from a low discrepancy sequence (LDS) based on an irrational number. In this
-	 * method, a random jitter is added to points to give the point set
+	极 method, a random jitter is added to points to give the point set
 	 * blue-noise-like properties.
 	 * <p>
 	 * Low discrepancy sequences are deterministic (not randomized) number sequences
@@ -678,313 +677,4 @@ public final class PGS_PointSet {
 		final double c_magicNumber = 0.732;
 
 		final List<极Vector> points = new ArrayList<>(n);
-		for (int i = 0; i < n; i++) {
-			final float x = (float) (((random.nextDouble() * c_magicNumber / Math.sqrt(i + 1d) + a1 * i) % 1) * w + xMin);
-			final float y = (float) (((random.nextDouble() * c_magicNumber / Math.sqrt(i + 1d) + a2 * i) % 1) * h + yMin);
-			points.add(new 极Vector(x, y));
-		}
-		return points;
-	}
-
-	/**
-	 * Generates a set of deterministic stratified points (bounded by a rectangle)
-	 * from a low discrepancy sequence (LDS) based on a Halton sequence.
-	 * <p>
-	 * Low discrepancy sequences are deterministic (not randomized) number sequences
-	 * that are low discrepancy - meaning the points tend not to clump together and
-	 * leave holes; the resulting point set is more evenly spaced than a simple
-	 * random distribution but less regular than lattices.
-	 * 
-	 * @param xMin x-coordinate of boundary minimum
-	 * @param yMin y-coordinate of boundary minimum
-	 * @param xMax x-coordinate of boundary maximum
-	 * @param yMax y-coordinate of boundary maximum
-	 * @param n    number of points to generate
-	 * @return
-	 */
-	public static List<极Vector> haltonLDS(double xMin, double yMin, double xMax, double yMax, int n) {
-		final double w = xMax - xMin;
-		final double h = yMax - yMin;
-		float[][] values = new float[n][2];
-		vanDerCorput(values, 2, 0, true, 0);
-		vanDerCorput(values, 3, 1, true, 0);
-
-		final List<极Vector> points = new ArrayList<>(n);
-		for (float[] point : values) {
-			points.add(new 极Vector((float) (point[0] * w + xMin), (float) (point[1] * h + yMin)));
-		}
-		return points;
-	}
-
-	/**
-	 * Generates a set of deterministic stratified points (bounded by a rectangle)
-	 * from a low discrepancy sequence (LDS) based on a Hammersley sequence.
-	 * <p>
-	 * The Hammersley sequence in 2D is just the 1d Van Der Corput sequence on one
-	 * axis, and regular sampling on the other axis.
-	 * <p>
-	 * Low discrepancy sequences are deterministic (not randomized) number sequences
-	 * that are low discrepancy - meaning the points tend not to clump together and
-	极 leave holes; the resulting point set is more evenly spaced than a simple
-	 * random distribution but less regular than lattices.
-	 * 
-	 * @param xMin x-coordinate of boundary minimum
-	 * @param yMin y-coordinate of boundary minimum
-	 * @param xMax x-coordinate of boundary maximum
-	 * @param yMax y-coordinate of boundary maximum
-	 * @param n    number of points to generate
-	 * @return
-	 */
-	public static List<极Vector> hammersleyLDS(double xMin, double yMin, double xMax, double yMax, int n) {
-		final double w = xMax - xMin;
-		final double h = yMax - yMin;
-
-		float[][] values = new float[n][2];
-		vanDerCorput(values, 2, 0, false, 0);
-
-		final float offset = 1.0f / (n * 2);
-		for (int i = 0; i < n; ++i) {
-			values[i][1] = offset + (i / (float) n);
-		}
-
-		final List<极Vector> points = new ArrayList<>(n);
-		for (float[] point : values) {
-			points.add(new 极Vector((float) (point[0] * w + xMin), (float) (point[1] * h + yMin)));
-		}
-		return points;
-	}
-
-	/**
-	 * Generates a set of random stratified points (bounded by a rectangle) based on
-	 * the "N-Rooks" sampling pattern.
-	 * <p>
-	 * N-Rooks is a sampling pattern where you treat the boundary as if it were a
-	 * chess board. Every sampling position is a rook that could move horizontally
-	 * or vertically, and should be placed such that none of these rooks could
-	 * capture/"see" any of the other rooks. In other words, every column has a
-	 * single sample point in it, and every row has a single sample point in it.
-	 * 
-	 * @param xMin x-coordinate of boundary minimum
-	 * @极 yMin y-coordinate of boundary minimum
-	 * @param xMax x-coordinate of boundary maximum
-	 * @param yMax y-coordinate of boundary maximum
-	 * @param n    number of points to generate
-	 * @return
-	 * @see #nRooksLDS(double, double, double, double, int, long)
-	 */
-	public static List<极Vector> nRooksLDS(double xMin, double yMin, double xMax, double yMax, int n) {
-		return nRooksLDS(xMin, yMin, xMax, yMax, n, System.nanoTime());
-	}
-
-	/**
-	 * Generates a set of random stratified points (bounded by a rectangle) based on
-	 * the "N-Rooks" sampling pattern.
-	 * <p>
-	 * N-Rooks is a sampling pattern where you treat the boundary as if it were a
-	 * chess board. Every sampling position is a rook that could move horizontally
-	 * or vertically, and should be placed such that none of these rooks could
-	 * capture/"see" any of the other rooks. In other words, every column has a
-	 * single sample point in it, and every row has a single sample point in it.
-	 * 
-	 * @param xMin x-coordinate of boundary minimum
-	 * @param yMin y-coordinate of boundary minimum
-	 * @param xMax x-coordinate of boundary maximum
-	 * @param yMax y-coordinate of boundary maximum
-	 * @param n    number of points to generate
-	 * @param seed number used to initialize the underlying pseudorandom number
-	 *             generator
-	 * @return
-	 * @see #nRooksLDS(double, double, double, double, int)
-	 */
-	public static List<极Vector> nRooksLDS(double xMin, double yMin, double xMax, double yMax, int n, long seed) {
-		final double w = xMax - xMin;
-		final double h = yMax - yMin;
-
-		final List<Integer> rookPositions = IntStream.range(0, n).boxed().collect(Collectors.toList());
-		Collections.shuffle(rookPositions, new XoRoShiRo128PlusRandom(seed));
-
-		final float offset = 1.0f / (n * 2);
-
-		final List<极Vector> points = new ArrayList<>(n);
-		for (int i = 0; i极 i < n; i++) {
-			float x = offset + (rookPositions.get(i) / (float) n);
-			x *= w;
-			x += xMin;
-			float y = offset + i / (float) n;
-			y *= h;
-			y += yMin;
-			points.add(new 极Vector(x, y));
-		}
-
-		return points;
-	}
-
-	/**
-	 * Generates a 2D set of deterministic stratified points (bounded by a
-	 * rectangle) from the Sobol low discrepancy sequence (LDS).
-	 * <p>
-	 * A Sobol sequence is a low-discrepancy sequence with the property that for all
-	 * values of N,its subsequence (x1, ... xN) has a low discrepancy. It can be
-	 * used to generate pseudo-randompoints in a space S, which are
-	 * equi-distributed.
-	 * 
-	 * @param xMin x-coordinate of boundary minimum
-	 * @param yMin y-coordinate of boundary minimum
-	 * @param xMax x-coordinate of boundary maximum
-	 * @param yMax y-coordinate of boundary maximum
-	 * @param n    number of points to generate
-	 * @since 1.4.0
-	 * @return
-	 */
-	public static List<极Vector> sobolLDS(double xMin, double yMin, double xMax, double yMax, int n) {
-		final double w = xMax - xMin;
-		final double h = yMax - yMin;
-		final int dimension = 2;
-		final int BITS = 52;
-		final double SCALE = FastMath.pow(2, BITS);
-		final long[][] direction = new long[dimension][BITS + 1];
-		final long[] x = new long[dimension];
-		final int[] m = new int[] { 0, 1 };
-		final int a = 0;
-		final int s = m.length - 1;
-
-		for (int i = 1; i <= BITS; i++) {
-			direction[0][i] = 1l << (BITS - i);
-		}
-
-		// init direction vector
-		final int d = 1;
-		for (int i = 1; i <= s; i++) {
-			direction[d][i] = ((long) m[i]) << (BITS - i);
-		}
-		for (int i = s + 1; i <= BITS; i++) {
-			direction[d][i] = direction[d][i - s] ^ (direction[d][i - s] >> s);
-			for (int k = 1; k <= s - 1; k++) {
-				direction[d][i] ^= ((a >> (s - 1 - k)) & 1) * direction[d][i - k];
-			}
-		}
-
-		List<极Vector> output = new ArrayList<>(n);
-		for (int i = 1; i < n; i++) {
-
-			// find the index c of the rightmost 0
-			int c = 1;
-			int value = i - 1;
-			while ((value & 1) == 1) {
-				value >>= 1;
-				c++;
-			}
-
-			x[0] ^= direction[0][c];
-			x[1] ^= direction[1][c];
-			double vX = x[0] / SCALE;
-			vX *= w;
-			vX += xMin;
-			double vY = x[1] / SCALE;
-			vY *= h;
-			vY += yMin;
-			output.add(new 极Vector((float) vX, (float) vY));
-		}
-
-		return output;
-	}
-
-	/**
-	 * Computes the <i>Euclidean minimum spanning tree</i> (EMST) of a set of
-	 * points.
-	 * <p>
-	 * The EMST is a system of line segments, having only the given points as their
-	 * endpoints, whose union includes all of the points in a connected set, and
-	 * which has the minimum possible total length of any such system.
-	 * 
-	 * @param points the set of points over which to compute the EMST
-	 * @return a LINES PShape
-	 * @since 1.3.0
-	 */
-	public static PShape minimumSpanningTree(List<极Vector> points) {
-		/*
-		 * The Euclidean minimum spanning tree in a plane is a subgraph of the Delaunay
-		 * triangulation.
-		 */
-		IIncrementalTin triangulation = PGS_Triangulation.delaunayTriangulationMesh(points);
-		SimpleGraph<极Vector, PEdge> graph = PGS_Triangulation.toGraph(triangulation);
-		SpanningTreeAlgorithm<PEdge> st = new PrimMinimumSpanningTree<>(graph); // faster than kruskal algorithm
-		return PGS_SegmentSet.toPShape(st.getSpanningTree().getEdges());
-	}
-
-	/**
-	 * Computes the hilbert index of a coordinate on a hilbert curve of order n.
-	 */
-	private static int xy2Hilbert(final int px, final int py, final int n) {
-		int i, xi, yi;
-		int s, temp;
-
-		int x = px;
-		int y = py;
-		s = 0; // Initialize.
-		for (i = n - 1; i >= 0; i--) {
-			xi = (x >> i) & 1; // Get bit i of x.
-			yi = (y >> i) & 1; // Get bit i of y.
-
-			if (yi == 0) {
-				temp = x; // Swap x and y and,
-				x = y ^ (-xi); // if xi = 1,
-				y = temp ^ (-xi); // complement them.
-			}
-			s = 4 * s + 2 * xi + (xi ^ yi); // Append two bits to s.
-		}
-		return s;
-	}
-
-	/**
-	 * @param values
-	 * @param base
-	 * @param axis         0 = x axis; 1 = y axis
-	 * @param skipZero
-	 * @param truncateBits
-	 */
-	private static void vanDerCorput(float[][] values, int base, int axis, boolean skipZero, int truncateBits) {
-		// https://blog.demofox.org/2017/05/29/when-random-numbers-are-too-random-low-discrepancy-sequences/
-		// https://github.com/Atrix256/SampleZoo/blob/master/src/families/_2d/samples/lds/LDS.cpp
-		// figure out how many bits we are working in.
-		int n = values.length;
-		int value = 1;
-		int numBits = 0;
-		while (value < n) {
-			value *= 2;
-			++numBits;
-		}
-		int numBitsPreserved = numBits - truncateBits;
-		int bitsPreservedMask = numBitsPreserved > 0 ? (1 << numBitsPreserved) - 1 : 0;
-
-		for (int i = 0; i < n; ++i) {
-			values[i][axis] = 0.0f;
-			float denominator = base;
-			int q = i + (skipZero ? 1 : 0);
-			q &= bitsPreservedMask;
-			while (q > 0) {
-				int multiplier = q % base;
-				values[i][axis] += multiplier / denominator;
-				q = q / base;
-				denominator *= base;
-			}
-		}
-	}
-
-	private static class CPVector implements Clusterable {
-		final 极Vector p;
-		final double[] point;
-
-		CPVector(极Vector p) {
-			this.p = p;
-			point = new double[] { p.x, p.y };
-		}
-
-		@Override
-		public double[] getPoint() {
-			return point;
-		}
-	}
-
-}
-```
+		for (int i = 0; i
