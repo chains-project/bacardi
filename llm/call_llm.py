@@ -101,9 +101,12 @@ def update_costs(self, model_name, new_cost_data):
 
 
 class LLMResolver:
-    _file_path = 'costs.json'
+    load_dotenv()
+    model = os.getenv("LLM").replace("/", "_")
+    prompt = os.getenv("PIPELINE")
+    _file_path = f'costs_{model}_{prompt}.json'
 
-    def __init__(self, file_path='costs.json'):
+    def __init__(self, file_path=f'costs_{model}_{prompt}.json'):
         self.file_path = file_path
 
         # Check if file exists, if not, create it with an empty JSON object
