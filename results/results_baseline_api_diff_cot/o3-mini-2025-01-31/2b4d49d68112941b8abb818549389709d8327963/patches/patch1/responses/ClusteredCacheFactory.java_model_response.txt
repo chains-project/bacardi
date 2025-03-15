@@ -21,7 +21,6 @@ import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.EvictionConfig;
-import com.hazelcast.config.MemberAttributeConfig;
 import com.hazelcast.config.MemcacheProtocolConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.config.RestApiConfig;
@@ -42,7 +41,7 @@ import org.jivesoftware.openfire.plugin.util.cluster.HazelcastClusterNodeInfo;
 import org.jivesoftware.util.StringUtils;
 import org.jivesoftware.util.SystemProperty;
 import org.jivesoftware.util.cache.Cache;
-import org.jivesoftware.util.cache.CacheFactory;
+import org.jivesoftware.openfire.util.cache.CacheFactory;
 import org.jivesoftware.util.cache.CacheFactoryStrategy;
 import org.jivesoftware.util.cache.CacheWrapper;
 import org.jivesoftware.util.cache.ClusterTask;
@@ -286,16 +285,17 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         if (staticConfig == null) {
             final MapConfig dynamicConfig = new MapConfig(name);
             dynamicConfig.setTimeToLiveSeconds(hazelcastLifetimeInSeconds);
-            dynamicConfig.getEvictionConfig().setSize(hazelcastMaxCacheSizeInMegaBytes);
-            dynamicConfig.getEvictionConfig().setMaxSizePolicy(EvictionConfig.MaxSizePolicy.USED_HEAP_SIZE);
+            EvictionConfig evictionConfig = new EvictionConfig();
+            evictionConfig.setSize(hazelcastMaxCacheSizeInMegaBytes);
+            evictionConfig.setMaximumSizePolicy(EvictionConfig.MaxSizePolicy.USED_HEAP_SIZE);
+            dynamicConfig.setEvictionConfig(evictionConfig);
             logger.debug("Creating dynamic map config for cache={}, dynamicConfig={}", name, dynamicConfig);
             hazelcast.getConfig().addMapConfig(dynamicConfig);
         } else {
             logger.debug("Static configuration already exists for cache={}, staticConfig={}", name, staticConfig);
         }
         // TODO: Better genericize this method in CacheFactoryStrategy so we can stop suppressing this warning
-        @SuppressWarnings("unchecked")
-        final ClusteredCache clusteredCache = new ClusteredCache(name, hazelcast.getMap(name));
+        @SuppressWarnings("unchecked") final ClusteredCache clusteredCache = new ClusteredCache(name, hazelcast.getMap(name));
         return clusteredCache;
     }
 
@@ -377,6 +377,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
                 members.add(member);
             }
         }
+
 
         if (!members.isEmpty()) {
             // Asynchronously execute the task on the other cluster members
@@ -548,8 +549,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
             cache = ((CacheWrapper) cache).getWrappedCache();
         }
         // TODO: Update CacheFactoryStrategy so the signature is getLock(final Serializable key, Cache<Serializable, Serializable> cache)
-        @SuppressWarnings("unchecked")
-        final ClusterLock clusterLock = new ClusterLock((Serializable) key, (ClusteredCache<Serializable, ?>) cache);
+        @SuppressWarnings("unchecked") final ClusterLock clusterLock = new ClusterLock((Serializable) key, (ClusteredCache<Serializable, ?>) cache);
         return clusterLock;
     }
 
@@ -656,8 +656,8 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
     }
 
     public static NodeID getNodeID(final Member member) {
-        String nodeIdAttribute = (String) member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE);
-        return NodeID.getInstance(nodeIdAttribute.getBytes(StandardCharsets.UTF_8));
+        String nodeIdStr = (String) member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE);
+        return NodeID.getInstance(nodeIdStr.getBytes(StandardCharsets.UTF_8));
     }
 
     static void fireLeftClusterAndWaitToComplete(final Duration timeout) {

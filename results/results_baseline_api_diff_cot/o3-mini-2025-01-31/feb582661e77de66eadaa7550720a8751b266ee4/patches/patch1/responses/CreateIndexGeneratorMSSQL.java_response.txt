@@ -32,17 +32,18 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
   private Sql[] generateMSSQLSql(CreateIndexStatementMSSQL statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
     StringBuilder builder = new StringBuilder();
 
+    // Basically copied from liquibase.sqlgenerator.core.CreateIndexGenerator
     builder.append("CREATE ");
     if (statement.isUnique() != null && statement.isUnique()) {
       builder.append("UNIQUE ");
     }
     
     if (statement.isClustered() != null) {
-        if (statement.isClustered()) {
-            builder.append("CLUSTERED ");
-        } else {
-            builder.append("NONCLUSTERED ");
-        }
+      if (statement.isClustered()) {
+        builder.append("CLUSTERED ");
+      } else {
+        builder.append("NONCLUSTERED ");
+      }
     }
     
     builder.append("INDEX ");
@@ -58,7 +59,7 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
       AddColumnConfig column = iterator.next();
       builder.append(database.escapeColumnName(statement.getTableCatalogName(), statement.getTableSchemaName(), statement.getTableName(), column.getName()));
       if (column.getDescending() != null && column.getDescending()) {
-          builder.append(" DESC");
+        builder.append(" DESC");
       }
       if (iterator.hasNext()) {
         builder.append(", ");

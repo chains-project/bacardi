@@ -83,7 +83,8 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
     }
 
     @Override
-    public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode) {
+    public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode)
+    {
         final EntryListener<K, V> listener = new EntryListener<K, V>() {
             @Override
             public void mapEvicted(MapEvent event) {
@@ -324,7 +325,8 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
      */
     protected void checkForPluginClassLoader(final Object o) {
         if (o != null && o.getClass().getClassLoader() instanceof PluginClassLoader
-            && lastPluginClassLoaderWarning.isBefore(Instant.now().minus(pluginClassLoaderWarningSupression))) {
+            && lastPluginClassLoaderWarning.isBefore(Instant.now().minus(pluginClassLoaderWarningSupression)) )
+        {
             // Try to determine what plugin loaded the offending class.
             String pluginName = null;
             try {

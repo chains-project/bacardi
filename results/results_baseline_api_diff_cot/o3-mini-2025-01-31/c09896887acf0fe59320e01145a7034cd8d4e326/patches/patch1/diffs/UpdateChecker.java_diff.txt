@@ -1,6 +1,5 @@
-239c239,241
+239c239,240
 <             GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).status;
 ---
->             // Use the getter method getStatus() instead of directly accessing the private field 'status'
 >             GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
 >             GHCompare.Status status = compare.getStatus();

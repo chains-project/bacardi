@@ -1,4 +1,4 @@
-24,33c24,34
+24,33c24,33
 < import org.assertj.core.internal.bytebuddy.ByteBuddy;
 < import org.assertj.core.internal.bytebuddy.TypeCache;
 < import org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey;
@@ -11,41 +11,40 @@
 < import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This;
 ---
 > import net.bytebuddy.ByteBuddy;
-> import net.bytebuddy.NamingStrategy;
 > import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 > import net.bytebuddy.dynamic.scaffold.TypeValidation;
 > import net.bytebuddy.implementation.Implementation;
 > import net.bytebuddy.implementation.MethodDelegation;
-> import net.bytebuddy.matcher.ElementMatchers;
+> import net.bytebuddy.implementation.auxiliary.AuxiliaryType;
 > import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 > import net.bytebuddy.implementation.bind.annotation.SuperCall;
 > import net.bytebuddy.implementation.bind.annotation.This;
-> import org.assertj.core.util.Arrays;
-37a39
-> import java.util.Map.Entry;
-38a41,42
-> import java.util.Map;
+> import net.bytebuddy.matcher.ElementMatchers;
+34a35
+> import org.assertj.vavr.api.ClassLoadingStrategyFactory;
+38a40,41
 > import java.util.concurrent.ConcurrentHashMap;
-40c44
+> import java.util.concurrent.ConcurrentMap;
+40d42
 < import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any;
----
-> import static net.bytebuddy.matcher.ElementMatchers.any;
-50,51c54,56
+50c52,53
 <     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(TypeValidation.DISABLED)
-<             .with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
 ---
 >     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy()
 >             .with(TypeValidation.DISABLED)
->             .with(new NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
-55c60,61
+55c58,59
 <     private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
 ---
->     // Replace the removed TypeCache with a simple concurrent hash map cache.
->     private static final java.util.Map<Class<?>, Class<?>> CACHE = new ConcurrentHashMap<>();
-215,218c221
+>     // Replacing the removed TypeCache from the dependency with a simple concurrent map cache.
+>     private static final ConcurrentMap<Class<?>, Class<?>> CACHE = new ConcurrentHashMap<>();
+215,218c219
 <         SimpleKey cacheKey = new SimpleKey(assertClass);
 <         return (Class<ASSERTION>) CACHE.findOrInsert(VavrAssumptions.class.getClassLoader(),
 <                 cacheKey,
 <                 () -> generateAssumptionClass(assertClass));
 ---
->         return (Class<? extends ASSERTION>) CACHE.computeIfAbsent(assertClass, k -> generateAssumptionClass(assertClass));
+>         return (Class<ASSERTION>) CACHE.computeIfAbsent(assertClass, key -> generateAssumptionClass(assertClass));
+223c224
+<                 .method(any())
+---
+>                 .method(ElementMatchers.any())

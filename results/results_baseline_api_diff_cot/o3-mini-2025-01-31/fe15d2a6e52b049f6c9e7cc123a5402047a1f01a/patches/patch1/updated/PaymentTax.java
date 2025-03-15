@@ -17,7 +17,6 @@ import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
-
 /**
  * <p>Java class for PaymentTax complex type.
  * 
@@ -40,7 +39,6 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)

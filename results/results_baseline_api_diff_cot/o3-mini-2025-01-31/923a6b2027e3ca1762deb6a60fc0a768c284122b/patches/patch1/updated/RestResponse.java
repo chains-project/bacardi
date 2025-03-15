@@ -46,8 +46,8 @@ import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
 import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.core.IsNull.notNullValue;
-import static org.hamcrest.collection.IsEmptyCollection.empty;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.collection.IsEmptyIterable.emptyIterable;
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.hasItems;
 
 /**
@@ -246,7 +246,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            not(empty())
+            not(emptyIterable())
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -327,7 +327,6 @@ public final class RestResponse extends AbstractResponse {
             this.status = sts;
         }
 
-        @Override
         public boolean matches(final Object resp) {
             return Response.class.cast(resp).status() == this.status;
         }

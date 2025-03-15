@@ -117,7 +117,9 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
             constructor.addTypeDescription(new TypeDescription(DoubleSum.class, "!doubleSum"));
             constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
             Yaml yaml = new Yaml(constructor);
-            yaml.loadAs("nodeList:\n" + config, InstanceHolder.class).getNodeList().forEach(c::addNode);
+            yaml.loadAs("nodeList:\n" + config, InstanceHolder.class)
+                    .getNodeList()
+                    .forEach(c::addNode);
         });
         DoubleSum aggregator = getField("aggregator");
         StringHandler handlerC = getField("stringHandler_C");
@@ -223,6 +225,7 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
 
         @OnParentUpdate
         public void doubleSupplierUpdated(DoubleSupplier doubleSupplier) {
+
         }
 
         @OnTrigger

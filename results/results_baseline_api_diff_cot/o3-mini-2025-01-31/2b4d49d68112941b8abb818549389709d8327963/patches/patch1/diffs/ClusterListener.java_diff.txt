@@ -4,46 +4,59 @@
 ---
 > import com.hazelcast.cluster.Cluster;
 > import com.hazelcast.map.listener.EntryListener;
-22,26c22,25
+21,26c21,24
+< import com.hazelcast.core.LifecycleEvent.LifecycleState;
 < import com.hazelcast.core.LifecycleListener;
 < import com.hazelcast.core.Member;
 < import com.hazelcast.core.MemberAttributeEvent;
 < import com.hazelcast.core.MembershipEvent;
 < import com.hazelcast.core.MembershipListener;
 ---
+> import com.hazelcast.cluster.Member;
 > import com.hazelcast.cluster.MembershipEvent;
 > import com.hazelcast.cluster.MembershipListener;
-> import com.hazelcast.cluster.Member;
 > import com.hazelcast.cluster.MemberAttributeEvent;
-48,52c47
-< /**
-<  * ClusterListener reacts to membership changes in the cluster. It takes care of cleaning up the state
-<  * of the routing table and the sessions within it when a node which manages those sessions goes down.
-<  */
+50a49,52
+>  *
+>  * Note: The implementation previously also handled Hazelcast lifecycle events by implementing LifecycleListener.
+>  * With the new Hazelcast API, the LifecycleListener has been removed.  The functionality provided
+>  * by the stateChanged(LifecycleEvent event) method remains in the class, but it is no longer an override.
+52c54
 < public class ClusterListener implements MembershipListener, LifecycleListener {
 ---
 > public class ClusterListener implements MembershipListener {
-76d70
+76d77
 < 
-164d157
+164d164
 < 
-223d215
-< 
-256c248,256
-<     @SuppressWarnings("WeakerAccess")
+198c198
+<      *
 ---
->     @Override
+>      * <p>
+256,258c256,261
+<     @SuppressWarnings("WeakerAccess")
+<     public List<ClusterNodeInfo> getClusterNodesInfo() {
+<         return new ArrayList<>(clusterNodesInfo.values());
+---
 >     public void memberAttributeChanged(final MemberAttributeEvent event) {
 >         logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
 >         isSenior = isSeniorClusterMember();
 >         final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));
 >         clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(event.getMember()),
 >                 new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));
->     }
-> 
-261d260
+261c264
 <     @Override
-270,278d268
+---
+>     // Removed the @Override annotation because LifecycleListener is no longer part of the Hazelcast API.
+263c266
+<         if (event.getState().equals(LifecycleState.SHUTDOWN)) {
+---
+>         if (event.getState().equals(LifecycleEvent.LifecycleState.SHUTDOWN)) {
+265c268
+<         } else if (event.getState().equals(LifecycleState.STARTED)) {
+---
+>         } else if (event.getState().equals(LifecycleEvent.LifecycleState.STARTED)) {
+270,276c273,274
 <     @Override
 <     public void memberAttributeChanged(final MemberAttributeEvent event) {
 <         logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
@@ -51,5 +64,6 @@
 <         final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));
 <         clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(event.getMember()),
 <                 new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));
-<     }
-< 
+---
+>     public List<ClusterNodeInfo> getClusterNodesInfo() {
+>         return new ArrayList<>(clusterNodesInfo.values());

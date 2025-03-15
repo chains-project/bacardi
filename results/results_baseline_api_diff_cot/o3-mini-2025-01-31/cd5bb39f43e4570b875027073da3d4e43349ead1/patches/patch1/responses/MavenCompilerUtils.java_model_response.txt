@@ -1,20 +1,18 @@
 <repair_strategy>
-1. The API change indicates that the class Xpp3Dom has been removed from org.codehaus.plexus.util.xml and its associated methods (getValue(), getChild(String), etc.) have been removed. 
-2. In previous versions the client code expected configuration objects to be instances of Xpp3Dom from that package.
-3. With the updated dependency, the functionality provided by the Xpp3Dom class has been moved to an alternative package. In Apache Maven projects, the class is now available as org.apache.maven.shared.utils.xml.Xpp3Dom.
-4. We must update our import so that our code uses the new Xpp3Dom while not changing any method’s signature or functionality.
-5. The minimal changes are to update the import statement. All methods using Xpp3Dom (like getChildren(), getChild(), and getValue()) remain unchanged.
-6. This fix is local and should not affect other methods.
-7. The resulting class is complete and compilable.
-8. Finally, ensure that the dependency providing org.apache.maven.shared.utils.xml.Xpp3Dom is added to the build.
+1. The error shows that the class Xpp3Dom from the package org.codehaus.plexus.util.xml is no longer present, and its related methods (getValue, getChild, and getChild(int)) have been removed.
+2. In the old version the code assumed that the plugin configuration was represented as a Plexus Xpp3Dom with helper methods to extract child nodes and values.
+3. The update in the dependency requires that we stop using the removed class and methods. Instead, the recommended replacement is to use the Xpp3Dom implementation provided in the Maven Shared Utils library (org.apache.maven.shared.utils.xml.Xpp3Dom) which continues to provide similar functionality.
+4. The client code’s method signatures cannot change. Fortunately, all usages of Xpp3Dom in the code (casting configuration, traversing children, and extracting text value) are identical in spirit to the ones provided by the Maven Shared Utils version.
+5. Therefore, the minimal change needed is to update the import statement to use org.apache.maven.shared.utils.xml.Xpp3Dom rather than the removed org.codehaus.plexus.util.xml.Xpp3Dom.
+6. This change satisfies the constraints and avoids any side effects beyond what is needed. The remainder of the code and its behavior remain unchanged.
+7. Since the new Xpp3Dom supports getChild(String), getChildren(String) and getValue() methods, no further modifications are necessary.
 </repair_strategy>
 
-Below is the complete, fixed class:
+Below is the complete fixed class:
 
 --------------------------------------------------
-
-```
-/*
+ 
+/* 
  * Copyright 2019 Danny van Heumen
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -117,4 +115,7 @@ public final class MavenCompilerUtils {
         return child == null ? "" : child.getValue();
     }
 }
-```
+
+--------------------------------------------------
+
+This fix updates the dependency import so that the class compiles under the new API, while leaving the public method signatures intact.

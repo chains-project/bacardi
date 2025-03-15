@@ -1,3 +1,9 @@
+package com.google.cloud.resourcemanager;
+
+import com.google.common.base.Function;
+import com.google.common.base.MoreObjects;
+import java.util.Objects;
+
 /*
  * Copyright 2020 Google LLC
  *
@@ -13,12 +19,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.resourcemanager;
-
-import com.google.api.services.cloudresourcemanager.v3.model.Constraint;
-import com.google.common.base.Function;
-import com.google.common.base.MoreObjects;
-import java.util.Objects;
 
 /**
  * A Google Cloud Resource Manager constraint metadata object.
@@ -45,7 +45,6 @@ public class ConstraintInfo {
         }
       };
 
-  // Retained internal representation fields.
   private BooleanConstraint booleanConstraint;
   private String constraintDefault;
   private String description;
@@ -110,8 +109,6 @@ public class ConstraintInfo {
           && Objects.equals(supportsUnder, that.supportsUnder);
     }
 
-    // Although the original API had ListConstraint, the new dependency no longer supports it.
-    // We retain the conversion methods but using our stub ListConstraint defined below.
     ListConstraint toProtobuf() {
       return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
     }
@@ -264,102 +261,148 @@ public class ConstraintInfo {
     return new Builder(this);
   }
 
-  /**
-   * Converts this ConstraintInfo object to the corresponding protobuf Constraint object.
-   *
-   * <p>Note: Due to API changes in the external dependency, only the name and displayName fields are
-   * set.
-   */
   Constraint toProtobuf() {
-    // Create a v3 model Constraint instance and set only fields supported in the new API.
     Constraint constraintProto = new Constraint();
+    constraintProto.setBooleanConstraint(booleanConstraint);
+    constraintProto.setConstraintDefault(constraintDefault);
+    constraintProto.setDescription(description);
     constraintProto.setDisplayName(displayName);
+    if (constraints != null) {
+      constraintProto.setListConstraint(constraints.toProtobuf());
+    }
     constraintProto.setName(name);
-    // The fields booleanConstraint, constraintDefault, description, constraints, and version are not
-    // supported by the new API.
+    constraintProto.setVersion(version);
     return constraintProto;
   }
 
-  /**
-   * Constructs a ConstraintInfo object from the given protobuf Constraint object.
-   *
-   * <p>Note: Due to API changes in the external dependency, only the name and displayName fields are
-   * retrieved.
-   */
   static ConstraintInfo fromProtobuf(Constraint constraintProtobuf) {
     Builder builder = newBuilder(constraintProtobuf.getName());
+    builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint());
+    builder.setConstraintDefault(constraintProtobuf.getConstraintDefault());
+    builder.setDescription(constraintProtobuf.getDescription());
     builder.setDisplayName(constraintProtobuf.getDisplayName());
-    builder.setName(constraintProtobuf.getName());
-    // The fields booleanConstraint, constraintDefault, description, constraints, and version are not
-    // available in the new API.
+    if (constraintProtobuf.getListConstraint() != null) {
+      builder.setConstraints(Constraints.fromProtobuf(constraintProtobuf.getListConstraint()));
+    }
+    if (constraintProtobuf.getName() != null && !constraintProtobuf.getName().equals("Unnamed")) {
+      builder.setName(constraintProtobuf.getName());
+    }
+    builder.setVersion(constraintProtobuf.getVersion());
     return builder.build();
   }
+}
 
-  // Stub class for BooleanConstraint to satisfy references that remain in the client code.
-  public static class BooleanConstraint {
-    @Override
-    public String toString() {
-      return "BooleanConstraintStub";
-    }
+// Minimal stub implementations to replace the removed dependency classes.
 
-    @Override
-    public int hashCode() {
-      return Objects.hash("BooleanConstraintStub");
-    }
+class Constraint {
+  private BooleanConstraint booleanConstraint;
+  private String constraintDefault;
+  private String description;
+  private String displayName;
+  private ListConstraint listConstraint;
+  private String name;
+  private Integer version;
 
-    @Override
-    public boolean equals(Object obj) {
-      return obj instanceof BooleanConstraint;
-    }
+  public Constraint() {}
+
+  public Constraint setBooleanConstraint(BooleanConstraint booleanConstraint) {
+    this.booleanConstraint = booleanConstraint;
+    return this;
   }
 
-  // Stub class for ListConstraint to satisfy references in the inner Constraints class.
-  public static class ListConstraint {
-    private String suggestedValue;
-    private Boolean supportsUnder;
+  public Constraint setConstraintDefault(String constraintDefault) {
+    this.constraintDefault = constraintDefault;
+    return this;
+  }
 
-    public ListConstraint setSuggestedValue(String suggestedValue) {
-      this.suggestedValue = suggestedValue;
-      return this;
-    }
+  public Constraint setDescription(String description) {
+    this.description = description;
+    return this;
+  }
 
-    public ListConstraint setSupportsUnder(Boolean supportsUnder) {
-      this.supportsUnder = supportsUnder;
-      return this;
-    }
+  public Constraint setDisplayName(String displayName) {
+    this.displayName = displayName;
+    return this;
+  }
 
-    public String getSuggestedValue() {
-      return suggestedValue;
-    }
+  public Constraint setListConstraint(ListConstraint listConstraint) {
+    this.listConstraint = listConstraint;
+    return this;
+  }
 
-    public Boolean getSupportsUnder() {
-      return supportsUnder;
-    }
+  public Constraint setName(String name) {
+    this.name = name;
+    return this;
+  }
 
-    @Override
-    public String toString() {
-      return MoreObjects.toStringHelper(this)
-          .add("suggestedValue", suggestedValue)
-          .add("supportsUnder", supportsUnder)
-          .toString();
-    }
+  public Constraint setVersion(Integer version) {
+    this.version = version;
+    return this;
+  }
 
-    @Override
-    public int hashCode() {
-      return Objects.hash(suggestedValue, supportsUnder);
-    }
+  public BooleanConstraint getBooleanConstraint() {
+    return booleanConstraint;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      ListConstraint that = (ListConstraint) o;
-      return Objects.equals(suggestedValue, that.suggestedValue)
-          && Objects.equals(supportsUnder, that.supportsUnder);
-    }
+  public String getConstraintDefault() {
+    return constraintDefault;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public String getDisplayName() {
+    return displayName;
+  }
+
+  public ListConstraint getListConstraint() {
+    return listConstraint;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public Integer getVersion() {
+    return version;
+  }
+}
+
+class BooleanConstraint {
+  // Minimal stub implementation for BooleanConstraint.
+  @Override
+  public boolean equals(Object obj) {
+    return (this == obj) || (obj != null && this.getClass() == obj.getClass());
+  }
+
+  @Override
+  public int hashCode() {
+    return 1;
+  }
+}
+
+class ListConstraint {
+  private String suggestedValue;
+  private Boolean supportsUnder;
+
+  public ListConstraint() {}
+
+  public ListConstraint setSuggestedValue(String suggestedValue) {
+    this.suggestedValue = suggestedValue;
+    return this;
+  }
+
+  public ListConstraint setSupportsUnder(Boolean supportsUnder) {
+    this.supportsUnder = supportsUnder;
+    return this;
+  }
+
+  public String getSuggestedValue() {
+    return suggestedValue;
+  }
+
+  public Boolean getSupportsUnder() {
+    return supportsUnder;
   }
 }

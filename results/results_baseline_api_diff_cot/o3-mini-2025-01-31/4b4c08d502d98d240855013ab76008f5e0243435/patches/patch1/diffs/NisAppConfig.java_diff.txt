@@ -1,25 +1,25 @@
 3a4,5
 > import org.flywaydb.core.api.Location;
 > import org.flywaydb.core.api.configuration.ClassicConfiguration;
-108,112c110,124
+41a44
+> import java.util.Arrays;
+108,113c111,122
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
 <                 flyway.setLocations(prop.getProperty("flyway.locations"));
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+<                 return flyway;
 ---
->                 final ClassicConfiguration config = new ClassicConfiguration();
->                 config.setDataSource(this.dataSource());
->                 config.setClassLoader(NisAppConfig.class.getClassLoader());
->                 String locationsProperty = prop.getProperty("flyway.locations");
->                 if (locationsProperty != null) {
->                         // Split locations by comma and create a Location array
->                         String[] locationStrings = locationsProperty.split(",");
->                         Location[] locations = new Location[locationStrings.length];
->                         for (int i = 0; i < locationStrings.length; i++) {
->                                 locations[i] = new Location(locationStrings[i].trim());
->                         }
->                         config.setLocations(locations);
->                 }
->                 config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
->                 final Flyway flyway = new Flyway(config);
+>                 final ClassicConfiguration configuration = new ClassicConfiguration();
+>                 configuration.setDataSource(this.dataSource());
+>                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+>                 String locationsProp = prop.getProperty("flyway.locations");
+>                 String[] locationsArr = locationsProp.split(",");
+>                 Location[] locations = Arrays.stream(locationsArr)
+>                                 .map(String::trim)
+>                                 .map(Location::new)
+>                                 .toArray(Location[]::new);
+>                 configuration.setLocations(locations);
+>                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 return new Flyway(configuration);

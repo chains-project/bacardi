@@ -9,7 +9,7 @@ import liquibase.sqlgenerator.SqlGeneratorChain;
 import liquibase.sqlgenerator.core.AddPrimaryKeyGenerator;
 import liquibase.statement.core.AddPrimaryKeyStatement;
 import liquibase.structure.core.Index;
-import liquibase.util.StringUtil;
+import liquibase.repackaged.org.apache.commons.lang3.StringUtils;
 
 public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
   @Override
@@ -52,9 +52,11 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
   private Sql[] generateMSSQLSql(AddPrimaryKeyStatementMSSQL statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
     String sql;
     if (statement.getConstraintName() == null) {
-      sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) + " ADD PRIMARY KEY (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
+      sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) 
+            + " ADD PRIMARY KEY (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
     } else {
-      sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) + " ADD CONSTRAINT " + database.escapeConstraintName(statement.getConstraintName()) + " PRIMARY KEY";
+      sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) 
+            + " ADD CONSTRAINT " + database.escapeConstraintName(statement.getConstraintName()) + " PRIMARY KEY";
       if (!statement.isClustered()) {
         sql += " NONCLUSTERED";
       }
@@ -64,15 +66,21 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
     // the only new feature being added is support for fillFactor
     sql += " WITH (FILLFACTOR = " + statement.getFillFactor() + ")";
 
-    if (StringUtil.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
+    if (StringUtils.trimToNull(statement.getTablespace()) != null && database.supportsTablespaces()) {
       sql += " ON " + statement.getTablespace();
     }
 
     if (statement.getForIndexName() != null) {
-      sql += " USING INDEX " + database.escapeObjectName(statement.getForIndexCatalogName(), statement.getForIndexSchemaName(), statement.getForIndexName(), Index.class);
+      sql += " USING INDEX " + database.escapeObjectName(
+          statement.getForIndexCatalogName(), 
+          statement.getForIndexSchemaName(), 
+          statement.getForIndexName(), 
+          Index.class);
     }
 
-    return new Sql[] { new UnparsedSql(sql, getAffectedPrimaryKey(statement)) };
+    return new Sql[] {
+        new UnparsedSql(sql, getAffectedPrimaryKey(statement))
+    };
   }
 
   @Override

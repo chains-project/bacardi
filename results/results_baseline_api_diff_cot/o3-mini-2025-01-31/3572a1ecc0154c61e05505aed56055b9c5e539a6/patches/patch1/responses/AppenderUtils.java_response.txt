@@ -28,7 +28,7 @@ import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TIOStreamTransport;
-import org.apache.thrift.transport.TTransport;
+// Updated import for TFastFramedTransport from the new layered package.
 import org.apache.thrift.transport.layered.TFastFramedTransport;
 
 import java.io.File;
@@ -50,15 +50,14 @@ public class AppenderUtils {
    */
   public static class LogMessageEncoder extends EncoderBase<LogMessage> {
 
-    private TTransport framedTransport;
+    private TFastFramedTransport framedTransport;
     private TProtocol protocol;
     private OutputStream os;
 
     @Override
     public void init(OutputStream os) {
       this.os = os;
-      // Use the TFastFramedTransport to be compatible with singer_thrift
-      // log.
+      // Use the TFastFramedTransport from the new layered API.
       final int bufferCapacity = 10;
       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity);
       protocol = new TBinaryProtocol(framedTransport);
@@ -88,7 +87,6 @@ public class AppenderUtils {
    * @param topic the topic name for the current appender.
    * @param rotateThresholdKBytes threshold in kilobytes to rotate after.
    * @param context the logback context.
-   * @param maxRetentionHours the max retention in hours to keep old log files.
    */
   public static Appender<LogMessage> createFileRollingThriftAppender(
       File basePath,

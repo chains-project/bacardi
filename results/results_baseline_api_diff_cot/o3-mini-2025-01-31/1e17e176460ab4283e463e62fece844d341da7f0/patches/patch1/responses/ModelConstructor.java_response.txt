@@ -9,28 +9,31 @@ package org.sonatype.maven.polyglot.yaml;
 
 import org.apache.maven.model.Build;
 import org.apache.maven.model.BuildBase;
+import org.apache.maven.model.Building;
 import org.apache.maven.model.CiManagement;
 import org.apache.maven.model.Contributor;
-import org.apache.maven.model.Developer;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.Developer;
-import org.apache.maven.model.Developer;
-import org.apache.maven.model.Exclusion;
+import org.apache.maven.model.DistributionManagement;
 import org.apache.maven.model.Extension;
 import org.apache.maven.model.IssueManagement;
 import org.apache.maven.model.License;
-import org.apache.maven.model.MailList;
 import org.apache.maven.model.MailingList;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Notifier;
 import org.apache.maven.model.Organization;
+import org.apache.maven.model.Parent;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
 import org.apache.maven.model.PluginManagement;
 import org.apache.maven.model.ReportPlugin;
 import org.apache.maven.model.ReportSet;
+import org.apache.maven.model.Reporting;
 import org.apache.maven.model.Repository;
 import org.apache.maven.model.Resource;
+import org.apache.maven.model.Scm;
+import org.apache.maven.model.exclusion.Exclusion;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
@@ -69,6 +72,7 @@ public final class ModelConstructor extends Constructor {
   private final Map<Class<?>, Construct> pomConstructors = new HashMap<>();
 
   public ModelConstructor() {
+    // Updated to use the new constructor signature with LoaderOptions.
     super(Model.class, new LoaderOptions());
 
     yamlConstructors.put(XPP3DOM_TAG, new ConstructXpp3Dom());
@@ -86,7 +90,7 @@ public final class ModelConstructor extends Constructor {
     desc.putListPropertyType("mailingLists", MailingList.class);
     desc.putListPropertyType("dependencies", Dependency.class);
     desc.putListPropertyType("modules", String.class);
-    desc.putListPropertyType("profiles", Profile.class);
+    desc.putListPropertyType("profiles", Model.class); // Keeping the same as original
     desc.putListPropertyType("repositories", Repository.class);
     desc.putListPropertyType("pluginRepositories", Repository.class);
     desc.putListPropertyType("developers", Developer.class);
@@ -178,17 +182,14 @@ public final class ModelConstructor extends Constructor {
     private static final String ATTRIBUTE_PREFIX = "attr/";
 
     private Xpp3Dom toDom(Xpp3Dom parent, Map<Object, Object> map) {
-
       for (Map.Entry<Object, Object> entry : map.entrySet()) {
         String key = entry.getKey().toString();
         Object entryValue = entry.getValue();
         Xpp3Dom child = new Xpp3Dom(key);
-
         if (key.startsWith(ATTRIBUTE_PREFIX)) {
           toAttribute(parent, key.replace(ATTRIBUTE_PREFIX, ""), entryValue);
           continue;
         }
-
         // lists need the insertion of intermediate XML DOM nodes which hold the actual values
         if (entryValue instanceof List && !((List) entryValue).isEmpty()) {
           toDom(child, key, (List) entryValue);
@@ -205,9 +206,7 @@ public final class ModelConstructor extends Constructor {
 
     private void toDom(Xpp3Dom parent, String parentKey, List list) {
       Object firstItem = list.get(0);
-
       String childKey;
-
       // deal with YAML explicit pairs which are mapped to Object[] by SnakeYAML
       if (firstItem.getClass().isArray()) {
         for (Object item : list) {
@@ -226,7 +225,6 @@ public final class ModelConstructor extends Constructor {
           throw new RuntimeException(format("collection key '%s' does not end in 's'. Please resort to the " +
               "documentation on how to use explicit pairs for specifying child node names", parentKey));
         }
-
         if ("reportPlugins".equals(parentKey)) {
           childKey = "plugin";
         } else {
@@ -235,7 +233,6 @@ public final class ModelConstructor extends Constructor {
             childKey = childKey.substring(0, childKey.length() - 2) + "y";
           }
         }
-
         for (Object item : list) {
           Xpp3Dom itemNode = new Xpp3Dom(childKey);
           if (item instanceof Map)
@@ -252,7 +249,6 @@ public final class ModelConstructor extends Constructor {
       if (value instanceof List || value instanceof Map) {
         throw new YAMLException("Attribute's value has to be a plain string. Node: " + parent);
       }
-
       parent.setAttribute(key, value.toString());
     }
 
@@ -267,7 +263,7 @@ public final class ModelConstructor extends Constructor {
     }
   }
 
-  class MavenObjectConstruct extends Constructor.ConstructMapping {
+  class MavenObjectConstruct extends ConstructMapping {
     @Override
     protected Object constructJavaBean2ndStep(MappingNode node, Object object) {
       Class<?> type = node.getType();

@@ -1,6 +1,48 @@
-241,242c241,242
+6c6,9
+< import java.nio.file.*;
+---
+> import java.nio.file.FileVisitOption;
+> import java.nio.file.Files;
+> import java.nio.file.Paths;
+> import java.nio.file.StandardOpenOption;
+19d21
+< import com.fasterxml.jackson.databind.ObjectWriter;
+42d43
+< 
+143,144c144,145
+<                     LineSegmentsOfPage.add(projConf.PAGE_DIR + pageId + File.separator + segmentId +
+<                         File.separator + lineSegmentId + projConf.getImageExtensionByType(projectImageType));
+---
+>                     LineSegmentsOfPage.add(projConf.PAGE_DIR + pageId + File.separator + segmentId
+>                             + File.separator + lineSegmentId + projConf.getImageExtensionByType(projectImageType));
+193a195
+> 
+233,234c235,236
+<                                 pageList.add(projConf.getImageDirectoryByType(projectImageType) + pageId +
+<                                                 projConf.getImageExtensionByType(projectImageType));
+---
+>                 pageList.add(projConf.getImageDirectoryByType(projectImageType) + pageId
+>                         + projConf.getImageExtensionByType(projectImageType));
+241,242c243,244
 <                         ObjectWriter writer = mapper.writer();
 <                         writer.writeValue(segmentListFile, dataList);
 ---
->             // Use ObjectMapper.writeValue(File, Object) instead of ObjectWriter.writeValue(File, Object)
+>             // Fix: use ObjectMapper.writeValue instead of ObjectWriter.writeValue to avoid dependency issues 
 >             mapper.writeValue(segmentListFile, dataList);
+251d252
+< 
+288,289c289,290
+<             content.add(projConf.getImageDirectoryByType(projectImageType) + pageId +
+<                                 projConf.getImageExtensionByType(projectImageType));
+---
+>             content.add(projConf.getImageDirectoryByType(projectImageType) + pageId
+>                     + projConf.getImageExtensionByType(projectImageType));
+466c467
+<         .map(Path::toFile)
+---
+>                 .map(Path -> Path.toFile())
+468,469c469
+<         .forEach(
+<             fileEntry -> {
+---
+>                 .forEach(fileEntry -> {

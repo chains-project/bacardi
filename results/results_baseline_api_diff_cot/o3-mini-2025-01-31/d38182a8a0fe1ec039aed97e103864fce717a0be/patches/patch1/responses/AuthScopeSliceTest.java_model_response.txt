@@ -1,3 +1,11 @@
+<repair_strategy>
+1. The error is caused by the code trying to instantiate a user with "new Authentication.User("alice")". According to the API changes, the User inner-class (and its constructors) has been removed from the dependency.
+2. In the old API AuthScheme.Result.user() returned an Optional&lt;Authentication.User&gt; value. In the updated API, the User type has been removed, so the new expected type is now typically a simple String representing the username. (That is, user() should now return Optional&lt;String&gt;.)
+3. Therefore, the lambda creating the AuthScheme.Result must be updated. Instead of instantiating a removed type, we change the method body to return Optional.of("alice") (a String) and update the return type accordingly.
+4. No other changes to function signatures or external logic are required.
+5. This minimal change preserves the test’s expected outcomes while matching the new API.
+</repair_strategy>
+
 ```java
 /*
  * The MIT License (MIT) Copyright (c) 2020-2023 artipie.com
@@ -68,9 +76,10 @@ class AuthScopeSliceTest {
                 caction.set(act);
                 return true;
             }
-        ).response(line, Headers.EMPTY, Content.EMPTY).send(
-            (status, headers, body) -> CompletableFuture.allOf()
-        ).toCompletableFuture().join();
+        ).response(line, Headers.EMPTY, Content.EMPTY)
+         .send((status, headers, body) -> CompletableFuture.allOf())
+         .toCompletableFuture()
+         .join();
         MatcherAssert.assertThat(
             "Request line passed to slice",
             cline.get(),

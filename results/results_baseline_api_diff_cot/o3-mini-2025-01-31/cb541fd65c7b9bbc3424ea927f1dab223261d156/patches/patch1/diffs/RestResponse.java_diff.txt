@@ -8,28 +8,26 @@
 < import org.hamcrest.Matchers;
 ---
 > import org.hamcrest.CoreMatchers;
-> import org.hamcrest.collection.IsEmptyIterable;
-> import org.hamcrest.core.IsCollectionContaining;
+> import org.hamcrest.collection.IsEmptyCollection;
+> import org.hamcrest.collection.IsIterableContaining;
 60,61c62,63
 <  *   .assertBody(Matchers.containsString("hello, world!"))
 <  *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
 ---
 >  *   .assertBody(CoreMatchers.containsString("hello, world!"))
->  *   .assertHeader("Content-Type", IsCollectionContaining.hasItem("text/plain"))
-165,166c167,168
-<             ), this.binary(),
-<             matcher
+>  *   .assertHeader("Content-Type", IsIterableContaining.hasItem("text/plain"))
+175c177
+<      * <p>The iterator for the matcher will always be a real object an never
 ---
->             ),
->             this.binary(), matcher
+>      * <p>The iterator for the matcher will always be a real object and never
 210c212
 <         return this.assertHeader(name, Matchers.hasItems(value));
 ---
->         return this.assertHeader(name, IsCollectionContaining.hasItem(value));
+>         return this.assertHeader(name, IsIterableContaining.hasItem(value));
 246c248
 <             Matchers.not(Matchers.emptyIterableOf(String.class))
 ---
->             CoreMatchers.not(IsEmptyIterable.emptyIterable())
+>             CoreMatchers.not(IsEmptyCollection.empty())
 284c286
 <             Matchers.notNullValue()
 ---

@@ -1,35 +1,10 @@
-<repair_strategy>
-1. The client code references the class com.google.cloud.pubsublite.PublishMetadata in both the import and the generic return type of the newPublisher method.
-2. The updated dependency has removed PublishMetadata (including its constructor) entirely, so any references to it cause compilation errors.
-3. To fix this with minimal changes while retaining the method name and parameter list, we update the generic parameter for Publisher from PublishMetadata to a type that does not rely on the removed class.
-4. In this case, we use Void as the type parameter because the publishing metadata is no longer provided, and Void is a standard placeholder.
-5. We also remove the now-invalid import of PublishMetadata.
-6. These minimal changes ensure the code compiles and conforms to the updated dependency API.
-</repair_strategy>
-  
-```
-/*
- * Copyright 2020 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+```java
 package com.google.pubsublite.kafka.sink;
 
 import com.google.cloud.pubsublite.internal.Publisher;
 import java.util.Map;
 
 interface PublisherFactory {
-
   Publisher<Void> newPublisher(Map<String, String> params);
 }
 ```

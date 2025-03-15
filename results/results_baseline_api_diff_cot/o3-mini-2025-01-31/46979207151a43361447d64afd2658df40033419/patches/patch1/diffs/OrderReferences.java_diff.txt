@@ -1,12 +1,45 @@
 8d7
 < 
-17d15
+17c16
 < import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
-19a18
+---
 > import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 22d20
 < 
-107c105
+48,49c46
+< public class OrderReferences implements ToString2
+< {
+---
+> public class OrderReferences implements ToString2 {
+61,63c58
+<      *     possible object is
+<      *     {@link String }
+<      *     
+---
+>      *     possible object is {@link String }
+73,75c68
+<      *     allowed object is
+<      *     {@link String }
+<      *     
+---
+>      *     allowed object is {@link String }
+85,87c78
+<      *     possible object is
+<      *     {@link XMLGregorianCalendar }
+<      *     
+---
+>      *     possible object is {@link XMLGregorianCalendar }
+97,99c88
+<      *     allowed object is
+<      *     {@link XMLGregorianCalendar }
+<      *     
+---
+>      *     allowed object is {@link XMLGregorianCalendar }
+107c96,98
 <         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
 ---
->         final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+>         // Replaced the removed JAXBToStringStrategy.getInstance() call 
+>         // with the new DefaultToStringStrategy singleton instance.
+>         final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
+135d125
+< 

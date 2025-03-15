@@ -2,13 +2,18 @@
 < import org.tinspin.index.PointIndex;
 39a39
 > import org.tinspin.index.IndexConfig;
-164,168c164,166
+164c164,165
 <                 final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {
-<                         final double deltaX = p1[0] - p2[0];
-<                         final double deltaY = p1[1] - p2[1];
-<                         return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+---
+>                 // Update: use the new KDTree.create(IndexConfig) instead of the removed PointIndex API.
+>                 final KDTree<Vertex> tree = KDTree.create(new IndexConfig(2, (p1, p2) -> {
+168c169
 <                 });
 ---
->                 // Updated to use the new API: create a KDTree using IndexConfig instead of a
->                 // custom PointIndex with a lambda.
->                 final KDTree<Vertex> tree = KDTree.create(new IndexConfig(2));
+>                 }));
+174c175,177
+<                         final Vertex near = tree.query1NN(midpoint).value();
+---
+>                         // Query the nearest neighbor using the new KDTree API.
+>                         final KDTree.Entry<Vertex> nearestEntry = tree.query1NN(midpoint);
+>                         final Vertex near = nearestEntry.value();

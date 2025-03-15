@@ -45,8 +45,8 @@ import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoadResult;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader.Configuration;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInfo;
-import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInstancesLoader;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginRequirementsCheckResult;
+import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInstancesLoader;
 import org.sonarsource.sonarlint.core.rule.extractor.SonarLintRuleDefinition;
 import sorald.FileUtils;
 import sorald.util.ConfigLoader;
@@ -73,6 +73,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     private SonarLintEngine() {
         super(null);
         setLogging(null);
+
         this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, null);
     }
 
@@ -129,15 +130,19 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                         globalConfig.getPluginPaths(),
                         globalConfig.getEnabledLanguages(),
                         Optional.ofNullable(globalConfig.getNodeJsVersion()));
+
         PluginsLoadResult loadedResult = new PluginsLoader().load(config);
         // Default loaded result stops the loader. The following code prevents that.
+
         Map<String, PluginRequirementsCheckResult> pluginCheckResultByKeys =
                 loadedResult.getPluginCheckResultByKeys();
         Collection<PluginInfo> allPlugins = getAllPlugins(pluginCheckResultByKeys);
+
         // We do not want this loader to close.
         PluginInstancesLoader instancesLoader = new PluginInstancesLoader();
         Map<String, Plugin> pluginInstancesByKeys =
                 instancesLoader.instantiatePluginClasses(allPlugins);
+
         return new LoadedPluginsThatDoesNotCloseLoader(
                 pluginInstancesByKeys, new PluginInstancesLoader());
     }
@@ -155,7 +160,6 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
         return AnalysisEngineConfiguration.builder()
-                // Removed addEnabledLanguages due to API removal in the new dependency version.
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())
                 .setWorkDir(globalConfig.getWorkDir())
@@ -194,6 +198,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
         requireNonNull(configuration);
         requireNonNull(issueListener);
         setLogging(logOutput);
+
         var analysisConfig =
                 AnalysisConfiguration.builder()
                         .addInputFiles(configuration.inputFiles())
@@ -235,6 +240,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
             StandaloneAnalysisConfiguration configuration) {
         Set<String> includedRules =
                 configuration.includedRules().stream().map(RuleKey::toString).collect(toSet());
+
         return allRulesDefinitionsByKey.values().stream()
                 .filter(isImplementedBySonarJavaPlugin(includedRules))
                 .map(

@@ -1,27 +1,30 @@
 <repair_strategy>
-1. The breaking change is that the old class TFramedTransport (in package org.apache.thrift.transport) has been removed and replaced by a new version (an interface) in the package org.apache.thrift.transport.layered.
-2. In the old API the client code used the constructor TFramedTransport(TTransport, int) from the removed class. In the new API that constructor is no longer present. Instead, the new API provides a factory (via the inner Factory class on TFramedTransport in the new package) that creates a TFramedTransport instance given an underlying TTransport and a max message size.
-3. The client code needs to update its import for TFramedTransport and change the construction from a direct call to its constructor to using TFramedTransport.Factory.
-4. We must not alter function signatures but we can create new local variables.
-5. The minimal changes are: (a) change the import statement to import org.apache.thrift.transport.layered.TFramedTransport instead of org.apache.thrift.transport.TFramedTransport, and (b) refactor the instantiation of framedTransport in the constructor to use the factory call.
-6. There should be no harmful side effects for the rest of the code because the usage of methods like getBytesRemainingInBuffer(), consumeBuffer(), and close() remains unchanged.
-7. The final class will be fully compilable under the new dependency API.
-8. No other code is removed.
+1. The error occurs because the client code imports and instantiates TFramedTransport from the old package (org.apache.thrift.transport) which no longer exists. The new version of the dependency now provides a TFramedTransport in the package org.apache.thrift.transport.layered.
+2. The old API provided the class TFramedTransport with constructors that take a TTransport (or TTransport with an int parameter). The new API has removed the old class and moved the type reference (with the same signatures) to an interface in package org.apache.thrift.transport.layered.
+3. The client code instantiates TFramedTransport using:
+   new TFramedTransport(new TIOStreamTransport(byteOffsetInputStream), maxMessageSize);
+   and assigns it to a field declared as TFramedTransport. Both of these must now reference the type from org.apache.thrift.transport.layered.
+4. We must update the import statement for TFramedTransport from org.apache.thrift.transport.TFramedTransport to org.apache.thrift.transport.layered.TFramedTransport.
+5. Since the constructor taking (TTransport, int) remains available in the new API’s type reference, the instantiation code can remain unchanged except for the import update.
+6. The remaining code that calls methods like getBytesRemainingInBuffer(), consumeBuffer(), and close() on the framedTransport is assumed to be compatible with the new API.
+7. No change to public method signatures is needed.
+8. No additional changes are necessary; we only update the import statement and corresponding variable types.
 </repair_strategy>
 
 Below is the complete, fixed class:
 
-------------------------------------------------
+--------------------------------------------------
+
 ```java
 /**
  * Copyright 2019 Pinterest, Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,7 +40,7 @@ import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TIOStreamTransport;
 import org.apache.thrift.transport.TTransport;
-import org.apache.thrift.transport.layered.TFramedTransport; // Updated import: using new package
+import org.apache.thrift.transport.layered.TFramedTransport;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -57,6 +60,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
    * @param <T> The thrift message type to be read.
    */
   public static interface TBaseFactory<T> {
+
     T get();
   }
 
@@ -64,6 +68,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
    * Factory that get a TProtocol instance.
    */
   public static interface TProtocolFactory {
+
     TProtocol get(TTransport transport);
   }
 
@@ -73,7 +78,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
   // The ByteOffsetInputStream to read from.
   private final ByteOffsetInputStream byteOffsetInputStream;
 
-  // The framed transport.
+  // The framedTransport instance.
   private final TFramedTransport framedTransport;
 
   // TProtocol implementation.
@@ -90,9 +95,8 @@ public class ThriftReader<T extends TBase> implements Closeable {
 
     this.byteOffsetInputStream = new ByteOffsetInputStream(
         new RandomAccessFile(path, "r"), readBufferSize);
-    TTransport ioStreamTransport = new TIOStreamTransport(this.byteOffsetInputStream);
-    // Use the new Factory from the layered TFramedTransport to create an instance using maxMessageSize.
-    this.framedTransport = new TFramedTransport.Factory(maxMessageSize).getTransport(ioStreamTransport);
+    this.framedTransport = new TFramedTransport(
+        new TIOStreamTransport(this.byteOffsetInputStream), maxMessageSize);
     this.baseFactory = Preconditions.checkNotNull(baseFactory);
     this.protocol = protocolFactory.get(this.framedTransport);
   }
@@ -154,6 +158,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
   }
 }
 ```
-------------------------------------------------
 
-In this fix the only changes involve updating the import and the instantiation of the framed transport so that it uses the new API (via TFramedTransport.Factory) as required by the dependency update.
+--------------------------------------------------
+
+This fix updates the import and variable types to use the new API in org.apache.thrift.transport.layered.TFramedTransport while leaving the rest of the functional logic intact.

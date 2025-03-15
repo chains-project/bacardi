@@ -39,6 +39,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  * &lt;/complexType&gt;
  * </pre>
  * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Settlement", propOrder = {
@@ -47,7 +48,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "settlementDate",
     "paymentTerms"
 })
-public class Settlement implements ToString2 {
+public class Settlement implements ToString2
+{
 
     @XmlElement(name = "SettlementDiscount")
     protected String settlementDiscount;
@@ -62,7 +64,10 @@ public class Settlement implements ToString2 {
     /**
      * Gets the value of the settlementDiscount property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getSettlementDiscount() {
         return settlementDiscount;
@@ -71,7 +76,10 @@ public class Settlement implements ToString2 {
     /**
      * Sets the value of the settlementDiscount property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setSettlementDiscount(String value) {
         this.settlementDiscount = value;
@@ -80,7 +88,10 @@ public class Settlement implements ToString2 {
     /**
      * Gets the value of the settlementAmount property.
      * 
-     * @return possible object is {@link BigDecimal }
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
      */
     public BigDecimal getSettlementAmount() {
         return settlementAmount;
@@ -89,7 +100,10 @@ public class Settlement implements ToString2 {
     /**
      * Sets the value of the settlementAmount property.
      * 
-     * @param value allowed object is {@link BigDecimal }
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
      */
     public void setSettlementAmount(BigDecimal value) {
         this.settlementAmount = value;
@@ -98,7 +112,10 @@ public class Settlement implements ToString2 {
     /**
      * Gets the value of the settlementDate property.
      * 
-     * @return possible object is {@link XMLGregorianCalendar }
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public XMLGregorianCalendar getSettlementDate() {
         return settlementDate;
@@ -107,7 +124,10 @@ public class Settlement implements ToString2 {
     /**
      * Sets the value of the settlementDate property.
      * 
-     * @param value allowed object is {@link XMLGregorianCalendar }
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public void setSettlementDate(XMLGregorianCalendar value) {
         this.settlementDate = value;
@@ -116,7 +136,10 @@ public class Settlement implements ToString2 {
     /**
      * Gets the value of the paymentTerms property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getPaymentTerms() {
         return paymentTerms;
@@ -125,7 +148,10 @@ public class Settlement implements ToString2 {
     /**
      * Sets the value of the paymentTerms property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setPaymentTerms(String value) {
         this.paymentTerms = value;
@@ -150,21 +176,26 @@ public class Settlement implements ToString2 {
     @Override
     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         {
-            String theSettlementDiscount = this.getSettlementDiscount();
+            String theSettlementDiscount;
+            theSettlementDiscount = this.getSettlementDiscount();
             strategy.appendField(locator, this, "settlementDiscount", buffer, theSettlementDiscount, (this.settlementDiscount != null));
         }
         {
-            BigDecimal theSettlementAmount = this.getSettlementAmount();
+            BigDecimal theSettlementAmount;
+            theSettlementAmount = this.getSettlementAmount();
             strategy.appendField(locator, this, "settlementAmount", buffer, theSettlementAmount, (this.settlementAmount != null));
         }
         {
-            XMLGregorianCalendar theSettlementDate = this.getSettlementDate();
+            XMLGregorianCalendar theSettlementDate;
+            theSettlementDate = this.getSettlementDate();
             strategy.appendField(locator, this, "settlementDate", buffer, theSettlementDate, (this.settlementDate != null));
         }
         {
-            String thePaymentTerms = this.getPaymentTerms();
+            String thePaymentTerms;
+            thePaymentTerms = this.getPaymentTerms();
             strategy.appendField(locator, this, "paymentTerms", buffer, thePaymentTerms, (this.paymentTerms != null));
         }
         return buffer;
     }
+
 }

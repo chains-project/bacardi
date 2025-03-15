@@ -40,11 +40,13 @@ public class DateTime extends DateAndTime {
     return new Timestamp(super.past(atMost, unit, referenceDate).getTime());
   }
 
-  // Removed @Override because the original between(java.util.Date, java.util.Date) method was removed in the dependency.
+  // The dependency no longer provides between(Date, Date),
+  // so we remove the @Override annotation and convert the input Dates
+  // to Timestamps before delegating to the new API method.
   public Timestamp between(Date from, Date to) throws IllegalArgumentException {
-    Timestamp tFrom = new Timestamp(from.getTime());
-    Timestamp tTo = new Timestamp(to.getTime());
-    return super.between(tFrom, tTo);
+    Timestamp tsFrom = new Timestamp(from.getTime());
+    Timestamp tsTo = new Timestamp(to.getTime());
+    return new Timestamp(super.between(tsFrom, tsTo).getTime());
   }
 
   @Override

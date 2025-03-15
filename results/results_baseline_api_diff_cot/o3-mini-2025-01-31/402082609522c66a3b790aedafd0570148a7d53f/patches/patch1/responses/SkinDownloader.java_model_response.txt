@@ -1,12 +1,12 @@
 <repair_strategy>
-1. The failure is caused because the class org.spongepowered.api.command.CommandSource has been removed from the new dependency.
-2. In the old API, CommandSource was used for handling command invocations. In the new API, a similar concept is represented by CommandCause.
-3. We need to update the SkinDownloader class so that it no longer refers to CommandSource; instead, we replace it with CommandCause.
-4. The constructor and field for “invoker” are currently of type CommandSource. We must change both to CommandCause. We also update the import statement accordingly.
-5. These minimal changes ensure that scheduleApplyTask and sendMessageInvoker still function correctly (assuming that ChangeSkinSponge and SkinApplier have been similarly updated).
-6. No other part of the code is affected by the API change.
-7. The planned changes yield a complete and compilable class.
-8. Required additional import is org.spongepowered.api.command.CommandCause.
+1. The error originates from the use of the removed class org.spongepowered.api.command.CommandSource.
+2. In the new Sponge dependency version, CommandSource has been relocated to a different package.
+3. The only parts of the client code that need updating are the import statements and any references that depend on CommandSource.
+4. We must update the import from "org.spongepowered.api.command.CommandSource" to the new package "org.spongepowered.api.command.source.CommandSource" without changing the method or constructor signatures.
+5. The minimal change is to update the import line. All other code remains unchanged.
+6. This change is localized and should not have side effects on the code functionality.
+7. The resulting class is complete and compilable with the new dependency version.
+8. No additional changes are required.
 </repair_strategy>
 
 ```java
@@ -18,17 +18,17 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import java.util.UUID;
 
-import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
 public class SkinDownloader extends SharedDownloader {
 
     private final ChangeSkinSponge plugin;
-    private final CommandCause invoker;
+    private final CommandSource invoker;
     private final Player receiver;
 
-    public SkinDownloader(ChangeSkinSponge plugin, CommandCause invoker, Player receiver, UUID targetUUID, boolean keepSkin) {
+    public SkinDownloader(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, UUID targetUUID, boolean keepSkin) {
         super(plugin.getCore(), keepSkin, targetUUID, receiver.getUniqueId());
         this.plugin = plugin;
         this.invoker = invoker;

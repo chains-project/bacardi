@@ -34,7 +34,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -144,7 +143,7 @@ public abstract class ListControlGroups<T> extends Panel {
 
 			objectProperties.add(new ObjectProperties(descriptor, required));
 		}
-
+		
 		RepeatingView view = new RepeatingView("controlGroup");
 		for (ObjectProperties objectProperty : objectProperties) {
 			try {
@@ -153,8 +152,10 @@ public abstract class ListControlGroups<T> extends Panel {
 					Constructor<?> constructor;
 					Class<? extends Panel> typesControlGroup = getControlGroupByType(objectProperty.type);
 					if (typesControlGroup == null) {
-						if (objectProperty.type.isEnum()) typesControlGroup = EnumControlGroup.class;
-						else typesControlGroup = ObjectChoiceControlGroup.class;
+						if (objectProperty.type.isEnum())
+							typesControlGroup = EnumControlGroup.class;
+						else
+							typesControlGroup = ObjectChoiceControlGroup.class;
 					}
 
 					constructor = typesControlGroup.getConstructor(String.class, IModel.class);
@@ -182,9 +183,7 @@ public abstract class ListControlGroups<T> extends Panel {
 				} else {
 					controlGroup = controlGroupProviders
 							.get(objectProperty.type)
-							.createControlGroup(view.newChildId()
-									, new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name)
-									, objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
+							.createControlGroup(view.newChildId(), new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name), objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
 				}
 				view.add(controlGroup);
 
@@ -223,7 +222,8 @@ public abstract class ListControlGroups<T> extends Panel {
 	@SuppressWarnings("rawtypes")
 	private Class<? extends AbstractControlGroup> getControlGroupByType(Class<?> type) {
 		for (Class<?> mapType : typesControlGroups.keySet()) {
-			if (type.isAssignableFrom(mapType)) return typesControlGroups.get(mapType);
+			if (type.isAssignableFrom(mapType))
+				return typesControlGroups.get(mapType);
 		}
 		return null;
 	}
@@ -247,7 +247,7 @@ public abstract class ListControlGroups<T> extends Panel {
 	public Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap() {
 		return typesControlGroups;
 	}
-
+	
 	public Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> getControlGroupProviders() {
 		return this.controlGroupProviders;
 	}

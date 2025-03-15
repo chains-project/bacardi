@@ -1,14 +1,24 @@
-16d15
+12a13
+> import com.github.games647.changeskin.sponge.PomData;
+16,19c17,19
 < 
-19d17
+< import java.nio.file.Path;
+< import java.util.UUID;
 < 
-21,37d18
+---
+> import net.kyori.adventure.audience.Audience;
+> import net.kyori.adventure.text.Component;
+> import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+21,24c21
 < import org.spongepowered.api.Platform.Type;
 < import org.spongepowered.api.Sponge;
 < import org.spongepowered.api.command.CommandManager;
 < import org.spongepowered.api.command.CommandSource;
-< import org.spongepowered.api.config.ConfigDir;
-< import org.spongepowered.api.event.Listener;
+---
+> import org.spongepowered.api.ResourceKey;
+25a23
+> import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+27,33c25,30
 < import org.spongepowered.api.event.game.state.GameInitializationEvent;
 < import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 < import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
@@ -16,64 +26,75 @@
 < import org.spongepowered.api.network.ChannelRegistrar;
 < import org.spongepowered.api.plugin.Plugin;
 < import org.spongepowered.api.text.serializer.TextSerializers;
-< 
-< import static com.github.games647.changeskin.core.message.CheckPermMessage.CHECK_PERM_CHANNEL;
-< import static com.github.games647.changeskin.core.message.SkinUpdateMessage.UPDATE_SKIN_CHANNEL;
-< import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
-38a20,39
-> // Use the new plugin annotation package
-> import org.spongepowered.plugin.Plugin;
-> import org.spongepowered.plugin.PluginContainer;
-> 
-> // Use the new lifecycle event types
-> import org.spongepowered.api.event.Listener;
-> import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
-> import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
-> import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
-> 
-> // Use Adventure’s legacy serializer for text conversion
-> import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-> import net.kyori.adventure.text.Component;
-> import net.kyori.adventure.audience.Audience;
-> import org.spongepowered.api.service.permission.Subject;
-> import org.spongepowered.api.ResourceKey;
-> 
-> // Note: We must remove usage of removed types such as CommandSource, CommandManager, ChannelRegistrar, etc.
-> // To keep the old method signatures, define a replacement CommandSource interface that
-> // combines the new Adventure Audience and the permission Subject.
-40c41
-< @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
 ---
-> @Plugin(id = PomData.ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
-42c43
+> import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
+> import org.spongepowered.api.event.lifecycle.RegisterChannelEvent;
+> import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+> import org.spongepowered.api.event.lifecycle.StopPluginEvent;
+> import java.nio.file.Path;
+> import java.util.UUID;
+37d33
+< import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
+40,42c36
+< @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+<         url = PomData.URL, description = PomData.DESCRIPTION)
 < public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
 ---
-> public class ChangeSkinSponge implements PlatformPlugin<ChangeSkinSponge.CommandSource> {
-52a54,56
->     @Inject
->     private PluginContainer pluginContainer;
-> 
-55c59
+> public class ChangeSkinSponge implements PlatformPlugin<Audience> {
+53d46
+<     //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
+55c48
 <     ChangeSkinSponge(Logger logger, @ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
 ---
->     public ChangeSkinSponge(Logger logger, @org.spongepowered.api.config.ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
-57a62
->         // Create a child injector and bind the core instance
-62c67
+>     public ChangeSkinSponge(Logger logger, @ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
+57a51
+>         // Create a child injector and bind the core so dependent classes can access it.
+62,63c56
 <     public void onPreInit(GamePreInitializationEvent preInitEvent) {
+<         //load config and database
 ---
->     public void onPreInit(ConstructPluginEvent preInitEvent) {
-73,74c78,79
+>     public void onConstruct(ConstructPluginEvent event) {
+73,74c66,79
 <     public void onInit(GameInitializationEvent initEvent) {
 <         if (!initialized)
 ---
->     public void onInit(RegisterCommandEvent initEvent) {
+>     public void onRegisterCommand(RegisterCommandEvent event) {
 >         if (!initialized) {
-75a81
+>             return;
 >         }
-77,96c83,97
+>         event.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+>         event.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+>         event.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+>         event.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+>         event.register(this, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
+>     }
+> 
+>     @Listener
+>     public void onRegisterChannel(RegisterChannelEvent event) {
+>         if (!initialized) {
+75a81,83
+>         }
+>         String updateChannelName = new NamespaceKey(PomData.ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
+>         String permissionChannelName = new NamespaceKey(PomData.ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
+77c85,99
 <         CommandManager cmdManager = Sponge.getCommandManager();
-< 
+---
+>         ResourceKey updateKey;
+>         String[] updateParts = updateChannelName.split(":");
+>         if (updateParts.length == 2) {
+>             updateKey = ResourceKey.of(updateParts[0], updateParts[1]);
+>         } else {
+>             updateKey = ResourceKey.of(PomData.ARTIFACT_ID, updateChannelName);
+>         }
+> 
+>         ResourceKey permissionKey;
+>         String[] permParts = permissionChannelName.split(":");
+>         if (permParts.length == 2) {
+>             permissionKey = ResourceKey.of(permParts[0], permParts[1]);
+>         } else {
+>             permissionKey = ResourceKey.of(PomData.ARTIFACT_ID, permissionChannelName);
+>         }
+79,96c101,102
 <         //command and event register
 <         cmdManager.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
 <         cmdManager.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
@@ -93,38 +114,33 @@
 <         updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
 <         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
 ---
->         // Command registration using the new command registration event.
->         initEvent.register(pluginContainer, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
->         initEvent.register(pluginContainer, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
->         initEvent.register(pluginContainer, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
->         initEvent.register(pluginContainer, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
->         initEvent.register(pluginContainer, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
-> 
->         // Register additional event listeners using the new event registration API.
->         pluginContainer.getEventManager().registerListeners(pluginContainer, injector.getInstance(LoginListener.class));
-> 
->         // Channel registration via the new channel registration API.
->         ResourceKey updateKey = ResourceKey.of(PomData.ARTIFACT_ID, UPDATE_SKIN_CHANNEL);
->         ResourceKey permissionKey = ResourceKey.of(PomData.ARTIFACT_ID, CHECK_PERM_CHANNEL);
->         pluginContainer.getEventManager().registerChannel(updateKey, injector.getInstance(UpdateSkinListener.class));
->         pluginContainer.getEventManager().registerChannel(permissionKey, injector.getInstance(CheckPermissionListener.class));
-100c101
+>         event.register(updateKey, UpdateSkinListener.class);
+>         event.register(permissionKey, CheckPermissionListener.class);
+100c106
 <     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
 ---
->     public void onShutdown(StoppingEngineEvent stoppingEngineEvent) {
-114c115
+>     public void onShutdown(StopPluginEvent event) {
+109,110c115,118
+<     public boolean hasSkinPermission(CommandSource invoker, UUID uuid, boolean sendMessage) {
+<         if (invoker.hasPermission(PomData.ARTIFACT_ID + ".skin.whitelist." + uuid)) {
+---
+>     public boolean hasSkinPermission(Audience invoker, UUID uuid, boolean sendMessage) {
+>         if (invoker instanceof ServerPlayer) {
+>             ServerPlayer player = (ServerPlayer) invoker;
+>             if (player.hasPermission(PomData.ARTIFACT_ID + ".skin.whitelist." + uuid)) {
+113,114c121
+< 
 <         //disallow - not whitelisted or blacklisted
 ---
->         // Disallow - not whitelisted or blacklisted.
-145c146,147
+>         }
+118d124
+< 
+142c148
+<     public void sendMessage(CommandSource receiver, String key) {
+---
+>     public void sendMessage(Audience receiver, String key) {
+145c151,152
 <             receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
 ---
->             Component converted = LegacyComponentSerializer.legacyAmpersand().deserialize(message);
->             receiver.sendMessage(converted);
-147a150,155
-> 
->     // Define a replacement for the removed CommandSource type.
->     // This interface combines Adventure's Audience (for sending messages) with permission checking (Subject).
->     public static interface CommandSource extends Audience, Subject {
->         // No additional methods required.
->     }
+>             Component component = LegacyComponentSerializer.legacySection().deserialize(message);
+>             receiver.sendMessage(component);

@@ -6,53 +6,19 @@
 <                     ManagedObject mo = server.lookup(new DefaultMOQuery(scope, false));
 ---
 >                     ManagedObject<?> mo = server.lookup(new DefaultMOQuery(scope, false));
-295,298c295,297
-<         variableBindings.entrySet().stream().filter(binding -> binding.getKey().size() >= root.size()).filter(
-<                 binding -> binding.getKey().leftMostCompare(root.size(), root) == 0).forEach(
-<                         binding -> subtree.put(binding.getKey(), binding.getValue())
-<         );
----
->         variableBindings.entrySet().stream().filter(binding -> binding.getKey().size() >= root.size())
->                 .filter(binding -> binding.getKey().leftMostCompare(root.size(), root) == 0)
->                 .forEach(binding -> subtree.put(binding.getKey(), binding.getValue()));
-332,334c331,335
-<         return variableBindings.entrySet().stream().filter(binding -> binding.getKey().size() >= root.size()).
-<                 filter(binding -> binding.getKey().leftMostCompare(root.size(), root) == 0).
-<                 map(binding -> new VariableBinding(binding.getKey(), binding.getValue())).collect(Collectors.toCollection(ArrayList::new));
----
->         return variableBindings.entrySet().stream()
->                 .filter(binding -> binding.getKey().size() >= root.size())
->                 .filter(binding -> binding.getKey().leftMostCompare(root.size(), root) == 0)
->                 .map(binding -> new VariableBinding(binding.getKey(), binding.getValue()))
->                 .collect(Collectors.toCollection(ArrayList::new));
-357c358
+357c357
 <                 ManagedObject other = server.lookup(new DefaultMOQuery(contextScope, false));
 ---
 >                 ManagedObject<?> other = server.lookup(new DefaultMOQuery(contextScope, false));
-379c380
-<      * Sets the private registry value of {@link DefaultMOServer} via reflection.
----
->      * Sets the private registry value of the server via reflection.
-389c390
+389c389
 <             final SortedMap<MOScope, ManagedObject> reg = server.getRegistry();
 ---
 >             final SortedMap<MOScope, ManagedObject<?>> reg = server.getRegistry();
-440c441
+440c440
 <         ManagedObject query;
 ---
 >         ManagedObject<?> query;
-470c471,476
-<                         final List<CommunityContextModifier> contextModifiers = modifiers.stream().filter(m -> m instanceof Modifier).map(m -> (Modifier) m).filter(m -> m.getModifier() instanceof CommunityContextModifier).map(m -> (CommunityContextModifier) m.getModifier()).collect(Collectors.toList());
----
->                         final List<CommunityContextModifier> contextModifiers = modifiers.stream()
->                                 .filter(m -> m instanceof Modifier)
->                                 .map(m -> (Modifier) m)
->                                 .filter(m -> m.getModifier() instanceof CommunityContextModifier)
->                                 .map(m -> (CommunityContextModifier) m.getModifier())
->                                 .collect(Collectors.toList());
-481d486
-< 
-489c494
+489c489
 <         for (final ManagedObject mo : groups) {
 ---
 >         for (final ManagedObject<?> mo : groups) {

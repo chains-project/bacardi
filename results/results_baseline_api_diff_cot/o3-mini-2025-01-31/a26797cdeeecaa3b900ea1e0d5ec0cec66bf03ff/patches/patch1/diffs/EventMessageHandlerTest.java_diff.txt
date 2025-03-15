@@ -1,16 +1,148 @@
-4c4
+3,6d2
+< import ch.qos.logback.classic.Level;
 < import ch.qos.logback.classic.Logger;
+< import ch.qos.logback.classic.spi.ILoggingEvent;
+< import ch.qos.logback.core.Appender;
+33d28
+< import java.time.Instant;
+83,86c78,80
+<     @Mock
+<     private Appender<ILoggingEvent> mockLogAppender;
+<     @Captor
+<     ArgumentCaptor<ILoggingEvent> loggingEventArgumentCaptor;
 ---
-> import ch.qos.logback.classic.LoggerContext;
-111,113c111,117
+> 
+>     // The logback-specific appender and logging event captor have been removed
+>     // because the new dependency version removed the ch.qos.logback.classic.Logger API.
+99c93,100
+<         eventMessageHandler = new EventMessageHandler(mockEventSubscriberQueue, mockLedgerService, mockNotificationService, mockServiceFinder, mockUserServices, objectMapper);
+---
+>         eventMessageHandler = new EventMessageHandler(
+>                 mockEventSubscriberQueue,
+>                 mockLedgerService,
+>                 mockNotificationService,
+>                 mockServiceFinder,
+>                 mockUserServices,
+>                 objectMapper
+>         );
+101c102,104
+<         service.setMerchantDetails(new MerchantDetails("Organisation Name", null, null, null, null, null, null, null, null));
+---
+>         service.setMerchantDetails(
+>                 new MerchantDetails("Organisation Name", null, null, null, null, null, null, null, null)
+>         );
+111,113c114,118
 <         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
 <         logger.setLevel(Level.INFO);
 <         logger.addAppender(mockLogAppender);
 ---
->         // Instead of casting from LoggerFactory.getLogger (which previously used the removed Logger interface),
->         // retrieve the logger via the LoggerContext provided by Logback.
->         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
->         // Use the logger for the class under test to attach our test appender.
->         ch.qos.logback.classic.Logger eventLogger = loggerContext.getLogger(EventMessageHandler.class);
->         eventLogger.setLevel(Level.INFO);
->         eventLogger.addAppender(mockLogAppender);
+>         // Previously, a logback logger was configured and a mock appender attached.
+>         // With the updated dependency (which removed ch.qos.logback.classic.Logger),
+>         // we simply obtain the logger without modifying its level or appender.
+>         org.slf4j.Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
+>         // No custom configuration is applied because the new API does not support setLevel/addAppender.
+120c125,127
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
+---
+>                 .withEventDetails(objectMapper.valueToTree(
+>                         Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)
+>                 ))
+141c148,151
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId, "reason", "fraudulent")))
+---
+>                 .withEventDetails(objectMapper.valueToTree(
+>                         Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z",
+>                                 "gateway_account_id", gatewayAccountId, "reason", "fraudulent")
+>                 ))
+154c164,167
+<         verify(mockNotificationService, atMostOnce()).sendStripeDisputeCreatedEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
+---
+>         verify(mockNotificationService, atMostOnce()).sendStripeDisputeCreatedEmail(
+>                 adminEmailsCaptor.capture(),
+>                 personalisationCaptor.capture()
+>         );
+176,181d188
+< 
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+< 
+<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+<         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+<         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
+189c196,198
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("net_amount", -4000L, "fee", 1500L, "amount", 2500L, "gateway_account_id", gatewayAccountId)))
+---
+>                 .withEventDetails(objectMapper.valueToTree(
+>                         Map.of("net_amount", -4000L, "fee", 1500L, "amount", 2500L, "gateway_account_id", gatewayAccountId)
+>                 ))
+203c212,215
+<         verify(mockNotificationService, atMostOnce()).sendStripeDisputeLostEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
+---
+>         verify(mockNotificationService, atMostOnce()).sendStripeDisputeLostEmail(
+>                 adminEmailsCaptor.capture(),
+>                 personalisationCaptor.capture()
+>         );
+213,218d224
+< 
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+< 
+<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+<         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+<         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
+226c232,234
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("gateway_account_id", gatewayAccountId)))
+---
+>                 .withEventDetails(objectMapper.valueToTree(
+>                         Map.of("gateway_account_id", gatewayAccountId)
+>                 ))
+240c248,251
+<         verify(mockNotificationService, atMostOnce()).sendStripeDisputeWonEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
+---
+>         verify(mockNotificationService, atMostOnce()).sendStripeDisputeWonEmail(
+>                 adminEmailsCaptor.capture(),
+>                 personalisationCaptor.capture()
+>         );
+250,255d260
+< 
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+< 
+<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+<         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+<         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
+263c268,270
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("gateway_account_id", gatewayAccountId)))
+---
+>                 .withEventDetails(objectMapper.valueToTree(
+>                         Map.of("gateway_account_id", gatewayAccountId)
+>                 ))
+277c284,287
+<         verify(mockNotificationService, atMostOnce()).sendStripeDisputeEvidenceSubmittedEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
+---
+>         verify(mockNotificationService, atMostOnce()).sendStripeDisputeEvidenceSubmittedEmail(
+>                 adminEmailsCaptor.capture(),
+>                 personalisationCaptor.capture()
+>         );
+287,292d296
+< 
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+< 
+<         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+<         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+<         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
+300c304,306
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00Z", "gateway_account_id", gatewayAccountId)))
+---
+>                 .withEventDetails(objectMapper.valueToTree(
+>                         Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00Z", "gateway_account_id", gatewayAccountId)
+>                 ))
+317c323,325
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
+---
+>                 .withEventDetails(objectMapper.valueToTree(
+>                         Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)
+>                 ))
+335c343,345
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
+---
+>                 .withEventDetails(objectMapper.valueToTree(
+>                         Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)
+>                 ))

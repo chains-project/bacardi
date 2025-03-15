@@ -107,29 +107,20 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		ClassicConfiguration configuration = new ClassicConfiguration();
-		configuration.setDataSource(this.dataSource());
-		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+		ClassicConfiguration config = new ClassicConfiguration();
+		config.setDataSource(this.dataSource());
+		config.setClassLoader(NisAppConfig.class.getClassLoader());
 
 		String locationsStr = prop.getProperty("flyway.locations");
-		if (locationsStr != null && !locationsStr.trim().isEmpty()) {
-			String[] locationsArray = locationsStr.split(",");
-			for (int i = 0; i < locationsArray.length; i++) {
-				locationsArray[i] = locationsArray[i].trim();
-			}
-			Location[] locations = new Location[locationsArray.length];
-			for (int i = 0; i < locationsArray.length; i++) {
-				locations[i] = new Location(locationsArray[i]);
-			}
-			configuration.setLocations(locations);
+		String[] locationStrings = locationsStr.split(",");
+		Location[] locations = new Location[locationStrings.length];
+		for (int i = 0; i < locationStrings.length; i++) {
+			locations[i] = new Location(locationStrings[i].trim());
 		}
+		config.setLocations(locations);
 
-		String validateProp = prop.getProperty("flyway.validate");
-		if (validateProp != null) {
-			configuration.setValidateOnMigrate(Boolean.valueOf(validateProp));
-		}
-
-		return new Flyway(configuration);
+		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		return new Flyway(config);
 	}
 
 	@Bean

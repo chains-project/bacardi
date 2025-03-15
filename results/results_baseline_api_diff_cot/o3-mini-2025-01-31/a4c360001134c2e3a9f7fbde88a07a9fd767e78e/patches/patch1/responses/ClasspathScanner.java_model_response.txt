@@ -1,15 +1,15 @@
 <repair_strategy>
-1. The failure occurs because the client code calls the method apply(String) on instances of FilterBuilder, but the new dependency version has removed this method.
-2. Previously, FilterBuilder.include(regex) returned an object with an apply(String) method to test the string against the filter. In the new API, these classes now implement the standard Predicate interface, and the method to evaluate the predicate is now test(String) instead of apply(String).
-3. We need to update both calls to apply(s) in the shouldScan(String) method, replacing them with test(s).
-4. The constraints require that we do not change function signatures, keep all code intact apart from addressing the breaking API, and result in a complete compilable class.
-5. The minimal change is solely to replace .apply(s) with .test(s) in both instances.
-6. No side effects are expected, as the logic remains equivalent.
-7. The full class will be returned with the necessary modifications, with no placeholders.
-8. No additional imports are required since the test method is part of Java’s Predicate API.
+1. The API change removes the method apply(String) on the FilterBuilder type that was used to test whether a class name should be scanned.
+2. In the old API, FilterBuilder.include(String) returned an object that implemented a predicate-like method apply(String) (from Guava's Predicate), while the new version replaces that behavior with the standard java.util.function.Predicate interface method test(String).
+3. The client code uses apply(s) in two places in the shouldScan method. These calls now need to be replaced with test(s).
+4. The constraints require minimal code changes and not altering function signatures.
+5. The minimal change is to replace both invocations of .apply(s) with .test(s).
+6. No additional imports are necessary since java.util.function.Predicate is available by default.
+7. This change should keep the class fully compilable.
+8. The complete ClasspathScanner class is given below.
 </repair_strategy>
 
-```
+```java
 /*----------------------------------------------------------------
  *  Copyright (c) ThoughtWorks, Inc.
  *  Licensed under the Apache License, Version 2.0
@@ -50,12 +50,10 @@ public class ClasspathScanner {
 
     private Reflections createReflections() {
         Vfs.addDefaultURLTypes(new Vfs.UrlType() {
-            @Override
             public boolean matches(URL url) {
                 return "file".equals(url.getProtocol());
             }
 
-            @Override
             public Vfs.Dir createDir(URL url) throws Exception {
                 File file = Vfs.getFile(url);
                 return file.isDirectory() ? new SystemDir(file) : new ZipDir(new JarFile(Vfs.getFile(url)));

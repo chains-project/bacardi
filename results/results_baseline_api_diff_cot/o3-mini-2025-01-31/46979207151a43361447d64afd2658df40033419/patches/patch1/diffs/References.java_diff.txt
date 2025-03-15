@@ -1,13 +1,9 @@
 8d7
 < 
-15c14
-< import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
----
-> import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 20d18
 < 
 104c102,103
 <         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
 ---
->         // Replace the removed JAXBToStringStrategy.getInstance() with a new DefaultToStringStrategy instance.
->         final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+>         // Use a new instance since the getInstance() method has been removed in the updated API.
+>         final ToStringStrategy2 strategy = new JAXBToStringStrategy();

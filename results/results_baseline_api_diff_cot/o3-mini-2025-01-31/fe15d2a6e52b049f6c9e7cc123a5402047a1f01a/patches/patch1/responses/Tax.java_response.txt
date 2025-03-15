@@ -5,18 +5,43 @@
 // Generated on: 2023.08.19 at 10:48:51 PM GMT 
 //
 
-package com.premiumminds.billy.portugal.services.export.saftpt.v1_02_01.schema;
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
 
 import java.math.BigDecimal;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
-import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 
+/**
+ * <p>Java class for Tax complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType name="Tax"&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxType"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxCountryRegion"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxCode"/&gt;
+ *         &lt;choice&gt;
+ *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPercentage"/&gt;
+ *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxAmount"/&gt;
+ *         &lt;/choice&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Tax", propOrder = {
     "taxType",
@@ -41,7 +66,10 @@ public class Tax implements ToString2 {
     /**
      * Gets the value of the taxType property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getTaxType() {
         return taxType;
@@ -50,7 +78,10 @@ public class Tax implements ToString2 {
     /**
      * Sets the value of the taxType property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setTaxType(String value) {
         this.taxType = value;
@@ -59,7 +90,10 @@ public class Tax implements ToString2 {
     /**
      * Gets the value of the taxCountryRegion property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getTaxCountryRegion() {
         return taxCountryRegion;
@@ -68,7 +102,10 @@ public class Tax implements ToString2 {
     /**
      * Sets the value of the taxCountryRegion property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setTaxCountryRegion(String value) {
         this.taxCountryRegion = value;
@@ -77,7 +114,10 @@ public class Tax implements ToString2 {
     /**
      * Gets the value of the taxCode property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getTaxCode() {
         return taxCode;
@@ -86,7 +126,10 @@ public class Tax implements ToString2 {
     /**
      * Sets the value of the taxCode property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setTaxCode(String value) {
         this.taxCode = value;
@@ -95,7 +138,10 @@ public class Tax implements ToString2 {
     /**
      * Gets the value of the taxPercentage property.
      * 
-     * @return possible object is {@link BigDecimal }
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
      */
     public BigDecimal getTaxPercentage() {
         return taxPercentage;
@@ -104,7 +150,10 @@ public class Tax implements ToString2 {
     /**
      * Sets the value of the taxPercentage property.
      * 
-     * @param value allowed object is {@link BigDecimal }
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
      */
     public void setTaxPercentage(BigDecimal value) {
         this.taxPercentage = value;
@@ -113,7 +162,10 @@ public class Tax implements ToString2 {
     /**
      * Gets the value of the taxAmount property.
      * 
-     * @return possible object is {@link BigDecimal }
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
      */
     public BigDecimal getTaxAmount() {
         return taxAmount;
@@ -122,7 +174,10 @@ public class Tax implements ToString2 {
     /**
      * Sets the value of the taxAmount property.
      * 
-     * @param value allowed object is {@link BigDecimal }
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
      */
     public void setTaxAmount(BigDecimal value) {
         this.taxAmount = value;
@@ -147,25 +202,31 @@ public class Tax implements ToString2 {
     @Override
     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         {
-            String theTaxType = this.getTaxType();
+            String theTaxType;
+            theTaxType = this.getTaxType();
             strategy.appendField(locator, this, "taxType", buffer, theTaxType, (this.taxType != null));
         }
         {
-            String theTaxCountryRegion = this.getTaxCountryRegion();
+            String theTaxCountryRegion;
+            theTaxCountryRegion = this.getTaxCountryRegion();
             strategy.appendField(locator, this, "taxCountryRegion", buffer, theTaxCountryRegion, (this.taxCountryRegion != null));
         }
         {
-            String theTaxCode = this.getTaxCode();
+            String theTaxCode;
+            theTaxCode = this.getTaxCode();
             strategy.appendField(locator, this, "taxCode", buffer, theTaxCode, (this.taxCode != null));
         }
         {
-            BigDecimal theTaxPercentage = this.getTaxPercentage();
+            BigDecimal theTaxPercentage;
+            theTaxPercentage = this.getTaxPercentage();
             strategy.appendField(locator, this, "taxPercentage", buffer, theTaxPercentage, (this.taxPercentage != null));
         }
         {
-            BigDecimal theTaxAmount = this.getTaxAmount();
+            BigDecimal theTaxAmount;
+            theTaxAmount = this.getTaxAmount();
             strategy.appendField(locator, this, "taxAmount", buffer, theTaxAmount, (this.taxAmount != null));
         }
         return buffer;
     }
+
 }

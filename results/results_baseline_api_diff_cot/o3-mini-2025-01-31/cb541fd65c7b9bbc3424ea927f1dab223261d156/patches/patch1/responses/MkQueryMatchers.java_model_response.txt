@@ -1,38 +1,21 @@
+<repair_strategy>
+1. The error arises because client code calls Matchers.hasProperty(...) from the package org.hamcrest.Matchers, but the new version of Hamcrest has removed that class.
+2. In previous versions, the static hasProperty method was available via org.hamcrest.Matchers; in the new API version the bean matchers are provided elsewhere.
+3. In this client code, the methods hasPath and hasQuery use Matchers.hasProperty(...); these calls need to be replaced with the updated version.
+4. The fix must use a valid static method from the new API while leaving method signatures intact and ensuring that other parts of the code remain unchanged.
+5. We can fix the issue by replacing the reference to org.hamcrest.Matchers with an appropriate bean matcher. In this case we import a static version of hasProperty from org.hamcrest.beans.HasPropertyMatcher.
+6. The only changes are to remove the import of org.hamcrest.Matchers and replace Matchers.<URI>hasProperty(...) with hasProperty(...); there should be no side effects on the rest of the class.
+7. The resulting class is complete and compilable.
+8. An additional import is required (a static import for hasProperty from org.hamcrest.beans.HasPropertyMatcher).
+</repair_strategy>
+
 ```java
-/*
- * Copyright (c) 2011-2022, jcabi.com
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met: 1) Redistributions of source code must retain the above
- * copyright notice, this list of conditions and the following
- * disclaimer. 2) Redistributions in binary form must reproduce the above
- * copyright notice, this list of conditions and the following
- * disclaimer in the documentation and/or other materials provided
- * with the distribution. 3) Neither the name of the jcabi.com nor
- * the names of its contributors may be used to endorse or promote
- * products derived from this software without specific prior written
- * permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
- * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
- * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
- * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- * OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 package com.jcabi.http.mock;
+
+import static org.hamcrest.beans.HasPropertyMatcher.hasProperty;
 
 import java.net.URI;
 import org.hamcrest.Matcher;
-import org.hamcrest.beans.HasPropertyWithValue;
 
 /**
  * Convenient set of matchers for {@link MkQuery}.
@@ -83,7 +66,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasPath(final Matcher<String> path) {
         return new MkQueryUriMatcher(
-            HasPropertyWithValue.<URI>hasProperty("rawPath", path)
+            hasProperty("rawPath", path)
         );
     }
 
@@ -95,7 +78,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasQuery(final Matcher<String> query) {
         return new MkQueryUriMatcher(
-            HasPropertyWithValue.<URI>hasProperty("rawQuery", query)
+            hasProperty("rawQuery", query)
         );
     }
 

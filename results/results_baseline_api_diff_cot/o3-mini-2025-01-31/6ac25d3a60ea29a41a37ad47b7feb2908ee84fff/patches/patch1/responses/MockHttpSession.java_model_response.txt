@@ -1,34 +1,4 @@
-<repair_strategy>
-1. The breaking change is that the class jakarta.servlet.http.HttpSessionContext has been removed from the dependency.
-2. In the old API, the HttpSession interface declared getSessionContext (and a few related methods such as getValue, getValueNames, putValue, and removeValue) that use HttpSessionContext. In the new API, getSessionContext no longer exists and referencing its type causes a compile‐time error.
-3. Therefore, the getSessionContext method must be removed from the mock. In addition, while the other deprecated methods (getValue, getValueNames, putValue, removeValue) still have their old signatures, they no longer override interface methods (and using @Override would now cause a compilation error). Their @Override annotations must be removed.
-4. We must not change the function signatures (other than removing the @Override annotations), but we are allowed to remove code that directly causes compilation errors.
-5. The minimal changes needed are: Remove the getSessionContext method entirely, remove its corresponding (now invalid) import, and remove the @Override annotation from the other deprecated methods.
-6. No other parts affect the functionality of the mock session.
-7. The result is a fully compilable MockHttpSession class.
-8. No additional imports are required.
-</repair_strategy>
-
 ```java
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-
 package org.apache.myfaces.tobago.internal.mock.servlet;
 
 import jakarta.servlet.ServletContext;
@@ -72,17 +42,19 @@ public class MockHttpSession implements HttpSession {
     return 0;
   }
 
-  // Removed getSessionContext() because jakarta.servlet.http.HttpSessionContext
-  // has been removed from the new version of the dependency.
+  // The method getSessionContext() was removed from the API.
+  // Hence, we remove its implementation from this mock.
 
   /** @deprecated */
   @Deprecated
+  @Override
   public Object getValue(final String s) {
     return null;
   }
 
   /** @deprecated */
   @Deprecated
+  @Override
   public String[] getValueNames() {
     return new String[0];
   }
@@ -98,6 +70,7 @@ public class MockHttpSession implements HttpSession {
 
   /** @deprecated */
   @Deprecated
+  @Override
   public void putValue(final String s, final Object o) {
   }
 
@@ -106,8 +79,7 @@ public class MockHttpSession implements HttpSession {
     attributes.remove(s);
   }
 
-  /** @deprecated */
-  @Deprecated
+  @Override
   public void removeValue(final String s) {
   }
 

@@ -1,3 +1,9 @@
+<repair_strategy>
+1. Remove all references to the now-removed PublishMetadata class from the client code.
+2. Replace the generic type parameter “PublishMetadata” used with the Publisher interface with an alternative type (using Void in this case) so that the API changes are accommodated.
+3. Remove the import statement for PublishMetadata.
+4. Ensure that all usages of publisher remain consistent and compilable.
+</repair_strategy>
 ```java
 /*
  * Copyright 2020 Google LLC
@@ -40,7 +46,7 @@ import org.apache.kafka.connect.sink.SinkTask;
 public class PubSubLiteSinkTask extends SinkTask {
 
   private final PublisherFactory factory;
-  private @Nullable Publisher publisher;
+  private @Nullable Publisher<Void> publisher;
 
   @VisibleForTesting
   PubSubLiteSinkTask(PublisherFactory factory) {

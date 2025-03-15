@@ -6,15 +6,15 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import java.util.concurrent.TimeUnit;
 
-import org.spongepowered.api.command.source.CommandSource;
+import net.kyori.adventure.audience.Audience;
 import org.spongepowered.api.scheduler.Task;
 
 public class SkinUploader extends SharedUploader {
 
     private final ChangeSkinSponge plugin;
-    private final CommandSource invoker;
+    private final Audience invoker;
 
-    public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url) {
+    public SkinUploader(ChangeSkinSponge plugin, Audience invoker, Account owner, String url) {
         super(plugin.getCore(), owner, url);
 
         this.plugin = plugin;

@@ -16,7 +16,6 @@ import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
-
 /**
  * <p>Java class for SpecialRegimes complex type.
  * 

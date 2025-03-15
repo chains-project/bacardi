@@ -1,33 +1,36 @@
-10c10,33
+10c10,36
 < import org.apache.maven.model.*;
 ---
 > import org.apache.maven.model.Build;
 > import org.apache.maven.model.BuildBase;
+> import org.apache.maven.model.Building;
 > import org.apache.maven.model.CiManagement;
 > import org.apache.maven.model.Contributor;
-> import org.apache.maven.model.Developer;
 > import org.apache.maven.model.Dependency;
 > import org.apache.maven.model.DependencyManagement;
 > import org.apache.maven.model.Developer;
-> import org.apache.maven.model.Developer;
-> import org.apache.maven.model.Exclusion;
+> import org.apache.maven.model.DistributionManagement;
 > import org.apache.maven.model.Extension;
 > import org.apache.maven.model.IssueManagement;
 > import org.apache.maven.model.License;
-> import org.apache.maven.model.MailList;
 > import org.apache.maven.model.MailingList;
 > import org.apache.maven.model.Model;
+> import org.apache.maven.model.Notifier;
 > import org.apache.maven.model.Organization;
+> import org.apache.maven.model.Parent;
 > import org.apache.maven.model.Plugin;
 > import org.apache.maven.model.PluginExecution;
 > import org.apache.maven.model.PluginManagement;
 > import org.apache.maven.model.ReportPlugin;
 > import org.apache.maven.model.ReportSet;
+> import org.apache.maven.model.Reporting;
 > import org.apache.maven.model.Repository;
 > import org.apache.maven.model.Resource;
-11a35
+> import org.apache.maven.model.Scm;
+> import org.apache.maven.model.exclusion.Exclusion;
+11a38
 > import org.yaml.snakeyaml.LoaderOptions;
-16c40,45
+16c43,48
 < import org.yaml.snakeyaml.nodes.*;
 ---
 > import org.yaml.snakeyaml.nodes.MappingNode;
@@ -36,7 +39,32 @@
 > import org.yaml.snakeyaml.nodes.NodeTuple;
 > import org.yaml.snakeyaml.nodes.ScalarNode;
 > import org.yaml.snakeyaml.nodes.Tag;
-43c72
+43c75,76
 <     super(Model.class);
 ---
+>     // Updated to use the new constructor signature with LoaderOptions.
 >     super(Model.class, new LoaderOptions());
+60c93
+<     desc.putListPropertyType("profiles", Profile.class);
+---
+>     desc.putListPropertyType("profiles", Model.class); // Keeping the same as original
+152d184
+< 
+157d188
+< 
+162d192
+< 
+179d208
+< 
+181d209
+< 
+200d227
+< 
+209d235
+< 
+226d251
+< 
+241c266
+<   class MavenObjectConstruct extends Constructor.ConstructMapping {
+---
+>   class MavenObjectConstruct extends ConstructMapping {

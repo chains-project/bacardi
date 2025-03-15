@@ -6,7 +6,7 @@
 //
 
 
-package com.premiumminds.billy.portugal.services.export.saftpt.v1_02_01.schema;
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,24 +31,24 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Header"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Header"/&gt;
  *         &lt;element name="MasterFiles"&gt;
  *           &lt;complexType&gt;
  *             &lt;complexContent&gt;
  *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                 &lt;sequence&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}GeneralLedger" maxOccurs="unbounded" minOccurs="0"/&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Customer" maxOccurs="unbounded" minOccurs="0"/&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Supplier" maxOccurs="unbounded" minOccurs="0"/&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Product" maxOccurs="unbounded" minOccurs="0"/&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxTable" minOccurs="0"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GeneralLedgerAccounts" minOccurs="0"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Customer" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Supplier" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Product" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxTable" minOccurs="0"/&gt;
  *                 &lt;/sequence&gt;
  *               &lt;/restriction&gt;
  *             &lt;/complexContent&gt;
  *           &lt;/complexType&gt;
  *         &lt;/element&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}GeneralLedgerEntries" minOccurs="0"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SourceDocuments" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GeneralLedgerEntries" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceDocuments" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
@@ -225,11 +225,11 @@ public class AuditFile implements ToString2
      *   &lt;complexContent&gt;
      *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *       &lt;sequence&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}GeneralLedger" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Customer" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Supplier" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Product" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxTable" minOccurs="0"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GeneralLedgerAccounts" minOccurs="0"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Customer" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Supplier" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Product" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxTable" minOccurs="0"/&gt;
      *       &lt;/sequence&gt;
      *     &lt;/restriction&gt;
      *   &lt;/complexContent&gt;
@@ -240,7 +240,7 @@ public class AuditFile implements ToString2
      */
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlType(name = "", propOrder = {
-        "generalLedger",
+        "generalLedgerAccounts",
         "customer",
         "supplier",
         "product",
@@ -249,8 +249,8 @@ public class AuditFile implements ToString2
     public static class MasterFiles implements ToString2
     {
 
-        @XmlElement(name = "GeneralLedger")
-        protected List<GeneralLedger> generalLedger;
+        @XmlElement(name = "GeneralLedgerAccounts")
+        protected GeneralLedgerAccounts generalLedgerAccounts;
         @XmlElement(name = "Customer")
         protected List<Customer> customer;
         @XmlElement(name = "Supplier")
@@ -261,32 +261,27 @@ public class AuditFile implements ToString2
         protected TaxTable taxTable;
 
         /**
-         * Gets the value of the generalLedger property.
+         * Gets the value of the generalLedgerAccounts property.
          * 
-         * <p>
-         * This accessor method returns a reference to the live list,
-         * not a snapshot. Therefore any modification you make to the
-         * returned list will be present inside the JAXB object.
-         * This is why there is not a <CODE>set</CODE> method for the generalLedger property.
-         * 
-         * <p>
-         * For example, to add a new item, do as follows:
-         * <pre>
-         *    getGeneralLedger().add(newItem);
-         * </pre>
-         * 
-         * 
-         * <p>
-         * Objects of the following type(s) are allowed in the list
-         * {@link GeneralLedger }
-         * 
-         * 
+         * @return
+         *     possible object is
+         *     {@link GeneralLedgerAccounts }
+         *     
          */
-        public List<GeneralLedger> getGeneralLedger() {
-            if (generalLedger == null) {
-                generalLedger = new ArrayList<GeneralLedger>();
-            }
-            return this.generalLedger;
+        public GeneralLedgerAccounts getGeneralLedgerAccounts() {
+            return generalLedgerAccounts;
+        }
+
+        /**
+         * Sets the value of the generalLedgerAccounts property.
+         * 
+         * @param value
+         *     allowed object is
+         *     {@link GeneralLedgerAccounts }
+         *     
+         */
+        public void setGeneralLedgerAccounts(GeneralLedgerAccounts value) {
+            this.generalLedgerAccounts = value;
         }
 
         /**
@@ -419,9 +414,9 @@ public class AuditFile implements ToString2
         @Override
         public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
             {
-                List<GeneralLedger> theGeneralLedger;
-                theGeneralLedger = (((this.generalLedger!= null)&&(!this.generalLedger.isEmpty()))?this.getGeneralLedger():null);
-                strategy.appendField(locator, this, "generalLedger", buffer, theGeneralLedger, ((this.generalLedger!= null)&&(!this.generalLedger.isEmpty())));
+                GeneralLedgerAccounts theGeneralLedgerAccounts;
+                theGeneralLedgerAccounts = this.getGeneralLedgerAccounts();
+                strategy.appendField(locator, this, "generalLedgerAccounts", buffer, theGeneralLedgerAccounts, (this.generalLedgerAccounts!= null));
             }
             {
                 List<Customer> theCustomer;

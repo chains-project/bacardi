@@ -46,8 +46,8 @@ import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.collection.IsEmptyIterable;
-import org.hamcrest.core.IsCollectionContaining;
+import org.hamcrest.collection.IsEmptyCollection;
+import org.hamcrest.collection.IsIterableContaining;
 
 /**
  * REST response.
@@ -60,7 +60,7 @@ import org.hamcrest.core.IsCollectionContaining;
  *   .as(RestResponse.class)
  *   .assertStatus(200)
  *   .assertBody(CoreMatchers.containsString("hello, world!"))
- *   .assertHeader("Content-Type", IsCollectionContaining.hasItem("text/plain"))
+ *   .assertHeader("Content-Type", IsIterableContaining.hasItem("text/plain"))
  *   .jump(URI.create("/users"))
  *   .fetch();</pre>
  *
@@ -164,8 +164,8 @@ public final class RestResponse extends AbstractResponse {
             String.format(
                 "HTTP response binary content is not valid:%n%s",
                 this
-            ),
-            this.binary(), matcher
+            ), this.binary(),
+            matcher
         );
         return this;
     }
@@ -174,7 +174,7 @@ public final class RestResponse extends AbstractResponse {
      * Verifies HTTP header against provided matcher, and throws
      * {@link AssertionError} in case of mismatch.
      *
-     * <p>The iterator for the matcher will always be a real object an never
+     * <p>The iterator for the matcher will always be a real object and never
      * {@code NULL}, even if such a header is absent in the response. If the
      * header is absent the iterable will be empty.
      *
@@ -209,7 +209,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, IsCollectionContaining.hasItem(value));
+        return this.assertHeader(name, IsIterableContaining.hasItem(value));
     }
 
     /**
@@ -245,7 +245,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            CoreMatchers.not(IsEmptyIterable.emptyIterable())
+            CoreMatchers.not(IsEmptyCollection.empty())
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))

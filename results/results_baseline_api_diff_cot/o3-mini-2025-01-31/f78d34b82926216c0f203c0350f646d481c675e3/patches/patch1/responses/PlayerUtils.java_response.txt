@@ -31,9 +31,6 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static ml.peya.plugins.Utils.MessageEngine.get;
-import static ml.peya.plugins.Variables.skin;
-
 /**
  * プレイヤーに関してまとめたやつ！
  */
@@ -66,6 +63,7 @@ public class PlayerUtils
     public static boolean isLooking(Player player, Location location)
     {
         BlockIterator it = new BlockIterator(player, 4);
+
         while (it.hasNext())
         {
             final Block block = it.next();
@@ -122,8 +120,11 @@ public class PlayerUtils
             name = RandomStringUtils.randomAlphanumeric(random.nextInt(16));
 
         WorldServer worldServer = ((CraftWorld) world).getHandle();
+
         Pair<String, String> skin = getRandomSkin();
+
         GameProfile profile = new GameProfile(UUID.randomUUID(), name);
+
         profile.getProperties().put("textures", new Property("textures", skin.getLeft(), skin.getRight()));
 
         return new EntityPlayer(
@@ -168,9 +169,11 @@ public class PlayerUtils
     public static Player getPlayer(CommandSender sender, String name)
     {
         Player player = Bukkit.getPlayer(name);
+
         if (player == null)
         {
             sender.sendMessage(get("error.playerNotFound"));
+
             return null;
         }
         return player;
@@ -192,6 +195,7 @@ public class PlayerUtils
                     player = offlinePlayer.getPlayer();
             }
         }
+
         return player;
     }
 

@@ -9,7 +9,10 @@ import org.pitest.elements.models.PackageSummaryMap;
 import org.pitest.elements.utils.JsonParser;
 import org.pitest.util.FileUtil;
 import org.pitest.util.ResultOutputStrategy;
+import org.pitest.classinfo.ClassInfoVisitor;
+import org.pitest.classinfo.ClassName;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,11 +20,8 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-
-// New imports to support the API changes
-import org.pitest.classinfo.ClassInfo;
-import org.pitest.classinfo.ClassInfoVisitor;
-import org.pitest.classinfo.ClassName;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MutationReportListener implements MutationResultListener {
 
@@ -80,8 +80,7 @@ public class MutationReportListener implements MutationResultListener {
   }
 
   private void createJs(final String json) {
-    final String content =
-        "document.querySelector('mutation-test-report-app').report = " + json;
+    final String content = "document.querySelector('mutation-test-report-app').report = " + json;
     final Writer writer = this.outputStrategy
         .createWriterForFile("html2" + File.separatorChar + "report.js");
     try {
@@ -104,21 +103,29 @@ public class MutationReportListener implements MutationResultListener {
     }
   }
 
-  private MutationTestSummaryData createSummaryData(
-      final CoverageDatabase coverage, final ClassMutationResults data) {
-    // The old API call to coverage.getClassInfo(Collection) has been removed.
-    // Instead, we now obtain class information using the new ClassInfoVisitor API.
-    ClassInfo classInfo = getClassInfo(data.getMutatedClass());
-    return new MutationTestSummaryData(data.getFileName(),
-        data.getMutations(), classInfo);
+  private MutationTestSummaryData createSummaryData(final CoverageDatabase coverage, final ClassMutationResults data) {
+    try {
+      // Load the class bytes for the mutated class.
+      byte[] classBytes = loadClassBytes(data.getMutatedClass());
+      
+      // Use the new API method to obtain class information.
+      ClassInfoVisitor visitor = new ClassInfoVisitor();
+      Object classInfo = visitor.getClassInfo(data.getMutatedClass(), classBytes, 0L);
+      
+      // Wrap the obtained class info into a map as expected by MutationTestSummaryData.
+      Map<ClassName, Object> classInfoMap = new HashMap<>();
+      classInfoMap.put(data.getMutatedClass(), classInfo);
+      
+      return new MutationTestSummaryData(data.getFileName(), data.getMutations(), classInfoMap);
+    } catch (IOException ex) {
+      throw new RuntimeException("Unable to load class bytes for " + data.getMutatedClass(), ex);
+    }
   }
 
-  private void updatePackageSummary(
-      final ClassMutationResults mutationMetaData) {
+  private void updatePackageSummary(final ClassMutationResults mutationMetaData) {
     final String packageName = mutationMetaData.getPackageName();
 
-    this.packageSummaryData.update(packageName,
-        createSummaryData(this.coverage, mutationMetaData));
+    this.packageSummaryData.update(packageName, createSummaryData(this.coverage, mutationMetaData));
   }
 
   @Override
@@ -143,22 +150,19 @@ public class MutationReportListener implements MutationResultListener {
     }
   }
   
-  private ClassInfo getClassInfo(ClassName className) {
-    byte[] classBytes = loadClassBytes(className);
-    // Using the new API which accepts a ClassName, the class byte array, and a timestamp (using 0L here)
-    return ClassInfoVisitor.getClassInfo(className, classBytes, 0L);
-  }
-
-  private byte[] loadClassBytes(ClassName className) {
-    // Convert the ClassName to a resource path by replacing dots with slashes and appending ".class"
+  private byte[] loadClassBytes(ClassName className) throws IOException {
     String resourcePath = className.asJavaName().replace('.', '/') + ".class";
-    try (InputStream in = this.getClass().getClassLoader().getResourceAsStream(resourcePath)) {
-      if (in == null) {
-        throw new IOException("Could not load resource: " + resourcePath);
-      }
-      return in.readAllBytes();
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to read class bytes for " + className, e);
+    InputStream in = this.getClass().getClassLoader().getResourceAsStream(resourcePath);
+    if (in == null) {
+      throw new IOException("Class resource not found: " + resourcePath);
     }
+    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+    int nRead;
+    byte[] data = new byte[16384];
+    while ((nRead = in.read(data)) != -1) {
+      buffer.write(data, 0, nRead);
+    }
+    in.close();
+    return buffer.toByteArray();
   }
 }

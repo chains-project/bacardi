@@ -23,26 +23,24 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import io.vavr.control.Validation;
 import net.bytebuddy.ByteBuddy;
-import net.bytebuddy.NamingStrategy;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.dynamic.scaffold.TypeValidation;
 import net.bytebuddy.implementation.Implementation;
 import net.bytebuddy.implementation.MethodDelegation;
-import net.bytebuddy.matcher.ElementMatchers;
+import net.bytebuddy.implementation.auxiliary.AuxiliaryType;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
 import net.bytebuddy.implementation.bind.annotation.This;
-import org.assertj.core.util.Arrays;
+import net.bytebuddy.matcher.ElementMatchers;
 import org.assertj.core.util.CheckReturnValue;
+import org.assertj.vavr.api.ClassLoadingStrategyFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Map.Entry;
 import java.util.concurrent.Callable;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
-import static net.bytebuddy.matcher.ElementMatchers.any;
 import static org.assertj.core.util.Arrays.array;
 import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrategy;
 
@@ -54,12 +52,12 @@ public class VavrAssumptions {
      */
     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy()
             .with(TypeValidation.DISABLED)
-            .with(new NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
+            .with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
 
     private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
 
-    // Replace the removed TypeCache with a simple concurrent hash map cache.
-    private static final java.util.Map<Class<?>, Class<?>> CACHE = new ConcurrentHashMap<>();
+    // Replacing the removed TypeCache from the dependency with a simple concurrent map cache.
+    private static final ConcurrentMap<Class<?>, Class<?>> CACHE = new ConcurrentHashMap<>();
 
     private static final class AssumptionMethodInterceptor {
 
@@ -219,12 +217,12 @@ public class VavrAssumptions {
 
     @SuppressWarnings("unchecked")
     private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass) {
-        return (Class<? extends ASSERTION>) CACHE.computeIfAbsent(assertClass, k -> generateAssumptionClass(assertClass));
+        return (Class<ASSERTION>) CACHE.computeIfAbsent(assertClass, key -> generateAssumptionClass(assertClass));
     }
 
     private static <ASSERTION> Class<? extends ASSERTION> generateAssumptionClass(Class<ASSERTION> assertionType) {
         return BYTE_BUDDY.subclass(assertionType)
-                .method(any())
+                .method(ElementMatchers.any())
                 .intercept(ASSUMPTION)
                 .make()
                 .load(VavrAssumptions.class.getClassLoader(), classLoadingStrategy(assertionType))

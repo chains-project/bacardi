@@ -42,7 +42,7 @@ import org.junit.runners.model.Statement;
 /**
  * Rule that creates and drops an AWS subj.
  *
- * @author Yegor Bugayenko
+ * @author Yegor Bugayenko (yegor256@gmail.com)
  * @version $Id: 49d563c1e0af9dae0fbd7d9a97be7c07e52e6612 $
  * @since 0.3
  */
@@ -128,4 +128,5 @@ final class BucketRule implements TestRule {
             Logger.info(this, "S3 bucket %s deleted", this.subj.name());
         }
     }
+
 }

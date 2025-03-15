@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.queue.event;
 
 import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,8 +30,6 @@ import uk.gov.pay.adminusers.service.UserServices;
 import uk.gov.service.payments.commons.queue.exception.QueueException;
 import uk.gov.service.payments.commons.queue.model.QueueMessage;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -111,21 +110,12 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        /*
-         * In previous versions the test configured the logger by casting it to
-         * ch.qos.logback.classic.Logger. With the new dependency update this type has been removed.
-         * Instead we use reflection on the logger returned by LoggerFactory so that we can
-         * still call setLevel and addAppender without a compile-time dependency on the removed type.
-         */
-        org.slf4j.Logger slf4jLogger = LoggerFactory.getLogger(EventMessageHandler.class);
-        try {
-            Method setLevelMethod = slf4jLogger.getClass().getMethod("setLevel", Level.class);
-            setLevelMethod.invoke(slf4jLogger, Level.INFO);
-            Method addAppenderMethod = slf4jLogger.getClass().getMethod("addAppender", Appender.class);
-            addAppenderMethod.invoke(slf4jLogger, mockLogAppender);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Failed to configure logger", e);
-        }
+        // Instead of casting to a removed Logger type, obtain the logger via the LoggerContext
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        // Attach the mock appender to the ROOT logger so that log events can be captured
+        ch.qos.logback.classic.Logger rootLogger = loggerContext.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
+        rootLogger.setLevel(Level.INFO);
+        rootLogger.addAppender(mockLogAppender);
     }
 
     @Test

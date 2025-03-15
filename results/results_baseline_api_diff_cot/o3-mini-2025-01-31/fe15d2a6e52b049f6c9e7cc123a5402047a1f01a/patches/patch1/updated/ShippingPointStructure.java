@@ -18,7 +18,6 @@ import javax.xml.bind.annotation.XmlElementRefs;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
-import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
@@ -62,6 +61,7 @@ public class ShippingPointStructure implements ToString2 {
      * 
      * Objects of the following type(s) are allowed in the list
      * {@link String }
+     * 
      */
     public List<String> getDeliveryID() {
         if (deliveryID == null) {
@@ -134,7 +134,8 @@ public class ShippingPointStructure implements ToString2 {
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
+        // Use the custom SimpleToStringStrategy instead of the removed JAXBToStringStrategy.getInstance()
+        final ToStringStrategy2 strategy = new SimpleToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
@@ -171,6 +172,48 @@ public class ShippingPointStructure implements ToString2 {
             strategy.appendField(locator, this, "address", buffer, theAddress, (this.address != null));
         }
         return buffer;
+    }
+
+    /**
+     * A simple implementation of ToStringStrategy2 to replace the removed JAXBToStringStrategy.
+     */
+    private static class SimpleToStringStrategy implements ToStringStrategy2 {
+        private boolean firstField;
+
+        public SimpleToStringStrategy() {
+            this.firstField = true;
+        }
+
+        @Override
+        public void appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+            firstField = true;
+            if (object != null) {
+                buffer.append(object.getClass().getSimpleName());
+            } else {
+                buffer.append("null");
+            }
+            buffer.append(" [");
+        }
+
+        @Override
+        public void appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean hasValue) {
+            if (!hasValue) {
+                return;
+            }
+            if (!firstField) {
+                buffer.append(", ");
+            } else {
+                firstField = false;
+            }
+            buffer.append(fieldName);
+            buffer.append("=");
+            buffer.append(String.valueOf(value));
+        }
+
+        @Override
+        public void appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+            buffer.append("]");
+        }
     }
 
 }

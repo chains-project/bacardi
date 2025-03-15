@@ -52,6 +52,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
@@ -111,7 +112,7 @@ public abstract class FOPPDFTransformer {
         // creation of transform source
         StreamSource transformSource = new StreamSource(templateStream);
 
-        // create an instance of fop factory using the new API (passing a base URI)
+        // Create an instance of FopFactory using the new API which requires a base URI.
         FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
         // a user agent is needed for transformation
         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
@@ -145,7 +146,7 @@ public abstract class FOPPDFTransformer {
             // Start XSLT transformation and FOP processing
             // everything will happen here..
             xslfoTransformer.transform(source, res);
-        } catch (org.apache.fop.apps.FOPException e) {
+        } catch (FOPException e) {
             throw new ExportServiceException("Error using FOP to open the template", e);
         } catch (TransformerException e) {
             throw new ExportServiceException("Error generating pdf from template and data source", e);
@@ -174,7 +175,9 @@ public abstract class FOPPDFTransformer {
         return this.transformerFactory.newTransformer(streamSource);
     }
 
-    private Path createQR(String data) throws WriterException, IOException {
+    private Path createQR(String data)
+        throws WriterException, IOException
+    {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
         EnumMap<EncodeHintType, String> hints = new EnumMap<>(EncodeHintType.class);
         hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M.name());
@@ -186,7 +189,10 @@ public abstract class FOPPDFTransformer {
             350, 350, hints);
 
         final Path file = Files.createTempFile(UUID.randomUUID().toString().replace("-", ""), ".png");
-        MatrixToImageWriter.writeToPath(bitMatrix, "png", file);
+        MatrixToImageWriter.writeToPath(
+            bitMatrix,
+            "png",
+            file);
 
         return file;
     }

@@ -11,10 +11,11 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
+
 
 /**
  * <p>Java class for SupplierAddressStructure complex type.
@@ -39,6 +40,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  * &lt;/complexType&gt;
  * </pre>
  * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "SupplierAddressStructure", propOrder = {
@@ -50,7 +52,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "region",
     "country"
 })
-public class SupplierAddressStructure implements ToString2 {
+public class SupplierAddressStructure implements ToString2
+{
 
     @XmlElement(name = "BuildingNumber")
     protected String buildingNumber;
@@ -70,7 +73,10 @@ public class SupplierAddressStructure implements ToString2 {
     /**
      * Gets the value of the buildingNumber property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getBuildingNumber() {
         return buildingNumber;
@@ -79,7 +85,10 @@ public class SupplierAddressStructure implements ToString2 {
     /**
      * Sets the value of the buildingNumber property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setBuildingNumber(String value) {
         this.buildingNumber = value;
@@ -88,7 +97,10 @@ public class SupplierAddressStructure implements ToString2 {
     /**
      * Gets the value of the streetName property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getStreetName() {
         return streetName;
@@ -97,7 +109,10 @@ public class SupplierAddressStructure implements ToString2 {
     /**
      * Sets the value of the streetName property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setStreetName(String value) {
         this.streetName = value;
@@ -106,7 +121,10 @@ public class SupplierAddressStructure implements ToString2 {
     /**
      * Gets the value of the addressDetail property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getAddressDetail() {
         return addressDetail;
@@ -115,7 +133,10 @@ public class SupplierAddressStructure implements ToString2 {
     /**
      * Sets the value of the addressDetail property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setAddressDetail(String value) {
         this.addressDetail = value;
@@ -124,7 +145,10 @@ public class SupplierAddressStructure implements ToString2 {
     /**
      * Gets the value of the city property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getCity() {
         return city;
@@ -133,7 +157,10 @@ public class SupplierAddressStructure implements ToString2 {
     /**
      * Sets the value of the city property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setCity(String value) {
         this.city = value;
@@ -142,7 +169,10 @@ public class SupplierAddressStructure implements ToString2 {
     /**
      * Gets the value of the postalCode property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getPostalCode() {
         return postalCode;
@@ -151,7 +181,10 @@ public class SupplierAddressStructure implements ToString2 {
     /**
      * Sets the value of the postalCode property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setPostalCode(String value) {
         this.postalCode = value;
@@ -160,7 +193,10 @@ public class SupplierAddressStructure implements ToString2 {
     /**
      * Gets the value of the region property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getRegion() {
         return region;
@@ -169,7 +205,10 @@ public class SupplierAddressStructure implements ToString2 {
     /**
      * Sets the value of the region property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setRegion(String value) {
         this.region = value;
@@ -178,7 +217,10 @@ public class SupplierAddressStructure implements ToString2 {
     /**
      * Gets the value of the country property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getCountry() {
         return country;
@@ -187,7 +229,10 @@ public class SupplierAddressStructure implements ToString2 {
     /**
      * Sets the value of the country property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setCountry(String value) {
         this.country = value;
@@ -195,7 +240,7 @@ public class SupplierAddressStructure implements ToString2 {
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
@@ -212,32 +257,39 @@ public class SupplierAddressStructure implements ToString2 {
     @Override
     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         {
-            String theBuildingNumber = this.getBuildingNumber();
-            strategy.appendField(locator, this, "buildingNumber", buffer, theBuildingNumber, (this.buildingNumber != null));
+            String theBuildingNumber;
+            theBuildingNumber = this.getBuildingNumber();
+            strategy.appendField(locator, this, "buildingNumber", buffer, theBuildingNumber, (this.buildingNumber!= null));
         }
         {
-            String theStreetName = this.getStreetName();
-            strategy.appendField(locator, this, "streetName", buffer, theStreetName, (this.streetName != null));
+            String theStreetName;
+            theStreetName = this.getStreetName();
+            strategy.appendField(locator, this, "streetName", buffer, theStreetName, (this.streetName!= null));
         }
         {
-            String theAddressDetail = this.getAddressDetail();
-            strategy.appendField(locator, this, "addressDetail", buffer, theAddressDetail, (this.addressDetail != null));
+            String theAddressDetail;
+            theAddressDetail = this.getAddressDetail();
+            strategy.appendField(locator, this, "addressDetail", buffer, theAddressDetail, (this.addressDetail!= null));
         }
         {
-            String theCity = this.getCity();
-            strategy.appendField(locator, this, "city", buffer, theCity, (this.city != null));
+            String theCity;
+            theCity = this.getCity();
+            strategy.appendField(locator, this, "city", buffer, theCity, (this.city!= null));
         }
         {
-            String thePostalCode = this.getPostalCode();
-            strategy.appendField(locator, this, "postalCode", buffer, thePostalCode, (this.postalCode != null));
+            String thePostalCode;
+            thePostalCode = this.getPostalCode();
+            strategy.appendField(locator, this, "postalCode", buffer, thePostalCode, (this.postalCode!= null));
         }
         {
-            String theRegion = this.getRegion();
-            strategy.appendField(locator, this, "region", buffer, theRegion, (this.region != null));
+            String theRegion;
+            theRegion = this.getRegion();
+            strategy.appendField(locator, this, "region", buffer, theRegion, (this.region!= null));
         }
         {
-            String theCountry = this.getCountry();
-            strategy.appendField(locator, this, "country", buffer, theCountry, (this.country != null));
+            String theCountry;
+            theCountry = this.getCountry();
+            strategy.appendField(locator, this, "country", buffer, theCountry, (this.country!= null));
         }
         return buffer;
     }

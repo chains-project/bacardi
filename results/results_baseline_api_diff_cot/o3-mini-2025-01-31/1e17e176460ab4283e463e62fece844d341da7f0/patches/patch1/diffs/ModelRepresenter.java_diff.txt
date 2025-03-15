@@ -1,44 +1,24 @@
-1,7d0
-< /**
-<  * Copyright (c) 2012 to original author or authors
-<  * All rights reserved. This program and the accompanying materials
-<  * are made available under the terms of the Eclipse Public License v1.0
-<  * which accompanies this distribution, and is available at
-<  * http://www.eclipse.org/legal/epl-v10.html
-<  */
-15a9
+15a16
 > import org.yaml.snakeyaml.DumperOptions;
-24d17
-< import java.beans.IntrospectionException;
-26d18
-< 
-31a24,29
->  * Copyright (c) 2012 to original author or authors
->  * All rights reserved. This program and the accompanying materials
->  * are made available under the terms of the Eclipse Public License v1.0
->  * which accompanies this distribution, and is available at
->  * http://www.eclipse.org/legal/epl-v10.html
->  *
-37a36
+37a39
 >     super(new DumperOptions());
-81c80
+81c83
 <       return (value.equals(v));
 ---
 >       return value.equals(v);
-89c88
+89c91
 <       return (v.equals(value));
 ---
 >       return v.equals(value);
-94d92
+94d95
 < 
-217,219c215
-<   @Override
+218,219c219,220
 <   protected Set<Property> getProperties(Class<? extends Object> type)
 <           throws IntrospectionException {
 ---
 >   protected Set<Property> getProperties(Class<? extends Object> type) {
-235,236c231
-<   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
-<           throws IntrospectionException {
----
->   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+>     try {
+232a234,236
+>     } catch (IntrospectionException e) {
+>       throw new YAMLException(e);
+>     }

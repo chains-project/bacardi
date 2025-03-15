@@ -1,7 +1,7 @@
 3a4,5
 > import org.flywaydb.core.api.configuration.ClassicConfiguration;
 > import org.flywaydb.core.api.Location;
-108,113c110,115
+108,113c110,122
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
@@ -9,9 +9,16 @@
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 <                 return flyway;
 ---
->                 final ClassicConfiguration config = new ClassicConfiguration();
->                 config.setDataSource(this.dataSource());
->                 config.setClassLoader(NisAppConfig.class.getClassLoader());
->                 config.setLocations(new Location[] { new Location(prop.getProperty("flyway.locations")) });
->                 config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
->                 return new Flyway(config);
+>                 ClassicConfiguration configuration = new ClassicConfiguration();
+>                 configuration.setDataSource(this.dataSource());
+>                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+> 
+>                 String locationsStr = prop.getProperty("flyway.locations");
+>                 String[] locationArray = locationsStr.split(",");
+>                 List<Location> locationsList = new ArrayList<>();
+>                 for (String loc : locationArray) {
+>                         locationsList.add(new Location(loc.trim()));
+>                 }
+>                 configuration.setLocations(locationsList.toArray(new Location[locationsList.size()]));
+>                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 return new Flyway(configuration);

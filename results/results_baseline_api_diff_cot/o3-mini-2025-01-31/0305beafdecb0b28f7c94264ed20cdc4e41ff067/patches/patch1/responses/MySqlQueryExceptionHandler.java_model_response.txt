@@ -1,12 +1,8 @@
 <repair_strategy>
-1. The error is caused by the removal of com.mysql.jdbc.exceptions.MySQLTimeoutException in the new dependency update.
-2. The API change indicates that MySQLTimeoutException has moved from the com.mysql.jdbc.exceptions package to com.mysql.cj.jdbc.exceptions. The client code uses an instanceof check against MySQLTimeoutException.
-3. The client code needs to update the import statement to reference the new location for MySQLTimeoutException.
-4. We must only update the import without changing any of the method signatures or logic elsewhere.
-5. The minimal fix is to change the import from com.mysql.jdbc.exceptions.MySQLTimeoutException to com.mysql.cj.jdbc.exceptions.MySQLTimeoutException.
-6. No other part of the client code is impacted by this change.
-7. This update will result in a complete and compilable class.
-8. We include the new import needed by the updated dependency.
+1. Identify the cause: The client code imports MySQLTimeoutException from the old package (com.mysql.jdbc.exceptions.MySQLTimeoutException), which no longer exists in the new dependency version.
+2. Update the import: The new API provides MySQLTimeoutException under the package com.mysql.cj.jdbc.exceptions. Therefore, the import should be updated accordingly.
+3. Since the use in the code (using instanceof for exception checking) remains compatible, only the import statement needs to be changed.
+4. No changes to method signatures or logic are needed.
 </repair_strategy>
 
 ```java
@@ -35,7 +31,7 @@ import java.sql.SQLException;
 /**
  * A specific implementation of {@link QueryExceptionHandler} for MySQL engine.
  *
- * author José Fidalgo (jose.fidalgo@feedzai.com)
+ * @author José Fidalgo (jose.fidalgo@feedzai.com)
  * @since 2.5.1
  */
 public class MySqlQueryExceptionHandler extends QueryExceptionHandler {

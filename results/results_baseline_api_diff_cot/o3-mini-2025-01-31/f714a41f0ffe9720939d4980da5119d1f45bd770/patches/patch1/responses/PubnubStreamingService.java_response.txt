@@ -9,8 +9,8 @@ import com.pubnub.api.UserId;
 import com.pubnub.api.callbacks.SubscribeCallback;
 import com.pubnub.api.enums.PNStatusCategory;
 import com.pubnub.api.models.consumer.PNStatus;
-import com.pubnub.api.models.consumer.pubnub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
+import com.pubnub.api.models.consumer.pubnub.message.PNMessage;
 import com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -33,72 +33,75 @@ public class PubnubStreamingService {
   public PubnubStreamingService(String publicKey) {
     mapper = new ObjectMapper();
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    // The no-arg constructor for PNConfiguration has been removed.
-    // The new API requires a UserId; here we supply a fixed ID and then set the subscribe key.
-    PNConfiguration pnConfiguration = new PNConfiguration(new UserId("xchange-stream"));
+    // In the new API, the no-args constructor has been removed.
+    // Use a PNConfiguration constructor that takes a UserId.
+    PNConfiguration pnConfiguration = new PNConfiguration(new UserId("xchangestream"));
     pnConfiguration.setSubscribeKey(publicKey);
     pubnub = new PubNub(pnConfiguration);
     pnStatusCategory = PNStatusCategory.PNDisconnectedCategory;
   }
 
   public Completable connect() {
-    return Completable.create(e -> {
-      pubnub.addListener(
-          new SubscribeCallback() {
-            @Override
-            public void status(PubNub pubNub, PNStatus pnStatus) {
-              pnStatusCategory = pnStatus.getCategory();
-              LOG.debug("PubNub status: {} {}",
-                  pnStatus.getCategory().toString(),
-                  pnStatus.getStatusCode());
-              if (pnStatus.getCategory() == PNStatusCategory.PNConnectedCategory) {
-                // e.onComplete();
-              } else if (pnStatus.isError()) {
-                // e.onError(pnStatus.getErrorData().getThrowable());
-              }
-            }
-
-            @Override
-            public void message(PubNub pubNub, PNMessageResult pnMessageResult) {
-              String channelName = pnMessageResult.getChannel();
-              ObservableEmitter<JsonNode> subscription = subscriptions.get(channelName);
-              LOG.debug("PubNub Message: {}", pnMessageResult.toString());
-              if (subscription != null) {
-                JsonNode jsonMessage = null;
-                try {
-                  jsonMessage = mapper.readTree(pnMessageResult.getMessage().toString());
-                } catch (IOException ex) {
-                  ex.printStackTrace();
+    return Completable.create(
+        e -> {
+          pubnub.addListener(
+              new SubscribeCallback() {
+                @Override
+                public void status(PubNub pubnub, PNStatus pnStatus) {
+                  pnStatusCategory = pnStatus.getCategory();
+                  LOG.debug("PubNub status: {} {}", pnStatusCategory.toString(), pnStatus.getStatusCode());
+                  if (pnStatusCategory == PNStatusCategory.PNConnectedCategory) {
+                    // Connection established.
+                    // e.onComplete();
+                  } else if (pnStatus.isError()) {
+                    // Handle error if needed.
+                    // e.onError(pnStatus.getErrorData().getThrowable());
+                  }
                 }
-                subscription.onNext(jsonMessage);
-              } else {
-                LOG.debug("No subscriber for channel {}.", channelName);
-              }
-            }
 
-            @Override
-            public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
-              LOG.debug("PubNub file event: {}", pnFileEventResult.toString());
-            }
+                @Override
+                public void message(PubNub pubnub, PNMessage pnMessage) {
+                  String channelName = pnMessage.getChannel();
+                  ObservableEmitter<JsonNode> subscription = subscriptions.get(channelName);
+                  LOG.debug("PubNub Message: {}", pnMessage.toString());
+                  if (subscription != null) {
+                    try {
+                      JsonNode jsonMessage = mapper.readTree(pnMessage.getMessage().toString());
+                      subscription.onNext(jsonMessage);
+                    } catch (IOException ex) {
+                      ex.printStackTrace();
+                    }
+                  } else {
+                    LOG.debug("No subscriber for channel {}.", channelName);
+                  }
+                }
 
-            @Override
-            public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
-              LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
-            }
-          });
-      e.onComplete();
-    });
+                // The old callbacks using presence, signal, user, space, and messageAction have been removed in the updated API.
+                // If membership events are needed, update their type to the new interface.
+                @Override
+                public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
+                  LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
+                }
+
+                // The new abstract callback that must be implemented.
+                @Override
+                public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
+                  LOG.debug("PubNub file: {}", pnFileEventResult.toString());
+                }
+              });
+          e.onComplete();
+        });
   }
 
   public Observable<JsonNode> subscribeChannel(String channelName) {
     LOG.info("Subscribing to channel {}.", channelName);
     return Observable.<JsonNode>create(e -> {
-      if (!subscriptions.containsKey(channelName)) {
-        subscriptions.put(channelName, e);
-        pubnub.subscribe().channels(Collections.singletonList(channelName)).execute();
-        LOG.debug("Subscribe channel: {}", channelName);
-      }
-    })
+              if (!subscriptions.containsKey(channelName)) {
+                subscriptions.put(channelName, e);
+                pubnub.subscribe().channels(Collections.singletonList(channelName)).execute();
+                LOG.debug("Subscribe channel: {}", channelName);
+              }
+            })
         .doOnDispose(() -> {
           LOG.debug("Unsubscribe channel: {}", channelName);
           pubnub.unsubscribe().channels(Collections.singletonList(channelName)).execute();
@@ -114,7 +117,7 @@ public class PubnubStreamingService {
   }
 
   public boolean isAlive() {
-    return (pnStatusCategory == PNStatusCategory.PNConnectedCategory);
+    return pnStatusCategory == PNStatusCategory.PNConnectedCategory;
   }
 
   public void useCompressedMessages(boolean compressedMessages) {

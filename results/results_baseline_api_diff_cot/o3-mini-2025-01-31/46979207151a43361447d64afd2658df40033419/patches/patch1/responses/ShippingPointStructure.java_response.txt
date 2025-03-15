@@ -18,7 +18,7 @@ import javax.xml.bind.annotation.XmlElementRefs;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
-import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
@@ -40,8 +40,9 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}LocationID" minOccurs="0"/&gt;
  *         &lt;/sequence&gt;
  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Address" minOccurs="0"/&gt;
- *       &lt;/restriction&gt;
- *     &lt;/complexContent&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
  * 
@@ -54,8 +55,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "warehouseIDAndLocationID",
     "address"
 })
-public class ShippingPointStructure implements ToString2
-{
+public class ShippingPointStructure implements ToString2 {
 
     @XmlElement(name = "DeliveryID")
     protected List<String> deliveryID;
@@ -179,7 +179,7 @@ public class ShippingPointStructure implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
+        final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
@@ -217,5 +217,4 @@ public class ShippingPointStructure implements ToString2
         }
         return buffer;
     }
-
 }

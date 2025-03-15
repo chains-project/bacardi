@@ -1,42 +1,16 @@
-```
-package com.redislabs.redisgraph.impl.api;
+```java
+package com.redislabs.redisgraph;
 
-import com.redislabs.redisgraph.RedisGraph;
-import com.redislabs.redisgraph.ResultSet;
-import com.redislabs.redisgraph.impl.Utils;
-import com.redislabs.redisgraph.impl.graph_cache.RedisGraphCaches;
-import com.redislabs.redisgraph.impl.resultset.ResultSetImpl;
-import redis.clients.jedis.Builder;
-import redis.clients.jedis.BuilderFactory;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Pipeline;
-
+import redis.clients.jedis.Response;
+import redis.clients.jedis.ClusterPipeline;
+import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
 
 /**
- * This class is extending Jedis Pipeline.
- *
- * NOTE: This update adapts the code to the new Jedis API where:
- *  - The class "Client" is removed. The Pipeline now is constructed from a Jedis instance.
- *  - The method setClient(...) is no longer available.
- *  - The method getResponse(...) is no longer provided by the dependency.
- *
- * In order to fix these errors,
- *  (1) the constructor now accepts a Jedis instance and passes it to super(jedis)
- *  (2) all calls to client.sendCommand(...) are replaced with sendCommand(...) calls using String[] arguments.
- *  (3) A private getResponse(Builder<T>) method is added that creates a custom inner Response<T> instance.
- *  (4) An inner static Response<T> class is introduced to replace the removed redis.clients.jedis.Response.
+ * An interface which aligned to Jedis Pipeline interface
  */
-public class RedisGraphPipeline extends Pipeline implements com.redislabs.redisgraph.RedisGraphPipeline, RedisGraphCacheHolder {
-
-    private final RedisGraph redisGraph;
-    private RedisGraphCaches caches;
-
-    public RedisGraphPipeline(Jedis jedis, RedisGraph redisGraph) {
-        super(jedis);
-        this.redisGraph = redisGraph;
-    }
+public interface RedisGraphPipeline extends ClusterPipeline, Closeable {
 
     /**
      * Execute a Cypher query.
@@ -44,17 +18,7 @@ public class RedisGraphPipeline extends Pipeline implements com.redislabs.redisg
      * @param query Cypher query
      * @return a response which builds the result set with the query answer.
      */
-    @Override
-    public Response<ResultSet> query(String graphId, String query) {
-        sendCommand(RedisGraphCommand.QUERY, new String[]{graphId, query, Utils.COMPACT_STRING});
-        return getResponse(new Builder<ResultSet>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public ResultSet build(Object o) {
-                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
-            }
-        });
-    }
+    Response<ResultSet> query(String graphId, String query);
 
     /**
      * Execute a Cypher read-only query.
@@ -62,226 +26,123 @@ public class RedisGraphPipeline extends Pipeline implements com.redislabs.redisg
      * @param query Cypher query
      * @return a response which builds the result set with the query answer.
      */
-    @Override
-    public Response<ResultSet> readOnlyQuery(String graphId, String query) {
-        sendCommand(RedisGraphCommand.RO_QUERY, new String[]{graphId, query, Utils.COMPACT_STRING});
-        return getResponse(new Builder<ResultSet>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public ResultSet build(Object o) {
-                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
-            }
-        });
-    }
+    Response<ResultSet> readOnlyQuery(String graphId, String query);
 
     /**
      * Execute a Cypher query with timeout.
      * @param graphId a graph to perform the query on
      * @param query Cypher query
-     * @param timeout timeout value (sent to DB)
+     * @param timeout
      * @return a response which builds the result set with the query answer.
      */
-    @Override
-    public Response<ResultSet> query(String graphId, String query, long timeout) {
-        sendCommand(RedisGraphCommand.QUERY, new String[]{graphId, query, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING, Long.toString(timeout)});
-        return getResponse(new Builder<ResultSet>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public ResultSet build(Object o) {
-                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
-            }
-        });
-    }
+    Response<ResultSet> query(String graphId, String query, long timeout);
 
     /**
      * Execute a Cypher read-only query with timeout.
      * @param graphId a graph to perform the query on
-     * @param query Cypher query
-     * @param timeout timeout value (sent to DB)
+     * @param query Cypher query.
+     * @param timeout
      * @return a response which builds the result set with the query answer.
      */
-    @Override
-    public Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout) {
-        sendCommand(RedisGraphCommand.RO_QUERY, new String[]{graphId, query, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING, Long.toString(timeout)});
-        return getResponse(new Builder<ResultSet>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public ResultSet build(Object o) {
-                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
-            }
-        });
-    }
+    Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout);
 
     /**
      * Executes a cypher query with parameters.
      * @param graphId a graph to perform the query on.
      * @param query Cypher query.
      * @param params parameters map.
-     * @return a response which builds the result set with the query answer.
+     * @return  a response which builds the result set with the query answer.
      */
-    @Override
-    public Response<ResultSet> query(String graphId, String query, Map<String, Object> params) {
-        String preparedQuery = Utils.prepareQuery(query, params);
-        sendCommand(RedisGraphCommand.QUERY, new String[]{graphId, preparedQuery, Utils.COMPACT_STRING});
-        return getResponse(new Builder<ResultSet>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public ResultSet build(Object o) {
-                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
-            }
-        });
-    }
+    Response<ResultSet> query(String graphId, String query, Map<String, Object> params);
 
     /**
      * Executes a cypher read-only query with parameters.
      * @param graphId a graph to perform the query on.
      * @param query Cypher query.
      * @param params parameters map.
-     * @return a response which builds the result set with the query answer.
+     * @return  a response which builds the result set with the query answer.
      */
-    @Override
-    public Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params) {
-        String preparedQuery = Utils.prepareQuery(query, params);
-        sendCommand(RedisGraphCommand.RO_QUERY, new String[]{graphId, preparedQuery, Utils.COMPACT_STRING});
-        return getResponse(new Builder<ResultSet>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public ResultSet build(Object o) {
-                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
-            }
-        });
-    }
+    Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params);
 
     /**
      * Executes a cypher query with parameters and timeout.
      * @param graphId a graph to perform the query on.
      * @param query Cypher query.
      * @param params parameters map.
-     * @param timeout timeout value (sent to DB)
-     * @return a response which builds the result set with the query answer.
+     * @param timeout
+     * @return  a response which builds the result set with the query answer.
      */
-    @Override
-    public Response<ResultSet> query(String graphId, String query, Map<String, Object> params, long timeout) {
-        String preparedQuery = Utils.prepareQuery(query, params);
-        sendCommand(RedisGraphCommand.QUERY, new String[]{graphId, preparedQuery, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING, Long.toString(timeout)});
-        return getResponse(new Builder<ResultSet>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public ResultSet build(Object o) {
-                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
-            }
-        });
-    }
+    Response<ResultSet> query(String graphId, String query, Map<String, Object> params, long timeout);
 
     /**
      * Executes a cypher read-only query with parameters and timeout.
      * @param graphId a graph to perform the query on.
      * @param query Cypher query.
      * @param params parameters map.
-     * @param timeout timeout value (sent to DB)
-     * @return a response which builds the result set with the query answer.
+     * @param timeout
+     * @return  a response which builds the result set with the query answer.
      */
-    @Override
-    public Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params, long timeout) {
-        String preparedQuery = Utils.prepareQuery(query, params);
-        sendCommand(RedisGraphCommand.RO_QUERY, new String[]{graphId, preparedQuery, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING, Long.toString(timeout)});
-        return getResponse(new Builder<ResultSet>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public ResultSet build(Object o) {
-                return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
-            }
-        });
-    }
+    Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params, long timeout);
 
     /**
-     * Invokes stored procedures without arguments.
-     * @param graphId a graph to perform the query on.
-     * @param procedure procedure name to invoke.
-     * @return response with result set with the procedure data.
+     * Invokes stored procedures without arguments
+     * @param graphId a graph to perform the query on
+     * @param procedure procedure name to invoke
+     * @return a response which builds result set with the procedure data
      */
-    public Response<ResultSet> callProcedure(String graphId, String procedure) {
-        return callProcedure(graphId, procedure, Utils.DUMMY_LIST, Utils.DUMMY_MAP);
-    }
+    Response<ResultSet> callProcedure(String graphId, String procedure);
 
     /**
-     * Invokes stored procedures with arguments.
-     * @param graphId a graph to perform the query on.
-     * @param procedure procedure name to invoke.
-     * @param args procedure arguments.
-     * @return response with result set with the procedure data.
+     * Invokes stored procedure with arguments
+     * @param graphId a graph to perform the query on
+     * @param procedure procedure name to invoke
+     * @param args procedure arguments
+     * @return a response which builds result set with the procedure data
      */
-    public Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args) {
-        return callProcedure(graphId, procedure, args, Utils.DUMMY_MAP);
-    }
+    Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args);
 
     /**
-     * Invoke a stored procedure.
-     * @param graphId a graph to perform the query on.
-     * @param procedure procedure to execute.
-     * @param args procedure arguments.
-     * @param kwargs procedure keyword arguments.
-     * @return response with result set with the procedure data.
+     * Invoke a stored procedure
+     * @param graphId a graph to perform the query on
+     * @param procedure - procedure to execute
+     * @param args - procedure arguments
+     * @param kwargs - procedure output arguments
+     * @return a response which builds result set with the procedure data
      */
-    public Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args, Map<String, List<String>> kwargs) {
-        String preparedProcedure = Utils.prepareProcedure(procedure, args, kwargs);
-        return query(graphId, preparedProcedure);
-    }
+    Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args, Map<String, List<String>> kwargs);
 
     /**
-     * Deletes the entire graph.
-     * @param graphId graph to delete.
-     * @return response with the deletion running time statistics.
+     * Deletes the entire graph
+     * @param graphId graph to delete
+     * @return a response which builds the delete running time statistics
      */
-    public Response<String> deleteGraph(String graphId){
-        sendCommand(RedisGraphCommand.DELETE, new String[]{graphId});
-        Response<String> response = getResponse(BuilderFactory.STRING);
-        caches.removeGraphCache(graphId);
-        return response;
-    }
-
-    @Override
-    public void setRedisGraphCaches(RedisGraphCaches caches) {
-        this.caches = caches;
-    }
+    Response<String> deleteGraph(String graphId);
 
     /**
-     * Private helper to create a Response object wrapping the provided builder.
+     * Synchronize pipeline by reading all responses. This operation close the pipeline. Whenever
+     * possible try to avoid using this version and use Pipeline.sync() as it won't go through all the
+     * responses and generate the right response type (usually it is a waste of time).
+     * @return A list of all the responses in the order you executed them.
      */
-    private <T> Response<T> getResponse(Builder<T> builder) {
-        return new Response<>(builder);
-    }
+    List<Object> syncAndReturnAll();
 
     /**
-     * Custom response class to replace the removed
-     * redis.clients.jedis.Response interface.
+     * Synchronize pipeline by reading all responses. This operation close the pipeline. In order to
+     * get return values from pipelined commands, capture the different Response<?> of the
+     * commands you execute.
      */
-    public static class Response<T> {
-        private final Builder<T> builder;
-        private Object data;
+    public void sync();
 
-        public Response(Builder<T> builder) {
-            this.builder = builder;
-        }
-
-        /**
-         * Called to set the raw response data (typically when pipeline.sync() is invoked).
-         * @param data raw data returned from Redis.
-         */
-        public void setData(Object data) {
-            this.data = data;
-        }
-
-        /**
-         * Returns the processed response by applying the builder.
-         * @return the processed response.
-         */
-        public T get() {
-            if(data == null) {
-                throw new IllegalStateException("Response data not available. Ensure pipeline.sync() was called.");
-            }
-            return builder.build(data);
-        }
-    }
+    /**
+     * Blocks until all the previous write commands are successfully transferred and acknowledged by
+     * at least the specified number of replicas. If the timeout, specified in milliseconds, is
+     * reached, the command returns even if the specified number of replicas were not yet reached.
+     * @param replicas successfully transferred and acknowledged by at least the specified number of
+     *          replicas
+     * @param timeout the time to block in milliseconds, a timeout of 0 means to block forever
+     * @return the number of replicas reached by all the writes performed in the context of the
+     *         current connection
+     */
+    public Response<Long> waitReplicas(int replicas, long timeout);
 }
 ```

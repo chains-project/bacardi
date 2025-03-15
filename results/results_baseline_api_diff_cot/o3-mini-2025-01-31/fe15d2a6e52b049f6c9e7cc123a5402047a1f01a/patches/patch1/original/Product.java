@@ -6,7 +6,7 @@
 //
 
 
-package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -29,11 +29,12 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductType"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductCode"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductGroup" minOccurs="0"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductDescription"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductNumberCode"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductType"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductCode"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductGroup" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductDescription"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductNumberCode"/&gt;
+ *         &lt;element name="CustomsDetails" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomsDetails" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
@@ -48,7 +49,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "productCode",
     "productGroup",
     "productDescription",
-    "productNumberCode"
+    "productNumberCode",
+    "customsDetails"
 })
 @XmlRootElement(name = "Product")
 public class Product implements ToString2
@@ -64,6 +66,8 @@ public class Product implements ToString2
     protected String productDescription;
     @XmlElement(name = "ProductNumberCode", required = true)
     protected String productNumberCode;
+    @XmlElement(name = "CustomsDetails")
+    protected CustomsDetails customsDetails;
 
     /**
      * Gets the value of the productType property.
@@ -185,6 +189,30 @@ public class Product implements ToString2
         this.productNumberCode = value;
     }
 
+    /**
+     * Gets the value of the customsDetails property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link CustomsDetails }
+     *     
+     */
+    public CustomsDetails getCustomsDetails() {
+        return customsDetails;
+    }
+
+    /**
+     * Sets the value of the customsDetails property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link CustomsDetails }
+     *     
+     */
+    public void setCustomsDetails(CustomsDetails value) {
+        this.customsDetails = value;
+    }
+
     @Override
     public String toString() {
         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
@@ -227,6 +255,11 @@ public class Product implements ToString2
             String theProductNumberCode;
             theProductNumberCode = this.getProductNumberCode();
             strategy.appendField(locator, this, "productNumberCode", buffer, theProductNumberCode, (this.productNumberCode!= null));
+        }
+        {
+            CustomsDetails theCustomsDetails;
+            theCustomsDetails = this.getCustomsDetails();
+            strategy.appendField(locator, this, "customsDetails", buffer, theCustomsDetails, (this.customsDetails!= null));
         }
         return buffer;
     }

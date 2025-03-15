@@ -1,9 +1,12 @@
 22d21
 < import com.hazelcast.config.MaxSizeConfig;
-27c26,28
+25d23
+< import com.hazelcast.config.NetworkConfig;
+27c25,28
 < import com.hazelcast.core.Cluster;
 ---
 > import com.hazelcast.config.EvictionConfig;
+> import com.hazelcast.config.EvictionConfig.MaxSizePolicy;
 > import com.hazelcast.cluster.Cluster;
 > import com.hazelcast.cluster.Member;
 30d30
@@ -11,47 +14,46 @@
 44c44
 < import org.jivesoftware.util.cache.CacheFactory;
 ---
-> import org.jivesoftware.openfire.plugin.util.cache.CacheFactory;
-288c288,290
+> import org.jivesoftware.openfire.util.cache.CacheFactory;
+186c186
+<                 final NetworkConfig networkConfig = config.getNetworkConfig();
+---
+>                 final com.hazelcast.config.NetworkConfig networkConfig = config.getNetworkConfig();
+194,195c194,195
+<                 memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
+<                 memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
+---
+>                 memberAttributeConfig.setAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
+>                 memberAttributeConfig.setAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
+288c288,289
 <             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
 ---
->             dynamicConfig.getEvictionConfig()
->                 .setSize(hazelcastMaxCacheSizeInMegaBytes)
->                 .setMaximumSizePolicy(EvictionConfig.MaxSizePolicy.USED_HEAP_SIZE);
-294d295
+>             dynamicConfig.getEvictionConfig().setMaximumSizePolicy(MaxSizePolicy.USED_HEAP_SIZE);
+>             dynamicConfig.getEvictionConfig().setSize(hazelcastMaxCacheSizeInMegaBytes);
+294,295c295,296
 <         // TODO: Better genericize this method in CacheFactoryStrategy so we can stop suppressing this warning
-371a373
->         String currentNodeId = (String) current.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE);
-373c375,376
-<             if (!member.getUuid().equals(current.getUuid())) {
+<         @SuppressWarnings("unchecked") final ClusteredCache clusteredCache = new ClusteredCache(name, hazelcast.getMap(name));
 ---
->             String memberNodeId = (String) member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE);
->             if (!memberNodeId.equals(currentNodeId)) {
-378d380
+>         @SuppressWarnings("unchecked")
+>         final ClusteredCache clusteredCache = new ClusteredCache(name, hazelcast.getMap(name));
+378d378
 < 
-424a427
->         String currentNodeId = (String) current.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE);
-426c429,430
-<             if (includeLocalMember || (!member.getUuid().equals(current.getUuid()))) {
----
->             String memberNodeId = (String) member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE);
->             if (includeLocalMember || (!memberNodeId.equals(currentNodeId))) {
-548d551
+548,549c548,549
 <         // TODO: Update CacheFactoryStrategy so the signature is getLock(final Serializable key, Cache<Serializable, Serializable> cache)
-566d568
-<             // Try to determine what plugin loaded the offending class.
-583c585
+<         @SuppressWarnings("unchecked") final ClusterLock clusterLock = new ClusterLock((Serializable) key, (ClusteredCache<Serializable, ?>) cache);
+---
+>         @SuppressWarnings("unchecked")
+>         final ClusterLock clusterLock = new ClusterLock((Serializable) key, (ClusteredCache<Serializable, ?>) cache);
+583c583
 <             pluginClassLoaderWarnings.put(o.getClass().getName(), Instant.now()); // Note that this Instant is unused.
 ---
 >             pluginClassLoaderWarnings.put(o.getClass().getName(), Instant.now());
-656c658,659
+656c656,657
 <         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
 ---
->         String nodeIdAttr = (String) member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE);
->         return NodeID.getInstance(nodeIdAttr.getBytes(StandardCharsets.UTF_8));
-699d701
-< 
-701,703d702
+>         String nodeAttr = (String) member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE);
+>         return NodeID.getInstance(nodeAttr.getBytes(StandardCharsets.UTF_8));
+701,703d701
 < 
 < 
 < 

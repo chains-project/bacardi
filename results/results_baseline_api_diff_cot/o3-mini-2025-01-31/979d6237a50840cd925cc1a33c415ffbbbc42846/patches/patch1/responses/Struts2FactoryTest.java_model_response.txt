@@ -1,14 +1,3 @@
-<repair_strategy>
-1. The failure is caused by changes in the Struts2 API: The class org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter has been removed, and its functionality replaced by org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter.
-2. Comparing the old and new API shows that only the package and type reference have changed. The constructor in the old API has been removed, but since we’re not explicitly calling the constructor (only binding the class), no further change is needed.
-3. The client code that needs to be updated is the import statement for StrutsPrepareAndExecuteFilter and any reference to it.
-4. The fix requires updating the import to use the new package: org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter.
-5. This is the minimal change necessary to get the failing client code to compile.
-6. Since we are only changing the import, there are no side effects on the rest of the code.
-7. The updated code will compile and remain functionally consistent with the new API.
-8. No additional changes to function signatures or code behavior are required.
-</repair_strategy>
-
 ```java
 /*
  * Copyright (C) 2010 Google Inc.
@@ -63,7 +52,7 @@ public class Struts2FactoryTest extends TestCase {
           new ServletModule() {
             @Override
             protected void configureServlets() {
-              // Struts 2 setup
+              // Struts 2 setup: using the updated StrutsPrepareAndExecuteFilter from the new package.
               bind(StrutsPrepareAndExecuteFilter.class)
                   .in(com.google.inject.Singleton.class);
               filter("/*").through(StrutsPrepareAndExecuteFilter.class);

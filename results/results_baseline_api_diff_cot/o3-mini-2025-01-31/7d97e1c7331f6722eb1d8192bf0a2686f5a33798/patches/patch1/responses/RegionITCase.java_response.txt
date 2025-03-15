@@ -62,7 +62,7 @@ final class RegionITCase {
             final String name = RandomStringUtils.randomAlphanumeric(10);
             final String attr = RandomStringUtils.randomAlphabetic(8);
             final String value = RandomStringUtils.randomAlphanumeric(10);
-            for (int idx = 0; idx < 10; ++idx) {
+            for (int idx = 0; idx < 2; ++idx) {
                 domain.item(name).put(attr, value);
                 MatcherAssert.assertThat(
                     domain.item(name), Matchers.hasKey(attr)

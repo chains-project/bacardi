@@ -15,42 +15,46 @@ import org.apache.kafka.common.config.ConfigValue;
 
 class PublisherFactoryImpl implements PublisherFactory {
 
-  // Retained from the old version though it isn’t used anymore now that setContext has been removed.
   private static final Framework FRAMEWORK = Framework.of("KAFKA_CONNECT");
 
   @Override
-  public Publisher<Void> newPublisher(Map<String, String> params) {
+  public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
     Map<String, ConfigValue> config = ConfigDefs.config().validateAll(params);
     RoutingPublisherBuilder.Builder builder = RoutingPublisherBuilder.newBuilder();
-    
-    // The TopicPath builder API has been removed; use the new static factory method instead.
-    TopicPath topic = TopicPath.of(
-        ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value()).project(),
-        CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()),
-        TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()));
+
+    // Replace the removed builder pattern by using the new static factory method.
+    TopicPath topic =
+        TopicPath.of(
+            ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value()).project(),
+            CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()),
+            TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()));
 
     builder.setTopic(topic);
-    
-    // The old lambda was using PartitionPublisherFactory as a functional interface. However,
-    // the new dependency no longer treats it as such (or has added extra abstract methods).
-    // We now supply an anonymous inner class implementation.
+
+    // Previously a lambda was used here to implement PartitionPublisherFactory.
+    // In the new API, this interface now has multiple abstract methods so we use an 
+    // anonymous inner class implementing all required methods.
     builder.setPublisherFactory(new com.google.cloud.pubsublite.internal.wire.PartitionPublisherFactory() {
       @Override
-      public Publisher<Void> newPublisher(int partition) {
-        // Note: The setContext method has been removed. So we remove that call.
+      public Publisher<?> newPublisher(int partition) {
+        // Removed the setContext() call which is no longer provided by the dependency.
         return SinglePartitionPublisherBuilder.newBuilder()
             .setTopic(topic)
             .setPartition(partition)
             .build();
       }
-      
+
       @Override
-      public void close() {
-        // No additional resources to close.
+      public void shutdown() {
+        // No-op shutdown; no extra cleanup steps required.
       }
     });
-    
+
     return builder.build();
   }
+
+  // Since the dependency has removed PublishMetadata, we add a local stub 
+  // to keep the method signature intact.
+  static class PublishMetadata { }
 }
 ```

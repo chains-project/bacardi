@@ -1,15 +1,21 @@
 30d29
 < import org.apache.thrift.transport.TFastFramedTransport;
-32a32
-> import org.apache.thrift.transport.layered.TFastFramedTransport;
-60c60
-<       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
+32c31,32
+< import org.apache.thrift.transport.TTransport;
 ---
->       // Use the TFastFramedTransport to be compatible with singer_thrift
-63,64c63
+> // Updated import for TFastFramedTransport from the new layered package.
+> import org.apache.thrift.transport.layered.TFastFramedTransport;
+53c53
+<     private TTransport framedTransport;
+---
+>     private TFastFramedTransport framedTransport;
+60,61c60
+<       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
+<       // log.
+---
+>       // Use the TFastFramedTransport from the new layered API.
+63,64c62
 <       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
 <           bufferCapacity);
 ---
 >       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity);
-91a91
->    * @param maxRetentionHours the max retention in hours to keep old log files.

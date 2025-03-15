@@ -1,12 +1,12 @@
 <repair_strategy>
-1. The API change indicates that the class and static method have moved from develop.p2p.lib.LearnMath to tokyo.peya.lib.LearnMath.
-2. The old static import "develop.p2p.lib.LearnMath.sigmoid" is now invalid because the class has been removed from the dependency. The new API now provides the sigmoid method in tokyo.peya.lib.LearnMath.
-3. The only portion of the client code that needs updating is the static import line.
-4. We must preserve the function signatures and existing methods; only the import must be changed.
-5. The minimal change required is to update the static import to import from tokyo.peya.lib.LearnMath.
-6. This change will ensure that the code calls the new sigmoid method while maintaining its functionality.
-7. The resulting class is complete and compilable.
-8. The new required import (static) is added accordingly.
+1. The error is caused by an outdated static import: the code attempts to use develop.p2p.lib.LearnMath.sigmoid, but in the updated API this class has been removed.
+2. The new API provides the sigmoid method in tokyo.peya.lib.LearnMath.
+3. The only necessary change is to update the static import to point to the new package.
+4. The function signature for the sigmoid method remains the same (taking a double parameter), so no other changes are needed.
+5. The minimal fix is to replace the import static develop.p2p.lib.LearnMath.sigmoid; with import static tokyo.peya.lib.LearnMath.sigmoid;.
+6. This change does not require modifications to other methods or classes, and preserves the existing functionality.
+7. The updated class remains fully compilable with the new dependency API.
+8. No additional imports are needed aside from updating the static import for sigmoid.
 </repair_strategy>
 
 ```java

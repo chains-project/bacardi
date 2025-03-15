@@ -1,5 +1,27 @@
 package xdev.tableexport.export;
 
+/*-
+ * #%L
+ * XDEV BI Suite
+ * %%
+ * Copyright (C) 2011 - 2020 XDEV Software
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Lesser Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Lesser Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/lgpl-3.0.html>.
+ * #L%
+ */
+
 import java.awt.Color;
 import java.awt.Font;
 import java.util.HashSet;
@@ -47,10 +69,12 @@ public class ReportBuilder
 	private final TemplateConfig config;
 	private final Set<JRDesignField> fieldSet = new HashSet<>();
 	
+	
 	public ReportBuilder(final TemplateConfig tempConfig)
 	{
 		this.config = tempConfig;
 	}
+	
 	
 	private JRDesignBand initDetailBand()
 	{
@@ -61,13 +85,16 @@ public class ReportBuilder
 		return detailBand;
 	}
 	
+	
 	private JRDesignBand initHeaderBand()
 	{
+		// Header
 		final JRDesignBand headerBand = new JRDesignBand();
 		headerBand.setHeight(TemplateConfig.DEFAULT_HEADER_BAND_HEIGHT);
 		
 		return headerBand;
 	}
+	
 	
 	private JasperDesign createDefaultDesign()
 	{
@@ -88,6 +115,7 @@ public class ReportBuilder
 		return jasperDesign;
 	}
 	
+	
 	private int calcColumnsWidth()
 	{
 		int width = 0;
@@ -100,6 +128,13 @@ public class ReportBuilder
 		return width;
 	}
 
+	/***
+	 * Calculated the page width including the margins.
+	 * 
+	 * @param properties
+	 * 
+	 * @return
+	 */
 	private int calcPageWidth(final PageProperties properties)
 	{
 		int width = 0;
@@ -114,8 +149,14 @@ public class ReportBuilder
 		return width;
 	}
 	
+	
+	/**
+	 * 
+	 * @return
+	 */
 	private int calcMaxHeaderHeight()
 	{
+		
 		final JLabel lbl = new JLabel("a");
 		int maxHeight = 0;
 		
@@ -128,10 +169,10 @@ public class ReportBuilder
 			int lblHeigh = (int) lbl.getPreferredSize().getHeight();
 			// add the column border width
 			lblHeigh += style.getColBorder().getLineWidth() * 2;
-			// add padding
+			// Add padding
 			lblHeigh += style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
 			
-			if (lblHeigh > maxHeight)
+			if(lblHeigh > maxHeight)
 			{
 				maxHeight = lblHeigh;
 			}
@@ -142,6 +183,7 @@ public class ReportBuilder
 	
 	private int calcMaxContentHeight()
 	{
+		
 		final JLabel lbl = new JLabel("a");
 		int maxHeight = 0;
 		
@@ -151,12 +193,12 @@ public class ReportBuilder
 			final Font font = style.getFont();
 			lbl.setFont(font);
 			int lblHeigh = (int) lbl.getPreferredSize().getHeight();
-			// add border width
+			// Add border width
 			lblHeigh += style.getColBorder().getLineWidth() * 2;
-			// add padding
+			// Add padding
 			lblHeigh += style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
 			
-			if (lblHeigh > maxHeight)
+			if(lblHeigh > maxHeight)
 			{
 				maxHeight = lblHeigh;
 			}
@@ -165,11 +207,12 @@ public class ReportBuilder
 		return maxHeight;
 	}
 	
+	
 	private void createTemplateFields(final JasperDesign jasperDesign) throws ExportException
 	{
 		JRDesignField field;
 		
-		for (final TemplateColumn col : this.config.getColumns())
+		for(final TemplateColumn col : this.config.getColumns())
 		{
 			field = new JRDesignField();
 			field.setName(col.getContentColumn().getFieldName());
@@ -180,18 +223,21 @@ public class ReportBuilder
 				jasperDesign.addField(field);
 				this.fieldSet.add(field);
 			}
-			catch (final JRException e)
+			catch(final JRException e)
 			{
-				throw new ExportException("error during add the field " + col.getContentColumn().getFieldName(), e);
+				throw new ExportException("error during add the field "
+						+ col.getContentColumn().getFieldName(), e);
 			}
 		}
+		
 	}
+
 	
 	private JRDesignField chooseValueClass(final TemplateColumn col, final JRDesignField field)
 	{
 		final Class<?> valueClass = col.getContentColumn().getColumnValueClass();
 		
-		if (valueClass.isAssignableFrom(byte[].class) || valueClass.isAssignableFrom(XdevBlob.class) || valueClass.isAssignableFrom(XdevClob.class))
+		if(valueClass.isAssignableFrom(byte[].class) || valueClass.isAssignableFrom(XdevBlob.class) || valueClass.isAssignableFrom(XdevClob.class))
 		{
 			field.setValueClass(String.class);
 		}
@@ -202,6 +248,7 @@ public class ReportBuilder
 		
 		return field;
 	}
+	
 	
 	private void createHeaderAndContent(final JRDesignBand headerBand, final JRDesignBand detailBand)
 	{
@@ -219,13 +266,14 @@ public class ReportBuilder
 		
 		int x = 0;
 		
-		for (final TemplateColumn col : this.config.getColumns())
+		for(final TemplateColumn col : this.config.getColumns())
 		{
 			// Header is created
-			if (createHeader)
+			if(createHeader)
 			{
-				// If this column has a header the JRDesignStaticText get the propertys of the Column
-				if (col.hasHeaderColumn())
+				// If this column has a header the JRDesignStaticText get the
+				// propertys of the Column
+				if(col.hasHeaderColumn())
 				{
 					final HeaderColumn headerColumn = col.getHeaderColumn();
 					// Build label and set x / y
@@ -240,12 +288,16 @@ public class ReportBuilder
 					this.prepareTextfieldPadding(headerLabel, headerColumn.getStyle());
 					
 					headerLabel.setPositionType(PositionTypeEnum.FLOAT);
+
+					
+					// Get the Property
 					headerLabel.setText(headerColumn.getProperty());
 					headerBand.addElement(headerLabel);
 				}
 				else
 				{
 					// an empty label must be added to complete the layout
+					// Build label and set x / y
 					emptyHeaderLabel = new JRDesignStaticText();
 					emptyHeaderLabel.setX(x);
 					emptyHeaderLabel.setWidth(col.getWidth());
@@ -264,7 +316,7 @@ public class ReportBuilder
 			this.setStlyeForTextField(textField, contentColumn.getStyle());
 			textField.setPattern(contentColumn.getProperty());
 			
-			// Box tag properties
+			// box tag properties
 			this.prepareTextfieldWithBorder(textField, contentColumn.getStyle());
 			this.prepareTextfieldPadding(textField, contentColumn.getStyle());
 			
@@ -272,7 +324,7 @@ public class ReportBuilder
 			
 			textField.setPositionType(PositionTypeEnum.FLOAT);
 			
-			if (this.config.isBlankWhenNullValue())
+			if(this.config.isBlankWhenNullValue())
 			{
 				textField.setBlankWhenNull(true);
 			}
@@ -280,6 +332,7 @@ public class ReportBuilder
 			
 			x += col.getWidth();
 		}
+		
 	}
 	
 	private void setStlyeForTextField(final JRDesignTextElement txtField, final ColumnStyle style)
@@ -294,24 +347,24 @@ public class ReportBuilder
 		txtField.setItalic(Boolean.valueOf(f.isItalic()));
 		txtField.setHorizontalTextAlign(style.getHorizontalAlignment().getHorizontalTextAlignEnum());
 		
-		if (!style.getBackground().equals(Color.WHITE))
+		
+		if(!style.getBackground().equals(Color.WHITE))
 		{
 			txtField.setMode(ModeEnum.OPAQUE);
 		}
 	}
 	
+	
 	private void prepareTextfieldWithBorder(final JRDesignTextElement textField, final ColumnStyle style)
 	{
 		final ColumnBorder border = style.getColBorder();
-		if (border == null)
+		if(border == null)
 		{
 			return;
 		}
 		
-		// The method setLineWidth(float) has been removed in the updated API.
-		// Therefore, the following line has been removed:
-		// textField.getLineBox().getPen().setLineWidth(border.getLineWidth());
-		
+		// Fixed: Convert int to Float for setLineWidth, as required by the updated API
+		textField.getLineBox().getPen().setLineWidth(Float.valueOf(border.getLineWidth()));
 		textField.getLineBox().getPen().setLineColor(border.getLineColor());
 		textField.getLineBox().getPen().setLineStyle(border.getLineStyle().getLineStyleEnum());
 	}
@@ -321,11 +374,13 @@ public class ReportBuilder
 		final ColumnPadding colPadding = style.getColumnPadding();
 		final JRLineBox lineBox = textField.getLineBox();
 		
+		
 		lineBox.setTopPadding(colPadding.getTopWidth());
 		lineBox.setRightPadding(colPadding.getRightWidth());
 		lineBox.setLeftPadding(colPadding.getLeftWidth());
 		lineBox.setBottomPadding(colPadding.getBottomWidth());
 	}
+	
 	
 	private JRDesignExpression buildExpression(final ContentColumn column)
 	{
@@ -333,6 +388,7 @@ public class ReportBuilder
 		expression.setText("$F{" + column.getFieldName() + "}");
 		return expression;
 	}
+	
 	
 	/**
 	 * Assemble and compile a {@link JasperReport} based on the information of
@@ -354,16 +410,17 @@ public class ReportBuilder
 			this.createHeaderAndContent(headerBand, detailBand);
 			
 			((JRDesignSection) jasperDesign.getDetailSection()).addBand(detailBand);
-			if (this.config.hasAnyHeader())
+			if(this.config.hasAnyHeader())
 			{
 				jasperDesign.setTitle(headerBand);
 			}
 						
 			return JasperCompileManager.compileReport(jasperDesign);
 		}
-		catch (final Exception e)
+		catch(final Exception e)
 		{
 			throw new ExportException(e);
 		}
 	}
+	
 }

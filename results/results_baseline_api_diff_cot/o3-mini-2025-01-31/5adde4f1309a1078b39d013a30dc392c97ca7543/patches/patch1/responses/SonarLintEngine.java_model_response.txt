@@ -1,4 +1,15 @@
-```java
+<repair_strategy>
+1. The error indicates that the method addEnabledLanguages(Collection) (and its language array variant) is no longer available in the AnalysisEngineConfiguration.Builder API, which previously accepted a collection of enabled languages.
+2. In the old API, buildAnalysisEngineConfiguration() calls .addEnabledLanguages(globalConfig.getEnabledLanguages()). In the new API, this method has been removed.
+3. We need to update the buildAnalysisEngineConfiguration() method to remove the call to addEnabledLanguages while maintaining the other configuration settings.
+4. We have to keep the rest of the code unchanged so that the AnalysisEngineConfiguration is built without specifying enabled languages via that removed method.
+5. The minimal fix is to remove the addEnabledLanguages call while ensuring the builder still builds a correctly configured AnalysisEngineConfiguration.
+6. Since globalConfig already contains the enabled language information (set during its building via addEnabledLanguage(Language.JAVA)), removing the call here should not affect functionality.
+7. The changes are localized to the buildAnalysisEngineConfiguration() method, and no additional imports are required.
+8. This approach results in a complete, compilable class.
+</repair_strategy>
+
+```
 package sorald.sonar;
 
 import static java.util.Objects.requireNonNull;
@@ -46,6 +57,7 @@ import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoadResult;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader;
 import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader.Configuration;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInfo;
+import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginInstancesLoader;
 import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginRequirementsCheckResult;
 import org.sonarsource.sonarlint.core.rule.extractor.SonarLintRuleDefinition;
 import sorald.FileUtils;

@@ -18,8 +18,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
-import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
-import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
@@ -121,7 +119,10 @@ public class GeneralLedgerEntries implements ToString2 {
     /**
      * Gets the value of the numberOfEntries property.
      * 
-     * @return possible object is {@link BigInteger }
+     * @return
+     *     possible object is
+     *     {@link BigInteger }
+     *     
      */
     public BigInteger getNumberOfEntries() {
         return numberOfEntries;
@@ -130,7 +131,10 @@ public class GeneralLedgerEntries implements ToString2 {
     /**
      * Sets the value of the numberOfEntries property.
      * 
-     * @param value allowed object is {@link BigInteger }
+     * @param value
+     *     allowed object is
+     *     {@link BigInteger }
+     *     
      */
     public void setNumberOfEntries(BigInteger value) {
         this.numberOfEntries = value;
@@ -139,7 +143,10 @@ public class GeneralLedgerEntries implements ToString2 {
     /**
      * Gets the value of the totalDebit property.
      * 
-     * @return possible object is {@link BigDecimal }
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
      */
     public BigDecimal getTotalDebit() {
         return totalDebit;
@@ -148,7 +155,10 @@ public class GeneralLedgerEntries implements ToString2 {
     /**
      * Sets the value of the totalDebit property.
      * 
-     * @param value allowed object is {@link BigDecimal }
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
      */
     public void setTotalDebit(BigDecimal value) {
         this.totalDebit = value;
@@ -157,7 +167,10 @@ public class GeneralLedgerEntries implements ToString2 {
     /**
      * Gets the value of the totalCredit property.
      * 
-     * @return possible object is {@link BigDecimal }
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
      */
     public BigDecimal getTotalCredit() {
         return totalCredit;
@@ -166,7 +179,10 @@ public class GeneralLedgerEntries implements ToString2 {
     /**
      * Sets the value of the totalCredit property.
      * 
-     * @param value allowed object is {@link BigDecimal }
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
      */
     public void setTotalCredit(BigDecimal value) {
         this.totalCredit = value;
@@ -176,16 +192,23 @@ public class GeneralLedgerEntries implements ToString2 {
      * Gets the value of the journal property.
      * 
      * <p>
-     * This accessor method returns a reference to the live list, not a snapshot.
-     * Therefore any modification you make to the returned list will be present inside the JAXB object.
+     * This accessor method returns a reference to the live list,
+     * not a snapshot. Therefore any modification you make to the
+     * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the journal property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
-     * <pre> getJournal().add(newItem); </pre>
+     * <pre>
+     *    getJournal().add(newItem);
+     * </pre>
+     * 
      * 
      * <p>
-     * Objects of the following type(s) are allowed in the list {@link GeneralLedgerEntries.Journal }
+     * Objects of the following type(s) are allowed in the list
+     * {@link GeneralLedgerEntries.Journal }
+     * 
+     * 
      */
     public List<GeneralLedgerEntries.Journal> getJournal() {
         if (journal == null) {
@@ -196,13 +219,12 @@ public class GeneralLedgerEntries implements ToString2 {
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
+        final ToStringStrategy2 strategy = SimpleToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
     }
 
-    @Override
     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         strategy.appendStart(locator, this, buffer);
         appendFields(locator, buffer, strategy);
@@ -210,30 +232,30 @@ public class GeneralLedgerEntries implements ToString2 {
         return buffer;
     }
 
-    @Override
     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         {
             BigInteger theNumberOfEntries;
             theNumberOfEntries = this.getNumberOfEntries();
-            strategy.appendField(locator, this, "numberOfEntries", buffer, theNumberOfEntries, (this.numberOfEntries != null));
+            strategy.appendField(locator, this, "numberOfEntries", buffer, theNumberOfEntries, (this.numberOfEntries!= null));
         }
         {
             BigDecimal theTotalDebit;
             theTotalDebit = this.getTotalDebit();
-            strategy.appendField(locator, this, "totalDebit", buffer, theTotalDebit, (this.totalDebit != null));
+            strategy.appendField(locator, this, "totalDebit", buffer, theTotalDebit, (this.totalDebit!= null));
         }
         {
             BigDecimal theTotalCredit;
             theTotalCredit = this.getTotalCredit();
-            strategy.appendField(locator, this, "totalCredit", buffer, theTotalCredit, (this.totalCredit != null));
+            strategy.appendField(locator, this, "totalCredit", buffer, theTotalCredit, (this.totalCredit!= null));
         }
         {
             List<GeneralLedgerEntries.Journal> theJournal;
-            theJournal = (((this.journal != null) && (!this.journal.isEmpty())) ? this.getJournal() : null);
-            strategy.appendField(locator, this, "journal", buffer, theJournal, ((this.journal != null) && (!this.journal.isEmpty())));
+            theJournal = (((this.journal!= null)&&(!this.journal.isEmpty()))?this.getJournal():null);
+            strategy.appendField(locator, this, "journal", buffer, theJournal, ((this.journal!= null)&&(!this.journal.isEmpty())));
         }
         return buffer;
     }
+
 
     /**
      * <p>Java class for anonymous complex type.
@@ -293,6 +315,8 @@ public class GeneralLedgerEntries implements ToString2 {
      *   &lt;/complexContent&gt;
      * &lt;/complexType&gt;
      * </pre>
+     * 
+     * 
      */
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlType(name = "", propOrder = {
@@ -312,7 +336,10 @@ public class GeneralLedgerEntries implements ToString2 {
         /**
          * Gets the value of the journalID property.
          * 
-         * @return possible object is {@link String }
+         * @return
+         *     possible object is
+         *     {@link String }
+         *     
          */
         public String getJournalID() {
             return journalID;
@@ -321,7 +348,10 @@ public class GeneralLedgerEntries implements ToString2 {
         /**
          * Sets the value of the journalID property.
          * 
-         * @param value allowed object is {@link String }
+         * @param value
+         *     allowed object is
+         *     {@link String }
+         *     
          */
         public void setJournalID(String value) {
             this.journalID = value;
@@ -330,7 +360,10 @@ public class GeneralLedgerEntries implements ToString2 {
         /**
          * Gets the value of the description property.
          * 
-         * @return possible object is {@link String }
+         * @return
+         *     possible object is
+         *     {@link String }
+         *     
          */
         public String getDescription() {
             return description;
@@ -339,7 +372,10 @@ public class GeneralLedgerEntries implements ToString2 {
         /**
          * Sets the value of the description property.
          * 
-         * @param value allowed object is {@link String }
+         * @param value
+         *     allowed object is
+         *     {@link String }
+         *     
          */
         public void setDescription(String value) {
             this.description = value;
@@ -349,16 +385,23 @@ public class GeneralLedgerEntries implements ToString2 {
          * Gets the value of the transaction property.
          * 
          * <p>
-         * This accessor method returns a reference to the live list, not a snapshot.
-         * Therefore any modification you make to the returned list will be present inside the JAXB object.
+         * This accessor method returns a reference to the live list,
+         * not a snapshot. Therefore any modification you make to the
+         * returned list will be present inside the JAXB object.
          * This is why there is not a <CODE>set</CODE> method for the transaction property.
          * 
          * <p>
          * For example, to add a new item, do as follows:
-         * <pre> getTransaction().add(newItem); </pre>
+         * <pre>
+         *    getTransaction().add(newItem);
+         * </pre>
+         * 
          * 
          * <p>
-         * Objects of the following type(s) are allowed in the list {@link GeneralLedgerEntries.Journal.Transaction }
+         * Objects of the following type(s) are allowed in the list
+         * {@link GeneralLedgerEntries.Journal.Transaction }
+         * 
+         * 
          */
         public List<GeneralLedgerEntries.Journal.Transaction> getTransaction() {
             if (transaction == null) {
@@ -369,13 +412,12 @@ public class GeneralLedgerEntries implements ToString2 {
 
         @Override
         public String toString() {
-            final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
+            final ToStringStrategy2 strategy = SimpleToStringStrategy.INSTANCE;
             final StringBuilder buffer = new StringBuilder();
             append(null, buffer, strategy);
             return buffer.toString();
         }
 
-        @Override
         public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
             strategy.appendStart(locator, this, buffer);
             appendFields(locator, buffer, strategy);
@@ -383,25 +425,25 @@ public class GeneralLedgerEntries implements ToString2 {
             return buffer;
         }
 
-        @Override
         public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
             {
                 String theJournalID;
                 theJournalID = this.getJournalID();
-                strategy.appendField(locator, this, "journalID", buffer, theJournalID, (this.journalID != null));
+                strategy.appendField(locator, this, "journalID", buffer, theJournalID, (this.journalID!= null));
             }
             {
                 String theDescription;
                 theDescription = this.getDescription();
-                strategy.appendField(locator, this, "description", buffer, theDescription, (this.description != null));
+                strategy.appendField(locator, this, "description", buffer, theDescription, (this.description!= null));
             }
             {
                 List<GeneralLedgerEntries.Journal.Transaction> theTransaction;
-                theTransaction = (((this.transaction != null) && (!this.transaction.isEmpty())) ? this.getTransaction() : null);
-                strategy.appendField(locator, this, "transaction", buffer, theTransaction, ((this.transaction != null) && (!this.transaction.isEmpty())));
+                theTransaction = (((this.transaction!= null)&&(!this.transaction.isEmpty()))?this.getTransaction():null);
+                strategy.appendField(locator, this, "transaction", buffer, theTransaction, ((this.transaction!= null)&&(!this.transaction.isEmpty())));
             }
             return buffer;
         }
+
 
         /**
          * <p>Java class for anonymous complex type.
@@ -449,6 +491,8 @@ public class GeneralLedgerEntries implements ToString2 {
          *   &lt;/complexContent&gt;
          * &lt;/complexType&gt;
          * </pre>
+         * 
+         * 
          */
         @XmlAccessorType(XmlAccessType.FIELD)
         @XmlType(name = "", propOrder = {
@@ -495,7 +539,10 @@ public class GeneralLedgerEntries implements ToString2 {
             /**
              * Gets the value of the transactionID property.
              * 
-             * @return possible object is {@link String }
+             * @return
+             *     possible object is
+             *     {@link String }
+             *     
              */
             public String getTransactionID() {
                 return transactionID;
@@ -504,7 +551,10 @@ public class GeneralLedgerEntries implements ToString2 {
             /**
              * Sets the value of the transactionID property.
              * 
-             * @param value allowed object is {@link String }
+             * @param value
+             *     allowed object is
+             *     {@link String }
+             *     
              */
             public void setTransactionID(String value) {
                 this.transactionID = value;
@@ -512,6 +562,7 @@ public class GeneralLedgerEntries implements ToString2 {
 
             /**
              * Gets the value of the period property.
+             * 
              */
             public int getPeriod() {
                 return period;
@@ -519,6 +570,7 @@ public class GeneralLedgerEntries implements ToString2 {
 
             /**
              * Sets the value of the period property.
+             * 
              */
             public void setPeriod(int value) {
                 this.period = value;
@@ -527,7 +579,10 @@ public class GeneralLedgerEntries implements ToString2 {
             /**
              * Gets the value of the transactionDate property.
              * 
-             * @return possible object is {@link XMLGregorianCalendar }
+             * @return
+             *     possible object is
+             *     {@link XMLGregorianCalendar }
+             *     
              */
             public XMLGregorianCalendar getTransactionDate() {
                 return transactionDate;
@@ -536,7 +591,10 @@ public class GeneralLedgerEntries implements ToString2 {
             /**
              * Sets the value of the transactionDate property.
              * 
-             * @param value allowed object is {@link XMLGregorianCalendar }
+             * @param value
+             *     allowed object is
+             *     {@link XMLGregorianCalendar }
+             *     
              */
             public void setTransactionDate(XMLGregorianCalendar value) {
                 this.transactionDate = value;
@@ -545,7 +603,10 @@ public class GeneralLedgerEntries implements ToString2 {
             /**
              * Gets the value of the sourceID property.
              * 
-             * @return possible object is {@link String }
+             * @return
+             *     possible object is
+             *     {@link String }
+             *     
              */
             public String getSourceID() {
                 return sourceID;
@@ -554,7 +615,10 @@ public class GeneralLedgerEntries implements ToString2 {
             /**
              * Sets the value of the sourceID property.
              * 
-             * @param value allowed object is {@link String }
+             * @param value
+             *     allowed object is
+             *     {@link String }
+             *     
              */
             public void setSourceID(String value) {
                 this.sourceID = value;
@@ -563,7 +627,10 @@ public class GeneralLedgerEntries implements ToString2 {
             /**
              * Gets the value of the description property.
              * 
-             * @return possible object is {@link String }
+             * @return
+             *     possible object is
+             *     {@link String }
+             *     
              */
             public String getDescription() {
                 return description;
@@ -572,7 +639,10 @@ public class GeneralLedgerEntries implements ToString2 {
             /**
              * Sets the value of the description property.
              * 
-             * @param value allowed object is {@link String }
+             * @param value
+             *     allowed object is
+             *     {@link String }
+             *     
              */
             public void setDescription(String value) {
                 this.description = value;
@@ -581,7 +651,10 @@ public class GeneralLedgerEntries implements ToString2 {
             /**
              * Gets the value of the docArchivalNumber property.
              * 
-             * @return possible object is {@link String }
+             * @return
+             *     possible object is
+             *     {@link String }
+             *     
              */
             public String getDocArchivalNumber() {
                 return docArchivalNumber;
@@ -590,7 +663,10 @@ public class GeneralLedgerEntries implements ToString2 {
             /**
              * Sets the value of the docArchivalNumber property.
              * 
-             * @param value allowed object is {@link String }
+             * @param value
+             *     allowed object is
+             *     {@link String }
+             *     
              */
             public void setDocArchivalNumber(String value) {
                 this.docArchivalNumber = value;
@@ -599,7 +675,10 @@ public class GeneralLedgerEntries implements ToString2 {
             /**
              * Gets the value of the transactionType property.
              * 
-             * @return possible object is {@link String }
+             * @return
+             *     possible object is
+             *     {@link String }
+             *     
              */
             public String getTransactionType() {
                 return transactionType;
@@ -608,7 +687,10 @@ public class GeneralLedgerEntries implements ToString2 {
             /**
              * Sets the value of the transactionType property.
              * 
-             * @param value allowed object is {@link String }
+             * @param value
+             *     allowed object is
+             *     {@link String }
+             *     
              */
             public void setTransactionType(String value) {
                 this.transactionType = value;
@@ -617,7 +699,10 @@ public class GeneralLedgerEntries implements ToString2 {
             /**
              * Gets the value of the glPostingDate property.
              * 
-             * @return possible object is {@link XMLGregorianCalendar }
+             * @return
+             *     possible object is
+             *     {@link XMLGregorianCalendar }
+             *     
              */
             public XMLGregorianCalendar getGLPostingDate() {
                 return glPostingDate;
@@ -626,7 +711,10 @@ public class GeneralLedgerEntries implements ToString2 {
             /**
              * Sets the value of the glPostingDate property.
              * 
-             * @param value allowed object is {@link XMLGregorianCalendar }
+             * @param value
+             *     allowed object is
+             *     {@link XMLGregorianCalendar }
+             *     
              */
             public void setGLPostingDate(XMLGregorianCalendar value) {
                 this.glPostingDate = value;
@@ -635,7 +723,10 @@ public class GeneralLedgerEntries implements ToString2 {
             /**
              * Gets the value of the customerID property.
              * 
-             * @return possible object is {@link String }
+             * @return
+             *     possible object is
+             *     {@link String }
+             *     
              */
             public String getCustomerID() {
                 return customerID;
@@ -644,7 +735,10 @@ public class GeneralLedgerEntries implements ToString2 {
             /**
              * Sets the value of the customerID property.
              * 
-             * @param value allowed object is {@link String }
+             * @param value
+             *     allowed object is
+             *     {@link String }
+             *     
              */
             public void setCustomerID(String value) {
                 this.customerID = value;
@@ -653,7 +747,10 @@ public class GeneralLedgerEntries implements ToString2 {
             /**
              * Gets the value of the supplierID property.
              * 
-             * @return possible object is {@link String }
+             * @return
+             *     possible object is
+             *     {@link String }
+             *     
              */
             public String getSupplierID() {
                 return supplierID;
@@ -662,7 +759,10 @@ public class GeneralLedgerEntries implements ToString2 {
             /**
              * Sets the value of the supplierID property.
              * 
-             * @param value allowed object is {@link String }
+             * @param value
+             *     allowed object is
+             *     {@link String }
+             *     
              */
             public void setSupplierID(String value) {
                 this.supplierID = value;
@@ -672,16 +772,23 @@ public class GeneralLedgerEntries implements ToString2 {
              * Gets the value of the line property.
              * 
              * <p>
-             * This accessor method returns a reference to the live list, not a snapshot.
-             * Therefore any modification you make to the returned list will be present inside the JAXB object.
+             * This accessor method returns a reference to the live list,
+             * not a snapshot. Therefore any modification you make to the
+             * returned list will be present inside the JAXB object.
              * This is why there is not a <CODE>set</CODE> method for the line property.
              * 
              * <p>
              * For example, to add a new item, do as follows:
-             * <pre> getLine().add(newItem); </pre>
+             * <pre>
+             *    getLine().add(newItem);
+             * </pre>
+             * 
              * 
              * <p>
-             * Objects of the following type(s) are allowed in the list {@link GeneralLedgerEntries.Journal.Transaction.Line }
+             * Objects of the following type(s) are allowed in the list
+             * {@link GeneralLedgerEntries.Journal.Transaction.Line }
+             * 
+             * 
              */
             public List<GeneralLedgerEntries.Journal.Transaction.Line> getLine() {
                 if (line == null) {
@@ -692,13 +799,12 @@ public class GeneralLedgerEntries implements ToString2 {
 
             @Override
             public String toString() {
-                final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
+                final ToStringStrategy2 strategy = SimpleToStringStrategy.INSTANCE;
                 final StringBuilder buffer = new StringBuilder();
                 append(null, buffer, strategy);
                 return buffer.toString();
             }
 
-            @Override
             public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                 strategy.appendStart(locator, this, buffer);
                 appendFields(locator, buffer, strategy);
@@ -706,12 +812,11 @@ public class GeneralLedgerEntries implements ToString2 {
                 return buffer;
             }
 
-            @Override
             public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                 {
                     String theTransactionID;
                     theTransactionID = this.getTransactionID();
-                    strategy.appendField(locator, this, "transactionID", buffer, theTransactionID, (this.transactionID != null));
+                    strategy.appendField(locator, this, "transactionID", buffer, theTransactionID, (this.transactionID!= null));
                 }
                 {
                     int thePeriod;
@@ -721,50 +826,51 @@ public class GeneralLedgerEntries implements ToString2 {
                 {
                     XMLGregorianCalendar theTransactionDate;
                     theTransactionDate = this.getTransactionDate();
-                    strategy.appendField(locator, this, "transactionDate", buffer, theTransactionDate, (this.transactionDate != null));
+                    strategy.appendField(locator, this, "transactionDate", buffer, theTransactionDate, (this.transactionDate!= null));
                 }
                 {
                     String theSourceID;
                     theSourceID = this.getSourceID();
-                    strategy.appendField(locator, this, "sourceID", buffer, theSourceID, (this.sourceID != null));
+                    strategy.appendField(locator, this, "sourceID", buffer, theSourceID, (this.sourceID!= null));
                 }
                 {
                     String theDescription;
                     theDescription = this.getDescription();
-                    strategy.appendField(locator, this, "description", buffer, theDescription, (this.description != null));
+                    strategy.appendField(locator, this, "description", buffer, theDescription, (this.description!= null));
                 }
                 {
                     String theDocArchivalNumber;
                     theDocArchivalNumber = this.getDocArchivalNumber();
-                    strategy.appendField(locator, this, "docArchivalNumber", buffer, theDocArchivalNumber, (this.docArchivalNumber != null));
+                    strategy.appendField(locator, this, "docArchivalNumber", buffer, theDocArchivalNumber, (this.docArchivalNumber!= null));
                 }
                 {
                     String theTransactionType;
                     theTransactionType = this.getTransactionType();
-                    strategy.appendField(locator, this, "transactionType", buffer, theTransactionType, (this.transactionType != null));
+                    strategy.appendField(locator, this, "transactionType", buffer, theTransactionType, (this.transactionType!= null));
                 }
                 {
                     XMLGregorianCalendar theGLPostingDate;
                     theGLPostingDate = this.getGLPostingDate();
-                    strategy.appendField(locator, this, "glPostingDate", buffer, theGLPostingDate, (this.glPostingDate != null));
+                    strategy.appendField(locator, this, "glPostingDate", buffer, theGLPostingDate, (this.glPostingDate!= null));
                 }
                 {
                     String theCustomerID;
                     theCustomerID = this.getCustomerID();
-                    strategy.appendField(locator, this, "customerID", buffer, theCustomerID, (this.customerID != null));
+                    strategy.appendField(locator, this, "customerID", buffer, theCustomerID, (this.customerID!= null));
                 }
                 {
                     String theSupplierID;
                     theSupplierID = this.getSupplierID();
-                    strategy.appendField(locator, this, "supplierID", buffer, theSupplierID, (this.supplierID != null));
+                    strategy.appendField(locator, this, "supplierID", buffer, theSupplierID, (this.supplierID!= null));
                 }
                 {
                     List<GeneralLedgerEntries.Journal.Transaction.Line> theLine;
-                    theLine = (((this.line != null) && (!this.line.isEmpty())) ? this.getLine() : null);
-                    strategy.appendField(locator, this, "line", buffer, theLine, ((this.line != null) && (!this.line.isEmpty())));
+                    theLine = (((this.line!= null)&&(!this.line.isEmpty()))?this.getLine():null);
+                    strategy.appendField(locator, this, "line", buffer, theLine, ((this.line!= null)&&(!this.line.isEmpty())));
                 }
                 return buffer;
             }
+
 
             /**
              * <p>Java class for anonymous complex type.
@@ -790,6 +896,8 @@ public class GeneralLedgerEntries implements ToString2 {
              *   &lt;/complexContent&gt;
              * &lt;/complexType&gt;
              * </pre>
+             * 
+             * 
              */
             @XmlAccessorType(XmlAccessType.FIELD)
             @XmlType(name = "", propOrder = {
@@ -822,7 +930,10 @@ public class GeneralLedgerEntries implements ToString2 {
                 /**
                  * Gets the value of the recordID property.
                  * 
-                 * @return possible object is {@link String }
+                 * @return
+                 *     possible object is
+                 *     {@link String }
+                 *     
                  */
                 public String getRecordID() {
                     return recordID;
@@ -831,7 +942,10 @@ public class GeneralLedgerEntries implements ToString2 {
                 /**
                  * Sets the value of the recordID property.
                  * 
-                 * @param value allowed object is {@link String }
+                 * @param value
+                 *     allowed object is
+                 *     {@link String }
+                 *     
                  */
                 public void setRecordID(String value) {
                     this.recordID = value;
@@ -840,7 +954,10 @@ public class GeneralLedgerEntries implements ToString2 {
                 /**
                  * Gets the value of the accountID property.
                  * 
-                 * @return possible object is {@link String }
+                 * @return
+                 *     possible object is
+                 *     {@link String }
+                 *     
                  */
                 public String getAccountID() {
                     return accountID;
@@ -849,7 +966,10 @@ public class GeneralLedgerEntries implements ToString2 {
                 /**
                  * Sets the value of the accountID property.
                  * 
-                 * @param value allowed object is {@link String }
+                 * @param value
+                 *     allowed object is
+                 *     {@link String }
+                 *     
                  */
                 public void setAccountID(String value) {
                     this.accountID = value;
@@ -858,7 +978,10 @@ public class GeneralLedgerEntries implements ToString2 {
                 /**
                  * Gets the value of the sourceDocumentID property.
                  * 
-                 * @return possible object is {@link String }
+                 * @return
+                 *     possible object is
+                 *     {@link String }
+                 *     
                  */
                 public String getSourceDocumentID() {
                     return sourceDocumentID;
@@ -867,7 +990,10 @@ public class GeneralLedgerEntries implements ToString2 {
                 /**
                  * Sets the value of the sourceDocumentID property.
                  * 
-                 * @param value allowed object is {@link String }
+                 * @param value
+                 *     allowed object is
+                 *     {@link String }
+                 *     
                  */
                 public void setSourceDocumentID(String value) {
                     this.sourceDocumentID = value;
@@ -876,7 +1002,10 @@ public class GeneralLedgerEntries implements ToString2 {
                 /**
                  * Gets the value of the systemEntryDate property.
                  * 
-                 * @return possible object is {@link XMLGregorianCalendar }
+                 * @return
+                 *     possible object is
+                 *     {@link XMLGregorianCalendar }
+                 *     
                  */
                 public XMLGregorianCalendar getSystemEntryDate() {
                     return systemEntryDate;
@@ -885,7 +1014,10 @@ public class GeneralLedgerEntries implements ToString2 {
                 /**
                  * Sets the value of the systemEntryDate property.
                  * 
-                 * @param value allowed object is {@link XMLGregorianCalendar }
+                 * @param value
+                 *     allowed object is
+                 *     {@link XMLGregorianCalendar }
+                 *     
                  */
                 public void setSystemEntryDate(XMLGregorianCalendar value) {
                     this.systemEntryDate = value;
@@ -894,7 +1026,10 @@ public class GeneralLedgerEntries implements ToString2 {
                 /**
                  * Gets the value of the description property.
                  * 
-                 * @return possible object is {@link String }
+                 * @return
+                 *     possible object is
+                 *     {@link String }
+                 *     
                  */
                 public String getDescription() {
                     return description;
@@ -903,7 +1038,10 @@ public class GeneralLedgerEntries implements ToString2 {
                 /**
                  * Sets the value of the description property.
                  * 
-                 * @param value allowed object is {@link String }
+                 * @param value
+                 *     allowed object is
+                 *     {@link String }
+                 *     
                  */
                 public void setDescription(String value) {
                     this.description = value;
@@ -912,7 +1050,10 @@ public class GeneralLedgerEntries implements ToString2 {
                 /**
                  * Gets the value of the debitAmount property.
                  * 
-                 * @return possible object is {@link BigDecimal }
+                 * @return
+                 *     possible object is
+                 *     {@link BigDecimal }
+                 *     
                  */
                 public BigDecimal getDebitAmount() {
                     return debitAmount;
@@ -921,7 +1062,10 @@ public class GeneralLedgerEntries implements ToString2 {
                 /**
                  * Sets the value of the debitAmount property.
                  * 
-                 * @param value allowed object is {@link BigDecimal }
+                 * @param value
+                 *     allowed object is
+                 *     {@link BigDecimal }
+                 *     
                  */
                 public void setDebitAmount(BigDecimal value) {
                     this.debitAmount = value;
@@ -930,7 +1074,10 @@ public class GeneralLedgerEntries implements ToString2 {
                 /**
                  * Gets the value of the creditAmount property.
                  * 
-                 * @return possible object is {@link BigDecimal }
+                 * @return
+                 *     possible object is
+                 *     {@link BigDecimal }
+                 *     
                  */
                 public BigDecimal getCreditAmount() {
                     return creditAmount;
@@ -939,7 +1086,10 @@ public class GeneralLedgerEntries implements ToString2 {
                 /**
                  * Sets the value of the creditAmount property.
                  * 
-                 * @param value allowed object is {@link BigDecimal }
+                 * @param value
+                 *     allowed object is
+                 *     {@link BigDecimal }
+                 *     
                  */
                 public void setCreditAmount(BigDecimal value) {
                     this.creditAmount = value;
@@ -947,13 +1097,12 @@ public class GeneralLedgerEntries implements ToString2 {
 
                 @Override
                 public String toString() {
-                    final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
+                    final ToStringStrategy2 strategy = SimpleToStringStrategy.INSTANCE;
                     final StringBuilder buffer = new StringBuilder();
                     append(null, buffer, strategy);
                     return buffer.toString();
                 }
 
-                @Override
                 public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                     strategy.appendStart(locator, this, buffer);
                     appendFields(locator, buffer, strategy);
@@ -961,46 +1110,83 @@ public class GeneralLedgerEntries implements ToString2 {
                     return buffer;
                 }
 
-                @Override
                 public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
                     {
                         String theRecordID;
                         theRecordID = this.getRecordID();
-                        strategy.appendField(locator, this, "recordID", buffer, theRecordID, (this.recordID != null));
+                        strategy.appendField(locator, this, "recordID", buffer, theRecordID, (this.recordID!= null));
                     }
                     {
                         String theAccountID;
                         theAccountID = this.getAccountID();
-                        strategy.appendField(locator, this, "accountID", buffer, theAccountID, (this.accountID != null));
+                        strategy.appendField(locator, this, "accountID", buffer, theAccountID, (this.accountID!= null));
                     }
                     {
                         String theSourceDocumentID;
                         theSourceDocumentID = this.getSourceDocumentID();
-                        strategy.appendField(locator, this, "sourceDocumentID", buffer, theSourceDocumentID, (this.sourceDocumentID != null));
+                        strategy.appendField(locator, this, "sourceDocumentID", buffer, theSourceDocumentID, (this.sourceDocumentID!= null));
                     }
                     {
                         XMLGregorianCalendar theSystemEntryDate;
                         theSystemEntryDate = this.getSystemEntryDate();
-                        strategy.appendField(locator, this, "systemEntryDate", buffer, theSystemEntryDate, (this.systemEntryDate != null));
+                        strategy.appendField(locator, this, "systemEntryDate", buffer, theSystemEntryDate, (this.systemEntryDate!= null));
                     }
                     {
                         String theDescription;
                         theDescription = this.getDescription();
-                        strategy.appendField(locator, this, "description", buffer, theDescription, (this.description != null));
+                        strategy.appendField(locator, this, "description", buffer, theDescription, (this.description!= null));
                     }
                     {
                         BigDecimal theDebitAmount;
                         theDebitAmount = this.getDebitAmount();
-                        strategy.appendField(locator, this, "debitAmount", buffer, theDebitAmount, (this.debitAmount != null));
+                        strategy.appendField(locator, this, "debitAmount", buffer, theDebitAmount, (this.debitAmount!= null));
                     }
                     {
                         BigDecimal theCreditAmount;
                         theCreditAmount = this.getCreditAmount();
-                        strategy.appendField(locator, this, "creditAmount", buffer, theCreditAmount, (this.creditAmount != null));
+                        strategy.appendField(locator, this, "creditAmount", buffer, theCreditAmount, (this.creditAmount!= null));
                     }
                     return buffer;
                 }
+
+            }
+
+        }
+
+    }
+
+    /**
+     * A simple implementation of the ToStringStrategy2 interface that builds a string
+     * representation in the format: ClassName[field1=value1, field2=value2,...]
+     */
+    private static final class SimpleToStringStrategy implements ToStringStrategy2 {
+        public static final SimpleToStringStrategy INSTANCE = new SimpleToStringStrategy();
+
+        private SimpleToStringStrategy() {
+        }
+
+        @Override
+        public void appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+            buffer.append(object.getClass().getSimpleName()).append("[");
+        }
+
+        @Override
+        public void appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean isSet) {
+            if (buffer.length() > 0 && buffer.charAt(buffer.length() - 1) != '[') {
+                buffer.append(", ");
+            }
+            buffer.append(fieldName).append("=");
+            if (value != null) {
+                buffer.append(value);
+            } else {
+                buffer.append("null");
             }
         }
+
+        @Override
+        public void appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+            buffer.append("]");
+        }
     }
+
 }

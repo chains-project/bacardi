@@ -1,11 +1,12 @@
 <repair_strategy>
-1. The error occurs because the class CommandSpec (in package org.spongepowered.api.command.spec) has been removed from the dependency.
-2. In the updated Sponge API, command definitions are now built using a new type – the Command interface – available under org.spongepowered.api.command.
-3. Therefore, we replace the import of CommandSpec with the appropriate import for Command and update the return type of buildSpec() accordingly.
-4. This is the minimal change needed so that the client code compiles under the new dependency while keeping the method signature (name and parameters) unchanged.
+1. The error occurs because the external dependency has removed the class “org.spongepowered.api.command.spec.CommandSpec”, which was previously used as the return type in the buildSpec() method.
+2. In the new version of the Sponge API the command system has been refactored. The new API now uses “org.spongepowered.api.command.Command” (and its builder) to register commands.
+3. To address the issue we must update the import. However, we cannot change the function signature (the method name and its return type) of buildSpec(). To resolve this we create an inner interface named “CommandSpec” that extends the new “Command” interface.
+4. By removing the obsolete import and importing the new “Command” interface, then creating the inner type alias, we minimally update the code so that buildspec() still returns “CommandSpec” while compiling against the new dependency.
+5. This fix is isolated to this one file and does not change any other parts of the client code.
 </repair_strategy>
-  
-```java
+
+```
 package com.github.games647.changeskin.sponge.command;
 
 import org.spongepowered.api.command.Command;
@@ -13,6 +14,11 @@ import org.spongepowered.api.command.Command;
 @FunctionalInterface
 public interface ChangeSkinCommand {
 
-    Command buildSpec();
+    CommandSpec buildSpec();
+
+    // Inner interface acting as an adapter for the removed CommandSpec class.
+    // It extends the new Command interface from Sponge API.
+    interface CommandSpec extends Command {
+    }
 }
 ```

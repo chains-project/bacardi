@@ -1,0 +1,43 @@
+<repair_strategy>
+1. The error is caused by the removal of the class javax.mvc.Models and its replacement with the interface jakarta.mvc.Models.
+2. The client code currently imports javax.mvc.Models, which no longer exists. The fix is to update the import to jakarta.mvc.Models.
+3. Since the usage of Models (calling models.put()) remains the same, no other changes to the code are needed.
+4. The minimal set of changes is simply to update the import statement.
+5. The rest of the class remains unchanged, ensuring that the method signature and functionality stay intact.
+</repair_strategy>
+```java
+package com.example.config;
+
+import com.example.domain.TaskNotFoundException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import jakarta.mvc.Models;
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
+
+/**
+ *
+ * @author hantsy
+ */
+@Provider
+public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFoundException> {
+
+    @Inject 
+    Logger log;
+    
+    //private static Logger log = Logger.getLogger(PostNotFoundExceptionMapper.class.getName());
+
+    @Inject
+    Models models;
+
+    @Override
+    public Response toResponse(TaskNotFoundException exception) {
+        log.log(Level.INFO, "handling exception : PostNotFoundException");
+        models.put("error", exception.getMessage());
+        return Response.status(Response.Status.NOT_FOUND).entity("error.xhtml").build();
+    }
+
+}
+```

@@ -2,13 +2,22 @@
 < import java.beans.IntrospectionException;
 94d92
 < 
-218,219c216
+217,219c215,217
+<   @Override
 <   protected Set<Property> getProperties(Class<? extends Object> type)
 <           throws IntrospectionException {
 ---
->   protected Set<Property> getProperties(Class<? extends Object> type) {
-235,236c232
+>   // Removed the @Override annotation since Representer no longer provides
+>   // a getProperties method that throws IntrospectionException.
+>   protected Set<Property> getProperties(Class<?> type) {
+231c229
+<       return super.getProperties(type);
+---
+>       return getPropertyUtils().getProperties(type);
+235,237c233,234
 <   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
 <           throws IntrospectionException {
+<       Set<Property> standard = super.getProperties(type);
 ---
->   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+>   private Set<Property> sortTypeWithOrder(Class<?> type, List<String> order) {
+>     Set<Property> standard = getPropertyUtils().getProperties(type);

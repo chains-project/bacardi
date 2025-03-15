@@ -293,9 +293,10 @@ public class SnmpmanAgent extends BaseAgent {
 
     private MOGroup createGroup(final OID root, final SortedMap<OID, Variable> variableBindings) {
         final SortedMap<OID, Variable> subtree = new TreeMap<>();
-        variableBindings.entrySet().stream().filter(binding -> binding.getKey().size() >= root.size())
-                .filter(binding -> binding.getKey().leftMostCompare(root.size(), root) == 0)
-                .forEach(binding -> subtree.put(binding.getKey(), binding.getValue()));
+        variableBindings.entrySet().stream().filter(binding -> binding.getKey().size() >= root.size()).filter(
+                binding -> binding.getKey().leftMostCompare(root.size(), root) == 0).forEach(
+                        binding -> subtree.put(binding.getKey(), binding.getValue())
+        );
 
         return new MOGroup(root, subtree);
     }
@@ -329,11 +330,9 @@ public class SnmpmanAgent extends BaseAgent {
      * @return list of {@link VariableBinding}.
      */
     private ArrayList<VariableBinding> generateSubtreeBindings(final SortedMap<OID, Variable> variableBindings, final OID root) {
-        return variableBindings.entrySet().stream()
-                .filter(binding -> binding.getKey().size() >= root.size())
-                .filter(binding -> binding.getKey().leftMostCompare(root.size(), root) == 0)
-                .map(binding -> new VariableBinding(binding.getKey(), binding.getValue()))
-                .collect(Collectors.toCollection(ArrayList::new));
+        return variableBindings.entrySet().stream().filter(binding -> binding.getKey().size() >= root.size()).
+                filter(binding -> binding.getKey().leftMostCompare(root.size(), root) == 0).
+                map(binding -> new VariableBinding(binding.getKey(), binding.getValue())).collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**
@@ -378,7 +377,7 @@ public class SnmpmanAgent extends BaseAgent {
     }
 
     /**
-     * Sets the private registry value of the server via reflection.
+     * Sets the private registry value of {@link DefaultMOServer} via reflection.
      * FIXME
      * If there is any possibility to avoid this, then replace!
      *
@@ -469,12 +468,7 @@ public class SnmpmanAgent extends BaseAgent {
                 log.trace("created modified variable for OID {}", binding.getKey());
                 try {
                     if (modifiers.stream().filter(m -> m instanceof Modifier).map(m -> (Modifier) m).anyMatch(m -> m.getModifier() instanceof CommunityContextModifier)) {
-                        final List<CommunityContextModifier> contextModifiers = modifiers.stream()
-                                .filter(m -> m instanceof Modifier)
-                                .map(m -> (Modifier) m)
-                                .filter(m -> m.getModifier() instanceof CommunityContextModifier)
-                                .map(m -> (CommunityContextModifier) m.getModifier())
-                                .collect(Collectors.toList());
+                        final List<CommunityContextModifier> contextModifiers = modifiers.stream().filter(m -> m instanceof Modifier).map(m -> (Modifier) m).filter(m -> m.getModifier() instanceof CommunityContextModifier).map(m -> (CommunityContextModifier) m.getModifier()).collect(Collectors.toList());
                         for (final CommunityContextModifier contextModifier : contextModifiers) {
                             result.putAll(contextModifier.getVariableBindings(context, binding.getKey()));
                         }
@@ -485,6 +479,7 @@ public class SnmpmanAgent extends BaseAgent {
                     log.error("could not create variable binding for " + binding.getKey().toString() + " and file " + configuration.getWalk().getAbsolutePath(), e);
                 }
             }
+
         }
         return result;
     }

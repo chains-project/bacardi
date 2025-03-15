@@ -1,22 +1,16 @@
-23,28d22
-< import org.tinfour.common.IIncrementalTin;
-< import org.tinfour.common.SimpleTriangle;
-< import org.tinfour.common.Vertex;
+26,28d25
 < import org.tinspin.index.PointDistanceFunction;
 < import org.tinspin.index.PointEntryDist;
 < import org.tinspin.index.covertree.CoverTree;
-35a30,32
-> import org.tinfour.common.IIncrementalTin;
-> import org.tinfour.common.SimpleTriangle;
-> import org.tinfour.common.Vertex;
 165d161
 <          * 
-203c199,200
+203c199,201
 <                 final CoverTree<PVector> tree = CoverTree.create(3, 2, circleDistanceMetric);
 ---
->                 // Using a simple spatial index (a List) for nearest neighbor queries
->                 final List<PVector> spatialIndex = new ArrayList<>();
-209,210c206,209
+>                 // Instead of using a specialized spatial index (e.g. CoverTree),
+>                 // we maintain a simple list of circles and use a linear scan for nearest-neighbor queries.
+>                 List<PVector> treeList = new ArrayList<>();
+209,210c207,210
 <                         steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false).filter(filterBorderTriangles)
 <                                         .map(PGS_CirclePacking::centroid).collect(Collectors.toList());
 ---
@@ -24,23 +18,33 @@
 >                                         .filter(filterBorderTriangles)
 >                                         .map(PGS_CirclePacking::centroid)
 >                                         .collect(Collectors.toList());
-213,214c212
+213,214c213
 <                 // Model shape vertices as circles of radius 0, to constrain packed circles
 <                 // within shape edge
 ---
 >                 // Model shape vertices as circles of radius 0, to constrain packed circles within shape edge
-216,217c214,216
+216,217c215,219
 <                 Collections.shuffle(vertices); // shuffle vertices to reduce tree imbalance during insertion
 <                 vertices.forEach(p -> tree.insert(new double[] { p.x, p.y, 0 }, p));
 ---
->                 Collections.shuffle(vertices); // shuffle vertices to reduce potential bias
->                 // Assume vertices have a zero radius.
->                 spatialIndex.addAll(vertices);
-223c222
+>                 Collections.shuffle(vertices); // shuffle vertices to reduce bias during insertion
+>                 vertices.forEach(p -> {
+>                         PVector vertexCircle = new PVector(p.x, p.y, 0);
+>                         treeList.add(vertexCircle);
+>                 });
+220,221c222,225
+<                  * "To find the circle nearest to a center (x, y), do a proximity search at (x,
+<                  * y, R), where R is greater than or equal to the maximum radius of a circle."
+---
+>                  * Emulate a nearest-neighbor query by performing a linear search over the list.
+>                  * For each candidate circle, we compute the value:
+>                  *    distance = sqrt((p.x - candidate.x)^2 + (p.y - candidate.y)^2) - candidate.z
+>                  * and choose the candidate that minimizes this value.
+223c227
 <                 float largestR = 0; // the radius of the largest circle in the tree
 ---
->                 float largestR = 0; // the radius of the largest circle in the index
-226,235c225,228
+>                 float largestR = 0; // the radius of the largest circle in the list
+226,235c230,244
 <                         final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
 < 
 <                         /*
@@ -52,17 +56,60 @@
 <                         final float dy = p.y - nn.value().y;
 <                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z);
 ---
->                         PVector nearest = findNearestCircle(spatialIndex, p.x, p.y, largestR);
->                         final float dx = p.x - nearest.x;
->                         final float dy = p.y - nearest.y;
->                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nearest.z);
-239c232
-<                                 tree.insert(new double[] { p.x, p.y, radius }, p); // insert circle into tree
+>                         double bestMetric = Double.MAX_VALUE;
+>                         PVector nearestCircle = null;
+>                         for (PVector candidate : treeList) {
+>                                 double dx = p.x - candidate.x;
+>                                 double dy = p.y - candidate.y;
+>                                 double metric = Math.hypot(dx, dy) - candidate.z;
+>                                 if (metric < bestMetric) {
+>                                         bestMetric = metric;
+>                                         nearestCircle = candidate;
+>                                 }
+>                         }
+>                         // Calculate maximum possible radius for circle centered at p
+>                         float dx = p.x - nearestCircle.x;
+>                         float dy = p.y - nearestCircle.y;
+>                         final float radius = (float) (Math.hypot(dx, dy) - nearestCircle.z);
+237c246,248
+<                                 largestR = (radius >= largestR) ? radius : largestR;
 ---
->                                 spatialIndex.add(p);
-285d277
+>                                 if (radius >= largestR) {
+>                                         largestR = radius;
+>                                 }
+239,240c250,253
+<                                 tree.insert(new double[] { p.x, p.y, radius }, p); // insert circle into tree
+<                                 out.add(p);
+---
+>                                 // Add a new instance into our circle list and result output.
+>                                 PVector circle = new PVector(p.x, p.y, radius);
+>                                 treeList.add(circle);
+>                                 out.add(circle);
+285,287c298
 < 
-627,654c619,640
+<                                 // if center point not in circle, check whether circle overlaps with shape using
+<                                 // intersects() (somewhat slower)
+---
+>                                 // if center point not in circle, check whether circle overlaps with shape using intersects() (somewhat slower)
+293d303
+< 
+322d331
+< 
+355d363
+< 
+362d369
+<          * 
+509d515
+< 
+538d543
+< 
+576d580
+< 
+609d612
+< 
+611d613
+< 
+627,656d628
 <          * Calculate the distance between two points in 3D space, where each point
 <          * represents a circle with (x, y, r) coordinates. This custom metric considers
 <          * both the Euclidean distance between the centers of the circles and the
@@ -91,26 +138,5 @@
 <                 double absZDifference = Math.abs(dz);
 <                 return euclideanDistance + absZDifference; // negative if inside
 <         };
----
->          * Helper method to find the nearest circle from the spatial index based on a
->          * custom 3D distance metric combining 2D Euclidean distance and absolute radius difference.
->          */
->         private static PVector findNearestCircle(List<PVector> index, double x, double y, double queryRadius) {
->                 PVector nearest = null;
->                 double minDist = Double.MAX_VALUE;
->                 for (PVector candidate : index) {
->                         double dx = x - candidate.x;
->                         double dy = y - candidate.y;
->                         double euclidean = Math.sqrt(dx * dx + dy * dy);
->                         double diff = Math.abs(queryRadius - candidate.z);
->                         double dist = euclidean + diff;
->                         if (dist < minDist) {
->                                 minDist = dist;
->                                 nearest = candidate;
->                         }
->                 }
->                 if (nearest == null) {
->                         nearest = new PVector((float) x, (float) y, 0);
->                 }
->                 return nearest;
->         }
+< 
+<         /**

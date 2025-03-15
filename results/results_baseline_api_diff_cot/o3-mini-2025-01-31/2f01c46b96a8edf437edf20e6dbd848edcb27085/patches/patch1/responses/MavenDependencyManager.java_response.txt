@@ -24,7 +24,6 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.graph.DependencyNode;
-// Updated import to use the new API's Xpp3Dom class
 import org.apache.maven.shared.utils.xml.Xpp3Dom;
 import se.kth.depclean.core.AbstractDebloater;
 import se.kth.depclean.core.analysis.graph.DependencyGraph;

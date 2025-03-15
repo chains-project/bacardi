@@ -1,15 +1,17 @@
 <repair_strategy>
-1. The failure comes from the removal of the TrustedTagInspector class and its constructor from SnakeYAML.
-2. In the old API, the code was instantiating TrustedTagInspector to pass to LoaderOptions.setTagInspector(...). In the new API, TrustedTagInspector has been removed and replaced with StandardTagInspector.
-3. The only client code change needed is to replace instantiations of TrustedTagInspector with StandardTagInspector. Specifically, change:
-   loadingConfig.setTagInspector(new TrustedTagInspector());
-   to
-   loadingConfig.setTagInspector(new StandardTagInspector(true));
-4. We must update the import statements accordingly by removing the import for TrustedTagInspector and adding one for StandardTagInspector.
-5. This is a minimal change that keeps method/function signatures unchanged while making the code compile against the new dependency version.
-6. No other functionality or side effects are expected.
-7. The complete class with these changes is provided below.
+1. The client code uses the class TrustedTagInspector from the package org.yaml.snakeyaml.inspector. The new version of the dependency has removed TrustedTagInspector (and its constructor).
+2. In the old version, a TrustedTagInspector was instantiated and passed to LoaderOptions via setTagInspector() to allow all tags. In the new API, a replacement is available.
+3. The needed update is to remove any references to TrustedTagInspector and switch to the appropriate replacement. The new dependency provides the class AllowAllTagInspector (in the same package) to serve the same purpose.
+4. We need to change:
+   - The import for org.yaml.snakeyaml.inspector.TrustedTagInspector to org.yaml.snakeyaml.inspector.AllowAllTagInspector.
+   - The instantiation within createMockEntity: replacing new TrustedTagInspector() with new AllowAllTagInspector().
+5. No other changes are necessary as we maintain the function signatures and existing code.
+6. The proposed changes will ensure the class compiles with the new snakeyaml version.
 </repair_strategy>
+
+Below is the complete fixed class:
+
+--------------------------------------------------
 
 ```java
 /*
@@ -39,7 +41,11 @@ import com.premiumminds.billy.core.CoreDependencyModule;
 import com.premiumminds.billy.core.test.fixtures.JavaLocalDateConstruct;
 import com.premiumminds.billy.core.test.fixtures.JavaZoneIdConstruct;
 import com.premiumminds.billy.core.test.fixtures.MockBaseEntity;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import org.junit.jupiter.api.BeforeAll;
 import org.mockito.Mockito;
 import org.yaml.snakeyaml.DumperOptions;
@@ -47,14 +53,9 @@ import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.inspector.StandardTagInspector;
+import org.yaml.snakeyaml.inspector.AllowAllTagInspector;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
-
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.time.ZoneId;
 
 public class AbstractTest {
 
@@ -77,7 +78,7 @@ public class AbstractTest {
 
     public <T extends MockBaseEntity> T createMockEntity(Class<T> clazz, String path) {
         final LoaderOptions loadingConfig = new LoaderOptions();
-        loadingConfig.setTagInspector(new StandardTagInspector(true));
+        loadingConfig.setTagInspector(new AllowAllTagInspector());
 
         final Representer representer = new Representer(new DumperOptions());
         final Tag zoneIdTag = new Tag("!ZoneId");

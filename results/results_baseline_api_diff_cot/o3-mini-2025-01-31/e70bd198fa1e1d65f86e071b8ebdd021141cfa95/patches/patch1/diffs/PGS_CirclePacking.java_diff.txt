@@ -1,73 +1,62 @@
-23,28d22
-< import org.tinfour.common.IIncrementalTin;
-< import org.tinfour.common.SimpleTriangle;
-< import org.tinfour.common.Vertex;
+3,4d2
+< import static micycle.pgs.PGS_Conversion.fromPShape;
+< 
+26,28d23
 < import org.tinspin.index.PointDistanceFunction;
 < import org.tinspin.index.PointEntryDist;
 < import org.tinspin.index.covertree.CoverTree;
-165d158
-<          * 
-203d195
+57,61d51
+<         /*-
+<          * Roadmap (see/implement): 'A LINEARIZED CIRCLE PACKING ALGORITHM'? 
+<          * 'A note on circle packing' Young Joon AHN.
+<          */
+< 
+88c78,79
+<                 LargestEmptyCircles lec = new LargestEmptyCircles(fromPShape(PGS_Conversion.toPointsPShape(pointObstacles)), geometry,
+---
+>         LargestEmptyCircles lec = new LargestEmptyCircles(
+>                 fromPShape(PGS_Conversion.toPointsPShape(pointObstacles)), geometry,
+127c118,120
+<                 return StreamSupport.stream(tin.triangles().spliterator(), false).filter(filterBorderTriangles).map(t -> inCircle(t))
+---
+>         return StreamSupport.stream(tin.triangles().spliterator(), false)
+>                 .filter(filterBorderTriangles)
+>                 .map(t -> inCircle(t))
+203c196
 <                 final CoverTree<PVector> tree = CoverTree.create(3, 2, circleDistanceMetric);
-209,210c201,204
+---
+>         final SimpleCircleIndex tree = new SimpleCircleIndex();
+209,210c202,205
 <                         steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false).filter(filterBorderTriangles)
 <                                         .map(PGS_CirclePacking::centroid).collect(Collectors.toList());
 ---
->                         steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false)
->                                         .filter(filterBorderTriangles)
->                                         .map(PGS_CirclePacking::centroid)
->                                         .collect(Collectors.toList());
-213,240c207,226
+>             steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false)
+>                                          .filter(filterBorderTriangles)
+>                                          .map(PGS_CirclePacking::centroid)
+>                                          .collect(Collectors.toList());
+213,214c208
 <                 // Model shape vertices as circles of radius 0, to constrain packed circles
 <                 // within shape edge
-<                 final List<PVector> vertices = PGS_Conversion.toPVector(shape);
-<                 Collections.shuffle(vertices); // shuffle vertices to reduce tree imbalance during insertion
+---
+>         // Model shape vertices as circles of radius 0, to constrain packed circles within shape edge
+217c211
 <                 vertices.forEach(p -> tree.insert(new double[] { p.x, p.y, 0 }, p));
-< 
+---
+>         vertices.forEach(p -> tree.insert(new PVector(p.x, p.y, 0)));
+219,222d212
 <                 /*
 <                  * "To find the circle nearest to a center (x, y), do a proximity search at (x,
 <                  * y, R), where R is greater than or equal to the maximum radius of a circle."
 <                  */
-<                 float largestR = 0; // the radius of the largest circle in the tree
-< 
-<                 for (PVector p : steinerPoints) {
+226c216
 <                         final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
-< 
-<                         /*
-<                          * nn.dist() does not return the radius (since it's a distance metric used to
-<                          * find nearest circle), so calculate maximum radius for candidate circle using
-<                          * 2d euclidean distance between center points minus radius of nearest circle.
-<                          */
-<                         final float dx = p.x - nn.value().x;
-<                         final float dy = p.y - nn.value().y;
-<                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z);
-<                         if (radius > minRadius) {
-<                                 largestR = (radius >= largestR) ? radius : largestR;
-<                                 p.z = radius;
-<                                 tree.insert(new double[] { p.x, p.y, radius }, p); // insert circle into tree
-<                                 out.add(p);
 ---
->                 // Model shape vertices as circles of radius 0, to constrain packed circles within shape edge
->                 final List<PVector> circleTree = new ArrayList<>(PGS_Conversion.toPVector(shape));
->                 Collections.shuffle(circleTree); // shuffle vertices to reduce bias during insertion
-> 
->                 float largestR = 0; // not used in the brute-force search but kept for similarity
->                 for (PVector candidate : steinerPoints) {
->                         float candidateRadius = Float.MAX_VALUE;
->                         for (PVector existing : circleTree) {
->                                 float dx = candidate.x - existing.x;
->                                 float dy = candidate.y - existing.y;
->                                 float d = (float) Math.sqrt(dx * dx + dy * dy);
->                                 candidateRadius = Math.min(candidateRadius, d - existing.z);
->                         }
->                         if (candidateRadius > minRadius) {
->                                 candidate.z = candidateRadius;
->                                 circleTree.add(new PVector(candidate.x, candidate.y, candidateRadius));
->                                 out.add(candidate);
->                                 if (candidateRadius > largestR) {
->                                         largestR = candidateRadius;
->                                 }
-627,656d612
+>             SimplePointEntry<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+239c229
+<                                 tree.insert(new double[] { p.x, p.y, radius }, p); // insert circle into tree
+---
+>                 tree.insert(new PVector(p.x, p.y, radius)); // insert circle into tree
+627,656d616
 <          * Calculate the distance between two points in 3D space, where each point
 <          * represents a circle with (x, y, r) coordinates. This custom metric considers
 <          * both the Euclidean distance between the centers of the circles and the
@@ -98,3 +87,59 @@
 <         };
 < 
 <         /**
+663a624,678
+>     private static Geometry fromPShape(PShape shape) {
+>         // Assume this method converts PShape to Geometry.
+>         // This is a placeholder that calls the conversion utility.
+>         return PGS_Conversion.fromPShape(shape);
+>     }
+> 
+>     // ------------------------------------------------------------------------
+>     // Simple index implementation replacing the removed tinspin CoverTree API.
+>     // ------------------------------------------------------------------------
+>     
+>     private static class SimpleCircleIndex {
+>         private final List<PVector> circles = new ArrayList<>();
+> 
+>         public void insert(PVector circle) {
+>             circles.add(circle);
+>         }
+> 
+>         public SimplePointEntry<PVector> query1NN(double[] query) {
+>             double qx = query[0];
+>             double qy = query[1];
+>             double qr = query[2];
+>             double bestDistance = Double.MAX_VALUE;
+>             PVector bestCircle = null;
+>             for (PVector c : circles) {
+>                 double dx = c.x - qx;
+>                 double dy = c.y - qy;
+>                 double dEuclid = Math.sqrt(dx * dx + dy * dy);
+>                 double dRadius = Math.abs(c.z - qr);
+>                 double total = dEuclid + dRadius;
+>                 if (total < bestDistance) {
+>                     bestDistance = total;
+>                     bestCircle = c;
+>                 }
+>             }
+>             return new SimplePointEntry<>(bestCircle, bestDistance);
+>         }
+>     }
+> 
+>     private static class SimplePointEntry<T> {
+>         private final T value;
+>         private final double distance;
+> 
+>         public SimplePointEntry(T value, double distance) {
+>             this.value = value;
+>             this.distance = distance;
+>         }
+> 
+>         public T value() {
+>             return value;
+>         }
+> 
+>         public double dist() {
+>             return distance;
+>         }
+>     }

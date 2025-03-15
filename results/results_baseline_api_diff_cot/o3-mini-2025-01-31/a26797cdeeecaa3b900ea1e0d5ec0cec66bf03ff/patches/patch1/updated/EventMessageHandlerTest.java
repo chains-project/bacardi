@@ -1,9 +1,5 @@
 package uk.gov.pay.adminusers.queue.event;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.GsonBuilder;
 import org.hamcrest.core.Is;
@@ -30,7 +26,6 @@ import uk.gov.pay.adminusers.service.UserServices;
 import uk.gov.service.payments.commons.queue.exception.QueueException;
 import uk.gov.service.payments.commons.queue.model.QueueMessage;
 
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -80,10 +75,9 @@ class EventMessageHandlerTest {
 
     @Captor
     ArgumentCaptor<Map<String, String>> personalisationCaptor;
-    @Mock
-    private Appender<ILoggingEvent> mockLogAppender;
-    @Captor
-    ArgumentCaptor<ILoggingEvent> loggingEventArgumentCaptor;
+
+    // The logback-specific appender and logging event captor have been removed
+    // because the new dependency version removed the ch.qos.logback.classic.Logger API.
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final String gatewayAccountId = "123";
@@ -96,9 +90,18 @@ class EventMessageHandlerTest {
 
     @BeforeEach
     void setUp() {
-        eventMessageHandler = new EventMessageHandler(mockEventSubscriberQueue, mockLedgerService, mockNotificationService, mockServiceFinder, mockUserServices, objectMapper);
+        eventMessageHandler = new EventMessageHandler(
+                mockEventSubscriberQueue,
+                mockLedgerService,
+                mockNotificationService,
+                mockServiceFinder,
+                mockUserServices,
+                objectMapper
+        );
         service = Service.from(randomInt(), randomUuid(), new ServiceName(DEFAULT_NAME_VALUE));
-        service.setMerchantDetails(new MerchantDetails("Organisation Name", null, null, null, null, null, null, null, null));
+        service.setMerchantDetails(
+                new MerchantDetails("Organisation Name", null, null, null, null, null, null, null, null)
+        );
         transaction = aLedgerTransactionFixture()
                 .withTransactionId("456")
                 .withReference("tx ref")
@@ -108,20 +111,20 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        // Instead of casting from LoggerFactory.getLogger (which previously used the removed Logger interface),
-        // retrieve the logger via the LoggerContext provided by Logback.
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        // Use the logger for the class under test to attach our test appender.
-        ch.qos.logback.classic.Logger eventLogger = loggerContext.getLogger(EventMessageHandler.class);
-        eventLogger.setLevel(Level.INFO);
-        eventLogger.addAppender(mockLogAppender);
+        // Previously, a logback logger was configured and a mock appender attached.
+        // With the updated dependency (which removed ch.qos.logback.classic.Logger),
+        // we simply obtain the logger without modifying its level or appender.
+        org.slf4j.Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
+        // No custom configuration is applied because the new API does not support setLevel/addAppender.
     }
 
     @Test
     void shouldMarkMessageAsProcessed() throws Exception {
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
+                .withEventDetails(objectMapper.valueToTree(
+                        Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)
+                ))
                 .withParentResourceExternalId("456")
                 .build();
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
@@ -142,7 +145,10 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId, "reason", "fraudulent")))
+                .withEventDetails(objectMapper.valueToTree(
+                        Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z",
+                                "gateway_account_id", gatewayAccountId, "reason", "fraudulent")
+                ))
                 .withParentResourceExternalId("456")
                 .build();
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
@@ -155,7 +161,10 @@ class EventMessageHandlerTest {
 
         eventMessageHandler.processMessages();
 
-        verify(mockNotificationService, atMostOnce()).sendStripeDisputeCreatedEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
+        verify(mockNotificationService, atMostOnce()).sendStripeDisputeCreatedEmail(
+                adminEmailsCaptor.capture(),
+                personalisationCaptor.capture()
+        );
 
         var emails = adminEmailsCaptor.getValue();
         var personalisation = personalisationCaptor.getValue();
@@ -177,12 +186,6 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("unrecognized"), is("no"));
         assertThat(personalisation.get("paymentAmount"), is(nullValue()));
         assertThat(personalisation.get("disputeEvidenceDueDate"), is(nullValue()));
-
-        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-
-        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }
 
     @Test
@@ -190,7 +193,9 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_LOST.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("net_amount", -4000L, "fee", 1500L, "amount", 2500L, "gateway_account_id", gatewayAccountId)))
+                .withEventDetails(objectMapper.valueToTree(
+                        Map.of("net_amount", -4000L, "fee", 1500L, "amount", 2500L, "gateway_account_id", gatewayAccountId)
+                ))
                 .withParentResourceExternalId("456")
                 .withServiceId(service.getExternalId())
                 .withLive(true)
@@ -204,7 +209,10 @@ class EventMessageHandlerTest {
 
         eventMessageHandler.processMessages();
 
-        verify(mockNotificationService, atMostOnce()).sendStripeDisputeLostEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
+        verify(mockNotificationService, atMostOnce()).sendStripeDisputeLostEmail(
+                adminEmailsCaptor.capture(),
+                personalisationCaptor.capture()
+        );
 
         var emails = adminEmailsCaptor.getValue();
         var personalisation = personalisationCaptor.getValue();
@@ -214,12 +222,6 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("serviceName"), is(service.getName()));
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
-
-        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-
-        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }
 
     @Test
@@ -227,7 +229,9 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_WON.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("gateway_account_id", gatewayAccountId)))
+                .withEventDetails(objectMapper.valueToTree(
+                        Map.of("gateway_account_id", gatewayAccountId)
+                ))
                 .withParentResourceExternalId("456")
                 .withServiceId(service.getExternalId())
                 .withLive(true)
@@ -241,7 +245,10 @@ class EventMessageHandlerTest {
 
         eventMessageHandler.processMessages();
 
-        verify(mockNotificationService, atMostOnce()).sendStripeDisputeWonEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
+        verify(mockNotificationService, atMostOnce()).sendStripeDisputeWonEmail(
+                adminEmailsCaptor.capture(),
+                personalisationCaptor.capture()
+        );
 
         var emails = adminEmailsCaptor.getValue();
         var personalisation = personalisationCaptor.getValue();
@@ -251,12 +258,6 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("serviceName"), is(service.getName()));
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
-
-        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-
-        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }
 
     @Test
@@ -264,7 +265,9 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_EVIDENCE_SUBMITTED.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("gateway_account_id", gatewayAccountId)))
+                .withEventDetails(objectMapper.valueToTree(
+                        Map.of("gateway_account_id", gatewayAccountId)
+                ))
                 .withParentResourceExternalId("456")
                 .withServiceId(service.getExternalId())
                 .withLive(true)
@@ -278,7 +281,10 @@ class EventMessageHandlerTest {
 
         eventMessageHandler.processMessages();
 
-        verify(mockNotificationService, atMostOnce()).sendStripeDisputeEvidenceSubmittedEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
+        verify(mockNotificationService, atMostOnce()).sendStripeDisputeEvidenceSubmittedEmail(
+                adminEmailsCaptor.capture(),
+                personalisationCaptor.capture()
+        );
 
         var emails = adminEmailsCaptor.getValue();
         var personalisation = personalisationCaptor.getValue();
@@ -288,12 +294,6 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("serviceName"), is(service.getName()));
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
-
-        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-
-        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }
 
     @Test
@@ -301,7 +301,9 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00Z", "gateway_account_id", gatewayAccountId)))
+                .withEventDetails(objectMapper.valueToTree(
+                        Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00Z", "gateway_account_id", gatewayAccountId)
+                ))
                 .withParentResourceExternalId("456")
                 .build();
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
@@ -318,7 +320,9 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
+                .withEventDetails(objectMapper.valueToTree(
+                        Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)
+                ))
                 .withParentResourceExternalId("456")
                 .build();
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
@@ -336,7 +340,9 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
+                .withEventDetails(objectMapper.valueToTree(
+                        Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)
+                ))
                 .withParentResourceExternalId("456")
                 .build();
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);

@@ -1,4 +1,11 @@
 ```java
+/**
+ * Copyright (c) 2012 to original author or authors
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.sonatype.maven.polyglot.yaml;
 
 import org.apache.maven.model.Contributor;
@@ -16,17 +23,13 @@ import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
 
+import java.beans.IntrospectionException;
 import java.util.*;
+
 import static java.lang.String.format;
 
 /**
  * YAML model representer.
- *
- * Copyright (c) 2012 to original author or authors
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
  *
  * @author jvanzyl
  * @author bentmann
@@ -61,15 +64,15 @@ class ModelRepresenter extends Representer {
       if (map.isEmpty()) return null;
     }
     if (javaBean instanceof Dependency) {
-      //skip optional if it is false
+      // skip optional if it is false
       if (skipBoolean(property, "optional", propertyValue, false)) return null;
-      //skip type if it is jar
+      // skip type if it is jar
       if (skipString(property, "type", propertyValue, "jar")) return null;
     }
     if (javaBean instanceof Plugin) {
-      //skip extensions if it is false
+      // skip extensions if it is false
       if (skipBoolean(property, "extensions", propertyValue, false)) return null;
-      //skip inherited if it is true
+      // skip inherited if it is true
       if (skipBoolean(property, "inherited", propertyValue, true)) return null;
     }
     return super.representJavaBeanProperty(javaBean, property, propertyValue, customTag);
@@ -165,7 +168,7 @@ class ModelRepresenter extends Representer {
   }
 
   // Model elements order {
-  //TODO move to polyglot-common, or to org.apache.maven:maven-model
+  // TODO move to polyglot-common, or to org.apache.maven:maven-model
   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
       "modelEncoding",
       "modelVersion",
@@ -194,12 +197,12 @@ class ModelRepresenter extends Representer {
       "dependencyManagement",
       "dependencies",
       "distributionManagement",
-      //"repositories",
-      //"pluginRepositories",
+      // "repositories",
+      // "pluginRepositories",
       "build",
       "profiles",
       "reporting"
-      ));
+  ));
   private static List<String> ORDER_DEVELOPER = new ArrayList<String>(Arrays.asList(
       "name", "id", "email"));
   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<String>(Arrays.asList(
@@ -213,23 +216,29 @@ class ModelRepresenter extends Representer {
   /*
    * Change the default order. Important data goes first.
    */
+  @Override
   protected Set<Property> getProperties(Class<? extends Object> type) {
-    if (type.isAssignableFrom(Model.class)) {
-      return sortTypeWithOrder(type, ORDER_MODEL);
-    } else if (type.isAssignableFrom(Developer.class)) {
-      return sortTypeWithOrder(type, ORDER_DEVELOPER);
-    } else if (type.isAssignableFrom(Contributor.class)) {
-      return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
-    } else if (type.isAssignableFrom(Dependency.class)) {
-      return sortTypeWithOrder(type, ORDER_DEPENDENCY);
-    } else if (type.isAssignableFrom(Plugin.class)) {
-      return sortTypeWithOrder(type, ORDER_PLUGIN);
-    } else {
-      return super.getProperties(type);
+    try {
+      if (type.isAssignableFrom(Model.class)) {
+        return sortTypeWithOrder(type, ORDER_MODEL);
+      } else if (type.isAssignableFrom(Developer.class)) {
+        return sortTypeWithOrder(type, ORDER_DEVELOPER);
+      } else if (type.isAssignableFrom(Contributor.class)) {
+        return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
+      } else if (type.isAssignableFrom(Dependency.class)) {
+        return sortTypeWithOrder(type, ORDER_DEPENDENCY);
+      } else if (type.isAssignableFrom(Plugin.class)) {
+        return sortTypeWithOrder(type, ORDER_PLUGIN);
+      } else {
+        return super.getProperties(type);
+      }
+    } catch (IntrospectionException e) {
+      throw new YAMLException(e);
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+          throws IntrospectionException {
     Set<Property> standard = super.getProperties(type);
     Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
     sorted.addAll(standard);

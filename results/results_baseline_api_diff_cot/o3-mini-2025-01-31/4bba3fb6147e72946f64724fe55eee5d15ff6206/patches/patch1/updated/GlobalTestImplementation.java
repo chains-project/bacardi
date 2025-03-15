@@ -2,6 +2,7 @@ package de.hilling.junit.cdi.annotations;
 
 import de.hilling.junit.cdi.scope.TestScoped;
 import org.immutables.value.Value;
+
 import jakarta.annotation.Priority;
 import javax.enterprise.inject.Alternative;
 import javax.enterprise.inject.Stereotype;

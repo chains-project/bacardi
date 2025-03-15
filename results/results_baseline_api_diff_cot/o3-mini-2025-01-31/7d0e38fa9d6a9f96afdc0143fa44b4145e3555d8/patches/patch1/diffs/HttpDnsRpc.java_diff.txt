@@ -1,44 +1,79 @@
-113c113
-<         throw translate(ex, false);
----
->         throw translate(ex, true);
-125c125
-<         throw translate(ex, false);
----
->         throw translate(ex, true);
-211c211
+209a210
+>     // New API requires the zone name as the second parameter.
+211c212
 <         .create(this.options.getProjectId(), zone)
 ---
 >         .create(this.options.getProjectId(), zone.getName(), zone)
-232c232
+230a232
+>     // Updated: New method signature requires a third parameter; passing empty string.
+232c234
 <         .get(this.options.getProjectId(), zoneName)
 ---
->         .get(this.options.getProjectId(), zoneName, null)
-249c249
+>         .get(this.options.getProjectId(), zoneName, "")
+247a250,253
+>     String dnsName = Option.DNS_NAME.getString(options);
+>     if (dnsName == null) {
+>       dnsName = "";
+>     }
+249c255
 <         .list(this.options.getProjectId())
 ---
->         .list(this.options.getProjectId(), null)
-271c271
+>         .list(this.options.getProjectId(), dnsName)
+252d257
+<         .setDnsName(Option.DNS_NAME.getString(options))
+271c276,277
 <     return dns.managedZones().delete(this.options.getProjectId(), zoneName);
 ---
->     return dns.managedZones().delete(this.options.getProjectId(), zoneName, null);
-289c289
+>     // New API: delete requires a third parameter; using empty string.
+>     return dns.managedZones().delete(this.options.getProjectId(), zoneName, "");
+287c293,304
+<     // options are fields, page token, dns name, type
+---
+>     // For the new API, list() now requires 5 string parameters.
+>     String projectId = this.options.getProjectId();
+>     String name = Option.NAME.getString(options);
+>     if (name == null) {
+>       name = "";
+>     }
+>     String type = Option.DNS_TYPE.getString(options);
+>     if (type == null) {
+>       type = "";
+>     }
+>     // The 5th parameter is not previously specified; we pass an empty string.
+>     String extraParam = "";
+289c306
 <         .list(this.options.getProjectId(), zoneName)
 ---
->         .list(this.options.getProjectId(), zoneName, null)
-308c308
+>         .list(projectId, zoneName, name, type, extraParam)
+292,294c309
+<         .setMaxResults(Option.PAGE_SIZE.getInt(options))
+<         .setName(Option.NAME.getString(options))
+<         .setType(Option.DNS_TYPE.getString(options));
+---
+>         .setMaxResults(Option.PAGE_SIZE.getInt(options));
+306a322
+>     // New API: projects().get now requires two parameters. Passing empty string as the second.
+308c324
 <         .get(this.options.getProjectId())
 ---
->         .get(this.options.getProjectId(), null)
-325c325
+>         .get(this.options.getProjectId(), "")
+323a340
+>     // New API: changes().create now requires a third string parameter; using empty string.
+325c342
 <         .create(this.options.getProjectId(), zoneName, changeRequest)
 ---
->         .create(this.options.getProjectId(), zoneName, null, changeRequest)
-352c352
+>         .create(this.options.getProjectId(), zoneName, "", changeRequest)
+350a368
+>     // New API: changes().get now requires a fourth parameter; passing empty string.
+352c370
 <         .get(this.options.getProjectId(), zoneName, changeRequestId)
 ---
->         .get(this.options.getProjectId(), zoneName, changeRequestId, null)
-372c372
+>         .get(this.options.getProjectId(), zoneName, changeRequestId, "")
+369c387
+<     // options are fields, page token, page size, sort order
+---
+>     // New API: changes().list now requires a third parameter; using empty string.
+372c390
 <             .list(this.options.getProjectId(), zoneName)
 ---
->             .list(this.options.getProjectId(), zoneName, null)
+>             .list(this.options.getProjectId(), zoneName, "")

@@ -1,66 +1,88 @@
-22c22
+1,15d0
+< /**
+<  * Copyright 2019 Pinterest, Inc.
+<  * 
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  * 
+<  *    http://www.apache.org/licenses/LICENSE-2.0
+<  * 
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+22c7
 < import ch.qos.logback.core.encoder.EncoderBase;
 ---
 > import ch.qos.logback.core.encoder.Encoder;
-49a50,54
->    *
->    * Note: Earlier versions of this class extended EncoderBase, which provided an init() method.
->    * In the updated dependency the EncoderBase class is removed so we implement Encoder directly.
->    * We keep our custom init(OutputStream) method (without the @Override) to perform our one‐time
->    * initialization but also implement headerBytes() and footerBytes() as required by the new API.
-51,52c56
+33a19
+> import java.io.ByteArrayOutputStream;
+49a36,40
+>    * 
+>    * In the new version of the logback dependency, the EncoderBase class has been removed.
+>    * Instead, we implement the Encoder interface directly. The new Encoder requires the 
+>    * implementation of headerBytes(), encode(), and footerBytes(). To keep compatibility 
+>    * with singer_thrift log, we reuse the thrift serialization logic from the original implementation.
+51c42
 <   public static class LogMessageEncoder extends EncoderBase<LogMessage> {
-< 
 ---
 >   public static class LogMessageEncoder implements Encoder<LogMessage> {
-55a60
->     private boolean started = false;
-57c62,64
-<     @Override
+53,55c44
+<     private TTransport framedTransport;
+<     private TProtocol protocol;
+<     private OutputStream os;
 ---
->     // Custom initialization method.
->     // The logging framework in the new dependency does not require an init() method.
->     // If needed, clients may call this method to provide the OutputStream.
-60,61d66
+>     private OutputStream outputStream; // Cached output stream from init(), if needed
+59,65c48
+<       this.os = os;
 <       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
 <       // log.
-63,64c68
+<       final int bufferCapacity = 10;
 <       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
 <           bufferCapacity);
+<       protocol = new TBinaryProtocol(framedTransport);
 ---
->       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity);
-81a86,113
-> 
->     // Return empty header bytes.
->     @Override
+>       this.outputStream = os;
+69c52,62
+<     public void doEncode(LogMessage logMessage) throws IOException {
+---
 >     public byte[] headerBytes() {
+>       // No header bytes required
 >       return new byte[0];
 >     }
 > 
->     // Return empty footer bytes.
+>     @Override
+>     public byte[] encode(LogMessage logMessage) throws IOException {
+>       ByteArrayOutputStream baos = new ByteArrayOutputStream();
+>       final int bufferCapacity = 10;
+>       TTransport framedTransport = new TFastFramedTransport(new TIOStreamTransport(baos), bufferCapacity);
+>       TProtocol protocol = new TBinaryProtocol(framedTransport);
+75a69,75
+>       return baos.toByteArray();
+>     }
+> 
 >     @Override
 >     public byte[] footerBytes() {
+>       // No footer bytes required
 >       return new byte[0];
->     }
-> 
->     // LifeCycle methods required by the Encoder interface (which extends LifeCycle)
->     @Override
->     public void start() {
->       started = true;
->     }
-> 
->     @Override
->     public void stop() {
->       started = false;
->     }
-> 
->     @Override
->     public boolean isStarted() {
->       return started;
->     }
-91a124
->    * @param maxRetentionHours maximum retention hours for the rolling policy.
-99c132
+80c80
+<       framedTransport.close();
+---
+>       // No persistent resources to close
+91a92
+>    * @param maxRetentionHours maximum retention time in hours.
+99c100
 <     RollingFileAppender<LogMessage> appender = new RollingFileAppender<LogMessage>();
 ---
 >     RollingFileAppender<LogMessage> appender = new RollingFileAppender<>();
+108c109
+<     TimeBasedRollingPolicy policy = new TimeBasedRollingPolicy();
+---
+>     TimeBasedRollingPolicy<LogMessage> policy = new TimeBasedRollingPolicy<>();
+116c117
+<     SizeAndTimeBasedFNATP fnatp = new SizeAndTimeBasedFNATP();
+---
+>     SizeAndTimeBasedFNATP<LogMessage> fnatp = new SizeAndTimeBasedFNATP<>();

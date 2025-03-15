@@ -24,9 +24,6 @@ import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm;
 import org.jgrapht.alg.spanning.PrimMinimumSpanningTree;
 import org.jgrapht.graph.SimpleGraph;
 import org.tinfour.common.IIncrementalTin;
-// Removed import for tin.spin KDTree as its API has been removed
-// import org.tinspin.index.kdtree.KDTree;
-
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
 import micycle.pgs.commons.GeometricMedian;
@@ -62,29 +59,24 @@ public final class PGS_PointSet {
 	 * @param points            list of points to filter
 	 * @param distanceTolerance a point that is within this distance of a previously
 	 *                          included point is not included in the output
-	 * @return filtered list of points
+	 * @return
 	 */
 	public static List<PVector> prunePointsWithinDistance(List<PVector> points, double distanceTolerance) {
-		// With the removal of tinspin's KDTree and its query1NN API,
-		// we now perform a simple brute-force search of the accepted points.
+		// Since the new dependency version removed the KDTree API,
+		// we replace the spatial index with a simple brute-force check.
 		final List<PVector> newPoints = new ArrayList<>();
-		double tolSq = distanceTolerance * distanceTolerance;
 		for (PVector p : points) {
-			if (newPoints.isEmpty()) {
+			boolean tooClose = false;
+			for (PVector q : newPoints) {
+				double dx = p.x - q.x;
+				double dy = p.y - q.y;
+				if (Math.sqrt(dx * dx + dy * dy) <= distanceTolerance) {
+					tooClose = true;
+					break;
+				}
+			}
+			if (!tooClose) {
 				newPoints.add(p);
-			} else {
-				boolean tooClose = false;
-				for (PVector np : newPoints) {
-					double dx = p.x - np.x;
-					double dy = p.y - np.y;
-					if (dx * dx + dy * dy <= tolSq) {
-						tooClose = true;
-						break;
-					}
-				}
-				if (!tooClose) {
-					newPoints.add(p);
-				}
 			}
 		}
 		return newPoints;
@@ -229,7 +221,7 @@ public final class PGS_PointSet {
 	 * @param xMin x-coordinate of boundary minimum
 	 * @param yMin y-coordinate of boundary minimum
 	 * @param xMax x-coordinate of boundary maximum
-	 * @param yMax x-coordinate of boundary maximum
+	 * @param yMax y-coordinate of boundary maximum
 	 * @param n    number of points to generate
 	 * @return
 	 * @see #random(double, double, double, double, int, long) seeded random()
@@ -245,7 +237,7 @@ public final class PGS_PointSet {
 	 * @param xMin x-coordinate of boundary minimum
 	 * @param yMin y-coordinate of boundary minimum
 	 * @param xMax x-coordinate of boundary maximum
-	 * @param yMax x-coordinate of boundary maximum
+	 * @param yMax y-coordinate of boundary maximum
 	 * @param n    number of points to generate
 	 * @param seed number used to initialize the underlying pseudorandom number
 	 *             generator
@@ -807,6 +799,7 @@ public final class PGS_PointSet {
 	 * @param seed number used to initialize the underlying pseudorandom number
 	 *             generator
 	 * @return
+	 * @see #nRooksLDS(double, double, double, double, int)
 	 */
 	public static List<PVector> nRooksLDS(double xMin, double yMin, double xMax, double yMax, int n, long seed) {
 		final double w = xMax - xMin;

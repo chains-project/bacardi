@@ -1,14 +1,15 @@
 <repair_strategy>
-1. The error is caused by using the removed default constructor Representer() from the SnakeYAML dependency.
-2. The old API allowed using new Representer() with no parameters, while in the new API a constructor Representer(DumperOptions) must be used.
-3. The client code needs to change the instantiation of Representer to pass an instance of DumperOptions.
-4. We must not modify function signatures or remove code that doesn't need fixing.
-5. The minimal change is to create a DumperOptions instance, then create a Representer by passing that instance, and use the same dumper options when constructing the Yaml instance.
-6. This fix should have no unwanted side effects and ensures the code compiles using the new dependency.
-7. New required imports are already present.
+1. The error indicates that the no-argument constructor new Representer() no longer exists.
+2. The new API provides a constructor that requires a DumperOptions parameter: new Representer(DumperOptions).
+3. The client code in the constructor is creating a new Representer() without any parameters. This needs to be updated.
+4. We must keep the method signatures the same and only change the instantiation of Representer.
+5. The minimal change is to create a DumperOptions instance and pass it to new Representer(), then reuse that same DumperOptions instance when creating the Yaml object.
+6. No side-effects are expected since only the instantiation is updated.
+7. The class remains complete and compilable after this change.
+8. The only additional change is the creation of a DumperOptions variable for the update.
 </repair_strategy>
 
-```
+```java
 /**
  * Copyright (c) 2012 to original author or authors
  * All rights reserved. This program and the accompanying materials
@@ -34,8 +35,9 @@ import java.util.Map;
 /**
  * YAML model reader.
  * 
- * Authors: jvanzyl, bentmann
- *
+ * @author jvanzyl
+ * @author bentmann
+ * 
  * @since 0.7
  */
 @Component(role = ModelReader.class, hint = "yaml")
@@ -45,14 +47,14 @@ public class YamlModelReader extends ModelReaderSupport {
   public YamlModelReader() {
     ModelConstructor constructor = new ModelConstructor();
     DumperOptions dumperOptions = new DumperOptions();
-    Representer representer = new Representer(dumperOptions);
-    yaml = new Yaml(constructor, representer, dumperOptions, new ModelResolver());
+    yaml = new Yaml(constructor, new Representer(dumperOptions), dumperOptions, new ModelResolver());
   }
 
   public Model read(Reader input, Map<String, ?> options) throws IOException, ModelParseException {
     if (input == null) {
       throw new IllegalArgumentException("YAML Reader is null.");
     }
+
     return (Model) yaml.load(input);
   }
 }

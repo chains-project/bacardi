@@ -1,16 +1,11 @@
 <repair_strategy>
-1. The error occurs because the dependency’s PublishMetadata class was removed.
-2. Previously, the Publisher was parameterized with PublishMetadata. In the new API, since PublishMetadata no longer exists, we can replace the type parameter with Void.
-3. We update all occurrences of Publisher&lt;PublishMetadata&gt; to Publisher&lt;Void&gt;.
-4. We remove the import statement for PublishMetadata and update the field declaration.
-5. The rest of the code remains unchanged because the Publisher API (such as startAsync, flush, publish, and stopAsync) remains compatible.
-6. This minimal change ensures that the class compiles and works with the new version of the dependency.
+1. The breaking change is that the external dependency no longer provides the PublishMetadata class (its constructor and the class itself have been removed).
+2. The client code uses PublishMetadata as the generic type parameter for the Publisher field. With PublishMetadata now removed, this reference must be eliminated.
+3. We will update the Publisher field’s type from Publisher<PublishMetadata> to Publisher<Void> (using Void as a placeholder since no metadata is available), and remove the now-invalid import.
+4. No other modifications are needed in the client code because no PublishMetadata-specific logic is used.
+5. These minimal changes ensure that the class compiles and functions correctly with the updated dependency API.
 </repair_strategy>
-
-Below is the complete, fixed class:
-
-------------------------------------------------
-
+ 
 ```java
 /*
  * Copyright 2020 Google LLC

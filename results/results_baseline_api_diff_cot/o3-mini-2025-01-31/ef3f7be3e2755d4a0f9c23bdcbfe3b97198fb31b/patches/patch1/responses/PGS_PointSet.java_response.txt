@@ -23,6 +23,8 @@ import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm;
 import org.jgrapht.alg.spanning.PrimMinimumSpanningTree;
 import org.jgrapht.graph.SimpleGraph;
 import org.tinfour.common.IIncrementalTin;
+import org.tinspin.index.kdtree.KDTree;
+import org.tinspin.index.kdtree.KDTree.Entry;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
 import micycle.pgs.commons.GeometricMedian;
@@ -61,20 +63,20 @@ public final class PGS_PointSet {
 	 * @return
 	 */
 	public static List<PVector> prunePointsWithinDistance(List<PVector> points, double distanceTolerance) {
+		final KDTree<PVector> tree = KDTree.create(2);
 		final List<PVector> newPoints = new ArrayList<>();
-		double toleranceSq = distanceTolerance * distanceTolerance;
 		for (PVector p : points) {
-			boolean tooClose = false;
-			for (PVector q : newPoints) {
-				double dx = p.x - q.x;
-				double dy = p.y - q.y;
-				if (dx * dx + dy * dy <= toleranceSq) {
-					tooClose = true;
-					break;
-				}
-			}
-			if (!tooClose) {
+			final double[] coords = new double[] { p.x, p.y };
+			if (tree.size() == 0) {
+				tree.insert(coords, p);
 				newPoints.add(p);
+			} else {
+				List<? extends Entry<PVector>> nearest = tree.queryKNN(coords, 1);
+				// If no neighbor is found or the nearest neighbor is further than the tolerance then add the point
+				if (nearest.isEmpty() || nearest.get(0).distance() > distanceTolerance) {
+					tree.insert(coords, p);
+					newPoints.add(p);
+				}
 			}
 		}
 		return newPoints;

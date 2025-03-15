@@ -16,14 +16,13 @@
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.cluster.Cluster;
-import com.hazelcast.map.listener.EntryListener;
-import com.hazelcast.core.LifecycleEvent;
-import com.hazelcast.core.LifecycleEvent.LifecycleState;
-import com.hazelcast.cluster.LifecycleListener;
-import com.hazelcast.cluster.Member;
-import com.hazelcast.cluster.MemberAttributeEvent;
 import com.hazelcast.cluster.MembershipEvent;
 import com.hazelcast.cluster.MembershipListener;
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.LifecycleEvent;
+import com.hazelcast.cluster.LifecycleEvent.LifecycleState;
+import com.hazelcast.cluster.LifecycleListener;
+import com.hazelcast.map.listener.EntryListener;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterManager;
 import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
@@ -55,7 +54,7 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
 
     private boolean seniorClusterMember = false;
 
-    private final Map<Cache<?,?>, EntryListener> entryListeners = new HashMap<>();
+    private final Map<Cache<?, ?>, EntryListener> entryListeners = new HashMap<>();
 
     private final Cluster cluster;
     private final Map<NodeID, ClusterNodeInfo> clusterNodesInfo = new ConcurrentHashMap<>();
@@ -160,7 +159,6 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         final NodeID nodeID = ClusteredCacheFactory.getNodeID(event.getMember());
         if (event.getMember().localMember()) { // We left and re-joined the cluster
             joinCluster();
-
         } else {
             if (wasSenior && !isSenior) {
                 logger.warn("Recovering from split-brain; firing leftCluster()/joinedCluster() events");
@@ -251,14 +249,10 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         NodeID.deleteInstance(nodeID.toByteArray());
         clusterNodesInfo.remove(nodeID);
     }
-    
-    @Override
-    public void memberAttributeChanged(final MemberAttributeEvent event) {
-        logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
-        isSenior = isSeniorClusterMember();
-        final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));
-        clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(event.getMember()),
-                new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));
+
+    @SuppressWarnings("WeakerAccess")
+    public List<ClusterNodeInfo> getClusterNodesInfo() {
+        return new ArrayList<>(clusterNodesInfo.values());
     }
 
     @Override
@@ -268,13 +262,5 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         } else if (event.getState().equals(LifecycleState.STARTED)) {
             joinCluster();
         }
-    }
-
-    public List<ClusterNodeInfo> getClusterNodesInfo() {
-        return new ArrayList<>(clusterNodesInfo.values());
-    }
-
-    boolean isClusterMember() {
-        return clusterMember;
     }
 }

@@ -66,7 +66,7 @@ public class AllureCommandline {
     }
 
     public AllureCommandline(final Path installationDirectory, final String version,
-                             final int timeout) {
+            final int timeout) {
         this.installationDirectory = installationDirectory;
         this.version = version != null ? version : ALLURE_DEFAULT_VERSION;
         this.timeout = timeout;
@@ -93,7 +93,7 @@ public class AllureCommandline {
     }
 
     public int serve(final List<Path> resultsPaths, final Path reportPath, final String serveHost,
-                     final Integer servePort) throws IOException {
+            final Integer servePort) throws IOException {
 
         this.checkAllureExists();
 
@@ -150,7 +150,7 @@ public class AllureCommandline {
     }
 
     public void downloadWithMaven(final MavenSession session,
-                                  final DependencyResolver dependencyResolver) throws IOException {
+            final DependencyResolver dependencyResolver) throws IOException {
         final ProjectBuildingRequest buildingRequest =
                 new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
         buildingRequest.setResolveDependencies(false);
@@ -170,6 +170,7 @@ public class AllureCommandline {
                 unpack(resolved.next().getArtifact().getFile());
             } else {
                 throw new IOException("No allure commandline artifact found.");
+
             }
         } catch (DependencyResolverException e) {
             throw new IOException("Cannot resolve allure commandline dependencies.", e);
@@ -195,6 +196,7 @@ public class AllureCommandline {
                 final String proxyPassword = mavenProxy.getPassword();
 
                 Authenticator.setDefault(new Authenticator() {
+                    @Override
                     public PasswordAuthentication getPasswordAuthentication() {
                         return new PasswordAuthentication(proxyUser, proxyPassword.toCharArray());
                     }

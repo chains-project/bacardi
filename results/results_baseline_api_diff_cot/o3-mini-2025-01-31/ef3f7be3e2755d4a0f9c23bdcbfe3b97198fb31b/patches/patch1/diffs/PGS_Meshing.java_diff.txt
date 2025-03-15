@@ -1,16 +1,11 @@
-36d35
+36,38c36,37
 < import org.tinspin.index.PointIndex;
-37a37
-> import org.tinspin.index.IndexConfig;
-161,165c161
+< import org.tinspin.index.kdtree.KDTree;
+< import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
+---
+> import org.tinspin.index.PointDistance;
+> import org.tinspin.index.covertree.CoverTree;
+161c160
 <                 final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {
-<                         final double deltaX = p1[0] - p2[0];
-<                         final double deltaY = p1[1] - p2[1];
-<                         return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-<                 });
 ---
->                 final KDTree<Vertex> tree = KDTree.create(new IndexConfig(2));
-277c273
-<          * Generates a (mesh-like) shape consisting of polygonal faces of the dual graph
----
->          * Generates a shape consisting of polygonal faces of the dual graph
+>                 final CoverTree<Vertex> tree = CoverTree.create(2, Double.POSITIVE_INFINITY, (double[] p1, double[] p2) -> {

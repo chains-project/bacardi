@@ -107,13 +107,12 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		ClassicConfiguration config = new ClassicConfiguration();
-		config.setDataSource(this.dataSource());
-		config.setClassLoader(NisAppConfig.class.getClassLoader());
-		// Creating a Location array with the location specified in the properties file.
-		config.setLocations(new Location[] { new Location(prop.getProperty("flyway.locations")) });
-		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		return new Flyway(config);
+		final ClassicConfiguration configuration = new ClassicConfiguration();
+		configuration.setDataSource(this.dataSource());
+		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+		configuration.setLocations(new Location[] { new Location(prop.getProperty("flyway.locations")) });
+		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		return new Flyway(configuration);
 	}
 
 	@Bean

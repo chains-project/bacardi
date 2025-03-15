@@ -1,10 +1,12 @@
 <repair_strategy>
-1. The issue arises from the removal of the class org.cactoos.iterable.LengthOf in the new version of the dependency.
-2. In the updated API, a new type, org.cactoos.scalar.LengthOf, has been added with a constructor that takes an Iterable.
-3. The compareTo method in RtScore relies on LengthOf to compute the sizes, so only the import and usage need adjustment.
-4. The fix requires updating the import from org.cactoos.iterable.LengthOf to org.cactoos.scalar.LengthOf while keeping the rest of the code intact.
-5. This is a minimal change that ensures the class compiles against the new dependency version.
-6. No other parts of the code need updating, and there are no side effects since the function signatures remain unchanged.
+1. The error is caused by the removal of the class org.cactoos.iterable.LengthOf in the updated dependency version.
+2. The new API provides org.cactoos.scalar.LengthOf which accepts an Iterable in its constructor.
+3. The client code uses LengthOf to compute the size of an Iterable. We need to update the import statement (and accordingly the usage) to reference org.cactoos.scalar.LengthOf.
+4. The function signatures and logic remain the same, so only the import statement and reference to LengthOf need updating.
+5. The change is minimal and should not affect other aspects of the code.
+6. Since compareTo and suffixes() methods remain valid, no adjustments to method signatures or logic are required.
+7. The update results in a complete and compilable class.
+8. The additional import required is org.cactoos.scalar.LengthOf.
 </repair_strategy>
 
 ```

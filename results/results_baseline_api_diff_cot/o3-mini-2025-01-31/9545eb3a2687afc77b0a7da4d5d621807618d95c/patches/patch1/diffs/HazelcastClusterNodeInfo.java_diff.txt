@@ -1,18 +1,8 @@
-23,24c23
-< 
+24c24
 < import com.hazelcast.core.Member;
 ---
 > import com.hazelcast.cluster.Member;
-28a28,31
->  * Updated to use the new Hazelcast API:
->  *  - Replaced com.hazelcast.core.Member with com.hazelcast.cluster.Member.
->  *  - Replaced getStringAttribute(String) with getAttribute(String) cast to String.
->  *
-35a39
->     
-42c46,48
+42c42
 <         this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";
 ---
->         // Use getAttribute(String) in place of the removed getStringAttribute(String)
->         this.hostname = ((String) member.getAttribute(HOST_NAME_ATTRIBUTE))
->                 + " (" + member.getSocketAddress().getHostString() + ")";
+>         this.hostname = ((String) member.getAttribute(HOST_NAME_ATTRIBUTE)) + " (" + member.getSocketAddress().getHostString() + ")";

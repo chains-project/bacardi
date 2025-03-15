@@ -1,22 +1,24 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ *
+ * Copyright 2017-2022 the original author or authors.
+ */
 package org.assertj.vavr.api;
 
-import io.vavr.control.Try;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
-
-import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Method;
 
 class ClassLoadingStrategyFactory {
 
-    private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
-    private static final Method PRIVATE_LOOKUP_IN = Try.of(
-        () -> MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class)
-    ).getOrElse((Method) null);
-
-    static ClassLoadingStrategy<ClassLoader> classLoadingStrategy(Class<?> assertClass) {
-        // The previous dynamic strategies using ClassInjector have been removed from the dependency.
-        // We now always return ByteBuddy’s default injection strategy.
-        return ClassLoadingStrategy.Default.INJECTION;
-    }
-
+  static ClassLoadingStrategy<ClassLoader> classLoadingStrategy(Class<?> assertClass) {
+    // In the new version of the dependency the previous dynamic loading strategies (UsingReflection and UsingLookup)
+    // have been removed. We now default to the injection-based strategy.
+    return ClassLoadingStrategy.Default.INJECTION;
+  }
 }

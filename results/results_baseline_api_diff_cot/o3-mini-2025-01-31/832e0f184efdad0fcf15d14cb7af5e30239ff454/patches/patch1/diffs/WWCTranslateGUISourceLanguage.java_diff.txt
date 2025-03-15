@@ -1,62 +1,20 @@
-39c39,40
-<                                 .provider(new WWCTranslateGUISourceLanguage(s, targetPlayerUUID)).size(6, 9)
----
->                                 .provider(new WWCTranslateGUISourceLanguage(s, targetPlayerUUID))
->                                 .size(6, 9)
-73,74c74,76
+5a6
+> import org.bukkit.enchantments.Enchantment;
+73c74
 <                                         currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
-<                                         lore.add(ChatColor.GREEN + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwctGUISourceTranslationSelected"));
 ---
->                                         currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
->                                         lore.add(ChatColor.GREEN + "" + ChatColor.ITALIC
->                                                         + CommonDefinitions.getMessage("wwctGUISourceTranslationSelected"));
-76,77c78,80
+>                     currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+76c77
 <                                         currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
-<                                         lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwctGUISourceOrTargetTranslationAlreadyActive"));
 ---
->                                         currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
->                                         lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC
->                                                         + CommonDefinitions.getMessage("wwctGUISourceOrTargetTranslationAlreadyActive"));
-88,89c91
-<                                         WWCTranslateGUITargetLanguage.getTargetLanguageInventory(thisLangCode, targetPlayerUUID)
-<                                                         .open(player);
----
->                                         WWCTranslateGUITargetLanguage.getTargetLanguageInventory(thisLangCode, targetPlayerUUID).open(player);
-101,102c103
-<                                         getSourceLanguageInventory(selectedSourceLanguage, targetPlayerUUID).open(player,
-<                                                         pagination.previous().getPage());
----
->                                         getSourceLanguageInventory(selectedSourceLanguage, targetPlayerUUID).open(player, pagination.previous().getPage());
-115,116c116
-<                                 skipSourceMeta.setDisplayName(ChatColor.YELLOW
-<                                                 + CommonDefinitions.getMessage("wwctGUIAutoDetectButton"));
----
->                                 skipSourceMeta.setDisplayName(ChatColor.YELLOW + CommonDefinitions.getMessage("wwctGUIAutoDetectButton"));
-121,123c121,124
-<                                 if ((currTranslator.getInLangCode().equals("None"))) {
+>                     currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+122c123
 <                                         skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
-<                                         lore.add(ChatColor.GREEN + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwctGUISourceTranslationSelected"));
 ---
->                                 if (currTranslator.getInLangCode().equals("None")) {
->                                         skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
->                                         lore.add(ChatColor.GREEN + "" + ChatColor.ITALIC
->                                                         + CommonDefinitions.getMessage("wwctGUISourceTranslationSelected"));
-125,126c126,128
+>                     skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+125c126
 <                                         skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
-<                                         lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwctGUISourceOrTargetTranslationAlreadyActive"));
 ---
->                                         skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
->                                         lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC
->                                                         + CommonDefinitions.getMessage("wwctGUISourceOrTargetTranslationAlreadyActive"));
-136,137c138
-<                                         getSourceLanguageInventory(selectedSourceLanguage, targetPlayerUUID).open(player,
-<                                                         pagination.next().getPage());
----
->                                         getSourceLanguageInventory(selectedSourceLanguage, targetPlayerUUID).open(player, pagination.next().getPage());
+>                     skipSourceMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
 139d139
 <                                 ;
-143c143,144
-<                         contents.set(5, 8, ClickableItem.of(WWCInventoryManager.getCommonButton("Page Number", new String[] {pagination.getPage() + 1 + ""}), e -> {}));
----
->                         contents.set(5, 8, ClickableItem.of(WWCInventoryManager.getCommonButton("Page Number",
->                                         new String[] { pagination.getPage() + 1 + "" }), e -> {}));

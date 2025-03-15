@@ -1,12 +1,3 @@
-<repair_strategy>
-1. The error arises because the client code still refers to the old Struts2 class in the package org.apache.struts2.dispatcher.ng.filter.
-2. In the new dependency version the class has moved to org.apache.struts2.dispatcher.filter and its no-argument constructor has been removed.
-3. The fix is to update the import and ensure the filter binding uses the new fully qualified type.
-4. There is no need to change function signatures; only the import (and consequently the references) needs to be updated.
-5. The minimal change is to remove the ng.filter import and add the new filter import from org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter.
-6. This should result in a complete and compilable class.
-</repair_strategy>
-
 ```java
 /*
  * Copyright (C) 2010 Google Inc.
@@ -26,6 +17,7 @@
 
 package com.google.inject.struts2;
 
+import org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -33,14 +25,13 @@ import com.google.inject.Module;
 import com.google.inject.Provides;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
-import org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter;
 import java.util.Date;
 import junit.framework.TestCase;
 
 /**
  * Test for Struts2Factory
  *
- * author benmccann.com
+ * @author benmccann.com
  */
 public class Struts2FactoryTest extends TestCase {
 
@@ -61,7 +52,7 @@ public class Struts2FactoryTest extends TestCase {
           new ServletModule() {
             @Override
             protected void configureServlets() {
-              // Struts 2 setup using the updated StrutsPrepareAndExecuteFilter class
+              // Struts 2 setup
               bind(StrutsPrepareAndExecuteFilter.class)
                   .in(com.google.inject.Singleton.class);
               filter("/*").through(StrutsPrepareAndExecuteFilter.class);

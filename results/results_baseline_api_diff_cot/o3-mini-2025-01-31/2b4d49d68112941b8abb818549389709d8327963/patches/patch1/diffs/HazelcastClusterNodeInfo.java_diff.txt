@@ -1,13 +1,8 @@
-24c24,25
+24c24
 < import com.hazelcast.core.Member;
 ---
 > import com.hazelcast.cluster.Member;
-> import java.net.InetSocketAddress;
-42c43,47
+42c42
 <         this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";
 ---
->         // Use the new getAttribute method instead of the removed getStringAttribute.
->         String customHostName = (String) member.getAttribute(HOST_NAME_ATTRIBUTE);
->         // Cast to InetSocketAddress for obtaining the host string.
->         InetSocketAddress socketAddress = (InetSocketAddress) member.getSocketAddress();
->         this.hostname = customHostName + " (" + socketAddress.getHostString() + ")";
+>         this.hostname = (String) member.getAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";

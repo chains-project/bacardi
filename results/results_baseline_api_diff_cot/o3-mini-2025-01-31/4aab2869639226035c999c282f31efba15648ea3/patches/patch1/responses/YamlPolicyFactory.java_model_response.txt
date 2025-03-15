@@ -1,12 +1,18 @@
 ```java
+/*
+ * The MIT License (MIT) Copyright (c) 2020-2022 artipie.com
+ * https://github.com/artipie/http/blob/master/LICENSE.txt
+ */
 package com.artipie.security.policy;
 
 import com.amihaiemil.eoyaml.Yaml;
 import com.amihaiemil.eoyaml.YamlMapping;
+import com.artipie.asto.Storage;
 import com.artipie.asto.blocking.BlockingStorage;
 import com.artipie.asto.fs.FileStorageFactory;
+import com.artipie.asto.s3.S3StorageFactory;
+import com.artipie.asto.etcd.EtcdStorageFactory;
 import com.artipie.asto.factory.Config;
-import com.artipie.asto.Storage;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
@@ -38,14 +44,19 @@ public final class YamlPolicyFactory implements PolicyFactory {
     public Policy<?> getPolicy(final PolicyConfig config) {
         final PolicyConfig sub = config.config("storage");
         try {
-            final String type = sub.string("type");
-            final YamlMapping yaml = Yaml.createYamlInput(sub.toString()).readYamlMapping();
+            // Read the storage configuration as a YAML mapping.
+            final YamlMapping yamlMapping = Yaml.createYamlInput(sub.toString()).readYamlMapping();
+            // Convert the YAML mapping into the new dependency configuration object.
+            final Config storageConfig = Config.of(yamlMapping);
             final Storage storage;
-            // Here we support only filesystem storage ("fs") per the configuration example.
-            // In the new API, the generic Storages helper was removed, so we instantiate
-            // the appropriate storage factory based on the type.
+            final String type = sub.string("type");
+            // Choose the proper StorageFactory based on the storage type.
             if ("fs".equalsIgnoreCase(type)) {
-                storage = new FileStorageFactory().newStorage(new YamlStorageConfig(yaml));
+                storage = new FileStorageFactory().newStorage(storageConfig);
+            } else if ("s3".equalsIgnoreCase(type)) {
+                storage = new S3StorageFactory().newStorage(storageConfig);
+            } else if ("etcd".equalsIgnoreCase(type)) {
+                storage = new EtcdStorageFactory().newStorage(storageConfig);
             } else {
                 throw new IllegalArgumentException("Unsupported storage type: " + type);
             }
@@ -53,35 +64,6 @@ public final class YamlPolicyFactory implements PolicyFactory {
         } catch (final IOException err) {
             throw new UncheckedIOException(err);
         }
-    }
-
-    /**
-     * A simple adapter that implements the new {@link Config} interface by wrapping a {@link YamlMapping}.
-     * This allows the storage factories (such as {@link FileStorageFactory}) to read their configuration
-     * from the YAML file.
-     */
-    private static final class YamlStorageConfig implements Config {
-        /**
-         * Underlying YAML configuration.
-         */
-        private final YamlMapping mapping;
-
-        /**
-         * Ctor.
-         *
-         * @param mapping YAML mapping with storage configuration.
-         */
-        YamlStorageConfig(final YamlMapping mapping) {
-            this.mapping = mapping;
-        }
-
-        @Override
-        public String string(final String key) {
-            return this.mapping.string(key);
-        }
-
-        // If the new Config interface in the dependency declares additional methods,
-        // they should be implemented here accordingly.
     }
 }
 ```

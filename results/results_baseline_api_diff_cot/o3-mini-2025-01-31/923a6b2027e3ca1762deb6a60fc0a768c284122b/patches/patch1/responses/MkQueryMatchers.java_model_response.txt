@@ -1,14 +1,12 @@
 <repair_strategy>
-1. The error occurs because the client code is still referencing methods from the now-removed org.hamcrest.Matchers class.
-2. Previously the code used Matchers.<URI>hasProperty("rawPath", path) and Matchers.<URI>hasProperty("rawQuery", query) to create matchers for bean properties.
-3. In the new version of Hamcrest, the bean property matchers have been moved; specifically, the hasProperty() method is now available as a static method in the org.hamcrest.beans.HasProperty class.
-4. The client code needs to remove the obsolete import "org.hamcrest.Matchers" and instead import the static method hasProperty from org.hamcrest.beans.HasProperty.
-5. The minimal changes are:
-    • Remove the import for org.hamcrest.Matchers.
-    • Add a static import for org.hamcrest.beans.HasProperty.hasProperty.
-    • Replace the calls to Matchers.<URI>hasProperty(...) with hasProperty(...).
-6. These changes do not affect other parts of the code and the function signatures remain unchanged.
-7. The final result is a complete, compilable class that works with the new Hamcrest API.
+1. The error indicates that the class org.hamcrest.Matchers is no longer available in the updated dependency.
+2. In the old version, Matchers.hasProperty was used to create matchers for bean properties. In the new API, similar functionality is provided by the static method hasProperty from the class org.hamcrest.beans.HasPropertyWithValue.
+3. The parts of the code that need to be updated are the two methods hasPath and hasQuery that reference Matchers.<URI>hasProperty(...).
+4. The fix requires replacing "Matchers.<URI>hasProperty" with "HasPropertyWithValue.hasProperty", and updating the imports accordingly.
+5. The change is minimal: remove the import for org.hamcrest.Matchers and add an import for org.hamcrest.beans.HasPropertyWithValue.
+6. Since the methods in MkQueryMatchers delegate to the Matchers from hamcrest, the fix does not affect other parts of the code.
+7. The resulting class remains complete and compilable.
+8. The additional import from org.hamcrest.beans is necessary to access the new hasProperty method.
 </repair_strategy>
 
 ```java
@@ -45,7 +43,7 @@ package com.jcabi.http.mock;
 
 import java.net.URI;
 import org.hamcrest.Matcher;
-import static org.hamcrest.beans.HasProperty.hasProperty;
+import org.hamcrest.beans.HasPropertyWithValue;
 
 /**
  * Convenient set of matchers for {@link MkQuery}.
@@ -96,7 +94,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasPath(final Matcher<String> path) {
         return new MkQueryUriMatcher(
-            hasProperty("rawPath", path)
+            HasPropertyWithValue.hasProperty("rawPath", path)
         );
     }
 
@@ -108,7 +106,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasQuery(final Matcher<String> query) {
         return new MkQueryUriMatcher(
-            hasProperty("rawQuery", query)
+            HasPropertyWithValue.hasProperty("rawQuery", query)
         );
     }
 

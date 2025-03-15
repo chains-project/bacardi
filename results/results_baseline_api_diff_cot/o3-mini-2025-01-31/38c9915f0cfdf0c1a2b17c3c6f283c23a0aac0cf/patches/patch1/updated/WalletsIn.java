@@ -10,8 +10,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -30,11 +30,11 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Random;
 import org.cactoos.Scalar;
+import org.cactoos.scalar.Sticky;
 import org.cactoos.func.IoCheckedFunc;
 import org.cactoos.io.Directory;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.Mapped;
-import org.cactoos.scalar.Sticky;
 import org.cactoos.text.FormattedText;
 import org.cactoos.text.UncheckedText;
 
@@ -93,43 +93,30 @@ public final class WalletsIn implements Wallets {
     /**
      * Ctor.
      * @param pth Path with wallets
-     * @param ext Wallets file extension
      * @param random Randomizer
+     * @param ext Wallets file extension
      */
-    public WalletsIn(final Scalar<Path> pth, final String ext, final Random random) {
+    public WalletsIn(final Scalar<Path> pth, final String ext,
+        final Random random) {
         this.path = new Sticky<>(pth);
-        this.filter = new IoCheckedFunc<>(
+        this.filter = new IoCheckedFunc<Path, Boolean>(
             (file) -> file.toFile().isFile()
                 && FileSystems.getDefault()
-                    .getPathMatcher(String.format("glob:**.%s", ext))
-                    .matches(file)
+                .getPathMatcher(String.format("glob:**.%s", ext))
+                .matches(file)
         );
         this.ext = ext;
         this.random = random;
     }
 
-    /**
-     * Returns the base path from the scalar, wrapping any exception as IOException.
-     * @return The base path
-     * @throws IOException If an error occurs evaluating the scalar
-     */
-    private Path basePath() throws IOException {
-        try {
-            return this.path.value();
-        } catch (final Exception ex) {
-            throw new IOException(ex);
-        }
-    }
-
     @Override
     public Wallet create() throws IOException {
-        final Path base = basePath();
-        final String filename = String.join(
-            ".",
-            Long.toHexString(this.random.nextLong()),
-            this.ext
+        final Path wpth = getPath().resolve(
+            String.join(".",
+                Long.toHexString(this.random.nextLong()),
+                this.ext
+            )
         );
-        final Path wpth = base.resolve(filename);
         if (wpth.toFile().exists()) {
             throw new IOException(
                 new UncheckedText(
@@ -149,7 +136,8 @@ public final class WalletsIn implements Wallets {
     //  It should contain the correct content according to the
     //  white paper (network, protocol version, id and public RSA key). After
     //  this remove exception expect for tests on WalletsInTest.
-    public Wallet create(final long id, final String pubkey, final String network) throws IOException {
+    public Wallet create(final long id, final String pubkey, final String
+        network) throws IOException {
         throw new UnsupportedOperationException(
             "WalletsIn.create(String, String, String) not supported"
         );
@@ -158,12 +146,28 @@ public final class WalletsIn implements Wallets {
     @Override
     public Iterator<Wallet> iterator() {
         try {
-            return new Mapped<>(
+            return new Mapped<Path, Wallet>(
                 (pth) -> new Wallet.File(pth),
-                new Filtered<>(this.filter, new Directory(basePath()))
+                new Filtered<>(this.filter, new Directory(getPath()))
             ).iterator();
         } catch (final IOException ex) {
             throw new IllegalStateException(ex);
+        }
+    }
+    
+    /**
+     * Helper method to retrieve the path from the scalar.
+     * @return the wallet directory path
+     * @throws IOException if an error occurs retrieving the path
+     */
+    private Path getPath() throws IOException {
+        try {
+            return this.path.value();
+        } catch (final Exception ex) {
+            if (ex instanceof IOException) {
+                throw (IOException) ex;
+            }
+            throw new IOException(ex);
         }
     }
 }

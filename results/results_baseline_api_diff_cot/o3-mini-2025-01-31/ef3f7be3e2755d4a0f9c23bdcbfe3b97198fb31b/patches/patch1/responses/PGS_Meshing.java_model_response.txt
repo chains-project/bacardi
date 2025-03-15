@@ -34,9 +34,8 @@ import org.tinfour.common.IQuadEdge;
 import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
 import org.tinfour.utils.TriangleCollector;
-import org.tinspin.index.kdtree.KDTree;
-import org.tinspin.index.IndexConfig;
-import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
+import org.tinspin.index.PointDistance;
+import org.tinspin.index.covertree.CoverTree;
 import micycle.pgs.color.Colors;
 import micycle.pgs.commons.AreaMerge;
 import micycle.pgs.commons.IncrementalTinDual;
@@ -159,7 +158,11 @@ public class PGS_Meshing {
 			}
 		});
 
-		final KDTree<Vertex> tree = KDTree.create(new IndexConfig(2));
+		final CoverTree<Vertex> tree = CoverTree.create(2, Double.POSITIVE_INFINITY, (double[] p1, double[] p2) -> {
+			final double deltaX = p1[0] - p2[0];
+			final double deltaY = p1[1] - p2[1];
+			return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+		});
 		vertices.forEach(v -> tree.insert(new double[] { v.x, v.y }, v));
 
 		final HashSet<IQuadEdge> nonGabrielEdges = new HashSet<>(); // base references to edges that should be removed
@@ -271,7 +274,7 @@ public class PGS_Meshing {
 	}
 
 	/**
-	 * Generates a shape consisting of polygonal faces of the dual graph
+	 * Generates a (mesh-like) shape consisting of polygonal faces of the dual graph
 	 * of the given triangulation.
 	 * <p>
 	 * In practice, the resulting dual mesh has hexagonal-like cells.

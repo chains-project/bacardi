@@ -38,7 +38,7 @@ public class Decorations
             @Override
             public void run()
             {
-                if (sec[0] > (seconds))
+                if (sec[0] > seconds)
                     this.cancel();
 
                 player.getWorld().spawnParticle(
@@ -192,12 +192,16 @@ public class Decorations
                     Location center = player.getLocation();
 
                     circle(center.clone().add(0, 0.9, 0), count[0], 3, Particle.CRIT);
+
                     circle(center.add(0, 0.7, 0), count[0], 2.7, Particle.ENCHANTMENT_TABLE);
+
                     circle(center.clone().add(0, wave.get(0.01, false), 0), count[0], wave.getStatic());
+
                     circle(center.clone().add(3.2, 0.7, 3.2), count[0], 1.5);
                     circle(center.clone().add(-3.2, 0.7, -3.2), count[0], 1.5);
                     circle(center.clone().add(-3.2, 0.7, 3.2), count[0], 1.5);
                     circle(center.clone().add(3.2, 0.7, -3.2), count[0], 1.5);
+
                     circle(center.clone().add(0, 1.5, 0), count[0], 5, Particle.SPELL_WITCH);
 
                     count[0]++;
@@ -234,7 +238,6 @@ public class Decorations
      */
     public static void laser(Player player, int sec)
     {
-
         final double[] time = {0.0};
         final double radius = 2.5;
 
@@ -244,7 +247,12 @@ public class Decorations
             public void run()
             {
                 Location c = player.getLocation().clone();
-                Location X = new Location(c.getWorld(), particle_x(time[0], radius) + c.getX(), 5.0 + c.getY(), particle_z(time[0], radius) + c.getZ());
+                Location X = new Location(
+                    c.getWorld(),
+                    particle_x(time[0], radius) + c.getX(),
+                    5.0 + c.getY(),
+                    particle_z(time[0], radius) + c.getZ()
+                );
 
                 for (int i = 0; i < 10; i++)
                     line(c, X, Particle.TOWN_AURA);

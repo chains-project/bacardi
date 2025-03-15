@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import jakarta.interceptor.AroundInvoke;
 import jakarta.interceptor.Interceptor;
 import jakarta.interceptor.InvocationContext;
-
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -40,7 +39,8 @@ public class CallRedirectionInterceptor implements Serializable {
     @SuppressWarnings("squid:S00112")
     private Object callAlternative(InvocationContext ctx, Class<?> javaClass) throws Throwable {
         Method method = ctx.getMethod();
-        Object alternative = BeanProvider.getContextualReference(invocationTargetManager.get().alternativeFor(javaClass));
+        Object alternative = BeanProvider
+                .getContextualReference(invocationTargetManager.get().alternativeFor(javaClass));
         try {
             Method alternativeMethod = alternative.getClass().getMethod(method.getName(), method.getParameterTypes());
             return alternativeMethod.invoke(alternative, ctx.getParameters());

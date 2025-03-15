@@ -1,11 +1,14 @@
 <repair_strategy>
-1. The error indicates that the class CommandSource (previously in the package org.spongepowered.api.command) can no longer be found because it has been removed from that package.
-2. In the new API version the CommandSource interface has been moved to a different package. The minimal change is to update the import statement to the new package (org.spongepowered.api.command.source.CommandSource).
-3. The client code uses CommandSource in its instance variable and constructor, and calls sendMessage with it. Since we cannot change the method signatures, we only update the import so that the correct class is used.
-4. No other changes are needed since the client code structure and logic remain valid.
-5. We also ensure all other imports are kept and the complete class compiles.
+1. The error indicates that the class org.spongepowered.api.command.CommandSource has been removed in the new version of Sponge.
+2. The invoker field and constructor parameter currently use CommandSource, which causes the compilation error.
+3. In the updated Sponge API, messaging is now handled via the Adventure API. Its Audience interface (net.kyori.adventure.audience.Audience) provides the appropriate functionality.
+4. The fix replaces all uses of CommandSource with Audience. This involves:
+   • Removing the import of org.spongepowered.api.command.CommandSource.
+   • Adding an import for net.kyori.adventure.audience.Audience.
+   • Changing the type of the invoker field and the corresponding constructor parameter to Audience.
+5. All method implementations remain compliant with the original logic.
 </repair_strategy>
-
+  
 ```java
 package com.github.games647.changeskin.sponge.task;
 
@@ -15,15 +18,15 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import java.util.concurrent.TimeUnit;
 
-import org.spongepowered.api.command.source.CommandSource;
+import net.kyori.adventure.audience.Audience;
 import org.spongepowered.api.scheduler.Task;
 
 public class SkinUploader extends SharedUploader {
 
     private final ChangeSkinSponge plugin;
-    private final CommandSource invoker;
+    private final Audience invoker;
 
-    public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url) {
+    public SkinUploader(ChangeSkinSponge plugin, Audience invoker, Account owner, String url) {
         super(plugin.getCore(), owner, url);
 
         this.plugin = plugin;

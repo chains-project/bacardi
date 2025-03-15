@@ -1,24 +1,95 @@
 62c62
 <     private final List<ManagedObject> groups = new ArrayList<>();
 ---
->     private final List<ManagedObject<?>> groups = new ArrayList<>();
+>     private final List<MOGroup> groups = new ArrayList<>();
 266c266
 <                     ManagedObject mo = server.lookup(new DefaultMOQuery(scope, false));
 ---
->                     ManagedObject<?> mo = server.lookup(new DefaultMOQuery(scope, false));
+>                     Object mo = server.lookup(new DefaultMOQuery(scope, false));
+273c273
+<                                 log.warn("could not register single OID at {} because ManagedObject {} is already registered.", variableBinding.getOid(), mo);
+---
+>                                 log.warn("could not register single OID at {} because an object is already registered.", variableBinding.getOid());
+338c338
+<      * Registers a {@link ManagedObject} to the server with an empty {@link OctetString} community context.
+---
+>      * Registers a {@link MOGroup} to the server with an empty {@link OctetString} community context.
+340c340
+<      * @param group {@link ManagedObject} to register.
+---
+>      * @param group {@link MOGroup} to register.
+348c348
+<      * Registers a {@link ManagedObject} to the server with a {@link OctetString} community context.
+---
+>      * Registers a {@link MOGroup} to the server with a {@link OctetString} community context.
+350c350
+<      * @param group   {@link ManagedObject} to register.
+---
+>      * @param group   {@link MOGroup} to register.
 357c357
 <                 ManagedObject other = server.lookup(new DefaultMOQuery(contextScope, false));
 ---
->                 ManagedObject<?> other = server.lookup(new DefaultMOQuery(contextScope, false));
+>                 Object other = server.lookup(new DefaultMOQuery(contextScope, false));
+379c379
+<      * Sets the private registry value of {@link DefaultMOServer} via reflection.
+---
+>      * Sets the private registry value of the server via reflection.
+383c383
+<      * @param group {@link ManagedObject} to register.
+---
+>      * @param group {@link MOGroup} to register.
 389c389
 <             final SortedMap<MOScope, ManagedObject> reg = server.getRegistry();
 ---
->             final SortedMap<MOScope, ManagedObject<?>> reg = server.getRegistry();
+>             final SortedMap<MOScope, Object> reg = (SortedMap<MOScope, Object>) server.getRegistry();
 440c440
 <         ManagedObject query;
 ---
->         ManagedObject<?> query;
-489c489
-<         for (final ManagedObject mo : groups) {
+>         Object query;
+460,462c460,462
+<             final List<VariableModifier> modifiers;
+< 
+<             modifiers = device.getModifiers().stream().filter(modifier -> modifier.isApplicable(binding.getKey())).collect(Collectors.toList());
 ---
->         for (final ManagedObject<?> mo : groups) {
+>             final List<VariableModifier> modifiers = device.getModifiers().stream()
+>                     .filter(modifier -> modifier.isApplicable(binding.getKey()))
+>                     .collect(Collectors.toList());
+469,470c469,476
+<                     if (modifiers.stream().filter(m -> m instanceof Modifier).map(m -> (Modifier) m).anyMatch(m -> m.getModifier() instanceof CommunityContextModifier)) {
+<                         final List<CommunityContextModifier> contextModifiers = modifiers.stream().filter(m -> m instanceof Modifier).map(m -> (Modifier) m).filter(m -> m.getModifier() instanceof CommunityContextModifier).map(m -> (CommunityContextModifier) m.getModifier()).collect(Collectors.toList());
+---
+>                     if (modifiers.stream().filter(m -> m instanceof Modifier).map(m -> (Modifier) m)
+>                             .anyMatch(m -> m.getModifier() instanceof CommunityContextModifier)) {
+>                         final List<CommunityContextModifier> contextModifiers = modifiers.stream()
+>                                 .filter(m -> m instanceof Modifier)
+>                                 .map(m -> (Modifier) m)
+>                                 .filter(m -> m.getModifier() instanceof CommunityContextModifier)
+>                                 .map(m -> (CommunityContextModifier) m.getModifier())
+>                                 .collect(Collectors.toList());
+481d486
+< 
+489,490c494,495
+<         for (final ManagedObject mo : groups) {
+<             server.unregister(mo, null);
+---
+>         for (final MOGroup group : groups) {
+>             server.unregister(group, null);
+520c525,526
+<             vacmMIB.addAccess(new OctetString("v1v2group"), new OctetString(String.valueOf(vlan)), SecurityModel.SECURITY_MODEL_ANY, SecurityLevel.NOAUTH_NOPRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
+---
+>             vacmMIB.addAccess(new OctetString("v1v2group"), new OctetString(String.valueOf(vlan)), SecurityModel.SECURITY_MODEL_ANY, SecurityLevel.NOAUTH_NOPRIV,
+>                     MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
+523,526c529,536
+<         vacmMIB.addAccess(new OctetString("v1v2group"), new OctetString(), SecurityModel.SECURITY_MODEL_ANY, SecurityLevel.NOAUTH_NOPRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
+<         vacmMIB.addAccess(new OctetString("v3group"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.AUTH_PRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
+<         vacmMIB.addAccess(new OctetString("v3restricted"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.NOAUTH_NOPRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("restrictedReadView"), new OctetString("restrictedWriteView"), new OctetString("restrictedNotifyView"), StorageType.nonVolatile);
+<         vacmMIB.addAccess(new OctetString("v3test"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.AUTH_PRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("testReadView"), new OctetString("testWriteView"), new OctetString("testNotifyView"), StorageType.nonVolatile);
+---
+>         vacmMIB.addAccess(new OctetString("v1v2group"), new OctetString(), SecurityModel.SECURITY_MODEL_ANY, SecurityLevel.NOAUTH_NOPRIV,
+>                 MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
+>         vacmMIB.addAccess(new OctetString("v3group"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.AUTH_PRIV,
+>                 MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
+>         vacmMIB.addAccess(new OctetString("v3restricted"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.NOAUTH_NOPRIV,
+>                 MutableVACM.VACM_MATCH_EXACT, new OctetString("restrictedReadView"), new OctetString("restrictedWriteView"), new OctetString("restrictedNotifyView"), StorageType.nonVolatile);
+>         vacmMIB.addAccess(new OctetString("v3test"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.AUTH_PRIV,
+>                 MutableVACM.VACM_MATCH_EXACT, new OctetString("testReadView"), new OctetString("testWriteView"), new OctetString("testNotifyView"), StorageType.nonVolatile);

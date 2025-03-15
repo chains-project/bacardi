@@ -1,6 +1,6 @@
 package ml.peya.plugins.Detect;
 
-import tokyo.peya.lib.WaveCreator; // Updated import: use the new dependency package for WaveCreator
+import tokyo.peya.lib.WaveCreator;
 import ml.peya.plugins.DetectClasses.*;
 import ml.peya.plugins.Enum.*;
 import ml.peya.plugins.*;
@@ -175,8 +175,8 @@ public class NPCTeleport
                     double rangeTmp = radius;
 
                     if (config.getBoolean("npc.wave"))
-                        rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
-                            .get(0.01, true);
+                        rangeTmp = new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange"))
+                            .get(0.001, true);
 
                     final Location center = player.getLocation();
                     final Location n = new Location(
@@ -184,7 +184,7 @@ public class NPCTeleport
                         auraBotXPos(time[0], rangeTmp + speed) + center.getX(),
                         center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
                         auraBotZPos(time[0], rangeTmp + speed) + center.getZ(),
-                        (float) ypp.getStatic(),
+                        (float) ypp.get(0.0, false),
                         (float) ypp.get(4.5, false)
                     );
 
@@ -198,7 +198,8 @@ public class NPCTeleport
                         @Override
                         public void run()
                         {
-                            Bukkit.getOnlinePlayers().parallelStream()
+                            Bukkit.getOnlinePlayers()
+                                .parallelStream()
                                 .filter(p -> p.hasPermission("psac.viewnpc"))
                                 .forEachOrdered(p ->
                                 {
@@ -215,7 +216,8 @@ public class NPCTeleport
                     meta.setNpcLocation(n.toVector());
                 }
                 time[0] += config.getDouble("npc.time") + (config.getBoolean("npc.speed.wave")
-                    ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
+                    ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange"))
+                        .get(0.001, true)
                     : 0.0);
             }
         };

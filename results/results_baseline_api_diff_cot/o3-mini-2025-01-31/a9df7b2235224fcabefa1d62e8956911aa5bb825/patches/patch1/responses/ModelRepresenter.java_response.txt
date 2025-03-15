@@ -92,7 +92,6 @@ class ModelRepresenter extends Representer {
     return false;
   }
 
-
   private class RepresentXpp3Dom implements Represent {
     private static final String ATTRIBUTE_PREFIX = "attr/";
 
@@ -167,6 +166,7 @@ class ModelRepresenter extends Representer {
   }
 
   // Model elements order {
+  //TODO move to polyglot-common, or to org.apache.maven:maven-model
   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
       "modelEncoding",
       "modelVersion",

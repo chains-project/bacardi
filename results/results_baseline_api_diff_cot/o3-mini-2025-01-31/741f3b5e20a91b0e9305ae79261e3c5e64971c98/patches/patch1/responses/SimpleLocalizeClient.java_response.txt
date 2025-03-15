@@ -28,7 +28,8 @@ import java.util.Optional;
 import static io.simplelocalize.cli.TemplateKeys.LANGUAGE_TEMPLATE_KEY;
 import static io.simplelocalize.cli.TemplateKeys.NAMESPACE_TEMPLATE_KEY;
 
-public class SimpleLocalizeClient {
+public class SimpleLocalizeClient
+{
 
   private static final String ERROR_MESSAGE_PATH = "$.msg";
   private final HttpClient httpClient;
@@ -38,7 +39,9 @@ public class SimpleLocalizeClient {
   private final Logger log = LoggerFactory.getLogger(SimpleLocalizeClient.class);
   private final ObjectMapper objectMapper;
 
-  public SimpleLocalizeClient(String baseUrl, String apiKey) {
+  public SimpleLocalizeClient(String baseUrl, String apiKey)
+  {
+
     Objects.requireNonNull(baseUrl);
     Objects.requireNonNull(apiKey);
     this.uriFactory = new SimpleLocalizeUriFactory(baseUrl);
@@ -49,11 +52,13 @@ public class SimpleLocalizeClient {
             .build();
   }
 
-  public static SimpleLocalizeClient create(String baseUrl, String apiKey) {
+  public static SimpleLocalizeClient create(String baseUrl, String apiKey)
+  {
     return new SimpleLocalizeClient(baseUrl, apiKey);
   }
 
-  public void uploadKeys(Collection<String> keys) throws IOException, InterruptedException {
+  public void uploadKeys(Collection<String> keys) throws IOException, InterruptedException
+  {
     URI uri = uriFactory.buildSendKeysURI();
     HttpRequest httpRequest = httpRequestFactory.createSendKeysRequest(uri, keys);
     HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
@@ -62,7 +67,8 @@ public class SimpleLocalizeClient {
     log.info("Successfully uploaded {} keys", keysProcessed);
   }
 
-  public void uploadFile(UploadRequest uploadRequest) throws IOException, InterruptedException {
+  public void uploadFile(UploadRequest uploadRequest) throws IOException, InterruptedException
+  {
     Path uploadPath = uploadRequest.getPath();
     log.info("Uploading {}", uploadPath);
     URI uri = uriFactory.buildUploadUri(uploadRequest);
@@ -71,19 +77,20 @@ public class SimpleLocalizeClient {
     throwOnError(httpResponse);
   }
 
-  public List<DownloadableFile> fetchDownloadableFiles(DownloadRequest downloadRequest) throws IOException, InterruptedException {
+  public List<DownloadableFile> fetchDownloadableFiles(DownloadRequest downloadRequest) throws IOException, InterruptedException
+  {
     log.info("Preparing files to download");
     URI downloadUri = uriFactory.buildDownloadUri(downloadRequest);
     HttpRequest httpRequest = httpRequestFactory.createGetRequest(downloadUri).build();
     HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
     throwOnError(httpResponse);
     String body = httpResponse.body();
-    // Use the new ObjectReader API method instead of the removed readValue(String, Class) method.
     ExportResponse exportResponse = objectMapper.readerFor(ExportResponse.class).readValue(body);
     return exportResponse.getFiles();
   }
 
-  public void downloadFile(DownloadableFile downloadableFile, String downloadPathTemplate) {
+  public void downloadFile(DownloadableFile downloadableFile, String downloadPathTemplate)
+  {
     Optional<DownloadableFile> optionalDownloadableFile = Optional.of(downloadableFile);
     String downloadPath = downloadPathTemplate
             .replace(NAMESPACE_TEMPLATE_KEY, optionalDownloadableFile.map(DownloadableFile::getNamespace).orElse(""))
@@ -91,22 +98,27 @@ public class SimpleLocalizeClient {
     String url = downloadableFile.getUrl();
     HttpRequest httpRequest = httpRequestFactory.createGetRequest(URI.create(url)).build();
     Path savePath = Path.of(downloadPath);
-    try {
+    try
+    {
       Path parentDirectory = savePath.getParent();
-      if (parentDirectory != null) {
+      if (parentDirectory != null)
+      {
         Files.createDirectories(parentDirectory);
       }
       log.info("Downloading {}", savePath);
       httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofFile(savePath, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING));
-    } catch (IOException e) {
+    } catch (IOException e)
+    {
       log.error("Download failed: {}", savePath, e);
-    } catch (InterruptedException e) {
+    } catch (InterruptedException e)
+    {
       log.error("Download interrupted: {}", savePath, e);
       Thread.currentThread().interrupt();
     }
   }
 
-  public int validateGate() throws IOException, InterruptedException {
+  public int validateGate() throws IOException, InterruptedException
+  {
     URI validateUri = uriFactory.buildValidateGateUri();
     HttpRequest httpRequest = httpRequestFactory.createGetRequest(validateUri).build();
     HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
@@ -119,8 +131,10 @@ public class SimpleLocalizeClient {
     return status;
   }
 
-  private void throwOnError(HttpResponse<?> httpResponse) {
-    if (httpResponse.statusCode() != 200) {
+  private void throwOnError(HttpResponse<?> httpResponse)
+  {
+    if (httpResponse.statusCode() != 200)
+    {
       com.jayway.jsonpath.Configuration parseContext = com.jayway.jsonpath.Configuration
               .defaultConfiguration()
               .addOptions(Option.SUPPRESS_EXCEPTIONS);
@@ -128,7 +142,8 @@ public class SimpleLocalizeClient {
       Object responseBody = httpResponse.body();
       String stringBody = safeCastHttpBodyToString(responseBody);
       String message = JsonPath.using(parseContext).parse(stringBody).read(ERROR_MESSAGE_PATH);
-      if (message == null) {
+      if (message == null)
+      {
         message = "Unknown error, HTTP Status: " + httpResponse.statusCode();
       }
       log.error("Request failed: {}", message);
@@ -136,10 +151,13 @@ public class SimpleLocalizeClient {
     }
   }
 
-  private String safeCastHttpBodyToString(Object responseBody) {
-    if (responseBody instanceof byte[]) {
+  private String safeCastHttpBodyToString(Object responseBody)
+  {
+    if (responseBody instanceof byte[])
+    {
       return new String((byte[]) responseBody);
-    } else if (responseBody instanceof String) {
+    } else if (responseBody instanceof String)
+    {
       return (String) responseBody;
     }
     return "";

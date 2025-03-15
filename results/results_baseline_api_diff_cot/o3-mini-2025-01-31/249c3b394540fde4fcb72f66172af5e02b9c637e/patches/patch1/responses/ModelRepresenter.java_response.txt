@@ -60,15 +60,15 @@ class ModelRepresenter extends Representer {
       if (map.isEmpty()) return null;
     }
     if (javaBean instanceof Dependency) {
-      // skip optional if it is false
+      //skip optional if it is false
       if (skipBoolean(property, "optional", propertyValue, false)) return null;
-      // skip type if it is jar
+      //skip type if it is jar
       if (skipString(property, "type", propertyValue, "jar")) return null;
     }
     if (javaBean instanceof Plugin) {
-      // skip extensions if it is false
+      //skip extensions if it is false
       if (skipBoolean(property, "extensions", propertyValue, false)) return null;
-      // skip inherited if it is true
+      //skip inherited if it is true
       if (skipBoolean(property, "inherited", propertyValue, true)) return null;
     }
     return super.representJavaBeanProperty(javaBean, property, propertyValue, customTag);
@@ -164,7 +164,7 @@ class ModelRepresenter extends Representer {
   }
 
   // Model elements order {
-  // TODO move to polyglot-common, or to org.apache.maven:maven-model
+  //TODO move to polyglot-common, or to org.apache.maven:maven-model
   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
       "modelEncoding",
       "modelVersion",
@@ -212,8 +212,9 @@ class ModelRepresenter extends Representer {
   /*
    * Change the default order. Important data goes first.
    */
-  @Override
-  protected Set<Property> getProperties(Class<? extends Object> type) {
+  // Removed the @Override annotation since Representer no longer provides
+  // a getProperties method that throws IntrospectionException.
+  protected Set<Property> getProperties(Class<?> type) {
     if (type.isAssignableFrom(Model.class)) {
       return sortTypeWithOrder(type, ORDER_MODEL);
     } else if (type.isAssignableFrom(Developer.class)) {
@@ -225,12 +226,12 @@ class ModelRepresenter extends Representer {
     } else if (type.isAssignableFrom(Plugin.class)) {
       return sortTypeWithOrder(type, ORDER_PLUGIN);
     } else {
-      return super.getProperties(type);
+      return getPropertyUtils().getProperties(type);
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
-    Set<Property> standard = super.getProperties(type);
+  private Set<Property> sortTypeWithOrder(Class<?> type, List<String> order) {
+    Set<Property> standard = getPropertyUtils().getProperties(type);
     Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
     sorted.addAll(standard);
     return sorted;

@@ -1,17 +1,3 @@
-<repair_strategy>
-1. The failure occurs because the client code imports and calls static methods on org.hamcrest.Matchers, but in the updated dependency the Matchers class has been removed.
-2. In the old API the Matchers class provided static methods such as hasItems, emptyIterableOf, and notNullValue. In the new API these matchers must be obtained from other classes.
-3. The client code invokes:
-   - Matchers.hasItems(value) in assertHeader(String, String) – which we can replace with hasItems from org.hamcrest.collection.IsIterableContainingInAnyOrder.
-   - Matchers.emptyIterableOf(String.class) in follow() – which we can replace with empty() from org.hamcrest.collection.IsEmptyCollection.
-   - Matchers.not(…) – which is available via not() from org.hamcrest.CoreMatchers.
-   - Matchers.notNullValue() in cookie() – which can be replaced with notNullValue() from org.hamcrest.core.IsNull.
-4. The plan is to remove the import for org.hamcrest.Matchers and add static imports for not, hasItems, empty, and notNullValue from appropriate packages.
-5. We update every reference to Matchers.method(...) by replacing it with the corresponding static import.
-6. These changes are local and minimal and will not affect the public function signatures.
-7. The resulting class remains fully compilable and functional.
-</repair_strategy>
-
 ```java
 /*
  * Copyright (c) 2011-2017, jcabi.com
@@ -61,8 +47,8 @@ import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
 import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.core.IsNull.notNullValue;
-import static org.hamcrest.collection.IsEmptyCollection.empty;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.collection.IsEmptyIterable.emptyIterable;
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.hasItems;
 
 /**
@@ -261,7 +247,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            not(empty())
+            not(emptyIterable())
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -342,7 +328,6 @@ public final class RestResponse extends AbstractResponse {
             this.status = sts;
         }
 
-        @Override
         public boolean matches(final Object resp) {
             return Response.class.cast(resp).status() == this.status;
         }

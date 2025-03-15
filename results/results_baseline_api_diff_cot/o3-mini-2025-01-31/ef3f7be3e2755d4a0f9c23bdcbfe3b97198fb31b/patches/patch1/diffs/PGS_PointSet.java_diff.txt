@@ -1,22 +1,16 @@
-26,27d25
-< import org.tinspin.index.kdtree.KDTree;
+27c27
 < 
-66d63
-<                 final KDTree<PVector> tree = KDTree.create(2);
-67a65
->                 double toleranceSq = distanceTolerance * distanceTolerance;
-69,71c67,76
-<                         final double[] coords = new double[] { p.x, p.y };
-<                         if (tree.size() == 0 || tree.query1NN(coords).dist() > distanceTolerance) {
-<                                 tree.insert(coords, p);
 ---
->                         boolean tooClose = false;
->                         for (PVector q : newPoints) {
->                                 double dx = p.x - q.x;
->                                 double dy = p.y - q.y;
->                                 if (dx * dx + dy * dy <= toleranceSq) {
->                                         tooClose = true;
->                                         break;
->                                 }
->                         }
->                         if (!tooClose) {
+> import org.tinspin.index.kdtree.KDTree.Entry;
+70c70,76
+<                         if (tree.size() == 0 || tree.query1NN(coords).dist() > distanceTolerance) {
+---
+>                         if (tree.size() == 0) {
+>                                 tree.insert(coords, p);
+>                                 newPoints.add(p);
+>                         } else {
+>                                 List<? extends Entry<PVector>> nearest = tree.queryKNN(coords, 1);
+>                                 // If no neighbor is found or the nearest neighbor is further than the tolerance then add the point
+>                                 if (nearest.isEmpty() || nearest.get(0).distance() > distanceTolerance) {
+74a81
+>                 }

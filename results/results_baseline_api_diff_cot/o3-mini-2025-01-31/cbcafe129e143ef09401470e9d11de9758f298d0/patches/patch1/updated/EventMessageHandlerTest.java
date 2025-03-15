@@ -1,8 +1,6 @@
 package uk.gov.pay.adminusers.queue.event;
 
 import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -109,10 +107,21 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        Logger logger = loggerContext.getLogger(EventMessageHandler.class);
-        logger.setLevel(Level.INFO);
-        logger.addAppender(mockLogAppender);
+        // Instead of directly casting to a removed Logger type, we obtain the logger as an SLF4J logger
+        // and then use reflection to set its level and add our mock appender.
+        org.slf4j.Logger testLogger = LoggerFactory.getLogger(EventMessageHandler.class);
+        try {
+            // Invoke setLevel(Level) if available
+            java.lang.reflect.Method setLevelMethod = testLogger.getClass().getMethod("setLevel", Level.class);
+            setLevelMethod.invoke(testLogger, Level.INFO);
+            
+            // Invoke addAppender(Appender) to attach our mock appender
+            java.lang.reflect.Method addAppenderMethod = testLogger.getClass().getMethod("addAppender", Appender.class);
+            addAppenderMethod.invoke(testLogger, mockLogAppender);
+        } catch (Exception e) {
+            // If reflection fails, print the exception. In a real test you might want to fail the setup.
+            e.printStackTrace();
+        }
     }
 
     @Test

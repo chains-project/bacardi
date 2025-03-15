@@ -20,14 +20,11 @@ import org.jivesoftware.openfire.cluster.ClusterManager;
 import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
 import org.jivesoftware.openfire.cluster.NodeID;
 import org.jivesoftware.openfire.plugin.util.cache.ClusteredCacheFactory;
+
 import com.hazelcast.cluster.Member;
 
 /**
  * Cluster Node information as provided by Hazelcast.
- * 
- * Updated to use the new Hazelcast API:
- *  - Replaced com.hazelcast.core.Member with com.hazelcast.cluster.Member.
- *  - Replaced getStringAttribute(String) with getAttribute(String) cast to String.
  *
  * @author Tom Evans
  * @author Gaston Dombiak
@@ -36,16 +33,13 @@ public class HazelcastClusterNodeInfo implements ClusterNodeInfo {
 
     public static final String HOST_NAME_ATTRIBUTE = "hostname";
     public static final String NODE_ID_ATTRIBUTE = "node-id";
-    
     private final String hostname;
     private final NodeID nodeID;
     private final long joinedTime;
     private final boolean seniorMember;
 
     public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {
-        // Use getAttribute(String) in place of the removed getStringAttribute(String)
-        this.hostname = ((String) member.getAttribute(HOST_NAME_ATTRIBUTE))
-                + " (" + member.getSocketAddress().getHostString() + ")";
+        this.hostname = ((String) member.getAttribute(HOST_NAME_ATTRIBUTE)) + " (" + member.getSocketAddress().getHostString() + ")";
         this.nodeID = ClusteredCacheFactory.getNodeID(member);
         this.joinedTime = joinedTime;
         this.seniorMember = ClusterManager.getSeniorClusterMember().equals(nodeID);

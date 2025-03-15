@@ -1,20 +1,10 @@
 <repair_strategy>
-1. Identify the failing API: The error is due to the removal of javax.mvc.Models.
-2. Compare APIs: The new dependency now provides jakarta.mvc.Models instead.
-3. Determine parts to update: The client code imports javax.mvc.Models which must be changed to jakarta.mvc.Models.
-4. Consider constraints: The function signature stays the same; only the import is updated.
-5. Plan minimal changes: Replace the import statement for Models with the updated package.
-6. Verify side effects: None, since the rest of the code uses Models methods that remain identical.
-7. Ensure the complete class compiles: The new import meets the dependency’s updated API.
-8. Additional imports: Only the Models import needs correcting.
+1. The issue stems from using the removed class javax.mvc.Models, while the updated dependency now uses the interface jakarta.mvc.Models.
+2. The fix is minimal: update the import statement to reference jakarta.mvc.Models instead of javax.mvc.Models.
+3. No other changes (such as method signatures or other functionality) are required.
+4. The updated class will compile correctly with the new dependency.
 </repair_strategy>
-
-```java
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+```
 package com.example.config;
 
 import com.example.domain.TaskNotFoundException;
@@ -26,18 +16,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-/**
- *
- * @author hantsy
- */
 @Provider
 public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFoundException> {
 
-    @Inject
-    Logger log;
-
-    @Inject
-    Models models;
+    @Inject Logger log;
+    @Inject Models models;
 
     @Override
     public Response toResponse(TaskNotFoundException exception) {

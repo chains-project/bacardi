@@ -170,7 +170,6 @@ public class AllureCommandline {
                 unpack(resolved.next().getArtifact().getFile());
             } else {
                 throw new IOException("No allure commandline artifact found.");
-
             }
         } catch (DependencyResolverException e) {
             throw new IOException("Cannot resolve allure commandline dependencies.", e);

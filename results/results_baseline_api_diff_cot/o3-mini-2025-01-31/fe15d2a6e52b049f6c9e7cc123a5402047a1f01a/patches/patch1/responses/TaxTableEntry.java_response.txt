@@ -15,7 +15,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
-import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
+import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
@@ -45,6 +45,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  * &lt;/complexType&gt;
  * </pre>
  * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -57,7 +58,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "taxAmount"
 })
 @XmlRootElement(name = "TaxTableEntry")
-public class TaxTableEntry implements ToString2 {
+public class TaxTableEntry implements ToString2
+{
 
     @XmlElement(name = "TaxType", required = true)
     protected String taxType;
@@ -78,7 +80,10 @@ public class TaxTableEntry implements ToString2 {
     /**
      * Gets the value of the taxType property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getTaxType() {
         return taxType;
@@ -87,7 +92,10 @@ public class TaxTableEntry implements ToString2 {
     /**
      * Sets the value of the taxType property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setTaxType(String value) {
         this.taxType = value;
@@ -96,7 +104,10 @@ public class TaxTableEntry implements ToString2 {
     /**
      * Gets the value of the taxCountryRegion property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getTaxCountryRegion() {
         return taxCountryRegion;
@@ -105,7 +116,10 @@ public class TaxTableEntry implements ToString2 {
     /**
      * Sets the value of the taxCountryRegion property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setTaxCountryRegion(String value) {
         this.taxCountryRegion = value;
@@ -114,7 +128,10 @@ public class TaxTableEntry implements ToString2 {
     /**
      * Gets the value of the taxCode property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getTaxCode() {
         return taxCode;
@@ -123,7 +140,10 @@ public class TaxTableEntry implements ToString2 {
     /**
      * Sets the value of the taxCode property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setTaxCode(String value) {
         this.taxCode = value;
@@ -132,7 +152,10 @@ public class TaxTableEntry implements ToString2 {
     /**
      * Gets the value of the description property.
      * 
-     * @return possible object is {@link String }
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getDescription() {
         return description;
@@ -141,7 +164,10 @@ public class TaxTableEntry implements ToString2 {
     /**
      * Sets the value of the description property.
      * 
-     * @param value allowed object is {@link String }
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setDescription(String value) {
         this.description = value;
@@ -150,7 +176,10 @@ public class TaxTableEntry implements ToString2 {
     /**
      * Gets the value of the taxExpirationDate property.
      * 
-     * @return possible object is {@link XMLGregorianCalendar }
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public XMLGregorianCalendar getTaxExpirationDate() {
         return taxExpirationDate;
@@ -159,7 +188,10 @@ public class TaxTableEntry implements ToString2 {
     /**
      * Sets the value of the taxExpirationDate property.
      * 
-     * @param value allowed object is {@link XMLGregorianCalendar }
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public void setTaxExpirationDate(XMLGregorianCalendar value) {
         this.taxExpirationDate = value;
@@ -168,7 +200,10 @@ public class TaxTableEntry implements ToString2 {
     /**
      * Gets the value of the taxPercentage property.
      * 
-     * @return possible object is {@link BigDecimal }
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
      */
     public BigDecimal getTaxPercentage() {
         return taxPercentage;
@@ -177,7 +212,10 @@ public class TaxTableEntry implements ToString2 {
     /**
      * Sets the value of the taxPercentage property.
      * 
-     * @param value allowed object is {@link BigDecimal }
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
      */
     public void setTaxPercentage(BigDecimal value) {
         this.taxPercentage = value;
@@ -186,7 +224,10 @@ public class TaxTableEntry implements ToString2 {
     /**
      * Gets the value of the taxAmount property.
      * 
-     * @return possible object is {@link BigDecimal }
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
      */
     public BigDecimal getTaxAmount() {
         return taxAmount;
@@ -195,7 +236,10 @@ public class TaxTableEntry implements ToString2 {
     /**
      * Sets the value of the taxAmount property.
      * 
-     * @param value allowed object is {@link BigDecimal }
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
      */
     public void setTaxAmount(BigDecimal value) {
         this.taxAmount = value;
@@ -203,8 +247,7 @@ public class TaxTableEntry implements ToString2 {
 
     @Override
     public String toString() {
-        // Replaced the removed getInstance() method with the available INSTANCE field.
-        final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
+        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();

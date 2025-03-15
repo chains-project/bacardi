@@ -2,8 +2,8 @@
 < import org.hamcrest.Matchers;
 ---
 > import static org.hamcrest.CoreMatchers.not;
-> import static org.hamcrest.core.IsNull.notNullValue;
-> import static org.hamcrest.collection.IsEmptyCollection.empty;
+> import static org.hamcrest.CoreMatchers.notNullValue;
+> import static org.hamcrest.collection.IsEmptyIterable.emptyIterable;
 > import static org.hamcrest.collection.IsIterableContainingInAnyOrder.hasItems;
 210c213
 <         return this.assertHeader(name, Matchers.hasItems(value));
@@ -12,8 +12,10 @@
 246c249
 <             Matchers.not(Matchers.emptyIterableOf(String.class))
 ---
->             not(empty())
+>             not(emptyIterable())
 284c287
 <             Matchers.notNullValue()
 ---
 >             notNullValue()
+327d329
+<         @Override

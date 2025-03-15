@@ -29,10 +29,10 @@ import javax.inject.Singleton;
 
 import org.jclouds.byon.Node;
 import org.jclouds.byon.domain.YamlNode;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.LoaderOptions;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
@@ -80,6 +80,7 @@ public class NodesFromYamlStream implements Function<ByteSource, LoadingCache<St
 
    @Override
    public LoadingCache<String, Node> apply(ByteSource source) {
+
       LoaderOptions loaderOptions = new LoaderOptions();
       Constructor constructor = new Constructor(loaderOptions, Config.class);
 

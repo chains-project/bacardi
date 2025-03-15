@@ -67,9 +67,10 @@ class AuthScopeSliceTest {
                 caction.set(act);
                 return true;
             }
-        ).response(line, Headers.EMPTY, Content.EMPTY).send(
-            (status, headers, body) -> CompletableFuture.allOf()
-        ).toCompletableFuture().join();
+        ).response(line, Headers.EMPTY, Content.EMPTY)
+         .send((status, headers, body) -> CompletableFuture.allOf())
+         .toCompletableFuture()
+         .join();
         MatcherAssert.assertThat(
             "Request line passed to slice",
             cline.get(),

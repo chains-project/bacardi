@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
@@ -99,8 +99,8 @@ public class References implements ToString2
 
     @Override
     public String toString() {
-        // Replace the removed JAXBToStringStrategy.getInstance() with a new DefaultToStringStrategy instance.
-        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+        // Use a new instance since the getInstance() method has been removed in the updated API.
+        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();

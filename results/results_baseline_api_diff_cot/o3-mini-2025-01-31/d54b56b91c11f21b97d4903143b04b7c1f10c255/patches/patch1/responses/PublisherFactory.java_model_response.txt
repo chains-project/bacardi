@@ -23,15 +23,4 @@ interface PublisherFactory {
 
   Publisher<Void> newPublisher(Map<String, String> params);
 }
-``` 
-
-<repair_strategy>
-1. The breaking dependency update reveals that the class PublishMetadata has been removed.
-2. Previously, the code used PublishMetadata as the generic parameter for Publisher. With its removal, we now must update the Publisher generic parameter.
-3. Since the new API no longer supports a PublishMetadata type, the use of metadata is no longer required for the Publisher.
-4. The minimal fix, without modifying method parameters or broader functionality, is to remove the import for PublishMetadata and change the return type from Publisher<PublishMetadata> to Publisher<Void>.
-5. By returning Publisher<Void>, we comply with the new API while preserving the method signature style.
-6. The rest of the code (the interface and method signature) remains intact to avoid side effects.
-7. This change results in a complete and compilable class.
-8. No additional imports are required since Void is part of java.lang.
-</repair_strategy>
+```

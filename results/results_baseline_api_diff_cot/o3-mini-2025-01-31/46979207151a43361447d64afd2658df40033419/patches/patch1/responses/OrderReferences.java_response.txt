@@ -13,9 +13,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
+import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
-import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
 /**
@@ -43,8 +43,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "originatingON",
     "orderDate"
 })
-public class OrderReferences implements ToString2
-{
+public class OrderReferences implements ToString2 {
 
     @XmlElement(name = "OriginatingON")
     protected String originatingON;
@@ -56,9 +55,7 @@ public class OrderReferences implements ToString2
      * Gets the value of the originatingON property.
      * 
      * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *     possible object is {@link String }
      */
     public String getOriginatingON() {
         return originatingON;
@@ -68,9 +65,7 @@ public class OrderReferences implements ToString2
      * Sets the value of the originatingON property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *     allowed object is {@link String }
      */
     public void setOriginatingON(String value) {
         this.originatingON = value;
@@ -80,9 +75,7 @@ public class OrderReferences implements ToString2
      * Gets the value of the orderDate property.
      * 
      * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     *     possible object is {@link XMLGregorianCalendar }
      */
     public XMLGregorianCalendar getOrderDate() {
         return orderDate;
@@ -92,9 +85,7 @@ public class OrderReferences implements ToString2
      * Sets the value of the orderDate property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     *     allowed object is {@link XMLGregorianCalendar }
      */
     public void setOrderDate(XMLGregorianCalendar value) {
         this.orderDate = value;
@@ -102,7 +93,9 @@ public class OrderReferences implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+        // Replaced the removed JAXBToStringStrategy.getInstance() call 
+        // with the new DefaultToStringStrategy singleton instance.
+        final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
@@ -130,5 +123,4 @@ public class OrderReferences implements ToString2
         }
         return buffer;
     }
-
 }

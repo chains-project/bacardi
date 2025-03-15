@@ -1,12 +1,12 @@
 /**
  * Copyright 2019 Pinterest, Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,7 +22,7 @@ import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TIOStreamTransport;
 import org.apache.thrift.transport.TTransport;
-import org.apache.thrift.transport.layered.TFramedTransport; // Updated import: using new package
+import org.apache.thrift.transport.layered.TFramedTransport;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -42,6 +42,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
    * @param <T> The thrift message type to be read.
    */
   public static interface TBaseFactory<T> {
+
     T get();
   }
 
@@ -49,6 +50,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
    * Factory that get a TProtocol instance.
    */
   public static interface TProtocolFactory {
+
     TProtocol get(TTransport transport);
   }
 
@@ -58,7 +60,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
   // The ByteOffsetInputStream to read from.
   private final ByteOffsetInputStream byteOffsetInputStream;
 
-  // The framed transport.
+  // The framedTransport instance.
   private final TFramedTransport framedTransport;
 
   // TProtocol implementation.
@@ -75,9 +77,8 @@ public class ThriftReader<T extends TBase> implements Closeable {
 
     this.byteOffsetInputStream = new ByteOffsetInputStream(
         new RandomAccessFile(path, "r"), readBufferSize);
-    TTransport ioStreamTransport = new TIOStreamTransport(this.byteOffsetInputStream);
-    // Use the new Factory from the layered TFramedTransport to create an instance using maxMessageSize.
-    this.framedTransport = new TFramedTransport.Factory(maxMessageSize).getTransport(ioStreamTransport);
+    this.framedTransport = new TFramedTransport(
+        new TIOStreamTransport(this.byteOffsetInputStream), maxMessageSize);
     this.baseFactory = Preconditions.checkNotNull(baseFactory);
     this.protocol = protocolFactory.get(this.framedTransport);
   }

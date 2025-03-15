@@ -79,8 +79,7 @@ public final class AwsOcketITCase {
         final Bucket bucket = this.rule.bucket();
         final String name = "test-44.txt";
         final Ocket.Text ocket = new Ocket.Text(bucket.ocket(name));
-        // Replaced Tv.HUNDRED * Tv.THOUSAND with the literal value 100000
-        final String data = RandomStringUtils.random(100000);
+        final String data = RandomStringUtils.random(100 * 1000);
         ocket.write(data);
         try {
             MatcherAssert.assertThat(ocket.read(), Matchers.equalTo(data));
@@ -121,4 +120,5 @@ public final class AwsOcketITCase {
         final Bucket bucket = this.rule.bucket();
         new Ocket.Text(bucket.ocket("key-is-absent.txt")).read();
     }
+
 }
