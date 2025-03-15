@@ -1,4 +1,4 @@
-6,12c6,11
+6,12c6,9
 < import javax.mvc.Controller;
 < import javax.mvc.Models;
 < import javax.mvc.UriRef;
@@ -11,18 +11,20 @@
 > import jakarta.mvc.Models;
 > import jakarta.mvc.UriRef;
 > import jakarta.mvc.binding.MvcBinding;
-> import java.util.List;
-> import jakarta.mvc.binding.ValidationError;
-29c28
+17a15,17
+> import jakarta.validation.ConstraintViolation;
+> import java.util.Set;
+> import java.util.stream.Collectors;
+29c29
 <     BindingResult bindingResult;
 ---
 >     jakarta.mvc.binding.BindingResult bindingResult;
-53,57c52,53
+53,57c53,54
 <             bindingResult.getAllErrors()
 <                     .stream()
 <                     .forEach((ParamError t) -> {
 <                         alert.addError(t.getParamName(), "", t.getMessage());
 <                     });
 ---
->             List<ValidationError> errors = bindingResult.getAllErrors();
->             errors.stream().forEach(t -> alert.addError(t.getParamName(), "", t.getMessage()));
+>             Set<ConstraintViolation<?>> violations = bindingResult.getConstraintViolations();
+>             violations.stream().forEach(t -> alert.addError(t.getPropertyPath().toString(), "", t.getMessage()));

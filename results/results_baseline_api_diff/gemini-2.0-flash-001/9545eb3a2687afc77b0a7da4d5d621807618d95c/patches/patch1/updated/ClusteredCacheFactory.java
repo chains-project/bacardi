@@ -16,16 +16,18 @@
 
 package org.jivesoftware.openfire.plugin.util.cache;
 
-import com.hazelcast.cluster.Cluster;
-import com.hazelcast.cluster.Member;
 import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.MemberAttributeConfig;
 import com.hazelcast.config.MemcacheProtocolConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.config.RestApiConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.cluster.Member;
+import com.hazelcast.config.MaxSizeConfig;
+import com.hazelcast.cluster.Cluster;
 import org.jivesoftware.openfire.JMXManager;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterEventListener;
@@ -69,7 +71,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
-import com.hazelcast.config.MaxSizeConfig;
 
 /**
  * CacheFactory implementation to use when using Hazelcast in cluster mode.
@@ -189,8 +190,9 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
                 if (!HAZELCAST_REST_ENABLED.getValue()) {
                     networkConfig.setRestApiConfig(new RestApiConfig().setEnabled(false));
                 }
-                config.getMemberAttributeConfig().setAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
-                config.getMemberAttributeConfig().setAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
+                final MemberAttributeConfig memberAttributeConfig = config.getMemberAttributeConfig();
+                memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
+                memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
                 config.setInstanceName("openfire");
                 config.setClassLoader(loader);
                 if (JMXManager.isEnabled() && HAZELCAST_JMX_ENABLED.getValue()) {
@@ -283,7 +285,10 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         if (staticConfig == null) {
             final MapConfig dynamicConfig = new MapConfig(name);
             dynamicConfig.setTimeToLiveSeconds(hazelcastLifetimeInSeconds);
-            dynamicConfig.setMaxSizeConfig(new MaxSizeConfig().setSize(hazelcastMaxCacheSizeInMegaBytes).setMaxSizePolicy(MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+            MaxSizeConfig maxSizeConfig = new MaxSizeConfig();
+            maxSizeConfig.setSize(hazelcastMaxCacheSizeInMegaBytes);
+            maxSizeConfig.setMaxSizePolicy(MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE);
+            dynamicConfig.setMaxSizeConfig(maxSizeConfig);
             logger.debug("Creating dynamic map config for cache={}, dynamicConfig={}", name, dynamicConfig);
             hazelcast.getConfig().addMapConfig(dynamicConfig);
         } else {
@@ -351,7 +356,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
      */
     @Override
     public long getClusterTime() {
-        return cluster == null ? System.currentTimeMillis() : hazelcast.getCluster().getClusterTime();
+        return cluster == null ? System.currentTimeMillis() : cluster.getClusterTime();
     }
 
     /*
@@ -491,7 +496,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         ClusterNodeInfo result = null;
         final Member member = getMember(nodeID);
         if (member != null) {
-            result = new HazelcastClusterNodeInfo(member, hazelcast.getCluster().getClusterTime());
+            result = new HazelcastClusterNodeInfo(member, cluster.getClusterTime());
         }
         return result;
     }
@@ -651,8 +656,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
     }
 
     public static NodeID getNodeID(final Member member) {
-        String attribute = member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE);
-        return NodeID.getInstance(attribute.getBytes(StandardCharsets.UTF_8));
+        return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
     }
 
     static void fireLeftClusterAndWaitToComplete(final Duration timeout) {

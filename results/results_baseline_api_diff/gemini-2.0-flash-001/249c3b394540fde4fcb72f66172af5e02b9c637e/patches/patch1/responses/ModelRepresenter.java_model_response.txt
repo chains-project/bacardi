@@ -21,7 +21,6 @@ import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
-import org.yaml.snakeyaml.introspector.PropertyUtils;
 
 import java.beans.IntrospectionException;
 import java.util.*;
@@ -36,8 +35,6 @@ import static java.lang.String.format;
  * @since 0.7
  */
 class ModelRepresenter extends Representer {
-  private PropertyUtils propertyUtils;
-
   public ModelRepresenter() {
     this.representers.put(Xpp3Dom.class, new RepresentXpp3Dom());
     Represent stringRepresenter = this.representers.get(String.class);
@@ -46,8 +43,6 @@ class ModelRepresenter extends Representer {
     this.multiRepresenters.put(Date.class, stringRepresenter);
     this.multiRepresenters.put(Enum.class, stringRepresenter);
     this.multiRepresenters.put(Calendar.class, stringRepresenter);
-    propertyUtils = new PropertyUtils();
-    propertyUtils.setSkipMissingProperties(true);
   }
 
   protected NodeTuple representJavaBeanProperty(Object javaBean, Property property,
@@ -243,7 +238,7 @@ class ModelRepresenter extends Representer {
 
   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
           throws IntrospectionException {
-      Set<Property> standard = propertyUtils.getProperties(type);
+      Set<Property> standard = super.getProperties(type);
       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
       sorted.addAll(standard);
       return sorted;

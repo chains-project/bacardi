@@ -21,8 +21,6 @@ import com.google.cloud.pubsublite.ProjectName;
 import com.google.cloud.pubsublite.TopicName;
 import com.google.cloud.pubsublite.TopicPath;
 import com.google.cloud.pubsublite.internal.Publisher;
-import com.google.cloud.pubsublite.internal.wire.PubsubContext;
-import com.google.cloud.pubsublite.internal.wire.PubsubContext.Framework;
 import com.google.cloud.pubsublite.internal.wire.RoutingPublisherBuilder;
 import com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisherBuilder;
 import java.util.Map;
@@ -30,7 +28,7 @@ import org.apache.kafka.common.config.ConfigValue;
 
 class PublisherFactoryImpl implements PublisherFactory {
 
-  private static final Framework FRAMEWORK = Framework.of("KAFKA_CONNECT");
+  private static final PubsubContext.Framework FRAMEWORK = PubsubContext.Framework.of("KAFKA_CONNECT");
 
   @Override
   public Publisher<?> newPublisher(Map<String, String> params) {
@@ -41,11 +39,13 @@ class PublisherFactoryImpl implements PublisherFactory {
             ProjectName.of("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value()),
             CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()),
             TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()));
-    builder.setTopic(topic);
+    builder.setTopicPath(topic);
     builder.setPublisherFactory(
-        partition -> {
+        (partition) -> {
           SinglePartitionPublisherBuilder singlePartitionPublisherBuilder =
-              SinglePartitionPublisherBuilder.newBuilder().setTopic(topic).setPartition(partition);
+              SinglePartitionPublisherBuilder.newBuilder();
+          singlePartitionPublisherBuilder.setTopicPath(topic);
+          singlePartitionPublisherBuilder.setPartition(partition);
           return singlePartitionPublisherBuilder.build();
         });
     return builder.build();

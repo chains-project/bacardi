@@ -1,7 +1,3 @@
-62c62
-<     private final List<ManagedObject> groups = new ArrayList<>();
----
->     private final List<MOGroup> groups = new ArrayList<>();
 232,233c232
 <     @Override
 <     @SuppressWarnings("unchecked")
@@ -14,19 +10,11 @@
 389c388
 <             final SortedMap<MOScope, ManagedObject> reg = server.getRegistry();
 ---
->             final SortedMap<MOScope, ManagedObject<?>> reg = (SortedMap<MOScope, ManagedObject<?>>) registry.get(server);
-455c454
-<     @SuppressWarnings("unchecked")
----
->     
+>             final SortedMap<MOScope, ManagedObject<?>> reg = server.getRegistry();
 486c485
 <     @Override
 ---
 >     
-489c488
-<         for (final ManagedObject mo : groups) {
----
->         for (final MOGroup mo : groups) {
 494c493
 <     @Override
 ---

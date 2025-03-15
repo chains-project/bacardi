@@ -20,8 +20,8 @@ import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.map.IMap;
 import com.hazelcast.map.listener.MapListener;
-import com.hazelcast.map.LocalMapStats;
 import com.hazelcast.map.MapEvent;
+import com.hazelcast.map.LocalMapStats;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusteredCacheEntryListener;
 import org.jivesoftware.openfire.cluster.NodeID;
@@ -79,7 +79,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
     }
 
     void addEntryListener(final MapListener listener) {
-        listeners.add(map.addEntryListener(listener, false));
+        listeners.add(map.addEntryListener(listener));
     }
 
     @Override

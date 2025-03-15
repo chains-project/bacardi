@@ -8,7 +8,6 @@ import javax.inject.Inject;
 import jakarta.mvc.event.AfterControllerEvent;
 import jakarta.mvc.event.AfterProcessViewEvent;
 import jakarta.mvc.event.BeforeControllerEvent;
-import jakarta.mvc.event.BeforeProcessViewEvent;
 import jakarta.mvc.event.ControllerRedirectEvent;
 
 @ApplicationScoped
@@ -21,7 +20,7 @@ public class MvcEventListener {
         LOGGER.info(() -> "Controller matched for " + event.getUriInfo().getRequestUri());
     }
 
-    private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
+    private void onViewEngineSelected(@Observes jakarta.mvc.event.BeforeProcessViewEvent event) {
         LOGGER.info(() -> "View engine: " + event.getEngine());
     }
 

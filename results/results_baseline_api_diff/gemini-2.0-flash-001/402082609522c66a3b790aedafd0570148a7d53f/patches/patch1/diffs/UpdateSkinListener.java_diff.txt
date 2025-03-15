@@ -1,32 +1,33 @@
-12d11
+12c12
 < import org.spongepowered.api.Platform.Type;
-14d12
-< import org.spongepowered.api.command.CommandSource;
-17,18c15,16
-< import org.spongepowered.api.network.RawDataListener;
-< import org.spongepowered.api.network.RemoteConnection;
 ---
-> import org.spongepowered.api.network.Connection;
-> import org.spongepowered.api.network.MessageHandler;
-19a18
-> import org.spongepowered.api.util.bytebuf.ByteBufView;
+> import org.spongepowered.api.Platform;
+14d13
+< import org.spongepowered.api.command.CommandSource;
+16,17c15,16
+< import org.spongepowered.api.network.ChannelBuf;
+< import org.spongepowered.api.network.RawDataListener;
+---
+> import org.spongepowered.api.network.channel.ChannelBuf;
+> import org.spongepowered.api.network.channel.RawDataHandler;
 21c20
 < public class UpdateSkinListener implements RawDataListener {
 ---
-> public class UpdateSkinListener implements MessageHandler<ChannelBuf> {
-27,28c26,31
+> public class UpdateSkinListener implements RawDataHandler<RemoteConnection> {
+27,28c26,28
 <     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
 <         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
 ---
->     public void handleMessage(ChannelBuf data, Connection connection) {
->         ByteBufView buffer = data.asView();
->         byte[] array = new byte[buffer.readableBytes()];
->         buffer.readBytes(array);
-> 
->         ByteArrayDataInput dataInput = ByteStreams.newDataInput(array);
-35,36c38,39
+>     public void handlePayload(ChannelBuf data, RemoteConnection connection, Platform.Type side) {
+>         byte[] rawData = data.readByteArray();
+>         ByteArrayDataInput dataInput = ByteStreams.newDataInput(rawData);
+33c33
+<         Optional<Player> receiver = Sponge.getServer().getPlayer(playerName);
+---
+>         Optional<Player> receiver = Sponge.server().player(playerName);
+35,36c35,36
 <             Runnable skinUpdater = new SkinApplier(plugin, (CommandSource) connection, receiver.get(), null, false);
 <             Task.builder().execute(skinUpdater).submit(plugin);
 ---
->             Runnable skinUpdater = new SkinApplier(plugin, (Player) connection, receiver.get(), null, false);
+>             Runnable skinUpdater = new SkinApplier(plugin, connection, receiver.get(), null, false);
 >             Task.builder().execute(skinUpdater).plugin(plugin).submit(plugin);

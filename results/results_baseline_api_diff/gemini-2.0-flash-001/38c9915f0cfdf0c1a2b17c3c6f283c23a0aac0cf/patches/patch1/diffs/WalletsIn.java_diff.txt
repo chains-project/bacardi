@@ -1,3 +1,10 @@
+10,11c10
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+---
+>  * copies of the Software, and to permit persons to do so, subject to the following conditions:
+29a29
+> import java.util.Arrays;
 37,38c37
 < import org.cactoos.scalar.IoCheckedScalar;
 < import org.cactoos.scalar.SolidScalar;
@@ -6,35 +13,28 @@
 40c39
 < import org.cactoos.text.JoinedText;
 ---
-> import org.cactoos.text.Text;
-41a41
-> import org.cactoos.text.Concatenated;
-53c53
+> import org.cactoos.text.Joined;
+53c52
 <     private final IoCheckedScalar<Path> path;
 ---
->     private final Unchecked<Path> path;
-103,105c103
+>     private final Scalar<Path> path;
+103,105c102
 <         this.path = new IoCheckedScalar<>(
 <             new SolidScalar<>(pth)
 <         );
 ---
->         this.path = new Unchecked<>(pth);
-119,122c117,129
+>         this.path = pth;
+118,119c115,116
+<         final Path wpth = this.path.value().resolve(
 <             new JoinedText(
-<                 ".",
-<                 Long.toHexString(this.random.nextLong()),
-<                 this.ext
 ---
->             new Concatenated(
->                 new Text() {
->                     @Override
->                     public String asString() throws Exception {
->                         return Long.toHexString(random.nextLong());
->                     }
->                 },
->                 new Text() {
->                     @Override
->                     public String asString() throws Exception {
->                         return ext;
->                     }
->                 }
+>         final Path wpth = new Unchecked<>(this.path).value().resolve(
+>             new Joined(
+120a118
+>                 Arrays.asList(
+122a121
+>                 )
+156c155
+<                 new Filtered<>(this.filter, new Directory(this.path.value()))
+---
+>                 new Filtered<>(this.filter, new Directory(new Unchecked<>(this.path).value()))

@@ -1,11 +1,14 @@
-30c30,31
+26d25
+< import io.zold.api.Copies.Copy;
+30d28
 < import org.cactoos.collection.CollectionOf;
----
-> import java.util.stream.Collectors;
-> import java.util.stream.StreamSupport;
-91,93c92
+34a33
+> import org.cactoos.list.ListOf;
+91c90
 <         return first.id() == second.id() && new CollectionOf<>(
-<             first.ledger()
+---
+>         return first.id() == second.id() && new ListOf<>(
+93c92
 <         ).size() == new CollectionOf<>(second.ledger()).size();
 ---
->         return first.id() == second.id() && StreamSupport.stream(first.ledger().spliterator(), false).collect(Collectors.toList()).size() == StreamSupport.stream(second.ledger().spliterator(), false).collect(Collectors.toList()).size();
+>         ).size() == new ListOf<>(second.ledger()).size();

@@ -4,8 +4,10 @@
 ---
 > import jakarta.mvc.locale.LocaleResolver;
 > import jakarta.mvc.locale.LocaleResolverContext;
-42c42,43
+42,44c42,43
 <         final String queryLang = context.getUriInfo()
+<                 .getQueryParameters()
+<                 .getFirst("lang");
 ---
->         UriInfo uriInfo = context.getUriInfo();
->         final String queryLang = uriInfo
+>         final UriInfo uriInfo = context.getUriInfo();
+>         final String queryLang = uriInfo.getQueryParameters().getFirst("lang");

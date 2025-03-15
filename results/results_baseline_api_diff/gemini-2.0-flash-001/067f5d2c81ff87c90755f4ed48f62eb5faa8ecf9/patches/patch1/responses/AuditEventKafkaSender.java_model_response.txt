@@ -32,7 +32,6 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.thrift.TException;
 import org.apache.thrift.TSerializer;
-import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -271,7 +270,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
             value = serializer.serialize(event);
             record = new ProducerRecord<>(this.topic, currentPartitionId , null, value);
             kafkaProducer.send(record, new KafkaProducerCallback(event, currentPartitionId));
-          } catch (TTransportException e) {
+          } catch (TException e) {
             LOG.debug("[{}] failed to construct ProducerRecord because of serialization exception.",
                 Thread.currentThread().getName(), e);
             OpenTsdbMetricConverter

@@ -22,10 +22,11 @@ import com.hazelcast.cluster.Member;
 import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.MaxSizeConfig;
+import com.hazelcast.config.MemberAttributeConfig;
 import com.hazelcast.config.MemcacheProtocolConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.config.RestApiConfig;
-import com.hazelcast.config.MemberAttributeConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import org.jivesoftware.openfire.JMXManager;
@@ -71,8 +72,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
-import com.hazelcast.config.MaxSizeConfig;
-import com.hazelcast.config.MaxSizePolicy;
 
 /**
  * CacheFactory implementation to use when using Hazelcast in cluster mode.
@@ -247,7 +246,9 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         fireLeftClusterAndWaitToComplete(Duration.ofSeconds(30));
         // Stop the cluster
         hazelcast.getLifecycleService().removeLifecycleListener(lifecycleListener);
-        cluster.removeMembershipListener(membershipListener);
+        if (cluster != null) {
+            cluster.removeMembershipListener(membershipListener);
+        }
         Hazelcast.shutdownAll();
         cluster = null;
         lifecycleListener = null;
@@ -289,7 +290,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
             dynamicConfig.setTimeToLiveSeconds(hazelcastLifetimeInSeconds);
             MaxSizeConfig maxSizeConfig = new MaxSizeConfig();
             maxSizeConfig.setSize(hazelcastMaxCacheSizeInMegaBytes);
-            maxSizeConfig.setMaxSizePolicy(MaxSizePolicy.USED_HEAP_SIZE);
+            maxSizeConfig.setMaxSizePolicy(MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE);
             dynamicConfig.setMaxSizeConfig(maxSizeConfig);
             logger.debug("Creating dynamic map config for cache={}, dynamicConfig={}", name, dynamicConfig);
             hazelcast.getConfig().addMapConfig(dynamicConfig);
@@ -332,7 +333,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
 
     @Override
     public byte[] getSeniorClusterMemberID() {
-        if (cluster != null && !cluster.getMembers().isEmpty()) {
+        if (cluster != null && cluster.getMembers().iterator().hasNext()) {
             final Member oldest = cluster.getMembers().iterator().next();
             return getNodeID(oldest).toByteArray();
         } else {

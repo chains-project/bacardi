@@ -39,10 +39,8 @@ public class QueryParamLocaleResolver implements LocaleResolver {
     
     @Override
     public Locale resolveLocale(final LocaleResolverContext context) {
-        UriInfo uriInfo = context.getUriInfo();
-        final String queryLang = uriInfo
-                .getQueryParameters()
-                .getFirst("lang");
+        final UriInfo uriInfo = context.getUriInfo();
+        final String queryLang = uriInfo.getQueryParameters().getFirst("lang");
         log.log(Level.INFO, "QueryParamLocaleResolver::resolveLocale:lang:{0}", queryLang);
         return queryLang != null ? Locale.forLanguageTag(queryLang) : null;
     }

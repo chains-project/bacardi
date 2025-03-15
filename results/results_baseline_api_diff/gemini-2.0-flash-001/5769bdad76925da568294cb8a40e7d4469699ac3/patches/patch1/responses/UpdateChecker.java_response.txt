@@ -7,7 +7,7 @@
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the software is
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in
@@ -237,8 +237,7 @@ public final class UpdateChecker {
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
             GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
-            GHCompare.Comparison comparison = compare.get();
-            String status = comparison.getStatus();
+            String status = compare.getStatus().name();
             return "identical".equals(status) || "behind".equals(status);
         } catch (FileNotFoundException x) {
             // For example, that branch does not exist in this repository.

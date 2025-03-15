@@ -20,6 +20,7 @@ package com.google.cloud.translate;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import java.util.Objects;
+import com.google.cloud.translate.Translate.Detection;
 
 /**
  * Information about a language detection. Objects of this class contain the detected language and
@@ -84,8 +85,8 @@ public class Detection implements Serializable {
     return Objects.equals(language, other.language) && Objects.equals(confidence, other.confidence);
   }
 
-  static Detection fromPb(com.google.api.services.translate.v3.model.DetectedLanguage detectionPb) {
-    return new Detection(detectionPb.getLanguageCode(), detectionPb.getConfidence().floatValue());
+  static Detection fromPb(com.google.cloud.translate.v3.DetectedLanguage detectionPb) {
+    return new Detection(detectionPb.getLanguageCode(), (float) detectionPb.getConfidence());
   }
 }
 ```

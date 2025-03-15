@@ -11,6 +11,8 @@ import com.artipie.asto.factory.StorageFactory;
 import com.artipie.asto.fs.FileStorageFactory;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Policy factory to create {@link YamlPolicy}. Yaml policy is read from storage, and it's required
@@ -40,11 +42,22 @@ public final class YamlPolicyFactory implements PolicyFactory {
     public Policy<?> getPolicy(final PolicyConfig config) {
         final PolicyConfig sub = config.config("storage");
         try {
-            final Config storageConfig = new Config.Yaml(Yaml.createYamlInput(sub.toString()).readYamlMapping());
-            final BlockingStorage blockingStorage = new BlockingStorage(
-                new FileStorageFactory().newStorage(storageConfig)
+            final String type = sub.string("type");
+            final Map<String, Object> map = new HashMap<>();
+            map.put("type", type);
+            map.putAll(sub.map());
+            final Config cfg = new Config.FromMap(map);
+            final StorageFactory factory;
+            if (type.equals("fs")) {
+                factory = new FileStorageFactory();
+            } else {
+                throw new IllegalArgumentException("Unsupported storage type: " + type);
+            }
+            return new YamlPolicy(
+                new BlockingStorage(
+                    factory.newStorage(cfg)
+                )
             );
-            return new YamlPolicy(blockingStorage);
         } catch (final IOException err) {
             throw new UncheckedIOException(err);
         }

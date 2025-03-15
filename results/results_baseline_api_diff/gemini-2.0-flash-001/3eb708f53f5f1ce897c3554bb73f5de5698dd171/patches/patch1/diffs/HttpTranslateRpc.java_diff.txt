@@ -1,41 +1,57 @@
-25,28d24
+25,28c25,35
 < import com.google.api.services.translate.Translate;
 < import com.google.api.services.translate.model.DetectionsResourceItems;
 < import com.google.api.services.translate.model.LanguagesResource;
 < import com.google.api.services.translate.model.TranslationsResource;
-34a31
-> 
-37a35,41
+---
 > import com.google.api.services.translate.v3.Translate;
+> import com.google.api.services.translate.v3.Translate.Projects;
+> import com.google.api.services.translate.v3.Translate.Projects.Locations;
+> import com.google.api.services.translate.v3.model.DetectLanguageRequest;
 > import com.google.api.services.translate.v3.model.DetectLanguageResponse;
+> import com.google.api.services.translate.v3.model.Language;
+> import com.google.api.services.translate.v3.model.Location;
 > import com.google.api.services.translate.v3.model.SupportedLanguages;
-> import com.google.api.services.translate.v3.model.Translation;
 > import com.google.api.services.translate.v3.model.TranslateTextRequest;
 > import com.google.api.services.translate.v3.model.TranslateTextResponse;
+> import com.google.api.services.translate.v3.model.Translation;
+32d38
+< import com.google.common.base.Function;
+34d39
+< import com.google.common.collect.Lists;
+35a41
 > import java.util.ArrayList;
-69c73
+51d56
+<             .setRootUrl(options.getHost())
+69c74,75
 <   public List<List<DetectionsResourceItems>> detect(List<String> texts) {
 ---
->   public List<List<com.google.api.services.translate.v3.model.DetectedLanguage>> detect(List<String> texts) {
-71,73c75,83
+>   public List<List<com.google.api.services.translate.v3.model.DetectedLanguage>> detect(
+>       List<String> texts) {
+71,73c77,90
 <       List<List<DetectionsResourceItems>> detections =
 <           translate.detections().list(texts).setKey(options.getApiKey()).execute().getDetections();
 <       return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
 ---
->       List<List<com.google.api.services.translate.v3.model.DetectedLanguage>> detections = new ArrayList<>();
+>       List<List<com.google.api.services.translate.v3.model.DetectedLanguage>> detections =
+>           new ArrayList<>();
 >       for (String text : texts) {
->         Translate.Projects.Locations.DetectLanguage detectLanguage = translate.projects().locations().detectLanguage("projects/" + options.getProjectId() + "/locations/global");
->         detectLanguage.setKey(options.getApiKey());
->         detectLanguage.setQ(ImmutableList.of(text));
->         DetectLanguageResponse response = detectLanguage.execute();
+>         DetectLanguageRequest request = new DetectLanguageRequest().setContent(text);
+>         Projects.DetectLanguage detect =
+>             translate
+>                 .projects()
+>                 .detectLanguage("projects/" + options.getProjectId())
+>                 .setKey(options.getApiKey())
+>                 .setRequest(request);
+>         DetectLanguageResponse response = detect.execute();
 >         detections.add(response.getLanguages());
 >       }
 >       return detections;
-80c90
+80c97
 <   public List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap) {
 ---
->   public List<com.google.api.services.translate.v3.model.SupportedLanguage> listSupportedLanguages(Map<Option, ?> optionMap) {
-82,92c92,97
+>   public List<Language> listSupportedLanguages(Map<Option, ?> optionMap) {
+82,92c99,111
 <       List<LanguagesResource> languages =
 <           translate
 <               .languages()
@@ -48,17 +64,26 @@
 <               .getLanguages();
 <       return languages != null ? languages : ImmutableList.<LanguagesResource>of();
 ---
->       String targetLanguageCode = firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
->       Translate.Projects.Locations.GetSupportedLanguages list = translate.projects().locations().getSupportedLanguages("projects/" + options.getProjectId() + "/locations/global");
+>       String targetLanguageCode =
+>           firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
+>       String parent = "projects/" + options.getProjectId() + "/locations/global";
+> 
+>       Translate.Projects.Locations.GetSupportedLanguages list =
+>           translate.projects().locations().getSupportedLanguages(parent);
 >       list.setKey(options.getApiKey());
->       list.setTarget(targetLanguageCode);
+>       if (targetLanguageCode != null) {
+>         list.setTarget(targetLanguageCode);
+>       }
 >       SupportedLanguages response = list.execute();
 >       return response.getLanguages();
-99c104
+> 
+99c118,119
 <   public List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap) {
 ---
->   public List<com.google.api.services.translate.v3.model.Translation> translate(List<String> texts, Map<Option, ?> optionMap) {
-104,124c109,124
+>   public List<com.google.api.services.translate.v3.model.Translation> translate(
+>       List<String> texts, Map<Option, ?> optionMap) {
+103,120c123,148
+<       final String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
 <       List<TranslationsResource> translations =
 <           translate
 <               .translations()
@@ -76,24 +101,36 @@
 <             public TranslationsResource apply(TranslationsResource translationsResource) {
 <               if (translationsResource.getDetectedSourceLanguage() == null) {
 <                 translationsResource.setDetectedSourceLanguage(sourceLanguage);
-<               }
+---
+>       String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
+>       String model = Option.MODEL.getString(optionMap);
+>       String format = Option.FORMAT.getString(optionMap);
+> 
+>       List<com.google.api.services.translate.v3.model.Translation> translations =
+>           new ArrayList<>();
+>       for (String text : texts) {
+>         TranslateTextRequest request = new TranslateTextRequest();
+>         request.setQ(text);
+>         request.setTargetLanguageCode(targetLanguage);
+>         if (sourceLanguage != null) {
+>           request.setSourceLanguageCode(sourceLanguage);
+>         }
+>         if (model != null) {
+>           request.setModel(model);
+>         }
+>         request.setFormat(format);
+> 
+>         Projects projects = translate.projects();
+>         Locations locations = projects.locations();
+>         Translate.Projects.Locations.TranslateText translateText =
+>             locations.translateText("projects/" + options.getProjectId() + "/locations/global", request);
+>         translateText.setKey(options.getApiKey());
+>         TranslateTextResponse response = translateText.execute();
+>         if (response.getTranslations() != null && !response.getTranslations().isEmpty()) {
+>           translations.add(response.getTranslations().get(0));
+122d149
 <               return translationsResource;
-<             }
+124c151
 <           });
 ---
-> 
->       TranslateTextRequest request = new TranslateTextRequest();
->       request.setQ(texts);
->       request.setTargetLanguageCode(targetLanguage);
->       if (sourceLanguage != null) {
->         request.setSourceLanguageCode(sourceLanguage);
->       }
->       String model = Option.MODEL.getString(optionMap);
->       if (model != null) {
->         request.setModel(model);
->       }
->       Translate.Projects.Locations.TranslateText translateText = translate.projects().locations().translateText("projects/" + options.getProjectId() + "/locations/global", request);
->         translateText.setKey(options.getApiKey());
->       TranslateTextResponse response = translateText.execute();
->       List<Translation> translations = response.getTranslations();
 >       return translations;

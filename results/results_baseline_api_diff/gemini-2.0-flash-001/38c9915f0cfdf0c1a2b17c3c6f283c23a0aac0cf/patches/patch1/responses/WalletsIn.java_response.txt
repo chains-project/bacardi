@@ -7,8 +7,7 @@
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * copies of the Software, and to permit persons to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
@@ -27,6 +26,7 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Random;
 import org.cactoos.Scalar;
@@ -36,9 +36,8 @@ import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.scalar.Unchecked;
 import org.cactoos.text.FormattedText;
-import org.cactoos.text.Text;
+import org.cactoos.text.Joined;
 import org.cactoos.text.UncheckedText;
-import org.cactoos.text.Concatenated;
 
 /**
  * Wallets in path.
@@ -50,7 +49,7 @@ public final class WalletsIn implements Wallets {
     /**
      * Path containing wallets.
      */
-    private final Unchecked<Path> path;
+    private final Scalar<Path> path;
 
     /**
      * Filter for matching file extensions.
@@ -100,7 +99,7 @@ public final class WalletsIn implements Wallets {
      */
     public WalletsIn(final Scalar<Path> pth, final String ext,
         final Random random) {
-        this.path = new Unchecked<>(pth);
+        this.path = pth;
         this.filter = new IoCheckedFunc<Path, Boolean>(
             (file) -> file.toFile().isFile()
                 && FileSystems.getDefault()
@@ -113,20 +112,13 @@ public final class WalletsIn implements Wallets {
 
     @Override
     public Wallet create() throws IOException {
-        final Path wpth = this.path.value().resolve(
-            new Concatenated(
-                new Text() {
-                    @Override
-                    public String asString() throws Exception {
-                        return Long.toHexString(random.nextLong());
-                    }
-                },
-                new Text() {
-                    @Override
-                    public String asString() throws Exception {
-                        return ext;
-                    }
-                }
+        final Path wpth = new Unchecked<>(this.path).value().resolve(
+            new Joined(
+                ".",
+                Arrays.asList(
+                    Long.toHexString(this.random.nextLong()),
+                    this.ext
+                )
             ).asString()
         );
         if (wpth.toFile().exists()) {
@@ -160,7 +152,7 @@ public final class WalletsIn implements Wallets {
         try {
             return new Mapped<Path, Wallet>(
                 (pth) -> new Wallet.File(pth),
-                new Filtered<>(this.filter, new Directory(this.path.value()))
+                new Filtered<>(this.filter, new Directory(new Unchecked<>(this.path).value()))
             ).iterator();
         } catch (final IOException ex) {
             throw new IllegalStateException(ex);

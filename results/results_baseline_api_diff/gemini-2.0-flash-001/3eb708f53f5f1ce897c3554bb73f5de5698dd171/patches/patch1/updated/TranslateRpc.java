@@ -17,13 +17,11 @@
 package com.google.cloud.translate.spi.v2;
 
 import com.google.cloud.ServiceRpc;
-import com.google.cloud.translate.Detection;
-import com.google.cloud.translate.Language;
-import com.google.cloud.translate.Translate.TranslateOption;
-import com.google.cloud.translate.Translation;
+import com.google.cloud.translate.v3.Detection;
+import com.google.cloud.translate.v3.SupportedLanguage;
+import com.google.cloud.translate.v3.Translation;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public interface TranslateRpc extends ServiceRpc {
 
@@ -51,21 +49,6 @@ public interface TranslateRpc extends ServiceRpc {
     String getString(Map<Option, ?> options) {
       return get(options);
     }
-
-      public TranslateOption toTranslateOption() {
-          switch (this) {
-              case SOURCE_LANGUAGE:
-                  return TranslateOption.sourceLanguage(value());
-              case TARGET_LANGUAGE:
-                  return TranslateOption.targetLanguage(value());
-              case MODEL:
-                  return TranslateOption.model(value());
-              case FORMAT:
-                  return TranslateOption.format(value());
-              default:
-                  throw new IllegalArgumentException("Unsupported option: " + this);
-          }
-      }
   }
 
   /**
@@ -73,7 +56,7 @@ public interface TranslateRpc extends ServiceRpc {
    *
    * @param optionMap options to listing language translations
    */
-  List<Language> listSupportedLanguages(Map<Option, ?> optionMap);
+  List<SupportedLanguage> listSupportedLanguages(Map<Option, ?> optionMap);
 
   /**
    * Detects the language of the provided texts.

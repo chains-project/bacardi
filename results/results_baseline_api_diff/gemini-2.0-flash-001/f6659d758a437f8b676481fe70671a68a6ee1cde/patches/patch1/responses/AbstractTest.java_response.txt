@@ -62,7 +62,9 @@ public class AbstractTest {
 
     public <T extends MockBaseEntity> T createMockEntity(Class<T> clazz, String path) {
         final LoaderOptions loadingConfig = new LoaderOptions();
-        // loadingConfig.setTagInspector(new TrustedTagInspector()); // Removed due to TrustedTagInspector removal
+        loadingConfig.setAllowDuplicateKeys(false);
+        loadingConfig.setAllowRecursiveKeys(false);
+        loadingConfig.setMaxAliasesForCollections(100);
 
         final Representer representer = new Representer(new DumperOptions());
         final Tag zoneIdTag = new Tag("!ZoneId");

@@ -9,7 +9,7 @@ import org.pitest.elements.models.PackageSummaryMap;
 import org.pitest.elements.utils.JsonParser;
 import org.pitest.util.FileUtil;
 import org.pitest.util.ResultOutputStrategy;
-import org.pitest.classinfo.ClassName; // Import ClassName
+import org.pitest.classinfo.ClassName;
 
 import java.io.File;
 import java.io.IOException;

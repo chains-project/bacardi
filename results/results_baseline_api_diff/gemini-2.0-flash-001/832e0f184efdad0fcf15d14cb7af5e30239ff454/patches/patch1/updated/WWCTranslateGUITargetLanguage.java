@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -25,8 +26,6 @@ import fr.minuskube.inv.content.InventoryContents;
 import fr.minuskube.inv.content.InventoryProvider;
 import fr.minuskube.inv.content.Pagination;
 import fr.minuskube.inv.content.SlotIterator;
-
-import org.bukkit.enchantments.Enchantment;
 
 public class WWCTranslateGUITargetLanguage implements InventoryProvider {
 
@@ -80,8 +79,8 @@ public class WWCTranslateGUITargetLanguage implements InventoryProvider {
 				/* Add Glow Effect */
 				currentLangMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 				if (currTranslator.getOutLangCode().equals(main.getSupportedTranslatorLanguages().get(i).getLangCode())) {
-					XEnchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get();
-					Enchantment enchantment = (powerEnchantment != null) ? powerEnchantment.getEnchant() : null;
+					XEnchantment ench = XEnchantment.matchXEnchantment("power").get();
+					Enchantment enchantment = ench != null ? ench.getEnchant() : null;
 					if (enchantment != null) {
 						currentLangMeta.addEnchant(enchantment, 1, false);
 					}

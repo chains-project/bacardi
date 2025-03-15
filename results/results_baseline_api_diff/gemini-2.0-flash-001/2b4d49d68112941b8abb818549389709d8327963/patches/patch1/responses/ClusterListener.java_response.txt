@@ -16,9 +16,10 @@
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.cluster.Cluster;
-import com.hazelcast.cluster.Member;
 import com.hazelcast.cluster.MembershipEvent;
 import com.hazelcast.cluster.MembershipListener;
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MemberAttributeEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.LifecycleEvent;
 import com.hazelcast.core.LifecycleEvent.LifecycleState;
@@ -53,11 +54,11 @@ public class ClusterListener implements MembershipListener, com.hazelcast.core.L
 
     private boolean seniorClusterMember = false;
 
-    private final Map<Cache<?, ?>, EntryListener> entryListeners = new HashMap<>();
-
+    private final Map<Cache<?,?>, EntryListener> entryListeners = new HashMap<>();
+    
     private final Cluster cluster;
     private final Map<NodeID, ClusterNodeInfo> clusterNodesInfo = new ConcurrentHashMap<>();
-
+    
     /**
      * Flag that indicates if the listener has done all clean up work when noticed that the
      * cluster has been stopped. This will force Openfire to wait until all clean
@@ -75,15 +76,15 @@ public class ClusterListener implements MembershipListener, com.hazelcast.core.L
         this.cluster = cluster;
         for (final Member member : cluster.getMembers()) {
             clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(member),
-                new HazelcastClusterNodeInfo(member, cluster.getClusterTime()));
+                    new HazelcastClusterNodeInfo(member, cluster.getClusterTime()));
         }
     }
 
     private void addEntryListener(final Cache<?, ?> cache, final EntryListener listener) {
         if (cache instanceof CacheWrapper) {
-            final Cache wrapped = ((CacheWrapper) cache).getWrappedCache();
+            final Cache wrapped = ((CacheWrapper)cache).getWrappedCache();
             if (wrapped instanceof ClusteredCache) {
-                ((ClusteredCache) wrapped).addEntryListener(listener);
+                ((ClusteredCache)wrapped).addEntryListener(listener);
                 // Keep track of the listener that we added to the cache
                 entryListeners.put(cache, listener);
             }
@@ -185,7 +186,7 @@ public class ClusterListener implements MembershipListener, com.hazelcast.core.L
             }
         }
         clusterNodesInfo.put(nodeID,
-            new HazelcastClusterNodeInfo(event.getMember(), cluster.getClusterTime()));
+                new HazelcastClusterNodeInfo(event.getMember(), cluster.getClusterTime()));
     }
 
     /**
@@ -250,7 +251,7 @@ public class ClusterListener implements MembershipListener, com.hazelcast.core.L
         NodeID.deleteInstance(nodeID.toByteArray());
         clusterNodesInfo.remove(nodeID);
     }
-
+    
     @SuppressWarnings("WeakerAccess")
     public List<ClusterNodeInfo> getClusterNodesInfo() {
         return new ArrayList<>(clusterNodesInfo.values());
@@ -266,12 +267,12 @@ public class ClusterListener implements MembershipListener, com.hazelcast.core.L
     }
 
     @Override
-    public void memberAttributeChanged(com.hazelcast.cluster.MemberAttributeEvent event) {
+    public void memberAttributeChanged(final MemberAttributeEvent event) {
         logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
         isSenior = isSeniorClusterMember();
         final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));
         clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(event.getMember()),
-            new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));
+                new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));
     }
 
     boolean isClusterMember() {

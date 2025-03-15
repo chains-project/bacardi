@@ -17,8 +17,8 @@
 package com.google.cloud.resourcemanager;
 
 import com.google.api.services.cloudresourcemanager.v3.model.Binding;
-import com.google.api.services.cloudresourcemanager.v3.model.Policy;
 import com.google.cloud.Identity;
+import com.google.cloud.Policy;
 import com.google.cloud.Policy.Marshaller;
 import com.google.cloud.Role;
 import com.google.common.base.Function;
@@ -73,8 +73,7 @@ final class PolicyMarshaller
   }
 
   @Override
-  protected com.google.api.services.cloudresourcemanager.v3.model.Policy toPb(
-      com.google.cloud.Policy policy) {
+  protected com.google.api.services.cloudresourcemanager.v3.model.Policy toPb(Policy policy) {
     com.google.api.services.cloudresourcemanager.v3.model.Policy policyPb =
         new com.google.api.services.cloudresourcemanager.v3.model.Policy();
     List<Binding> bindingPbList = new LinkedList<>();

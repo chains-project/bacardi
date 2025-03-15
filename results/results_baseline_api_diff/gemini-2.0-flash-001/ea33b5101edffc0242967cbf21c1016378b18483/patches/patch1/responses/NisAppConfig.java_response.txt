@@ -1,7 +1,6 @@
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -35,6 +34,8 @@ import org.springframework.context.annotation.*;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
+import org.flywaydb.core.api.Location;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -109,7 +110,8 @@ public class NisAppConfig {
 		ClassicConfiguration configuration = new ClassicConfiguration();
 		configuration.setDataSource(this.dataSource());
 		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
-		configuration.setLocations(prop.getProperty("flyway.locations"));
+		String locations = prop.getProperty("flyway.locations");
+		configuration.setLocations(new Location(locations));
 		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 
 		final Flyway flyway = new Flyway(configuration);

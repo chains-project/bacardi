@@ -109,10 +109,10 @@ public class NisAppConfig {
 		ClassicConfiguration configuration = new ClassicConfiguration();
 		configuration.setDataSource(this.dataSource());
 		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
-		configuration.setLocations(prop.getProperty("flyway.locations"));
+		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
 		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 
-		final org.flywaydb.core.Flyway flyway = new Flyway(configuration);
+		final Flyway flyway = new Flyway(configuration);
 		return flyway;
 	}
 

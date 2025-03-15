@@ -1,24 +1,14 @@
 22a23
-> import org.yaml.snakeyaml.introspector.PropertyUtils;
-36a38,39
->   private PropertyUtils propertyUtils;
-> 
-44a48
->     this.propertyUtils = new PropertyUtils();
-218,219c222,223
+> import org.yaml.snakeyaml.introspector.BeanAccess;
+218c219,227
 <   protected Set<Property> getProperties(Class<? extends Object> type)
-<           throws IntrospectionException {
 ---
 >   protected Set<Property> getProperties(Class<? extends Object> type) {
 >     try {
-231c235,238
-<       return super.getProperties(type);
----
->         return propertyUtils.getProperties(type);
->       }
+>       return getPropertiesInternal(type);
 >     } catch (IntrospectionException e) {
 >       throw new YAMLException(e);
-237c244
-<       Set<Property> standard = super.getProperties(type);
----
->       Set<Property> standard = propertyUtils.getProperties(type);
+>     }
+>   }
+> 
+>   protected Set<Property> getPropertiesInternal(Class<? extends Object> type)

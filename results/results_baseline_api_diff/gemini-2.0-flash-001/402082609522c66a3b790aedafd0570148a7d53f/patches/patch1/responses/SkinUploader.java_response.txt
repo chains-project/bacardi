@@ -8,13 +8,14 @@ import java.util.concurrent.TimeUnit;
 
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.service.permission.Subject;
 
 public class SkinUploader extends SharedUploader {
 
     private final ChangeSkinSponge plugin;
-    private final Player invoker;
+    private final Subject invoker;
 
-    public SkinUploader(ChangeSkinSponge plugin, Player invoker, Account owner, String url) {
+    public SkinUploader(ChangeSkinSponge plugin, Subject invoker, Account owner, String url) {
         super(plugin.getCore(), owner, url);
 
         this.plugin = plugin;
@@ -23,7 +24,11 @@ public class SkinUploader extends SharedUploader {
 
     @Override
     public void sendMessageInvoker(String key) {
-        plugin.sendMessage(invoker, key);
+        if (invoker instanceof Player) {
+            plugin.sendMessage((Player) invoker, key);
+        } else {
+            plugin.getCore().getLogger().info(plugin.getMessage(key));
+        }
     }
 
     @Override

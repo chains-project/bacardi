@@ -1,150 +1,228 @@
 29a30
 > import java.util.Arrays;
-31a33,34
+31a33
 > import java.util.stream.Collectors;
-> import org.cactoos.Scalar;
-33,38c36,39
+33c35
 < import org.cactoos.iterable.LengthOf;
-< import org.cactoos.list.ListOf;
+---
+> import org.cactoos.scalar.LengthOf;
+35,38c37,38
 < import org.cactoos.scalar.IoCheckedScalar;
 < import org.cactoos.scalar.ItemAt;
 < import org.cactoos.scalar.StickyScalar;
 < import org.cactoos.scalar.UncheckedScalar;
 ---
-> import org.cactoos.iterable.IterableOf;
-> import org.cactoos.scalar.IoChecked;
 > import org.cactoos.scalar.Sticky;
 > import org.cactoos.scalar.Unchecked;
-40d40
+40d39
 < import org.cactoos.text.SplitText;
-42c42
+42,43c41,42
 < import org.cactoos.text.TrimmedText;
+< import org.cactoos.text.UncheckedText;
 ---
 > import org.cactoos.text.Trimmed;
-88c88
+> 
+88c87
 <     private final IoCheckedScalar<String> transaction;
 ---
->     private final IoChecked<String> transaction;
-95,97c95,97
+>     private final org.cactoos.Scalar<String> transaction;
+95,96c94
 <         this.transaction = new IoCheckedScalar<>(
 <             new StickyScalar<>(
-<                 () -> {
 ---
->         this.transaction = new IoChecked<>(
->             new Sticky<>(
->                 (Scalar<String>) () -> {
-99c99
+>         this.transaction = new Sticky<>(
+99c97
 <                         new TrimmedText(
 ---
->                         new Trimmed(
-108,110c108,110
-<                         new ListOf<>(
+>                     new Trimmed(
+109c107,109
 <                             new SplitText(trnsct, ";")
-<                         );
 ---
 >                         Arrays.stream(trnsct.split(";"))
 >                             .map(TextOf::new)
->                             .collect(Collectors.toList());
-112c112
-<                     if (new LengthOf(pieces).intValue() != 7) {
----
->                     if (pieces.size() != 7) {
-131,134c131,137
+>                             .collect(Collectors.toList())
+123d122
+<             )
+130,136c129,136
+<         final String ident = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
 <                     0, new SplitText(this.transaction.value(), ";")
 <                 )
+<             ).value()
+<         ).asString();
 ---
->             new IoChecked<>(
->                 (Scalar<Text>) () -> new IterableOf<>(
->                     Arrays.asList(this.transaction.value().split(";"))
->                         .stream()
->                         .map(TextOf::new)
->                         .collect(Collectors.toList())
->                 ).iterator().next()
-156,159c159,165
+>         final String ident = new Unchecked<>(
+>             new org.cactoos.Scalar<String>() {
+>                 @Override
+>                 public String value() throws Exception {
+>                     return new ListOf<>(Arrays.asList(transaction.value().split(";"))).get(0);
+>                 }
+>             }
+>         ).value();
+139c139
+<                 new UncheckedText(
+---
+>                 new Unchecked<>(
+145c145
+<                 ).asString()
+---
+>                 ).value()
+155,161c155,162
+<             new UncheckedText(
 <                 new IoCheckedScalar<>(
 <                     new ItemAt<>(
 <                         1, new SplitText(this.transaction.value(), ";")
 <                     )
+<                 ).value()
+<             ).asString(),
 ---
->                 new IoChecked<>(
->                     (Scalar<Text>) () -> new IterableOf<>(
->                         Arrays.asList(this.transaction.value().split(";"))
->                             .stream()
->                             .map(TextOf::new)
->                             .collect(Collectors.toList())
->                     ).iterator().next()
-169,172c175,181
+>             new Unchecked<>(
+>                 new org.cactoos.Scalar<String>() {
+>                     @Override
+>                     public String value() throws Exception {
+>                         return new ListOf<>(Arrays.asList(transaction.value().split(";"))).get(1);
+>                     }
+>                 }
+>             ).value(),
+168,174c169,176
+<         final String amnt = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
 <                     2, new SplitText(this.transaction.value(), ";")
 <                 )
+<             ).value()
+<         ).asString();
 ---
->             new IoChecked<>(
->                 (Scalar<Text>) () -> new IterableOf<>(
->                     Arrays.asList(this.transaction.value().split(";"))
->                         .stream()
->                         .map(TextOf::new)
->                         .collect(Collectors.toList())
->                 ).iterator().next()
-193,197c202,208
+>         final String amnt = new Unchecked<>(
+>             new org.cactoos.Scalar<String>() {
+>                 @Override
+>                 public String value() throws Exception {
+>                     return new ListOf<>(Arrays.asList(transaction.value().split(";"))).get(2);
+>                 }
+>             }
+>         ).value();
+177c179
+<                 new UncheckedText(
+---
+>                 new Unchecked<>(
+183c185
+<                 ).asString()
+---
+>                 ).value()
+192,199c194,201
+<         final String prefix = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
 <                     //@checkstyle MagicNumberCheck (1 line)
 <                     3, new SplitText(this.transaction.value(), ";")
 <                 )
+<             ).value()
+<         ).asString();
 ---
->             new IoChecked<>(
->                 (Scalar<Text>) () -> new IterableOf<>(
->                     Arrays.asList(this.transaction.value().split(";"))
->                         .stream()
->                         .map(TextOf::new)
->                         .collect(Collectors.toList())
->                 ).iterator().skip(3).next()
-213,217c224,230
+>         final String prefix = new Unchecked<>(
+>             new org.cactoos.Scalar<String>() {
+>                 @Override
+>                 public String value() throws Exception {
+>                     return new ListOf<>(Arrays.asList(transaction.value().split(";"))).get(3);
+>                 }
+>             }
+>         ).value();
+212,219c214,221
+<         final String bnf = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
 <                     //@checkstyle MagicNumberCheck (1 line)
 <                     4, new SplitText(this.transaction.value(), ";")
 <                 )
+<             ).value()
+<         ).asString();
 ---
->             new IoChecked<>(
->                 (Scalar<Text>) () -> new IterableOf<>(
->                     Arrays.asList(this.transaction.value().split(";"))
->                         .stream()
->                         .map(TextOf::new)
->                         .collect(Collectors.toList())
->                 ).iterator().skip(4).next()
-237,241c250,256
+>         final String bnf = new Unchecked<>(
+>             new org.cactoos.Scalar<String>() {
+>                 @Override
+>                 public String value() throws Exception {
+>                     return new ListOf<>(Arrays.asList(transaction.value().split(";"))).get(4);
+>                 }
+>             }
+>         ).value();
+222c224
+<                 new UncheckedText(
+---
+>                 new Unchecked<>(
+228c230
+<                 ).asString()
+---
+>                 ).value()
+236,243c238,245
+<         final String dtls = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
 <                     //@checkstyle MagicNumberCheck (1 line)
 <                     5, new SplitText(this.transaction.value(), ";")
 <                 )
+<             ).value()
+<         ).asString();
 ---
->             new IoChecked<>(
->                 (Scalar<Text>) () -> new IterableOf<>(
->                     Arrays.asList(this.transaction.value().split(";"))
->                         .stream()
->                         .map(TextOf::new)
->                         .collect(Collectors.toList())
->                 ).iterator().skip(5).next()
-261,265c276,282
+>         final String dtls = new Unchecked<>(
+>             new org.cactoos.Scalar<String>() {
+>                 @Override
+>                 public String value() throws Exception {
+>                     return new ListOf<>(Arrays.asList(transaction.value().split(";"))).get(5);
+>                 }
+>             }
+>         ).value();
+246c248
+<                 new UncheckedText(
+---
+>                 new Unchecked<>(
+252c254
+<                 ).asString()
+---
+>                 ).value()
+260,267c262,269
+<         final String sign = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
 <                     //@checkstyle MagicNumberCheck (1 line)
 <                     6, new SplitText(this.transaction.value(), ";")
 <                 )
+<             ).value()
+<         ).asString();
 ---
->             new IoChecked<>(
->                 (Scalar<Text>) () -> new IterableOf<>(
->                     Arrays.asList(this.transaction.value().split(";"))
->                         .stream()
->                         .map(TextOf::new)
->                         .collect(Collectors.toList())
->                 ).iterator().skip(6).next()
-286c303
+>         final String sign = new Unchecked<>(
+>             new org.cactoos.Scalar<String>() {
+>                 @Override
+>                 public String value() throws Exception {
+>                     return new ListOf<>(Arrays.asList(transaction.value().split(";"))).get(6);
+>                 }
+>             }
+>         ).value();
+272c274
+<                 new UncheckedText(
+---
+>                 new Unchecked<>(
+278c280
+<                 ).asString()
+---
+>                 ).value()
+286c288
 <         return new UncheckedScalar<>(this.transaction).value();
 ---
 >         return new Unchecked<>(this.transaction).value();
+299c301,305
+<         return this.transaction.equals(that.transaction);
+---
+>         try {
+>             return this.transaction.value().equals(that.transaction.value());
+>         } catch (Exception e) {
+>             return false;
+>         }
+304c310,314
+<         return this.transaction.hashCode();
+---
+>         try {
+>             return this.transaction.value().hashCode();
+>         } catch (Exception e) {
+>             return 0;
+>         }

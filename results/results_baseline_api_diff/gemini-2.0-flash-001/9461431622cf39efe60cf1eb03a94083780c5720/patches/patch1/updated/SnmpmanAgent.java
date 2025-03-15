@@ -59,7 +59,7 @@ public class SnmpmanAgent extends BaseAgent {
     /**
      * The list of managed object groups.
      */
-    private final List<MOGroup> groups = new ArrayList<>();
+    private final List<ManagedObject> groups = new ArrayList<>();
 
     /**
      * Initializes a new instance of an SNMP agent.
@@ -385,7 +385,7 @@ public class SnmpmanAgent extends BaseAgent {
         try {
             final Field registry = server.getClass().getDeclaredField("registry");
             registry.setAccessible(true);
-            final SortedMap<MOScope, ManagedObject<?>> reg = (SortedMap<MOScope, ManagedObject<?>>) registry.get(server);
+            final SortedMap<MOScope, ManagedObject<?>> reg = server.getRegistry();
             DefaultMOContextScope contextScope = new DefaultMOContextScope(new OctetString(""), group.getScope());
             reg.put(contextScope, group);
             registry.set(server, reg);
@@ -451,7 +451,7 @@ public class SnmpmanAgent extends BaseAgent {
      * @param bindings the bindings as the base
      * @return the variable bindings for the specified device configuration
      */
-    
+    @SuppressWarnings("unchecked")
     private SortedMap<OID, Variable> getVariableBindings(final Device device, final Map<OID, Variable> bindings, final OctetString context) {
         log.trace("get variable bindings for agent \"{}\"", configuration.getName());
         final SortedMap<OID, Variable> result = new TreeMap<>();
@@ -485,7 +485,7 @@ public class SnmpmanAgent extends BaseAgent {
     
     protected void unregisterManagedObjects() {
         log.trace("unregistered managed objects for agent \"{}\"", agent);
-        for (final MOGroup mo : groups) {
+        for (final ManagedObject mo : groups) {
             server.unregister(mo, null);
         }
     }

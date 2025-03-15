@@ -1,4 +1,4 @@
-12,17c12,15
+12,17c12,17
 < import javax.mvc.Controller;
 < import javax.mvc.Models;
 < import javax.mvc.View;
@@ -9,50 +9,6 @@
 > import jakarta.mvc.Controller;
 > import jakarta.mvc.Models;
 > import jakarta.mvc.View;
+> import jakarta.mvc.binding.BindingResult;
+> import jakarta.mvc.binding.ParamError;
 > import jakarta.mvc.security.CsrfProtected;
-30a29,33
-> import jakarta.validation.ConstraintViolation;
-> import jakarta.validation.Validator;
-> import java.util.Set;
-> import java.util.HashMap;
-> import java.util.Map;
-44c47
-<     private BindingResult validationResult;
----
->     private Validator validator;
-94c97,98
-<         if (validationResult.isFailed()) {
----
->         Set<ConstraintViolation<TaskForm>> violations = validator.validate(form);
->         if (!violations.isEmpty()) {
-96,100c100,105
-<             validationResult.getAllErrors()
-<                     .stream()
-<                     .forEach((ParamError t) -> {
-<                         alert.addError(t.getParamName(), "", t.getMessage());
-<                     });
----
->             Map<String, String> errors = new HashMap<>();
->             for (ConstraintViolation<TaskForm> violation : violations) {
->                 String propertyPath = violation.getPropertyPath().toString();
->                 String message = violation.getMessage();
->                 alert.addError(propertyPath, "", message);
->             }
-138c143,144
-<         if (validationResult.isFailed()) {
----
->         Set<ConstraintViolation<TaskForm>> violations = validator.validate(form);
->         if (!violations.isEmpty()) {
-140,144c146,151
-<             validationResult.getAllErrors()
-<                     .stream()
-<                     .forEach((ParamError t) -> {
-<                         alert.addError(t.getParamName(), "", t.getMessage());
-<                     });
----
->             Map<String, String> errors = new HashMap<>();
->             for (ConstraintViolation<TaskForm> violation : violations) {
->                 String propertyPath = violation.getPropertyPath().toString();
->                 String message = violation.getMessage();
->                  alert.addError(propertyPath, "", message);
->             }

@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.conversations.ConversationFactory;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -83,8 +84,9 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 			if (!main.getActiveTranslator(targetPlayerUUID).getUUID().equals("")) {
 				/* Make compass enchanted */
 				translationMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-				if (XEnchantment.matchXEnchantment("power").isPresent()) {
-					translationMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+				Enchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get().getEnchant();
+				if (powerEnchantment != null) {
+					translationMeta.addEnchant(powerEnchantment, 1, false);
 				}
 				translationMeta.setDisplayName(CommonDefinitions.getMessage("wwctGUIExistingTranslationButton"));
 				List<String> outLore = new ArrayList<>();
@@ -126,8 +128,9 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 					ItemMeta rateMeta = rateButton.getItemMeta();
 					if (targetTranslator.getRateLimit() > 0) {
 						rateMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-						if (XEnchantment.matchXEnchantment("power").isPresent()) {
-							rateMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+						Enchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get().getEnchant();
+						if (powerEnchantment != null) {
+							rateMeta.addEnchant(powerEnchantment, 1, false);
 						}
 						rateMeta.setDisplayName(ChatColor.GREEN
 								+ CommonDefinitions.getMessage("wwctGUIRateButton"));
@@ -150,8 +153,9 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 						bookMeta.setDisplayName(ChatColor.GREEN
 								+ CommonDefinitions.getMessage("wwctGUIBookButton"));
 						bookMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-						if (XEnchantment.matchXEnchantment("power").isPresent()) {
-							bookMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+						Enchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get().getEnchant();
+						if (powerEnchantment != null) {
+							bookMeta.addEnchant(powerEnchantment, 1, false);
 						}
 					} else {
 						bookMeta.setDisplayName(ChatColor.YELLOW
@@ -176,8 +180,9 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 						signMeta.setDisplayName(ChatColor.GREEN
 								+ CommonDefinitions.getMessage("wwctGUISignButton"));
 						signMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-						if (XEnchantment.matchXEnchantment("power").isPresent()) {
-							signMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+						Enchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get().getEnchant();
+						if (powerEnchantment != null) {
+							signMeta.addEnchant(powerEnchantment, 1, false);
 						}
 					} else {
 						signMeta.setDisplayName(ChatColor.YELLOW
@@ -201,8 +206,9 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 						itemMeta.setDisplayName(ChatColor.GREEN
 								+ CommonDefinitions.getMessage("wwctGUIItemButton"));
 						itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-						if (XEnchantment.matchXEnchantment("power").isPresent()) {
-							itemMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+						Enchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get().getEnchant();
+						if (powerEnchantment != null) {
+							itemMeta.addEnchant(powerEnchantment, 1, false);
 						}
 					} else {
 						itemMeta.setDisplayName(ChatColor.YELLOW
@@ -224,8 +230,9 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 					ItemMeta entityMeta = entityButton.getItemMeta();
 					if (targetTranslator.getTranslatingEntity()) {
 						entityMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-						if (XEnchantment.matchXEnchantment("power").isPresent()) {
-							entityMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+						Enchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get().getEnchant();
+						if (powerEnchantment != null) {
+							entityMeta.addEnchant(powerEnchantment, 1, false);
 						}
 						entityMeta.setDisplayName(ChatColor.GREEN
 								+ CommonDefinitions.getMessage("wwctGUIEntityButton"));
@@ -250,8 +257,9 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 					ItemMeta chatMeta = chatButton.getItemMeta();
 					if (targetTranslator.getTranslatingChatOutgoing() || targetTranslator.getTranslatingChatIncoming()) {
 						chatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-						if (XEnchantment.matchXEnchantment("power").isPresent()) {
-							chatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+						Enchantment powerEnchantment = XEnchantment.matchXEnchantment("power").get().getEnchant();
+						if (powerEnchantment != null) {
+							chatMeta.addEnchant(powerEnchantment, 1, false);
 						}
 						List<String> outLoreChat = new ArrayList<>();
 						outLoreChat.add(ChatColor.LIGHT_PURPLE + CommonDefinitions.getMessage("wwctGUIExistingChatIncomingEnabled", new String[] {ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + targetTranslator.getTranslatingChatIncoming()}));
