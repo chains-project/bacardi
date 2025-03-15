@@ -369,67 +369,67 @@ public class ProjectInfo implements Serializable {
   }
 
   @Override
-    public boolean equals(Object obj) {
-      return obj == this
-          || obj != null
-              && obj.getClass().equals(ProjectInfo.class)
-              && Objects.equals(toPb(), ((ProjectInfo) obj).toPb());
-    }
+  public boolean equals(Object obj) {
+    return obj == this
+        || obj != null
+            && obj.getClass().equals(ProjectInfo.class)
+            && Objects.equals(toPb(), ((ProjectInfo) obj).toPb());
+  }
 
-    @Override
-    public int hashCode() {
-      return Objects.hash(name, projectId, labels, projectNumber, state, createTimeMillis, parent);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, projectId, labels, projectNumber, state, createTimeMillis, parent);
+  }
 
-    public static Builder newBuilder(String id) {
-      return new BuilderImpl(id);
-    }
+  public static Builder newBuilder(String id) {
+    return new BuilderImpl(id);
+  }
 
-    public Builder toBuilder() {
-      return new BuilderImpl(this);
-    }
+  public Builder toBuilder() {
+    return new BuilderImpl(this);
+  }
 
-    com.google.api.services.cloudresourcemanager.v3.model.Project toPb() {
-      com.google.api.services.cloudresourcemanager.v3.model.Project projectPb =
-          new com.google.api.services.cloudresourcemanager.v3.model.Project();
-      projectPb.setName(name);
-      projectPb.setProjectId(projectId);
-      projectPb.setLabels(labels);
-      projectPb.setProjectNumber(projectNumber);
-      if (state != null) {
-        projectPb.setLifecycleState(state.toString());
-      }
-      if (createTimeMillis != null) {
-        projectPb.setCreateTime(
-            DateTimeFormatter.ISO_DATE_TIME
-                .withZone(ZoneOffset.UTC)
-                .format(Instant.ofEpochMilli(createTimeMillis)));
-      }
-      if (parent != null) {
-        projectPb.setParent(parent.toPb());
-      }
-      return projectPb;
+  com.google.api.services.cloudresourcemanager.v3.model.Project toPb() {
+    com.google.api.services.cloudresourcemanager.v3.model.Project projectPb =
+        new com.google.api.services.cloudresourcemanager.v3.model.Project();
+    projectPb.setName(name);
+    projectPb.setProjectId(projectId);
+    projectPb.setLabels(labels);
+    projectPb.setProjectNumber(projectNumber);
+    if (state != null) {
+      projectPb.setState(state.toString());
     }
+    if (createTimeMillis != null) {
+      projectPb.setCreateTime(
+          DateTimeFormatter.ISO_DATE_TIME
+              .withZone(ZoneOffset.UTC)
+              .format(Instant.ofEpochMilli(createTimeMillis)));
+    }
+    if (parent != null) {
+      projectPb.setParent(parent.toPb());
+    }
+    return projectPb;
+  }
 
-    static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) {
-      Builder builder =
-          newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
-      if (projectPb.getName() != null && !projectPb.getName().equals("Unnamed")) {
-        builder.setName(projectPb.getName());
-      }
-      if (projectPb.getLabels() != null) {
-        builder.setLabels(projectPb.getLabels());
-      }
-      if (projectPb.getLifecycleState() != null) {
-        builder.setState(State.valueOf(projectPb.getLifecycleState()));
-      }
-      if (projectPb.getCreateTime() != null) {
-        builder.setCreateTimeMillis(
-            DATE_TIME_FORMATTER.parse(projectPb.getCreateTime(), Instant.FROM).toEpochMilli());
-      }
-      if (projectPb.getParent() != null) {
-        builder.setParent(ResourceId.fromPb(projectPb.getParent()));
-      }
-      return builder.build();
+  static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) {
+    Builder builder =
+        newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
+    if (projectPb.getName() != null && !projectPb.getName().equals("Unnamed")) {
+      builder.setName(projectPb.getName());
     }
+    if (projectPb.getLabels() != null) {
+      builder.setLabels(projectPb.getLabels());
+    }
+    if (projectPb.getState() != null) {
+      builder.setState(State.valueOf(projectPb.getState()));
+    }
+    if (projectPb.getCreateTime() != null) {
+      builder.setCreateTimeMillis(
+          DATE_TIME_FORMATTER.parse(projectPb.getCreateTime(), Instant.FROM).toEpochMilli());
+    }
+    if (projectPb.getParent() != null) {
+      builder.setParent(ResourceId.fromPb(projectPb.getParent()));
+    }
+    return builder.build();
+  }
 }

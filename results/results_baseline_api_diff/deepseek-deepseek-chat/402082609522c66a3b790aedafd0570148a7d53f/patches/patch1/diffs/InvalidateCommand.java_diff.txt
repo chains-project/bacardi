@@ -1,0 +1,34 @@
+7a8
+> import org.spongepowered.api.command.Command;
+9,12c10,11
+< import org.spongepowered.api.command.CommandSource;
+< import org.spongepowered.api.command.args.CommandContext;
+< import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+16c15
+< public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class InvalidateCommand implements Command.Executor, ChangeSkinCommand {
+26,28c25,27
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+---
+>     public CommandResult execute(CommandContext context) {
+>         if (!(context.cause().root() instanceof Player)) {
+>             plugin.sendMessage(context.cause().root(), "no-console");
+32,33c31,32
+<         Player receiver = (Player) src;
+<         Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
+---
+>         Player receiver = (Player) context.cause().root();
+>         Task.builder().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
+38,39c37,38
+<     public CommandSpec buildSpec() {
+<         return CommandSpec.builder()
+---
+>     public Command.Parameterized buildSpec() {
+>         return Command.builder()

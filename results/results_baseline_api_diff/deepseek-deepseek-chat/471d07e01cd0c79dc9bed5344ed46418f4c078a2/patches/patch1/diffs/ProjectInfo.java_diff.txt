@@ -15,10 +15,20 @@
 <     com.google.api.services.cloudresourcemanager.model.Project projectPb =
 <         new com.google.api.services.cloudresourcemanager.model.Project();
 ---
->     com.google.api.services.cloudresourcemanager.v3.model.Project toPb() {
->       com.google.api.services.cloudresourcemanager.v3.model.Project projectPb =
->           new com.google.api.services.cloudresourcemanager.v3.model.Project();
+>   com.google.api.services.cloudresourcemanager.v3.model.Project toPb() {
+>     com.google.api.services.cloudresourcemanager.v3.model.Project projectPb =
+>         new com.google.api.services.cloudresourcemanager.v3.model.Project();
+400c400
+<       projectPb.setLifecycleState(state.toString());
+---
+>       projectPb.setState(state.toString());
 414c414
 <   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.model.Project projectPb) {
 ---
->     static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) {
+>   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) {
+423,424c423,424
+<     if (projectPb.getLifecycleState() != null) {
+<       builder.setState(State.valueOf(projectPb.getLifecycleState()));
+---
+>     if (projectPb.getState() != null) {
+>       builder.setState(State.valueOf(projectPb.getState()));

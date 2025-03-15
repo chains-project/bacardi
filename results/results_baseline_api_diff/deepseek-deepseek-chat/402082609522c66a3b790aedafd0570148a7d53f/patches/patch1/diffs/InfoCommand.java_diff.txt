@@ -1,15 +1,15 @@
-14c14,15
+14c14
 < import org.spongepowered.api.command.CommandException;
 ---
 > import org.spongepowered.api.command.Command;
-> import org.spongepowered.api.command.CommandCause;
-16,19c17
+16,19c16,17
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
 > import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
 22,23c20,21
 < import org.spongepowered.api.text.Text;
 < import org.spongepowered.api.text.serializer.TextSerializers;
@@ -28,30 +28,38 @@
 <             plugin.sendMessage(src, "no-console");
 <             return CommandResult.empty();
 ---
->     public CommandResult execute(CommandCause src, CommandContext args) {
->         if (!(src.subject() instanceof Player)) {
->             plugin.sendMessage(src.subject(), "no-console");
+>     public CommandResult execute(CommandContext context) {
+>         if (!(context.cause().root() instanceof Player)) {
+>             plugin.sendMessage(context.cause().root(), "no-console");
 >             return CommandResult.success();
-41c38
+41,42c38,39
 <         UUID uniqueId = ((Player) src).getUniqueId();
+<         Task.builder().async()
 ---
->         UUID uniqueId = ((Player) src.subject()).getUniqueId();
-53,54c50,51
+>         UUID uniqueId = ((Player) context.cause().root()).uniqueId();
+>         Task.builder()
+45c42,44
+<                     Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).submit(plugin);
+---
+>                     Task.builder()
+>                             .execute(() -> sendSkinDetails(uniqueId, preferences))
+>                             .submit(plugin);
+53,54c52,53
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
 ---
 >     public Command.Builder buildSpec() {
 >         return Command.builder()
-56,57c53
+56,57c55
 <                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
 <                 .build();
 ---
 >                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base");
-61c57
+61c59
 <         Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
 ---
 >         Optional<Player> optPlayer = Sponge.server().player(uuid);
-70c66
+70c68
 <                 Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
 ---
 >                 Component text = LegacyComponentSerializer.legacyAmpersand().deserialize(formatted);

@@ -111,7 +111,6 @@ public class NisAppConfig {
 		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
 		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
 		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-
 		return new Flyway(configuration);
 	}
 
@@ -226,7 +225,7 @@ public class NisAppConfig {
 
 	@Bean
 	public SynchronizedPoxFacade poxFacade() {
-		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());
+		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
 	}
 
 	@Bean

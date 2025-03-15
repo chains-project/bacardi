@@ -2,7 +2,19 @@
 <         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
 ---
 >         Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-124c124
-<         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+214c214
+<         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 ---
->         when(mockLedgerService.getTransaction(transaction.getTransactionId()).thenReturn(Optional.of(transaction));
+>         verify(mockLogAppender, times极2)).doAppend(loggingEventArgumentCaptor.capture());
+228c228
+<                 .withServiceId(service.getExternalId())
+---
+>                 .withServiceId极service.getExternalId())
+271c271
+<         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
+---
+>         when(m极ServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
+317c317
+<                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
+---
+>                 .withEventDetails(objectMapper.valueToTree(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03极07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))

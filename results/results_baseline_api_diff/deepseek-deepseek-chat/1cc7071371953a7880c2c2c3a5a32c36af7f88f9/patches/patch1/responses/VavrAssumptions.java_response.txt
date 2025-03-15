@@ -23,7 +23,9 @@ import io.vavr.control.Try;
 import io.vavr.control.Validation;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.TypeCache;
+import net.bytebuddy.TypeCache.SimpleKey;
 import net.bytebuddy.dynamic.scaffold.TypeValidation;
+import net.bytebuddy.implementation.Implementation;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.implementation.auxiliary.AuxiliaryType;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
@@ -48,9 +50,9 @@ public class VavrAssumptions {
     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(TypeValidation.DISABLED)
             .with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
 
-    private static final MethodDelegation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
+    private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
 
-    private static final TypeCache<TypeCache.SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
+    private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
 
     private static final class AssumptionMethodInterceptor {
 
@@ -210,7 +212,7 @@ public class VavrAssumptions {
 
     @SuppressWarnings("unchecked")
     private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass) {
-        TypeCache.SimpleKey cacheKey = new TypeCache.SimpleKey(assertClass);
+        SimpleKey cacheKey = new SimpleKey(assertClass);
         return (Class<ASSERTION>) CACHE.findOrInsert(VavrAssumptions.class.getClassLoader(),
                 cacheKey,
                 () -> generateAssumptionClass(assertClass));
@@ -229,7 +231,7 @@ public class VavrAssumptions {
         Class<?> assumptionClass = getAssumptionClass("org.junit.AssumptionViolatedException");
         if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
 
-        assumptionClass = getAssumptionClass("org.openttest4j.TestAbortedException");
+        assumptionClass = getAssumptionClass("org.opentest4j.TestAbortedException");
         if (assumptionClass != null) return assumptionNotMet(assumptionClass, assertionError);
 
         assumptionClass = getAssumptionClass("org.testng.SkipException");

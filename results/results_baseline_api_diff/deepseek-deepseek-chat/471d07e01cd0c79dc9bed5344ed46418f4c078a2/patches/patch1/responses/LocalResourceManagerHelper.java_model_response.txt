@@ -176,4 +176,144 @@ public class LocalResourceManagerHelper {
     }
 
     private String toJson(String message) throws IOException {
-      Map<String, Object
+      Map<String, Object> errors = new HashMap<>();
+      errors.put("domain", domain);
+      errors.put("message", message);
+      errors.put("reason", reason);
+      Map<String, Object> args = new HashMap<>();
+      args.put("errors", ImmutableList.of(errors));
+      args.put("code", code);
+      args.put("message", message);
+      args.put("status", status);
+      return jsonFactory.toString(ImmutableMap.of("error", args));
+    }
+  }
+
+  private class RequestHandler implements HttpHandler {
+    @Override
+    public void handle(HttpExchange exchange) {
+      // see https://cloud.google.com/resource-manager/reference/rest/
+      Response response;
+      String path = BASE_CONTEXT.relativize(exchange.getRequestURI()).getPath();
+      String requestMethod = exchange.getRequestMethod();
+      try {
+        switch (requestMethod) {
+          case "POST":
+            response = handlePost(exchange, path);
+            break;
+          case "DELETE":
+            response = delete(projectIdFromUri(path));
+            break;
+          case "GET":
+            if (!path.isEmpty()) {
+              response =
+                  get(projectIdFromUri(path), parseFields(exchange.getRequestURI().getQuery()));
+            } else {
+              response = list(parseListOptions(exchange.getRequestURI().getQuery()));
+            }
+            break;
+          case "PUT":
+            String requestBody =
+                decodeContent(exchange.getRequestHeaders(), exchange.getRequestBody());
+            response =
+                replace(projectIdFromUri(path), jsonFactory.fromString(requestBody, Project.class));
+            break;
+          default:
+            response =
+                Error.BAD_REQUEST.response(
+                    "The server could not understand the following request URI: "
+                        + requestMethod
+                        + " "
+                        + path);
+        }
+      } catch (IOException e) {
+        response = Error.BAD_REQUEST.response(e.getMessage());
+      }
+      writeResponse(exchange, response);
+    }
+  }
+
+  private Response handlePost(HttpExchange exchange, String path) throws IOException {
+    String requestBody = decodeContent(exchange.getRequestHeaders(), exchange.getRequestBody());
+    if (!path.contains(":")) {
+      return create(jsonFactory.fromString(requestBody, Project.class));
+    } else {
+      switch (path.split(":", 2)[1]) {
+        case "undelete":
+          return undelete(projectIdFromUri(path));
+        case "getIamPolicy":
+          return getPolicy(projectIdFromUri(path));
+        case "setIamPolicy":
+          return replacePolicy(
+              projectIdFromUri(path),
+              jsonFactory.fromString(requestBody, SetIamPolicyRequest.class).getPolicy());
+        case "testIamPermissions":
+          return testPermissions(
+              projectIdFromUri(path),
+              jsonFactory
+                  .fromString(requestBody, TestIamPermissionsRequest.class)
+                  .getPermissions());
+        default:
+          return Error.BAD_REQUEST.response(
+              "The server could not understand the following request URI: POST " + path);
+      }
+    }
+  }
+
+  private class OperationRequestHandler implements HttpHandler {
+    @Override
+    public void handle(HttpExchange exchange) {
+      // see https://cloud.google.com/resource-manager/reference/rest/
+      String projectId;
+      try {
+        projectId = new URI(OPERATION_CONTEXT).relativize(exchange.getRequestURI()).getPath();
+      } catch (URISyntaxException e) {
+        throw new IllegalStateException(e);
+      }
+      Response response;
+      String requestMethod = exchange.getRequestMethod();
+      switch (requestMethod) {
+        case "GET":
+          Project project = projects.get(projectId);
+          if (project == null) {
+            response = Error.PERMISSION_DENIED.response("Project " + projectId + " not found.");
+            break;
+          }
+          try {
+            response =
+                new Response(
+                    HTTP_OK,
+                    jsonFactory.toString(new Operation().setDone(true).setResponse(project)));
+          } catch (IOException e) {
+            response =
+                Error.INTERNAL_ERROR.response(
+                    "Error when serializing project " + project.getProjectId());
+          }
+          break;
+        default:
+          response =
+              Error.BAD_REQUEST.response(
+                  "The server could not understand the following request URI: "
+                      + requestMethod
+                      + " "
+                      + projectId);
+      }
+      writeResponse(exchange, response);
+    }
+  }
+
+  private static void writeResponse(HttpExchange exchange, Response response) {
+    exchange.getResponseHeaders().set("Content-type", "application/json; charset=UTF-8");
+    OutputStream outputStream = exchange.getResponseBody();
+    try {
+      exchange.getResponseHeaders().add("Connection", "close");
+      exchange.sendResponseHeaders(response.code(), response.body().length());
+      outputStream.write(response.body().getBytes(StandardCharsets.UTF_8));
+      outputStream.close();
+    } catch (IOException e) {
+      log.log(Level.WARNING, "IOException encountered when sending response.", e);
+    }
+  }
+
+  private static String decodeContent(Headers headers, InputStream inputStream) throws IOException {
+    List<String

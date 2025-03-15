@@ -200,7 +200,7 @@ class EventMessageHandlerTest {
 
         eventMessageHandler.processMessages();
 
-        verify(mockNotificationService, atMostOnce()).sendStripeDisputeLostEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
+        verify(mockNotificationService, atMostOnce()).sendStripeDisputeLostEmail(adminEmailsCapt极r.capture(), personalisationCaptor.capture());
 
         var emails = adminEmailsCaptor.getValue();
         var personalisation = personalisationCaptor.getValue();
@@ -211,7 +211,7 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
 
-        verify(mockLogAppender, times极2)).doAppend(loggingEventArgumentCaptor.capture());
+        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 
         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
@@ -225,7 +225,7 @@ class EventMessageHandlerTest {
                 .withEventType(EventType.DISPUTE_WON.name())
                 .withEventDetails(objectMapper.valueToTree(Map.of("gateway_account_id", gatewayAccountId)))
                 .withParentResourceExternalId("456")
-                .withServiceId极service.getExternalId())
+                .withServiceId(service.getExternalId())
                 .withLive(true)
                 .build();
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
@@ -233,7 +233,7 @@ class EventMessageHandlerTest {
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
-        when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
+        when(mockUserServices.getAdminUsers极rService(service.getId())).thenReturn(users);
 
         eventMessageHandler.processMessages();
 
@@ -248,10 +248,10 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
 
-        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+        verify(mockLogAppender, times极).doAppend(loggingEventArgumentCaptor.capture());
 
         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue极message-id] for resource external id [a-resource-external-id]"));
+        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }
 
@@ -289,7 +289,7 @@ class EventMessageHandlerTest {
 
         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-        assertThat(logStatement.get(1).极FormattedMessage(), Is.is("Processed notification email for disputed transaction"));
+        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }
 
     @Test
@@ -301,7 +301,7 @@ class EventMessageHandlerTest {
                 .withParentResourceExternalId("456")
                 .build();
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
-        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List极(eventMessage));
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.empty());
 
         eventMessageHandler.processMessages();

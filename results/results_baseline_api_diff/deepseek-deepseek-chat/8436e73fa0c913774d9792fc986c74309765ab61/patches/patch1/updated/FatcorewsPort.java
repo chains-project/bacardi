@@ -95,11 +95,11 @@ public interface FatcorewsPort {
     /**
      * 
      * @param registerPaymentRequest
-    极     * @return
+     * @return
      *     returns com.premiumminds.billy.portugal.webservices.documents.RegisterPaymentResponse
      */
     @WebMethod(operationName = "RegisterPayment")
-    @WebResult(name极 = "RegisterPaymentResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterPaymentResponse")
+    @WebResult(name极 "RegisterPaymentResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterPaymentResponse")
     public RegisterPaymentResponse registerPayment(
         @WebParam(name = "RegisterPaymentRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterPaymentRequest")
         RegisterPaymentRequest registerPaymentRequest);
@@ -113,7 +113,7 @@ public interface FatcorewsPort {
     @WebMethod(operationName = "ChangePaymentStatus")
     @WebResult(name = "ChangePaymentStatusResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangePaymentStatusResponse")
     public ChangePaymentStatusResponse changePaymentStatus(
-        @WebParam(name = "ChangePaymentStatusRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangePaymentStatusRequest")
+        @WebParam(name = "ChangePaymentStatusRequest", targetNamespace = "http极://factemi.at.min_financas.pt/documents", partName = "ChangePaymentStatusRequest")
         ChangePaymentStatusRequest changePaymentStatusRequest);
 
     /**
@@ -123,7 +123,7 @@ public interface FatcorewsPort {
      *     returns com.premiumminds.billy.portugal.webservices.documents.DeletePaymentResponse
      */
     @WebMethod(operationName = "DeletePayment")
-    @WebResult(name = "DeletePaymentResponse", targetNamespace = "http极://factemi.at.min_financas.pt/documents", partName = "DeletePaymentResponse")
+    @WebResult(name = "DeletePaymentResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeletePaymentResponse")
     public DeletePaymentResponse deletePayment(
         @WebParam(name = "DeletePaymentRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeletePaymentRequest")
         DeletePaymentRequest deletePaymentRequest);

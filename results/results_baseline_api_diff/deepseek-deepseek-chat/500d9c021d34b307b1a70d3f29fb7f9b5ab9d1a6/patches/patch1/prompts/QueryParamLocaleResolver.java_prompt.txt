@@ -56,41 +56,31 @@ public class QueryParamLocaleResolver implements LocaleResolver {
 ```
 
  with the following error information:
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/QueryParamLocaleResolver.java:[41,39] cannot find symbol
+  symbol:   class LocaleResolverContext
+  location: class com.example.web.QueryParamLocaleResolver
+
 [ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/QueryParamLocaleResolver.java:[10,24] package javax.mvc.locale does not exist
-
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/QueryParamLocaleResolver.java:[35,50] cannot find symbol
-  symbol: class LocaleResolver
-
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/QueryParamLocaleResolver.java:[35,50] cannot find symbol
-  symbol: class LocaleResolver
-
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/QueryParamLocaleResolver.java:[41,39] cannot find symbol
-  symbol:   class LocaleResolverContext
-  location: class com.example.web.QueryParamLocaleResolver
-
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/QueryParamLocaleResolver.java:[35,50] cannot find symbol
-  symbol: class LocaleResolver
-
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/QueryParamLocaleResolver.java:[41,39] cannot find symbol
-  symbol:   class LocaleResolverContext
-  location: class com.example.web.QueryParamLocaleResolver
 
 [ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/QueryParamLocaleResolver.java:[11,24] package javax.mvc.locale does not exist
 
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/QueryParamLocaleResolver.java:[35,50] cannot find symbol
+  symbol: class LocaleResolver
+
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
-     Class javax.mvc.locale.LocaleResolver has been removed in the new version of the dependency.
      Class javax.mvc.locale.LocaleResolverContext has been removed in the new version of the dependency.
-     Method jakarta.mvc.engine.ViewEngineContext.getUriInfo() has been added in the new version of the dependency.
+     Class javax.mvc.locale.LocaleResolver has been removed in the new version of the dependency.
      Method javax.mvc.locale.LocaleResolverContext.getUriInfo() has been removed in the new version of the dependency.
-     Method jakarta.mvc.event.ControllerRedirectEvent.getUriInfo() has been added in the new version of the dependency.
-     Method jakarta.mvc.locale.LocaleResolverContext.getUriInfo() has been added in the new version of the dependency.
-     Method javax.mvc.event.AfterControllerEvent.getUriInfo() has been removed in the new version of the dependency.
-     Method jakarta.mvc.event.BeforeControllerEvent.getUriInfo() has been added in the new version of the dependency.
      Method javax.mvc.engine.ViewEngineContext.getUriInfo() has been removed in the new version of the dependency.
-     Method javax.mvc.event.ControllerRedirectEvent.getUriInfo() has been removed in the new version of the dependency.
      Method jakarta.mvc.event.AfterControllerEvent.getUriInfo() has been added in the new version of the dependency.
+     Method jakarta.mvc.event.BeforeControllerEvent.getUriInfo() has been added in the new version of the dependency.
+     Method jakarta.mvc.engine.ViewEngineContext.getUriInfo() has been added in the new version of the dependency.
+     Method javax.mvc.event.ControllerRedirectEvent.getUriInfo() has been removed in the new version of the dependency.
+     Method jakarta.mvc.locale.LocaleResolverContext.getUriInfo() has been added in the new version of the dependency.
      Method javax.mvc.event.BeforeControllerEvent.getUriInfo() has been removed in the new version of the dependency.
+     Method javax.mvc.event.AfterControllerEvent.getUriInfo() has been removed in the new version of the dependency.
+     Method jakarta.mvc.event.ControllerRedirectEvent.getUriInfo() has been added in the new version of the dependency.
 
 
 

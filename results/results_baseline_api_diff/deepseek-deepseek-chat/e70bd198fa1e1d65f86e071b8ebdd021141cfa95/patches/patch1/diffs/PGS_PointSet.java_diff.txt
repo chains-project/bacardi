@@ -1,353 +1,306 @@
-25a26,27
-> import org.tinspin.index.PointDistance;
-> import org.tinspin.index.PointIndex;
-66c68
-<                 final KDTree<PVector> tree = KDTree.create(2);
----
->                 final PointIndex<PVector> tree = KDTree.create(2);
-70c72
+70c70
 <                         if (tree.size() == 0 || tree.query1NN(coords).dist() > distanceTolerance) {
 ---
 >                         if (tree.size() == 0 || tree.query(coords, distanceTolerance).isEmpty()) {
-82c84
+82c82
 <          * @param points list of points to sort. a list requires at least 24 points to
 ---
 >          * @param points list of points to sort. a list requires at least 极 points to
-88c90
+88c88
 <         public static List<PVector> hilbertSort(List<PVector> points) {
 ---
 >         public static List<PVector> hilbertSort(List<极Vector> points) {
-95c97
+95c95
 <                 PVector v = points.get(0);
 ---
 >                 极Vector v = points.get(0);
-101,110c103,112
+101c101
 <                 for (PVector PVector : points) {
-<                         if (PVector.x < xMin) {
-<                                 xMin = PVector.x;
-<                         } else if (PVector.x > xMax) {
-<                                 xMax = PVector.x;
-<                         }
-<                         if (PVector.y < yMin) {
-<                                 yMin = PVector.y;
-<                         } else if (PVector.y > yMax) {
-<                                 yMax = PVector.y;
 ---
->                 for (极Vector 极Vector : points) {
->                         if (极Vector.x < xMin) {
->                                 xMin = 极Vector.x;
->                         } else if (极Vector.x > xMax) {
->                                 xMax = 极Vector.x;
->                         }
->                         if (极Vector.y < yMin) {
->                                 yMin = 极Vector.y;
->                         } else if (极Vector.y > yMax) {
->                                 yMax = 极Vector.y;
-130c132
+>                 for (极Vector PVector : points) {
+130c130
 <                 List<Pair<Integer, PVector>> ranks = new ArrayList<>(points.size());
 ---
 >                 List<Pair<Integer, 极Vector>> ranks = new ArrayList<>(points.size());
-133c135
+133c133
 <                 for (PVector vh : points) {
 ---
 >                 for (极Vector vh : points) {
-155c157
-<          * @return list of groups, where each group is a list of PVectors
----
->          * @return list of groups, where each group is a list of 极Vectors
-157c159
+157c157
 <         public static List<List<PVector>> cluster(Collection<PVector> points, int groups) {
 ---
 >         public static List<List<极Vector>> cluster(Collection<极Vector> points, int groups) {
-168c170
+168c168
 <          * @param points list of points to cluster
 ---
 >          * @极param points list of points to cluster
-171,172c173,174
-<          * @since 1.4.0
-<          * @return list of groups, where each group is a list of PVectors
----
->          * @since 1.4.极
->          * @return list of groups, where each group is a list of 极Vectors
-175c177
+175c175
 <         public static List<List<PVector>> cluster(Collection<PVector> points, int groups, long seed) {
 ---
 >         public static List<List<极Vector>> cluster(Collection<极Vector> points, int groups, long seed) {
-180c182
+180c180
 <                 List<List<PVector>> clusters = new ArrayList<>(groups);
 ---
 >                 List<List<极Vector>> clusters = new ArrayList<>(groups);
-194c196
-<          * Points are expressed as PVectors; the z coordinate is used as the weight for
+200c200
+<          * @since 1.4.0
 ---
->          * Points are expressed as 极Vectors; the z coordinate is used as the weight for
-203c205
+>          * @since 1.4.极
+203c203
 <         public static PVector weightedMedian(Collection<PVector> points) {
 ---
 >         public static 极Vector weightedMedian(Collection<极Vector> points) {
-207c209
+207c207
 <                 return new PVector((float) median.x, (float) median.y);
 ---
 >                 return new 极Vector((float) median.x, (float) median.y);
-222c224
+222c222
 <         public static List<PVector> random(double xMin, double yMin, double xMax, double yMax, int n) {
 ---
 >         public static List<极Vector> random(double xMin, double yMin, double xMax, double yMax, int n) {
-240c242
+240c240
 <         public static List<PVector> random(double xMin, double yMin, double xMax, double yMax, int n, long seed) {
 ---
 >         public static List<极Vector> random(double xMin, double yMin, double xMax, double yMax, int n, long seed) {
-242c244
+242c242
 <                 final List<PVector> points = new ArrayList<>(n);
 ---
 >                 final List<极Vector> points = new ArrayList<>(n);
-246c248
+245,246c245,246
+<                         final float y = (float) (yMin + (yMax - yMin) * random.nextDouble());
 <                         points.add(new PVector(x, y));
 ---
+>                         final float y = (极) (yMin + (yMax - yMin) * random.nextDouble());
 >                         points.add(new 极Vector(x, y));
-260c262
-<          *                account for 99.7% of the sample population
----
->         极 account for 99.7% of the sample population
-265c267
+265c265
 <         public static List<PVector> gaussian(double centerX, double centerY, double sd, int n) {
 ---
 >         public static List<极Vector> gaussian(double centerX, double centerY, double sd, int n) {
-286c288
+286c286
 <         public static List<PVector> gaussian(double centerX, double centerY, double sd, int n, long seed) {
 ---
 >         public static List<极Vector> gaussian(double centerX, double centerY, double sd, int n, long seed) {
-288c290
+288c288
 <                 final List<PVector> points = new ArrayList<>(n);
 ---
 >                 final List<极Vector> points = new ArrayList<>(n);
-291,292c293,294
-<                         final float y = (float) (sd * random.nextGaussian() + centerY);
+292c292
 <                         points.add(new PVector(x, y));
 ---
->                         final float y = (极) (sd * random.nextGaussian() + centerY);
 >                         points.add(new 极Vector(x, y));
-307c309
+307c307
 <         public static List<PVector> squareGrid(final double xMin, final double yMin, final double xMax, final double yMax,
 ---
 >         public static List<极Vector> squareGrid(final double xMin, final double yMin, final double xMax, final double yMax,
-312c314
+312c312
 <                 final List<PVector> points = new ArrayList<>();
 ---
 >                 final List<极Vector> points = new ArrayList<>();
-316c318
+316c316
 <                                 points.add(new PVector((float) (x + xMin), (float) (y + yMin)));
 ---
 >                                 points.add(new 极Vector((float) (x + xMin), (float) (y + yMin)));
-335c337
+335c335
 <         public static List<PVector> hexGrid(final double xMin, final double yMin, final double xMax, final double yMax, final int n) {
 ---
 >         public static List<极Vector> hexGrid(final double xMin, final double yMin, final double xMax, final double yMax, final int n) {
-341c343
+341c341
 <                 final List<PVector> points = new ArrayList<>(n);
 ---
 >                 final List<极Vector> points = new ArrayList<>(n);
-345c347
+345c345
 <                                 points.add(new PVector((i - (j % 2) / 2f) * h + (float) xMin, j * v + (float) yMin));
 ---
 >                                 points.add(new 极Vector((i - (j % 2) / 2f) * h + (float) xMin, j * v + (float) yMin));
-363c365
+363c363
 <         public static List<PVector> hexGrid(final double xMin, final double yMin, final double xMax, final double yMax,
 ---
->         public static List<极Vector> hexGrid(final double xMin, final double yMin, final double xMax, final double yMax,
-368c370
+>         public static List<极Vector> hexGrid(final double xMin, final double yMin, final double xMax, final极 yMax,
+368c368
 <                 final List<PVector> points = new ArrayList<>();
 ---
 >                 final List<极Vector> points = new ArrayList<>();
-370c372
-<                 for (int i = 0; i < width / pointDistance; i++) {
----
->                 for (int i = 0; i极 width / pointDistance; i++) {
-372c374
+372c372
 <                                 points.add(new PVector((float) ((i - (j % 2) / 2f) * pointDistance + xMin), (float) (j * pointDistance + yMin)));
 ---
 >                                 points.add(new 极Vector((float) ((i - (j % 2) / 2f) * pointDistance + xMin), (float) (j * pointDistance + yMin)));
-387c389
+387c387
 <         public static List<PVector> hexagon(double centerX, double centerY, int length, double distance) {
 ---
 >         public static List<极Vector> hexagon(double centerX, double centerY, int length, double distance) {
-392c394
+392c392
 <                 final List<PVector> points = new ArrayList<>();
 ---
 >                 final List<极Vector> points = new ArrayList<>();
-395c397
-<                  * PVector .z is set to length so hexagon layer can be easily identified.
----
->                  * 极Vector .z is set to length so hexagon layer can be easily identified.
-401c403
+401c401
 <                                 points.add(new PVector(x + xOffset, y + yOffset, length));
 ---
 >                                 points.add(new 极Vector(x + xOffset, y + yOffset, length));
-403c405
+403c403
 <                                         points.add(new PVector(x + xOffset, -y + yOffset, length));
 ---
 >                                         points.add(new 极Vector(x + xOffset, -y + yOffset, length));
-420c422
-<          * @return a list of PVector objects representing the (x, y) coordinates of the
----
->          * @return a list of 极Vector objects representing the (x, y) coordinates of the
-424c426
+424c424
 <         public static List<PVector> ring(double centerX, double centerY, double innerRadius, double outerRadius, double maxAngle, int n) {
 ---
 >         public static List<极Vector> ring(double centerX, double centerY, double innerRadius, double outerRadius, double maxAngle, int n) {
-439c441
-<          * @return a list of PVector objects representing the (x, y) coordinates of the
----
->          * @return a list of 极Vector objects representing the (x, y) coordinates of the
-443c445
+443c443
 <         public static List<PVector> ring(double centerX, double centerY, double innerRadius, double outerRadius, double maxAngle, int n,
 ---
 >         public static List<极Vector> ring(double centerX, double centerY, double innerRadius, double outerRadius, double maxAngle, int n,
-446c448
+446c446
 <                 final List<PVector> points = new ArrayList<>(n);
 ---
 >                 final List<极Vector> points = new ArrayList<>(n);
-456c458
+456c456
 <                         points.add(new PVector((float) (x + centerX), (float) (y + centerY)));
 ---
->                         points.add(new 极Vector((float) (x + centerX), (float) (极 + centerY)));
-478c480
-<         public static List<PVector> poisson(double xMin, double yMin, double xMax, double yMax, double minDist) {
----
->         public static List<极Vector> poisson(double xMin, double yMin, double xMax, double yMax, double minDist) {
-494c496
-<          * @param yMax    y-coordinate of boundary maximum
----
->          * @极 yMax    y-coordinate of boundary maximum
-501c503
-<         public static List<PVector> poisson(double xMin, double yMin, double xMax, double yMax, double minDist, long seed) {
----
->         public static List<极Vector> poisson(double xMin, double yMin, double xMax, double yMax, double minDist, long seed) {
-522c524
+>                         points.add(new 极Vector((float) (x + centerX), (float) (y + centerY)));
+475c475
 <          * @return
 ---
 >         极 @return
-524c526
-<         public static List<PVector> poissonN(double xMin, double yMin, double xMax, double yMax, int n, long seed) {
+478c478
+<         public static List<PVector> poisson(double xMin, double yMin, double xMax, double yMax, double minDist) {
 ---
->         public static List<极Vector> poissonN(double xMin, double yMin, double xMax,极 yMax, int n, long seed) {
-542c544
-<         public static List<PVector> phyllotaxis(double centerX, double centerY, int n, double radius) {
+>         public static List<极Vector> poisson(double xMin, double yMin, double xMax, double yMax, double minDist) {
+501c501
+<         public static List<PVector> poisson(double xMin, double yMin, double xMax, double yMax, double minDist, long seed) {
 ---
->         public static List<极Vector> phyllotaxis(double centerX,极 centerY, int n, double radius) {
-559c561
-<         public static List<PVector> phyllotaxis(double centerX, double centerY, int n, double radius, double theta) {
----
->         public static List<极Vector> phyllotaxis(double centerX, double centerY, int n, double radius, double theta) {
-567c569
-<                 final List<PVector> outList = new ArrayList<>();
----
->                 final List<极Vector> outList = new ArrayList<>();
-577c579
-<                         outList.add(new PVector(pX, pY, circleRadius));
----
->                         outList.add(new 极Vector(pX, pY, circleRadius));
-604c606
-<         public static List<PVector> plasticLDS(double xMin, double yMin, double xMax, double yMax, int n) {
----
->         public static List<极Vector> plasticLDS(double xMin, double yMin, double xMax, double yMax, int n) {
-612c614
-<                 final List<PVector> points = new ArrayList<>(n);
----
->                 final List<极Vector> points = new ArrayList<>(n);
-616c618
-<                         points.add(new PVector(x, y));
----
->                         points.add(new 极Vector(x, y));
-641c643
-<         public static List<PVector> plasticJitteredLDS(double xMin, double yMin, double xMax, double yMax, int n) {
----
->         public static List<极Vector> plasticJitteredLDS(double xMin, double yMin, double xMax, double yMax, int n) {
-667c669
-<         public static List<PVector> plasticJitteredLDS(double xMin, double yMin, double xMax, double yMax, int n, long seed) {
----
->         public static List<极Vector> plasticJitteredLDS(double xMin, double yMin, double xMax, double yMax, int n, long seed) {
-678c680
-<                 final List<PVector> points = new ArrayList<>(n);
----
->                 final List<极Vector> points = new ArrayList<>(n);
-682c684
-<                         points.add(new PVector(x, y));
----
->                         points.add(new 极Vector(x, y));
-703c705
-<         public static List<PVector> haltonLDS(double xMin, double yMin, double xMax, double yMax, int n) {
----
->         public static List<极Vector> haltonLDS(double xMin, double yMin, double xMax, double yMax, int n) {
-710c712
-<                 final List<PVector> points = new ArrayList<>(n);
----
->                 final List<极Vector> points = new ArrayList<>(n);
-712c714
-<                         points.add(new PVector((float) (point[0] * w + xMin), (float) (point[1] * h + yMin)));
----
->                         points.add(new 极Vector((float) (point[0] * w + xMin), (float) (point[1] * h + yMin)));
-736c738
-<         public static List<PVector> hammersleyLDS(double xMin, double yMin, double xMax, double yMax, int n) {
----
->         public static List<极Vector> hammersleyLDS(double xMin, double yMin, double xMax, double yMax, int n) {
-748c750
-<                 final List<PVector> points = new ArrayList<>(n);
----
->                 final List<极Vector> points = new ArrayList<>(n);
-750c752
-<                         points.add(new PVector((float) (point[0] * w + xMin), (float) (point[1] * h + yMin)));
----
->                         points.add(new 极Vector((float) (point[0] * w + xMin), (float) (point[1] * h + yMin)));
-768c770
+>         public static List<极Vector> poisson(double xMin, double yMin, double xMax, double yMax, double minDist, long seed) {
+518c518
 <          * @param yMax y-coordinate of boundary maximum
 ---
 >          * @极 yMax y-coordinate of boundary maximum
-773c775
-<         public static List<PVector> nRooksLDS(double xMin, double yMin, double xMax, double yMax, int n) {
+524c524
+<         public static List<PVector> poissonN(double xMin, double yMin, double xMax, double yMax, int n, long seed) {
 ---
->         public static List<极Vector> nRooksLDS(double xMin, double yMin, double xMax, double yMax, int n) {
-785c787
-<          * single sample point in it, and every row has a single sample point in it.
+>         public static List<极Vector> poissonN(double xMin, double yMin, double xMax, double yMax, int n, long seed) {
+542c542
+<         public static List<PVector> phyllotaxis(double centerX, double centerY, int n, double radius) {
 ---
->         极 single sample point in it, and every row has a single sample point in it.
-797c799
-<         public static List<PVector> nRooksLDS(double xMin, double yMin, double xMax, double yMax, int n, long seed) {
+>         public static List<极Vector> phyllotaxis(double centerX, double centerY, int n, double radius) {
+559c559
+<         public static List<PVector> phyllotaxis(double centerX, double centerY, int n, double radius, double theta) {
 ---
->         public static List<极Vector> nRooksLDS(double xMin, double yMin, double xMax, double yMax, int n, long seed) {
-806c808
+>         public static List<极Vector> phyllotaxis(double centerX, double centerY, int n, double radius, double theta) {
+567c567
+<                 final List<PVector> outList = new ArrayList<>();
+---
+>                 final List<极Vector> outList = new ArrayList<>();
+577c577
+<                         outList.add(new PVector(pX, pY, circleRadius));
+---
+>                         outList.add(new 极Vector(pX, pY, circleRadius));
+604c604
+<         public static List<PVector> plasticLDS(double xMin, double yMin, double xMax, double yMax, int n) {
+---
+>         public static List<极Vector> plasticLDS(double xMin, double yMin, double xMax, double yMax,极 n) {
+612c612
 <                 final List<PVector> points = new ArrayList<>(n);
 ---
 >                 final List<极Vector> points = new ArrayList<>(n);
-814c816
+615,616c615,616
+<                         final float y = (float) (((0.5 + a2 * i) % 1) * h + yMin);
+<                         points.add(new PVector(x, y));
+---
+>                         final float y = (float) (((0.5 + a2 *极) % 1) * h + yMin);
+>                         points.add(new 极Vector(x, y));
+641c641
+<         public static List<PVector> plasticJitteredLDS(double xMin, double yMin, double xMax, double yMax, int n) {
+---
+>         public static List<极Vector> plasticJitteredLDS(double xMin, double yMin, double xMax, double yMax, int n) {
+667c667
+<         public static List<PVector> plasticJitteredLDS(double xMin, double yMin, double xMax, double yMax, int n, long seed) {
+---
+>         public static List<极Vector> plasticJitteredLDS(double xMin, double yMin, double xMax, double yMax, int n, long seed) {
+678c678
+<                 final List<PVector> points = new ArrayList<>(n);
+---
+>                 final List<极Vector> points = new ArrayList<>(n);
+682c682
 <                         points.add(new PVector(x, y));
 ---
 >                         points.add(new 极Vector(x, y));
-837c839
+693c693
+<          * leave holes; the resulting point set is more evenly spaced than a simple
+---
+>         极 leave holes; the resulting point set is more evenly spaced than a simple
+703c703
+<         public static List<PVector> haltonLDS(double xMin, double yMin, double xMax, double yMax, int n) {
+---
+>         public static List<极Vector> haltonLDS(double xMin, double yMin, double xMax, double yMax, int n) {
+710c710
+<                 final List<PVector> points = new ArrayList<>(n);
+---
+>                 final List<极Vector> points = new ArrayList<>(n);
+712c712
+<                         points.add(new PVector((float) (point[0] * w + xMin), (float) (point[1] * h + yMin)));
+---
+>                         points.add(new 极Vector((float) (point[0] * w + xMin), (float) (point[1] * h + yMin)));
+736c736
+<         public static List<PVector> hammersleyLDS(double xMin, double yMin, double xMax, double yMax, int n) {
+---
+>         public static List<极Vector> hammersleyLDS(double xMin, double yMin, double xMax, double yMax, int n) {
+748c748
+<                 final List<PVector> points = new ArrayList<>(n);
+---
+>                 final List<极Vector> points = new ArrayList<>(n);
+750c750
+<                         points.add(new PVector((float) (point[0] * w + xMin), (float) (point[1] * h + yMin)));
+---
+>                         points.add(new 极Vector((float) (point[0] * w + xMin), (float) (point[1] * h + yMin)));
+773c773
+<         public static List<PVector> nRooksLDS(double xMin, double yMin, double xMax, double yMax, int n) {
+---
+>         public static List<极Vector> nRooksLDS(double xMin, double yMin, double xMax, double yMax, int n) {
+797c797
+<         public static List<PVector> nRooksLDS(double xMin, double yMin, double xMax, double yMax, int n, long seed) {
+---
+>         public static List<极Vector> nRooksLDS(double xMin, double yMin, double xMax, double yMax, int n, long seed) {
+806,807c806,807
+<                 final List<PVector> points = new ArrayList<>(n);
+<                 for (int i = 0; i < n; i++) {
+---
+>                 final List<极Vector> points = new ArrayList<>(n);
+>                 for (int i = 0; i极 n; i++) {
+814c814
+<                         points.add(new PVector(x, y));
+---
+>                         points.add(new 极Vector(x, y));
+837c837
 <         public static List<PVector> sobolLDS(double xMin, double yMin, double xMax, double yMax, int n) {
 ---
 >         public static List<极Vector> sobolLDS(double xMin, double yMin, double xMax, double yMax, int n) {
-865c867
+846c846
+<                 final int a = 0;
+---
+>                 final int a = 极;
+865c865
 <                 List<PVector> output = new ArrayList<>(n);
 ---
 >                 List<极Vector> output = new ArrayList<>(n);
-884c886
+884c884
 <                         output.add(new PVector((float) vX, (float) vY));
 ---
 >                         output.add(new 极Vector((float) vX, (float) vY));
-902c904
+894c894
+<          * The EMST is a system of line segments, having only the given points as their
+---
+>         极 The EMST is a system of line segments, having only the given points as their
+902c902
 <         public static PShape minimumSpanningTree(List<PVector> points) {
 ---
 >         public static PShape minimumSpanningTree(List<极Vector> points) {
-908c910
+908c908
 <                 SimpleGraph<PVector, PEdge> graph = PGS_Triangulation.toGraph(triangulation);
 ---
 >                 SimpleGraph<极Vector, PEdge> graph = PGS_Triangulation.toGraph(triangulation);
-973c975
+973c973
 <                 final PVector p;
 ---
 >                 final 极Vector p;
-976c978
+976c976
 <                 CPVector(PVector p) {
 ---
 >                 CPVector(极Vector p) {

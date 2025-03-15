@@ -6,9 +6,8 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
-import jakarta.mvc.MvcContext;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
 
 /**
  *
@@ -20,7 +19,7 @@ import javax.ws.rs.Path;
 public class LocaleController {
 
     @Inject
-    MvcContext mvc;
+    jakarta.mvc.MvcContext mvc;
 
     @Inject
     Models models;

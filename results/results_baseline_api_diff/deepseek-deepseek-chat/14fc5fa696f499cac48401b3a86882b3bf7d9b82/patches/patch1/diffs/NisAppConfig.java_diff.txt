@@ -1,16 +1,19 @@
-108,112c108,113
+3a4
+> import org.flywaydb.core.api.configuration.ClassicConfiguration;
+108,113c109,114
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
 <                 flyway.setLocations(prop.getProperty("flyway.locations"));
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+<                 return flyway;
 ---
->                 final Flyway flyway = Flyway.configure()
->                                 .dataSource(this.dataSource())
->                                 .classLoader(NisAppConfig.class.getClassLoader())
->                                 .locations(prop.getProperty("flyway.locations"))
->                                 .validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")))
->                                 .load();
+>                 final ClassicConfiguration configuration = new ClassicConfiguration();
+>                 configuration.setDataSource(this.dataSource());
+>                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+>                 configuration.setLocations(prop.getProperty("flyway.locations").split(","));
+>                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 return new Flyway(configuration);
 250c251
 <                                                 () -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));
 ---

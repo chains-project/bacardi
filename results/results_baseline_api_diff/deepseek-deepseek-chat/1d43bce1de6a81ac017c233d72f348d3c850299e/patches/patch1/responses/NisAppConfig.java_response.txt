@@ -111,6 +111,7 @@ public class NisAppConfig {
 		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
 		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
 		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+
 		return new Flyway(configuration);
 	}
 
@@ -338,7 +339,7 @@ public class NisAppConfig {
 
 	@Bean
 	public BlockAnalyzer blockAnalyzer() {
-		final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
+		final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear;
 		return new BlockAnalyzer(this.blockDao, this.blockChainUpdater(), this.blockChainLastBlockLayer, this.nisMapperFactory(),
 				estimatedBlocksPerYear);
 	}

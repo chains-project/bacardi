@@ -1,0 +1,43 @@
+```java
+import java.util.ResourceBundle;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
+import jakarta.mvc.locale.LocaleResolver;
+import jakarta.mvc.locale.LocaleResolverContext;
+import jakarta.mvc.locale.LocaleResolverFactory;
+import java.util.Locale;
+
+@RequestScoped
+@Named("msg")
+public class Messages {
+
+    private static final String BASE_NAME = "messages";
+
+    @Inject
+    private LocaleResolverFactory localeResolverFactory;
+
+    public final String get(final String key) {
+        LocaleResolver localeResolver = localeResolverFactory.getLocaleResolver();
+        Locale locale = localeResolver.resolveLocale(new LocaleResolverContext() {
+            @Override
+            public Locale getDefaultLocale() {
+                return Locale.getDefault();
+            }
+
+            @Override
+            public Locale getLocale() {
+                return Locale.getDefault();
+            }
+        });
+
+        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, locale);
+
+        return bundle.containsKey(key) ? bundle.getString(key) : formatUnknownKey(key);
+    }
+
+    private static String formatUnknownKey(final String key) {
+        return String.format("???%s???", key);
+    }
+}
+```

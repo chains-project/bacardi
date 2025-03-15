@@ -1,9 +1,9 @@
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
+import redis.clients.jedis.ClusterPipeline;
 import redis.clients.jedis.commands.BinaryRedisPipeline;
 import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
-import redis.clients.jedis.commands.ClusterPipeline;
 import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;
 import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
 import redis.clients.jedis.commands.RedisPipeline;
@@ -134,6 +134,7 @@ public interface RedisGraphTransaction extends Closeable {
      * @return a response which builds the delete running time statistics
      */
     Response<String> deleteGraph(String graphId);
+
 
     /**
      * executes the transaction

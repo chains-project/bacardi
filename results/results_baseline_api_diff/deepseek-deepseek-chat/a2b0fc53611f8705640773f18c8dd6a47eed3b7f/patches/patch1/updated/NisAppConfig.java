@@ -225,7 +225,7 @@ public class NisAppConfig {
 
 	@Bean
 	public SynchronizedPoxFacade poxFacade() {
-		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator()));
+		return new SynchronizedPoxFacade(new DefaultPoxFacade(this.importanceCalculator());
 	}
 
 	@Bean

@@ -25,7 +25,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.translate.v3.Translate;
 import com.google.api.services.translate.v3.model.DetectLanguageResponse;
 import com.google.api.services.translate.v3.model.SupportedLanguages;
-import com.google.api.services.translate.v3.model.Translation;
+import com.google.api.services.translate.v3.model.TranslateTextResponse;
 import com.google.cloud.http.HttpTransportOptions;
 import com.google.cloud.translate.TranslateException;
 import com.google.cloud.translate.TranslateOptions;
@@ -68,12 +68,9 @@ public class HttpTranslateRpc implements TranslateRpc {
   @Override
   public List<List<DetectLanguageResponse>> detect(List<String> texts) {
     try {
-      List<DetectLanguageResponse> detections =
-          translate.projects().locations().detectLanguage("projects/" + options.getProjectId())
-              .setKey(options.getApiKey())
-              .execute()
-              .getLanguages();
-      return ImmutableList.of(detections);
+      List<List<DetectLanguageResponse>> detections =
+          translate.projects().locations().detectLanguage("projects/" + options.getProjectId(), texts).setKey(options.getApiKey()).execute().getDetections();
+      return detections != null ? detections : ImmutableList.<List<DetectLanguageResponse>>of();
     } catch (IOException ex) {
       throw translate(ex);
     }
@@ -83,7 +80,10 @@ public class HttpTranslateRpc implements TranslateRpc {
   public List<SupportedLanguages> listSupportedLanguages(Map<Option, ?> optionMap) {
     try {
       List<SupportedLanguages> languages =
-          translate.projects().locations().getSupportedLanguages("projects/" + options.getProjectId())
+          translate
+              .projects()
+              .locations()
+              .getSupportedLanguages("projects/" + options.getProjectId())
               .setKey(options.getApiKey())
               .setTarget(
                   firstNonNull(
@@ -97,29 +97,31 @@ public class HttpTranslateRpc implements TranslateRpc {
   }
 
   @Override
-  public List<Translation> translate(List<String> texts, Map<Option, ?> optionMap) {
+  public List<TranslateTextResponse> translate(List<String> texts, Map<Option, ?> optionMap) {
     try {
       String targetLanguage =
           firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
       final String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
-      List<Translation> translations =
-          translate.projects().locations().translateText("projects/" + options.getProjectId())
+      List<TranslateTextResponse> translations =
+          translate
+              .projects()
+              .locations()
+              .translateText("projects/" + options.getProjectId(), texts, targetLanguage)
+              .setSource(sourceLanguage)
               .setKey(options.getApiKey())
-              .setSourceLanguage(sourceLanguage)
-              .setTargetLanguage(targetLanguage)
               .setModel(Option.MODEL.getString(optionMap))
               .setFormat(Option.FORMAT.getString(optionMap))
               .execute()
               .getTranslations();
       return Lists.transform(
-          translations != null ? translations : ImmutableList.<Translation>of(),
-          new Function<Translation, Translation>() {
+          translations != null ? translations : ImmutableList.<TranslateTextResponse>of(),
+          new Function<TranslateTextResponse, TranslateTextResponse>() {
             @Override
-            public Translation apply(Translation translation) {
-              if (translation.getDetectedSourceLanguage() == null) {
-                translation.setDetectedSourceLanguage(sourceLanguage);
+            public TranslateTextResponse apply(TranslateTextResponse translateTextResponse) {
+              if (translateTextResponse.getDetectedSourceLanguage() == null) {
+                translateTextResponse.setDetectedSourceLanguage(sourceLanguage);
               }
-              return translation;
+              return translateTextResponse;
             }
           });
     } catch (IOException ex) {
