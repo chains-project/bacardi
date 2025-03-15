@@ -1,7 +1,7 @@
 3a4,5
-> import org.flywaydb.core.api.Location;
 > import org.flywaydb.core.api.configuration.ClassicConfiguration;
-108,113c110,120
+> import org.flywaydb.core.api.Location;
+108,113c110,128
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
@@ -9,14 +9,22 @@
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 <                 return flyway;
 ---
->                 ClassicConfiguration config = new ClassicConfiguration();
->                 config.setDataSource(this.dataSource());
->                 config.setClassLoader(NisAppConfig.class.getClassLoader());
->                 String[] locationsStr = prop.getProperty("flyway.locations").split(",\\s*");
->                 Location[] locations = new Location[locationsStr.length];
->                 for (int i = 0; i < locationsStr.length; i++) {
->                         locations[i] = new Location(locationsStr[i]);
+>                 final NisConfiguration configuration = this.nisConfiguration();
+>                 final String nemFolder = configuration.getNemFolder();
+>                 final String jdbcUrl = prop.getProperty("jdbc.url").replace("${nem.folder}", nemFolder)
+>                                 .replace("${nem.network}", configuration.getNetworkName());
+> 
+>                 ClassicConfiguration flywayConfig = new ClassicConfiguration();
+>                 flywayConfig.setDataSource(jdbcUrl, prop.getProperty("jdbc.username"), prop.getProperty("jdbc.password"));
+>                 flywayConfig.setClassLoader(NisAppConfig.class.getClassLoader());
+>                 flywayConfig.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+> 
+>                 String locationsStr = prop.getProperty("flyway.locations");
+>                 String[] locationArray = locationsStr.split(",");
+>                 List<Location> locations = new ArrayList<>();
+>                 for (String loc : locationArray) {
+>                         locations.add(new Location(loc.trim()));
 >                 }
->                 config.setLocations(locations);
->                 config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
->                 return new Flyway(config);
+>                 flywayConfig.setLocations(locations.toArray(new Location[0]));
+> 
+>                 return new Flyway(flywayConfig);

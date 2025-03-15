@@ -24,11 +24,6 @@ import org.jasypt.digest.StandardByteDigester;
 import org.jasypt.util.password.StrongPasswordEncryptor;
 import static it.geosolutions.geostore.core.security.password.SecurityUtils.toBytes;
 
-/**
- * This Encoder provide encription and check of password using a digest
- * @author Lorenzo Natali (lorenzo.natali at geo-solutions.it)
- *
- */
 public class GeoStoreDigestPasswordEncoder extends AbstractGeoStorePasswordEncoder{
 
     /**
@@ -38,14 +33,12 @@ public class GeoStoreDigestPasswordEncoder extends AbstractGeoStorePasswordEncod
         setReversible(false);
     }
 
-    @Override
     protected PasswordEncoder createStringEncoder() {
         PasswordEncoder encoder = new PasswordEncoder();
         encoder.setPasswordEncryptor(new StrongPasswordEncryptor());
         return encoder;
     }
 
-    @Override
     protected CharArrayPasswordEncoder createCharEncoder() {
         return new CharArrayPasswordEncoder() {
             StandardByteDigester digester = new StandardByteDigester();
@@ -73,18 +66,23 @@ public class GeoStoreDigestPasswordEncoder extends AbstractGeoStorePasswordEncod
     }
     
     public static class PasswordEncoder {
-        private org.jasypt.util.password.PasswordEncryptor passwordEncryptor;
-        
-        public void setPasswordEncryptor(org.jasypt.util.password.PasswordEncryptor passwordEncryptor) {
+
+        private StrongPasswordEncryptor passwordEncryptor;
+
+        public PasswordEncoder() {
+            this.passwordEncryptor = new StrongPasswordEncryptor();
+        }
+
+        public void setPasswordEncryptor(StrongPasswordEncryptor passwordEncryptor) {
             this.passwordEncryptor = passwordEncryptor;
         }
-        
-        public String encodePassword(String rawPassword) {
-            return passwordEncryptor.encryptPassword(rawPassword);
+
+        public String encodePassword(String rawPass, Object salt) {
+            return passwordEncryptor.encryptPassword(rawPass);
         }
-        
-        public boolean isPasswordValid(String encPass, String rawPassword) {
-            return passwordEncryptor.checkPassword(rawPassword, encPass);
+
+        public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
+            return passwordEncryptor.checkPassword(rawPass, encPass);
         }
     }
 }

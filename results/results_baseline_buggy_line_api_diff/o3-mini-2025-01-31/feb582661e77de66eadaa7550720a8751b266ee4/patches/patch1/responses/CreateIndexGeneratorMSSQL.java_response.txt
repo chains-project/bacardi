@@ -78,7 +78,7 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
       builder.append(" ON ").append(statement.getTablespace());
     }
 
-    return new Sql[]{new UnparsedSql(builder.toString(), getAffectedIndex(statement))};
+    return new Sql[] { new UnparsedSql(builder.toString(), getAffectedIndex(statement)) };
   }
 
   @Override

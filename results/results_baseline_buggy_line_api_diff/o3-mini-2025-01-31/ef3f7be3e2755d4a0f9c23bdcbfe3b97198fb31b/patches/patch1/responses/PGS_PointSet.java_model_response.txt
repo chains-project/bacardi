@@ -20,13 +20,7 @@ import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.FastMath;
 import org.apache.commons.math3.util.Pair;
 
-import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm;
-import org.jgrapht.alg.spanning.PrimMinimumSpanningTree;
-import org.jgrapht.graph.SimpleGraph;
 import org.tinfour.common.IIncrementalTin;
-// Removed the import for KDTree as the API has changed in the new dependency version.
-// import org.tinspin.index.kdtree.KDTree;
-
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
 import micycle.pgs.commons.GeometricMedian;
@@ -66,10 +60,13 @@ public final class PGS_PointSet {
 	 */
 	public static List<PVector> prunePointsWithinDistance(List<PVector> points, double distanceTolerance) {
 		final List<PVector> newPoints = new ArrayList<>();
+		double toleranceSquared = distanceTolerance * distanceTolerance;
 		for (PVector p : points) {
 			boolean tooClose = false;
-			for (PVector existing : newPoints) {
-				if (PVector.dist(p, existing) <= distanceTolerance) {
+			for (PVector np : newPoints) {
+				double dx = p.x - np.x;
+				double dy = p.y - np.y;
+				if (dx * dx + dy * dy <= toleranceSquared) {
 					tooClose = true;
 					break;
 				}

@@ -208,7 +208,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.ManagedZones.Create createZoneCall(ManagedZone zone, Map<Option, ?> options)
       throws IOException {
     return dns.managedZones()
-        .create(this.options.getProjectId(), zone.getName(), zone)
+        .create(this.options.getProjectId(), "", zone)
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -245,14 +245,11 @@ public class HttpDnsRpc implements DnsRpc {
   }
 
   private Dns.ManagedZones.List listZonesCall(Map<DnsRpc.Option, ?> options) throws IOException {
-    String dnsName = Option.DNS_NAME.getString(options);
-    if (dnsName == null) {
-      dnsName = "";
-    }
     return dns.managedZones()
-        .list(this.options.getProjectId(), dnsName)
+        .list(this.options.getProjectId(), "")
         .setFields(Option.FIELDS.getString(options))
         .setMaxResults(Option.PAGE_SIZE.getInt(options))
+        .setDnsName(Option.DNS_NAME.getString(options))
         .setPageToken(Option.PAGE_TOKEN.getString(options));
   }
 
@@ -377,6 +374,7 @@ public class HttpDnsRpc implements DnsRpc {
             .setMaxResults(Option.PAGE_SIZE.getInt(options))
             .setPageToken(Option.PAGE_TOKEN.getString(options));
     if (Option.SORTING_ORDER.getString(options) != null) {
+      // todo check and change if more sorting options are implemented, issue #604
       request = request.setSortBy(SORT_BY).setSortOrder(Option.SORTING_ORDER.getString(options));
     }
     return request;

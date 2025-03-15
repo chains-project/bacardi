@@ -16,8 +16,8 @@
  * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
- * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
  * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
@@ -46,33 +46,11 @@ import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.collection.IsEmptyCollection.empty;
-import static org.hamcrest.collection.IsIterableContainingInAnyOrder.hasItems;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.collection.IsIterableContainingInAnyOrder;
+import org.hamcrest.TypeSafeMatcher;
+import org.hamcrest.Description;
 
-/**
- * REST response.
- *
- * <p>This response decorator is able to make basic assertions on
- * HTTP response and manipulate with it afterwords, for example:
- *
- * <pre> String name = new JdkRequest("http://my.example.com")
- *   .fetch()
- *   .as(RestResponse.class)
- *   .assertStatus(200)
- *   .assertBody(Matchers.containsString("hello, world!"))
- *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
- *   .jump(URI.create("/users"))
- *   .fetch();</pre>
- *
- * <p>Method {@link #jump(URI)} creates a new instance of class
- * {@link Request} with all cookies transferred from the current one.
- *
- * <p>The class is immutable and thread-safe.
- *
- * @since 0.8
- */
 @Immutable
 @EqualsAndHashCode(callSuper = true)
 @SuppressWarnings("PMD.TooManyMethods")
@@ -211,7 +189,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, hasItems(value));
+        return this.assertHeader(name, Matchers.hasItems(value));
     }
 
     /**
@@ -247,7 +225,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            not(empty())
+            Matchers.not(Matchers.emptyIterableOf(String.class))
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -285,7 +263,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            notNullValue()
+            Matchers.notNullValue()
         );
         assert cookie != null;
         return cookie;
@@ -333,6 +311,40 @@ public final class RestResponse extends AbstractResponse {
             return Response.class.cast(resp).status() == this.status;
         }
     }
-
+    
+    /**
+     * Replacement for the removed org.hamcrest.Matchers.
+     */
+    public static final class Matchers {
+        
+        private Matchers() {
+            // prevent instantiation
+        }
+        
+        public static <T> Matcher<Iterable<? extends T>> hasItems(final T... items) {
+            return IsIterableContainingInAnyOrder.hasItems(items);
+        }
+        
+        public static <T> Matcher<T> not(final Matcher<T> matcher) {
+            return CoreMatchers.not(matcher);
+        }
+        
+        public static <T> Matcher<Iterable<T>> emptyIterableOf(final Class<T> clazz) {
+            return new TypeSafeMatcher<Iterable<T>>() {
+                @Override
+                public void describeTo(final Description description) {
+                    description.appendText("an empty iterable");
+                }
+                @Override
+                protected boolean matchesSafely(final Iterable<T> iterable) {
+                    return !iterable.iterator().hasNext();
+                }
+            };
+        }
+        
+        public static <T> Matcher<T> notNullValue() {
+            return CoreMatchers.notNullValue();
+        }
+    }
 }
 ```

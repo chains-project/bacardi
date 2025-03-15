@@ -10,8 +10,8 @@ import lombok.Data;
 import org.junit.Test;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.LoaderOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +37,7 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
             DoubleSum aggregator = new DoubleSum();
             aggregator.getDoubleSuppliers().add(stringHandlerA);
             aggregator.getDoubleSuppliers().add(stringHandlerB);
+
 
             InstanceHolder instanceHolder = new InstanceHolder();
             instanceHolder.getNodeList().add(aggregator);
@@ -142,6 +143,7 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
 
     }
 
+
     @Data
     @ExcludeNode
     public static class InstanceHolder implements NamedNode {
@@ -152,6 +154,7 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
             return "instanceHolder";
         }
     }
+
 
     public static class StringHandler implements DoubleSupplier, NamedNode {
 
@@ -214,6 +217,7 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
             return "stringHandler_" + id;
         }
     }
+
 
     @Data
     public static class DoubleSum implements NamedNode {

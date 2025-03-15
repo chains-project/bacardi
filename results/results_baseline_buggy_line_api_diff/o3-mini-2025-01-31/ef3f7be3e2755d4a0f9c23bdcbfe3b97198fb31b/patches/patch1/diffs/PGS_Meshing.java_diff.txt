@@ -1,15 +1,12 @@
-36d35
+36c36
 < import org.tinspin.index.PointIndex;
-38c37,38
-< import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
 ---
 > import org.tinspin.index.IndexConfig;
-> import org.tinspin.index.phtree.PHTreeP;
-161c161
+161,165c161
 <                 final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {
----
->                 final KDTree<Vertex> tree = KDTree.create(new IndexConfig(2, (p1, p2) -> {
-165c165
+<                         final double deltaX = p1[0] - p2[0];
+<                         final double deltaY = p1[1] - p2[1];
+<                         return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 <                 });
 ---
->                 }));
+>                 final KDTree<Vertex> tree = KDTree.create(new IndexConfig(2));

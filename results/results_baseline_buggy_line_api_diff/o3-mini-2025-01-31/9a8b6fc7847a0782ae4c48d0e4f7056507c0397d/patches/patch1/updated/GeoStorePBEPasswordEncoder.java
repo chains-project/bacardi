@@ -67,21 +67,22 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 			}
 			stringEncrypter.setAlgorithm(getAlgorithm());
 
-			return new PasswordEncoder() {
-				@Override
+			PasswordEncoder encoder = new PasswordEncoder() {
 				public String encodePassword(String rawPass, Object salt) {
 					return stringEncrypter.encrypt(rawPass);
 				}
 
-				@Override
 				public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
 					try {
-						return stringEncrypter.decrypt(encPass).equals(rawPass);
+						String decrypted = stringEncrypter.decrypt(encPass);
+						return decrypted.equals(rawPass);
 					} catch (Exception e) {
 						return false;
 					}
 				}
 			};
+
+			return encoder;
 		} finally {
 			scramble(password);
 			scramble(chars);
@@ -103,8 +104,7 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 
 		return new CharArrayPasswordEncoder() {
 			@Override
-			public boolean isPasswordValid(String encPass, char[] rawPass,
-					Object salt) {
+			public boolean isPasswordValid(String encPass, char[] rawPass, Object salt) {
 				byte[] decoded = Base64.getDecoder().decode(encPass.getBytes());
 				byte[] decrypted = byteEncrypter.decrypt(decoded);
 
@@ -121,8 +121,7 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 			public String encodePassword(char[] rawPass, Object salt) {
 				byte[] bytes = toBytes(rawPass);
 				try {
-					return new String(Base64.getEncoder().encode(byteEncrypter
-							.encrypt(bytes)));
+					return new String(Base64.getEncoder().encode(byteEncrypter.encrypt(bytes)));
 				} finally {
 					scramble(bytes);
 				}
@@ -153,7 +152,6 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 
 	public String decode(String encPass) throws UnsupportedOperationException {
 		if (stringEncrypter == null) {
-			// not initialized
 			getStringEncoder();
 		}
 
@@ -164,7 +162,6 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 	public char[] decodeToCharArray(String encPass)
 			throws UnsupportedOperationException {
 		if (byteEncrypter == null) {
-			// not initialized
 			getCharEncoder();
 		}
 
@@ -176,5 +173,4 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 			scramble(bytes);
 		}
 	}
-	
 }

@@ -5,7 +5,7 @@
 // Generated on: 2023.08.18 at 08:13:47 AM GMT 
 //
 
-package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_02_01.schema;
 
 import java.math.BigDecimal;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -19,6 +19,28 @@ import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
+/**
+ * <p>Java class for Settlement complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType name="Settlement"&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="SettlementDiscount" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SAFPTtextTypeMandatoryMax30Car" minOccurs="0"/&gt;
+ *         &lt;element name="SettlementAmount" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SAFmonetaryType" minOccurs="0"/&gt;
+ *         &lt;element name="SettlementDate" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SAFdateType" minOccurs="0"/&gt;
+ *         &lt;element name="PaymentTerms" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SAFPTtextTypeMandatoryMax100Car" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Settlement", propOrder = {
     "settlementDiscount",
@@ -45,6 +67,7 @@ public class Settlement implements ToString2
      * @return
      *     possible object is
      *     {@link String }
+     *     
      */
     public String getSettlementDiscount() {
         return settlementDiscount;
@@ -56,6 +79,7 @@ public class Settlement implements ToString2
      * @param value
      *     allowed object is
      *     {@link String }
+     *     
      */
     public void setSettlementDiscount(String value) {
         this.settlementDiscount = value;
@@ -67,6 +91,7 @@ public class Settlement implements ToString2
      * @return
      *     possible object is
      *     {@link BigDecimal }
+     *     
      */
     public BigDecimal getSettlementAmount() {
         return settlementAmount;
@@ -78,6 +103,7 @@ public class Settlement implements ToString2
      * @param value
      *     allowed object is
      *     {@link BigDecimal }
+     *     
      */
     public void setSettlementAmount(BigDecimal value) {
         this.settlementAmount = value;
@@ -89,6 +115,7 @@ public class Settlement implements ToString2
      * @return
      *     possible object is
      *     {@link XMLGregorianCalendar }
+     *     
      */
     public XMLGregorianCalendar getSettlementDate() {
         return settlementDate;
@@ -100,6 +127,7 @@ public class Settlement implements ToString2
      * @param value
      *     allowed object is
      *     {@link XMLGregorianCalendar }
+     *     
      */
     public void setSettlementDate(XMLGregorianCalendar value) {
         this.settlementDate = value;
@@ -111,6 +139,7 @@ public class Settlement implements ToString2
      * @return
      *     possible object is
      *     {@link String }
+     *     
      */
     public String getPaymentTerms() {
         return paymentTerms;
@@ -122,6 +151,7 @@ public class Settlement implements ToString2
      * @param value
      *     allowed object is
      *     {@link String }
+     *     
      */
     public void setPaymentTerms(String value) {
         this.paymentTerms = value;
@@ -129,7 +159,7 @@ public class Settlement implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+        final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();

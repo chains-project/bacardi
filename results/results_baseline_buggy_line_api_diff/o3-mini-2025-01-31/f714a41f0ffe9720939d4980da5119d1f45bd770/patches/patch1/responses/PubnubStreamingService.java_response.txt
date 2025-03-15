@@ -9,7 +9,6 @@ import com.pubnub.api.callbacks.SubscribeCallback;
 import com.pubnub.api.enums.PNStatusCategory;
 import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
-import com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -20,7 +19,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Created by Lukas Zaoralek on 14.11.17. */
 public class PubnubStreamingService {
   private static final Logger LOG = LoggerFactory.getLogger(PubnubStreamingService.class);
 
@@ -38,83 +36,60 @@ public class PubnubStreamingService {
   }
 
   public Completable connect() {
-    return Completable.create(
-        e -> {
-          pubnub.addListener(
-              new SubscribeCallback() {
-                @Override
-                public void status(PubNub pubnub, PNStatus pnStatus) {
-                  pnStatusCategory = pnStatus.getCategory();
-                  LOG.debug("PubNub status: {} {}", pnStatusCategory.toString(), pnStatus.getStatusCode());
-                  if (pnStatusCategory == PNStatusCategory.PNConnectedCategory) {
-                    // e.onComplete();
-                  } else if (pnStatus.isError()) {
-                    // e.onError(pnStatus.getErrorData().getThrowable());
-                  }
-                }
+    return Completable.create(e -> {
+      pubnub.addListener(new SubscribeCallback() {
+        @Override
+        public void status(PubNub pubNub, PNStatus pnStatus) {
+          pnStatusCategory = pnStatus.getCategory();
+          LOG.debug("PubNub status: {} {}", pnStatusCategory.toString(), pnStatus.getStatusCode());
+          if (pnStatusCategory == PNStatusCategory.PNConnectedCategory) {
+            // e.onComplete();
+          } else if (pnStatus.isError()) {
+            // e.onError(pnStatus.getErrorData().getThrowable());
+          }
+        }
 
-                @Override
-                public void message(PubNub pubnub, Object messageEvent) {
-                  if (!(messageEvent instanceof Map)) {
-                    LOG.debug("Unexpected message event type: {}", messageEvent);
-                    return;
-                  }
-                  @SuppressWarnings("unchecked")
-                  Map<String, Object> msgMap = (Map<String, Object>) messageEvent;
-                  String channelName = String.valueOf(msgMap.get("channel"));
-                  LOG.debug("PubNub Message: {}", messageEvent.toString());
-                  ObservableEmitter<JsonNode> subscription = subscriptions.get(channelName);
-                  if (subscription != null) {
-                    try {
-                      Object msgContent = msgMap.get("message");
-                      JsonNode jsonMessage = mapper.valueToTree(msgContent);
-                      subscription.onNext(jsonMessage);
-                    } catch (Exception ex) {
-                      ex.printStackTrace();
-                    }
-                  } else {
-                    LOG.debug("No subscriber for channel {}.", channelName);
-                  }
-                }
-
-                @Override
-                public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
-                  LOG.debug("PubNub file event: {}", pnFileEventResult.toString());
-                }
-
-                @Override
-                public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
-                  LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
-                }
-              });
-          e.onComplete();
-        });
+        @Override
+        public void file(PubNub pubnub, PNFileEventResult fileEvent) {
+          String channelName = fileEvent.getChannel();
+          ObservableEmitter<JsonNode> subscription = subscriptions.get(channelName);
+          LOG.debug("PubNub File Event: {}", fileEvent.toString());
+          if (subscription != null) {
+            JsonNode jsonMessage = null;
+            try {
+              jsonMessage = mapper.readTree(fileEvent.getMessage().toString());
+            } catch (IOException ex) {
+              ex.printStackTrace();
+            }
+            subscription.onNext(jsonMessage);
+          } else {
+            LOG.debug("No subscriber for channel {}.", channelName);
+          }
+        }
+      });
+      e.onComplete();
+    });
   }
 
   public Observable<JsonNode> subscribeChannel(String channelName) {
     LOG.info("Subscribing to channel {}.", channelName);
-    return Observable.<JsonNode>create(
-            e -> {
-              if (!subscriptions.containsKey(channelName)) {
-                subscriptions.put(channelName, e);
-                pubnub.subscribe().channels(Collections.singletonList(channelName)).execute();
-                LOG.debug("Subscribe channel: {}", channelName);
-              }
-            })
-        .doOnDispose(
-            () -> {
-              LOG.debug("Unsubscribe channel: {}", channelName);
-              pubnub.unsubscribe().channels(Collections.singletonList(channelName)).execute();
-            })
-        .share();
+    return Observable.<JsonNode>create(e -> {
+      if (!subscriptions.containsKey(channelName)) {
+        subscriptions.put(channelName, e);
+        pubnub.subscribe().channels(Collections.singletonList(channelName)).execute();
+        LOG.debug("Subscribe channel: {}", channelName);
+      }
+    }).doOnDispose(() -> {
+      LOG.debug("Unsubscribe channel: {}", channelName);
+      pubnub.unsubscribe().channels(Collections.singletonList(channelName)).execute();
+    }).share();
   }
 
   public Completable disconnect() {
-    return Completable.create(
-        completable -> {
-          pubnub.disconnect();
-          completable.onComplete();
-        });
+    return Completable.create(completable -> {
+      pubnub.disconnect();
+      completable.onComplete();
+    });
   }
 
   public boolean isAlive() {

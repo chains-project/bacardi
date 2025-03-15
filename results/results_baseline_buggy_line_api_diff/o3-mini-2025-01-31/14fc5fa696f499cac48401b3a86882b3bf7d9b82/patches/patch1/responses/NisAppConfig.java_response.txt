@@ -1,6 +1,8 @@
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
+import org.flywaydb.core.api.Location;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -104,14 +106,19 @@ public class NisAppConfig {
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
-		String[] locations = prop.getProperty("flyway.locations").split(",");
-		boolean validateOnMigrate = Boolean.parseBoolean(prop.getProperty("flyway.validate"));
-		return Flyway.configure()
-				.dataSource(this.dataSource())
-				.locations(locations)
-				.classLoader(NisAppConfig.class.getClassLoader())
-				.validateOnMigrate(validateOnMigrate)
-				.load();
+
+		final ClassicConfiguration config = new ClassicConfiguration();
+		config.setDataSource(this.dataSource());
+		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		config.setClassLoader(NisAppConfig.class.getClassLoader());
+		String locationsStr = prop.getProperty("flyway.locations");
+		String[] locationsRaw = locationsStr.split(",");
+		Location[] locations = new Location[locationsRaw.length];
+		for (int i = 0; i < locationsRaw.length; i++) {
+			locations[i] = new Location(locationsRaw[i].trim());
+		}
+		config.setLocations(locations);
+		return new Flyway(config);
 	}
 
 	@Bean
@@ -143,8 +150,6 @@ public class NisAppConfig {
 				this.unconfirmedTransactions());
 	}
 
-	// region mappers
-
 	@Bean
 	public MapperFactory mapperFactory() {
 		return new DefaultMapperFactory(this.mosaicIdCache());
@@ -164,10 +169,6 @@ public class NisAppConfig {
 	public NisDbModelToModelMapper nisDbModelToModelMapper() {
 		return this.nisMapperFactory().createDbModelToModelNisMapper(this.accountCache());
 	}
-
-	// endregion
-
-	// region observers + validators
 
 	@Bean
 	public BlockTransactionObserverFactory blockTransactionObserverFactory() {
@@ -189,12 +190,8 @@ public class NisAppConfig {
 
 	@Bean
 	public SingleTransactionValidator transactionValidator() {
-		// this is only consumed by the TransactionController and used in transaction/prepare,
-		// which should propagate incomplete transactions
 		return this.transactionValidatorFactory().createIncompleteSingleBuilder(this.nisCache()).build();
 	}
-
-	// endregion
 
 	@Bean
 	public Harvester harvester() {
@@ -305,11 +302,7 @@ public class NisAppConfig {
 	@Bean
 	public NisMain nisMain() {
 		final NisConfiguration nisConfiguration = this.nisConfiguration();
-
-		// initialize network info
 		NetworkInfos.setDefault(nisConfiguration.getNetworkInfo());
-
-		// initialize other globals
 		final NamespaceCacheLookupAdapters adapters = new NamespaceCacheLookupAdapters(this.namespaceCache());
 		if (nisConfiguration.ignoreFees()) {
 			NemGlobals.setTransactionFeeCalculator(new ZeroTransactionFeeCalculator());
@@ -320,10 +313,8 @@ public class NisAppConfig {
 							nisConfiguration.getForkConfiguration().getFeeFork().getSecondHeight()
 					}));
 		}
-
 		NemGlobals.setBlockChainConfiguration(nisConfiguration.getBlockChainConfiguration());
 		NemStateGlobals.setWeightedBalancesSupplier(this.weighedBalancesSupplier());
-
 		return new NisMain(this.blockDao, this.nisCache(), this.networkHostBootstrapper(), this.nisModelToDbModelMapper(), nisConfiguration,
 				this.blockAnalyzer(), System::exit);
 	}
@@ -360,11 +351,8 @@ public class NisAppConfig {
 	@Bean
 	public NisPeerNetworkHost nisPeerNetworkHost() {
 		final HarvestingTask harvestingTask = new HarvestingTask(this.blockChain(), this.harvester(), this.unconfirmedTransactions());
-
 		final PeerNetworkScheduler scheduler = new PeerNetworkScheduler(this.timeProvider(), harvestingTask);
-
 		final CountingBlockSynchronizer synchronizer = new CountingBlockSynchronizer(this.blockChain());
-
 		return new NisPeerNetworkHost(this.nisCache(), synchronizer, scheduler, this.chainServices(), this.nodeCompatibilityChecker(),
 				this.nisConfiguration(), this.httpConnectorPool(), this.trustProvider(), this.incomingAudits(), this.outgoingAudits());
 	}
@@ -428,12 +416,10 @@ public class NisAppConfig {
 		if (this.nisConfiguration().isFeatureSupported(NodeFeature.HISTORICAL_ACCOUNT_DATA)) {
 			observerOptions.add(ObserverOption.NoHistoricalDataPruning);
 		}
-
 		final BlockChainConfiguration blockChainConfiguration = this.nisConfiguration().getBlockChainConfiguration();
 		if (blockChainConfiguration.isBlockChainFeatureSupported(BlockChainFeature.PROOF_OF_STAKE)) {
 			observerOptions.add(ObserverOption.NoOutlinkObserver);
 		}
-
 		return observerOptions;
 	}
 

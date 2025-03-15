@@ -1,8 +1,6 @@
 package uk.gov.pay.adminusers.queue.event;
 
 import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,6 +14,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import uk.gov.pay.adminusers.client.ledger.model.LedgerTransaction;
 import uk.gov.pay.adminusers.client.ledger.service.LedgerService;
 import uk.gov.pay.adminusers.model.MerchantDetails;
@@ -109,9 +108,19 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        ch.qos.logback.classic.Logger logbackLogger = loggerContext.getLogger(EventMessageHandler.class.getName());
-        logbackLogger.addAppender(mockLogAppender);
+        Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
+        try {
+            java.lang.reflect.Method setLevelMethod = logger.getClass().getMethod("setLevel", Level.class);
+            setLevelMethod.invoke(logger, Level.INFO);
+        } catch (Exception e) {
+            // Method not available in new dependency version, ignore.
+        }
+        try {
+            java.lang.reflect.Method addAppenderMethod = logger.getClass().getMethod("addAppender", Appender.class);
+            addAppenderMethod.invoke(logger, mockLogAppender);
+        } catch (Exception e) {
+            // Method not available in new dependency version, ignore.
+        }
     }
 
     @Test

@@ -24,8 +24,6 @@ import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm;
 import org.jgrapht.alg.spanning.PrimMinimumSpanningTree;
 import org.jgrapht.graph.SimpleGraph;
 import org.tinfour.common.IIncrementalTin;
-// Removed KDTree import because it has been removed in the new dependency version
-import org.tinspin.index.rtree.RTree;
 
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
@@ -67,18 +65,24 @@ public final class PGS_PointSet {
 	public static List<PVector> prunePointsWithinDistance(List<PVector> points, double distanceTolerance) {
 		final List<PVector> newPoints = new ArrayList<>();
 		for (PVector p : points) {
-			boolean tooClose = false;
-			for (PVector existing : newPoints) {
-				if (PVector.dist(p, existing) <= distanceTolerance) {
-					tooClose = true;
-					break;
-				}
-			}
-			if (!tooClose) {
+			if (newPoints.isEmpty() || nearestDistance(newPoints, p) > distanceTolerance) {
 				newPoints.add(p);
 			}
 		}
 		return newPoints;
+	}
+
+	private static double nearestDistance(List<PVector> points, PVector p) {
+		double min = Double.MAX_VALUE;
+		for (PVector q : points) {
+			double dx = p.x - q.x;
+			double dy = p.y - q.y;
+			double d = Math.sqrt(dx * dx + dy * dy);
+			if (d < min) {
+				min = d;
+			}
+		}
+		return min;
 	}
 
 	/**

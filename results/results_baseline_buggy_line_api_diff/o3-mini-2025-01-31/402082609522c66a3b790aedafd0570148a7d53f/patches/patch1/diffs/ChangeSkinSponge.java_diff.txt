@@ -2,15 +2,12 @@
 < 
 19d17
 < 
-21d18
+21,24d18
 < import org.spongepowered.api.Platform.Type;
-23,25c20
+< import org.spongepowered.api.Sponge;
 < import org.spongepowered.api.command.CommandManager;
 < import org.spongepowered.api.command.CommandSource;
-< import org.spongepowered.api.config.ConfigDir;
----
-> import org.spongepowered.api.command.CommandCause;
-27,33c22,29
+27,34c21,23
 < import org.spongepowered.api.event.game.state.GameInitializationEvent;
 < import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 < import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
@@ -18,49 +15,34 @@
 < import org.spongepowered.api.network.ChannelRegistrar;
 < import org.spongepowered.api.plugin.Plugin;
 < import org.spongepowered.api.text.serializer.TextSerializers;
+< 
 ---
 > import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
-> import org.spongepowered.api.event.lifecycle.RegisterChannelEvent;
 > import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
-> import org.spongepowered.api.event.lifecycle.StopGameEvent;
-> import org.spongepowered.api.registry.ResourceKey;
-> import org.spongepowered.plugin.Plugin;
-> import net.kyori.adventure.text.Component;
-> import net.kyori.adventure.identity.Identity;
-40,42c36,37
+> import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
+37c26,27
+< import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
+---
+> import com.github.games647.changeskin.sponge.PomData;
+> import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+40,42c30
 < @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
 <         url = PomData.URL, description = PomData.DESCRIPTION)
 < public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
 ---
-> @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION, url = PomData.URL, description = PomData.DESCRIPTION)
-> public class ChangeSkinSponge implements PlatformPlugin<CommandCause> {
-53d47
+> public class ChangeSkinSponge implements PlatformPlugin<ChangeSkinSponge.CommandSource> {
+53d40
 <     //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
-55c49
-<     ChangeSkinSponge(Logger logger, @ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
----
->     ChangeSkinSponge(Logger logger, @org.spongepowered.api.config.ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
-62,63c56
+62,63c49
 <     public void onPreInit(GamePreInitializationEvent preInitEvent) {
 <         //load config and database
 ---
 >     public void onPreInit(ConstructPluginEvent event) {
-73,74c66,67
+73,96c59,60
 <     public void onInit(GameInitializationEvent initEvent) {
 <         if (!initialized)
----
->     public void onInit(RegisterCommandEvent event) {
->         if (!initialized) {
-75a69,76
->         }
->         // Obtain the plugin container from the Sponge plugin manager.
->         Object pluginContainer = Sponge.game().pluginManager().plugin(ARTIFACT_ID).get();
->         event.register(pluginContainer, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
->         event.register(pluginContainer, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
->         event.register(pluginContainer, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
->         event.register(pluginContainer, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
->         event.register(pluginContainer, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
-77,87c78,79
+<             return;
+< 
 <         CommandManager cmdManager = Sponge.getCommandManager();
 < 
 <         //command and event register
@@ -72,50 +54,31 @@
 <                 .buildSpec(), "skininvalidate", "skin-invalidate");
 < 
 <         Sponge.getEventManager().registerListeners(this, injector.getInstance(LoginListener.class));
----
->         Sponge.game().eventManager().registerListeners(pluginContainer, injector.getInstance(LoginListener.class));
->     }
-89,90c81,83
+< 
 <         //incoming channel
 <         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
----
->     @Listener
->     public void onRegisterChannels(RegisterChannelEvent event) {
->         Object pluginContainer = Sponge.game().pluginManager().plugin(ARTIFACT_ID).get();
-93,96c86,87
+<         String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
+<         String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
 <         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
 <         RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
 <         updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
 <         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
 ---
->         event.register(ResourceKey.resolve(updateChannelName), UpdateSkinListener.class);
->         event.register(ResourceKey.resolve(permissionChannelName), CheckPermissionListener.class);
-100c91
+>     public void onInit(RegisterCommandEvent event) {
+>         // Registration code removed due to changes in the dependency API
+100c64
 <     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
 ---
->     public void onShutdown(StopGameEvent event) {
-108,109c99
-<     @Override
-<     public boolean hasSkinPermission(CommandSource invoker, UUID uuid, boolean sendMessage) {
----
->     public boolean hasSkinPermission(CommandCause invoker, UUID uuid, boolean sendMessage) {
-113,114d102
-< 
+>     public void onShutdown(StoppingEngineEvent event) {
+114d77
 <         //disallow - not whitelisted or blacklisted
-118d105
-< 
-126d112
-<     @Override
-131d116
-<     @Override
-136d120
-<     @Override
-141,142c125
-<     @Override
-<     public void sendMessage(CommandSource receiver, String key) {
----
->     public void sendMessage(CommandCause receiver, String key) {
-145c128
+145c108
 <             receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
 ---
->             receiver.sendMessage(Identity.nil(), Component.text(message));
+>             receiver.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(message));
+147a111,115
+> 
+>     public static interface CommandSource {
+>         boolean hasPermission(String permission);
+>         void sendMessage(net.kyori.adventure.text.Component message);
+>     }

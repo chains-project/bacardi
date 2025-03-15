@@ -31,14 +31,12 @@ public class ConstraintInfo {
 
   static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
       new Function<Constraint, ConstraintInfo>() {
-        @Override
         public ConstraintInfo apply(Constraint protobuf) {
           return ConstraintInfo.fromProtobuf(protobuf);
         }
       };
   static final Function<ConstraintInfo, Constraint> TO_PROTOBUF_FUNCTION =
       new Function<ConstraintInfo, Constraint>() {
-        @Override
         public Constraint apply(ConstraintInfo constraintInfo) {
           return constraintInfo.toProtobuf();
         }
@@ -290,8 +288,7 @@ public class ConstraintInfo {
     return builder.build();
   }
 
-  // Stub classes to replace the removed dependency classes.
-
+  // Stub classes to simulate removed dependency classes
   public static class Constraint {
     private BooleanConstraint booleanConstraint;
     private String constraintDefault;

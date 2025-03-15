@@ -1,4 +1,4 @@
-6,12c6,11
+6,12c6,12
 < import javax.mvc.Controller;
 < import javax.mvc.Models;
 < import javax.mvc.UriRef;
@@ -10,23 +10,7 @@
 > import jakarta.mvc.Controller;
 > import jakarta.mvc.Models;
 > import jakarta.mvc.UriRef;
+> import jakarta.mvc.binding.BindingResult;
 > import jakarta.mvc.binding.MvcBinding;
 > import jakarta.mvc.binding.ParamError;
 > import jakarta.mvc.security.CsrfProtected;
-29,31d27
-<     BindingResult bindingResult;
-< 
-<     @Inject
-51,62d46
-<         if (bindingResult.isFailed()) {
-<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-<             bindingResult.getAllErrors()
-<                     .stream()
-<                     .forEach((ParamError t) -> {
-<                         alert.addError(t.getParamName(), "", t.getMessage());
-<                     });
-<             models.put("errors", alert);
-<             log.info("mvc binding failed.");
-<             return "greeting.xhtml";
-<         }
-< 

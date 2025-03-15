@@ -65,7 +65,7 @@ public final class MkQueryMatchers {
      *
      * @param header The header to check.
      * @param matcher The matcher to use.
-     * @return Matcher for checking the body of MkQuery
+     * @return Matcher for checking the header of MkQuery
      */
     public static Matcher<MkQuery> hasHeader(
         final String header,
@@ -82,7 +82,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasPath(final Matcher<String> path) {
         return new MkQueryUriMatcher(
-            HasPropertyWithValue.<URI>hasProperty("rawPath", path)
+            HasPropertyWithValue.hasProperty("rawPath", path)
         );
     }
 
@@ -94,7 +94,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasQuery(final Matcher<String> query) {
         return new MkQueryUriMatcher(
-            HasPropertyWithValue.<URI>hasProperty("rawQuery", query)
+            HasPropertyWithValue.hasProperty("rawQuery", query)
         );
     }
 

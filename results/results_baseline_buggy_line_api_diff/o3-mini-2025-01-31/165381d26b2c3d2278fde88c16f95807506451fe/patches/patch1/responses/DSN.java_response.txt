@@ -94,6 +94,7 @@ public class DSN {
             System.out.println(sc.test(Bench.class).stream().mapToInt(TestCampaign::go).sum());
         }*/
 
+
         //GOGO
         p = Paths.get(root, "testing-speed-notrans.csv");
         Files.deleteIfExists(p);
@@ -331,7 +332,13 @@ public class DSN {
 
       private final List<Integer> l;
 
-      private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
+      private final PrettyPrinterConfiguration noComments = createNoComments();
+
+      private static PrettyPrinterConfiguration createNoComments() {
+          PrettyPrinterConfiguration config = new PrettyPrinterConfiguration();
+          config.setPrintComments(false);
+          return config;
+      }
 
         UnitTestsVisitor(List<Integer> numbers) {
             this.l = numbers;

@@ -50,7 +50,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
@@ -112,7 +111,7 @@ public abstract class FOPPDFTransformer {
         StreamSource transformSource = new StreamSource(templateStream);
 
         // create an instance of fop factory using the new API signature
-        FopFactory fopFactory = FopFactory.newInstance(new File("."));
+        FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
         // a user agent is needed for transformation
         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
         // to store output

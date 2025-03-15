@@ -13,11 +13,10 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
-import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
+import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
-
 
 /**
  * <p>Java class for MovementTax complex type.
@@ -39,7 +38,6 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  * &lt;/complexType&gt;
  * </pre>
  * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "MovementTax", propOrder = {
@@ -48,8 +46,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "taxCode",
     "taxPercentage"
 })
-public class MovementTax implements ToString2
-{
+public class MovementTax implements ToString2 {
 
     @XmlElement(name = "TaxType", required = true)
     @XmlSchemaType(name = "string")
@@ -159,7 +156,7 @@ public class MovementTax implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = SimpleToStringStrategy.INSTANCE;
+        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
@@ -178,54 +175,24 @@ public class MovementTax implements ToString2
         {
             SAFTPTMovementTaxType theTaxType;
             theTaxType = this.getTaxType();
-            strategy.appendField(locator, this, "taxType", buffer, theTaxType, (this.taxType!= null));
+            strategy.appendField(locator, this, "taxType", buffer, theTaxType, (this.taxType != null));
         }
         {
             String theTaxCountryRegion;
             theTaxCountryRegion = this.getTaxCountryRegion();
-            strategy.appendField(locator, this, "taxCountryRegion", buffer, theTaxCountryRegion, (this.taxCountryRegion!= null));
+            strategy.appendField(locator, this, "taxCountryRegion", buffer, theTaxCountryRegion, (this.taxCountryRegion != null));
         }
         {
             String theTaxCode;
             theTaxCode = this.getTaxCode();
-            strategy.appendField(locator, this, "taxCode", buffer, theTaxCode, (this.taxCode!= null));
+            strategy.appendField(locator, this, "taxCode", buffer, theTaxCode, (this.taxCode != null));
         }
         {
             BigDecimal theTaxPercentage;
             theTaxPercentage = this.getTaxPercentage();
-            strategy.appendField(locator, this, "taxPercentage", buffer, theTaxPercentage, (this.taxPercentage!= null));
+            strategy.appendField(locator, this, "taxPercentage", buffer, theTaxPercentage, (this.taxPercentage != null));
         }
         return buffer;
     }
-    
-    private static class SimpleToStringStrategy implements ToStringStrategy2 {
-        public static final SimpleToStringStrategy INSTANCE = new SimpleToStringStrategy();
-        
-        @Override
-        public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
-            buffer.append(object.getClass().getSimpleName());
-            buffer.append(" [");
-            return buffer;
-        }
-        
-        @Override
-        public StringBuilder appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean isSet) {
-            if (isSet) {
-                int len = buffer.length();
-                if (len > 0 && buffer.charAt(len - 1) != '[') {
-                    buffer.append(", ");
-                }
-                buffer.append(fieldName);
-                buffer.append("=");
-                buffer.append(value);
-            }
-            return buffer;
-        }
-        
-        @Override
-        public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
-            buffer.append("]");
-            return buffer;
-        }
-    }
+
 }

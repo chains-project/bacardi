@@ -198,44 +198,42 @@ public final class PGS_CirclePacking {
 	public static List<PVector> stochasticPack(final PShape shape, final int points, final double minRadius, boolean triangulatePoints,
 			long seed) {
 
-		// Use a simple list to store circles for nearest neighbor search.
-		final List<PVector> circleIndex = new ArrayList<>();
+		final List<PVector> treeList = new ArrayList<>();
 		final List<PVector> out = new ArrayList<>();
 
 		List<PVector> steinerPoints = PGS_Processing.generateRandomPoints(shape, points, seed);
 		if (triangulatePoints) {
 			final IIncrementalTin tin = PGS_Triangulation.delaunayTriangulationMesh(shape, steinerPoints, true, 1, true);
-			steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false)
-					.filter(filterBorderTriangles).map(PGS_CirclePacking::centroid).collect(Collectors.toList());
+			steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false).filter(filterBorderTriangles)
+					.map(PGS_CirclePacking::centroid).collect(Collectors.toList());
 		}
 
-		// Model shape vertices as circles of radius 0, to constrain packed circles within shape edge
+		// Model shape vertices as circles of radius 0, to constrain packed circles
+		// within shape edge
 		final List<PVector> vertices = PGS_Conversion.toPVector(shape);
-		Collections.shuffle(vertices);
-		for (PVector p : vertices) {
-			circleIndex.add(new PVector(p.x, p.y, 0));
-		}
+		Collections.shuffle(vertices); // shuffle vertices to reduce imbalance during insertion
+		vertices.forEach(p -> treeList.add(p));
 
-		float largestR = 0; // the radius of the largest circle in the index
+		/*
+		 * "To find the circle nearest to a center (x, y), do a proximity search at (x,
+		 * y, R), where R is greater than or equal to the maximum radius of a circle."
+		 */
+		float largestR = 0; // the radius of the largest circle in the tree
 
 		for (PVector p : steinerPoints) {
-			float candidateRadius = Float.MAX_VALUE;
-			for (PVector q : circleIndex) {
-				float dx = p.x - q.x;
-				float dy = p.y - q.y;
-				float d = (float) Math.sqrt(dx * dx + dy * dy);
-				float available = d - q.z;
-				if (available < candidateRadius) {
-					candidateRadius = available;
-				}
-			}
-			if (candidateRadius > minRadius) {
-				p.z = candidateRadius;
-				circleIndex.add(new PVector(p.x, p.y, candidateRadius));
+			PVector nn = findNearest(treeList, p.x, p.y, largestR); // find nearest-neighbour circle
+
+			/*
+			 * Calculate maximum radius for candidate circle using 2d euclidean distance between center points minus radius of nearest circle.
+			 */
+			final float dx = p.x - nn.x;
+			final float dy = p.y - nn.y;
+			final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.z);
+			if (radius > minRadius) {
+				largestR = (radius >= largestR) ? radius : largestR;
+				p.z = radius;
+				treeList.add(p); // insert circle into our list
 				out.add(p);
-				if (candidateRadius > largestR) {
-					largestR = candidateRadius;
-				}
 			}
 		}
 		return out;
@@ -280,6 +278,7 @@ public final class PGS_CirclePacking {
 				if (pointLocator.locate(PGS.coordFromPVector(p)) != Location.EXTERIOR) {
 					return false;
 				}
+
 				// if center point not in circle, check whether circle overlaps with shape using
 				// intersects() (somewhat slower)
 				circleFactory.setCentre(PGS.coordFromPVector(p));
@@ -298,7 +297,7 @@ public final class PGS_CirclePacking {
 	 * This method finds and returns the maximum inscribed circles up to the
 	 * specified number (n), starting with the largest circle. It uses a tolerance
 	 * value to control the accuracy of the LEC algorithm.
-	 *
+	 * 
 	 * @param shape     The input shape to pack maximum inscribed circles within.
 	 * @param n         The number of maximum inscribed circles to find and pack.
 	 * @param tolerance The tolerance value to control the LEC algorithm's accuracy.
@@ -327,7 +326,7 @@ public final class PGS_CirclePacking {
 	 * This method finds and returns the maximum inscribed circles with a radius
 	 * equal to or larger than the specified minimum radius. It uses a tolerance
 	 * value to control the accuracy of the LEC algorithm.
-	 *
+	 * 
 	 * @param shape     The input shape to pack maximum inscribed circles within.
 	 * @param minRadius The minimum allowed radius for the inscribed circles.
 	 * @param tolerance The tolerance value to control the LEC algorithm's accuracy.
@@ -628,5 +627,29 @@ public final class PGS_CirclePacking {
 			&& !t.getEdgeA().isConstrainedRegionBorder() && !t.getEdgeB().isConstrainedRegionBorder()
 			&& !t.getEdgeC().isConstrainedRegionBorder();
 
+	/**
+	 * Finds the nearest circle to the query point using the custom metric,
+	 * which is defined as the 2D euclidean distance plus the absolute difference in radii.
+	 *
+	 * @param circles the list of existing circles.
+	 * @param qx      query x coordinate.
+	 * @param qy      query y coordinate.
+	 * @param queryR  the radius value to compare against.
+	 * @return the nearest circle in the list.
+	 */
+	private static PVector findNearest(List<PVector> circles, float qx, float qy, float queryR) {
+		float bestDistance = Float.MAX_VALUE;
+		PVector best = circles.get(0);
+		for (PVector circle : circles) {
+			float dx = qx - circle.x;
+			float dy = qy - circle.y;
+			float dist = (float) Math.sqrt(dx * dx + dy * dy) + Math.abs(queryR - circle.z);
+			if (dist < bestDistance) {
+				bestDistance = dist;
+				best = circle;
+			}
+		}
+		return best;
+	}
 }
 ```

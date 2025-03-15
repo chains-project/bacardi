@@ -1,17 +1,27 @@
-19,21c19,20
+19,21c19
 < import com.hazelcast.core.EntryListener;
 < import com.hazelcast.core.IMap;
 < import com.hazelcast.core.MapEvent;
 ---
 > import com.hazelcast.map.IMap;
-> import com.hazelcast.map.MapEvent;
-23c22
+23c21,22
 < import com.hazelcast.monitor.LocalMapStats;
 ---
 > import com.hazelcast.map.LocalMapStats;
-235c234
-<     public Collection<V> values() {
+> import com.hazelcast.map.MapEvent;
+85,86c84
+<     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode)
+<     {
 ---
->     public java.util.Collection<V> values() {
-329d327
-<             // Try to determine what plugin loaded the offending class.
+>     public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode) {
+168c166,168
+<         if (object == null) { return null; }
+---
+>         if (object == null) {
+>             return null;
+>         }
+327,328c327
+<             && lastPluginClassLoaderWarning.isBefore(Instant.now().minus(pluginClassLoaderWarningSupression)) )
+<         {
+---
+>             && lastPluginClassLoaderWarning.isBefore(Instant.now().minus(pluginClassLoaderWarningSupression))) {

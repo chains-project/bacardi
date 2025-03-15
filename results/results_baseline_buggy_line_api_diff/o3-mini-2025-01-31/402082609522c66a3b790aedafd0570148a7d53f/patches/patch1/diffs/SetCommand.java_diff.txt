@@ -1,28 +1,30 @@
-9a10
+9c9
+< 
+---
 > import java.util.Optional;
-11a13
+11c11
+< 
+---
 > import org.spongepowered.api.command.Command;
-13,17c15,18
+13,17c13,16
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.args.GenericArguments;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
+> import org.spongepowered.api.command.CommandException;
 > import org.spongepowered.api.command.CommandExecutor;
-> import org.spongepowered.api.command.exception.CommandException;
 > import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.parameter.Parameter;
-19a21
-> import org.spongepowered.api.text.Text;
-21,22d22
+20,23c19
+< 
 < import static org.spongepowered.api.command.args.GenericArguments.flags;
 < import static org.spongepowered.api.command.args.GenericArguments.string;
-31c31
-<     SetCommand(ChangeSkinSponge plugin, ChangeSkinCore core) {
+< import static org.spongepowered.api.text.Text.of;
 ---
->     public SetCommand(ChangeSkinSponge plugin, ChangeSkinCore core) {
-37,39c37,40
+> import org.spongepowered.api.text.Text;
+37,39c33,36
 <     public CommandResult execute(CommandSource src, CommandContext args) {
 <         if (!(src instanceof Player)) {
 <             plugin.sendMessage(src, "no-console");
@@ -31,55 +33,47 @@
 >         Optional<Player> playerOpt = args.cause().first(Player.class);
 >         if (!playerOpt.isPresent()) {
 >             plugin.sendMessage(args.cause().root(), "no-console");
-42,43c43,44
-< 
+43c40,41
 <         UUID uniqueId = ((Player) src).getUniqueId();
 ---
->         Player sender = playerOpt.get();
->         UUID uniqueId = sender.getUniqueId();
-45c46
+>         Player receiver = playerOpt.get();
+>         UUID uniqueId = receiver.getUniqueId();
+45c43
 <             plugin.sendMessage(src, "cooldown");
 ---
->             plugin.sendMessage(sender, "cooldown");
-49,51c50,55
+>             plugin.sendMessage(receiver, "cooldown");
+49,51c47,48
 <         Player receiver = (Player) src;
 <         String targetSkin = args.<String>getOne("skin").get();
 <         boolean keepSkin = args.hasAny("keep");
 ---
->         Object skinArg = args.one("skin").orElse(null);
->         if (skinArg == null) {
->             throw new CommandException(of("Missing skin argument"));
->         }
->         String targetSkin = skinArg.toString();
->         boolean keepSkin = args.one("keep").map(val -> (Boolean) val).orElse(false);
-54c58
-<             targetSkin = receiver.getUniqueId().toString();
----
->             targetSkin = sender.getUniqueId().toString();
-60c64
+>         String targetSkin = args.requireOne("skin");
+>         boolean keepSkin = args.one("keep").isPresent();
+60c57
 <             if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(src, targetUUID, true)) {
 ---
->             if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(sender, targetUUID, true)) {
-64,65c68,69
+>             if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(receiver, targetUUID, true)) {
+64,65c61,62
 <             plugin.sendMessage(src, "skin-change-queue");
 <             Runnable skinDownloader = new SkinDownloader(plugin, src, receiver, targetUUID, keepSkin);
 ---
->             plugin.sendMessage(sender, "skin-change-queue");
->             Runnable skinDownloader = new SkinDownloader(plugin, sender, sender, targetUUID, keepSkin);
-70c74
+>             plugin.sendMessage(receiver, "skin-change-queue");
+>             Runnable skinDownloader = new SkinDownloader(plugin, receiver, receiver, targetUUID, keepSkin);
+70c67
 <         Runnable nameResolver = new NameResolver(plugin, src, targetSkin, receiver, keepSkin);
 ---
->         Runnable nameResolver = new NameResolver(plugin, sender, targetSkin, sender, keepSkin);
-76,77c80,81
+>         Runnable nameResolver = new NameResolver(plugin, receiver, targetSkin, receiver, keepSkin);
+75,77c72,73
+<     @Override
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
 ---
 >     public Command buildSpec() {
 >         return Command.builder()
-79,81c83,84
+79,81c75,76
 <                 .arguments(
 <                         string(of("skin")),
 <                         flags().flag("keep").buildWith(GenericArguments.none()))
 ---
->                 .addParameter(Parameter.string().key("skin").build())
->                 .addParameter(Parameter.bool().key("keep").setDefaultValue(false).build())
+>                 .addParameter(Parameter.string(Text.of("skin")))
+>                 .addParameter(Parameter.optional(Parameter.literal(Text.of("keep"), "keep")))

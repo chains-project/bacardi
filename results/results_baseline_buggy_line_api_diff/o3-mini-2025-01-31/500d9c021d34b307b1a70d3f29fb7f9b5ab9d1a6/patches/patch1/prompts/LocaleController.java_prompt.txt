@@ -46,39 +46,39 @@ public class LocaleController {
 the error is triggered in the following specific lines in the previous code:
 
 ```java
-import javax.mvc.MvcContext;
-```
-```java
 Models models;
 ```
 ```java
-@Controller
+import javax.mvc.MvcContext;
 ```
 ```java
 MvcContext mvc;
+```
+```java
+@Controller
 ```
 
 
 
  with the following error information:
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/LocaleController.java:[9,17] package javax.mvc does not exist
-
 [ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/LocaleController.java:[26,5] cannot find symbol
   symbol:   class Models
   location: class com.example.web.LocaleController
 
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/LocaleController.java:[18,2] cannot find symbol
-  symbol: class Controller
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/LocaleController.java:[9,17] package javax.mvc does not exist
 
 [ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/LocaleController.java:[23,5] cannot find symbol
   symbol:   class MvcContext
   location: class com.example.web.LocaleController
 
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/web/LocaleController.java:[18,2] cannot find symbol
+  symbol: class Controller
+
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
-     Class javax.mvc.MvcContext has been removed in the new version of the dependency.
-     Class javax.mvc.Models has been removed in the new version of the dependency.
      Interface jakarta.mvc.Models has been added in the new version of the dependency.
+     Class javax.mvc.Models has been removed in the new version of the dependency.
+     Class javax.mvc.MvcContext has been removed in the new version of the dependency.
      Class javax.mvc.Controller has been removed in the new version of the dependency.
      Interface jakarta.mvc.Controller has been added in the new version of the dependency.
 

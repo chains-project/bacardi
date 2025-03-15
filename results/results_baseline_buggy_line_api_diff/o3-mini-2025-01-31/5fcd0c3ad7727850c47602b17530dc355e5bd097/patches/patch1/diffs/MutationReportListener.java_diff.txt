@@ -1,45 +1,43 @@
-11a12,13
+2a3,4
 > import org.pitest.classinfo.ClassInfoVisitor;
 > import org.pitest.classinfo.ClassName;
 12a15
 > import java.io.ByteArrayOutputStream;
 14a18
 > import java.io.InputStream;
-15a20
-> import java.net.URL;
-105c110
+103a108,111
+>     try {
+>       byte[] classBytes = loadClassBytes(data.getMutatedClass());
+>       ClassInfoVisitor visitor = new ClassInfoVisitor();
+>       Object classInfo = visitor.getClassInfo(data.getMutatedClass(), classBytes, System.currentTimeMillis());
+105c113,116
 <         data.getMutations(), coverage.getClassInfo(Collections.singleton(data.getMutatedClass())));
 ---
->         data.getMutations(), getClassInfo(data.getMutatedClass()));
-115a121,151
->   private Object getClassInfo(final ClassName mutatedClass) {
->     String resourcePath = mutatedClass.asJavaName().replace('.', '/') + ".class";
->     URL resourceUrl = this.getClass().getClassLoader().getResource(resourcePath);
->     byte[] classBytes = new byte[0];
->     long lastModified = 0L;
->     if (resourceUrl != null) {
->       try (InputStream is = resourceUrl.openStream()) {
->         classBytes = readAllBytes(is);
->       } catch (IOException e) {
->         e.printStackTrace();
->       }
->       try {
->         File classFile = new File(resourceUrl.toURI());
->         lastModified = classFile.lastModified();
->       } catch (Exception e) {
->         e.printStackTrace();
->       }
+>           data.getMutations(), classInfo);
+>     } catch (IOException e) {
+>       throw new RuntimeException("Failed to load class bytes for " + data.getMutatedClass(), e);
 >     }
->     return ClassInfoVisitor.getClassInfo(mutatedClass, classBytes, lastModified);
+136a148,170
+>   
+>   private byte[] loadClassBytes(ClassName clazzName) throws IOException {
+>     String resourcePath = clazzName.asJavaName().replace('.', '/') + ".class";
+>     InputStream is = this.getClass().getClassLoader().getResourceAsStream(resourcePath);
+>     if (is == null) {
+>       throw new IOException("Resource not found: " + resourcePath);
+>     }
+>     try {
+>       return readAllBytes(is);
+>     } finally {
+>       is.close();
+>     }
 >   }
 >   
 >   private byte[] readAllBytes(InputStream is) throws IOException {
 >     ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+>     byte[] data = new byte[8192];
 >     int nRead;
->     byte[] data = new byte[4096];
 >     while ((nRead = is.read(data, 0, data.length)) != -1) {
 >       buffer.write(data, 0, nRead);
 >     }
 >     return buffer.toByteArray();
 >   }
-> 

@@ -31,7 +31,7 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
   @Override
   public Sql[] generateSql(AddPrimaryKeyStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
     if (statement instanceof AddPrimaryKeyStatementMSSQL && ((AddPrimaryKeyStatementMSSQL) statement).getFillFactor() != null) {
-      return generateMSSQLSql((AddPrimaryKeyStatementMSSQL)statement, database, sqlGeneratorChain);
+      return generateMSSQLSql((AddPrimaryKeyStatementMSSQL) statement, database, sqlGeneratorChain);
     }
 
     return super.generateSql(statement, database, sqlGeneratorChain);

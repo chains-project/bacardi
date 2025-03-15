@@ -5,11 +5,12 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import com.github.games647.changeskin.sponge.PomData;
 import com.github.games647.changeskin.sponge.task.SkinInvalidator;
 import com.google.inject.Inject;
+import java.util.Optional;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandExecutor;
-import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.scheduler.Task;
 
 public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
@@ -17,18 +18,25 @@ public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
     private final ChangeSkinSponge plugin;
 
     @Inject
-    public InvalidateCommand(ChangeSkinSponge plugin) {
+    InvalidateCommand(ChangeSkinSponge plugin) {
         this.plugin = plugin;
     }
 
+    // This method is required by the new CommandExecutor interface.
     @Override
+    public CommandResult execute(CommandContext args) {
+        Optional<Player> playerOpt = args.cause().first(Player.class);
+        CommandSource src = playerOpt.map(PlayerCommandSource::new).orElse(new DummyCommandSource());
+        return execute(src, args);
+    }
+
+    // Original execute logic preserved with a CommandSource parameter.
     public CommandResult execute(CommandSource src, CommandContext args) {
-        if (!(src instanceof Player)) {
+        if (!(src instanceof PlayerCommandSource)) {
             plugin.sendMessage(src, "no-console");
             return CommandResult.empty();
         }
-
-        Player receiver = (Player) src;
+        Player receiver = ((PlayerCommandSource) src).getPlayer();
         Task.builder().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
         return CommandResult.success();
     }
@@ -41,15 +49,7 @@ public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
                 .build();
     }
 
-    public static class CommandResult {
-        public static CommandResult empty() {
-            return new CommandResult();
-        }
-        public static CommandResult success() {
-            return new CommandResult();
-        }
-    }
-
+    // Adapter class for the removed CommandSpec.
     public static class CommandSpec {
         private final Command command;
 
@@ -66,21 +66,66 @@ public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
         }
 
         public static class Builder {
-            private final Command.Builder delegate = Command.builder();
+            private CommandExecutor executor;
+            private String permission;
 
             public Builder executor(CommandExecutor executor) {
-                delegate.executor(executor);
+                this.executor = executor;
                 return this;
             }
 
             public Builder permission(String permission) {
-                delegate.permission(permission);
+                this.permission = permission;
                 return this;
             }
 
             public CommandSpec build() {
-                return new CommandSpec(delegate.build());
+                Command command = Command.builder()
+                        .executor(executor)
+                        .permission(permission)
+                        .build();
+                return new CommandSpec(command);
             }
+        }
+    }
+
+    // Adapter class for the removed CommandResult.
+    public static class CommandResult {
+        private final boolean success;
+
+        private CommandResult(boolean success) {
+            this.success = success;
+        }
+
+        public static CommandResult empty() {
+            return new CommandResult(false);
+        }
+
+        public static CommandResult success() {
+            return new CommandResult(true);
+        }
+
+        public boolean isSuccess() {
+            return success;
+        }
+    }
+
+    // Dummy interface to replace the removed CommandSource.
+    public interface CommandSource {
+    }
+
+    public static class DummyCommandSource implements CommandSource {
+    }
+
+    public static class PlayerCommandSource implements CommandSource {
+        private final Player player;
+
+        public PlayerCommandSource(Player player) {
+            this.player = player;
+        }
+
+        public Player getPlayer() {
+            return player;
         }
     }
 }

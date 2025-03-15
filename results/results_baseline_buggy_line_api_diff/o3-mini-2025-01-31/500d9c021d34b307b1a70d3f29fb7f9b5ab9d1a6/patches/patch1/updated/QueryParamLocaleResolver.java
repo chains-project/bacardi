@@ -28,7 +28,7 @@ import javax.ws.rs.core.UriInfo;
  * }
  * </pre>
  *
- * @author Tobias Erdle
+ * @author 
  */
 @Priority(1)
 @ApplicationScoped

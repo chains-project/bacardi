@@ -2,35 +2,15 @@
 < import org.tinspin.index.PointDistanceFunction;
 < import org.tinspin.index.PointEntryDist;
 < import org.tinspin.index.covertree.CoverTree;
-57,61d53
-<         /*-
-<          * Roadmap (see/implement): 'A LINEARIZED CIRCLE PACKING ALGORITHM'? 
-<          * 'A note on circle packing' Young Joon AHN.
-<          */
-< 
-165d156
-<          * 
-203c194
+203c200
 <                 final CoverTree<PVector> tree = CoverTree.create(3, 2, circleDistanceMetric);
 ---
->                 final SimplePointIndex<PVector> tree = new SimplePointIndex<>();
-226,235c217,220
+>                 final CircleIndex tree = new CircleIndex();
+226c223
 <                         final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
-< 
-<                         /*
-<                          * nn.dist() does not return the radius (since it's a distance metric used to
-<                          * find nearest circle), so calculate maximum radius for candidate circle using
-<                          * 2d euclidean distance between center points minus radius of nearest circle.
-<                          */
-<                         final float dx = p.x - nn.value().x;
-<                         final float dy = p.y - nn.value().y;
-<                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z);
 ---
->                         SimplePointEntry<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR });
->                         final float dx = p.x - nn.value.x;
->                         final float dy = p.y - nn.value.y;
->                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value.z);
-627,656d611
+>                         final NNEntry nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+627,656d623
 <          * Calculate the distance between two points in 3D space, where each point
 <          * represents a circle with (x, y, r) coordinates. This custom metric considers
 <          * both the Euclidean distance between the centers of the circles and the
@@ -61,44 +41,47 @@
 <         };
 < 
 <         /**
-663a619,658
->         // Simple point index to substitute for the removed tinspin CoverTree and related classes.
->         public static class SimplePointIndex<V> {
->                 private final List<SimplePointEntry<V>> entries = new ArrayList<>();
-> 
->                 public void insert(double[] key, V value) {
->                         entries.add(new SimplePointEntry<>(key, value));
->                 }
-> 
->                 public SimplePointEntry<V> query1NN(double[] query) {
->                         SimplePointEntry<V> best = null;
+663a631,673
+>         // Custom replacement for the removed API functionality
+>         
+>         private static class CircleIndex {
+>                 private final List<PVector> circles = new ArrayList<>();
+>         
+>                 public NNEntry query1NN(double[] key) {
+>                         PVector best = null;
 >                         double bestDistance = Double.MAX_VALUE;
->                         for (SimplePointEntry<V> entry : entries) {
->                                 double d = distance(query, entry.key);
->                                 if (d < bestDistance) {
->                                         bestDistance = d;
->                                         best = entry;
+>                         double qx = key[0], qy = key[1], qz = key[2];
+>                         for (PVector circle : circles) {
+>                                 double dx = circle.x - qx;
+>                                 double dy = circle.y - qy;
+>                                 double distance = Math.sqrt(dx * dx + dy * dy) + Math.abs(circle.z - qz);
+>                                 if (distance < bestDistance) {
+>                                         bestDistance = distance;
+>                                         best = circle;
 >                                 }
 >                         }
->                         return best;
+>                         return new NNEntry(best, bestDistance);
 >                 }
-> 
->                 private double distance(double[] a, double[] b) {
->                         double dx = a[0] - b[0];
->                         double dy = a[1] - b[1];
->                         double euclidean = Math.sqrt(dx * dx + dy * dy);
->                         double dz = Math.abs(a[2] - b[2]);
->                         return euclidean + dz;
+>         
+>                 public void insert(double[] key, PVector point) {
+>                         circles.add(point);
 >                 }
 >         }
-> 
->         public static class SimplePointEntry<V> {
->                 public final double[] key;
->                 public final V value;
-> 
->                 public SimplePointEntry(double[] key, V value) {
->                         this.key = key;
+>         
+>         private static class NNEntry {
+>                 private final PVector value;
+>                 private final double distance;
+>         
+>                 public NNEntry(PVector value, double distance) {
 >                         this.value = value;
+>                         this.distance = distance;
+>                 }
+>         
+>                 public PVector value() {
+>                         return value;
+>                 }
+>         
+>                 public double dist() {
+>                         return distance;
 >                 }
 >         }
-> 

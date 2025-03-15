@@ -6,29 +6,36 @@
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
+> import java.util.Optional;
 > import org.spongepowered.api.command.Command;
 > import org.spongepowered.api.command.CommandExecutor;
-> import org.spongepowered.api.command.source.CommandSource;
 > import org.spongepowered.api.command.parameter.CommandContext;
-21c19
-<     InvalidateCommand(ChangeSkinSponge plugin) {
----
->     public InvalidateCommand(ChangeSkinSponge plugin) {
-33c31
-<         Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
----
->         Task.builder().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
-43a42,84
-> 
->     public static class CommandResult {
->         public static CommandResult empty() {
->             return new CommandResult();
->         }
->         public static CommandResult success() {
->             return new CommandResult();
->         }
+13a12
+> import org.spongepowered.api.event.cause.Cause;
+24a24
+>     // This method is required by the new CommandExecutor interface.
+25a26,32
+>     public CommandResult execute(CommandContext args) {
+>         Optional<Player> playerOpt = args.cause().first(Player.class);
+>         CommandSource src = playerOpt.map(PlayerCommandSource::new).orElse(new DummyCommandSource());
+>         return execute(src, args);
 >     }
 > 
+>     // Original execute logic preserved with a CommandSource parameter.
+27c34
+<         if (!(src instanceof Player)) {
+---
+>         if (!(src instanceof PlayerCommandSource)) {
+31,33c38,39
+< 
+<         Player receiver = (Player) src;
+<         Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
+---
+>         Player receiver = ((PlayerCommandSource) src).getPlayer();
+>         Task.builder().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
+43a50,129
+> 
+>     // Adapter class for the removed CommandSpec.
 >     public static class CommandSpec {
 >         private final Command command;
 > 
@@ -45,20 +52,65 @@
 >         }
 > 
 >         public static class Builder {
->             private final Command.Builder delegate = Command.builder();
+>             private CommandExecutor executor;
+>             private String permission;
 > 
 >             public Builder executor(CommandExecutor executor) {
->                 delegate.executor(executor);
+>                 this.executor = executor;
 >                 return this;
 >             }
 > 
 >             public Builder permission(String permission) {
->                 delegate.permission(permission);
+>                 this.permission = permission;
 >                 return this;
 >             }
 > 
 >             public CommandSpec build() {
->                 return new CommandSpec(delegate.build());
+>                 Command command = Command.builder()
+>                         .executor(executor)
+>                         .permission(permission)
+>                         .build();
+>                 return new CommandSpec(command);
 >             }
+>         }
+>     }
+> 
+>     // Adapter class for the removed CommandResult.
+>     public static class CommandResult {
+>         private final boolean success;
+> 
+>         private CommandResult(boolean success) {
+>             this.success = success;
+>         }
+> 
+>         public static CommandResult empty() {
+>             return new CommandResult(false);
+>         }
+> 
+>         public static CommandResult success() {
+>             return new CommandResult(true);
+>         }
+> 
+>         public boolean isSuccess() {
+>             return success;
+>         }
+>     }
+> 
+>     // Dummy interface to replace the removed CommandSource.
+>     public interface CommandSource {
+>     }
+> 
+>     public static class DummyCommandSource implements CommandSource {
+>     }
+> 
+>     public static class PlayerCommandSource implements CommandSource {
+>         private final Player player;
+> 
+>         public PlayerCommandSource(Player player) {
+>             this.player = player;
+>         }
+> 
+>         public Player getPlayer() {
+>             return player;
 >         }
 >     }

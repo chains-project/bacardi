@@ -1,8 +1,8 @@
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.ClassicConfiguration;
+import org.flywaydb.core.api.Location;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -107,17 +107,25 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		ClassicConfiguration config = new ClassicConfiguration();
-		config.setDataSource(this.dataSource());
-		config.setClassLoader(NisAppConfig.class.getClassLoader());
-		String[] locationsStr = prop.getProperty("flyway.locations").split(",\\s*");
-		Location[] locations = new Location[locationsStr.length];
-		for (int i = 0; i < locationsStr.length; i++) {
-			locations[i] = new Location(locationsStr[i]);
+		final NisConfiguration configuration = this.nisConfiguration();
+		final String nemFolder = configuration.getNemFolder();
+		final String jdbcUrl = prop.getProperty("jdbc.url").replace("${nem.folder}", nemFolder)
+				.replace("${nem.network}", configuration.getNetworkName());
+
+		ClassicConfiguration flywayConfig = new ClassicConfiguration();
+		flywayConfig.setDataSource(jdbcUrl, prop.getProperty("jdbc.username"), prop.getProperty("jdbc.password"));
+		flywayConfig.setClassLoader(NisAppConfig.class.getClassLoader());
+		flywayConfig.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+
+		String locationsStr = prop.getProperty("flyway.locations");
+		String[] locationArray = locationsStr.split(",");
+		List<Location> locations = new ArrayList<>();
+		for (String loc : locationArray) {
+			locations.add(new Location(loc.trim()));
 		}
-		config.setLocations(locations);
-		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		return new Flyway(config);
+		flywayConfig.setLocations(locations.toArray(new Location[0]));
+
+		return new Flyway(flywayConfig);
 	}
 
 	@Bean

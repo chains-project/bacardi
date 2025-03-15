@@ -1,6 +1,7 @@
 package io.simplelocalize.cli.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import io.simplelocalize.cli.client.dto.DownloadRequest;

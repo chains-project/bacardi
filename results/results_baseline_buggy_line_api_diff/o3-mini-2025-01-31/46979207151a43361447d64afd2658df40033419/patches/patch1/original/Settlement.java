@@ -6,7 +6,7 @@
 //
 
 
-package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_02_01.schema;
 
 import java.math.BigDecimal;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -31,10 +31,10 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element name="SettlementDiscount" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFPTtextTypeMandatoryMax30Car" minOccurs="0"/&gt;
- *         &lt;element name="SettlementAmount" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFmonetaryType" minOccurs="0"/&gt;
- *         &lt;element name="SettlementDate" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFdateType" minOccurs="0"/&gt;
- *         &lt;element name="PaymentTerms" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFPTtextTypeMandatoryMax100Car" minOccurs="0"/&gt;
+ *         &lt;element name="SettlementDiscount" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SAFPTtextTypeMandatoryMax30Car" minOccurs="0"/&gt;
+ *         &lt;element name="SettlementAmount" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SAFmonetaryType" minOccurs="0"/&gt;
+ *         &lt;element name="SettlementDate" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SAFdateType" minOccurs="0"/&gt;
+ *         &lt;element name="PaymentTerms" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SAFPTtextTypeMandatoryMax100Car" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;

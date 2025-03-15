@@ -7,11 +7,11 @@ import java.util.Map;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.conversations.ConversationFactory;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.enchantments.Enchantment;
 
 import com.cryptomorin.xseries.XEnchantment;
 import com.cryptomorin.xseries.XMaterial;
@@ -35,7 +35,7 @@ public class ConfigurationMessagesOverridePossibleListGUI implements InventoryPr
 			.provider(new ConfigurationMessagesOverridePossibleListGUI()).size(6, 9)
 			.manager(WorldwideChat.instance.getInventoryManager())
 			.title(ChatColor.BLUE + CommonDefinitions.getMessage("wwcConfigGUIChatMessagesPossibleOverrides"))
-	        .build();
+			.build();
 	
 	@Override
 	public void init(Player player, InventoryContents contents) {

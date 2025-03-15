@@ -6,7 +6,7 @@
 //
 
 
-package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -40,67 +40,72 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *             &lt;complexContent&gt;
  *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                 &lt;sequence&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NumberOfEntries"/&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TotalDebit"/&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TotalCredit"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NumberOfEntries"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TotalDebit"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TotalCredit"/&gt;
  *                   &lt;element name="Invoice" maxOccurs="unbounded" minOccurs="0"&gt;
  *                     &lt;complexType&gt;
  *                       &lt;complexContent&gt;
  *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                           &lt;sequence&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}InvoiceNo"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceNo"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ATCUD"/&gt;
  *                             &lt;element name="DocumentStatus"&gt;
  *                               &lt;complexType&gt;
  *                                 &lt;complexContent&gt;
  *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                                     &lt;sequence&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}InvoiceStatus"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}InvoiceStatusDate"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Reason" minOccurs="0"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
- *                                       &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFTPTSourceBilling"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceStatus"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceStatusDate"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Reason" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+ *                                       &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTSourceBilling"/&gt;
  *                                     &lt;/sequence&gt;
  *                                   &lt;/restriction&gt;
  *                                 &lt;/complexContent&gt;
  *                               &lt;/complexType&gt;
  *                             &lt;/element&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Hash"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}HashControl" minOccurs="0"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Period" minOccurs="0"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}InvoiceDate"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}InvoiceType"/&gt;
- *                             &lt;element name="SpecialRegimes" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SpecialRegimes"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}EACCode" minOccurs="0"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SystemEntryDate"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TransactionID" minOccurs="0"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CustomerID"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ShipTo" minOccurs="0"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ShipFrom" minOccurs="0"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementEndTime" minOccurs="0"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementStartTime" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Hash"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}HashControl"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Period" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceDate"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceType"/&gt;
+ *                             &lt;element name="SpecialRegimes" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SpecialRegimes"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}EACCode" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SystemEntryDate"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TransactionID" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomerID"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ShipTo" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ShipFrom" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementEndTime" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementStartTime" minOccurs="0"/&gt;
  *                             &lt;element name="Line" maxOccurs="unbounded"&gt;
  *                               &lt;complexType&gt;
  *                                 &lt;complexContent&gt;
  *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                                     &lt;sequence&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}LineNumber"/&gt;
- *                                       &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductCode"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductDescription"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Quantity"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitOfMeasure"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitPrice"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPointDate"/&gt;
- *                                       &lt;element name="References" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}References" maxOccurs="unbounded" minOccurs="0"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}LineNumber"/&gt;
+ *                                       &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductCode"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductDescription"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Quantity"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitOfMeasure"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitPrice"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxBase" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPointDate"/&gt;
+ *                                       &lt;element name="References" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}References" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Description"/&gt;
+ *                                       &lt;element name="ProductSerialNumber" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductSerialNumber" minOccurs="0"/&gt;
  *                                       &lt;choice&gt;
- *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DebitAmount"/&gt;
- *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CreditAmount"/&gt;
+ *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DebitAmount"/&gt;
+ *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CreditAmount"/&gt;
  *                                       &lt;/choice&gt;
- *                                       &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Tax"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxExemptionReason" minOccurs="0"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SettlementAmount" minOccurs="0"/&gt;
+ *                                       &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Tax"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionReason" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionCode" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SettlementAmount" minOccurs="0"/&gt;
+ *                                       &lt;element name="CustomsInformation" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomsInformation" minOccurs="0"/&gt;
  *                                     &lt;/sequence&gt;
  *                                   &lt;/restriction&gt;
  *                                 &lt;/complexContent&gt;
@@ -111,18 +116,18 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *                                 &lt;complexContent&gt;
  *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                                     &lt;sequence&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPayable"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NetTotal"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GrossTotal"/&gt;
- *                                       &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Currency" minOccurs="0"/&gt;
- *                                       &lt;element name="Settlement" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Settlement" maxOccurs="unbounded" minOccurs="0"/&gt;
- *                                       &lt;element name="Payment" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PaymentMethod" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPayable"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NetTotal"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GrossTotal"/&gt;
+ *                                       &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Currency" minOccurs="0"/&gt;
+ *                                       &lt;element name="Settlement" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Settlement" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                                       &lt;element name="Payment" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentMethod" maxOccurs="unbounded" minOccurs="0"/&gt;
  *                                     &lt;/sequence&gt;
  *                                   &lt;/restriction&gt;
  *                                 &lt;/complexContent&gt;
  *                               &lt;/complexType&gt;
  *                             &lt;/element&gt;
- *                             &lt;element name="WithholdingTax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}WithholdingTax" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                             &lt;element name="WithholdingTax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WithholdingTax" maxOccurs="unbounded" minOccurs="0"/&gt;
  *                           &lt;/sequence&gt;
  *                         &lt;/restriction&gt;
  *                       &lt;/complexContent&gt;
@@ -138,68 +143,72 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *             &lt;complexContent&gt;
  *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                 &lt;sequence&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NumberOfMovementLines"/&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TotalQuantityIssued"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NumberOfMovementLines"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TotalQuantityIssued"/&gt;
  *                   &lt;element name="StockMovement" maxOccurs="unbounded" minOccurs="0"&gt;
  *                     &lt;complexType&gt;
  *                       &lt;complexContent&gt;
  *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                           &lt;sequence&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DocumentNumber"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DocumentNumber"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ATCUD"/&gt;
  *                             &lt;element name="DocumentStatus"&gt;
  *                               &lt;complexType&gt;
  *                                 &lt;complexContent&gt;
  *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                                     &lt;sequence&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementStatus"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementStatusDate"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Reason" minOccurs="0"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
- *                                       &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFTPTSourceBilling"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementStatus"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementStatusDate"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Reason" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+ *                                       &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTSourceBilling"/&gt;
  *                                     &lt;/sequence&gt;
  *                                   &lt;/restriction&gt;
  *                                 &lt;/complexContent&gt;
  *                               &lt;/complexType&gt;
  *                             &lt;/element&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Hash"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}HashControl" minOccurs="0"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Period" minOccurs="0"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementDate"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementType"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SystemEntryDate"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TransactionID" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Hash"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}HashControl"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Period" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementDate"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementType"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SystemEntryDate"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TransactionID" minOccurs="0"/&gt;
  *                             &lt;choice&gt;
- *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CustomerID"/&gt;
- *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SupplierID"/&gt;
+ *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomerID"/&gt;
+ *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierID"/&gt;
  *                             &lt;/choice&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}EACCode" minOccurs="0"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementComments" minOccurs="0"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ShipTo" minOccurs="0"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ShipFrom" minOccurs="0"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementEndTime" minOccurs="0"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementStartTime"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ATDocCodeID" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}EACCode" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementComments" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ShipTo" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ShipFrom" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementEndTime" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementStartTime"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ATDocCodeID" minOccurs="0"/&gt;
  *                             &lt;element name="Line" maxOccurs="unbounded"&gt;
  *                               &lt;complexType&gt;
  *                                 &lt;complexContent&gt;
  *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                                     &lt;sequence&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}LineNumber"/&gt;
- *                                       &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductCode"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductDescription"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Quantity"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitOfMeasure"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitPrice"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}LineNumber"/&gt;
+ *                                       &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductCode"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductDescription"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Quantity"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitOfMeasure"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitPrice"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Description"/&gt;
+ *                                       &lt;element name="ProductSerialNumber" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductSerialNumber" minOccurs="0"/&gt;
  *                                       &lt;choice&gt;
- *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DebitAmount"/&gt;
- *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CreditAmount"/&gt;
+ *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DebitAmount"/&gt;
+ *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CreditAmount"/&gt;
  *                                       &lt;/choice&gt;
- *                                       &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementTax" minOccurs="0"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxExemptionReason" minOccurs="0"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SettlementAmount" minOccurs="0"/&gt;
+ *                                       &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementTax" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionReason" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionCode" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SettlementAmount" minOccurs="0"/&gt;
+ *                                       &lt;element name="CustomsInformation" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomsInformation" minOccurs="0"/&gt;
  *                                     &lt;/sequence&gt;
  *                                   &lt;/restriction&gt;
  *                                 &lt;/complexContent&gt;
@@ -210,10 +219,10 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *                                 &lt;complexContent&gt;
  *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                                     &lt;sequence&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPayable"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NetTotal"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GrossTotal"/&gt;
- *                                       &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Currency" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPayable"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NetTotal"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GrossTotal"/&gt;
+ *                                       &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Currency" minOccurs="0"/&gt;
  *                                     &lt;/sequence&gt;
  *                                   &lt;/restriction&gt;
  *                                 &lt;/complexContent&gt;
@@ -234,60 +243,67 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *             &lt;complexContent&gt;
  *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                 &lt;sequence&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NumberOfEntries"/&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TotalDebit"/&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TotalCredit"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NumberOfEntries"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TotalDebit"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TotalCredit"/&gt;
  *                   &lt;element name="WorkDocument" maxOccurs="unbounded" minOccurs="0"&gt;
  *                     &lt;complexType&gt;
  *                       &lt;complexContent&gt;
  *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                           &lt;sequence&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DocumentNumber"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DocumentNumber"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ATCUD"/&gt;
  *                             &lt;element name="DocumentStatus"&gt;
  *                               &lt;complexType&gt;
  *                                 &lt;complexContent&gt;
  *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                                     &lt;sequence&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}WorkStatus"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}WorkStatusDate"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Reason" minOccurs="0"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
- *                                       &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFTPTSourceBilling"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WorkStatus"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WorkStatusDate"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Reason" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+ *                                       &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTSourceBilling"/&gt;
  *                                     &lt;/sequence&gt;
  *                                   &lt;/restriction&gt;
  *                                 &lt;/complexContent&gt;
  *                               &lt;/complexType&gt;
  *                             &lt;/element&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Hash"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}HashControl" minOccurs="0"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Period" minOccurs="0"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}WorkDate"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}WorkType"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}EACCode" minOccurs="0"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SystemEntryDate"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CustomerID"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Hash"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}HashControl"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Period" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WorkDate"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WorkType"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}EACCode" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SystemEntryDate"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TransactionID" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomerID"/&gt;
  *                             &lt;element name="Line" maxOccurs="unbounded"&gt;
  *                               &lt;complexType&gt;
  *                                 &lt;complexContent&gt;
  *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                                     &lt;sequence&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}LineNumber"/&gt;
- *                                       &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductCode"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductDescription"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Quantity"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitOfMeasure"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitPrice"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPointDate"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}LineNumber"/&gt;
+ *                                       &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductCode"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductDescription"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Quantity"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitOfMeasure"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitPrice"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxBase" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPointDate"/&gt;
+ *                                       &lt;element name="References" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}References" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Description"/&gt;
+ *                                       &lt;element name="ProductSerialNumber" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductSerialNumber" minOccurs="0"/&gt;
  *                                       &lt;choice&gt;
- *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DebitAmount"/&gt;
- *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CreditAmount"/&gt;
+ *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DebitAmount"/&gt;
+ *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CreditAmount"/&gt;
  *                                       &lt;/choice&gt;
- *                                       &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Tax" minOccurs="0"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxExemptionReason" minOccurs="0"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SettlementAmount" minOccurs="0"/&gt;
+ *                                       &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Tax" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionReason" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionCode" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SettlementAmount" minOccurs="0"/&gt;
+ *                                       &lt;element name="CustomsInformation" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomsInformation" minOccurs="0"/&gt;
  *                                     &lt;/sequence&gt;
  *                                   &lt;/restriction&gt;
  *                                 &lt;/complexContent&gt;
@@ -298,10 +314,10 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *                                 &lt;complexContent&gt;
  *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                                     &lt;sequence&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPayable"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NetTotal"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GrossTotal"/&gt;
- *                                       &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Currency" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPayable"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NetTotal"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GrossTotal"/&gt;
+ *                                       &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Currency" minOccurs="0"/&gt;
  *                                     &lt;/sequence&gt;
  *                                   &lt;/restriction&gt;
  *                                 &lt;/complexContent&gt;
@@ -322,66 +338,68 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *             &lt;complexContent&gt;
  *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                 &lt;sequence&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NumberOfEntries"/&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TotalDebit"/&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TotalCredit"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NumberOfEntries"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TotalDebit"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TotalCredit"/&gt;
  *                   &lt;element name="Payment" maxOccurs="unbounded" minOccurs="0"&gt;
  *                     &lt;complexType&gt;
  *                       &lt;complexContent&gt;
  *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                           &lt;sequence&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PaymentRefNo"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Period" minOccurs="0"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TransactionID" minOccurs="0"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TransactionDate"/&gt;
- *                             &lt;element name="PaymentType" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFTPTPaymentType"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description" minOccurs="0"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SystemID" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentRefNo"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ATCUD"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Period" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TransactionID" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TransactionDate"/&gt;
+ *                             &lt;element name="PaymentType" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTPaymentType"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Description" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SystemID" minOccurs="0"/&gt;
  *                             &lt;element name="DocumentStatus"&gt;
  *                               &lt;complexType&gt;
  *                                 &lt;complexContent&gt;
  *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                                     &lt;sequence&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PaymentStatus"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PaymentStatusDate"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Reason" minOccurs="0"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
- *                                       &lt;element name="SourcePayment" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFTPTSourcePayment"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentStatus"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentStatusDate"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Reason" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+ *                                       &lt;element name="SourcePayment" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTSourcePayment"/&gt;
  *                                     &lt;/sequence&gt;
  *                                   &lt;/restriction&gt;
  *                                 &lt;/complexContent&gt;
  *                               &lt;/complexType&gt;
  *                             &lt;/element&gt;
- *                             &lt;element name="PaymentMethod" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PaymentMethod" maxOccurs="unbounded" minOccurs="0"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SystemEntryDate"/&gt;
- *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CustomerID"/&gt;
+ *                             &lt;element name="PaymentMethod" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentMethod" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SystemEntryDate"/&gt;
+ *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomerID"/&gt;
  *                             &lt;element name="Line" maxOccurs="unbounded"&gt;
  *                               &lt;complexType&gt;
  *                                 &lt;complexContent&gt;
  *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                                     &lt;sequence&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}LineNumber"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}LineNumber"/&gt;
  *                                       &lt;element name="SourceDocumentID" maxOccurs="unbounded"&gt;
  *                                         &lt;complexType&gt;
  *                                           &lt;complexContent&gt;
  *                                             &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                                               &lt;sequence&gt;
- *                                                 &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}OriginatingON"/&gt;
- *                                                 &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}InvoiceDate"/&gt;
- *                                                 &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description" minOccurs="0"/&gt;
+ *                                                 &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}OriginatingON"/&gt;
+ *                                                 &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceDate"/&gt;
+ *                                                 &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Description" minOccurs="0"/&gt;
  *                                               &lt;/sequence&gt;
  *                                             &lt;/restriction&gt;
  *                                           &lt;/complexContent&gt;
  *                                         &lt;/complexType&gt;
  *                                       &lt;/element&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SettlementAmount" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SettlementAmount" minOccurs="0"/&gt;
  *                                       &lt;choice&gt;
- *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DebitAmount"/&gt;
- *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CreditAmount"/&gt;
+ *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DebitAmount"/&gt;
+ *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CreditAmount"/&gt;
  *                                       &lt;/choice&gt;
- *                                       &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PaymentTax" minOccurs="0"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxExemptionReason" minOccurs="0"/&gt;
+ *                                       &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentTax" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionReason" minOccurs="0"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionCode" minOccurs="0"/&gt;
  *                                     &lt;/sequence&gt;
  *                                   &lt;/restriction&gt;
  *                                 &lt;/complexContent&gt;
@@ -392,27 +410,27 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *                                 &lt;complexContent&gt;
  *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                                     &lt;sequence&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPayable"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NetTotal"/&gt;
- *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GrossTotal"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPayable"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NetTotal"/&gt;
+ *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GrossTotal"/&gt;
  *                                       &lt;element name="Settlement" minOccurs="0"&gt;
  *                                         &lt;complexType&gt;
  *                                           &lt;complexContent&gt;
  *                                             &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                                               &lt;sequence&gt;
- *                                                 &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SettlementAmount"/&gt;
+ *                                                 &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SettlementAmount"/&gt;
  *                                               &lt;/sequence&gt;
  *                                             &lt;/restriction&gt;
  *                                           &lt;/complexContent&gt;
  *                                         &lt;/complexType&gt;
  *                                       &lt;/element&gt;
- *                                       &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Currency" minOccurs="0"/&gt;
+ *                                       &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Currency" minOccurs="0"/&gt;
  *                                     &lt;/sequence&gt;
  *                                   &lt;/restriction&gt;
  *                                 &lt;/complexContent&gt;
  *                               &lt;/complexType&gt;
  *                             &lt;/element&gt;
- *                             &lt;element name="WithholdingTax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}WithholdingTax" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                             &lt;element name="WithholdingTax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WithholdingTax" maxOccurs="unbounded" minOccurs="0"/&gt;
  *                           &lt;/sequence&gt;
  *                         &lt;/restriction&gt;
  *                       &lt;/complexContent&gt;
@@ -599,68 +617,72 @@ public class SourceDocuments implements ToString2
      *   &lt;complexContent&gt;
      *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *       &lt;sequence&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NumberOfMovementLines"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TotalQuantityIssued"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NumberOfMovementLines"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TotalQuantityIssued"/&gt;
      *         &lt;element name="StockMovement" maxOccurs="unbounded" minOccurs="0"&gt;
      *           &lt;complexType&gt;
      *             &lt;complexContent&gt;
      *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *                 &lt;sequence&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DocumentNumber"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DocumentNumber"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ATCUD"/&gt;
      *                   &lt;element name="DocumentStatus"&gt;
      *                     &lt;complexType&gt;
      *                       &lt;complexContent&gt;
      *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *                           &lt;sequence&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementStatus"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementStatusDate"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Reason" minOccurs="0"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
-     *                             &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFTPTSourceBilling"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementStatus"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementStatusDate"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Reason" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+     *                             &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTSourceBilling"/&gt;
      *                           &lt;/sequence&gt;
      *                         &lt;/restriction&gt;
      *                       &lt;/complexContent&gt;
      *                     &lt;/complexType&gt;
      *                   &lt;/element&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Hash"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}HashControl" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Period" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementDate"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementType"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SystemEntryDate"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TransactionID" minOccurs="0"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Hash"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}HashControl"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Period" minOccurs="0"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementDate"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementType"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SystemEntryDate"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TransactionID" minOccurs="0"/&gt;
      *                   &lt;choice&gt;
-     *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CustomerID"/&gt;
-     *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SupplierID"/&gt;
+     *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomerID"/&gt;
+     *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierID"/&gt;
      *                   &lt;/choice&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}EACCode" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementComments" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ShipTo" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ShipFrom" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementEndTime" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementStartTime"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ATDocCodeID" minOccurs="0"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}EACCode" minOccurs="0"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementComments" minOccurs="0"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ShipTo" minOccurs="0"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ShipFrom" minOccurs="0"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementEndTime" minOccurs="0"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementStartTime"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ATDocCodeID" minOccurs="0"/&gt;
      *                   &lt;element name="Line" maxOccurs="unbounded"&gt;
      *                     &lt;complexType&gt;
      *                       &lt;complexContent&gt;
      *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *                           &lt;sequence&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}LineNumber"/&gt;
-     *                             &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductCode"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductDescription"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Quantity"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitOfMeasure"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitPrice"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}LineNumber"/&gt;
+     *                             &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductCode"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductDescription"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Quantity"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitOfMeasure"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitPrice"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Description"/&gt;
+     *                             &lt;element name="ProductSerialNumber" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductSerialNumber" minOccurs="0"/&gt;
      *                             &lt;choice&gt;
-     *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DebitAmount"/&gt;
-     *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CreditAmount"/&gt;
+     *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DebitAmount"/&gt;
+     *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CreditAmount"/&gt;
      *                             &lt;/choice&gt;
-     *                             &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementTax" minOccurs="0"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxExemptionReason" minOccurs="0"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SettlementAmount" minOccurs="0"/&gt;
+     *                             &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementTax" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionReason" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionCode" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SettlementAmount" minOccurs="0"/&gt;
+     *                             &lt;element name="CustomsInformation" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomsInformation" minOccurs="0"/&gt;
      *                           &lt;/sequence&gt;
      *                         &lt;/restriction&gt;
      *                       &lt;/complexContent&gt;
@@ -671,10 +693,10 @@ public class SourceDocuments implements ToString2
      *                       &lt;complexContent&gt;
      *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *                           &lt;sequence&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPayable"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NetTotal"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GrossTotal"/&gt;
-     *                             &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Currency" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPayable"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NetTotal"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GrossTotal"/&gt;
+     *                             &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Currency" minOccurs="0"/&gt;
      *                           &lt;/sequence&gt;
      *                         &lt;/restriction&gt;
      *                       &lt;/complexContent&gt;
@@ -834,61 +856,65 @@ public class SourceDocuments implements ToString2
          *   &lt;complexContent&gt;
          *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
          *       &lt;sequence&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DocumentNumber"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DocumentNumber"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ATCUD"/&gt;
          *         &lt;element name="DocumentStatus"&gt;
          *           &lt;complexType&gt;
          *             &lt;complexContent&gt;
          *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
          *                 &lt;sequence&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementStatus"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementStatusDate"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Reason" minOccurs="0"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
-         *                   &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFTPTSourceBilling"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementStatus"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementStatusDate"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Reason" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+         *                   &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTSourceBilling"/&gt;
          *                 &lt;/sequence&gt;
          *               &lt;/restriction&gt;
          *             &lt;/complexContent&gt;
          *           &lt;/complexType&gt;
          *         &lt;/element&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Hash"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}HashControl" minOccurs="0"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Period" minOccurs="0"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementDate"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementType"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SystemEntryDate"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TransactionID" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Hash"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}HashControl"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Period" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementDate"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementType"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SystemEntryDate"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TransactionID" minOccurs="0"/&gt;
          *         &lt;choice&gt;
-         *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CustomerID"/&gt;
-         *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SupplierID"/&gt;
+         *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomerID"/&gt;
+         *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierID"/&gt;
          *         &lt;/choice&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}EACCode" minOccurs="0"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementComments" minOccurs="0"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ShipTo" minOccurs="0"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ShipFrom" minOccurs="0"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementEndTime" minOccurs="0"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementStartTime"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ATDocCodeID" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}EACCode" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementComments" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ShipTo" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ShipFrom" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementEndTime" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementStartTime"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ATDocCodeID" minOccurs="0"/&gt;
          *         &lt;element name="Line" maxOccurs="unbounded"&gt;
          *           &lt;complexType&gt;
          *             &lt;complexContent&gt;
          *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
          *                 &lt;sequence&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}LineNumber"/&gt;
-         *                   &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductCode"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductDescription"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Quantity"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitOfMeasure"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitPrice"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}LineNumber"/&gt;
+         *                   &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductCode"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductDescription"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Quantity"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitOfMeasure"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitPrice"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Description"/&gt;
+         *                   &lt;element name="ProductSerialNumber" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductSerialNumber" minOccurs="0"/&gt;
          *                   &lt;choice&gt;
-         *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DebitAmount"/&gt;
-         *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CreditAmount"/&gt;
+         *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DebitAmount"/&gt;
+         *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CreditAmount"/&gt;
          *                   &lt;/choice&gt;
-         *                   &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementTax" minOccurs="0"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxExemptionReason" minOccurs="0"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SettlementAmount" minOccurs="0"/&gt;
+         *                   &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementTax" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionReason" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionCode" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SettlementAmount" minOccurs="0"/&gt;
+         *                   &lt;element name="CustomsInformation" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomsInformation" minOccurs="0"/&gt;
          *                 &lt;/sequence&gt;
          *               &lt;/restriction&gt;
          *             &lt;/complexContent&gt;
@@ -899,10 +925,10 @@ public class SourceDocuments implements ToString2
          *             &lt;complexContent&gt;
          *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
          *                 &lt;sequence&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPayable"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NetTotal"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GrossTotal"/&gt;
-         *                   &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Currency" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPayable"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NetTotal"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GrossTotal"/&gt;
+         *                   &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Currency" minOccurs="0"/&gt;
          *                 &lt;/sequence&gt;
          *               &lt;/restriction&gt;
          *             &lt;/complexContent&gt;
@@ -919,6 +945,7 @@ public class SourceDocuments implements ToString2
         @XmlAccessorType(XmlAccessType.FIELD)
         @XmlType(name = "", propOrder = {
             "documentNumber",
+            "atcud",
             "documentStatus",
             "hash",
             "hashControl",
@@ -945,11 +972,13 @@ public class SourceDocuments implements ToString2
 
             @XmlElement(name = "DocumentNumber", required = true)
             protected String documentNumber;
+            @XmlElement(name = "ATCUD", required = true)
+            protected String atcud;
             @XmlElement(name = "DocumentStatus", required = true)
             protected SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus documentStatus;
             @XmlElement(name = "Hash", required = true)
             protected String hash;
-            @XmlElement(name = "HashControl")
+            @XmlElement(name = "HashControl", required = true)
             protected String hashControl;
             @XmlElement(name = "Period")
             protected Integer period;
@@ -1012,6 +1041,30 @@ public class SourceDocuments implements ToString2
              */
             public void setDocumentNumber(String value) {
                 this.documentNumber = value;
+            }
+
+            /**
+             * Gets the value of the atcud property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link String }
+             *     
+             */
+            public String getATCUD() {
+                return atcud;
+            }
+
+            /**
+             * Sets the value of the atcud property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link String }
+             *     
+             */
+            public void setATCUD(String value) {
+                this.atcud = value;
             }
 
             /**
@@ -1523,6 +1576,11 @@ public class SourceDocuments implements ToString2
                     strategy.appendField(locator, this, "documentNumber", buffer, theDocumentNumber, (this.documentNumber!= null));
                 }
                 {
+                    String theATCUD;
+                    theATCUD = this.getATCUD();
+                    strategy.appendField(locator, this, "atcud", buffer, theATCUD, (this.atcud!= null));
+                }
+                {
                     SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus theDocumentStatus;
                     theDocumentStatus = this.getDocumentStatus();
                     strategy.appendField(locator, this, "documentStatus", buffer, theDocumentStatus, (this.documentStatus!= null));
@@ -1636,11 +1694,11 @@ public class SourceDocuments implements ToString2
              *   &lt;complexContent&gt;
              *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
              *       &lt;sequence&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementStatus"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementStatusDate"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Reason" minOccurs="0"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
-             *         &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFTPTSourceBilling"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementStatus"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementStatusDate"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Reason" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+             *         &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTSourceBilling"/&gt;
              *       &lt;/sequence&gt;
              *     &lt;/restriction&gt;
              *   &lt;/complexContent&gt;
@@ -1852,10 +1910,10 @@ public class SourceDocuments implements ToString2
              *   &lt;complexContent&gt;
              *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
              *       &lt;sequence&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPayable"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NetTotal"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GrossTotal"/&gt;
-             *         &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Currency" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPayable"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NetTotal"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GrossTotal"/&gt;
+             *         &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Currency" minOccurs="0"/&gt;
              *       &lt;/sequence&gt;
              *     &lt;/restriction&gt;
              *   &lt;/complexContent&gt;
@@ -2033,21 +2091,24 @@ public class SourceDocuments implements ToString2
              *   &lt;complexContent&gt;
              *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
              *       &lt;sequence&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}LineNumber"/&gt;
-             *         &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductCode"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductDescription"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Quantity"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitOfMeasure"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitPrice"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}LineNumber"/&gt;
+             *         &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductCode"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductDescription"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Quantity"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitOfMeasure"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitPrice"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Description"/&gt;
+             *         &lt;element name="ProductSerialNumber" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductSerialNumber" minOccurs="0"/&gt;
              *         &lt;choice&gt;
-             *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DebitAmount"/&gt;
-             *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CreditAmount"/&gt;
+             *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DebitAmount"/&gt;
+             *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CreditAmount"/&gt;
              *         &lt;/choice&gt;
-             *         &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementTax" minOccurs="0"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxExemptionReason" minOccurs="0"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SettlementAmount" minOccurs="0"/&gt;
+             *         &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementTax" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionReason" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionCode" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SettlementAmount" minOccurs="0"/&gt;
+             *         &lt;element name="CustomsInformation" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomsInformation" minOccurs="0"/&gt;
              *       &lt;/sequence&gt;
              *     &lt;/restriction&gt;
              *   &lt;/complexContent&gt;
@@ -2066,11 +2127,14 @@ public class SourceDocuments implements ToString2
                 "unitOfMeasure",
                 "unitPrice",
                 "description",
+                "productSerialNumber",
                 "debitAmount",
                 "creditAmount",
                 "tax",
                 "taxExemptionReason",
-                "settlementAmount"
+                "taxExemptionCode",
+                "settlementAmount",
+                "customsInformation"
             })
             public static class Line implements ToString2
             {
@@ -2092,6 +2156,8 @@ public class SourceDocuments implements ToString2
                 protected BigDecimal unitPrice;
                 @XmlElement(name = "Description", required = true)
                 protected String description;
+                @XmlElement(name = "ProductSerialNumber")
+                protected ProductSerialNumber productSerialNumber;
                 @XmlElement(name = "DebitAmount")
                 protected BigDecimal debitAmount;
                 @XmlElement(name = "CreditAmount")
@@ -2100,8 +2166,12 @@ public class SourceDocuments implements ToString2
                 protected MovementTax tax;
                 @XmlElement(name = "TaxExemptionReason")
                 protected String taxExemptionReason;
+                @XmlElement(name = "TaxExemptionCode")
+                protected String taxExemptionCode;
                 @XmlElement(name = "SettlementAmount")
                 protected BigDecimal settlementAmount;
+                @XmlElement(name = "CustomsInformation")
+                protected CustomsInformation customsInformation;
 
                 /**
                  * Gets the value of the lineNumber property.
@@ -2301,6 +2371,30 @@ public class SourceDocuments implements ToString2
                 }
 
                 /**
+                 * Gets the value of the productSerialNumber property.
+                 * 
+                 * @return
+                 *     possible object is
+                 *     {@link ProductSerialNumber }
+                 *     
+                 */
+                public ProductSerialNumber getProductSerialNumber() {
+                    return productSerialNumber;
+                }
+
+                /**
+                 * Sets the value of the productSerialNumber property.
+                 * 
+                 * @param value
+                 *     allowed object is
+                 *     {@link ProductSerialNumber }
+                 *     
+                 */
+                public void setProductSerialNumber(ProductSerialNumber value) {
+                    this.productSerialNumber = value;
+                }
+
+                /**
                  * Gets the value of the debitAmount property.
                  * 
                  * @return
@@ -2397,6 +2491,30 @@ public class SourceDocuments implements ToString2
                 }
 
                 /**
+                 * Gets the value of the taxExemptionCode property.
+                 * 
+                 * @return
+                 *     possible object is
+                 *     {@link String }
+                 *     
+                 */
+                public String getTaxExemptionCode() {
+                    return taxExemptionCode;
+                }
+
+                /**
+                 * Sets the value of the taxExemptionCode property.
+                 * 
+                 * @param value
+                 *     allowed object is
+                 *     {@link String }
+                 *     
+                 */
+                public void setTaxExemptionCode(String value) {
+                    this.taxExemptionCode = value;
+                }
+
+                /**
                  * Gets the value of the settlementAmount property.
                  * 
                  * @return
@@ -2418,6 +2536,30 @@ public class SourceDocuments implements ToString2
                  */
                 public void setSettlementAmount(BigDecimal value) {
                     this.settlementAmount = value;
+                }
+
+                /**
+                 * Gets the value of the customsInformation property.
+                 * 
+                 * @return
+                 *     possible object is
+                 *     {@link CustomsInformation }
+                 *     
+                 */
+                public CustomsInformation getCustomsInformation() {
+                    return customsInformation;
+                }
+
+                /**
+                 * Sets the value of the customsInformation property.
+                 * 
+                 * @param value
+                 *     allowed object is
+                 *     {@link CustomsInformation }
+                 *     
+                 */
+                public void setCustomsInformation(CustomsInformation value) {
+                    this.customsInformation = value;
                 }
 
                 @Override
@@ -2479,6 +2621,11 @@ public class SourceDocuments implements ToString2
                         strategy.appendField(locator, this, "description", buffer, theDescription, (this.description!= null));
                     }
                     {
+                        ProductSerialNumber theProductSerialNumber;
+                        theProductSerialNumber = this.getProductSerialNumber();
+                        strategy.appendField(locator, this, "productSerialNumber", buffer, theProductSerialNumber, (this.productSerialNumber!= null));
+                    }
+                    {
                         BigDecimal theDebitAmount;
                         theDebitAmount = this.getDebitAmount();
                         strategy.appendField(locator, this, "debitAmount", buffer, theDebitAmount, (this.debitAmount!= null));
@@ -2499,9 +2646,19 @@ public class SourceDocuments implements ToString2
                         strategy.appendField(locator, this, "taxExemptionReason", buffer, theTaxExemptionReason, (this.taxExemptionReason!= null));
                     }
                     {
+                        String theTaxExemptionCode;
+                        theTaxExemptionCode = this.getTaxExemptionCode();
+                        strategy.appendField(locator, this, "taxExemptionCode", buffer, theTaxExemptionCode, (this.taxExemptionCode!= null));
+                    }
+                    {
                         BigDecimal theSettlementAmount;
                         theSettlementAmount = this.getSettlementAmount();
                         strategy.appendField(locator, this, "settlementAmount", buffer, theSettlementAmount, (this.settlementAmount!= null));
+                    }
+                    {
+                        CustomsInformation theCustomsInformation;
+                        theCustomsInformation = this.getCustomsInformation();
+                        strategy.appendField(locator, this, "customsInformation", buffer, theCustomsInformation, (this.customsInformation!= null));
                     }
                     return buffer;
                 }
@@ -2523,66 +2680,68 @@ public class SourceDocuments implements ToString2
      *   &lt;complexContent&gt;
      *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *       &lt;sequence&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NumberOfEntries"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TotalDebit"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TotalCredit"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NumberOfEntries"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TotalDebit"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TotalCredit"/&gt;
      *         &lt;element name="Payment" maxOccurs="unbounded" minOccurs="0"&gt;
      *           &lt;complexType&gt;
      *             &lt;complexContent&gt;
      *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *                 &lt;sequence&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PaymentRefNo"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Period" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TransactionID" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TransactionDate"/&gt;
-     *                   &lt;element name="PaymentType" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFTPTPaymentType"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SystemID" minOccurs="0"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentRefNo"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ATCUD"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Period" minOccurs="0"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TransactionID" minOccurs="0"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TransactionDate"/&gt;
+     *                   &lt;element name="PaymentType" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTPaymentType"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Description" minOccurs="0"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SystemID" minOccurs="0"/&gt;
      *                   &lt;element name="DocumentStatus"&gt;
      *                     &lt;complexType&gt;
      *                       &lt;complexContent&gt;
      *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *                           &lt;sequence&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PaymentStatus"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PaymentStatusDate"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Reason" minOccurs="0"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
-     *                             &lt;element name="SourcePayment" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFTPTSourcePayment"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentStatus"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentStatusDate"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Reason" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+     *                             &lt;element name="SourcePayment" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTSourcePayment"/&gt;
      *                           &lt;/sequence&gt;
      *                         &lt;/restriction&gt;
      *                       &lt;/complexContent&gt;
      *                     &lt;/complexType&gt;
      *                   &lt;/element&gt;
-     *                   &lt;element name="PaymentMethod" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PaymentMethod" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SystemEntryDate"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CustomerID"/&gt;
+     *                   &lt;element name="PaymentMethod" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentMethod" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SystemEntryDate"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomerID"/&gt;
      *                   &lt;element name="Line" maxOccurs="unbounded"&gt;
      *                     &lt;complexType&gt;
      *                       &lt;complexContent&gt;
      *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *                           &lt;sequence&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}LineNumber"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}LineNumber"/&gt;
      *                             &lt;element name="SourceDocumentID" maxOccurs="unbounded"&gt;
      *                               &lt;complexType&gt;
      *                                 &lt;complexContent&gt;
      *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *                                     &lt;sequence&gt;
-     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}OriginatingON"/&gt;
-     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}InvoiceDate"/&gt;
-     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description" minOccurs="0"/&gt;
+     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}OriginatingON"/&gt;
+     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceDate"/&gt;
+     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Description" minOccurs="0"/&gt;
      *                                     &lt;/sequence&gt;
      *                                   &lt;/restriction&gt;
      *                                 &lt;/complexContent&gt;
      *                               &lt;/complexType&gt;
      *                             &lt;/element&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SettlementAmount" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SettlementAmount" minOccurs="0"/&gt;
      *                             &lt;choice&gt;
-     *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DebitAmount"/&gt;
-     *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CreditAmount"/&gt;
+     *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DebitAmount"/&gt;
+     *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CreditAmount"/&gt;
      *                             &lt;/choice&gt;
-     *                             &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PaymentTax" minOccurs="0"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxExemptionReason" minOccurs="0"/&gt;
+     *                             &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentTax" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionReason" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionCode" minOccurs="0"/&gt;
      *                           &lt;/sequence&gt;
      *                         &lt;/restriction&gt;
      *                       &lt;/complexContent&gt;
@@ -2593,27 +2752,27 @@ public class SourceDocuments implements ToString2
      *                       &lt;complexContent&gt;
      *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *                           &lt;sequence&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPayable"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NetTotal"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GrossTotal"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPayable"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NetTotal"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GrossTotal"/&gt;
      *                             &lt;element name="Settlement" minOccurs="0"&gt;
      *                               &lt;complexType&gt;
      *                                 &lt;complexContent&gt;
      *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *                                     &lt;sequence&gt;
-     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SettlementAmount"/&gt;
+     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SettlementAmount"/&gt;
      *                                     &lt;/sequence&gt;
      *                                   &lt;/restriction&gt;
      *                                 &lt;/complexContent&gt;
      *                               &lt;/complexType&gt;
      *                             &lt;/element&gt;
-     *                             &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Currency" minOccurs="0"/&gt;
+     *                             &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Currency" minOccurs="0"/&gt;
      *                           &lt;/sequence&gt;
      *                         &lt;/restriction&gt;
      *                       &lt;/complexContent&gt;
      *                     &lt;/complexType&gt;
      *                   &lt;/element&gt;
-     *                   &lt;element name="WithholdingTax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}WithholdingTax" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *                   &lt;element name="WithholdingTax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WithholdingTax" maxOccurs="unbounded" minOccurs="0"/&gt;
      *                 &lt;/sequence&gt;
      *               &lt;/restriction&gt;
      *             &lt;/complexContent&gt;
@@ -2800,58 +2959,60 @@ public class SourceDocuments implements ToString2
          *   &lt;complexContent&gt;
          *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
          *       &lt;sequence&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PaymentRefNo"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Period" minOccurs="0"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TransactionID" minOccurs="0"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TransactionDate"/&gt;
-         *         &lt;element name="PaymentType" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFTPTPaymentType"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description" minOccurs="0"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SystemID" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentRefNo"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ATCUD"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Period" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TransactionID" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TransactionDate"/&gt;
+         *         &lt;element name="PaymentType" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTPaymentType"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Description" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SystemID" minOccurs="0"/&gt;
          *         &lt;element name="DocumentStatus"&gt;
          *           &lt;complexType&gt;
          *             &lt;complexContent&gt;
          *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
          *                 &lt;sequence&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PaymentStatus"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PaymentStatusDate"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Reason" minOccurs="0"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
-         *                   &lt;element name="SourcePayment" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFTPTSourcePayment"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentStatus"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentStatusDate"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Reason" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+         *                   &lt;element name="SourcePayment" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTSourcePayment"/&gt;
          *                 &lt;/sequence&gt;
          *               &lt;/restriction&gt;
          *             &lt;/complexContent&gt;
          *           &lt;/complexType&gt;
          *         &lt;/element&gt;
-         *         &lt;element name="PaymentMethod" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PaymentMethod" maxOccurs="unbounded" minOccurs="0"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SystemEntryDate"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CustomerID"/&gt;
+         *         &lt;element name="PaymentMethod" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentMethod" maxOccurs="unbounded" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SystemEntryDate"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomerID"/&gt;
          *         &lt;element name="Line" maxOccurs="unbounded"&gt;
          *           &lt;complexType&gt;
          *             &lt;complexContent&gt;
          *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
          *                 &lt;sequence&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}LineNumber"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}LineNumber"/&gt;
          *                   &lt;element name="SourceDocumentID" maxOccurs="unbounded"&gt;
          *                     &lt;complexType&gt;
          *                       &lt;complexContent&gt;
          *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
          *                           &lt;sequence&gt;
-         *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}OriginatingON"/&gt;
-         *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}InvoiceDate"/&gt;
-         *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description" minOccurs="0"/&gt;
+         *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}OriginatingON"/&gt;
+         *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceDate"/&gt;
+         *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Description" minOccurs="0"/&gt;
          *                           &lt;/sequence&gt;
          *                         &lt;/restriction&gt;
          *                       &lt;/complexContent&gt;
          *                     &lt;/complexType&gt;
          *                   &lt;/element&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SettlementAmount" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SettlementAmount" minOccurs="0"/&gt;
          *                   &lt;choice&gt;
-         *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DebitAmount"/&gt;
-         *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CreditAmount"/&gt;
+         *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DebitAmount"/&gt;
+         *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CreditAmount"/&gt;
          *                   &lt;/choice&gt;
-         *                   &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PaymentTax" minOccurs="0"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxExemptionReason" minOccurs="0"/&gt;
+         *                   &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentTax" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionReason" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionCode" minOccurs="0"/&gt;
          *                 &lt;/sequence&gt;
          *               &lt;/restriction&gt;
          *             &lt;/complexContent&gt;
@@ -2862,27 +3023,27 @@ public class SourceDocuments implements ToString2
          *             &lt;complexContent&gt;
          *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
          *                 &lt;sequence&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPayable"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NetTotal"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GrossTotal"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPayable"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NetTotal"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GrossTotal"/&gt;
          *                   &lt;element name="Settlement" minOccurs="0"&gt;
          *                     &lt;complexType&gt;
          *                       &lt;complexContent&gt;
          *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
          *                           &lt;sequence&gt;
-         *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SettlementAmount"/&gt;
+         *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SettlementAmount"/&gt;
          *                           &lt;/sequence&gt;
          *                         &lt;/restriction&gt;
          *                       &lt;/complexContent&gt;
          *                     &lt;/complexType&gt;
          *                   &lt;/element&gt;
-         *                   &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Currency" minOccurs="0"/&gt;
+         *                   &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Currency" minOccurs="0"/&gt;
          *                 &lt;/sequence&gt;
          *               &lt;/restriction&gt;
          *             &lt;/complexContent&gt;
          *           &lt;/complexType&gt;
          *         &lt;/element&gt;
-         *         &lt;element name="WithholdingTax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}WithholdingTax" maxOccurs="unbounded" minOccurs="0"/&gt;
+         *         &lt;element name="WithholdingTax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WithholdingTax" maxOccurs="unbounded" minOccurs="0"/&gt;
          *       &lt;/sequence&gt;
          *     &lt;/restriction&gt;
          *   &lt;/complexContent&gt;
@@ -2894,6 +3055,7 @@ public class SourceDocuments implements ToString2
         @XmlAccessorType(XmlAccessType.FIELD)
         @XmlType(name = "", propOrder = {
             "paymentRefNo",
+            "atcud",
             "period",
             "transactionID",
             "transactionDate",
@@ -2914,6 +3076,8 @@ public class SourceDocuments implements ToString2
 
             @XmlElement(name = "PaymentRefNo", required = true)
             protected String paymentRefNo;
+            @XmlElement(name = "ATCUD", required = true)
+            protected String atcud;
             @XmlElement(name = "Period")
             protected Integer period;
             @XmlElement(name = "TransactionID")
@@ -2968,6 +3132,30 @@ public class SourceDocuments implements ToString2
              */
             public void setPaymentRefNo(String value) {
                 this.paymentRefNo = value;
+            }
+
+            /**
+             * Gets the value of the atcud property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link String }
+             *     
+             */
+            public String getATCUD() {
+                return atcud;
+            }
+
+            /**
+             * Sets the value of the atcud property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link String }
+             *     
+             */
+            public void setATCUD(String value) {
+                this.atcud = value;
             }
 
             /**
@@ -3345,6 +3533,11 @@ public class SourceDocuments implements ToString2
                     strategy.appendField(locator, this, "paymentRefNo", buffer, thePaymentRefNo, (this.paymentRefNo!= null));
                 }
                 {
+                    String theATCUD;
+                    theATCUD = this.getATCUD();
+                    strategy.appendField(locator, this, "atcud", buffer, theATCUD, (this.atcud!= null));
+                }
+                {
                     Integer thePeriod;
                     thePeriod = this.getPeriod();
                     strategy.appendField(locator, this, "period", buffer, thePeriod, (this.period!= null));
@@ -3428,11 +3621,11 @@ public class SourceDocuments implements ToString2
              *   &lt;complexContent&gt;
              *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
              *       &lt;sequence&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PaymentStatus"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PaymentStatusDate"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Reason" minOccurs="0"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
-             *         &lt;element name="SourcePayment" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFTPTSourcePayment"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentStatus"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentStatusDate"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Reason" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+             *         &lt;element name="SourcePayment" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTSourcePayment"/&gt;
              *       &lt;/sequence&gt;
              *     &lt;/restriction&gt;
              *   &lt;/complexContent&gt;
@@ -3644,21 +3837,21 @@ public class SourceDocuments implements ToString2
              *   &lt;complexContent&gt;
              *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
              *       &lt;sequence&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPayable"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NetTotal"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GrossTotal"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPayable"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NetTotal"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GrossTotal"/&gt;
              *         &lt;element name="Settlement" minOccurs="0"&gt;
              *           &lt;complexType&gt;
              *             &lt;complexContent&gt;
              *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
              *                 &lt;sequence&gt;
-             *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SettlementAmount"/&gt;
+             *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SettlementAmount"/&gt;
              *                 &lt;/sequence&gt;
              *               &lt;/restriction&gt;
              *             &lt;/complexContent&gt;
              *           &lt;/complexType&gt;
              *         &lt;/element&gt;
-             *         &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Currency" minOccurs="0"/&gt;
+             *         &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Currency" minOccurs="0"/&gt;
              *       &lt;/sequence&gt;
              *     &lt;/restriction&gt;
              *   &lt;/complexContent&gt;
@@ -3866,7 +4059,7 @@ public class SourceDocuments implements ToString2
                  *   &lt;complexContent&gt;
                  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
                  *       &lt;sequence&gt;
-                 *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SettlementAmount"/&gt;
+                 *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SettlementAmount"/&gt;
                  *       &lt;/sequence&gt;
                  *     &lt;/restriction&gt;
                  *   &lt;/complexContent&gt;
@@ -3950,27 +4143,28 @@ public class SourceDocuments implements ToString2
              *   &lt;complexContent&gt;
              *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
              *       &lt;sequence&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}LineNumber"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}LineNumber"/&gt;
              *         &lt;element name="SourceDocumentID" maxOccurs="unbounded"&gt;
              *           &lt;complexType&gt;
              *             &lt;complexContent&gt;
              *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
              *                 &lt;sequence&gt;
-             *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}OriginatingON"/&gt;
-             *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}InvoiceDate"/&gt;
-             *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description" minOccurs="0"/&gt;
+             *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}OriginatingON"/&gt;
+             *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceDate"/&gt;
+             *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Description" minOccurs="0"/&gt;
              *                 &lt;/sequence&gt;
              *               &lt;/restriction&gt;
              *             &lt;/complexContent&gt;
              *           &lt;/complexType&gt;
              *         &lt;/element&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SettlementAmount" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SettlementAmount" minOccurs="0"/&gt;
              *         &lt;choice&gt;
-             *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DebitAmount"/&gt;
-             *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CreditAmount"/&gt;
+             *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DebitAmount"/&gt;
+             *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CreditAmount"/&gt;
              *         &lt;/choice&gt;
-             *         &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PaymentTax" minOccurs="0"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxExemptionReason" minOccurs="0"/&gt;
+             *         &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentTax" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionReason" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionCode" minOccurs="0"/&gt;
              *       &lt;/sequence&gt;
              *     &lt;/restriction&gt;
              *   &lt;/complexContent&gt;
@@ -3987,7 +4181,8 @@ public class SourceDocuments implements ToString2
                 "debitAmount",
                 "creditAmount",
                 "tax",
-                "taxExemptionReason"
+                "taxExemptionReason",
+                "taxExemptionCode"
             })
             public static class Line implements ToString2
             {
@@ -4007,6 +4202,8 @@ public class SourceDocuments implements ToString2
                 protected PaymentTax tax;
                 @XmlElement(name = "TaxExemptionReason")
                 protected String taxExemptionReason;
+                @XmlElement(name = "TaxExemptionCode")
+                protected String taxExemptionCode;
 
                 /**
                  * Gets the value of the lineNumber property.
@@ -4181,6 +4378,30 @@ public class SourceDocuments implements ToString2
                     this.taxExemptionReason = value;
                 }
 
+                /**
+                 * Gets the value of the taxExemptionCode property.
+                 * 
+                 * @return
+                 *     possible object is
+                 *     {@link String }
+                 *     
+                 */
+                public String getTaxExemptionCode() {
+                    return taxExemptionCode;
+                }
+
+                /**
+                 * Sets the value of the taxExemptionCode property.
+                 * 
+                 * @param value
+                 *     allowed object is
+                 *     {@link String }
+                 *     
+                 */
+                public void setTaxExemptionCode(String value) {
+                    this.taxExemptionCode = value;
+                }
+
                 @Override
                 public String toString() {
                     final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
@@ -4234,6 +4455,11 @@ public class SourceDocuments implements ToString2
                         theTaxExemptionReason = this.getTaxExemptionReason();
                         strategy.appendField(locator, this, "taxExemptionReason", buffer, theTaxExemptionReason, (this.taxExemptionReason!= null));
                     }
+                    {
+                        String theTaxExemptionCode;
+                        theTaxExemptionCode = this.getTaxExemptionCode();
+                        strategy.appendField(locator, this, "taxExemptionCode", buffer, theTaxExemptionCode, (this.taxExemptionCode!= null));
+                    }
                     return buffer;
                 }
 
@@ -4248,9 +4474,9 @@ public class SourceDocuments implements ToString2
                  *   &lt;complexContent&gt;
                  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
                  *       &lt;sequence&gt;
-                 *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}OriginatingON"/&gt;
-                 *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}InvoiceDate"/&gt;
-                 *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description" minOccurs="0"/&gt;
+                 *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}OriginatingON"/&gt;
+                 *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceDate"/&gt;
+                 *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Description" minOccurs="0"/&gt;
                  *       &lt;/sequence&gt;
                  *     &lt;/restriction&gt;
                  *   &lt;/complexContent&gt;
@@ -4403,67 +4629,72 @@ public class SourceDocuments implements ToString2
      *   &lt;complexContent&gt;
      *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *       &lt;sequence&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NumberOfEntries"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TotalDebit"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TotalCredit"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NumberOfEntries"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TotalDebit"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TotalCredit"/&gt;
      *         &lt;element name="Invoice" maxOccurs="unbounded" minOccurs="0"&gt;
      *           &lt;complexType&gt;
      *             &lt;complexContent&gt;
      *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *                 &lt;sequence&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}InvoiceNo"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceNo"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ATCUD"/&gt;
      *                   &lt;element name="DocumentStatus"&gt;
      *                     &lt;complexType&gt;
      *                       &lt;complexContent&gt;
      *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *                           &lt;sequence&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}InvoiceStatus"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}InvoiceStatusDate"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Reason" minOccurs="0"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
-     *                             &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFTPTSourceBilling"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceStatus"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceStatusDate"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Reason" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+     *                             &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTSourceBilling"/&gt;
      *                           &lt;/sequence&gt;
      *                         &lt;/restriction&gt;
      *                       &lt;/complexContent&gt;
      *                     &lt;/complexType&gt;
      *                   &lt;/element&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Hash"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}HashControl" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Period" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}InvoiceDate"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}InvoiceType"/&gt;
-     *                   &lt;element name="SpecialRegimes" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SpecialRegimes"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}EACCode" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SystemEntryDate"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TransactionID" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CustomerID"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ShipTo" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ShipFrom" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementEndTime" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementStartTime" minOccurs="0"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Hash"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}HashControl"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Period" minOccurs="0"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceDate"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceType"/&gt;
+     *                   &lt;element name="SpecialRegimes" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SpecialRegimes"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}EACCode" minOccurs="0"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SystemEntryDate"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TransactionID" minOccurs="0"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomerID"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ShipTo" minOccurs="0"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ShipFrom" minOccurs="0"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementEndTime" minOccurs="0"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementStartTime" minOccurs="0"/&gt;
      *                   &lt;element name="Line" maxOccurs="unbounded"&gt;
      *                     &lt;complexType&gt;
      *                       &lt;complexContent&gt;
      *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *                           &lt;sequence&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}LineNumber"/&gt;
-     *                             &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductCode"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductDescription"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Quantity"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitOfMeasure"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitPrice"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPointDate"/&gt;
-     *                             &lt;element name="References" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}References" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}LineNumber"/&gt;
+     *                             &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductCode"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductDescription"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Quantity"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitOfMeasure"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitPrice"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxBase" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPointDate"/&gt;
+     *                             &lt;element name="References" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}References" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Description"/&gt;
+     *                             &lt;element name="ProductSerialNumber" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductSerialNumber" minOccurs="0"/&gt;
      *                             &lt;choice&gt;
-     *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DebitAmount"/&gt;
-     *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CreditAmount"/&gt;
+     *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DebitAmount"/&gt;
+     *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CreditAmount"/&gt;
      *                             &lt;/choice&gt;
-     *                             &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Tax"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxExemptionReason" minOccurs="0"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SettlementAmount" minOccurs="0"/&gt;
+     *                             &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Tax"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionReason" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionCode" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SettlementAmount" minOccurs="0"/&gt;
+     *                             &lt;element name="CustomsInformation" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomsInformation" minOccurs="0"/&gt;
      *                           &lt;/sequence&gt;
      *                         &lt;/restriction&gt;
      *                       &lt;/complexContent&gt;
@@ -4474,18 +4705,18 @@ public class SourceDocuments implements ToString2
      *                       &lt;complexContent&gt;
      *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *                           &lt;sequence&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPayable"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NetTotal"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GrossTotal"/&gt;
-     *                             &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Currency" minOccurs="0"/&gt;
-     *                             &lt;element name="Settlement" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Settlement" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *                             &lt;element name="Payment" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PaymentMethod" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPayable"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NetTotal"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GrossTotal"/&gt;
+     *                             &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Currency" minOccurs="0"/&gt;
+     *                             &lt;element name="Settlement" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Settlement" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *                             &lt;element name="Payment" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentMethod" maxOccurs="unbounded" minOccurs="0"/&gt;
      *                           &lt;/sequence&gt;
      *                         &lt;/restriction&gt;
      *                       &lt;/complexContent&gt;
      *                     &lt;/complexType&gt;
      *                   &lt;/element&gt;
-     *                   &lt;element name="WithholdingTax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}WithholdingTax" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *                   &lt;element name="WithholdingTax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WithholdingTax" maxOccurs="unbounded" minOccurs="0"/&gt;
      *                 &lt;/sequence&gt;
      *               &lt;/restriction&gt;
      *             &lt;/complexContent&gt;
@@ -4672,59 +4903,64 @@ public class SourceDocuments implements ToString2
          *   &lt;complexContent&gt;
          *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
          *       &lt;sequence&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}InvoiceNo"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceNo"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ATCUD"/&gt;
          *         &lt;element name="DocumentStatus"&gt;
          *           &lt;complexType&gt;
          *             &lt;complexContent&gt;
          *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
          *                 &lt;sequence&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}InvoiceStatus"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}InvoiceStatusDate"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Reason" minOccurs="0"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
-         *                   &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFTPTSourceBilling"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceStatus"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceStatusDate"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Reason" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+         *                   &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTSourceBilling"/&gt;
          *                 &lt;/sequence&gt;
          *               &lt;/restriction&gt;
          *             &lt;/complexContent&gt;
          *           &lt;/complexType&gt;
          *         &lt;/element&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Hash"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}HashControl" minOccurs="0"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Period" minOccurs="0"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}InvoiceDate"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}InvoiceType"/&gt;
-         *         &lt;element name="SpecialRegimes" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SpecialRegimes"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}EACCode" minOccurs="0"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SystemEntryDate"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TransactionID" minOccurs="0"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CustomerID"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ShipTo" minOccurs="0"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ShipFrom" minOccurs="0"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementEndTime" minOccurs="0"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}MovementStartTime" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Hash"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}HashControl"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Period" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceDate"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceType"/&gt;
+         *         &lt;element name="SpecialRegimes" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SpecialRegimes"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}EACCode" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SystemEntryDate"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TransactionID" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomerID"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ShipTo" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ShipFrom" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementEndTime" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementStartTime" minOccurs="0"/&gt;
          *         &lt;element name="Line" maxOccurs="unbounded"&gt;
          *           &lt;complexType&gt;
          *             &lt;complexContent&gt;
          *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
          *                 &lt;sequence&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}LineNumber"/&gt;
-         *                   &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductCode"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductDescription"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Quantity"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitOfMeasure"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitPrice"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPointDate"/&gt;
-         *                   &lt;element name="References" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}References" maxOccurs="unbounded" minOccurs="0"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}LineNumber"/&gt;
+         *                   &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductCode"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductDescription"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Quantity"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitOfMeasure"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitPrice"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxBase" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPointDate"/&gt;
+         *                   &lt;element name="References" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}References" maxOccurs="unbounded" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Description"/&gt;
+         *                   &lt;element name="ProductSerialNumber" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductSerialNumber" minOccurs="0"/&gt;
          *                   &lt;choice&gt;
-         *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DebitAmount"/&gt;
-         *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CreditAmount"/&gt;
+         *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DebitAmount"/&gt;
+         *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CreditAmount"/&gt;
          *                   &lt;/choice&gt;
-         *                   &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Tax"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxExemptionReason" minOccurs="0"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SettlementAmount" minOccurs="0"/&gt;
+         *                   &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Tax"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionReason" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionCode" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SettlementAmount" minOccurs="0"/&gt;
+         *                   &lt;element name="CustomsInformation" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomsInformation" minOccurs="0"/&gt;
          *                 &lt;/sequence&gt;
          *               &lt;/restriction&gt;
          *             &lt;/complexContent&gt;
@@ -4735,18 +4971,18 @@ public class SourceDocuments implements ToString2
          *             &lt;complexContent&gt;
          *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
          *                 &lt;sequence&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPayable"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NetTotal"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GrossTotal"/&gt;
-         *                   &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Currency" minOccurs="0"/&gt;
-         *                   &lt;element name="Settlement" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Settlement" maxOccurs="unbounded" minOccurs="0"/&gt;
-         *                   &lt;element name="Payment" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PaymentMethod" maxOccurs="unbounded" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPayable"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NetTotal"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GrossTotal"/&gt;
+         *                   &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Currency" minOccurs="0"/&gt;
+         *                   &lt;element name="Settlement" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Settlement" maxOccurs="unbounded" minOccurs="0"/&gt;
+         *                   &lt;element name="Payment" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentMethod" maxOccurs="unbounded" minOccurs="0"/&gt;
          *                 &lt;/sequence&gt;
          *               &lt;/restriction&gt;
          *             &lt;/complexContent&gt;
          *           &lt;/complexType&gt;
          *         &lt;/element&gt;
-         *         &lt;element name="WithholdingTax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}WithholdingTax" maxOccurs="unbounded" minOccurs="0"/&gt;
+         *         &lt;element name="WithholdingTax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WithholdingTax" maxOccurs="unbounded" minOccurs="0"/&gt;
          *       &lt;/sequence&gt;
          *     &lt;/restriction&gt;
          *   &lt;/complexContent&gt;
@@ -4758,6 +4994,7 @@ public class SourceDocuments implements ToString2
         @XmlAccessorType(XmlAccessType.FIELD)
         @XmlType(name = "", propOrder = {
             "invoiceNo",
+            "atcud",
             "documentStatus",
             "hash",
             "hashControl",
@@ -4783,11 +5020,13 @@ public class SourceDocuments implements ToString2
 
             @XmlElement(name = "InvoiceNo", required = true)
             protected String invoiceNo;
+            @XmlElement(name = "ATCUD", required = true)
+            protected String atcud;
             @XmlElement(name = "DocumentStatus", required = true)
             protected SourceDocuments.SalesInvoices.Invoice.DocumentStatus documentStatus;
             @XmlElement(name = "Hash", required = true)
             protected String hash;
-            @XmlElement(name = "HashControl")
+            @XmlElement(name = "HashControl", required = true)
             protected String hashControl;
             @XmlElement(name = "Period")
             protected Integer period;
@@ -4848,6 +5087,30 @@ public class SourceDocuments implements ToString2
              */
             public void setInvoiceNo(String value) {
                 this.invoiceNo = value;
+            }
+
+            /**
+             * Gets the value of the atcud property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link String }
+             *     
+             */
+            public String getATCUD() {
+                return atcud;
+            }
+
+            /**
+             * Sets the value of the atcud property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link String }
+             *     
+             */
+            public void setATCUD(String value) {
+                this.atcud = value;
             }
 
             /**
@@ -5340,6 +5603,11 @@ public class SourceDocuments implements ToString2
                     strategy.appendField(locator, this, "invoiceNo", buffer, theInvoiceNo, (this.invoiceNo!= null));
                 }
                 {
+                    String theATCUD;
+                    theATCUD = this.getATCUD();
+                    strategy.appendField(locator, this, "atcud", buffer, theATCUD, (this.atcud!= null));
+                }
+                {
                     SourceDocuments.SalesInvoices.Invoice.DocumentStatus theDocumentStatus;
                     theDocumentStatus = this.getDocumentStatus();
                     strategy.appendField(locator, this, "documentStatus", buffer, theDocumentStatus, (this.documentStatus!= null));
@@ -5448,11 +5716,11 @@ public class SourceDocuments implements ToString2
              *   &lt;complexContent&gt;
              *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
              *       &lt;sequence&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}InvoiceStatus"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}InvoiceStatusDate"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Reason" minOccurs="0"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
-             *         &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFTPTSourceBilling"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceStatus"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}InvoiceStatusDate"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Reason" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+             *         &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTSourceBilling"/&gt;
              *       &lt;/sequence&gt;
              *     &lt;/restriction&gt;
              *   &lt;/complexContent&gt;
@@ -5664,12 +5932,12 @@ public class SourceDocuments implements ToString2
              *   &lt;complexContent&gt;
              *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
              *       &lt;sequence&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPayable"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NetTotal"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GrossTotal"/&gt;
-             *         &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Currency" minOccurs="0"/&gt;
-             *         &lt;element name="Settlement" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Settlement" maxOccurs="unbounded" minOccurs="0"/&gt;
-             *         &lt;element name="Payment" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PaymentMethod" maxOccurs="unbounded" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPayable"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NetTotal"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GrossTotal"/&gt;
+             *         &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Currency" minOccurs="0"/&gt;
+             *         &lt;element name="Settlement" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Settlement" maxOccurs="unbounded" minOccurs="0"/&gt;
+             *         &lt;element name="Payment" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentMethod" maxOccurs="unbounded" minOccurs="0"/&gt;
              *       &lt;/sequence&gt;
              *     &lt;/restriction&gt;
              *   &lt;/complexContent&gt;
@@ -5699,7 +5967,7 @@ public class SourceDocuments implements ToString2
                 @XmlElement(name = "Currency")
                 protected Currency currency;
                 @XmlElement(name = "Settlement")
-                protected List<com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema.Settlement> settlement;
+                protected List<com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema.Settlement> settlement;
                 @XmlElement(name = "Payment")
                 protected List<PaymentMethod> payment;
 
@@ -5817,13 +6085,13 @@ public class SourceDocuments implements ToString2
                  * 
                  * <p>
                  * Objects of the following type(s) are allowed in the list
-                 * {@link com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema.Settlement }
+                 * {@link com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema.Settlement }
                  * 
                  * 
                  */
-                public List<com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema.Settlement> getSettlement() {
+                public List<com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema.Settlement> getSettlement() {
                     if (settlement == null) {
-                        settlement = new ArrayList<com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema.Settlement>();
+                        settlement = new ArrayList<com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema.Settlement>();
                     }
                     return this.settlement;
                 }
@@ -5896,7 +6164,7 @@ public class SourceDocuments implements ToString2
                         strategy.appendField(locator, this, "currency", buffer, theCurrency, (this.currency!= null));
                     }
                     {
-                        List<com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema.Settlement> theSettlement;
+                        List<com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema.Settlement> theSettlement;
                         theSettlement = (((this.settlement!= null)&&(!this.settlement.isEmpty()))?this.getSettlement():null);
                         strategy.appendField(locator, this, "settlement", buffer, theSettlement, ((this.settlement!= null)&&(!this.settlement.isEmpty())));
                     }
@@ -5921,23 +6189,27 @@ public class SourceDocuments implements ToString2
              *   &lt;complexContent&gt;
              *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
              *       &lt;sequence&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}LineNumber"/&gt;
-             *         &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductCode"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductDescription"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Quantity"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitOfMeasure"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitPrice"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPointDate"/&gt;
-             *         &lt;element name="References" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}References" maxOccurs="unbounded" minOccurs="0"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}LineNumber"/&gt;
+             *         &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductCode"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductDescription"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Quantity"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitOfMeasure"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitPrice"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxBase" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPointDate"/&gt;
+             *         &lt;element name="References" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}References" maxOccurs="unbounded" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Description"/&gt;
+             *         &lt;element name="ProductSerialNumber" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductSerialNumber" minOccurs="0"/&gt;
              *         &lt;choice&gt;
-             *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DebitAmount"/&gt;
-             *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CreditAmount"/&gt;
+             *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DebitAmount"/&gt;
+             *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CreditAmount"/&gt;
              *         &lt;/choice&gt;
-             *         &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Tax"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxExemptionReason" minOccurs="0"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SettlementAmount" minOccurs="0"/&gt;
+             *         &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Tax"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionReason" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionCode" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SettlementAmount" minOccurs="0"/&gt;
+             *         &lt;element name="CustomsInformation" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomsInformation" minOccurs="0"/&gt;
              *       &lt;/sequence&gt;
              *     &lt;/restriction&gt;
              *   &lt;/complexContent&gt;
@@ -5955,14 +6227,18 @@ public class SourceDocuments implements ToString2
                 "quantity",
                 "unitOfMeasure",
                 "unitPrice",
+                "taxBase",
                 "taxPointDate",
                 "references",
                 "description",
+                "productSerialNumber",
                 "debitAmount",
                 "creditAmount",
                 "tax",
                 "taxExemptionReason",
-                "settlementAmount"
+                "taxExemptionCode",
+                "settlementAmount",
+                "customsInformation"
             })
             public static class Line implements ToString2
             {
@@ -5982,6 +6258,8 @@ public class SourceDocuments implements ToString2
                 protected String unitOfMeasure;
                 @XmlElement(name = "UnitPrice", required = true)
                 protected BigDecimal unitPrice;
+                @XmlElement(name = "TaxBase")
+                protected BigDecimal taxBase;
                 @XmlElement(name = "TaxPointDate", required = true)
                 @XmlSchemaType(name = "date")
                 protected XMLGregorianCalendar taxPointDate;
@@ -5989,6 +6267,8 @@ public class SourceDocuments implements ToString2
                 protected List<References> references;
                 @XmlElement(name = "Description", required = true)
                 protected String description;
+                @XmlElement(name = "ProductSerialNumber")
+                protected ProductSerialNumber productSerialNumber;
                 @XmlElement(name = "DebitAmount")
                 protected BigDecimal debitAmount;
                 @XmlElement(name = "CreditAmount")
@@ -5997,8 +6277,12 @@ public class SourceDocuments implements ToString2
                 protected Tax tax;
                 @XmlElement(name = "TaxExemptionReason")
                 protected String taxExemptionReason;
+                @XmlElement(name = "TaxExemptionCode")
+                protected String taxExemptionCode;
                 @XmlElement(name = "SettlementAmount")
                 protected BigDecimal settlementAmount;
+                @XmlElement(name = "CustomsInformation")
+                protected CustomsInformation customsInformation;
 
                 /**
                  * Gets the value of the lineNumber property.
@@ -6174,6 +6458,30 @@ public class SourceDocuments implements ToString2
                 }
 
                 /**
+                 * Gets the value of the taxBase property.
+                 * 
+                 * @return
+                 *     possible object is
+                 *     {@link BigDecimal }
+                 *     
+                 */
+                public BigDecimal getTaxBase() {
+                    return taxBase;
+                }
+
+                /**
+                 * Sets the value of the taxBase property.
+                 * 
+                 * @param value
+                 *     allowed object is
+                 *     {@link BigDecimal }
+                 *     
+                 */
+                public void setTaxBase(BigDecimal value) {
+                    this.taxBase = value;
+                }
+
+                /**
                  * Gets the value of the taxPointDate property.
                  * 
                  * @return
@@ -6248,6 +6556,30 @@ public class SourceDocuments implements ToString2
                  */
                 public void setDescription(String value) {
                     this.description = value;
+                }
+
+                /**
+                 * Gets the value of the productSerialNumber property.
+                 * 
+                 * @return
+                 *     possible object is
+                 *     {@link ProductSerialNumber }
+                 *     
+                 */
+                public ProductSerialNumber getProductSerialNumber() {
+                    return productSerialNumber;
+                }
+
+                /**
+                 * Sets the value of the productSerialNumber property.
+                 * 
+                 * @param value
+                 *     allowed object is
+                 *     {@link ProductSerialNumber }
+                 *     
+                 */
+                public void setProductSerialNumber(ProductSerialNumber value) {
+                    this.productSerialNumber = value;
                 }
 
                 /**
@@ -6347,6 +6679,30 @@ public class SourceDocuments implements ToString2
                 }
 
                 /**
+                 * Gets the value of the taxExemptionCode property.
+                 * 
+                 * @return
+                 *     possible object is
+                 *     {@link String }
+                 *     
+                 */
+                public String getTaxExemptionCode() {
+                    return taxExemptionCode;
+                }
+
+                /**
+                 * Sets the value of the taxExemptionCode property.
+                 * 
+                 * @param value
+                 *     allowed object is
+                 *     {@link String }
+                 *     
+                 */
+                public void setTaxExemptionCode(String value) {
+                    this.taxExemptionCode = value;
+                }
+
+                /**
                  * Gets the value of the settlementAmount property.
                  * 
                  * @return
@@ -6368,6 +6724,30 @@ public class SourceDocuments implements ToString2
                  */
                 public void setSettlementAmount(BigDecimal value) {
                     this.settlementAmount = value;
+                }
+
+                /**
+                 * Gets the value of the customsInformation property.
+                 * 
+                 * @return
+                 *     possible object is
+                 *     {@link CustomsInformation }
+                 *     
+                 */
+                public CustomsInformation getCustomsInformation() {
+                    return customsInformation;
+                }
+
+                /**
+                 * Sets the value of the customsInformation property.
+                 * 
+                 * @param value
+                 *     allowed object is
+                 *     {@link CustomsInformation }
+                 *     
+                 */
+                public void setCustomsInformation(CustomsInformation value) {
+                    this.customsInformation = value;
                 }
 
                 @Override
@@ -6424,6 +6804,11 @@ public class SourceDocuments implements ToString2
                         strategy.appendField(locator, this, "unitPrice", buffer, theUnitPrice, (this.unitPrice!= null));
                     }
                     {
+                        BigDecimal theTaxBase;
+                        theTaxBase = this.getTaxBase();
+                        strategy.appendField(locator, this, "taxBase", buffer, theTaxBase, (this.taxBase!= null));
+                    }
+                    {
                         XMLGregorianCalendar theTaxPointDate;
                         theTaxPointDate = this.getTaxPointDate();
                         strategy.appendField(locator, this, "taxPointDate", buffer, theTaxPointDate, (this.taxPointDate!= null));
@@ -6437,6 +6822,11 @@ public class SourceDocuments implements ToString2
                         String theDescription;
                         theDescription = this.getDescription();
                         strategy.appendField(locator, this, "description", buffer, theDescription, (this.description!= null));
+                    }
+                    {
+                        ProductSerialNumber theProductSerialNumber;
+                        theProductSerialNumber = this.getProductSerialNumber();
+                        strategy.appendField(locator, this, "productSerialNumber", buffer, theProductSerialNumber, (this.productSerialNumber!= null));
                     }
                     {
                         BigDecimal theDebitAmount;
@@ -6459,9 +6849,19 @@ public class SourceDocuments implements ToString2
                         strategy.appendField(locator, this, "taxExemptionReason", buffer, theTaxExemptionReason, (this.taxExemptionReason!= null));
                     }
                     {
+                        String theTaxExemptionCode;
+                        theTaxExemptionCode = this.getTaxExemptionCode();
+                        strategy.appendField(locator, this, "taxExemptionCode", buffer, theTaxExemptionCode, (this.taxExemptionCode!= null));
+                    }
+                    {
                         BigDecimal theSettlementAmount;
                         theSettlementAmount = this.getSettlementAmount();
                         strategy.appendField(locator, this, "settlementAmount", buffer, theSettlementAmount, (this.settlementAmount!= null));
+                    }
+                    {
+                        CustomsInformation theCustomsInformation;
+                        theCustomsInformation = this.getCustomsInformation();
+                        strategy.appendField(locator, this, "customsInformation", buffer, theCustomsInformation, (this.customsInformation!= null));
                     }
                     return buffer;
                 }
@@ -6483,60 +6883,67 @@ public class SourceDocuments implements ToString2
      *   &lt;complexContent&gt;
      *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *       &lt;sequence&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NumberOfEntries"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TotalDebit"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TotalCredit"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NumberOfEntries"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TotalDebit"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TotalCredit"/&gt;
      *         &lt;element name="WorkDocument" maxOccurs="unbounded" minOccurs="0"&gt;
      *           &lt;complexType&gt;
      *             &lt;complexContent&gt;
      *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *                 &lt;sequence&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DocumentNumber"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DocumentNumber"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ATCUD"/&gt;
      *                   &lt;element name="DocumentStatus"&gt;
      *                     &lt;complexType&gt;
      *                       &lt;complexContent&gt;
      *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *                           &lt;sequence&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}WorkStatus"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}WorkStatusDate"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Reason" minOccurs="0"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
-     *                             &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFTPTSourceBilling"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WorkStatus"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WorkStatusDate"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Reason" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+     *                             &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTSourceBilling"/&gt;
      *                           &lt;/sequence&gt;
      *                         &lt;/restriction&gt;
      *                       &lt;/complexContent&gt;
      *                     &lt;/complexType&gt;
      *                   &lt;/element&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Hash"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}HashControl" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Period" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}WorkDate"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}WorkType"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}EACCode" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SystemEntryDate"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CustomerID"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Hash"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}HashControl"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Period" minOccurs="0"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WorkDate"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WorkType"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}EACCode" minOccurs="0"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SystemEntryDate"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TransactionID" minOccurs="0"/&gt;
+     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomerID"/&gt;
      *                   &lt;element name="Line" maxOccurs="unbounded"&gt;
      *                     &lt;complexType&gt;
      *                       &lt;complexContent&gt;
      *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *                           &lt;sequence&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}LineNumber"/&gt;
-     *                             &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductCode"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductDescription"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Quantity"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitOfMeasure"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitPrice"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPointDate"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}LineNumber"/&gt;
+     *                             &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductCode"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductDescription"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Quantity"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitOfMeasure"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitPrice"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxBase" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPointDate"/&gt;
+     *                             &lt;element name="References" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}References" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Description"/&gt;
+     *                             &lt;element name="ProductSerialNumber" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductSerialNumber" minOccurs="0"/&gt;
      *                             &lt;choice&gt;
-     *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DebitAmount"/&gt;
-     *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CreditAmount"/&gt;
+     *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DebitAmount"/&gt;
+     *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CreditAmount"/&gt;
      *                             &lt;/choice&gt;
-     *                             &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Tax" minOccurs="0"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxExemptionReason" minOccurs="0"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SettlementAmount" minOccurs="0"/&gt;
+     *                             &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Tax" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionReason" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionCode" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SettlementAmount" minOccurs="0"/&gt;
+     *                             &lt;element name="CustomsInformation" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomsInformation" minOccurs="0"/&gt;
      *                           &lt;/sequence&gt;
      *                         &lt;/restriction&gt;
      *                       &lt;/complexContent&gt;
@@ -6547,10 +6954,10 @@ public class SourceDocuments implements ToString2
      *                       &lt;complexContent&gt;
      *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *                           &lt;sequence&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPayable"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NetTotal"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GrossTotal"/&gt;
-     *                             &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Currency" minOccurs="0"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPayable"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NetTotal"/&gt;
+     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GrossTotal"/&gt;
+     *                             &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Currency" minOccurs="0"/&gt;
      *                           &lt;/sequence&gt;
      *                         &lt;/restriction&gt;
      *                       &lt;/complexContent&gt;
@@ -6742,52 +7149,59 @@ public class SourceDocuments implements ToString2
          *   &lt;complexContent&gt;
          *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
          *       &lt;sequence&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DocumentNumber"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DocumentNumber"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ATCUD"/&gt;
          *         &lt;element name="DocumentStatus"&gt;
          *           &lt;complexType&gt;
          *             &lt;complexContent&gt;
          *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
          *                 &lt;sequence&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}WorkStatus"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}WorkStatusDate"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Reason" minOccurs="0"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
-         *                   &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFTPTSourceBilling"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WorkStatus"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WorkStatusDate"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Reason" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+         *                   &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTSourceBilling"/&gt;
          *                 &lt;/sequence&gt;
          *               &lt;/restriction&gt;
          *             &lt;/complexContent&gt;
          *           &lt;/complexType&gt;
          *         &lt;/element&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Hash"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}HashControl" minOccurs="0"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Period" minOccurs="0"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}WorkDate"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}WorkType"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}EACCode" minOccurs="0"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SystemEntryDate"/&gt;
-         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CustomerID"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Hash"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}HashControl"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Period" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WorkDate"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WorkType"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}EACCode" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SystemEntryDate"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TransactionID" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomerID"/&gt;
          *         &lt;element name="Line" maxOccurs="unbounded"&gt;
          *           &lt;complexType&gt;
          *             &lt;complexContent&gt;
          *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
          *                 &lt;sequence&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}LineNumber"/&gt;
-         *                   &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductCode"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductDescription"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Quantity"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitOfMeasure"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitPrice"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPointDate"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}LineNumber"/&gt;
+         *                   &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductCode"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductDescription"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Quantity"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitOfMeasure"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitPrice"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxBase" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPointDate"/&gt;
+         *                   &lt;element name="References" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}References" maxOccurs="unbounded" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Description"/&gt;
+         *                   &lt;element name="ProductSerialNumber" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductSerialNumber" minOccurs="0"/&gt;
          *                   &lt;choice&gt;
-         *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DebitAmount"/&gt;
-         *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CreditAmount"/&gt;
+         *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DebitAmount"/&gt;
+         *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CreditAmount"/&gt;
          *                   &lt;/choice&gt;
-         *                   &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Tax" minOccurs="0"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxExemptionReason" minOccurs="0"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SettlementAmount" minOccurs="0"/&gt;
+         *                   &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Tax" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionReason" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionCode" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SettlementAmount" minOccurs="0"/&gt;
+         *                   &lt;element name="CustomsInformation" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomsInformation" minOccurs="0"/&gt;
          *                 &lt;/sequence&gt;
          *               &lt;/restriction&gt;
          *             &lt;/complexContent&gt;
@@ -6798,10 +7212,10 @@ public class SourceDocuments implements ToString2
          *             &lt;complexContent&gt;
          *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
          *                 &lt;sequence&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPayable"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NetTotal"/&gt;
-         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GrossTotal"/&gt;
-         *                   &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Currency" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPayable"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NetTotal"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GrossTotal"/&gt;
+         *                   &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Currency" minOccurs="0"/&gt;
          *                 &lt;/sequence&gt;
          *               &lt;/restriction&gt;
          *             &lt;/complexContent&gt;
@@ -6818,6 +7232,7 @@ public class SourceDocuments implements ToString2
         @XmlAccessorType(XmlAccessType.FIELD)
         @XmlType(name = "", propOrder = {
             "documentNumber",
+            "atcud",
             "documentStatus",
             "hash",
             "hashControl",
@@ -6827,6 +7242,7 @@ public class SourceDocuments implements ToString2
             "sourceID",
             "eacCode",
             "systemEntryDate",
+            "transactionID",
             "customerID",
             "line",
             "documentTotals"
@@ -6836,11 +7252,13 @@ public class SourceDocuments implements ToString2
 
             @XmlElement(name = "DocumentNumber", required = true)
             protected String documentNumber;
+            @XmlElement(name = "ATCUD", required = true)
+            protected String atcud;
             @XmlElement(name = "DocumentStatus", required = true)
             protected SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus documentStatus;
             @XmlElement(name = "Hash", required = true)
             protected String hash;
-            @XmlElement(name = "HashControl")
+            @XmlElement(name = "HashControl", required = true)
             protected String hashControl;
             @XmlElement(name = "Period")
             protected Integer period;
@@ -6856,6 +7274,8 @@ public class SourceDocuments implements ToString2
             @XmlElement(name = "SystemEntryDate", required = true)
             @XmlSchemaType(name = "dateTime")
             protected XMLGregorianCalendar systemEntryDate;
+            @XmlElement(name = "TransactionID")
+            protected String transactionID;
             @XmlElement(name = "CustomerID", required = true)
             protected String customerID;
             @XmlElement(name = "Line", required = true)
@@ -6885,6 +7305,30 @@ public class SourceDocuments implements ToString2
              */
             public void setDocumentNumber(String value) {
                 this.documentNumber = value;
+            }
+
+            /**
+             * Gets the value of the atcud property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link String }
+             *     
+             */
+            public String getATCUD() {
+                return atcud;
+            }
+
+            /**
+             * Sets the value of the atcud property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link String }
+             *     
+             */
+            public void setATCUD(String value) {
+                this.atcud = value;
             }
 
             /**
@@ -7104,6 +7548,30 @@ public class SourceDocuments implements ToString2
             }
 
             /**
+             * Gets the value of the transactionID property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link String }
+             *     
+             */
+            public String getTransactionID() {
+                return transactionID;
+            }
+
+            /**
+             * Sets the value of the transactionID property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link String }
+             *     
+             */
+            public void setTransactionID(String value) {
+                this.transactionID = value;
+            }
+
+            /**
              * Gets the value of the customerID property.
              * 
              * @return
@@ -7204,6 +7672,11 @@ public class SourceDocuments implements ToString2
                     strategy.appendField(locator, this, "documentNumber", buffer, theDocumentNumber, (this.documentNumber!= null));
                 }
                 {
+                    String theATCUD;
+                    theATCUD = this.getATCUD();
+                    strategy.appendField(locator, this, "atcud", buffer, theATCUD, (this.atcud!= null));
+                }
+                {
                     SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus theDocumentStatus;
                     theDocumentStatus = this.getDocumentStatus();
                     strategy.appendField(locator, this, "documentStatus", buffer, theDocumentStatus, (this.documentStatus!= null));
@@ -7249,6 +7722,11 @@ public class SourceDocuments implements ToString2
                     strategy.appendField(locator, this, "systemEntryDate", buffer, theSystemEntryDate, (this.systemEntryDate!= null));
                 }
                 {
+                    String theTransactionID;
+                    theTransactionID = this.getTransactionID();
+                    strategy.appendField(locator, this, "transactionID", buffer, theTransactionID, (this.transactionID!= null));
+                }
+                {
                     String theCustomerID;
                     theCustomerID = this.getCustomerID();
                     strategy.appendField(locator, this, "customerID", buffer, theCustomerID, (this.customerID!= null));
@@ -7277,11 +7755,11 @@ public class SourceDocuments implements ToString2
              *   &lt;complexContent&gt;
              *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
              *       &lt;sequence&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}WorkStatus"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}WorkStatusDate"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Reason" minOccurs="0"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
-             *         &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFTPTSourceBilling"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WorkStatus"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WorkStatusDate"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Reason" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceID"/&gt;
+             *         &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTSourceBilling"/&gt;
              *       &lt;/sequence&gt;
              *     &lt;/restriction&gt;
              *   &lt;/complexContent&gt;
@@ -7493,10 +7971,10 @@ public class SourceDocuments implements ToString2
              *   &lt;complexContent&gt;
              *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
              *       &lt;sequence&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPayable"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NetTotal"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GrossTotal"/&gt;
-             *         &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Currency" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPayable"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}NetTotal"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GrossTotal"/&gt;
+             *         &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Currency" minOccurs="0"/&gt;
              *       &lt;/sequence&gt;
              *     &lt;/restriction&gt;
              *   &lt;/complexContent&gt;
@@ -7674,22 +8152,27 @@ public class SourceDocuments implements ToString2
              *   &lt;complexContent&gt;
              *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
              *       &lt;sequence&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}LineNumber"/&gt;
-             *         &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductCode"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductDescription"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Quantity"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitOfMeasure"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}UnitPrice"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxPointDate"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}LineNumber"/&gt;
+             *         &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductCode"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductDescription"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Quantity"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitOfMeasure"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}UnitPrice"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxBase" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxPointDate"/&gt;
+             *         &lt;element name="References" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}References" maxOccurs="unbounded" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Description"/&gt;
+             *         &lt;element name="ProductSerialNumber" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductSerialNumber" minOccurs="0"/&gt;
              *         &lt;choice&gt;
-             *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DebitAmount"/&gt;
-             *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CreditAmount"/&gt;
+             *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}DebitAmount"/&gt;
+             *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CreditAmount"/&gt;
              *         &lt;/choice&gt;
-             *         &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Tax" minOccurs="0"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxExemptionReason" minOccurs="0"/&gt;
-             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SettlementAmount" minOccurs="0"/&gt;
+             *         &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Tax" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionReason" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxExemptionCode" minOccurs="0"/&gt;
+             *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SettlementAmount" minOccurs="0"/&gt;
+             *         &lt;element name="CustomsInformation" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomsInformation" minOccurs="0"/&gt;
              *       &lt;/sequence&gt;
              *     &lt;/restriction&gt;
              *   &lt;/complexContent&gt;
@@ -7707,13 +8190,18 @@ public class SourceDocuments implements ToString2
                 "quantity",
                 "unitOfMeasure",
                 "unitPrice",
+                "taxBase",
                 "taxPointDate",
+                "references",
                 "description",
+                "productSerialNumber",
                 "debitAmount",
                 "creditAmount",
                 "tax",
                 "taxExemptionReason",
-                "settlementAmount"
+                "taxExemptionCode",
+                "settlementAmount",
+                "customsInformation"
             })
             public static class Line implements ToString2
             {
@@ -7733,11 +8221,17 @@ public class SourceDocuments implements ToString2
                 protected String unitOfMeasure;
                 @XmlElement(name = "UnitPrice", required = true)
                 protected BigDecimal unitPrice;
+                @XmlElement(name = "TaxBase")
+                protected BigDecimal taxBase;
                 @XmlElement(name = "TaxPointDate", required = true)
                 @XmlSchemaType(name = "date")
                 protected XMLGregorianCalendar taxPointDate;
+                @XmlElement(name = "References")
+                protected List<References> references;
                 @XmlElement(name = "Description", required = true)
                 protected String description;
+                @XmlElement(name = "ProductSerialNumber")
+                protected ProductSerialNumber productSerialNumber;
                 @XmlElement(name = "DebitAmount")
                 protected BigDecimal debitAmount;
                 @XmlElement(name = "CreditAmount")
@@ -7746,8 +8240,12 @@ public class SourceDocuments implements ToString2
                 protected Tax tax;
                 @XmlElement(name = "TaxExemptionReason")
                 protected String taxExemptionReason;
+                @XmlElement(name = "TaxExemptionCode")
+                protected String taxExemptionCode;
                 @XmlElement(name = "SettlementAmount")
                 protected BigDecimal settlementAmount;
+                @XmlElement(name = "CustomsInformation")
+                protected CustomsInformation customsInformation;
 
                 /**
                  * Gets the value of the lineNumber property.
@@ -7923,6 +8421,30 @@ public class SourceDocuments implements ToString2
                 }
 
                 /**
+                 * Gets the value of the taxBase property.
+                 * 
+                 * @return
+                 *     possible object is
+                 *     {@link BigDecimal }
+                 *     
+                 */
+                public BigDecimal getTaxBase() {
+                    return taxBase;
+                }
+
+                /**
+                 * Sets the value of the taxBase property.
+                 * 
+                 * @param value
+                 *     allowed object is
+                 *     {@link BigDecimal }
+                 *     
+                 */
+                public void setTaxBase(BigDecimal value) {
+                    this.taxBase = value;
+                }
+
+                /**
                  * Gets the value of the taxPointDate property.
                  * 
                  * @return
@@ -7947,6 +8469,35 @@ public class SourceDocuments implements ToString2
                 }
 
                 /**
+                 * Gets the value of the references property.
+                 * 
+                 * <p>
+                 * This accessor method returns a reference to the live list,
+                 * not a snapshot. Therefore any modification you make to the
+                 * returned list will be present inside the JAXB object.
+                 * This is why there is not a <CODE>set</CODE> method for the references property.
+                 * 
+                 * <p>
+                 * For example, to add a new item, do as follows:
+                 * <pre>
+                 *    getReferences().add(newItem);
+                 * </pre>
+                 * 
+                 * 
+                 * <p>
+                 * Objects of the following type(s) are allowed in the list
+                 * {@link References }
+                 * 
+                 * 
+                 */
+                public List<References> getReferences() {
+                    if (references == null) {
+                        references = new ArrayList<References>();
+                    }
+                    return this.references;
+                }
+
+                /**
                  * Gets the value of the description property.
                  * 
                  * @return
@@ -7968,6 +8519,30 @@ public class SourceDocuments implements ToString2
                  */
                 public void setDescription(String value) {
                     this.description = value;
+                }
+
+                /**
+                 * Gets the value of the productSerialNumber property.
+                 * 
+                 * @return
+                 *     possible object is
+                 *     {@link ProductSerialNumber }
+                 *     
+                 */
+                public ProductSerialNumber getProductSerialNumber() {
+                    return productSerialNumber;
+                }
+
+                /**
+                 * Sets the value of the productSerialNumber property.
+                 * 
+                 * @param value
+                 *     allowed object is
+                 *     {@link ProductSerialNumber }
+                 *     
+                 */
+                public void setProductSerialNumber(ProductSerialNumber value) {
+                    this.productSerialNumber = value;
                 }
 
                 /**
@@ -8067,6 +8642,30 @@ public class SourceDocuments implements ToString2
                 }
 
                 /**
+                 * Gets the value of the taxExemptionCode property.
+                 * 
+                 * @return
+                 *     possible object is
+                 *     {@link String }
+                 *     
+                 */
+                public String getTaxExemptionCode() {
+                    return taxExemptionCode;
+                }
+
+                /**
+                 * Sets the value of the taxExemptionCode property.
+                 * 
+                 * @param value
+                 *     allowed object is
+                 *     {@link String }
+                 *     
+                 */
+                public void setTaxExemptionCode(String value) {
+                    this.taxExemptionCode = value;
+                }
+
+                /**
                  * Gets the value of the settlementAmount property.
                  * 
                  * @return
@@ -8088,6 +8687,30 @@ public class SourceDocuments implements ToString2
                  */
                 public void setSettlementAmount(BigDecimal value) {
                     this.settlementAmount = value;
+                }
+
+                /**
+                 * Gets the value of the customsInformation property.
+                 * 
+                 * @return
+                 *     possible object is
+                 *     {@link CustomsInformation }
+                 *     
+                 */
+                public CustomsInformation getCustomsInformation() {
+                    return customsInformation;
+                }
+
+                /**
+                 * Sets the value of the customsInformation property.
+                 * 
+                 * @param value
+                 *     allowed object is
+                 *     {@link CustomsInformation }
+                 *     
+                 */
+                public void setCustomsInformation(CustomsInformation value) {
+                    this.customsInformation = value;
                 }
 
                 @Override
@@ -8144,14 +8767,29 @@ public class SourceDocuments implements ToString2
                         strategy.appendField(locator, this, "unitPrice", buffer, theUnitPrice, (this.unitPrice!= null));
                     }
                     {
+                        BigDecimal theTaxBase;
+                        theTaxBase = this.getTaxBase();
+                        strategy.appendField(locator, this, "taxBase", buffer, theTaxBase, (this.taxBase!= null));
+                    }
+                    {
                         XMLGregorianCalendar theTaxPointDate;
                         theTaxPointDate = this.getTaxPointDate();
                         strategy.appendField(locator, this, "taxPointDate", buffer, theTaxPointDate, (this.taxPointDate!= null));
                     }
                     {
+                        List<References> theReferences;
+                        theReferences = (((this.references!= null)&&(!this.references.isEmpty()))?this.getReferences():null);
+                        strategy.appendField(locator, this, "references", buffer, theReferences, ((this.references!= null)&&(!this.references.isEmpty())));
+                    }
+                    {
                         String theDescription;
                         theDescription = this.getDescription();
                         strategy.appendField(locator, this, "description", buffer, theDescription, (this.description!= null));
+                    }
+                    {
+                        ProductSerialNumber theProductSerialNumber;
+                        theProductSerialNumber = this.getProductSerialNumber();
+                        strategy.appendField(locator, this, "productSerialNumber", buffer, theProductSerialNumber, (this.productSerialNumber!= null));
                     }
                     {
                         BigDecimal theDebitAmount;
@@ -8174,9 +8812,19 @@ public class SourceDocuments implements ToString2
                         strategy.appendField(locator, this, "taxExemptionReason", buffer, theTaxExemptionReason, (this.taxExemptionReason!= null));
                     }
                     {
+                        String theTaxExemptionCode;
+                        theTaxExemptionCode = this.getTaxExemptionCode();
+                        strategy.appendField(locator, this, "taxExemptionCode", buffer, theTaxExemptionCode, (this.taxExemptionCode!= null));
+                    }
+                    {
                         BigDecimal theSettlementAmount;
                         theSettlementAmount = this.getSettlementAmount();
                         strategy.appendField(locator, this, "settlementAmount", buffer, theSettlementAmount, (this.settlementAmount!= null));
+                    }
+                    {
+                        CustomsInformation theCustomsInformation;
+                        theCustomsInformation = this.getCustomsInformation();
+                        strategy.appendField(locator, this, "customsInformation", buffer, theCustomsInformation, (this.customsInformation!= null));
                     }
                     return buffer;
                 }

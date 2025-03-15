@@ -1,6 +1,6 @@
 package uk.gov.pay.adminusers.queue.event;
 
-import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.GsonBuilder;
@@ -28,7 +28,7 @@ import uk.gov.pay.adminusers.service.UserServices;
 import uk.gov.service.payments.commons.queue.exception.QueueException;
 import uk.gov.service.payments.commons.queue.model.QueueMessage;
 
-import java.time.Instant;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -78,10 +78,12 @@ class EventMessageHandlerTest {
 
     @Captor
     ArgumentCaptor<Map<String, String>> personalisationCaptor;
+    
     @Mock
-    private Appender mockLogAppender;
+    private Appender<ILoggingEvent> mockLogAppender;
+    
     @Captor
-    ArgumentCaptor<ch.qos.logback.classic.spi.ILoggingEvent> loggingEventArgumentCaptor;
+    ArgumentCaptor<ILoggingEvent> loggingEventArgumentCaptor;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final String gatewayAccountId = "123";
@@ -106,15 +108,20 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        org.slf4j.Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
+        org.slf4j.Logger slf4jLogger = LoggerFactory.getLogger(EventMessageHandler.class);
         try {
-            java.lang.reflect.Method setLevelMethod = logger.getClass().getMethod("setLevel", Level.class);
-            setLevelMethod.invoke(logger, Level.INFO);
-        } catch (Exception ignored) {}
-        try {
-            java.lang.reflect.Method addAppenderMethod = logger.getClass().getMethod("addAppender", Appender.class);
-            addAppenderMethod.invoke(logger, mockLogAppender);
-        } catch (Exception ignored) {}
+            Class<?> logbackLoggerClass = Class.forName("ch.qos.logback.classic.Logger");
+            if (logbackLoggerClass.isInstance(slf4jLogger)) {
+                Class<?> levelClass = Class.forName("ch.qos.logback.classic.Level");
+                Object infoLevel = levelClass.getField("INFO").get(null);
+                Method setLevelMethod = logbackLoggerClass.getMethod("setLevel", levelClass);
+                setLevelMethod.invoke(slf4jLogger, infoLevel);
+                Method addAppenderMethod = logbackLoggerClass.getMethod("addAppender", Appender.class);
+                addAppenderMethod.invoke(slf4jLogger, mockLogAppender);
+            }
+        } catch (Exception e) {
+            // If the underlying logger does not support these operations, ignore.
+        }
     }
 
     @Test
@@ -180,7 +187,7 @@ class EventMessageHandlerTest {
 
         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 
-        List<ch.qos.logback.classic.spi.ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }
@@ -217,7 +224,7 @@ class EventMessageHandlerTest {
 
         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 
-        List<ch.qos.logback.classic.spi.ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }
@@ -254,7 +261,7 @@ class EventMessageHandlerTest {
 
         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 
-        List<ch.qos.logback.classic.spi.ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }
@@ -291,7 +298,7 @@ class EventMessageHandlerTest {
 
         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 
-        List<ch.qos.logback.classic.spi.ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }

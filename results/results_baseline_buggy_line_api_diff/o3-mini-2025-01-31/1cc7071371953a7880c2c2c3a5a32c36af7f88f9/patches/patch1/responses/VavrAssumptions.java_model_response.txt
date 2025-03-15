@@ -33,6 +33,22 @@ import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrat
 
 public class VavrAssumptions {
 
+    private static final class AssumptionMethodInterceptor {
+
+        public static Object intercept(AbstractVavrAssert<?, ?> assertion, Callable<Object> proxy) throws Exception {
+            try {
+                Object result = proxy.call();
+                if (result != assertion && result instanceof AbstractVavrAssert) {
+                    final AbstractVavrAssert<?, ?> assumption = asAssumption((AbstractVavrAssert<?, ?>) result);
+                    return assumption.withAssertionState(assertion);
+                }
+                return result;
+            } catch (AssertionError e) {
+                throw assumptionNotMet(e);
+            }
+        }
+    }
+
     /**
      * Creates a new instance of <code>{@link EitherAssert}</code> assumption.
      *
@@ -203,7 +219,7 @@ public class VavrAssumptions {
                 .newInstance("assumption was not met due to: " + e.getMessage(), e);
     }
 
-    // for method that change the object under test (e.g. extracting)
+    // for methods that change the object under test (e.g. extracting)
     private static AbstractVavrAssert<?, ?> asAssumption(AbstractVavrAssert<?, ?> assertion) {
         Object actual = assertion.actual();
         if (assertion instanceof LazyAssert) return asAssumption(LazyAssert.class, Lazy.class, actual);

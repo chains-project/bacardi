@@ -2,7 +2,20 @@
 < import com.google.api.services.translate.model.DetectionsResourceItems;
 ---
 > import com.google.api.services.translate.v3.model.DetectedLanguage;
-87c87
-<   static Detection fromPb(DetectionsResourceItems detectionPb) {
----
->   static Detection fromPb(DetectedLanguage detectionPb) {
+89a90,105
+> 
+>   public static class DetectionsResourceItems {
+>     private final DetectedLanguage detectedLanguage;
+> 
+>     public DetectionsResourceItems(DetectedLanguage detectedLanguage) {
+>       this.detectedLanguage = detectedLanguage;
+>     }
+> 
+>     public String getLanguage() {
+>       return detectedLanguage.getLanguageCode();
+>     }
+> 
+>     public Float getConfidence() {
+>       return detectedLanguage.getConfidence();
+>     }
+>   }

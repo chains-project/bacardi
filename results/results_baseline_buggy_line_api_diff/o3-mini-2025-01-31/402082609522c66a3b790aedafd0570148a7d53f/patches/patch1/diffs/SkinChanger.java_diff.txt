@@ -5,17 +5,12 @@
 ---
 > import net.kyori.adventure.audience.Audience;
 > import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-12c11
-<     private final CommandSource invoker;
----
->     private final Audience invoker;
-14c13
-<     public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandSource invoker) {
----
->     public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, Audience invoker) {
 16d14
 < 
-22c20
+22c20,23
 <         invoker.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage));
 ---
->         invoker.sendMessage(LegacyComponentSerializer.legacySection().deserialize(localeMessage));
+>         invoker.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(localeMessage));
+>     }
+>     
+>     public static interface CommandSource extends Audience {

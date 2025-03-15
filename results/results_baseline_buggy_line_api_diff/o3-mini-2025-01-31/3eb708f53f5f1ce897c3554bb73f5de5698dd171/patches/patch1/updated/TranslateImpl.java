@@ -1,3 +1,19 @@
+/*
+ * Copyright 2016 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.google.cloud.translate;
 
 import static com.google.cloud.RetryHelper.runWithRetries;
@@ -21,14 +37,13 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
 
   private final TranslateRpc translateRpc;
 
-  private static final Function<List<Map<String, Object>>, Detection>
-      DETECTION_FROM_PB_FUNCTION =
-          new Function<List<Map<String, Object>>, Detection>() {
-            @Override
-            public Detection apply(List<Map<String, Object>> detectionPb) {
-              return Detection.fromPb(detectionPb.get(0));
-            }
-          };
+  private static final Function<List<Object>, Detection> DETECTION_FROM_PB_FUNCTION =
+      new Function<List<Object>, Detection>() {
+        @Override
+        public Detection apply(List<Object> detectionPb) {
+          return Detection.fromPb(detectionPb.get(0));
+        }
+      };
 
   TranslateImpl(TranslateOptions options) {
     super(options);
@@ -40,9 +55,9 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<Map<String, Object>>>() {
+              new Callable<List<Object>>() {
                 @Override
-                public List<Map<String, Object>> call() {
+                public List<Object> call() {
                   return translateRpc.listSupportedLanguages(optionMap(options));
                 }
               },
@@ -58,21 +73,21 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   @Override
   public List<Detection> detect(final List<String> texts) {
     try {
-      List<List<Map<String, Object>>> detectionsPb =
+      List<List<Object>> detectionsPb =
           runWithRetries(
-              new Callable<List<List<Map<String, Object>>>>() {
+              new Callable<List<List<Object>>>() {
                 @Override
-                public List<List<Map<String, Object>>> call() {
+                public List<List<Object>> call() {
                   return translateRpc.detect(texts);
                 }
               },
               getOptions().getRetrySettings(),
               EXCEPTION_HANDLER,
               getOptions().getClock());
-      Iterator<List<Map<String, Object>>> detectionIterator = detectionsPb.iterator();
+      Iterator<List<Object>> detectionIterator = detectionsPb.iterator();
       Iterator<String> textIterator = texts.iterator();
       while (detectionIterator.hasNext() && textIterator.hasNext()) {
-        List<Map<String, Object>> detectionPb = detectionIterator.next();
+        List<Object> detectionPb = detectionIterator.next();
         String text = textIterator.next();
         checkState(
             detectionPb != null && !detectionPb.isEmpty(), "No detection found for text: %s", text);
@@ -99,9 +114,9 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<Map<String, Object>>>() {
+              new Callable<List<Object>>() {
                 @Override
-                public List<Map<String, Object>> call() {
+                public List<Object> call() {
                   return translateRpc.translate(texts, optionMap(options));
                 }
               },

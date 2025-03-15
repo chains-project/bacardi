@@ -66,33 +66,6 @@ import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.format.DateTimeFormatter;
 
-/**
- * Utility to create a local Resource Manager mock for testing.
- *
- * <p>The mock runs in a separate thread, listening for HTTP requests on the local machine at an
- * ephemeral port. While this mock attempts to simulate the Cloud Resource Manager, there are some
- * divergences in behavior. The following is a non-exhaustive list of some of those behavioral
- * differences:
- *
- * <ul>
- *   <li>This mock assumes you have adequate permissions for any action. Related to this,
- *       <i>testIamPermissions</i> always indicates that the caller has all permissions listed in
- *       the request.
- *   <li>IAM policies are set to an empty policy with version 0 (only legacy roles supported) upon
- *       project creation. The actual service will not have an empty list of bindings and may also
- *       set your version to 1.
- *   <li>There is no input validation for the policy provided when replacing a policy or calling
- *       testIamPermissions.
- *   <li>In this mock, projects never move from the <i>DELETE_REQUESTED</i> lifecycle state to
- *       <i>DELETE_IN_PROGRESS</i> without an explicit call to the utility method {@link
- *       #changeLifecycleState}. Similarly, a project is never completely removed without an
- *       explicit call to the utility method {@link #removeProject}.
- *   <li>The messages in the error responses given by this mock do not necessarily match the
- *       messages given by the actual service.
- * </ul>
- *
- * @deprecated v3 GAPIC client of ResourceManager is now available
- */
 @Deprecated
 @SuppressWarnings("restriction")
 public class LocalResourceManagerHelper {
@@ -282,7 +255,11 @@ public class LocalResourceManagerHelper {
             response =
                 new Response(
                     HTTP_OK,
-                    jsonFactory.toString(new Operation().setDone(true).setResponse(project)));
+                    jsonFactory.toString(
+                        new Operation()
+                            .setDone(true)
+                            .setName("operations/" + project.getProjectId())
+                            .set("response", project)));
           } catch (IOException e) {
             response =
                 Error.INTERNAL_ERROR.response(
@@ -446,8 +423,8 @@ public class LocalResourceManagerHelper {
     if (customErrorMessage != null) {
       return Error.INVALID_ARGUMENT.response(customErrorMessage);
     } else {
-      project.setLifecycleState("ACTIVE");
-      // Removed call to setProjectNumber as it is not supported in the new version.
+      project.set("lifecycleState", "ACTIVE");
+      project.set("projectNumber", Math.abs(PROJECT_NUMBER_GENERATOR.nextLong() % Long.MAX_VALUE));
       project.setCreateTime(
           DateTimeFormatter.ISO_DATE_TIME
               .withZone(ZoneOffset.UTC)
@@ -480,11 +457,11 @@ public class LocalResourceManagerHelper {
       return Error.PERMISSION_DENIED.response(
           "Error when deleting " + projectId + " because the project was not found.");
     }
-    if (!project.getLifecycleState().equals("ACTIVE")) {
+    if (!"ACTIVE".equals(project.get("lifecycleState"))) {
       return Error.FAILED_PRECONDITION.response(
           "Error when deleting " + projectId + " because the lifecycle state was not ACTIVE.");
     } else {
-      project.setLifecycleState("DELETE_REQUESTED");
+      project.set("lifecycleState", "DELETE_REQUESTED");
       return new Response(HTTP_OK, "{}");
     }
   }
@@ -615,7 +592,7 @@ public class LocalResourceManagerHelper {
           project.setLabels(fullProject.getLabels());
           break;
         case "lifecycleState":
-          project.setLifecycleState(fullProject.getLifecycleState());
+          project.set("lifecycleState", fullProject.get("lifecycleState"));
           break;
         case "name":
           project.setName(fullProject.getName());
@@ -625,6 +602,9 @@ public class LocalResourceManagerHelper {
           break;
         case "projectId":
           project.setProjectId(fullProject.getProjectId());
+          break;
+        case "projectNumber":
+          project.set("projectNumber", fullProject.get("projectNumber"));
           break;
       }
     }
@@ -636,7 +616,7 @@ public class LocalResourceManagerHelper {
     if (originalProject == null) {
       return Error.PERMISSION_DENIED.response(
           "Error when replacing " + projectId + " because the project was not found.");
-    } else if (!originalProject.getLifecycleState().equals("ACTIVE")) {
+    } else if (!"ACTIVE".equals(originalProject.get("lifecycleState"))) {
       return Error.FAILED_PRECONDITION.response(
           "Error when replacing " + projectId + " because the lifecycle state was not ACTIVE.");
     } else if (!Objects.equal(originalProject.getParent(), project.getParent())) {
@@ -645,9 +625,9 @@ public class LocalResourceManagerHelper {
               + "and does not allow unsetting it.");
     }
     project.setProjectId(projectId);
-    project.setLifecycleState(originalProject.getLifecycleState());
+    project.set("lifecycleState", originalProject.get("lifecycleState"));
     project.setCreateTime(originalProject.getCreateTime());
-    // Removed call to setProjectNumber as it is not supported in the new version.
+    project.set("projectNumber", originalProject.get("projectNumber"));
     projects.replace(projectId, project);
     try {
       return new Response(HTTP_OK, jsonFactory.toString(project));
@@ -663,14 +643,14 @@ public class LocalResourceManagerHelper {
       response =
           Error.PERMISSION_DENIED.response(
               "Error when undeleting " + projectId + " because the project was not found.");
-    } else if (!project.getLifecycleState().equals("DELETE_REQUESTED")) {
+    } else if (!"DELETE_REQUESTED".equals(project.get("lifecycleState"))) {
       response =
           Error.FAILED_PRECONDITION.response(
               "Error when undeleting "
                   + projectId
                   + " because the lifecycle state was not DELETE_REQUESTED.");
     } else {
-      project.setLifecycleState("ACTIVE");
+      project.set("lifecycleState", "ACTIVE");
       response = new Response(HTTP_OK, "{}");
     }
     return response;
@@ -780,7 +760,7 @@ public class LocalResourceManagerHelper {
         "Lifecycle state must be ACTIVE, DELETE_REQUESTED, or DELETE_IN_PROGRESS");
     Project project = projects.get(checkNotNull(projectId));
     if (project != null) {
-      project.setLifecycleState(lifecycleState);
+      project.set("lifecycleState", lifecycleState);
       return true;
     }
     return false;
@@ -795,8 +775,6 @@ public class LocalResourceManagerHelper {
    * @return true if the project was successfully deleted, false if the project didn't exist
    */
   public synchronized boolean removeProject(String projectId) {
-    // Because this method is synchronized, any code that relies on non-atomic read/write operations
-    // should not fail if that code is also synchronized.
     policies.remove(checkNotNull(projectId));
     return projects.remove(projectId) != null;
   }

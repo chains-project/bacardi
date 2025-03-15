@@ -6,18 +6,24 @@ import com.github.games647.changeskin.core.shared.SkinFormatter;
 import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import com.github.games647.changeskin.sponge.PomData;
 import com.google.inject.Inject;
+
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Function;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import java.util.concurrent.CompletableFuture;
+
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.CommandExecutor;
+import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.entity.living.player.Player;
 
-public class InfoCommand implements ChangeSkinCommand {
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
 
     @Inject
     private ChangeSkinSponge plugin;
@@ -25,27 +31,27 @@ public class InfoCommand implements ChangeSkinCommand {
     @Inject
     private SkinFormatter formatter;
 
-    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        Object raw = (src instanceof CommandSourceAdapter) ? ((CommandSourceAdapter) src).getSender() : src;
-        if (!(raw instanceof Player)) {
-            plugin.sendMessage(raw, "no-console");
-            return CommandResult.empty();
+    @Override
+    public CommandResult execute(CommandCause cause, CommandContext args) throws CommandException {
+        if (!(cause.audience() instanceof Player)) {
+            plugin.sendMessage(cause, "no-console");
+            return CommandResult.builder().build();
         }
 
-        UUID uniqueId = ((Player) raw).getUniqueId();
-        Sponge.server().scheduler().asyncExecutor(plugin).submit(() -> {
+        Player player = (Player) cause.audience();
+        UUID uniqueId = player.getUniqueId();
+        CompletableFuture.runAsync(() -> {
             UserPreference preferences = plugin.getCore().getStorage().getPreferences(uniqueId);
-            Sponge.server().scheduler().syncExecutor(plugin).submit(() -> sendSkinDetails(uniqueId, preferences));
+            Sponge.server().scheduler().executor(plugin).submit(() -> sendSkinDetails(uniqueId, preferences));
         });
-        return CommandResult.success();
+
+        return CommandResult.builder().successCount(1).build();
     }
 
-    public CommandSpec buildSpec() {
-        return CommandSpec.builder()
-                .executor(context -> {
-                    Object rawSender = context.cause().root();
-                    return this.execute(new CommandSourceAdapter(rawSender), context);
-                })
+    @Override
+    public Command buildSpec() {
+        return Command.builder()
+                .executor(this)
                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
                 .build();
     }
@@ -60,85 +66,11 @@ public class InfoCommand implements ChangeSkinCommand {
                 String template = plugin.getCore().getMessage("skin-info");
                 String formatted = formatter.apply(template, optSkin.get());
 
-                Component text = LegacyComponentSerializer.legacyAmpersand().deserialize(formatted);
-                player.sendMessage(text);
+                Component component = LegacyComponentSerializer.legacyAmpersand().deserialize(formatted);
+                player.sendMessage(component);
             } else {
                 plugin.sendMessage(player, "skin-not-found");
             }
-        }
-    }
-
-    public interface CommandSource extends net.kyori.adventure.audience.Audience {
-    }
-
-    private static class CommandSourceAdapter implements CommandSource {
-        private final Object sender;
-
-        public CommandSourceAdapter(Object sender) {
-            this.sender = sender;
-        }
-
-        public Object getSender() {
-            return sender;
-        }
-
-        @Override
-        public void sendMessage(Component message) {
-            if (sender instanceof net.kyori.adventure.audience.Audience) {
-                ((net.kyori.adventure.audience.Audience) sender).sendMessage(message);
-            }
-        }
-    }
-
-    public static class CommandSpec {
-        private final Command command;
-
-        private CommandSpec(Command command) {
-            this.command = command;
-        }
-
-        public Command getCommand() {
-            return command;
-        }
-
-        public static Builder builder() {
-            return new Builder();
-        }
-
-        public static class Builder {
-            private Function<CommandContext, CommandResult> executor;
-            private String permission;
-
-            public Builder executor(Function<CommandContext, CommandResult> executor) {
-                this.executor = executor;
-                return this;
-            }
-
-            public Builder permission(String permission) {
-                this.permission = permission;
-                return this;
-            }
-
-            public CommandSpec build() {
-                Command command = Command.builder()
-                        .executor(context -> {
-                            executor.apply(context);
-                            return 1;
-                        })
-                        .permission(permission)
-                        .build();
-                return new CommandSpec(command);
-            }
-        }
-    }
-
-    public static class CommandResult {
-        public static CommandResult success() {
-            return new CommandResult();
-        }
-
-        public static CommandResult empty() {
-            return new CommandResult();
         }
     }
 }

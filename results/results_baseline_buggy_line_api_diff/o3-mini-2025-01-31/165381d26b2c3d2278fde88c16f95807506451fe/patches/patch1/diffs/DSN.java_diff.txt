@@ -2,5 +2,13 @@
 < import com.github.javaparser.printer.PrettyPrinterConfiguration;
 ---
 > import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration;
-97d96
-< 
+335c335,341
+<       private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
+---
+>       private final PrettyPrinterConfiguration noComments = createNoComments();
+> 
+>       private static PrettyPrinterConfiguration createNoComments() {
+>           PrettyPrinterConfiguration config = new PrettyPrinterConfiguration();
+>           config.setPrintComments(false);
+>           return config;
+>       }

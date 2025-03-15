@@ -10,7 +10,6 @@ import org.pac4j.core.config.Config;
 import org.pac4j.dropwizard.Pac4jFactory.ServletCallbackFilterConfiguration;
 import org.pac4j.dropwizard.Pac4jFactory.ServletLogoutFilterConfiguration;
 import org.pac4j.dropwizard.Pac4jFactory.ServletSecurityFilterConfiguration;
-
 import io.dropwizard.setup.Environment;
 import org.pac4j.jee.filter.AbstractConfigFilter;
 import org.pac4j.jee.filter.CallbackFilter;
@@ -76,6 +75,7 @@ public final class J2EHelper {
 
         final FilterRegistration.Dynamic filterRegistration = environment
                 .servlets().addFilter(filter.getClass().getName(), (jakarta.servlet.Filter) (Object) filter);
+
         filterRegistration.addMappingForUrlPatterns(
                 EnumSet.of(DispatcherType.REQUEST), true, mapping);
     }

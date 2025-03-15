@@ -106,25 +106,18 @@ public class NisAppConfig {
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
-		final NisConfiguration configuration = this.nisConfiguration();
-		final String nemFolder = configuration.getNemFolder();
-		final String jdbcUrl = prop.getProperty("jdbc.url").replace("${nem.folder}", nemFolder)
-				.replace("${nem.network}", configuration.getNetworkName());
-		final String username = prop.getProperty("jdbc.username");
-		final String password = prop.getProperty("jdbc.password");
-
-		ClassicConfiguration config = new ClassicConfiguration();
-		String[] locationStrings = prop.getProperty("flyway.locations").split(",");
+		ClassicConfiguration configuration = new ClassicConfiguration();
+		configuration.setDataSource(this.dataSource());
+		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+		String locs = prop.getProperty("flyway.locations");
+		String[] locationStrings = locs.split(",");
 		Location[] locations = new Location[locationStrings.length];
 		for (int i = 0; i < locationStrings.length; i++) {
 			locations[i] = new Location(locationStrings[i].trim());
 		}
-		config.setLocations(locations);
-		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		config.setClassLoader(NisAppConfig.class.getClassLoader());
-		config.setDataSource(jdbcUrl, username, password);
-
-		return new Flyway(config);
+		configuration.setLocations(locations);
+		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		return new Flyway(configuration);
 	}
 
 	@Bean

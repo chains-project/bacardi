@@ -1,22 +1,10 @@
-6,7c6,10
-< import eu.europa.esig.dss.model.*;
+7d6
 < import eu.europa.esig.dss.pades.CertificationPermission;
----
-> import eu.europa.esig.dss.model.DSSDocument;
-> import eu.europa.esig.dss.model.FileDocument;
-> import eu.europa.esig.dss.model.InMemoryDocument;
-> import eu.europa.esig.dss.model.ToBeSigned;
-> import eu.europa.esig.dss.model.SignatureValue;
-63d65
+63d61
 <         ;
-71c73,74
+71c69
 <         signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
 ---
->         // Removed permission setting since CertificationPermission has been removed in the new dependency version.
->         // signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
-89c92
-<                 imageParameters.setImage(new InMemoryDocument((IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("signature.png")))));
----
->                 imageParameters.setImage(new InMemoryDocument(IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("signature.png"))));
-123d125
+>         // Removed the call to setPermission as CertificationPermission is no longer available in the dependency.
+123d120
 < 

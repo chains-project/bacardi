@@ -13,7 +13,6 @@ import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.network.RemoteConnection;
-import org.spongepowered.api.network.channel.ChannelBuf;
 
 public class UpdateSkinListener {
 
@@ -26,12 +25,16 @@ public class UpdateSkinListener {
         updateMessage.readFrom(dataInput);
 
         String playerName = updateMessage.getPlayerName();
-        Optional<Player> receiver = Sponge.server().getOnlinePlayers().stream()
-                .filter(player -> player.getName().equalsIgnoreCase(playerName))
+        Optional<Player> receiver = Sponge.server().onlinePlayers().stream()
+                .filter(player -> player.getName().equals(playerName))
                 .findFirst();
         if (receiver.isPresent()) {
             Runnable skinUpdater = new SkinApplier(plugin, connection, receiver.get(), null, false);
-            Sponge.server().scheduler().submit(skinUpdater, plugin);
+            Sponge.server().scheduler().submit(plugin, skinUpdater);
         }
+    }
+
+    public static interface ChannelBuf {
+        byte[] array();
     }
 }

@@ -5,7 +5,6 @@ public interface ChangeSkinCommand {
 
     CommandSpec buildSpec();
 
-    interface CommandSpec {
-        // This is a client-side placeholder for the removed CommandSpec API.
+    public static class CommandSpec {
     }
 }

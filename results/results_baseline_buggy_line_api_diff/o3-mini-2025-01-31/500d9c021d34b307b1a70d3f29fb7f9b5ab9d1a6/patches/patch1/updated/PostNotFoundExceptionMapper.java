@@ -13,7 +13,9 @@ import javax.ws.rs.ext.Provider;
 public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFoundException> {
 
     @Inject Logger log;
-    @Inject Models models;
+
+    @Inject
+    Models models;
 
     @Override
     public Response toResponse(TaskNotFoundException exception) {
@@ -21,4 +23,5 @@ public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFound
         models.put("error", exception.getMessage());
         return Response.status(Response.Status.NOT_FOUND).entity("error.xhtml").build();
     }
+
 }

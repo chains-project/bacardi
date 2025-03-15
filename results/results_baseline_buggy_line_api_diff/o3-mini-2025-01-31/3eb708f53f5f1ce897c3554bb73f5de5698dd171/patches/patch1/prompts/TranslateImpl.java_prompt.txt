@@ -157,34 +157,19 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
 the error is triggered in the following specific lines in the previous code:
 
 ```java
-Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
+import com.google.api.services.translate.model.TranslationsResource;
 ```
 ```java
-public List<List<DetectionsResourceItems>> call() {
+new Callable<List<List<DetectionsResourceItems>>>() {
 ```
 ```java
-new Function<List<DetectionsResourceItems>, Detection>() {
-```
-```java
-import com.google.api.services.translate.model.LanguagesResource;
-```
-```java
-List<DetectionsResourceItems> detectionPb = detectionIterator.next();
+List<List<DetectionsResourceItems>> detectionsPb =
 ```
 ```java
 new Callable<List<TranslationsResource>>() {
 ```
 ```java
-public List<LanguagesResource> call() {
-```
-```java
-import com.google.api.services.translate.model.TranslationsResource;
-```
-```java
-public List<TranslationsResource> call() {
-```
-```java
-new Callable<List<List<DetectionsResourceItems>>>() {
+new Function<List<DetectionsResourceItems>, Detection>() {
 ```
 ```java
 public Detection apply(List<DetectionsResourceItems> detectionPb) {
@@ -193,32 +178,40 @@ public Detection apply(List<DetectionsResourceItems> detectionPb) {
 import com.google.api.services.translate.model.DetectionsResourceItems;
 ```
 ```java
-new Callable<List<LanguagesResource>>() {
+public List<List<DetectionsResourceItems>> call() {
 ```
 ```java
 private static final Function<List<DetectionsResourceItems>, Detection>
 ```
 ```java
-List<List<DetectionsResourceItems>> detectionsPb =
+new Callable<List<LanguagesResource>>() {
+```
+```java
+import com.google.api.services.translate.model.LanguagesResource;
+```
+```java
+public List<LanguagesResource> call() {
+```
+```java
+public List<TranslationsResource> call() {
+```
+```java
+Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
+```
+```java
+List<DetectionsResourceItems> detectionPb = detectionIterator.next();
 ```
 
 
 
  with the following error information:
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[91,21] cannot find symbol
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[25,47] package com.google.api.services.translate.model does not exist
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[82,38] cannot find symbol
   symbol:   class DetectionsResourceItems
   location: class com.google.cloud.translate.TranslateImpl
 
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[84,34] cannot find symbol
-  symbol: class DetectionsResourceItems
-
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[45,29] cannot find symbol
-  symbol:   class DetectionsResourceItems
-  location: class com.google.cloud.translate.TranslateImpl
-
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[24,47] package com.google.api.services.translate.model does not exist
-
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[94,14] cannot find symbol
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[80,17] cannot find symbol
   symbol:   class DetectionsResourceItems
   location: class com.google.cloud.translate.TranslateImpl
 
@@ -226,15 +219,7 @@ List<List<DetectionsResourceItems>> detectionsPb =
   symbol:   class TranslationsResource
   location: class com.google.cloud.translate.TranslateImpl
 
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[64,29] cannot find symbol
-  symbol: class LanguagesResource
-
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[25,47] package com.google.api.services.translate.model does not exist
-
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[123,29] cannot find symbol
-  symbol: class TranslationsResource
-
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[82,38] cannot find symbol
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[45,29] cannot find symbol
   symbol:   class DetectionsResourceItems
   location: class com.google.cloud.translate.TranslateImpl
 
@@ -243,15 +228,30 @@ List<List<DetectionsResourceItems>> detectionsPb =
 
 [ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[23,47] package com.google.api.services.translate.model does not exist
 
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[62,33] cannot find symbol
-  symbol:   class LanguagesResource
-  location: class com.google.cloud.translate.TranslateImpl
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[84,34] cannot find symbol
+  symbol: class DetectionsResourceItems
 
 [ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[43,38] cannot find symbol
   symbol:   class DetectionsResourceItems
   location: class com.google.cloud.translate.TranslateImpl
 
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[80,17] cannot find symbol
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[62,33] cannot find symbol
+  symbol:   class LanguagesResource
+  location: class com.google.cloud.translate.TranslateImpl
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[24,47] package com.google.api.services.translate.model does not exist
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[64,29] cannot find symbol
+  symbol: class LanguagesResource
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[123,29] cannot find symbol
+  symbol: class TranslationsResource
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[91,21] cannot find symbol
+  symbol:   class DetectionsResourceItems
+  location: class com.google.cloud.translate.TranslateImpl
+
+[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/TranslateImpl.java:[94,14] cannot find symbol
   symbol:   class DetectionsResourceItems
   location: class com.google.cloud.translate.TranslateImpl
 

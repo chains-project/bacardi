@@ -1,22 +1,20 @@
-19d18
+19c19
 < import com.google.api.services.translate.model.LanguagesResource;
-86a86,104
-> 
->   public static class LanguagesResource implements Serializable {
->     private static final long serialVersionUID = 1L;
->     private final String language;
->     private final String name;
-> 
->     public LanguagesResource(String language, String name) {
->       this.language = language;
->       this.name = name;
->     }
-> 
->     public String getLanguage() {
->       return language;
->     }
-> 
->     public String getName() {
->       return name;
->     }
->   }
+---
+> import com.google.api.services.translate.v3.model.SupportedLanguage;
+36,37c36,37
+<   static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
+<       new Function<LanguagesResource, Language>() {
+---
+>   static final Function<SupportedLanguage, Language> FROM_PB_FUNCTION =
+>       new Function<SupportedLanguage, Language>() {
+39c39
+<         public Language apply(LanguagesResource languagePb) {
+---
+>         public Language apply(SupportedLanguage languagePb) {
+84,85c84,85
+<   static Language fromPb(LanguagesResource languagePb) {
+<     return new Language(languagePb.getLanguage(), languagePb.getName());
+---
+>   static Language fromPb(SupportedLanguage languagePb) {
+>     return new Language(languagePb.getLanguageCode(), languagePb.getDisplayName());

@@ -1,23 +1,6 @@
-1,16d0
-< /*
-<  * Copyright 2015 Google LLC
-<  *
-<  * Licensed under the Apache License, Version 2.0 (the "License");
-<  * you may not use this file except in compliance with the License.
-<  * You may obtain a copy of the License at
-<  *
-<  *       http://www.apache.org/licenses/LICENSE-2.0
-<  *
-<  * Unless required by applicable law or agreed to in writing, software
-<  * distributed under the License is distributed on an "AS IS" BASIS,
-<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-<  * See the License for the specific language governing permissions and
-<  * limitations under the License.
-<  */
-< 
-27a12
+27a28
 > import com.google.api.services.cloudresourcemanager.v3.model.Project;
-146,151c131,132
+146,151c147,149
 <     com.google.api.services.cloudresourcemanager.model.ResourceId toPb() {
 <       com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb =
 <           new com.google.api.services.cloudresourcemanager.model.ResourceId();
@@ -25,37 +8,43 @@
 <       resourceIdPb.setType(type.toLowerCase());
 <       return resourceIdPb;
 ---
->     public String toPb() {
+>     String toPb() {
+>       // In the new API, parent is represented as a String in the format "type/id".
 >       return type.toLowerCase() + "/" + id;
-154,156c135,140
+154,156c152,160
 <     static ResourceId fromPb(
 <         com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb) {
 <       return new ResourceId(resourceIdPb.getId(), resourceIdPb.getType());
 ---
->     public static ResourceId fromPb(String parent) {
->       String[] parts = parent.split("/", 2);
->       if (parts.length == 2) {
->         return new ResourceId(parts[1], parts[0]);
+>     static ResourceId fromPb(String parentPb) {
+>       if (parentPb == null) {
+>         return null;
 >       }
->       throw new IllegalArgumentException("Invalid parent format: " + parent);
-392,394c376,378
+>       String[] parts = parentPb.split("/", 2);
+>       if (parts.length < 2) {
+>         throw new IllegalArgumentException("Invalid parent format: " + parentPb);
+>       }
+>       return new ResourceId(parts[1], parts[0]);
+392,394c396,397
 <   com.google.api.services.cloudresourcemanager.model.Project toPb() {
 <     com.google.api.services.cloudresourcemanager.model.Project projectPb =
 <         new com.google.api.services.cloudresourcemanager.model.Project();
 ---
->   public com.google.api.services.cloudresourcemanager.v3.model.Project toPb() {
->     com.google.api.services.cloudresourcemanager.v3.model.Project projectPb =
->         new com.google.api.services.cloudresourcemanager.v3.model.Project();
-398,401d381
-<     projectPb.setProjectNumber(projectNumber);
+>   Project toPb() {
+>     Project projectPb = new Project();
+399,401c402
 <     if (state != null) {
 <       projectPb.setLifecycleState(state.toString());
 <     }
-414c394
+---
+>     // Removed lifecycle state conversion since setLifecycleState is no longer available.
+414c415
 <   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.model.Project projectPb) {
 ---
->   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) {
-423,425d402
+>   static ProjectInfo fromPb(Project projectPb) {
+423,425c424
 <     if (projectPb.getLifecycleState() != null) {
 <       builder.setState(State.valueOf(projectPb.getLifecycleState()));
 <     }
+---
+>     // Removed lifecycle state conversion since getLifecycleState is not present.

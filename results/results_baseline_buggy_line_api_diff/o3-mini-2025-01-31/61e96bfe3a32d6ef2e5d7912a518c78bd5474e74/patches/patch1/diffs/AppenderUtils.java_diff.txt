@@ -11,10 +11,6 @@
 53,54d53
 <     private TTransport framedTransport;
 <     private TProtocol protocol;
-58c57
-<     public void init(OutputStream os) {
----
->     public void init(OutputStream os) throws IOException {
 60,65d58
 <       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
 <       // log.
@@ -30,19 +26,27 @@
 >     }
 > 
 >     @Override
->     public byte[] encode(LogMessage logMessage) throws IOException {
->       ByteArrayOutputStream byteArrayOut = new ByteArrayOutputStream();
+>     public byte[] encode(LogMessage logMessage) {
+>       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 >       final int bufferCapacity = 10;
->       TTransport framedTransport = new TFastFramedTransport(new TIOStreamTransport(byteArrayOut), bufferCapacity);
+>       TTransport framedTransport = new TFastFramedTransport(new TIOStreamTransport(byteArrayOutputStream), bufferCapacity);
 >       TProtocol protocol = new TBinaryProtocol(framedTransport);
+74c76
+<         throw new IOException(e);
+---
+>         throw new RuntimeException(e);
 75a78,83
->       return byteArrayOut.toByteArray();
+>       return byteArrayOutputStream.toByteArray();
 >     }
 > 
 >     @Override
 >     public byte[] footerBytes() {
 >       return new byte[0];
-80c88
+80c88,90
 <       framedTransport.close();
 ---
->       // No persistent resources to close.
+>       if (os != null) {
+>         os.close();
+>       }
+91a102
+>    * @param maxRetentionHours threshold in hours for file retention.

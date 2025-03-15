@@ -196,6 +196,7 @@ public class AllureCommandline {
                 final String proxyPassword = mavenProxy.getPassword();
 
                 Authenticator.setDefault(new Authenticator() {
+                    @Override
                     public PasswordAuthentication getPasswordAuthentication() {
                         return new PasswordAuthentication(proxyUser, proxyPassword.toCharArray());
                     }

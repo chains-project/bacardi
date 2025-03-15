@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.mvc.UriRef;
+import jakarta.mvc.binding.BindingResult;
 import jakarta.mvc.binding.MvcBinding;
 import jakarta.mvc.binding.ParamError;
 import jakarta.mvc.security.CsrfProtected;
@@ -23,6 +24,9 @@ import javax.ws.rs.Path;
 @Controller
 @RequestScoped
 public class GreetingController {
+
+    @Inject
+    BindingResult bindingResult;
 
     @Inject
     Models models;
@@ -44,6 +48,18 @@ public class GreetingController {
             @FormParam("greeting")
             @MvcBinding
             @NotBlank String greeting) {
+        if (bindingResult.isFailed()) {
+            AlertMessage alert = AlertMessage.danger("Validation voilations!");
+            bindingResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
+            models.put("errors", alert);
+            log.info("mvc binding failed.");
+            return "greeting.xhtml";
+        }
+
         log.info("redirect to greeting page.");
         flashMessage.notify(AlertMessage.Type.success, "Message:" + greeting);
         return "redirect:greeting";

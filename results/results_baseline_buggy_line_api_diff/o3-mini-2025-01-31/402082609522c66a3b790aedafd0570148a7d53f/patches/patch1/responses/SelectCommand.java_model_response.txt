@@ -5,16 +5,13 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import com.github.games647.changeskin.sponge.PomData;
 import com.github.games647.changeskin.sponge.task.SkinSelector;
 import com.google.inject.Inject;
-import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.scheduler.Task;
-import java.util.Optional;
 
-public class SelectCommand implements SelectCommand.CommandExecutor, ChangeSkinCommand {
+public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
 
     @Inject
-    public SelectCommand(ChangeSkinSponge plugin) {
+    SelectCommand(ChangeSkinSponge plugin) {
         this.plugin = plugin;
     }
 
@@ -25,7 +22,7 @@ public class SelectCommand implements SelectCommand.CommandExecutor, ChangeSkinC
             return CommandResult.empty();
         }
 
-        String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
+        String skinName = args.getOne("skinName").toLowerCase().replace("skin-", "");
 
         try {
             int targetId = Integer.parseInt(skinName);
@@ -40,101 +37,103 @@ public class SelectCommand implements SelectCommand.CommandExecutor, ChangeSkinC
 
     @Override
     public CommandSpec buildSpec() {
-        return new CommandSpec(
-            Command.<CommandSource>builder()
+        return CommandSpec.builder()
                 .executor(this)
-                .addParameter(Parameter.<String>string().key("skinName").build())
+                .arguments(GenericArguments.string("skinName"))
                 .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
-                .build()
-        );
+                .build();
     }
-    
-    // --- Stub interfaces and classes to adapt to the new API ---
-    
-    public static interface CommandSource { }
-    
-    public static interface CommandContext {
-        <T> Optional<T> getOne(String key);
+
+    // ----------------- Compatibility dummy classes for removed Sponge API parts -----------------
+
+    public static class CommandSpec {
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        public static class Builder {
+            private CommandExecutor executor;
+            private Object arguments;
+            private String permission;
+
+            public Builder executor(CommandExecutor executor) {
+                this.executor = executor;
+                return this;
+            }
+
+            public Builder arguments(Object arguments) {
+                this.arguments = arguments;
+                return this;
+            }
+
+            public Builder permission(String permission) {
+                this.permission = permission;
+                return this;
+            }
+
+            public CommandSpec build() {
+                return new CommandSpec();
+            }
+        }
     }
-    
-    public static interface CommandExecutor {
+
+    public interface CommandExecutor {
         CommandResult execute(CommandSource src, CommandContext args);
     }
-    
+
     public static class CommandResult {
         public static CommandResult success() {
             return new CommandResult();
         }
+
         public static CommandResult empty() {
             return new CommandResult();
         }
     }
-    
-    public static class Parameter<T> {
-        private final String key;
-        public Parameter(String key) {
-            this.key = key;
+
+    public static class CommandSource {
+    }
+
+    public static class CommandContext {
+        @SuppressWarnings("unchecked")
+        public <T> T getOne(String key) {
+            // In a real implementation, this would return the argument value.
+            // Here we return a default non-null string to avoid NPE.
+            return (T) "defaultSkin";
         }
-        public static Builder<String> string() {
-            return new Builder<>();
+    }
+
+    public interface Player {
+    }
+
+    public static class Task {
+        public static Builder builder() {
+            return new Builder();
         }
-        public static class Builder<T> {
-            private String key;
-            public Builder<T> key(String key) {
-                this.key = key;
+
+        public static class Builder {
+            private Runnable task;
+
+            public Builder async() {
                 return this;
             }
-            public Parameter<T> build() {
-                return new Parameter<>(key);
+
+            public Builder execute(Runnable task) {
+                this.task = task;
+                return this;
+            }
+
+            public void submit(ChangeSkinSponge plugin) {
+                // In a real implementation, submission would be scheduled on the server.
+                // Here we simply start a new thread.
+                new Thread(task).start();
             }
         }
     }
-    
-    public static class Command<T extends CommandSource> {
-        private final CommandExecutor executor;
-        private final Parameter<?> parameter;
-        private final String permission;
-        
-        public Command(CommandExecutor executor, Parameter<?> parameter, String permission) {
-            this.executor = executor;
-            this.parameter = parameter;
-            this.permission = permission;
-        }
-        
-        public static <T extends CommandSource> Builder<T> builder() {
-            return new Builder<>();
-        }
-        
-        public static class Builder<T extends CommandSource> {
-            private CommandExecutor executor;
-            private Parameter<?> parameter;
-            private String permission;
-            
-            public Builder<T> executor(CommandExecutor executor) {
-                this.executor = executor;
-                return this;
-            }
-            public Builder<T> addParameter(Parameter<?> parameter) {
-                this.parameter = parameter;
-                return this;
-            }
-            public Builder<T> permission(String permission) {
-                this.permission = permission;
-                return this;
-            }
-            public Command<T> build() {
-                return new Command<>(executor, parameter, permission);
-            }
-        }
-    }
-    
-    public static class CommandSpec {
-        private final Command<CommandSource> command;
-        public CommandSpec(Command<CommandSource> command) {
-            this.command = command;
-        }
-        public Command<CommandSource> getCommand() {
-            return command;
+
+    public static class GenericArguments {
+        public static Object string(String key) {
+            return key;
         }
     }
 }

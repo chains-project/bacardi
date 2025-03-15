@@ -126,7 +126,7 @@ public abstract class ListControlGroups<T> extends Panel {
 			try {
 				descriptor = PropertyUtils.getPropertyDescriptor(getModel().getObject(), property);
 			} catch (Exception e) {
-				throw new RuntimeException("error getting property " + property, e);
+				throw new RuntimeException("error getting property "+property, e);
 			}
 
 			boolean required = false;
@@ -182,9 +182,9 @@ public abstract class ListControlGroups<T> extends Panel {
 				} else {
 					controlGroup = controlGroupProviders
 							.get(objectProperty.type)
-							.createControlGroup(view.newChildId()
-									, new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name)
-									, objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
+							.createControlGroup(view.newChildId(),
+									new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name),
+									objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
 				}
 				view.add(controlGroup);
 

@@ -228,6 +228,8 @@ public final class Ssh extends AbstractSshShell {
         return String.format("'%s'", arg.replace("'", "'\\''"));
     }
 
+    // @checkstyle ProtectedMethodInFinalClassCheck (10 lines)
+    @Override
     @RetryOnFailure(
         attempts = 7,
         delay = 1,

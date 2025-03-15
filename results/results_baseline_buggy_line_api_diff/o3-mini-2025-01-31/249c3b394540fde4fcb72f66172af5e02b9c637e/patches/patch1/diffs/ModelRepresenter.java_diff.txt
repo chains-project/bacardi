@@ -1,34 +1,38 @@
 15a16
 > import org.yaml.snakeyaml.DumperOptions;
-37a39
+24d24
+< import java.beans.IntrospectionException;
+37a38
 >     super(new DumperOptions());
-94d95
+94d94
 < 
-123c124
-<           if (isList) { // check for eventual list construction
----
->           if (isList) { 
-169d169
+168,169d167
+<   // Model elements order {
 <   //TODO move to polyglot-common, or to org.apache.maven:maven-model
-178d177
-< 
-191d189
-< 
-218,219c216
+198,199d195
+<           //"repositories",
+<           //"pluginRepositories",
+212d207
+<   //}
+214,216d208
+<   /*
+<    * Change the default order. Important data goes first.
+<    */
+218,219c210
 <   protected Set<Property> getProperties(Class<? extends Object> type)
 <           throws IntrospectionException {
 ---
 >   protected Set<Property> getProperties(Class<? extends Object> type) {
-235,236c232
+235,236c226
 <   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
 <           throws IntrospectionException {
 ---
 >   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
-251d246
+251d240
 <       // important go first
-258d252
+258d246
 <       // all the rest
-268c262
+268c256
 <       return 0;// compare further
 ---
 >       return 0;

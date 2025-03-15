@@ -22,7 +22,7 @@ import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TIOStreamTransport;
 import org.apache.thrift.transport.TTransport;
-import org.apache.thrift.transport.layered.FramedTransport;
+import org.apache.thrift.transport.layered.TFramedTransport;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -42,6 +42,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
    * @param <T> The thrift message type to be read.
    */
   public static interface TBaseFactory<T> {
+
     T get();
   }
 
@@ -49,6 +50,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
    * Factory that get a TProtocol instance.
    */
   public static interface TProtocolFactory {
+
     TProtocol get(TTransport transport);
   }
 
@@ -59,7 +61,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
   private final ByteOffsetInputStream byteOffsetInputStream;
 
   // The framed transport.
-  private final FramedTransport framedTransport;
+  private final TFramedTransport framedTransport;
 
   // TProtocol implementation.
   private final TProtocol protocol;
@@ -75,7 +77,8 @@ public class ThriftReader<T extends TBase> implements Closeable {
 
     this.byteOffsetInputStream = new ByteOffsetInputStream(
         new RandomAccessFile(path, "r"), readBufferSize);
-    this.framedTransport = new FramedTransport(new TIOStreamTransport(this.byteOffsetInputStream), maxMessageSize);
+    // Use the new factory method provided by the updated dependency.
+    this.framedTransport = TFramedTransport.newInstance(new TIOStreamTransport(this.byteOffsetInputStream), maxMessageSize);
     this.baseFactory = Preconditions.checkNotNull(baseFactory);
     this.protocol = protocolFactory.get(this.framedTransport);
   }

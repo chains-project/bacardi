@@ -54,7 +54,7 @@ public class AppenderUtils {
     private OutputStream os;
 
     @Override
-    public void init(OutputStream os) throws IOException {
+    public void init(OutputStream os) {
       this.os = os;
     }
 
@@ -64,18 +64,18 @@ public class AppenderUtils {
     }
 
     @Override
-    public byte[] encode(LogMessage logMessage) throws IOException {
-      ByteArrayOutputStream byteArrayOut = new ByteArrayOutputStream();
+    public byte[] encode(LogMessage logMessage) {
+      ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
       final int bufferCapacity = 10;
-      TTransport framedTransport = new TFastFramedTransport(new TIOStreamTransport(byteArrayOut), bufferCapacity);
+      TTransport framedTransport = new TFastFramedTransport(new TIOStreamTransport(byteArrayOutputStream), bufferCapacity);
       TProtocol protocol = new TBinaryProtocol(framedTransport);
       try {
         logMessage.write(protocol);
         framedTransport.flush();
       } catch (TException e) {
-        throw new IOException(e);
+        throw new RuntimeException(e);
       }
-      return byteArrayOut.toByteArray();
+      return byteArrayOutputStream.toByteArray();
     }
 
     @Override
@@ -85,7 +85,9 @@ public class AppenderUtils {
 
     @Override
     public void close() throws IOException {
-      // No persistent resources to close.
+      if (os != null) {
+        os.close();
+      }
     }
   }
 
@@ -97,6 +99,7 @@ public class AppenderUtils {
    * @param topic the topic name for the current appender.
    * @param rotateThresholdKBytes threshold in kilobytes to rotate after.
    * @param context the logback context.
+   * @param maxRetentionHours threshold in hours for file retention.
    */
   public static Appender<LogMessage> createFileRollingThriftAppender(
       File basePath,

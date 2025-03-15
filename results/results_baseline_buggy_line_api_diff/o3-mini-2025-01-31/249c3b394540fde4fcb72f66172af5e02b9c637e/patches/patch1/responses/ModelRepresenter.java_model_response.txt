@@ -23,7 +23,6 @@ import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
 
-import java.beans.IntrospectionException;
 import java.util.*;
 
 import static java.lang.String.format;
@@ -122,7 +121,7 @@ class ModelRepresenter extends Representer {
         Object childValue = child.getValue();
         if (childValue == null) {
           boolean isList = singularName != null;
-          if (isList) { 
+          if (isList) { // check for eventual list construction
             for (int j = 0, grandChildCount = child.getChildCount(); j < grandChildCount; j++) {
               String grandChildName = child.getChild(j).getName();
               isList &= grandChildName.equals(singularName);
@@ -167,52 +166,47 @@ class ModelRepresenter extends Representer {
     }
   }
 
-  // Model elements order {
   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
-		  "modelEncoding",
-          "modelVersion",
-          "parent",
-          "groupId",
-          "artifactId",
-          "version",
-          "packaging",
-          "name",
-          "description",
-          "url",
-          "inceptionYear",
-          "organization",
-          "licenses",
-          "developers",
-          "contributers",
-          "mailingLists",
-          "scm",
-          "issueManagement",
-          "ciManagement",
-          "properties",
-          "prerequisites",
-          "modules",
-          "dependencyManagement",
-          "dependencies",
-          "distributionManagement",
-          //"repositories",
-          //"pluginRepositories",
-          "build",
-          "profiles",
-          "reporting"
-          ));
-  private static List<String> ORDER_DEVELOPER = new ArrayList<String>(Arrays.asList(
-		  "name", "id", "email"));
-  private static List<String> ORDER_CONTRIBUTOR = new ArrayList<String>(Arrays.asList(
-		  "name", "id", "email"));
-  private static List<String> ORDER_DEPENDENCY = new ArrayList<String>(Arrays.asList(
-		  "groupId", "artifactId", "version", "type", "classifier", "scope"));
-  private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
-		  "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
-  //}
+      "modelEncoding",
+      "modelVersion",
+      "parent",
+      "groupId",
+      "artifactId",
+      "version",
+      "packaging",
 
-  /*
-   * Change the default order. Important data goes first.
-   */
+      "name",
+      "description",
+      "url",
+      "inceptionYear",
+      "organization",
+      "licenses",
+      "developers",
+      "contributers",
+      "mailingLists",
+      "scm",
+      "issueManagement",
+      "ciManagement",
+
+      "properties",
+      "prerequisites",
+      "modules",
+      "dependencyManagement",
+      "dependencies",
+      "distributionManagement",
+      "build",
+      "profiles",
+      "reporting"
+  ));
+  private static List<String> ORDER_DEVELOPER = new ArrayList<String>(Arrays.asList(
+      "name", "id", "email"));
+  private static List<String> ORDER_CONTRIBUTOR = new ArrayList<String>(Arrays.asList(
+      "name", "id", "email"));
+  private static List<String> ORDER_DEPENDENCY = new ArrayList<String>(Arrays.asList(
+      "groupId", "artifactId", "version", "type", "classifier", "scope"));
+  private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
+      "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
+
   @Override
   protected Set<Property> getProperties(Class<? extends Object> type) {
     if (type.isAssignableFrom(Model.class)) {
@@ -231,10 +225,10 @@ class ModelRepresenter extends Representer {
   }
 
   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
-      Set<Property> standard = super.getProperties(type);
-      Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
-      sorted.addAll(standard);
-      return sorted;
+    Set<Property> standard = super.getProperties(type);
+    Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
+    sorted.addAll(standard);
+    return sorted;
   }
 
   private class ModelPropertyComparator implements Comparator<Property> {

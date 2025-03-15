@@ -18,13 +18,18 @@ public class ChachaDecoder {
 
   public byte[] decodeCiphertext(byte[] receivedMAC, byte[] additionalData, byte[] ciphertext)
       throws IOException {
+
     KeyParameter macKey = initRecordMAC(decryptCipher);
+
     byte[] calculatedMAC = PolyKeyCreator.create(macKey, additionalData, ciphertext);
+
     if (!Arrays.constantTimeAreEqual(calculatedMAC, receivedMAC)) {
       throw new IOException("bad_record_mac");
     }
+
     byte[] output = new byte[ciphertext.length];
     decryptCipher.processBytes(ciphertext, 0, ciphertext.length, output, 0);
+
     return output;
   }
 
@@ -35,6 +40,7 @@ public class ChachaDecoder {
   private KeyParameter initRecordMAC(ChaChaEngine cipher) {
     byte[] firstBlock = new byte[64];
     cipher.processBytes(firstBlock, 0, firstBlock.length, firstBlock, 0);
+
     // NOTE: The BC implementation puts 'r' after 'k'
     System.arraycopy(firstBlock, 0, firstBlock, 32, 16);
     KeyParameter macKey = new KeyParameter(firstBlock, 16, 32);

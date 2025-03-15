@@ -1,6 +1,7 @@
 package com.expl0itz.worldwidechat.inventory.wwctranslategui;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.bukkit.ChatColor;
@@ -9,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.enchantments.Enchantment;
 
 import com.cryptomorin.xseries.XEnchantment;
 import com.cryptomorin.xseries.XMaterial;
@@ -78,7 +80,10 @@ public class WWCTranslateGUITargetLanguage implements InventoryProvider {
 				/* Add Glow Effect */
 				currentLangMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 				if (currTranslator.getOutLangCode().equals(main.getSupportedTranslatorLanguages().get(i).getLangCode())) {
-					currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get(), 1, false);
+					Optional<XEnchantment> optEnchant = XEnchantment.matchXEnchantment("power");
+					if (optEnchant.isPresent()) {
+						currentLangMeta.addEnchant(optEnchant.get().getEnchant(), 1, false);
+					}
 					lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwctGUISourceOrTargetTranslationAlreadyActive"));
 				}
 				currentLangMeta.setDisplayName(main.getSupportedTranslatorLanguages().get(i).getLangName());

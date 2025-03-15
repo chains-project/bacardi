@@ -14,9 +14,9 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
+import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
 /**
@@ -95,11 +95,11 @@ public class Supplier implements ToString2
 
     /**
      * Gets the value of the supplierID property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link String }
-     *
+     *     
      */
     public String getSupplierID() {
         return supplierID;
@@ -107,11 +107,11 @@ public class Supplier implements ToString2
 
     /**
      * Sets the value of the supplierID property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link String }
-     *
+     *     
      */
     public void setSupplierID(String value) {
         this.supplierID = value;
@@ -119,11 +119,11 @@ public class Supplier implements ToString2
 
     /**
      * Gets the value of the accountID property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link String }
-     *
+     *     
      */
     public String getAccountID() {
         return accountID;
@@ -131,11 +131,11 @@ public class Supplier implements ToString2
 
     /**
      * Sets the value of the accountID property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link String }
-     *
+     *     
      */
     public void setAccountID(String value) {
         this.accountID = value;
@@ -143,11 +143,11 @@ public class Supplier implements ToString2
 
     /**
      * Gets the value of the supplierTaxID property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link String }
-     *
+     *     
      */
     public String getSupplierTaxID() {
         return supplierTaxID;
@@ -155,11 +155,11 @@ public class Supplier implements ToString2
 
     /**
      * Sets the value of the supplierTaxID property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link String }
-     *
+     *     
      */
     public void setSupplierTaxID(String value) {
         this.supplierTaxID = value;
@@ -167,11 +167,11 @@ public class Supplier implements ToString2
 
     /**
      * Gets the value of the companyName property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link String }
-     *
+     *     
      */
     public String getCompanyName() {
         return companyName;
@@ -179,11 +179,11 @@ public class Supplier implements ToString2
 
     /**
      * Sets the value of the companyName property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link String }
-     *
+     *     
      */
     public void setCompanyName(String value) {
         this.companyName = value;
@@ -191,11 +191,11 @@ public class Supplier implements ToString2
 
     /**
      * Gets the value of the contact property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link String }
-     *
+     *     
      */
     public String getContact() {
         return contact;
@@ -203,11 +203,11 @@ public class Supplier implements ToString2
 
     /**
      * Sets the value of the contact property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link String }
-     *
+     *     
      */
     public void setContact(String value) {
         this.contact = value;
@@ -215,11 +215,11 @@ public class Supplier implements ToString2
 
     /**
      * Gets the value of the billingAddress property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link SupplierAddressStructure }
-     *
+     *     
      */
     public SupplierAddressStructure getBillingAddress() {
         return billingAddress;
@@ -227,11 +227,11 @@ public class Supplier implements ToString2
 
     /**
      * Sets the value of the billingAddress property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link SupplierAddressStructure }
-     *
+     *     
      */
     public void setBillingAddress(SupplierAddressStructure value) {
         this.billingAddress = value;
@@ -239,25 +239,25 @@ public class Supplier implements ToString2
 
     /**
      * Gets the value of the shipFromAddress property.
-     *
+     * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the shipFromAddress property.
-     *
+     * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getShipFromAddress().add(newItem);
      * </pre>
-     *
-     *
+     * 
+     * 
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link SupplierAddressStructure }
-     *
-     *
+     * 
+     * 
      */
     public List<SupplierAddressStructure> getShipFromAddress() {
         if (shipFromAddress == null) {
@@ -268,11 +268,11 @@ public class Supplier implements ToString2
 
     /**
      * Gets the value of the telephone property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link String }
-     *
+     *     
      */
     public String getTelephone() {
         return telephone;
@@ -280,11 +280,11 @@ public class Supplier implements ToString2
 
     /**
      * Sets the value of the telephone property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link String }
-     *
+     *     
      */
     public void setTelephone(String value) {
         this.telephone = value;
@@ -292,11 +292,11 @@ public class Supplier implements ToString2
 
     /**
      * Gets the value of the fax property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link String }
-     *
+     *     
      */
     public String getFax() {
         return fax;
@@ -304,11 +304,11 @@ public class Supplier implements ToString2
 
     /**
      * Sets the value of the fax property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link String }
-     *
+     *     
      */
     public void setFax(String value) {
         this.fax = value;
@@ -316,11 +316,11 @@ public class Supplier implements ToString2
 
     /**
      * Gets the value of the email property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link String }
-     *
+     *     
      */
     public String getEmail() {
         return email;
@@ -328,11 +328,11 @@ public class Supplier implements ToString2
 
     /**
      * Sets the value of the email property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link String }
-     *
+     *     
      */
     public void setEmail(String value) {
         this.email = value;
@@ -340,11 +340,11 @@ public class Supplier implements ToString2
 
     /**
      * Gets the value of the website property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link String }
-     *
+     *     
      */
     public String getWebsite() {
         return website;
@@ -352,11 +352,11 @@ public class Supplier implements ToString2
 
     /**
      * Sets the value of the website property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link String }
-     *
+     *     
      */
     public void setWebsite(String value) {
         this.website = value;
@@ -364,7 +364,7 @@ public class Supplier implements ToString2
 
     /**
      * Gets the value of the selfBillingIndicator property.
-     *
+     * 
      */
     public int getSelfBillingIndicator() {
         return selfBillingIndicator;
@@ -372,7 +372,7 @@ public class Supplier implements ToString2
 
     /**
      * Sets the value of the selfBillingIndicator property.
-     *
+     * 
      */
     public void setSelfBillingIndicator(int value) {
         this.selfBillingIndicator = value;
@@ -380,7 +380,7 @@ public class Supplier implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+        final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();

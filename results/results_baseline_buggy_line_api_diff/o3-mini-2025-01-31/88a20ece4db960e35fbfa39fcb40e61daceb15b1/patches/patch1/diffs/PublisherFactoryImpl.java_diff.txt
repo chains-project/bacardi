@@ -1,9 +1,12 @@
-20d19
+20c20
 < import com.google.cloud.pubsublite.PublishMetadata;
-27a27
-> import com.google.cloud.pubsublite.internal.wire.PartitionPublisherFactory;
-35d34
+---
+> // Removed: import com.google.cloud.pubsublite.PublishMetadata;
+35,36c35
 <   @Override
+<   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
+---
+>   public Publisher<Void> newPublisher(Map<String, String> params) {
 40,46c39,42
 <         TopicPath.newBuilder()
 <             .setProject(
@@ -17,29 +20,13 @@
 >             ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value()).project(),
 >             CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()),
 >             TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()));
-48,50c44,47
+48,54c44
 <     builder.setPublisherFactory(
 <         partition ->
 <             SinglePartitionPublisherBuilder.newBuilder()
----
->     builder.setPublisherFactory(new PartitionPublisherFactory() {
->       @Override
->       public Publisher<?> newPublisher(int partition) {
->         return SinglePartitionPublisherBuilder.newBuilder()
-53,55c50
+<                 .setTopic(topic)
+<                 .setPartition(partition)
 <                 .setContext(PubsubContext.of(FRAMEWORK))
 <                 .build());
-<     return builder.build();
 ---
->             .build();
-56a52,61
-> 
->       @Override
->       public Publisher<?> newPublisher(int partition, PubsubContext context) {
->         return newPublisher(partition);
->       }
->     });
->     return (Publisher<PublishMetadata>) builder.build();
->   }
-> 
->   public static class PublishMetadata {}
+>     // Removed call to setPublisherFactory(...) since the PartitionPublisherFactory interface has been removed.
