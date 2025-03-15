@@ -2,14 +2,6 @@ package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
 import redis.clients.jedis.ClusterPipeline; // Updated import
-import redis.clients.jedis.commands.MultiKeyCommandsPipeline; // Removed as it's no longer available
-import redis.clients.jedis.commands.ScriptingCommandsPipeline; // Removed as it's no longer available
-import redis.clients.jedis.commands.BasicRedisPipeline; // Removed as it's no longer available
-import redis.clients.jedis.commands.BinaryRedisPipeline; // Removed as it's no longer available
-import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline; // Removed as it's no longer available
-import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline; // Removed as it's no longer available
-import redis.clients.jedis.commands.RedisPipeline; // Removed as it's no longer available
-
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +10,7 @@ import java.util.Map;
  * An interface which aligned to Jedis transactional interface
  */
 public interface RedisGraphTransaction extends
-        ClusterPipeline, // Updated to use new ClusterPipeline
+        ClusterPipeline, // Updated interface
         Closeable {
 
     /**

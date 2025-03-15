@@ -1,28 +1,18 @@
-14,16c14,17
+14c14
 < import org.spongepowered.api.command.args.CommandContext;
-< import org.spongepowered.api.command.spec.CommandExecutor;
-< import org.spongepowered.api.command.spec.CommandSpec;
 ---
 > import org.spongepowered.api.command.parameter.CommandContext;
-> import org.spongepowered.api.command.Command;
-> import org.spongepowered.api.command.CommandExecutor;
-> import org.spongepowered.api.command.CommandParameters;
-19c20
+19,20c19,20
 < import static org.spongepowered.api.command.args.GenericArguments.string;
+< import static org.spongepowered.api.text.Text.of;
 ---
 > import static org.spongepowered.api.command.parameter.Parameter.string;
-43c44
+> import static net.kyori.adventure.text.Component.text;
+43c43
 <                 Task.builder().async().execute(skinUploader).submit(plugin);
 ---
 >                 Task.builder().execute(skinUploader).submit(plugin);
-52,54c53,54
-<     @Override
-<     public CommandSpec buildSpec() {
-<         return CommandSpec.builder()
----
->     public Command buildSpec() {
->         return Command.builder()
 56c56
 <                 .arguments(string(of("url")))
 ---
->                 .parameters(string("url"))
+>                 .arguments(string("url"))

@@ -1,24 +1,12 @@
 9d8
 < import org.spongepowered.api.command.CommandSource;
 11a11
-> import org.spongepowered.api.command.CommandSource; // This import is removed as CommandSource no longer exists
-16,17c16
+> import org.spongepowered.api.command.CommandSource; // This import is removed in the new version
+16c16
 <     private final CommandSource invoker;
-<     private final Player receiver;
 ---
->     private final Player receiver; // Removed CommandSource invoker
-19,20c18
+>     private final Object invoker; // Changed from CommandSource to Object
+19c19
 <     public SkinDownloader(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, UUID targetUUID
-<             , boolean keepSkin) {
 ---
->     public SkinDownloader(ChangeSkinSponge plugin, Player receiver, UUID targetUUID, boolean keepSkin) { // Updated constructor
-24d21
-<         this.invoker = invoker;
-30c27
-<         Runnable skinUpdater = new SkinApplier(plugin, invoker, receiver, skinData, keepSkin);
----
->         Runnable skinUpdater = new SkinApplier(plugin, receiver, skinData, keepSkin); // Removed invoker from parameters
-36c33
-<         plugin.sendMessage(invoker, id);
----
->         // This method is removed as there is no longer an invoker to send messages to
+>     public SkinDownloader(ChangeSkinSponge plugin, Object invoker, Player receiver, UUID targetUUID

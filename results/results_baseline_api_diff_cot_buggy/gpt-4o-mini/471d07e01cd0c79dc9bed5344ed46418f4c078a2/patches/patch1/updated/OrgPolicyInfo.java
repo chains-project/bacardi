@@ -18,9 +18,7 @@ package com.google.cloud.resourcemanager;
 import com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy;
 import com.google.api.services.cloudresourcemanager.v3.model.ListPolicy;
 import com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy;
-import com.google.api.services.cloudresourcemanager.v3.model.RestoreDefault;
-import com.google.common.base.Function;
-import com.google.common.base.MoreObjects;
+import com.google.api.services.cloudresourcemanager.v3.model.Policy;
 import java.util.List;
 import java.util.Objects;
 
@@ -54,7 +52,6 @@ public class OrgPolicyInfo {
   private String constraint;
   private String etag;
   private Policies policies;
-  private RestoreDefault restoreDefault;
   private String updateTime;
   private Integer version;
 
@@ -209,7 +206,6 @@ public class OrgPolicyInfo {
     private String constraint;
     private String etag;
     private Policies policies;
-    private RestoreDefault restoreDefault;
     private String updateTime;
     private Integer version;
 
@@ -220,7 +216,6 @@ public class OrgPolicyInfo {
       this.constraint = info.constraint;
       this.etag = info.etag;
       this.policies = info.policies;
-      this.restoreDefault = info.restoreDefault;
       this.updateTime = info.updateTime;
       this.version = info.version;
     }
@@ -245,11 +240,6 @@ public class OrgPolicyInfo {
       return this;
     }
 
-    Builder setRestoreDefault(RestoreDefault restoreDefault) {
-      this.restoreDefault = restoreDefault;
-      return this;
-    }
-
     Builder setUpdateTime(String updateTime) {
       this.updateTime = updateTime;
       return this;
@@ -270,7 +260,6 @@ public class OrgPolicyInfo {
     this.constraint = builder.constraint;
     this.etag = builder.etag;
     this.policies = builder.policies;
-    this.restoreDefault = builder.restoreDefault;
     this.updateTime = builder.updateTime;
     this.version = builder.version;
   }
@@ -293,11 +282,6 @@ public class OrgPolicyInfo {
   /** Return the policies. */
   public Policies getPolicies() {
     return policies;
-  }
-
-  /** Restores the default behavior of the constraint. */
-  public RestoreDefault getRestoreDefault() {
-    return restoreDefault;
   }
 
   /** Returns the updated timestamp of policy. */
@@ -323,15 +307,13 @@ public class OrgPolicyInfo {
         && Objects.equals(constraint, policyInfo.constraint)
         && Objects.equals(etag, policyInfo.etag)
         && Objects.equals(policies, policyInfo.policies)
-        && Objects.equals(restoreDefault, policyInfo.restoreDefault)
         && Objects.equals(updateTime, policyInfo.updateTime)
         && Objects.equals(version, policyInfo.version);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(
-        boolPolicy, constraint, etag, policies, restoreDefault, updateTime, version);
+    return Objects.hash(boolPolicy, constraint, etag, policies, updateTime, version);
   }
 
   /** Returns a builder for the {@link OrgPolicyInfo} object. */
@@ -353,7 +335,6 @@ public class OrgPolicyInfo {
     if (policies != null) {
       orgPolicyProto.setListPolicy(policies.toProtobuf());
     }
-    orgPolicyProto.setRestoreDefault(restoreDefault);
     orgPolicyProto.setEtag(etag);
     orgPolicyProto.setUpdateTime(updateTime);
     orgPolicyProto.setVersion(version);
@@ -369,7 +350,6 @@ public class OrgPolicyInfo {
     if (orgPolicyProtobuf.getListPolicy() != null) {
       builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getListPolicy()));
     }
-    builder.setRestoreDefault(orgPolicyProtobuf.getRestoreDefault());
     builder.setEtag(orgPolicyProtobuf.getEtag());
     builder.setUpdateTime(orgPolicyProtobuf.getUpdateTime());
     builder.setVersion(orgPolicyProtobuf.getVersion());

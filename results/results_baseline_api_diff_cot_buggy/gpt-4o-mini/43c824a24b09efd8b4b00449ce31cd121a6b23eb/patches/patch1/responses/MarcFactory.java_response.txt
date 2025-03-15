@@ -310,8 +310,8 @@ public class MarcFactory {
     return field;
   }
 
-  private static List<String> extractList(JsonPathCache cache, var branch) { // Changed from JsonBranch to var
-    List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());
+  private static List<String> extractList(JsonPathCache cache, Object branch) { // Changed JsonBranch to Object
+    List<XmlFieldInstance> instances = cache.get(branch.getJsonPath()); // Adjusted to use Object
     List<String> values = new ArrayList<>();
     if (instances != null)
       for (XmlFieldInstance instance : instances)
@@ -319,8 +319,8 @@ public class MarcFactory {
     return values;
   }
 
-  private static String extractFirst(JsonPathCache cache, var branch) { // Changed from JsonBranch to var
-    List<String> list = extractList(cache, branch);
+  private static String extractFirst(JsonPathCache cache, Object branch) { // Changed JsonBranch to Object
+    List<String> list = extractList(cache, branch); // Adjusted to use Object
     if (!list.isEmpty())
       return list.get(0);
     return null;

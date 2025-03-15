@@ -15,9 +15,9 @@
  */
 package com.google.cloud.resourcemanager;
 
-import com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy; // Updated import
+import com.google.api.services.cloudresourcemanager.v3.model.BooleanConstraint; // Updated import
 import com.google.api.services.cloudresourcemanager.v3.model.Constraint; // Updated import
-import com.google.api.services.cloudresourcemanager.v3.model.ListPolicy; // Updated import
+import com.google.api.services.cloudresourcemanager.v3.model.ListConstraint; // Updated import
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.Objects;
@@ -47,11 +47,11 @@ public class ConstraintInfo {
         }
       };
 
-  private BooleanPolicy booleanConstraint; // Updated type
+  private BooleanConstraint booleanConstraint;
   private String constraintDefault;
   private String description;
   private String displayName;
-  private ListPolicy listPolicy; // Updated type
+  private Constraints constraints;
   private String name;
   private Integer version;
 
@@ -111,21 +111,18 @@ public class ConstraintInfo {
           && Objects.equals(supportsUnder, that.supportsUnder);
     }
 
-    ListPolicy toProtobuf() { // Updated return type
-      ListPolicy listPolicy = new ListPolicy(); // Updated instantiation
-      listPolicy.setSuggestedValue(suggestedValue); // Updated method
-      listPolicy.setSupportsUnder(supportsUnder); // Updated method
-      return listPolicy;
+    ListConstraint toProtobuf() {
+      return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
     }
 
-    static Constraints fromProtobuf(ListPolicy listPolicy) { // Updated parameter type
-      return new Constraints(listPolicy.getSuggestedValue(), listPolicy.getSupportsUnder());
+    static Constraints fromProtobuf(ListConstraint listConstraint) {
+      return new Constraints(listConstraint.getSuggestedValue(), listConstraint.getSupportsUnder());
     }
   }
 
   /** Builder for {@code ConstraintInfo}. */
   static class Builder {
-    private BooleanPolicy booleanConstraint; // Updated type
+    private BooleanConstraint booleanConstraint;
     private String constraintDefault;
     private String description;
     private String displayName;
@@ -147,7 +144,7 @@ public class ConstraintInfo {
       this.version = info.version;
     }
 
-    Builder setBooleanConstraint(BooleanPolicy booleanConstraint) { // Updated type
+    Builder setBooleanConstraint(BooleanConstraint booleanConstraint) {
       this.booleanConstraint = booleanConstraint;
       return this;
     }
@@ -192,13 +189,13 @@ public class ConstraintInfo {
     this.constraintDefault = builder.constraintDefault;
     this.description = builder.description;
     this.displayName = builder.displayName;
-    this.listPolicy = builder.constraints != null ? builder.constraints.toProtobuf() : null; // Updated assignment
+    this.constraints = builder.constraints;
     this.name = builder.name;
     this.version = builder.version;
   }
 
   /** Returns the boolean constraint to check whether the constraint is enforced or not. */
-  public BooleanPolicy getBooleanConstraint() { // Updated return type
+  public BooleanConstraint getBooleanConstraint() {
     return booleanConstraint;
   }
 
@@ -266,33 +263,33 @@ public class ConstraintInfo {
     return new Builder(this);
   }
 
-  Constraint toProtobuf() { // Updated return type
-    Constraint constraintProto = new Constraint(); // Updated instantiation
-    constraintProto.setBooleanConstraint(booleanConstraint); // Updated method
-    constraintProto.setConstraintDefault(constraintDefault); // Updated method
-    constraintProto.setDescription(description); // Updated method
-    constraintProto.setDisplayName(displayName); // Updated method
+  Constraint toProtobuf() {
+    Constraint constraintProto = new Constraint();
+    constraintProto.setBooleanConstraint(booleanConstraint);
+    constraintProto.setConstraintDefault(constraintDefault);
+    constraintProto.setDescription(description);
+    constraintProto.setDisplayName(displayName);
     if (constraints != null) {
-      constraintProto.setListPolicy(constraints.toProtobuf()); // Updated method
+      constraintProto.setListConstraint(constraints.toProtobuf());
     }
-    constraintProto.setName(name); // Updated method
-    constraintProto.setVersion(version); // Updated method
+    constraintProto.setName(name);
+    constraintProto.setVersion(version);
     return constraintProto;
   }
 
-  static ConstraintInfo fromProtobuf(Constraint constraintProtobuf) { // Updated parameter type
+  static ConstraintInfo fromProtobuf(Constraint constraintProtobuf) {
     Builder builder = newBuilder(constraintProtobuf.getName());
-    builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint()); // Updated method
-    builder.setConstraintDefault(constraintProtobuf.getConstraintDefault()); // Updated method
-    builder.setDescription(constraintProtobuf.getDescription()); // Updated method
-    builder.setDisplayName(constraintProtobuf.getDisplayName()); // Updated method
-    if (constraintProtobuf.getListPolicy() != null) { // Updated method
-      builder.setConstraints(Constraints.fromProtobuf(constraintProtobuf.getListPolicy())); // Updated method
+    builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint());
+    builder.setConstraintDefault(constraintProtobuf.getConstraintDefault());
+    builder.setDescription(constraintProtobuf.getDescription());
+    builder.setDisplayName(constraintProtobuf.getDisplayName());
+    if (constraintProtobuf.getListConstraint() != null) {
+      builder.setConstraints(Constraints.fromProtobuf(constraintProtobuf.getListConstraint()));
     }
     if (constraintProtobuf.getName() != null && !constraintProtobuf.getName().equals("Unnamed")) {
       builder.setName(constraintProtobuf.getName());
     }
-    builder.setVersion(constraintProtobuf.getVersion()); // Updated method
+    builder.setVersion(constraintProtobuf.getVersion());
     return builder.build();
   }
 }

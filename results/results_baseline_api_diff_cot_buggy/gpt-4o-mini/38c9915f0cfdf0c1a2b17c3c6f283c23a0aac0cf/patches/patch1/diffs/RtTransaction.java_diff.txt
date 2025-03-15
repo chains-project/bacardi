@@ -1,3 +1,7 @@
+33c33
+< import org.cactoos.iterable.LengthOf;
+---
+> import org.cactoos.scalar.LengthOf;
 35d34
 < import org.cactoos.scalar.IoCheckedScalar;
 37d35
@@ -21,66 +25,67 @@
 <                             new TextOf(trnsct)
 <                         ).asString().isEmpty()
 ---
->                     trnsct.trim().isEmpty()
+>                     new LengthOf(new TextOf(trnsct)).intValue() == 0
 109c101
 <                             new SplitText(trnsct, ";")
 ---
->                         new org.cactoos.text.SplitText(trnsct, ";")
+>                         new TextOf(trnsct).asString().split(";")
+112c104
+<                     if (new LengthOf(pieces).intValue() != 7) {
+---
+>                 if (pieces.size() != 7) {
 123d114
 <             )
-131c122
+131d121
 <             new IoCheckedScalar<>(
----
->             new UncheckedScalar<>(
-133c124
+133,134c123
 <                     0, new SplitText(this.transaction.value(), ";")
+<                 )
 ---
->                     0, new org.cactoos.text.SplitText(this.transaction.value(), ";")
-156c147
+>                 0, new TextOf(this.transaction.value()).asString().split(";")
+156d144
 <                 new IoCheckedScalar<>(
----
->                 new UncheckedScalar<>(
-158c149
+158,159c146
 <                         1, new SplitText(this.transaction.value(), ";")
+<                     )
 ---
->                         1, new org.cactoos.text.SplitText(this.transaction.value(), ";")
-169c160
+>                     1, new TextOf(this.transaction.value()).asString().split(";")
+169d155
 <             new IoCheckedScalar<>(
----
->             new UncheckedScalar<>(
-171c162
+171,172c157
 <                     2, new SplitText(this.transaction.value(), ";")
+<                 )
 ---
->                     2, new org.cactoos.text.SplitText(this.transaction.value(), ";")
-193c184
+>                 2, new TextOf(this.transaction.value()).asString().split(";")
+193d177
 <             new IoCheckedScalar<>(
----
->             new UncheckedScalar<>(
-196c187
+195,197c179
+<                     //@checkstyle MagicNumberCheck (1 line)
 <                     3, new SplitText(this.transaction.value(), ";")
+<                 )
 ---
->                     3, new org.cactoos.text.SplitText(this.transaction.value(), ";")
-213c204
+>                 3, new TextOf(this.transaction.value()).asString().split(";")
+213d194
 <             new IoCheckedScalar<>(
----
->             new UncheckedScalar<>(
-216c207
+215,217c196
+<                     //@checkstyle MagicNumberCheck (1 line)
 <                     4, new SplitText(this.transaction.value(), ";")
+<                 )
 ---
->                     4, new org.cactoos.text.SplitText(this.transaction.value(), ";")
-237c228
+>                 4, new TextOf(this.transaction.value()).asString().split(";")
+237d215
 <             new IoCheckedScalar<>(
----
->             new UncheckedScalar<>(
-240c231
+239,241c217
+<                     //@checkstyle MagicNumberCheck (1 line)
 <                     5, new SplitText(this.transaction.value(), ";")
+<                 )
 ---
->                     5, new org.cactoos.text.SplitText(this.transaction.value(), ";")
-261c252
+>                 5, new TextOf(this.transaction.value()).asString().split(";")
+261d236
 <             new IoCheckedScalar<>(
----
->             new UncheckedScalar<>(
-264c255
+263,265c238
+<                     //@checkstyle MagicNumberCheck (1 line)
 <                     6, new SplitText(this.transaction.value(), ";")
+<                 )
 ---
->                     6, new org.cactoos.text.SplitText(this.transaction.value(), ";")
+>                 6, new TextOf(this.transaction.value()).asString().split(";")

@@ -13,8 +13,8 @@ package it.geosolutions.geostore.core.security.password;
  *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
+ *  the GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -30,7 +30,7 @@ import java.util.Base64;
 import org.acegisecurity.providers.encoding.PasswordEncoder;
 import org.jasypt.encryption.pbe.StandardPBEByteEncryptor;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
-import org.jasypt.springsecurity3.password.PBEPasswordEncoder; // Updated import
+import org.jasypt.springsecurity3.password.PasswordEncryptor; // Updated import
 
 /**
  * Password Encoder using symmetric encryption
@@ -100,7 +100,8 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 			}
 			stringEncrypter.setAlgorithm(getAlgorithm());
 
-			PBEPasswordEncoder encoder = new PBEPasswordEncoder(stringEncrypter); // Updated constructor
+			PasswordEncryptor encoder = new PasswordEncryptor(); // Updated instantiation
+			encoder.setPbeStringEncryptor(stringEncrypter);
 
 			return encoder;
 		} finally {

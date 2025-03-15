@@ -11,17 +11,17 @@ import com.google.inject.Inject;
 import java.util.Optional;
 import java.util.UUID;
 
+import net.kyori.adventure.text.Component;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.serializer.TextSerializers;
 
-public class InfoCommand implements Command, ChangeSkinCommand {
+public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
 
     @Inject
     private ChangeSkinSponge plugin;
@@ -33,22 +33,21 @@ public class InfoCommand implements Command, ChangeSkinCommand {
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
-            return CommandResult.empty();
+            return CommandResult.success();
         }
 
         UUID uniqueId = ((Player) src).getUniqueId();
-        Task.builder().async()
-                .execute(() -> {
-                    UserPreference preferences = plugin.getCore().getStorage().getPreferences(uniqueId);
-                    Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).submit(plugin);
-                })
-                .submit(plugin);
+        Scheduler scheduler = Sponge.getScheduler();
+        scheduler.submit(Task.builder().execute(() -> {
+            UserPreference preferences = plugin.getCore().getStorage().getPreferences(uniqueId);
+            scheduler.submit(Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).build());
+        }).build());
 
         return CommandResult.success();
     }
 
     @Override
-    public CommandSpec buildSpec() {
+    public Command buildSpec() {
         return Command.builder()
                 .executor(this)
                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
@@ -65,7 +64,7 @@ public class InfoCommand implements Command, ChangeSkinCommand {
                 String template = plugin.getCore().getMessage("skin-info");
                 String formatted = formatter.apply(template, optSkin.get());
 
-                Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
+                Text text = Text.of(formatted);
                 player.sendMessage(text);
             } else {
                 plugin.sendMessage(player, "skin-not-found");

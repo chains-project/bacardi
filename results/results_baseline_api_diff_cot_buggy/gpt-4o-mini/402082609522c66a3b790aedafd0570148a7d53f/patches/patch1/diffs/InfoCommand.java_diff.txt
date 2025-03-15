@@ -1,21 +1,45 @@
-13,14d12
+13,14c13
 < import org.spongepowered.api.Sponge;
 < import org.spongepowered.api.command.CommandException;
-17,19c15,17
+---
+> import net.kyori.adventure.text.Component;
+17,19c16,17
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
-> import org.spongepowered.api.command.exception.CommandException;
 > import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.Command;
-25c23
-< public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
----
-> public class InfoCommand implements Command, ChangeSkinCommand {
+20a19
+> import org.spongepowered.api.scheduler.Scheduler;
+23d21
+< import org.spongepowered.api.text.serializer.TextSerializers;
 33d30
 < 
-54c51
+38c35
+<             return CommandResult.empty();
+---
+>             return CommandResult.success();
+42,43c39,40
+<         Task.builder().async()
+<                 .execute(() -> {
+---
+>         Scheduler scheduler = Sponge.getScheduler();
+>         scheduler.submit(Task.builder().execute(() -> {
+45,47c42,43
+<                     Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).submit(plugin);
+<                 })
+<                 .submit(plugin);
+---
+>             scheduler.submit(Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).build());
+>         }).build());
+53,54c49,50
+<     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
 ---
+>     public Command buildSpec() {
 >         return Command.builder()
+70c66
+<                 Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
+---
+>                 Text text = Text.of(formatted);

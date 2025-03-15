@@ -1,8 +1,8 @@
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
-import redis.clients.jedis.commands.ClusterPipeline; // Updated import
-import redis.clients.jedis.commands.ScriptingCommandsPipeline; // Updated import
+import redis.clients.jedis.commands.ClusterPipeline;
+
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
@@ -11,9 +11,7 @@ import java.util.Map;
  * An interface which aligned to Jedis Pipeline interface
  */
 public interface RedisGraphPipeline extends
-        ClusterPipeline, // Updated to use the new ClusterPipeline
-        ScriptingCommandsPipeline, // Updated to use the new ScriptingCommandsPipeline
-        Closeable {
+        ClusterPipeline, Closeable {
 
     /**
      * Execute a Cypher query.

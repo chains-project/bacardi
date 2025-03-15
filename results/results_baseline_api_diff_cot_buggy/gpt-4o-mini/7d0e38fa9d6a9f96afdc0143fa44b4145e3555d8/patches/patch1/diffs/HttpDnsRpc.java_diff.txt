@@ -1,20 +1,26 @@
+211c211
+<         .create(this.options.getProjectId(), zone)
+---
+>         .create(this.options.getProjectId(), zone.getName(), zone)
 271c271
 <     return dns.managedZones().delete(this.options.getProjectId(), zoneName);
 ---
 >     return dns.managedZones().delete(this.options.getProjectId(), zoneName, ""); // Added empty string for the new method signature
-289c289
-<         .list(this.options.getProjectId(), zoneName)
----
->         .list(this.options.getProjectId(), zoneName, "") // Added empty string for the new method signature
-308c308
+308,309c308
 <         .get(this.options.getProjectId())
+<         .setFields(Option.FIELDS.getString(options));
 ---
->         .get(this.options.getProjectId(), "") // Added empty string for the new method signature
-352c352
+>         .get(this.options.getProjectId(), ""); // Added empty string for the new method signature
+325c324
+<         .create(this.options.getProjectId(), zoneName, changeRequest)
+---
+>         .create(this.options.getProjectId(), zoneName, changeRequest.getId(), changeRequest) // Added changeRequest.getId() for the new method signature
+352,353c351
 <         .get(this.options.getProjectId(), zoneName, changeRequestId)
+<         .setFields(Option.FIELDS.getString(options));
 ---
->         .get(this.options.getProjectId(), zoneName, changeRequestId, "") // Added empty string for the new method signature
-372c372
+>         .get(this.options.getProjectId(), zoneName, changeRequestId, ""); // Added empty string for the new method signature
+372c370
 <             .list(this.options.getProjectId(), zoneName)
 ---
 >             .list(this.options.getProjectId(), zoneName, "") // Added empty string for the new method signature

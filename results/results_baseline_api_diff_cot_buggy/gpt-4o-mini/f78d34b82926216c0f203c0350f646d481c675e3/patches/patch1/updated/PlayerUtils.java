@@ -20,6 +20,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.BlockIterator;
+import tokyo.peya.lib.LeetConverter;
 
 import javax.annotation.Nullable;
 import java.sql.Connection;
@@ -32,7 +33,6 @@ import java.util.stream.Collectors;
 
 import static ml.peya.plugins.Utils.MessageEngine.get;
 import static ml.peya.plugins.Variables.skin;
-import tokyo.peya.lib.LeetConverter; // Updated import for the new dependency
 
 /**
  * プレイヤーに関してまとめたやつ！
@@ -111,8 +111,8 @@ public class PlayerUtils
 
         if (random.nextBoolean())
         {
-            first = LeetConverter.convert(first); // Updated method call
-            last = LeetConverter.convert(last);   // Updated method call
+            first = LeetConverter.convert(first);
+            last = LeetConverter.convert(last);
         }
 
         String name = first + (random.nextBoolean() ? "_": "") + last + (random.nextBoolean() ? "19" + random.nextInt(120): "");

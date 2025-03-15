@@ -143,7 +143,7 @@ public class MutationReportListener implements MutationResultListener {
 
 ```
 
-The error is triggered in the following specific lines:
+The error is triggered in the following specific line:
 
 <error_lines>
 ```java
@@ -153,11 +153,11 @@ data.getMutations(), coverage.getClassInfo(Collections.singleton(data.getMutated
 
 The API of the dependency has changed. Here are the relevant changes:
 
-     Method org.pitest.coverage.CoverageData.getClassInfo(java.util.Collection) has been removed in the new version of the dependency.
-     Method org.pitest.coverage.ReportCoverage.getClassInfo(java.util.Collection) has been removed in the new version of the dependency.
      Method org.pitest.coverage.LegacyClassCoverage.getClassInfo(java.util.Collection) has been removed in the new version of the dependency.
-     Method org.pitest.classinfo.ClassInfoVisitor.getClassInfo(org.pitest.classinfo.ClassName,byte[],long) has been added in the new version of the dependency.
+     Method org.pitest.coverage.ReportCoverage.getClassInfo(java.util.Collection) has been removed in the new version of the dependency.
      Method org.pitest.coverage.NoCoverage.getClassInfo(java.util.Collection) has been removed in the new version of the dependency.
+     Method org.pitest.coverage.CoverageData.getClassInfo(java.util.Collection) has been removed in the new version of the dependency.
+     Method org.pitest.classinfo.ClassInfoVisitor.getClassInfo(org.pitest.classinfo.ClassName,byte[],long) has been added in the new version of the dependency.
 
 Additional error information:
 
@@ -165,7 +165,7 @@ Additional error information:
 [ERROR] /pitest-mutation-testing-elements-plugin/src/main/java/org/pitest/elements/MutationReportListener.java:[105,38] cannot find symbol
   symbol:   method getClassInfo(java.util.Set<org.pitest.classinfo.ClassName>)
   location: variable coverage of type org.pitest.coverage.CoverageDatabase
-<error_information>
+</error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:
 

@@ -30,6 +30,7 @@
 package com.jcabi.simpledb;
 
 import com.amazonaws.services.simpledb.model.SelectRequest;
+import com.jcabi.aspects.Tv;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;

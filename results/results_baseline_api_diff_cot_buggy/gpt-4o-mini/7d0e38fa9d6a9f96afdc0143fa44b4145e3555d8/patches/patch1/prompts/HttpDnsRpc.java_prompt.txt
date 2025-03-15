@@ -393,17 +393,29 @@ public class HttpDnsRpc implements DnsRpc {
 
 ```
 
-The errors are triggered in the following specific line:
+The errors are triggered in the following specific lines:
 
 <error_lines>
 ```java
-return dns.managedZones().delete(this.options.getProjectId(), zoneName);
+.create(this.options.getProjectId(), zone)
+```
+```java
+.create(this.options.getProjectId(), zoneName, changeRequest)
+```
+```java
+.get(this.options.getProjectId(), zoneName, changeRequestId)
 ```
 ```java
 .list(this.options.getProjectId())
 ```
 ```java
-.get(this.options.getProjectId(), zoneName, changeRequestId)
+return dns.managedZones().delete(this.options.getProjectId(), zoneName);
+```
+```java
+.get(this.options.getProjectId())
+```
+```java
+.list(this.options.getProjectId(), zoneName)
 ```
 ```java
 .list(this.options.getProjectId(), zoneName)
@@ -411,85 +423,83 @@ return dns.managedZones().delete(this.options.getProjectId(), zoneName);
 ```java
 .get(this.options.getProjectId(), zoneName)
 ```
-```java
-.get(this.options.getProjectId())
-```
-```java
-.create(this.options.getProjectId(), zoneName, changeRequest)
-```
-```java
-.create(this.options.getProjectId(), zone)
-```
-```java
-.list(this.options.getProjectId(), zoneName)
-```
 </error_lines>
 
 The API of the dependency has changed. Here are the relevant changes:
 
-     Method com.google.api.services.dns.Dns$ResourceRecordSets.delete(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ResponsePolicies.delete(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ResponsePolicyRules.delete(java.lang.String,java.lang.String,java.lang.String) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$Policies.delete(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ManagedZones.delete(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$Policies.delete(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ManagedZones.delete(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ResponsePolicyRules.delete(java.lang.String,java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ResponsePolicies.delete(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ResourceRecordSets.delete(java.lang.String,java.lang.String,java.lang.String,java.lang.String) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$DnsKeys.list(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$Policies.list(java.lang.String) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ResponsePolicies.list(java.lang.String) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ResourceRecordSets.list(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$DnsKeys.list(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ManagedZoneOperations.list(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ManagedZones.list(java.lang.String) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ResponsePolicyRules.list(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ResourceRecordSets.list(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ManagedZones.list(java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$Changes.list(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$Changes.list(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ManagedZoneOperations.list(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$Policies.list(java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ResponsePolicies.list(java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ResponsePolicyRules.list(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ResponsePolicies.get(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$DnsKeys.get(java.lang.String,java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$Projects.get(java.lang.String) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ResourceRecordSets.get(java.lang.String,java.lang.String,java.lang.String,java.lang.String) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ResourceRecordSets.get(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$Policies.get(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ManagedZoneOperations.get(java.lang.String,java.lang.String,java.lang.String) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$Projects.get(java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ResponsePolicyRules.get(java.lang.String,java.lang.String,java.lang.String) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$Changes.get(java.lang.String,java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ManagedZones.get(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ResponsePolicyRules.get(java.lang.String,java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$Policies.get(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ResponsePolicies.get(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ManagedZones.get(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ManagedZoneOperations.get(java.lang.String,java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$Changes.get(java.lang.String,java.lang.String,java.lang.String) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$DnsKeys.get(java.lang.String,java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ResourceRecordSets.create(java.lang.String,java.lang.String,com.google.api.services.dns.model.ResourceRecordSet) has been removed in the new version of the dependency.
      Method com.google.api.services.dns.Dns$ResponsePolicyRules.create(java.lang.String,java.lang.String,com.google.api.services.dns.model.ResponsePolicyRule) has been removed in the new version of the dependency.
      Method com.google.api.services.dns.Dns$Policies.create(java.lang.String,com.google.api.services.dns.model.Policy) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ManagedZones.create(java.lang.String,java.lang.String,com.google.api.services.dns.model.ManagedZone) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$Policies.create(java.lang.String,java.lang.String,com.google.api.services.dns.model.Policy) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$Changes.create(java.lang.String,java.lang.String,com.google.api.services.dns.model.Change) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ResponsePolicies.create(java.lang.String,com.google.api.services.dns.model.ResponsePolicy) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$Changes.create(java.lang.String,java.lang.String,java.lang.String,com.google.api.services.dns.model.Change) has been added in the new version of the dependency.
      Method com.google.api.services.dns.Dns$ResponsePolicies.create(java.lang.String,java.lang.String,com.google.api.services.dns.model.ResponsePolicy) has been added in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ResponsePolicyRules.create(java.lang.String,java.lang.String,java.lang.String,com.google.api.services.dns.model.ResponsePolicyRule) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ResponsePolicies.create(java.lang.String,com.google.api.services.dns.model.ResponsePolicy) has been removed in the new version of the dependency.
      Method com.google.api.services.dns.Dns$ResourceRecordSets.create(java.lang.String,java.lang.String,java.lang.String,com.google.api.services.dns.model.ResourceRecordSet) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$Policies.create(java.lang.String,java.lang.String,com.google.api.services.dns.model.Policy) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ResponsePolicyRules.create(java.lang.String,java.lang.String,java.lang.String,com.google.api.services.dns.model.ResponsePolicyRule) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ManagedZones.create(java.lang.String,java.lang.String,com.google.api.services.dns.model.ManagedZone) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$Changes.create(java.lang.String,java.lang.String,java.lang.String,com.google.api.services.dns.model.Change) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$Changes.create(java.lang.String,java.lang.String,com.google.api.services.dns.model.Change) has been removed in the new version of the dependency.
      Method com.google.api.services.dns.Dns$ManagedZones.create(java.lang.String,com.google.api.services.dns.model.ManagedZone) has been removed in the new version of the dependency.
-     Method com.google.api.services.dns.Dns$ResourceRecordSets.create(java.lang.String,java.lang.String,com.google.api.services.dns.model.ResourceRecordSet) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$Changes.get(java.lang.String,java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ManagedZones.get(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ResponsePolicies.get(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ManagedZoneOperations.get(java.lang.String,java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$Policies.get(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ResourceRecordSets.get(java.lang.String,java.lang.String,java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ManagedZones.get(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$Changes.get(java.lang.String,java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$DnsKeys.get(java.lang.String,java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$Projects.get(java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ManagedZoneOperations.get(java.lang.String,java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ResponsePolicyRules.get(java.lang.String,java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$Policies.get(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$Projects.get(java.lang.String) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ResponsePolicyRules.get(java.lang.String,java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ResourceRecordSets.get(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$DnsKeys.get(java.lang.String,java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ResponsePolicies.get(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ManagedZones.list(java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$DnsKeys.list(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ResponsePolicyRules.list(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$Policies.list(java.lang.String) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$Changes.list(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$Changes.list(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ResponsePolicyRules.list(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ManagedZones.list(java.lang.String) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ResourceRecordSets.list(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ResourceRecordSets.list(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$DnsKeys.list(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ResponsePolicies.list(java.lang.String) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$Policies.list(java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ResponsePolicies.list(java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ManagedZoneOperations.list(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ManagedZoneOperations.list(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ResponsePolicyRules.delete(java.lang.String,java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$Policies.delete(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ManagedZones.delete(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ResourceRecordSets.delete(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ResponsePolicies.delete(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ResponsePolicyRules.delete(java.lang.String,java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ResourceRecordSets.delete(java.lang.String,java.lang.String,java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$Policies.delete(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ResponsePolicies.delete(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
+     Method com.google.api.services.dns.Dns$ManagedZones.delete(java.lang.String,java.lang.String,java.lang.String) has been added in the new version of the dependency.
 
 Additional error information:
 
 <error_information>
-[ERROR] /google-cloud-java/java-dns/src/main/java/com/google/cloud/dns/spi/v1/HttpDnsRpc.java:[271,30] method delete in class com.google.api.services.dns.Dns.ManagedZones cannot be applied to given types;
-  required: java.lang.String,java.lang.String,java.lang.String
-  found: java.lang.String,java.lang.String
+[ERROR] /google-cloud-java/java-dns/src/main/java/com/google/cloud/dns/spi/v1/HttpDnsRpc.java:[211,9] method create in class com.google.api.services.dns.Dns.ManagedZones cannot be applied to given types;
+  required: java.lang.String,java.lang.String,com.google.api.services.dns.model.ManagedZone
+  found: java.lang.String,com.google.api.services.dns.model.ManagedZone
+  reason: actual and formal argument lists differ in length
+
+[ERROR] /google-cloud-java/java-dns/src/main/java/com/google/cloud/dns/spi/v1/HttpDnsRpc.java:[325,9] method create in class com.google.api.services.dns.Dns.Changes cannot be applied to given types;
+  required: java.lang.String,java.lang.String,java.lang.String,com.google.api.services.dns.model.Change
+  found: java.lang.String,java.lang.String,com.google.api.services.dns.model.Change
+  reason: actual and formal argument lists differ in length
+
+[ERROR] /google-cloud-java/java-dns/src/main/java/com/google/cloud/dns/spi/v1/HttpDnsRpc.java:[352,9] method get in class com.google.api.services.dns.Dns.Changes cannot be applied to given types;
+  required: java.lang.String,java.lang.String,java.lang.String,java.lang.String
+  found: java.lang.String,java.lang.String,java.lang.String
   reason: actual and formal argument lists differ in length
 
 [ERROR] /google-cloud-java/java-dns/src/main/java/com/google/cloud/dns/spi/v1/HttpDnsRpc.java:[249,9] method list in class com.google.api.services.dns.Dns.ManagedZones cannot be applied to given types;
@@ -497,9 +507,19 @@ Additional error information:
   found: java.lang.String
   reason: actual and formal argument lists differ in length
 
-[ERROR] /google-cloud-java/java-dns/src/main/java/com/google/cloud/dns/spi/v1/HttpDnsRpc.java:[352,9] method get in class com.google.api.services.dns.Dns.Changes cannot be applied to given types;
-  required: java.lang.String,java.lang.String,java.lang.String,java.lang.String
-  found: java.lang.String,java.lang.String,java.lang.String
+[ERROR] /google-cloud-java/java-dns/src/main/java/com/google/cloud/dns/spi/v1/HttpDnsRpc.java:[271,30] method delete in class com.google.api.services.dns.Dns.ManagedZones cannot be applied to given types;
+  required: java.lang.String,java.lang.String,java.lang.String
+  found: java.lang.String,java.lang.String
+  reason: actual and formal argument lists differ in length
+
+[ERROR] /google-cloud-java/java-dns/src/main/java/com/google/cloud/dns/spi/v1/HttpDnsRpc.java:[308,9] method get in class com.google.api.services.dns.Dns.Projects cannot be applied to given types;
+  required: java.lang.String,java.lang.String
+  found: java.lang.String
+  reason: actual and formal argument lists differ in length
+
+[ERROR] /google-cloud-java/java-dns/src/main/java/com/google/cloud/dns/spi/v1/HttpDnsRpc.java:[372,13] method list in class com.google.api.services.dns.Dns.Changes cannot be applied to given types;
+  required: java.lang.String,java.lang.String,java.lang.String
+  found: java.lang.String,java.lang.String
   reason: actual and formal argument lists differ in length
 
 [ERROR] /google-cloud-java/java-dns/src/main/java/com/google/cloud/dns/spi/v1/HttpDnsRpc.java:[289,9] method list in class com.google.api.services.dns.Dns.ResourceRecordSets cannot be applied to given types;
@@ -511,27 +531,7 @@ Additional error information:
   required: java.lang.String,java.lang.String,java.lang.String
   found: java.lang.String,java.lang.String
   reason: actual and formal argument lists differ in length
-
-[ERROR] /google-cloud-java/java-dns/src/main/java/com/google/cloud/dns/spi/v1/HttpDnsRpc.java:[308,9] method get in class com.google.api.services.dns.Dns.Projects cannot be applied to given types;
-  required: java.lang.String,java.lang.String
-  found: java.lang.String
-  reason: actual and formal argument lists differ in length
-
-[ERROR] /google-cloud-java/java-dns/src/main/java/com/google/cloud/dns/spi/v1/HttpDnsRpc.java:[325,9] method create in class com.google.api.services.dns.Dns.Changes cannot be applied to given types;
-  required: java.lang.String,java.lang.String,java.lang.String,com.google.api.services.dns.model.Change
-  found: java.lang.String,java.lang.String,com.google.api.services.dns.model.Change
-  reason: actual and formal argument lists differ in length
-
-[ERROR] /google-cloud-java/java-dns/src/main/java/com/google/cloud/dns/spi/v1/HttpDnsRpc.java:[211,9] method create in class com.google.api.services.dns.Dns.ManagedZones cannot be applied to given types;
-  required: java.lang.String,java.lang.String,com.google.api.services.dns.model.ManagedZone
-  found: java.lang.String,com.google.api.services.dns.model.ManagedZone
-  reason: actual and formal argument lists differ in length
-
-[ERROR] /google-cloud-java/java-dns/src/main/java/com/google/cloud/dns/spi/v1/HttpDnsRpc.java:[372,13] method list in class com.google.api.services.dns.Dns.Changes cannot be applied to given types;
-  required: java.lang.String,java.lang.String,java.lang.String
-  found: java.lang.String,java.lang.String
-  reason: actual and formal argument lists differ in length
-<error_information>
+</error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:
 

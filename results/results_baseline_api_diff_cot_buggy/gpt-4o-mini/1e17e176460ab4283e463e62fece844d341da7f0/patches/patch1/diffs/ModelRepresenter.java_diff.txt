@@ -1,13 +1,12 @@
 22a23
-> import org.yaml.snakeyaml.introspector.PropertyUtils; // Added import for PropertyUtils
+> import org.yaml.snakeyaml.introspector.BeanAccess; // Added import for BeanAccess
 37a39
->     super(); // Explicitly call the constructor of Representer
-218,219c220
-<   protected Set<Property> getProperties(Class<? extends Object> type)
-<           throws IntrospectionException {
+>     super(); // Explicitly call the constructor of the superclass
+231c233
+<       return super.getProperties(type);
 ---
->   protected Set<Property> getProperties(Class<? extends Object> type) {
-237c238
+>       return super.getProperties(type, BeanAccess.DEFAULT); // Updated to use BeanAccess
+237c239
 <       Set<Property> standard = super.getProperties(type);
 ---
->       Set<Property> standard = PropertyUtils.getProperties(type); // Updated to use PropertyUtils
+>       Set<Property> standard = super.getProperties(type, BeanAccess.DEFAULT); // Updated to use BeanAccess

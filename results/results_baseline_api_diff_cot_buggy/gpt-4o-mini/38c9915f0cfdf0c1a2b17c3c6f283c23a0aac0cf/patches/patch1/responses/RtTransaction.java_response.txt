@@ -30,7 +30,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.cactoos.Text;
-import org.cactoos.iterable.LengthOf;
+import org.cactoos.scalar.LengthOf;
 import org.cactoos.list.ListOf;
 import org.cactoos.scalar.ItemAt;
 import org.cactoos.scalar.UncheckedScalar;
@@ -90,7 +90,7 @@ final class RtTransaction implements Transaction {
         this.transaction = new UncheckedScalar<>(
             () -> {
                 if (
-                    trnsct.trim().isEmpty()
+                    new LengthOf(new TextOf(trnsct)).intValue() == 0
                 ) {
                     throw new IOException(
                         "Invalid transaction string: string is empty"
@@ -98,10 +98,10 @@ final class RtTransaction implements Transaction {
                 }
                 final List<Text> pieces =
                     new ListOf<>(
-                        new org.cactoos.text.SplitText(trnsct, ";")
+                        new TextOf(trnsct).asString().split(";")
                     );
                 // @checkstyle MagicNumberCheck (1 line)
-                if (new LengthOf(pieces).intValue() != 7) {
+                if (pieces.size() != 7) {
                     throw new IOException(
                         new FormattedText(
                             // @checkstyle LineLength (1 line)
@@ -119,10 +119,8 @@ final class RtTransaction implements Transaction {
     @SuppressWarnings("PMD.ShortMethodName")
     public int id() throws IOException {
         final String ident = new UncheckedText(
-            new UncheckedScalar<>(
-                new ItemAt<>(
-                    0, new org.cactoos.text.SplitText(this.transaction.value(), ";")
-                )
+            new ItemAt<>(
+                0, new TextOf(this.transaction.value()).asString().split(";")
             ).value()
         ).asString();
         if (!RtTransaction.IDENT.matcher(ident).matches()) {
@@ -144,10 +142,8 @@ final class RtTransaction implements Transaction {
     public ZonedDateTime time() throws IOException {
         return new ZonedDateTimeOf(
             new UncheckedText(
-                new UncheckedScalar<>(
-                    new ItemAt<>(
-                        1, new org.cactoos.text.SplitText(this.transaction.value(), ";")
-                    )
+                new ItemAt<>(
+                    1, new TextOf(this.transaction.value()).asString().split(";")
                 ).value()
             ).asString(),
             DateTimeFormatter.ISO_OFFSET_DATE_TIME
@@ -157,10 +153,8 @@ final class RtTransaction implements Transaction {
     @Override
     public long amount() throws IOException {
         final String amnt = new UncheckedText(
-            new UncheckedScalar<>(
-                new ItemAt<>(
-                    2, new org.cactoos.text.SplitText(this.transaction.value(), ";")
-                )
+            new ItemAt<>(
+                2, new TextOf(this.transaction.value()).asString().split(";")
             ).value()
         ).asString();
         if (!RtTransaction.HEX.matcher(amnt).matches()) {
@@ -181,11 +175,8 @@ final class RtTransaction implements Transaction {
     @Override
     public String prefix() throws IOException {
         final String prefix = new UncheckedText(
-            new UncheckedScalar<>(
-                new ItemAt<>(
-                    //@checkstyle MagicNumberCheck (1 line)
-                    3, new org.cactoos.text.SplitText(this.transaction.value(), ";")
-                )
+            new ItemAt<>(
+                3, new TextOf(this.transaction.value()).asString().split(";")
             ).value()
         ).asString();
         //@checkstyle MagicNumberCheck (1 line)
@@ -201,11 +192,8 @@ final class RtTransaction implements Transaction {
     @Override
     public String bnf() throws IOException {
         final String bnf = new UncheckedText(
-            new UncheckedScalar<>(
-                new ItemAt<>(
-                    //@checkstyle MagicNumberCheck (1 line)
-                    4, new org.cactoos.text.SplitText(this.transaction.value(), ";")
-                )
+            new ItemAt<>(
+                4, new TextOf(this.transaction.value()).asString().split(";")
             ).value()
         ).asString();
         if (!RtTransaction.HEX.matcher(bnf).matches()) {
@@ -225,11 +213,8 @@ final class RtTransaction implements Transaction {
     @Override
     public String details() throws IOException {
         final String dtls = new UncheckedText(
-            new UncheckedScalar<>(
-                new ItemAt<>(
-                    //@checkstyle MagicNumberCheck (1 line)
-                    5, new org.cactoos.text.SplitText(this.transaction.value(), ";")
-                )
+            new ItemAt<>(
+                5, new TextOf(this.transaction.value()).asString().split(";")
             ).value()
         ).asString();
         if (!RtTransaction.DTLS.matcher(dtls).matches()) {
@@ -249,11 +234,8 @@ final class RtTransaction implements Transaction {
     @Override
     public String signature() throws IOException {
         final String sign = new UncheckedText(
-            new UncheckedScalar<>(
-                new ItemAt<>(
-                    //@checkstyle MagicNumberCheck (1 line)
-                    6, new org.cactoos.text.SplitText(this.transaction.value(), ";")
-                )
+            new ItemAt<>(
+                6, new TextOf(this.transaction.value()).asString().split(";")
             ).value()
         ).asString();
         // @checkstyle MagicNumber (1 line)

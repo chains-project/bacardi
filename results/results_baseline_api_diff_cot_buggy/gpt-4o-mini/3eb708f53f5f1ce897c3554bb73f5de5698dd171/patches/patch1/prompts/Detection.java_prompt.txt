@@ -96,17 +96,17 @@ public class Detection implements Serializable {
 
 ```
 
-The errors are triggered in the following specific line:
+The errors are triggered in the following specific lines:
 
 <error_lines>
 ```java
 static Detection fromPb(DetectionsResourceItems detectionPb) {
 ```
 ```java
-static Detection fromPb(DetectionsResourceItems detectionPb) {
+import com.google.api.services.translate.model.DetectionsResourceItems;
 ```
 ```java
-import com.google.api.services.translate.model.DetectionsResourceItems;
+static Detection fromPb(DetectionsResourceItems detectionPb) {
 ```
 ```java
 static Detection fromPb(DetectionsResourceItems detectionPb) {
@@ -117,8 +117,8 @@ The API of the dependency has changed. Here are the relevant changes:
 
      Method com.google.api.services.translate.model.DetectionsResourceItems.getConfidence() has been removed in the new version of the dependency.
      Method com.google.api.services.translate.v3.model.DetectedLanguage.getConfidence() has been added in the new version of the dependency.
-     Method com.google.api.services.translate.model.DetectionsResourceItems.getLanguage() has been removed in the new version of the dependency.
      Method com.google.api.services.translate.model.LanguagesResource.getLanguage() has been removed in the new version of the dependency.
+     Method com.google.api.services.translate.model.DetectionsResourceItems.getLanguage() has been removed in the new version of the dependency.
      Class com.google.api.services.translate.model.DetectionsResourceItems has been removed in the new version of the dependency.
      Constructor com.google.api.services.translate.model.DetectionsResourceItems() has been removed in the new version of the dependency.
 
@@ -129,16 +129,8 @@ Additional error information:
   symbol:   class DetectionsResourceItems
   location: class com.google.cloud.translate.Detection
 
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Detection.java:[87,27] cannot find symbol
-  symbol:   class DetectionsResourceItems
-  location: class com.google.cloud.translate.Detection
-
 [ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Detection.java:[19,47] package com.google.api.services.translate.model does not exist
-
-[ERROR] /google-cloud-java/java-translate/google-cloud-translate/src/main/java/com/google/cloud/translate/Detection.java:[87,27] cannot find symbol
-  symbol:   class DetectionsResourceItems
-  location: class com.google.cloud.translate.Detection
-<error_information>
+</error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:
 

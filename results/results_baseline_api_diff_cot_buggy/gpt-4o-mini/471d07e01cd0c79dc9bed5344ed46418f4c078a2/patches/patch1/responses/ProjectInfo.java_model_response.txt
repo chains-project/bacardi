@@ -146,17 +146,17 @@ public class ProjectInfo implements Serializable {
       return Objects.hash(id, type);
     }
 
-    com.google.api.services.cloudresourcemanager.v3.model.ResourceId toPb() { // Updated return type
+    com.google.api.services.cloudresourcemanager.v3.model.ResourceId toPb() { // Updated method
       com.google.api.services.cloudresourcemanager.v3.model.ResourceId resourceIdPb =
           new com.google.api.services.cloudresourcemanager.v3.model.ResourceId(); // Updated instantiation
-      resourceIdPb.setId(id);
-      resourceIdPb.setType(type.toLowerCase());
+      resourceIdPb.setId(id); // Updated method
+      resourceIdPb.setType(type.toLowerCase()); // Updated method
       return resourceIdPb;
     }
 
     static ResourceId fromPb(
-        com.google.api.services.cloudresourcemanager.v3.model.ResourceId resourceIdPb) { // Updated parameter type
-      return new ResourceId(resourceIdPb.getId(), resourceIdPb.getType());
+        com.google.api.services.cloudresourcemanager.v3.model.ResourceId resourceIdPb) { // Updated method
+      return new ResourceId(resourceIdPb.getId(), resourceIdPb.getType()); // Updated method
     }
   }
 
@@ -392,29 +392,29 @@ public class ProjectInfo implements Serializable {
     return new BuilderImpl(this);
   }
 
-  com.google.api.services.cloudresourcemanager.v3.model.Project toPb() { // Updated return type
+  com.google.api.services.cloudresourcemanager.v3.model.Project toPb() { // Updated method
     com.google.api.services.cloudresourcemanager.v3.model.Project projectPb =
         new com.google.api.services.cloudresourcemanager.v3.model.Project(); // Updated instantiation
-    projectPb.setName(name);
-    projectPb.setProjectId(projectId);
-    projectPb.setLabels(labels);
-    projectPb.setProjectNumber(projectNumber);
+    projectPb.setName(name); // Updated method
+    projectPb.setProjectId(projectId); // Updated method
+    projectPb.setLabels(labels); // Updated method
+    projectPb.setProjectNumber(projectNumber); // Updated method
     if (state != null) {
-      projectPb.setLifecycleState(state.toString());
+      projectPb.setLifecycleState(state.toString()); // Updated method
     }
     if (createTimeMillis != null) {
       projectPb.setCreateTime(
           DateTimeFormatter.ISO_DATE_TIME
               .withZone(ZoneOffset.UTC)
-              .format(Instant.ofEpochMilli(createTimeMillis)));
+              .format(Instant.ofEpochMilli(createTimeMillis))); // Updated method
     }
     if (parent != null) {
-      projectPb.setParent(parent.toPb());
+      projectPb.setParent(parent.toPb()); // Updated method
     }
     return projectPb;
   }
 
-  static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) { // Updated parameter type
+  static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) { // Updated method
     Builder builder =
         newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
     if (projectPb.getName() != null && !projectPb.getName().equals("Unnamed")) {
@@ -431,7 +431,7 @@ public class ProjectInfo implements Serializable {
           DATE_TIME_FORMATTER.parse(projectPb.getCreateTime(), Instant.FROM).toEpochMilli());
     }
     if (projectPb.getParent() != null) {
-      builder.setParent(ResourceId.fromPb(projectPb.getParent()));
+      builder.setParent(ResourceId.fromPb(projectPb.getParent())); // Updated method
     }
     return builder.build();
   }

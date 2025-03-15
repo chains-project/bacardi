@@ -28,10 +28,10 @@ import org.apache.kafka.common.config.ConfigValue;
 
 class PublisherFactoryImpl implements PublisherFactory {
 
-  private static final PubsubContext.Framework FRAMEWORK = PubsubContext.Framework.of("KAFKA_CONNECT");
+  private static final PubsubContext FRAMEWORK_CONTEXT = PubsubContext.of("KAFKA_CONNECT");
 
   @Override
-  public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
+  public Publisher<Void> newPublisher(Map<String, String> params) {
     Map<String, ConfigValue> config = ConfigDefs.config().validateAll(params);
     RoutingPublisherBuilder.Builder builder = RoutingPublisherBuilder.newBuilder();
     TopicPath topic =

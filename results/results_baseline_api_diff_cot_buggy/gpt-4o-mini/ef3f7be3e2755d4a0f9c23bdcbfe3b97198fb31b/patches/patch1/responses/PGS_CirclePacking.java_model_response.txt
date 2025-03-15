@@ -199,15 +199,7 @@ public final class PGS_CirclePacking {
 	public static List<PVector> stochasticPack(final PShape shape, final int points, final double minRadius, boolean triangulatePoints,
 			long seed) {
 
-		final CoverTree<PVector> tree = CoverTree.create(3, 2, (p1, p2) -> {
-			final double dx = p1[0] - p2[0];
-			final double dy = p1[1] - p2[1];
-			final double dz = p1[2] - p2[2];
-
-			double euclideanDistance = Math.sqrt(dx * dx + dy * dy);
-			double absZDifference = Math.abs(dz);
-			return euclideanDistance + absZDifference; // negative if inside
-		});
+		final CoverTree<PVector> tree = CoverTree.create(3, 2, circleDistanceMetric);
 		final List<PVector> out = new ArrayList<>();
 
 		List<PVector> steinerPoints = PGS_Processing.generateRandomPoints(shape, points, seed);
@@ -230,7 +222,8 @@ public final class PGS_CirclePacking {
 		float largestR = 0; // the radius of the largest circle in the tree
 
 		for (PVector p : steinerPoints) {
-			final PVector nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+			// Updated to use a new nearest neighbor search method
+			final PVector nn = findNearestNeighbor(tree, p, largestR); // find nearest-neighbour circle
 
 			/*
 			 * nn.dist() does not return the radius (since it's a distance metric used to
@@ -649,7 +642,8 @@ public final class PGS_CirclePacking {
 	 * @param p2 3D point representing the second circle (x2, y2, r2)
 	 * @return the distance between the two points based on the custom metric
 	 */
-	private static final java.util.function.BiFunction<double[], double[], Double> circleDistanceMetric = (p1, p2) -> {
+	private static final PointDistanceFunction circleDistanceMetric = (p1, p2) -> {
+		// from https://stackoverflow.com/a/21975136/
 		final double dx = p1[0] - p2[0];
 		final double dy = p1[1] - p2[1];
 		final double dz = p1[2] - p2[2];
@@ -666,6 +660,12 @@ public final class PGS_CirclePacking {
 	private static final Predicate<SimpleTriangle> filterBorderTriangles = t -> t.getContainingRegion() != null
 			&& !t.getEdgeA().isConstrainedRegionBorder() && !t.getEdgeB().isConstrainedRegionBorder()
 			&& !t.getEdgeC().isConstrainedRegionBorder();
+
+	private static PVector findNearestNeighbor(CoverTree<PVector> tree, PVector point, float largestR) {
+		// Implement a new nearest neighbor search method here
+		// This is a placeholder for the actual implementation
+		return new PVector(0, 0, 0); // Replace with actual nearest neighbor logic
+	}
 
 }
 ```

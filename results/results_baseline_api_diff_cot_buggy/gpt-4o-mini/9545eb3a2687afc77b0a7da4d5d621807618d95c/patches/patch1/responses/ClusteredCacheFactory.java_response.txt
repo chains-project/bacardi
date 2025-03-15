@@ -19,6 +19,7 @@ package org.jivesoftware.openfire.plugin.util.cache;
 import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.MaxSizeConfig;
 import com.hazelcast.config.MemberAttributeConfig;
 import com.hazelcast.config.MemcacheProtocolConfig;
 import com.hazelcast.config.NetworkConfig;
@@ -145,7 +146,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
     private static Map<String, Map<String, long[]>> cacheStats;
 
     private static HazelcastInstance hazelcast = null;
-    private static com.hazelcast.cluster.Cluster cluster; // Updated type
+    private static com.hazelcast.cluster.Cluster cluster = null; // Updated type
     private ClusterListener clusterListener;
     private String lifecycleListener;
     private String membershipListener;
@@ -284,7 +285,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         if (staticConfig == null) {
             final MapConfig dynamicConfig = new MapConfig(name);
             dynamicConfig.setTimeToLiveSeconds(hazelcastLifetimeInSeconds);
-            dynamicConfig.setMaxSizeConfig(new com.hazelcast.config.MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, com.hazelcast.config.MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE)); // Updated type
+            dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE)); // Updated constructor
             logger.debug("Creating dynamic map config for cache={}, dynamicConfig={}", name, dynamicConfig);
             hazelcast.getConfig().addMapConfig(dynamicConfig);
         } else {
@@ -327,7 +328,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
     @Override
     public byte[] getSeniorClusterMemberID() {
         if (cluster != null && !cluster.getMembers().isEmpty()) {
-            final com.hazelcast.cluster.Member oldest = cluster.getMembers().iterator().next(); // Updated type
+            final Member oldest = cluster.getMembers().iterator().next();
             return getNodeID(oldest).toByteArray();
         } else {
             return null;
@@ -366,9 +367,9 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         if (cluster == null) {
             return;
         }
-        final Set<com.hazelcast.cluster.Member> members = new HashSet<>(); // Updated type
-        final com.hazelcast.cluster.Member current = cluster.getLocalMember(); // Updated type
-        for (final com.hazelcast.cluster.Member member : cluster.getMembers()) { // Updated type
+        final Set<Member> members = new HashSet<>();
+        final Member current = cluster.getLocalMember();
+        for (final Member member : cluster.getMembers()) {
             if (!member.getUuid().equals(current.getUuid())) {
                 members.add(member);
             }
@@ -395,7 +396,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         if (cluster == null) {
             return;
         }
-        final com.hazelcast.cluster.Member member = getMember(nodeID); // Updated type
+        final Member member = getMember(nodeID);
         // Check that the requested member was found
         if (member != null) {
             // Asynchronously execute the task on the target member
@@ -419,9 +420,9 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         if (cluster == null) {
             return Collections.emptyList();
         }
-        final Set<com.hazelcast.cluster.Member> members = new HashSet<>(); // Updated type
-        final com.hazelcast.cluster.Member current = cluster.getLocalMember(); // Updated type
-        for (final com.hazelcast.cluster.Member member : cluster.getMembers()) { // Updated type
+        final Set<Member> members = new HashSet<>();
+        final Member current = cluster.getLocalMember();
+        for (final Member member : cluster.getMembers()) {
             if (includeLocalMember || (!member.getUuid().equals(current.getUuid()))) {
                 members.add(member);
             }
@@ -432,7 +433,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
             try {
                 logger.debug("Executing MultiTask: " + task.getClass().getName());
                 checkForPluginClassLoader(task);
-                final Map<com.hazelcast.cluster.Member, ? extends Future<T>> futures = hazelcast.getExecutorService(HAZELCAST_EXECUTOR_SERVICE_NAME.getValue()).submitToMembers(new CallableTask<>(task), members); // Updated type
+                final Map<Member, ? extends Future<T>> futures = hazelcast.getExecutorService(HAZELCAST_EXECUTOR_SERVICE_NAME.getValue()).submitToMembers(new CallableTask<>(task), members);
                 long nanosLeft = TimeUnit.SECONDS.toNanos(MAX_CLUSTER_EXECUTION_TIME.getValue().getSeconds() * members.size());
                 for (final Future<T> future : futures.values()) {
                     final long start = System.nanoTime();
@@ -460,7 +461,7 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         if (cluster == null) {
             return null;
         }
-        final com.hazelcast.cluster.Member member = getMember(nodeID); // Updated type
+        final Member member = getMember(nodeID);
         T result = null;
         // Check that the requested member was found
         if (member != null) {
@@ -490,16 +491,16 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
             return null;
         }
         ClusterNodeInfo result = null;
-        final com.hazelcast.cluster.Member member = getMember(nodeID); // Updated type
+        final Member member = getMember(nodeID);
         if (member != null) {
             result = new HazelcastClusterNodeInfo(member, cluster.getClusterTime());
         }
         return result;
     }
 
-    private com.hazelcast.cluster.Member getMember(final byte[] nodeID) { // Updated return type
+    private Member getMember(final byte[] nodeID) {
         final NodeID memberToFind = NodeID.getInstance(nodeID);
-        for (final com.hazelcast.cluster.Member member : cluster.getMembers()) { // Updated type
+        for (final Member member : cluster.getMembers()) {
             if (memberToFind.equals(getNodeID(member))) {
                 return member;
             }
@@ -651,8 +652,8 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         started
     }
 
-    public static NodeID getNodeID(final com.hazelcast.cluster.Member member) { // Updated parameter type
-        return NodeID.getInstance(member.getUuid().getBytes(StandardCharsets.UTF_8)); // Updated method to get UUID
+    public static NodeID getNodeID(final Member member) {
+        return NodeID.getInstance(member.getUuid().getBytes(StandardCharsets.UTF_8)); // Updated method to use getUuid()
     }
 
     static void fireLeftClusterAndWaitToComplete(final Duration timeout) {

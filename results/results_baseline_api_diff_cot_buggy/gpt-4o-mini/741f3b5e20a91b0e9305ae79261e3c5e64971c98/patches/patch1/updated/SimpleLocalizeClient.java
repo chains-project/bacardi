@@ -85,7 +85,7 @@ public class SimpleLocalizeClient
     HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
     throwOnError(httpResponse);
     String body = httpResponse.body();
-    ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class); // Updated line
+    ExportResponse exportResponse = objectMapper.readValue(body.getBytes(), ExportResponse.class);
     return exportResponse.getFiles();
   }
 

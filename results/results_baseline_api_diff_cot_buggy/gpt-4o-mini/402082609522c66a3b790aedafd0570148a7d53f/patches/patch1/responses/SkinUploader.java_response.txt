@@ -12,7 +12,7 @@ import org.spongepowered.api.scheduler.Task;
 public class SkinUploader extends SharedUploader {
 
     private final ChangeSkinSponge plugin;
-    private final CommandSource invoker;
+    private final CommandSource invoker; // No change needed here
 
     public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url) {
         super(plugin.getCore(), owner, url);

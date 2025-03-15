@@ -62,8 +62,6 @@ public class AbstractTest {
 
     public <T extends MockBaseEntity> T createMockEntity(Class<T> clazz, String path) {
         final LoaderOptions loadingConfig = new LoaderOptions();
-        // Removed TrustedTagInspector as it has been removed in the new version
-        // loadingConfig.setTagInspector(new TrustedTagInspector());
 
         final Representer representer = new Representer(new DumperOptions());
         final Tag zoneIdTag = new Tag("!ZoneId");

@@ -1,0 +1,8 @@
+44,45c44,47
+<   public Timestamp between(Date from, Date to) throws IllegalArgumentException {
+<     return new Timestamp(super.between(from, to).getTime());
+---
+>   public Timestamp between(Date from, Date to) {
+>     Timestamp fromTimestamp = new Timestamp(from.getTime());
+>     Timestamp toTimestamp = new Timestamp(to.getTime());
+>     return new Timestamp(super.between(fromTimestamp, toTimestamp).getTime());

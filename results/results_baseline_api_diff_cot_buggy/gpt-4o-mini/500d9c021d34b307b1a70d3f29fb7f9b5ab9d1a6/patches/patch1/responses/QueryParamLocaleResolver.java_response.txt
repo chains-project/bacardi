@@ -1,12 +1,11 @@
 package com.example.web;
-// https://www.mvc-spec.org/learn/cookbook/custom_localeresolver_en.html
 
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jakarta.annotation.Priority;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
+import javax.annotation.Priority;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import jakarta.mvc.locale.LocaleResolver;
 import jakarta.mvc.locale.LocaleResolverContext;
 import jakarta.ws.rs.core.UriInfo;

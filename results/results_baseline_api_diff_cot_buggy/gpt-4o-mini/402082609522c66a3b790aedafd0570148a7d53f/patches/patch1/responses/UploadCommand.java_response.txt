@@ -12,13 +12,12 @@ import java.util.List;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.parameter.CommandContext;
-import org.spongepowered.api.command.Command;
-import org.spongepowered.api.command.CommandExecutor;
-import org.spongepowered.api.command.CommandParameters;
+import org.spongepowered.api.command.spec.CommandExecutor;
+import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.scheduler.Task;
 
 import static org.spongepowered.api.command.parameter.Parameter.string;
-import static org.spongepowered.api.text.Text.of;
+import static net.kyori.adventure.text.Component.text;
 
 public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
 
@@ -50,10 +49,11 @@ public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
         return CommandResult.success();
     }
 
-    public Command buildSpec() {
-        return Command.builder()
+    @Override
+    public CommandSpec buildSpec() {
+        return CommandSpec.builder()
                 .executor(this)
-                .parameters(string("url"))
+                .arguments(string("url"))
                 .permission(PomData.ARTIFACT_ID + ".command.skinupload.base")
                 .build();
     }

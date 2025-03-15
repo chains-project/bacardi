@@ -20,6 +20,7 @@ import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
+import org.yaml.snakeyaml.introspector.PropertyUtils; // Added import for PropertyUtils
 
 import java.beans.IntrospectionException;
 import java.util.*;
@@ -233,7 +234,7 @@ class ModelRepresenter extends Representer {
 
   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
           throws IntrospectionException {
-      Set<Property> standard = super.getProperties(type);
+      Set<Property> standard = PropertyUtils.getProperties(type); // Updated to use PropertyUtils
       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
       sorted.addAll(standard);
       return sorted;

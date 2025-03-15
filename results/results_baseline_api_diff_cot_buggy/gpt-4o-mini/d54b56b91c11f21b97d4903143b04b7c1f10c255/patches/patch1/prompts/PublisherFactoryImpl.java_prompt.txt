@@ -63,17 +63,17 @@ class PublisherFactoryImpl implements PublisherFactory {
 
 ```
 
-The errors are triggered in the following specific line:
+The errors are triggered in the following specific lines:
 
 <error_lines>
 ```java
 .setContext(PubsubContext.of(FRAMEWORK))
 ```
 ```java
-public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
+import com.google.cloud.pubsublite.PublishMetadata;
 ```
 ```java
-import com.google.cloud.pubsublite.PublishMetadata;
+public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
 ```
 ```java
 public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
@@ -83,10 +83,10 @@ public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
 The API of the dependency has changed. Here are the relevant changes:
 
      Method com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisherBuilder$Builder.setContext(com.google.cloud.pubsublite.internal.wire.PubsubContext) has been removed in the new version of the dependency.
-     Method com.google.cloud.pubsublite.internal.wire.SubscriberBuilder$Builder.setContext(com.google.cloud.pubsublite.internal.wire.PubsubContext) has been removed in the new version of the dependency.
      Method com.google.cloud.pubsublite.internal.wire.PublisherBuilder$Builder.setContext(com.google.cloud.pubsublite.internal.wire.PubsubContext) has been removed in the new version of the dependency.
-     Constructor com.google.cloud.pubsublite.PublishMetadata() has been removed in the new version of the dependency.
+     Method com.google.cloud.pubsublite.internal.wire.SubscriberBuilder$Builder.setContext(com.google.cloud.pubsublite.internal.wire.PubsubContext) has been removed in the new version of the dependency.
      Class com.google.cloud.pubsublite.PublishMetadata has been removed in the new version of the dependency.
+     Constructor com.google.cloud.pubsublite.PublishMetadata() has been removed in the new version of the dependency.
 
 Additional error information:
 
@@ -95,10 +95,6 @@ Additional error information:
   symbol:   method setContext(com.google.cloud.pubsublite.internal.wire.PubsubContext)
   location: class com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisherBuilder.Builder
 
-[ERROR] /java-pubsub-group-kafka-connector/src/main/java/com/google/pubsublite/kafka/sink/PublisherFactoryImpl.java:[36,20] cannot find symbol
-  symbol:   class PublishMetadata
-  location: class com.google.pubsublite.kafka.sink.PublisherFactoryImpl
-
 [ERROR] /java-pubsub-group-kafka-connector/src/main/java/com/google/pubsublite/kafka/sink/PublisherFactoryImpl.java:[20,35] cannot find symbol
   symbol:   class PublishMetadata
   location: package com.google.cloud.pubsublite
@@ -106,7 +102,7 @@ Additional error information:
 [ERROR] /java-pubsub-group-kafka-connector/src/main/java/com/google/pubsublite/kafka/sink/PublisherFactoryImpl.java:[36,20] cannot find symbol
   symbol:   class PublishMetadata
   location: class com.google.pubsublite.kafka.sink.PublisherFactoryImpl
-<error_information>
+</error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:
 

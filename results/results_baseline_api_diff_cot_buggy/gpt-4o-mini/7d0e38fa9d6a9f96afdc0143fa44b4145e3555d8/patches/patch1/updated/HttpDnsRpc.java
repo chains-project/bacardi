@@ -208,7 +208,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.ManagedZones.Create createZoneCall(ManagedZone zone, Map<Option, ?> options)
       throws IOException {
     return dns.managedZones()
-        .create(this.options.getProjectId(), zone)
+        .create(this.options.getProjectId(), zone.getName(), zone)
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -286,7 +286,7 @@ public class HttpDnsRpc implements DnsRpc {
       throws IOException {
     // options are fields, page token, dns name, type
     return dns.resourceRecordSets()
-        .list(this.options.getProjectId(), zoneName, "") // Added empty string for the new method signature
+        .list(this.options.getProjectId(), zoneName)
         .setFields(Option.FIELDS.getString(options))
         .setPageToken(Option.PAGE_TOKEN.getString(options))
         .setMaxResults(Option.PAGE_SIZE.getInt(options))
@@ -305,8 +305,7 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.Projects.Get getProjectCall(Map<Option, ?> options) throws IOException {
     return dns.projects()
-        .get(this.options.getProjectId(), "") // Added empty string for the new method signature
-        .setFields(Option.FIELDS.getString(options));
+        .get(this.options.getProjectId(), ""); // Added empty string for the new method signature
   }
 
   @Override
@@ -322,7 +321,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.Changes.Create applyChangeRequestCall(
       String zoneName, Change changeRequest, Map<Option, ?> options) throws IOException {
     return dns.changes()
-        .create(this.options.getProjectId(), zoneName, changeRequest)
+        .create(this.options.getProjectId(), zoneName, changeRequest.getId(), changeRequest) // Added changeRequest.getId() for the new method signature
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -349,8 +348,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.Changes.Get getChangeRequestCall(
       String zoneName, String changeRequestId, Map<Option, ?> options) throws IOException {
     return dns.changes()
-        .get(this.options.getProjectId(), zoneName, changeRequestId, "") // Added empty string for the new method signature
-        .setFields(Option.FIELDS.getString(options));
+        .get(this.options.getProjectId(), zoneName, changeRequestId, ""); // Added empty string for the new method signature
   }
 
   @Override

@@ -19,11 +19,11 @@
 <               return Detection.fromPb(detectionPb.get(0));
 ---
 >             public Detection apply(List<Detection> detectionPb) {
->               return detectionPb.get(0);
+>               return detectionPb.get(0); // Updated to use Detection directly
 62c62
 <               new Callable<List<LanguagesResource>>() {
 ---
->               new Callable<List<Language>>() {
+>               new Callable<List<Language>>() { // Updated return type
 64c64
 <                 public List<LanguagesResource> call() {
 ---
@@ -31,11 +31,11 @@
 80c80
 <       List<List<DetectionsResourceItems>> detectionsPb =
 ---
->       List<List<Detection>> detectionsPb =
+>       List<List<Detection>> detectionsPb = // Updated type
 82c82
 <               new Callable<List<List<DetectionsResourceItems>>>() {
 ---
->               new Callable<List<List<Detection>>>() {
+>               new Callable<List<List<Detection>>>() { // Updated return type
 84c84
 <                 public List<List<DetectionsResourceItems>> call() {
 ---
@@ -43,15 +43,15 @@
 91c91
 <       Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
 ---
->       Iterator<List<Detection>> detectionIterator = detectionsPb.iterator();
+>       Iterator<List<Detection>> detectionIterator = detectionsPb.iterator(); // Updated type
 94c94
 <         List<DetectionsResourceItems> detectionPb = detectionIterator.next();
 ---
->         List<Detection> detectionPb = detectionIterator.next();
+>         List<Detection> detectionPb = detectionIterator.next(); // Updated type
 121c121
 <               new Callable<List<TranslationsResource>>() {
 ---
->               new Callable<List<Translation>>() {
+>               new Callable<List<Translation>>() { // Updated return type
 123c123
 <                 public List<TranslationsResource> call() {
 ---

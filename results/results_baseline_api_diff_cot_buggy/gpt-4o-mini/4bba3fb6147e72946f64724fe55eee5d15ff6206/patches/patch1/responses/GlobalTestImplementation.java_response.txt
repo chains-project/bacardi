@@ -3,7 +3,7 @@ package de.hilling.junit.cdi.annotations;
 import de.hilling.junit.cdi.scope.TestScoped;
 import org.immutables.value.Value;
 
-import jakarta.annotation.Priority; // Updated import to use jakarta.annotation.Priority
+import jakarta.annotation.Priority; // Updated import
 import javax.enterprise.inject.Alternative;
 import javax.enterprise.inject.Stereotype;
 import java.lang.annotation.ElementType;
@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 @Stereotype
 @Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@Priority(100)
+@Priority(100) // No change needed here
 @Value.Immutable
 public @interface GlobalTestImplementation {
 }

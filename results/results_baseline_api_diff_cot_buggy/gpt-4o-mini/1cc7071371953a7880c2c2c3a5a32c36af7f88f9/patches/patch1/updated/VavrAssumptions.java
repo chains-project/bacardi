@@ -36,7 +36,8 @@ import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrat
 public class VavrAssumptions {
 
     private static final org.assertj.core.internal.bytebuddy.ByteBuddy BYTE_BUDDY = new org.assertj.core.internal.bytebuddy.ByteBuddy()
-            .with(TypeValidation.DISABLED);
+            .with(TypeValidation.DISABLED)
+            .with(new org.assertj.core.internal.bytebuddy.implementation.auxiliary.AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
 
     private static final org.assertj.core.internal.bytebuddy.implementation.Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
 
@@ -44,8 +45,7 @@ public class VavrAssumptions {
 
     private static final class AssumptionMethodInterceptor {
 
-        public static Object intercept(@org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This AbstractVavrAssert<?, ?> assertion, 
-                                       @org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall Callable<Object> proxy) throws Exception {
+        public static Object intercept(org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This AbstractVavrAssert<?, ?> assertion, org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall Callable<Object> proxy) throws Exception {
             try {
                 Object result = proxy.call();
                 if (result != assertion && result instanceof AbstractVavrAssert) {
@@ -133,8 +133,9 @@ public class VavrAssumptions {
 
     @SuppressWarnings("unchecked")
     private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass) {
+        org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey cacheKey = new org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey(assertClass);
         return (Class<ASSERTION>) CACHE.findOrInsert(VavrAssumptions.class.getClassLoader(),
-                assertClass,
+                cacheKey,
                 () -> generateAssumptionClass(assertClass));
     }
 

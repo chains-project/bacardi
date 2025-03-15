@@ -4,8 +4,8 @@ import com.example.domain.TaskNotFoundException;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jakarta.inject.Inject; // Updated import for Jakarta
-import jakarta.mvc.Models; // Updated import for Jakarta
+import javax.inject.Inject;
+import jakarta.mvc.Models; // Updated import
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;

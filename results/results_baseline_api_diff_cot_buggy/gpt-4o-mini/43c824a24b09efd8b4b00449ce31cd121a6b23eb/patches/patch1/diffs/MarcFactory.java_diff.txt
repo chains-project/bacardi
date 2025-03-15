@@ -6,11 +6,15 @@
 <     for (JsonBranch branch : schema.getPaths()) {
 ---
 >     for (var branch : schema.getPaths()) { // Changed from JsonBranch to var
-313c313
+313,314c313,314
 <   private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
+<     List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());
 ---
->   private static List<String> extractList(JsonPathCache cache, var branch) { // Changed from JsonBranch to var
-322c322
+>   private static List<String> extractList(JsonPathCache cache, Object branch) { // Changed JsonBranch to Object
+>     List<XmlFieldInstance> instances = cache.get(branch.getJsonPath()); // Adjusted to use Object
+322,323c322,323
 <   private static String extractFirst(JsonPathCache cache, JsonBranch branch) {
+<     List<String> list = extractList(cache, branch);
 ---
->   private static String extractFirst(JsonPathCache cache, var branch) { // Changed from JsonBranch to var
+>   private static String extractFirst(JsonPathCache cache, Object branch) { // Changed JsonBranch to Object
+>     List<String> list = extractList(cache, branch); // Adjusted to use Object

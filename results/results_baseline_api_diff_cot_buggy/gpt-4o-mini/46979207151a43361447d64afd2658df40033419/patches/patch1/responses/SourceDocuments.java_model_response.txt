@@ -20,7 +20,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
-import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
@@ -415,9 +414,37 @@ public class SourceDocuments implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = DefaultToStringStrategy.getInstance();
+        final ToStringStrategy2 strategy = new ToStringStrategy2() {
+            @Override
+            public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                strategy.appendStart(locator, this, buffer);
+                appendFields(locator, buffer, strategy);
+                strategy.appendEnd(locator, this, buffer);
+                return buffer;
+            }
+
+            @Override
+            public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                {
+                    SourceDocuments.SalesInvoices theSalesInvoices;
+                    theSalesInvoices = this.getSalesInvoices();
+                    strategy.appendField(locator, this, "salesInvoices", buffer, theSalesInvoices, (this.salesInvoices!= null));
+                }
+                {
+                    SourceDocuments.MovementOfGoods theMovementOfGoods;
+                    theMovementOfGoods = this.getMovementOfGoods();
+                    strategy.appendField(locator, this, "movementOfGoods", buffer, theMovementOfGoods, (this.movementOfGoods!= null));
+                }
+                {
+                    SourceDocuments.WorkingDocuments theWorkingDocuments;
+                    theWorkingDocuments = this.getWorkingDocuments();
+                    strategy.appendField(locator, this, "workingDocuments", buffer, theWorkingDocuments, (this.workingDocuments!= null));
+                }
+                return buffer;
+            }
+        };
         final StringBuilder buffer = new StringBuilder();
-        append(null, buffer, strategy);
+        strategy.append(null, buffer, strategy);
         return buffer.toString();
     }
 
@@ -519,7 +546,7 @@ public class SourceDocuments implements ToString2
      *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}DebitAmount"/&gt;
      *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}CreditAmount"/&gt;
      *                             &lt;/choice&gt;
-     *                             &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Tax" minOccurs="0"/&gt;
+     *                             &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementTax" minOccurs="0"/&gt;
      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxExemptionReason" minOccurs="0"/&gt;
      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SettlementAmount" minOccurs="0"/&gt;
      *                           &lt;/sequence&gt;
@@ -650,9 +677,37 @@ public class SourceDocuments implements ToString2
 
         @Override
         public String toString() {
-            final ToStringStrategy2 strategy = DefaultToStringStrategy.getInstance();
+            final ToStringStrategy2 strategy = new ToStringStrategy2() {
+                @Override
+                public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                    strategy.appendStart(locator, this, buffer);
+                    appendFields(locator, buffer, strategy);
+                    strategy.appendEnd(locator, this, buffer);
+                    return buffer;
+                }
+
+                @Override
+                public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                    {
+                        BigInteger theNumberOfMovementLines;
+                        theNumberOfMovementLines = this.getNumberOfMovementLines();
+                        strategy.appendField(locator, this, "numberOfMovementLines", buffer, theNumberOfMovementLines, (this.numberOfMovementLines!= null));
+                    }
+                    {
+                        BigDecimal theTotalQuantityIssued;
+                        theTotalQuantityIssued = this.getTotalQuantityIssued();
+                        strategy.appendField(locator, this, "totalQuantityIssued", buffer, theTotalQuantityIssued, (this.totalQuantityIssued!= null));
+                    }
+                    {
+                        List<SourceDocuments.MovementOfGoods.StockMovement> theStockMovement;
+                        theStockMovement = (((this.stockMovement!= null)&&(!this.stockMovement.isEmpty()))?this.getStockMovement():null);
+                        strategy.appendField(locator, this, "stockMovement", buffer, theStockMovement, ((this.stockMovement!= null)&&(!this.stockMovement.isEmpty())));
+                    }
+                    return buffer;
+                }
+            };
             final StringBuilder buffer = new StringBuilder();
-            append(null, buffer, strategy);
+            strategy.append(null, buffer, strategy);
             return buffer.toString();
         }
 
@@ -900,9 +955,42 @@ public class SourceDocuments implements ToString2
 
             @Override
             public String toString() {
-                final ToStringStrategy2 strategy = DefaultToStringStrategy.getInstance();
+                final ToStringStrategy2 strategy = new ToStringStrategy2() {
+                    @Override
+                    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                        strategy.appendStart(locator, this, buffer);
+                        appendFields(locator, buffer, strategy);
+                        strategy.appendEnd(locator, this, buffer);
+                        return buffer;
+                    }
+
+                    @Override
+                    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                        {
+                            BigInteger theNumberOfEntries;
+                            theNumberOfEntries = this.getNumberOfEntries();
+                            strategy.appendField(locator, this, "numberOfEntries", buffer, theNumberOfEntries, (this.numberOfEntries!= null));
+                        }
+                        {
+                            BigDecimal theTotalDebit;
+                            theTotalDebit = this.getTotalDebit();
+                            strategy.appendField(locator, this, "totalDebit", buffer, theTotalDebit, (this.totalDebit!= null));
+                        }
+                        {
+                            BigDecimal theTotalCredit;
+                            theTotalCredit = this.getTotalCredit();
+                            strategy.appendField(locator, this, "totalCredit", buffer, theTotalCredit, (this.totalCredit!= null));
+                        }
+                        {
+                            List<SourceDocuments.WorkingDocuments.WorkDocument> theWorkDocument;
+                            theWorkDocument = (((this.workDocument!= null)&&(!this.workDocument.isEmpty()))?this.getWorkDocument():null);
+                            strategy.appendField(locator, this, "workDocument", buffer, theWorkDocument, ((this.workDocument!= null)&&(!this.workDocument.isEmpty())));
+                        }
+                        return buffer;
+                    }
+                };
                 final StringBuilder buffer = new StringBuilder();
-                append(null, buffer, strategy);
+                strategy.append(null, buffer, strategy);
                 return buffer.toString();
             }
 
@@ -986,6 +1074,7 @@ public class SourceDocuments implements ToString2
              *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Quantity"/&gt;
              *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}UnitOfMeasure"/&gt;
              *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}UnitPrice"/&gt;
+             *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxPointDate"/&gt;
              *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Description"/&gt;
              *                   &lt;choice&gt;
              *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}DebitAmount"/&gt;
@@ -1064,171 +1153,4 @@ public class SourceDocuments implements ToString2
                 protected XMLGregorianCalendar systemEntryDate;
                 @XmlElement(name = "CustomerID", required = true)
                 protected String customerID;
-                @XmlElement(name = "Line", required = true)
-                protected List<SourceDocuments.WorkingDocuments.WorkDocument.Line> line;
-                @XmlElement(name = "DocumentTotals", required = true)
-                protected SourceDocuments.WorkingDocuments.WorkDocument.DocumentTotals documentTotals;
-
-                /**
-                 * Gets the value of the documentNumber property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link String }
-                 *     
-                 */
-                public String getDocumentNumber() {
-                    return documentNumber;
-                }
-
-                /**
-                 * Sets the value of the documentNumber property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link String }
-                 *     
-                 */
-                public void setDocumentNumber(String value) {
-                    this.documentNumber = value;
-                }
-
-                /**
-                 * Gets the value of the documentStatus property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus }
-                 *     
-                 */
-                public SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus getDocumentStatus() {
-                    return documentStatus;
-                }
-
-                /**
-                 * Sets the value of the documentStatus property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus }
-                 *     
-                 */
-                public void setDocumentStatus(SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus value) {
-                    this.documentStatus = value;
-                }
-
-                /**
-                 * Gets the value of the hash property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link String }
-                 *     
-                 */
-                public String getHash() {
-                    return hash;
-                }
-
-                /**
-                 * Sets the value of the hash property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link String }
-                 *     
-                 */
-                public void setHash(String value) {
-                    this.hash = value;
-                }
-
-                /**
-                 * Gets the value of the hashControl property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link String }
-                 *     
-                 */
-                public String getHashControl() {
-                    return hashControl;
-                }
-
-                /**
-                 * Sets the value of the hashControl property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link String }
-                 *     
-                 */
-                public void setHashControl(String value) {
-                    this.hashControl = value;
-                }
-
-                /**
-                 * Gets the value of the period property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link Integer }
-                 *     
-                 */
-                public Integer getPeriod() {
-                    return period;
-                }
-
-                /**
-                 * Sets the value of the period property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link Integer }
-                 *     
-                 */
-                public void setPeriod(Integer value) {
-                    this.period = value;
-                }
-
-                /**
-                 * Gets the value of the workDate property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link XMLGregorianCalendar }
-                 *     
-                 */
-                public XMLGregorianCalendar getWorkDate() {
-                    return workDate;
-                }
-
-                /**
-                 * Sets the value of the workDate property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link XMLGregorianCalendar }
-                 *     
-                 */
-                public void setWorkDate(XMLGregorianCalendar value) {
-                    this.workDate = value;
-                }
-
-                /**
-                 * Gets the value of the workType property.
-                 * 
-                 * @return
-                 *     possible object is
-                 *     {@link String }
-                 *     
-                 */
-                public String getWorkType() {
-                    return workType;
-                }
-
-                /**
-                 * Sets the value of the workType property.
-                 * 
-                 * @param value
-                 *     allowed object is
-                 *     {@link String }
-                
+               

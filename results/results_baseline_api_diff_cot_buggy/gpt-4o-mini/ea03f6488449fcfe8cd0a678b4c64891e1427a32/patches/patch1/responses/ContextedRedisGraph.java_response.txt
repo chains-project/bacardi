@@ -138,7 +138,7 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphTransaction multi() {
         Jedis jedis = getConnection();
-        redis.clients.jedis.Client client = jedis.getClient(); // Updated to use the new Client reference
+        redis.clients.jedis.Client client = jedis.getClient(); // Updated to use the new method
         client.multi();
         client.getOne();
         RedisGraphTransaction transaction = new RedisGraphTransaction(client, this);
@@ -153,7 +153,7 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphPipeline pipelined() {
         Jedis jedis = getConnection();
-        redis.clients.jedis.Client client = jedis.getClient(); // Updated to use the new Client reference
+        redis.clients.jedis.Client client = jedis.getClient(); // Updated to use the new method
         RedisGraphPipeline pipeline = new RedisGraphPipeline(client, this);
         pipeline.setRedisGraphCaches(caches);
         return pipeline;

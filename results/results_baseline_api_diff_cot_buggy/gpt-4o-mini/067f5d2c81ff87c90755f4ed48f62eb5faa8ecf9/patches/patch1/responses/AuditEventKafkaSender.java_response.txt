@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * you may obtain a copy of the License at
+ * You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -63,8 +63,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
    *  When sender send audit events to Kafka,  it chooses a random partition and if it fails, it
    *  will choose another GOOD partition, this retry will happen at most numOfPartitionsToTrySending
    *  times before dropping the event. Note that, this is different from the retry handled by
-   *  kafka client
-   *  library when sending an event to a certain partition.
+   *  kafka client library when sending an event to a certain partition.
    */
   private static final int NUM_OF_PARTITIONS_TO_TRY_SENDING = 3;
 

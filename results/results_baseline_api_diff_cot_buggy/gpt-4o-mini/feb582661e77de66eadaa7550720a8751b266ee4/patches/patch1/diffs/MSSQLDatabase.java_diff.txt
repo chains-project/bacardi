@@ -1,8 +1,4 @@
-5c5
-< import liquibase.executor.ExecutorService;
----
-> import liquibase.database.ConnectionServiceFactory;
 18c18
 <         ExecutorService.getInstance().getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
 ---
->         ConnectionServiceFactory.getInstance().getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+>         liquibase.command.CommandFactory.getInstance().getExecutor(this.getLiquibaseCatalogName(), this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));

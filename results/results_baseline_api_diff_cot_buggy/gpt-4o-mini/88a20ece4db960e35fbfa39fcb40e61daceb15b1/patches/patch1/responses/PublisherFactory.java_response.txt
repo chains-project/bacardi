@@ -16,9 +16,9 @@
 package com.google.pubsublite.kafka.sink;
 
 import com.google.cloud.pubsublite.internal.Publisher;
-import java.util.Map;
+import com.google.cloud.pubsublite.PublishResponse; // Updated import
 
 interface PublisherFactory {
 
-  Publisher<Void> newPublisher(Map<String, String> params);
+  Publisher<PublishResponse> newPublisher(Map<String, String> params); // Updated type
 }

@@ -1,22 +1,28 @@
-10,12c10,12
+10,12c10,13
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
 > import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.Command;
+> import org.spongepowered.api.command.CommandExecutor;
 > import org.spongepowered.api.command.parameter.Parameter;
-16c16
+16c17
 < import static org.spongepowered.api.command.args.GenericArguments.string;
 ---
 > import static org.spongepowered.api.command.parameter.Parameter.string;
-48d47
+40c41
+<             Task.builder().async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+---
+>             Task.builder().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+48,50c49,50
 <     @Override
-50c49
+<     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
 ---
+>     public Command buildSpec() {
 >         return Command.builder()
-52c51
+52c52
 <                 .arguments(string(of("skinName")))
 ---
 >                 .arguments(string("skinName"))

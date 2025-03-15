@@ -15,8 +15,8 @@
  */
 package org.jivesoftware.openfire.plugin.util.cache;
 
-import com.hazelcast.map.EntryEvent;
-import com.hazelcast.map.EntryListener;
+import com.hazelcast.core.EntryEvent;
+import com.hazelcast.core.EntryListener;
 import com.hazelcast.map.IMap;
 import com.hazelcast.map.MapEvent;
 import com.hazelcast.map.listener.MapListener;

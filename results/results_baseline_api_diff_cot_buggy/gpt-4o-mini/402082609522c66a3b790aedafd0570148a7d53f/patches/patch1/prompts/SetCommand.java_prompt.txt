@@ -91,52 +91,52 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
 
 ```
 
-The errors are triggered in the following specific line:
+The errors are triggered in the following specific lines:
 
 <error_lines>
 ```java
+import org.spongepowered.api.command.spec.CommandExecutor;
+```
+```java
 import org.spongepowered.api.command.CommandSource;
-```
-```java
-import org.spongepowered.api.command.args.CommandContext;
-```
-```java
-import org.spongepowered.api.command.args.GenericArguments;
 ```
 ```java
 import org.spongepowered.api.command.spec.CommandSpec;
 ```
 ```java
-import org.spongepowered.api.command.spec.CommandExecutor;
+import org.spongepowered.api.command.args.GenericArguments;
+```
+```java
+import org.spongepowered.api.command.args.CommandContext;
 ```
 </error_lines>
 
 The API of the dependency has changed. Here are the relevant changes:
 
-     Class org.spongepowered.api.command.CommandSource has been removed in the new version of the dependency.
-     Constructor org.spongepowered.api.command.args.CommandContext() has been removed in the new version of the dependency.
-     Class org.spongepowered.api.command.args.CommandContext has been removed in the new version of the dependency.
-     Interface org.spongepowered.api.command.parameter.CommandContext has been added in the new version of the dependency.
-     Class org.spongepowered.api.command.args.GenericArguments has been removed in the new version of the dependency.
-     Class org.spongepowered.api.command.spec.CommandSpec has been removed in the new version of the dependency.
-     Class org.spongepowered.api.command.spec.CommandExecutor has been removed in the new version of the dependency.
      Class org.spongepowered.api.command.CommandExecutor has been added in the new version of the dependency.
+     Class org.spongepowered.api.command.spec.CommandExecutor has been removed in the new version of the dependency.
+     Class org.spongepowered.api.command.CommandSource has been removed in the new version of the dependency.
+     Class org.spongepowered.api.command.spec.CommandSpec has been removed in the new version of the dependency.
+     Class org.spongepowered.api.command.args.GenericArguments has been removed in the new version of the dependency.
+     Constructor org.spongepowered.api.command.args.CommandContext() has been removed in the new version of the dependency.
+     Interface org.spongepowered.api.command.parameter.CommandContext has been added in the new version of the dependency.
+     Class org.spongepowered.api.command.args.CommandContext has been removed in the new version of the dependency.
 
 Additional error information:
 
 <error_information>
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/SetCommand.java:[16,42] package org.spongepowered.api.command.spec does not exist
+
 [ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/SetCommand.java:[13,37] cannot find symbol
   symbol:   class CommandSource
   location: package org.spongepowered.api.command
 
-[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/SetCommand.java:[14,42] package org.spongepowered.api.command.args does not exist
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/SetCommand.java:[17,42] package org.spongepowered.api.command.spec does not exist
 
 [ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/SetCommand.java:[15,42] package org.spongepowered.api.command.args does not exist
 
-[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/SetCommand.java:[17,42] package org.spongepowered.api.command.spec does not exist
-
-[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/SetCommand.java:[16,42] package org.spongepowered.api.command.spec does not exist
-<error_information>
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/SetCommand.java:[14,42] package org.spongepowered.api.command.args does not exist
+</error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:
 

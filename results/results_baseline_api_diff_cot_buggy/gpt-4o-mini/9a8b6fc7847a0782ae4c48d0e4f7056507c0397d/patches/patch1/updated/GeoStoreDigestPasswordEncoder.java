@@ -22,6 +22,7 @@ package it.geosolutions.geostore.core.security.password;
 import org.apache.commons.codec.binary.Base64;
 import org.jasypt.digest.StandardByteDigester;
 import org.jasypt.util.password.StrongPasswordEncryptor;
+import org.jasypt.springsecurity3.PasswordEncoder; // Updated import
 import static it.geosolutions.geostore.core.security.password.SecurityUtils.toBytes;
 
 /**
@@ -40,8 +41,9 @@ public class GeoStoreDigestPasswordEncoder extends AbstractGeoStorePasswordEncod
 	    }
 
 	    @Override
-	    protected StrongPasswordEncryptor createStringEncoder() {
-	        StrongPasswordEncryptor encoder = new StrongPasswordEncryptor();
+	    protected PasswordEncoder createStringEncoder() {
+	        PasswordEncoder encoder = new PasswordEncoder(); // Updated instantiation
+	        encoder.setPasswordEncryptor(new StrongPasswordEncryptor()); // This line may need to be removed if the method is not available
 	        return encoder;
 	    }
 

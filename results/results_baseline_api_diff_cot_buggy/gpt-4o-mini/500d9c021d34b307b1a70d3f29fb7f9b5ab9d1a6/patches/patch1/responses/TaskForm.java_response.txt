@@ -2,7 +2,7 @@ package com.example.web;
 
 import java.io.Serializable;
 import java.util.Objects;
-import jakarta.mvc.binding.MvcBinding; // Updated import
+import jakarta.mvc.binding.MvcBinding;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import javax.ws.rs.FormParam;

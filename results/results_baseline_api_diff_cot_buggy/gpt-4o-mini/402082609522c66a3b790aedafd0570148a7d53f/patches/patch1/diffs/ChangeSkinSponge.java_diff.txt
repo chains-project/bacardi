@@ -1,8 +1,6 @@
-22a23
-> import org.spongepowered.api.command.CommandCause;
-24d24
-< import org.spongepowered.api.command.CommandSource;
-27,32c27,32
+23d22
+< import org.spongepowered.api.command.CommandManager;
+27,32c26,29
 < import org.spongepowered.api.event.game.state.GameInitializationEvent;
 < import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 < import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
@@ -10,53 +8,58 @@
 < import org.spongepowered.api.network.ChannelRegistrar;
 < import org.spongepowered.api.plugin.Plugin;
 ---
-> import org.spongepowered.api.event.lifecycle.GameInitializationEvent;
-> import org.spongepowered.api.event.lifecycle.GamePreInitializationEvent;
-> import org.spongepowered.api.event.lifecycle.GameStoppingEvent;
-> import org.spongepowered.api.network.ChannelBinding;
+> import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+> import org.spongepowered.api.event.lifecycle.RegisterChannelEvent;
 > import org.spongepowered.api.plugin.PluginContainer;
 > import org.spongepowered.api.text.Text;
-40,42c40
+40,41d36
 < @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
 <         url = PomData.URL, description = PomData.DESCRIPTION)
-< public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
----
-> public class ChangeSkinSponge implements PlatformPlugin<CommandCause> {
-53d50
+53d47
 <     //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
-63d59
+63d56
 <         //load config and database
-79d74
+73c66
+<     public void onInit(GameInitializationEvent initEvent) {
+---
+>     public void onInit(RegisterCommandEvent initEvent) {
+77,85c70,75
+<         CommandManager cmdManager = Sponge.getCommandManager();
+< 
 <         //command and event register
-89,94c84,85
+<         cmdManager.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+<         cmdManager.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+<         cmdManager.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+<         cmdManager.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+<         cmdManager.register(this, injector.getInstance(InvalidateCommand.class)
+<                 .buildSpec(), "skininvalidate", "skin-invalidate");
+---
+>         // Register commands
+>         initEvent.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+>         initEvent.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+>         initEvent.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+>         initEvent.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+>         initEvent.register(this, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
+89,90c79
 <         //incoming channel
 <         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
-<         String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
-<         String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
+---
+>         // Incoming channel
+93,94c82,83
 <         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
 <         RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
 ---
->         ChannelBinding.RawDataChannel updateChannel = Sponge.getChannelRegistrar().getOrCreateRaw(this, new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName());
->         ChannelBinding.RawDataChannel permChannel = Sponge.getChannelRegistrar().getOrCreateRaw(this, new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName());
-100c91
-<     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
----
->     public void onShutdown(GameStoppingEvent stoppingEvent) {
-108,109c99
+>         RawDataChannel updateChannel = Sponge.getChannelRegistrar().getOrCreateRaw(this, updateChannelName);
+>         RawDataChannel permChannel = Sponge.getChannelRegistrar().getOrCreateRaw(this, permissionChannelName);
+108d96
 <     @Override
-<     public boolean hasSkinPermission(CommandSource invoker, UUID uuid, boolean sendMessage) {
----
->     public boolean hasSkinPermission(CommandCause invoker, UUID uuid, boolean sendMessage) {
-114d103
+114d101
 <         //disallow - not whitelisted or blacklisted
-126d114
+126d112
 <     @Override
-131d118
+131d116
 <     @Override
-136d122
+136d120
 <     @Override
-141,142c127
+141d124
 <     @Override
-<     public void sendMessage(CommandSource receiver, String key) {
----
->     public void sendMessage(CommandCause receiver, String key) {

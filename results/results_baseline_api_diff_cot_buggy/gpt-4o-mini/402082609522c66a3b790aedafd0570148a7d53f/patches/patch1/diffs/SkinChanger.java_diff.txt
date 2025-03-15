@@ -1,19 +1,20 @@
-7,8c7,8
+7,8c7,9
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.text.serializer.TextSerializers;
 ---
-> import org.spongepowered.api.command.CommandSource; // This import is removed in the new version
-> import org.spongepowered.api.text.Texts; // New import for text handling
-12c12
+> import org.spongepowered.api.command.CommandSource; // This import will be removed
+> import org.spongepowered.api.text.Text; // New import for text handling
+> import org.spongepowered.api.text.Texts; // New import for text serialization
+12c13
 <     private final CommandSource invoker;
 ---
->     private final Object invoker; // Changed from CommandSource to Object
-14c14
-<     public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandSource invoker) {
+>     private final CommandSource invoker; // This field will be removed
+17c18
+<         this.invoker = invoker;
 ---
->     public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, Object invoker) { // Changed CommandSource to Object
-22c22,23
+>         this.invoker = invoker; // This assignment will be removed
+22c23,24
 <         invoker.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage));
 ---
->         // Assuming the new method to send messages is different, using a generic method for demonstration
->         // invoker.sendMessage(Texts.of(localeMessage)); // This line is commented out as the method to send messages needs to be defined based on the new API
+>         Text message = Texts.of(localeMessage); // Updated to use new text handling
+>         invoker.sendMessage(message); // This line remains unchanged

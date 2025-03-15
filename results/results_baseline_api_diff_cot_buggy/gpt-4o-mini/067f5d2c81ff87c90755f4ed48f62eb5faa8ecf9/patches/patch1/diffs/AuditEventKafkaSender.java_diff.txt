@@ -1,15 +1,16 @@
-6c6
-<  * You may obtain a copy of the License at
----
->  * you may obtain a copy of the License at
 33a34,35
 > import org.apache.thrift.protocol.TProtocolFactory;
 > import org.apache.thrift.transport.TTransportException;
-121c123
+64,65c66
+<    *  kafka client
+<    *  library when sending an event to a certain partition.
+---
+>    *  kafka client library when sending an event to a certain partition.
+121c122
 <   private TSerializer serializer = new TSerializer();
 ---
 >   private TSerializer serializer;
-185a188,192
+185a187,191
 >     try {
 >       this.serializer = new TSerializer(new TProtocolFactory());
 >     } catch (TTransportException e) {

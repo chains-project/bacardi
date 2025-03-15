@@ -24,9 +24,7 @@ import org.tinfour.common.IIncrementalTin;
 import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
 import org.tinspin.index.PointIndex;
-import org.tinspin.index.PointEntry;
-import org.tinspin.index.PointDistanceFunction;
-import org.tinspin.index.kdtree.KDTree;
+import org.tinspin.index.RectangleIndex;
 
 import micycle.pgs.commons.FrontChainPacker;
 import micycle.pgs.commons.LargestEmptyCircles;
@@ -201,7 +199,7 @@ public final class PGS_CirclePacking {
 	public static List<PVector> stochasticPack(final PShape shape, final int points, final double minRadius, boolean triangulatePoints,
 			long seed) {
 
-		final KDTree<PVector> tree = KDTree.create(3, 2, circleDistanceMetric);
+		final PointIndex<PVector> tree = RectangleIndex.create(3, 2, circleDistanceMetric);
 		final List<PVector> out = new ArrayList<>();
 
 		List<PVector> steinerPoints = PGS_Processing.generateRandomPoints(shape, points, seed);
@@ -224,16 +222,16 @@ public final class PGS_CirclePacking {
 		float largestR = 0; // the radius of the largest circle in the tree
 
 		for (PVector p : steinerPoints) {
-			final PointEntry<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+			final PVector nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
 
 			/*
 			 * nn.dist() does not return the radius (since it's a distance metric used to
 			 * find nearest circle), so calculate maximum radius for candidate circle using
 			 * 2d euclidean distance between center points minus radius of nearest circle.
 			 */
-			final float dx = p.x - nn.value().x;
-			final float dy = p.y - nn.value().y;
-			final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z);
+			final float dx = p.x - nn.x;
+			final float dy = p.y - nn.y;
+			final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.z);
 			if (radius > minRadius) {
 				largestR = (radius >= largestR) ? radius : largestR;
 				p.z = radius;
@@ -643,7 +641,7 @@ public final class PGS_CirclePacking {
 	 * @param p2 3D point representing the second circle (x2, y2, r2)
 	 * @return the distance between the two points based on the custom metric
 	 */
-	private static final PointDistanceFunction circleDistanceMetric = (p1, p2) -> {
+	private static final org.tinspin.index.PointDistanceFunction circleDistanceMetric = (p1, p2) -> {
 		// from https://stackoverflow.com/a/21975136/
 		final double dx = p1[0] - p2[0];
 		final double dy = p1[1] - p2[1];

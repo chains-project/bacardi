@@ -13,6 +13,7 @@ import org.cactoos.io.Directory;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.scalar.IoCheckedScalar; // This import will be removed
+import org.cactoos.scalar.SolidScalar; // This import will be removed
 import org.cactoos.text.FormattedText;
 import org.cactoos.text.JoinedText; // This import will be removed
 import org.cactoos.text.UncheckedText;
@@ -27,7 +28,7 @@ public final class WalletsIn implements Wallets {
     /**
      * Path containing wallets.
      */
-    private final Scalar<Path> path; // Changed from IoCheckedScalar to Scalar
+    private final Scalar<Path> path; // Changed from IoCheckedScalar<Path> to Scalar<Path>
 
     /**
      * Filter for matching file extensions.
@@ -77,7 +78,7 @@ public final class WalletsIn implements Wallets {
      */
     public WalletsIn(final Scalar<Path> pth, final String ext,
         final Random random) {
-        this.path = pth; // Directly assign the Scalar
+        this.path = pth; // Directly assign the Scalar<Path>
         this.filter = new IoCheckedFunc<Path, Boolean>(
             (file) -> file.toFile().isFile()
                 && FileSystems.getDefault()

@@ -42,7 +42,6 @@ import java.util.Map;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.HttpHeaders;
 import lombok.EqualsAndHashCode;
-import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers; // This import will be removed
@@ -210,7 +209,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, org.hamcrest.core.IsIterableContaining.hasItems(value));
+        return this.assertHeader(name, org.hamcrest.Matchers.hasItems(value));
     }
 
     /**
@@ -284,7 +283,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            IsNot.not(IsNull.nullValue())
+            IsNot.not(IsNull.notNullValue())
         );
         assert cookie != null;
         return cookie;

@@ -10,6 +10,7 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.CommandExecutor;
 import org.spongepowered.api.command.parameter.Parameter;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
@@ -38,7 +39,7 @@ public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
         try {
             int targetId = Integer.parseInt(skinName);
             Player receiver = (Player) src;
-            Task.builder().async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+            Task.builder().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
         } catch (NumberFormatException numberFormatException) {
             plugin.sendMessage(src, "invalid-skin-name");
         }
@@ -46,7 +47,7 @@ public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
         return CommandResult.success();
     }
 
-    public CommandSpec buildSpec() {
+    public Command buildSpec() {
         return Command.builder()
                 .executor(this)
                 .arguments(string("skinName"))

@@ -5,6 +5,10 @@
 33c31
 <   private static final Framework FRAMEWORK = Framework.of("KAFKA_CONNECT");
 ---
->   private static final PubsubContext.Framework FRAMEWORK = PubsubContext.Framework.of("KAFKA_CONNECT");
+>   private static final PubsubContext FRAMEWORK_CONTEXT = PubsubContext.of("KAFKA_CONNECT");
+36c34
+<   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
+---
+>   public Publisher<Void> newPublisher(Map<String, String> params) {
 53d50
 <                 .setContext(PubsubContext.of(FRAMEWORK))

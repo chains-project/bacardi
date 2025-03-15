@@ -7,12 +7,12 @@ import com.google.inject.Inject;
 
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
-public class InvalidateCommand implements Command.Executor, ChangeSkinCommand {
+public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
 
@@ -29,15 +29,14 @@ public class InvalidateCommand implements Command.Executor, ChangeSkinCommand {
         }
 
         Player receiver = (Player) src;
-        Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
+        Task.builder().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
         return CommandResult.success();
     }
 
     @Override
-    public Command buildSpec() {
+    public Command.Builder buildSpec() {
         return Command.builder()
                 .executor(this)
-                .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base")
-                .build();
+                .permission(PomData.ARTIFACT_ID + ".command.skinupdate.base");
     }
 }

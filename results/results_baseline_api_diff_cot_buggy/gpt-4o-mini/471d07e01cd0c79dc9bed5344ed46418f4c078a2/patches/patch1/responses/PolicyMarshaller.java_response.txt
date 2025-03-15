@@ -69,7 +69,7 @@ final class PolicyMarshaller
                     })));
       }
     }
-    return new Builder(bindings, policyPb.getEtag(), policyPb.getVersion()).build();
+    return new Builder(bindings, policyPb.getEtag(), null).build();
   }
 
   @Override
@@ -93,7 +93,6 @@ final class PolicyMarshaller
     }
     policyPb.setBindings(bindingPbList);
     policyPb.setEtag(policy.getEtag());
-    policyPb.setVersion(policy.getVersion());
     return policyPb;
   }
 }

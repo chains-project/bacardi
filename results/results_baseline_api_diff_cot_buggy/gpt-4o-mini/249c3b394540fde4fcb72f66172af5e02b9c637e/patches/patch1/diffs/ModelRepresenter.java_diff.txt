@@ -1,5 +1,11 @@
-218,219c218
+22a23
+> import org.yaml.snakeyaml.introspector.PropertyUtils; // Added import for PropertyUtils
+218,219c219
 <   protected Set<Property> getProperties(Class<? extends Object> type)
 <           throws IntrospectionException {
 ---
 >   protected Set<Property> getProperties(Class<? extends Object> type) {
+237c237
+<       Set<Property> standard = super.getProperties(type);
+---
+>       Set<Property> standard = PropertyUtils.getProperties(type); // Updated to use PropertyUtils

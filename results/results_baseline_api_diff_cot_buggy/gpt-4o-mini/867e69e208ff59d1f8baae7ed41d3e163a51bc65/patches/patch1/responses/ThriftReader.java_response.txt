@@ -20,7 +20,7 @@ import com.google.common.base.Strings;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.layered.TFramedTransport;
+import org.apache.thrift.transport.layered.TFramedTransport; // Updated import
 import org.apache.thrift.transport.TIOStreamTransport;
 import org.apache.thrift.transport.TTransport;
 
@@ -78,7 +78,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
     this.byteOffsetInputStream = new ByteOffsetInputStream(
         new RandomAccessFile(path, "r"), readBufferSize);
     this.framedTransport = new TFramedTransport(new TIOStreamTransport(this
-        .byteOffsetInputStream), maxMessageSize);
+        .byteOffsetInputStream), maxMessageSize); // Updated constructor usage
     this.baseFactory = Preconditions.checkNotNull(baseFactory);
     this.protocol = protocolFactory.get(this.framedTransport);
   }

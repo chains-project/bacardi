@@ -1,8 +1,12 @@
 36d35
 < import org.tinspin.index.PointIndex;
 37a37
-> import org.tinspin.index.kdtree.PointDistanceFunction; // New import for distance function
-161c161
+> import org.tinspin.index.util.PointMultimapWrapper; // Updated import
+161,165c161
 <                 final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {
+<                         final double deltaX = p1[0] - p2[0];
+<                         final double deltaY = p1[1] - p2[1];
+<                         return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+<                 });
 ---
->                 final KDTree<Vertex> tree = KDTree.create(2, (p1, p2) -> {
+>                 final org.tinspin.index.kdtree.KDTree<Vertex> tree = KDTree.create(new org.tinspin.index.IndexConfig(2)); // Updated line

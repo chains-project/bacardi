@@ -20,7 +20,7 @@ import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
-import org.yaml.snakeyaml.introspector.PropertyUtils; // Added import for PropertyUtils
+import org.yaml.snakeyaml.introspector.BeanAccess; // Added import for BeanAccess
 
 import java.beans.IntrospectionException;
 import java.util.*;
@@ -36,7 +36,7 @@ import static java.lang.String.format;
  */
 class ModelRepresenter extends Representer {
   public ModelRepresenter() {
-    super(); // Explicitly call the constructor of Representer
+    super(); // Explicitly call the constructor of the superclass
     this.representers.put(Xpp3Dom.class, new RepresentXpp3Dom());
     Represent stringRepresenter = this.representers.get(String.class);
     this.representers.put(Boolean.class, stringRepresenter);
@@ -217,7 +217,8 @@ class ModelRepresenter extends Representer {
    * Change the default order. Important data goes first.
    */
   @Override
-  protected Set<Property> getProperties(Class<? extends Object> type) {
+  protected Set<Property> getProperties(Class<? extends Object> type)
+          throws IntrospectionException {
     if (type.isAssignableFrom(Model.class)) {
       return sortTypeWithOrder(type, ORDER_MODEL);
     } else if (type.isAssignableFrom(Developer.class)) {
@@ -229,13 +230,13 @@ class ModelRepresenter extends Representer {
     }  else if (type.isAssignableFrom(Plugin.class)) {
       return sortTypeWithOrder(type, ORDER_PLUGIN);
     } else {
-      return super.getProperties(type);
+      return super.getProperties(type, BeanAccess.DEFAULT); // Updated to use BeanAccess
     }
   }
 
   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
           throws IntrospectionException {
-      Set<Property> standard = PropertyUtils.getProperties(type); // Updated to use PropertyUtils
+      Set<Property> standard = super.getProperties(type, BeanAccess.DEFAULT); // Updated to use BeanAccess
       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
       sorted.addAll(standard);
       return sorted;

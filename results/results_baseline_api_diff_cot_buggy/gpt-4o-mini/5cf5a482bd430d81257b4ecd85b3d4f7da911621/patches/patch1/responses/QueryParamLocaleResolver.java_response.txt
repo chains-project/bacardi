@@ -6,9 +6,8 @@ import java.util.logging.Logger;
 import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import jakarta.mvc.locale.LocaleResolver;
 import jakarta.mvc.locale.LocaleResolverContext;
-import jakarta.mvc.engine.ViewEngineContext;
+import jakarta.mvc.locale.LocaleResolver; // Assuming a new implementation exists
 
 /**
  * Resolver to get the {@link Locale} to use from the requests query param <i>lang</i>.

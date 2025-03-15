@@ -1,32 +1,50 @@
-30c30
-< import org.cactoos.collection.Filtered;
----
-> import org.cactoos.iterable.Filtered;
 36d35
 < import org.cactoos.scalar.CheckedScalar;
 38d36
 < import org.cactoos.scalar.UncheckedScalar;
 40d37
 < import org.cactoos.text.SplitText;
-42d38
-< import org.cactoos.text.UncheckedText;
-201c197
+201,202c198
 <             return new CheckedScalar<>(
+<                 () -> Long.parseUnsignedLong(
 ---
->             return new org.cactoos.scalar.CheckedScalar<>(
-204c200
+>             return Long.parseUnsignedLong(
+204,208c200,201
 <                         new SplitText(
+<                             new TextOf(this.path),
+<                             "\n"
+<                         )
+<                     ).get(2).asString(),
 ---
->                         new org.cactoos.iterable.SplitText(
-237c233
-<                     new UncheckedText(
+>                     new TextOf(this.path).asString().split("\n")
+>                 ).get(2),
+211,213c204
+<                 ),
+<                 e -> new IOException(e)
+<             ).value();
 ---
->                     new org.cactoos.text.UncheckedText(
-249c245
+>             );
+249,258c240,244
 <                     origin -> new UncheckedScalar<>(
+<                         new Or(
+<                             () -> incoming.equals(origin),
+<                             () -> incoming.id() == origin.id()
+<                                 && incoming.bnf().equals(origin.bnf()),
+<                             () -> incoming.id() == origin.id()
+<                                 && incoming.amount() < 0L,
+<                             () -> incoming.prefix().equals(origin.prefix())
+<                         )
+<                     ).value(),
 ---
->                     origin -> new org.cactoos.scalar.UncheckedScalar<>(
-275c271
+>                     origin -> 
+>                         incoming.equals(origin) ||
+>                         (incoming.id() == origin.id() && incoming.bnf().equals(origin.bnf())) ||
+>                         (incoming.id() == origin.id() && incoming.amount() < 0L) ||
+>                         incoming.prefix().equals(origin.prefix()),
+275,278c261
 <                         new SplitText(
+<                             new TextOf(this.path),
+<                             "\\n"
+<                         )
 ---
->                         new org.cactoos.iterable.SplitText(
+>                         new TextOf(this.path).asString().split("\\n")

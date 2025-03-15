@@ -36,8 +36,7 @@ import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
 import org.tinfour.utils.TriangleCollector;
 import org.tinspin.index.kdtree.KDTree;
-import org.tinspin.index.kdtree.KDTreeMMP; // Importing the new KDTree class
-import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
+import org.tinspin.index.IndexConfig;
 import micycle.pgs.PGS_Conversion.PShapeData;
 import micycle.pgs.color.Colors;
 import micycle.pgs.commons.AreaMerge;
@@ -161,7 +160,7 @@ public class PGS_Meshing {
 			}
 		});
 
-		final KDTree<Vertex> tree = KDTree.create(2); // Updated to use the new KDTree.create method
+		final org.tinspin.index.kdtree.KDTree<Vertex> tree = KDTree.create(new IndexConfig(2));
 		vertices.forEach(v -> tree.insert(new double[] { v.x, v.y }, v));
 
 		final HashSet<IQuadEdge> nonGabrielEdges = new HashSet<>(); // base references to edges that should be removed

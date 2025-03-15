@@ -45,7 +45,7 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
           new Function<List<Detection>, Detection>() {
             @Override
             public Detection apply(List<Detection> detectionPb) {
-              return detectionPb.get(0);
+              return detectionPb.get(0); // Updated to use Detection directly
             }
           };
 
@@ -59,7 +59,7 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<Language>>() {
+              new Callable<List<Language>>() { // Updated return type
                 @Override
                 public List<Language> call() {
                   return translateRpc.listSupportedLanguages(optionMap(options));
@@ -77,9 +77,9 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   @Override
   public List<Detection> detect(final List<String> texts) {
     try {
-      List<List<Detection>> detectionsPb =
+      List<List<Detection>> detectionsPb = // Updated type
           runWithRetries(
-              new Callable<List<List<Detection>>>() {
+              new Callable<List<List<Detection>>>() { // Updated return type
                 @Override
                 public List<List<Detection>> call() {
                   return translateRpc.detect(texts);
@@ -88,10 +88,10 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
               getOptions().getRetrySettings(),
               EXCEPTION_HANDLER,
               getOptions().getClock());
-      Iterator<List<Detection>> detectionIterator = detectionsPb.iterator();
+      Iterator<List<Detection>> detectionIterator = detectionsPb.iterator(); // Updated type
       Iterator<String> textIterator = texts.iterator();
       while (detectionIterator.hasNext() && textIterator.hasNext()) {
-        List<Detection> detectionPb = detectionIterator.next();
+        List<Detection> detectionPb = detectionIterator.next(); // Updated type
         String text = textIterator.next();
         checkState(
             detectionPb != null && !detectionPb.isEmpty(), "No detection found for text: %s", text);
@@ -118,7 +118,7 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<Translation>>() {
+              new Callable<List<Translation>>() { // Updated return type
                 @Override
                 public List<Translation> call() {
                   return translateRpc.translate(texts, optionMap(options));

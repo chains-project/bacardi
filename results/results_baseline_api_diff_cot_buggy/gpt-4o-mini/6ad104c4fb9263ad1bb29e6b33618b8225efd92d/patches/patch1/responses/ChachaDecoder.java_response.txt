@@ -6,8 +6,6 @@ import org.bouncycastle.crypto.generators.Poly1305KeyGenerator;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithIV;
 import org.bouncycastle.util.Arrays;
-import org.bouncycastle.crypto.tls.AlertDescription; // This import is no longer valid
-import org.bouncycastle.crypto.tls.TlsFatalAlert; // This import is no longer valid
 
 public class ChachaDecoder {
 
@@ -28,7 +26,7 @@ public class ChachaDecoder {
     byte[] calculatedMAC = PolyKeyCreator.create(macKey, additionalData, ciphertext);
 
     if (!Arrays.constantTimeAreEqual(calculatedMAC, receivedMAC)) {
-      throw new IOException("Bad record MAC"); // Replacing TlsFatalAlert with IOException
+      throw new IOException("Bad record MAC");
     }
 
     byte[] output = new byte[ciphertext.length];

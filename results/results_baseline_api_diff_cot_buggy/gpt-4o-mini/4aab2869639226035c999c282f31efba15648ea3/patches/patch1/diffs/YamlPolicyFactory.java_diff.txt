@@ -1,14 +1,10 @@
-9c9,10
-< import com.artipie.asto.factory.Storages;
----
-> import com.artipie.asto.factory.StorageConfig;
-> import com.artipie.asto.factory.StorageFactory;
-40a42,43
->             StorageConfig storageConfig = new StorageConfig(sub.toString());
->             StorageFactory storageFactory = new StorageFactory();
-43,45c46
+8a9
+> import com.artipie.asto.factory.Config;
+9a11
+> import com.artipie.asto.fs.FileStorageFactory;
+43,44c45,46
 <                     new Storages().newStorage(
 <                         sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
-<                     )
 ---
->                     storageFactory.newStorage(storageConfig)
+>                     new FileStorageFactory().newStorage(
+>                         Config.of(sub.toMap())

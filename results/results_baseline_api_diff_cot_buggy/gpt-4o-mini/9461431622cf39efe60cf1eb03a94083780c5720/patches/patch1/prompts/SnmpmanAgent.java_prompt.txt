@@ -588,7 +588,7 @@ public class SnmpmanAgent extends BaseAgent {
 
 ```
 
-The errors are triggered in the following specific line:
+The errors are triggered in the following specific lines:
 
 <error_lines>
 ```java
@@ -601,16 +601,14 @@ final SortedMap<MOScope, ManagedObject> reg = server.getRegistry();
 
 The API of the dependency has changed. Here are the relevant changes:
 
-     Method org.snmp4j.agent.DefaultMOServer has been removed in the new version of the dependency.
      Class org.snmp4j.agent.ManagedObject has been removed in the new version of the dependency.
+     Method org.snmp4j.agent.DefaultMOServer has been removed in the new version of the dependency.
 
 Additional error information:
 
 <error_information>
 [ERROR] /snmpman/snmpman/src/main/java/com/oneandone/snmpman/SnmpmanAgent.java:[389,77] incompatible types: java.util.SortedMap<org.snmp4j.agent.MOScope,org.snmp4j.agent.ManagedObject<?>> cannot be converted to java.util.SortedMap<org.snmp4j.agent.MOScope,org.snmp4j.agent.ManagedObject>
-
-[ERROR] /snmpman/snmpman/src/main/java/com/oneandone/snmpman/SnmpmanAgent.java:[389,77] incompatible types: java.util.SortedMap<org.snmp4j.agent.MOScope,org.snmp4j.agent.ManagedObject<?>> cannot be converted to java.util.SortedMap<org.snmp4j.agent.MOScope,org.snmp4j.agent.ManagedObject>
-<error_information>
+</error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:
 

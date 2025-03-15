@@ -21,7 +21,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.layered.TFramedTransport; // Updated import
+import org.apache.thrift.transport.layered.TFramedTransport;
 import org.apache.thrift.transport.TIOStreamTransport;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
@@ -42,12 +42,12 @@ import java.nio.file.FileSystems;
 @SuppressWarnings("rawtypes")
 public final class SimpleThriftLogger<T extends TBase> implements Closeable {
 
-  private static final class ByteOffsetTFramedTransport extends TFramedTransport { // Updated class
+  private static final class ByteOffsetTFramedTransport extends TFramedTransport {
 
     private long byteOffset;
 
     public ByteOffsetTFramedTransport(TTransport transport) {
-      super(transport); // Updated constructor call
+      super(transport);
       byteOffset = 0;
     }
 

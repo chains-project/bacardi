@@ -49,6 +49,7 @@ public class HttpTranslateRpc implements TranslateRpc {
     this.options = options;
     translate =
         new Translate.Builder(transport, new JacksonFactory(), initializer)
+            .setRootUrl(options.getHost())
             .setApplicationName(options.getApplicationName())
             .build();
   }
@@ -58,7 +59,7 @@ public class HttpTranslateRpc implements TranslateRpc {
   }
 
   private GenericUrl buildTargetUrl(String path) {
-    GenericUrl genericUrl = new GenericUrl(translate.getBaseUrl() + "v3/" + path);
+    GenericUrl genericUrl = new GenericUrl(translate.getBaseUrl() + "v2/" + path);
     if (options.getApiKey() != null) {
       genericUrl.put("key", options.getApiKey());
     }
@@ -69,11 +70,7 @@ public class HttpTranslateRpc implements TranslateRpc {
   public List<List<Detections.DetectionsResourceItems>> detect(List<String> texts) {
     try {
       List<List<Detections.DetectionsResourceItems>> detections =
-          translate.projects().locations().detectLanguage("projects/" + options.getProjectId())
-              .setKey(options.getApiKey())
-              .setContent(texts)
-              .execute()
-              .getDetections();
+          translate.detections().list(texts).setKey(options.getApiKey()).execute().getDetections();
       return detections != null ? detections : ImmutableList.<List<Detections.DetectionsResourceItems>>of();
     } catch (IOException ex) {
       throw translate(ex);
@@ -81,38 +78,44 @@ public class HttpTranslateRpc implements TranslateRpc {
   }
 
   @Override
-  public List<Languages> listSupportedLanguages(Map<Option, ?> optionMap) {
+  public List<Languages.LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap) {
     try {
-      List<Languages> languages =
-          translate.projects().locations().getSupportedLanguages("projects/" + options.getProjectId())
+      List<Languages.LanguagesResource> languages =
+          translate
+              .languages()
+              .list()
               .setKey(options.getApiKey())
+              .setTarget(
+                  firstNonNull(
+                      Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()))
               .execute()
               .getLanguages();
-      return languages != null ? languages : ImmutableList.<Languages>of();
+      return languages != null ? languages : ImmutableList.<Languages.LanguagesResource>of();
     } catch (IOException ex) {
       throw translate(ex);
     }
   }
 
   @Override
-  public List<Translations> translate(List<String> texts, Map<Option, ?> optionMap) {
+  public List<Translations.TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap) {
     try {
       String targetLanguage =
           firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
       final String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
-      List<Translations> translations =
-          translate.projects().locations().translateText("projects/" + options.getProjectId(), texts, targetLanguage)
-              .setSource(sourceLanguage)
+      List<Translations.TranslationsResource> translations =
+          translate
+              .translations()
+              .list(texts, targetLanguage)
               .setKey(options.getApiKey())
               .setModel(Option.MODEL.getString(optionMap))
               .setFormat(Option.FORMAT.getString(optionMap))
               .execute()
               .getTranslations();
       return Lists.transform(
-          translations != null ? translations : ImmutableList.<Translations>of(),
-          new Function<Translations, Translations>() {
+          translations != null ? translations : ImmutableList.<Translations.TranslationsResource>of(),
+          new Function<Translations.TranslationsResource, Translations.TranslationsResource>() {
             @Override
-            public Translations apply(Translations translationsResource) {
+            public Translations.TranslationsResource apply(Translations.TranslationsResource translationsResource) {
               if (translationsResource.getDetectedSourceLanguage() == null) {
                 translationsResource.setDetectedSourceLanguage(sourceLanguage);
               }

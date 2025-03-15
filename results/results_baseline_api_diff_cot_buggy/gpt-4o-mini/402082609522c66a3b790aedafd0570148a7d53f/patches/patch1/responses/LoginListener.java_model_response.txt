@@ -11,10 +11,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.network.ClientConnectionEvent; // This import is no longer valid
+import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent.Login; // Updated import
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.event.network.ClientConnectionEvent.Login; // New import for Login event
 
 public class LoginListener extends SharedListener {
 
@@ -28,7 +28,7 @@ public class LoginListener extends SharedListener {
     }
 
     @Listener
-    public void onPlayerPreLogin(Login preLoginEvent) { // Changed to use Login instead of Auth
+    public void onPlayerPreLogin(Login preLoginEvent) { // Updated event type
         SkinStorage storage = core.getStorage();
         GameProfile profile = preLoginEvent.getProfile();
         UUID playerUUID = profile.getUniqueId();

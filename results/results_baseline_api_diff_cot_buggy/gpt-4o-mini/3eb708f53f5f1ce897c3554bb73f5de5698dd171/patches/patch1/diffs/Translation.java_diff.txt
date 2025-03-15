@@ -1,25 +1,22 @@
-19c19,20
+19c19
 < import com.google.api.services.translate.model.TranslationsResource;
 ---
 > import com.google.api.services.translate.v3.model.Translation; // Updated import
-> import com.google.api.services.translate.v3.model.TranslateTextResponse; // New import for response
-37,38c38,39
+37,38c37,38
 <   static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =
 <       new Function<TranslationsResource, Translation>() {
 ---
 >   static final Function<Translation, Translation> FROM_PB_FUNCTION = // Updated type
 >       new Function<Translation, Translation>() {
-40c41
+40c40
 <         public Translation apply(TranslationsResource translationPb) {
 ---
 >         public Translation apply(Translation translationPb) { // Updated parameter type
-106c107
+106c106
 <   static Translation fromPb(TranslationsResource translationPb) {
 ---
 >   static Translation fromPb(Translation translationPb) { // Updated parameter type
-109,110c110,111
-<         translationPb.getDetectedSourceLanguage(),
+110c110
 <         translationPb.getModel());
 ---
->         translationPb.getSourceLanguage(), // Updated method to get source language
->         translationPb.getModel()); // Updated method to get model
+>         translationPb.getModel()); // Updated method call

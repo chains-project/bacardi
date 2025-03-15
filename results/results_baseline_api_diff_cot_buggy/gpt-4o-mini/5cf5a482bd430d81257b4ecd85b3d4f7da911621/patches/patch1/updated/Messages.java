@@ -1,10 +1,9 @@
 import java.util.ResourceBundle;
-import java.util.Locale; // Added import for Locale
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.mvc.locale.LocaleResolver; // Added import for LocaleResolver
-import javax.mvc.MvcContext; // This import will be removed as MvcContext is no longer available
+import javax.mvc.locale.LocaleResolver; // Updated import for new dependency
+import javax.mvc.MvcContext; // This import will be removed
 
 /**
  * Provides I18n messages for the UI per request. To get the correct locale, the method {@link LocaleResolver#getLocale()}

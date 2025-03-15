@@ -10,15 +10,16 @@ import com.google.inject.Inject;
 import java.util.UUID;
 
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.CommandSource; // This import will be changed
-import org.spongepowered.api.command.parameter.CommandContext; // This import will be changed
-import org.spongepowered.api.command.parameter.GenericArguments; // This import will be changed
-import org.spongepowered.api.command.CommandExecutor; // This import will be changed
+import org.spongepowered.api.command.CommandSource; // This import is removed in the new version
+import org.spongepowered.api.command.parameter.CommandContext; // Updated import
+import org.spongepowered.api.command.spec.CommandExecutor; // This import is removed in the new version
+import org.spongepowered.api.command.spec.CommandSpec; // This import is removed in the new version
+import org.spongepowered.api.command.args.GenericArguments; // This import is removed in the new version
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
-import static org.spongepowered.api.command.parameter.GenericArguments.flags; // This import will be changed
-import static org.spongepowered.api.command.parameter.GenericArguments.string; // This import will be changed
+import static org.spongepowered.api.command.args.GenericArguments.flags;
+import static org.spongepowered.api.command.args.GenericArguments.string;
 import static org.spongepowered.api.text.Text.of;
 
 public class SetCommand implements CommandExecutor, ChangeSkinCommand {

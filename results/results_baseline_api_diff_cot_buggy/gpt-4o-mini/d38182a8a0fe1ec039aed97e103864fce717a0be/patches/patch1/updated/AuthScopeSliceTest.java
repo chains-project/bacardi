@@ -54,7 +54,7 @@ class AuthScopeSliceTest {
                 new AuthScheme.Result() {
                     @Override
                     public Optional<Authentication.User> user() {
-                        return Optional.empty(); // Updated to return empty as User class is removed
+                        return Optional.empty(); // Adjusted to return empty as User class is removed
                     }
 
                     @Override

@@ -168,54 +168,54 @@ public final class WalletsIn implements Wallets {
 
 ```
 
-The errors are triggered in the following specific line:
+The errors are triggered in the following specific lines:
 
 <error_lines>
 ```java
-private final IoCheckedScalar<Path> path;
-```
-```java
-import org.cactoos.scalar.IoCheckedScalar;
+import org.cactoos.scalar.SolidScalar;
 ```
 ```java
 import org.cactoos.text.JoinedText;
 ```
 ```java
-import org.cactoos.scalar.SolidScalar;
+import org.cactoos.scalar.IoCheckedScalar;
+```
+```java
+private final IoCheckedScalar<Path> path;
 ```
 </error_lines>
 
 The API of the dependency has changed. Here are the relevant changes:
 
-     Class org.cactoos.scalar.IoCheckedScalar has been removed in the new version of the dependency.
-     Constructor org.cactoos.scalar.IoCheckedScalar(org.cactoos.Scalar) has been removed in the new version of the dependency.
-     Class org.cactoos.text.JoinedText has been removed in the new version of the dependency.
-     Constructor org.cactoos.text.JoinedText(org.cactoos.Text,java.lang.Iterable) has been removed in the new version of the dependency.
-     Constructor org.cactoos.text.JoinedText(java.lang.String,java.lang.String[]) has been removed in the new version of the dependency.
-     Constructor org.cactoos.text.JoinedText(org.cactoos.Text,org.cactoos.Text[]) has been removed in the new version of the dependency.
-     Constructor org.cactoos.text.JoinedText(java.lang.String,java.lang.Iterable) has been removed in the new version of the dependency.
      Class org.cactoos.scalar.SolidScalar has been removed in the new version of the dependency.
      Constructor org.cactoos.scalar.SolidScalar(org.cactoos.Scalar) has been removed in the new version of the dependency.
+     Class org.cactoos.text.JoinedText has been removed in the new version of the dependency.
+     Constructor org.cactoos.text.JoinedText(org.cactoos.Text,org.cactoos.Text[]) has been removed in the new version of the dependency.
+     Constructor org.cactoos.text.JoinedText(java.lang.String,java.lang.Iterable) has been removed in the new version of the dependency.
+     Constructor org.cactoos.text.JoinedText(org.cactoos.Text,java.lang.Iterable) has been removed in the new version of the dependency.
+     Constructor org.cactoos.text.JoinedText(java.lang.String,java.lang.String[]) has been removed in the new version of the dependency.
+     Class org.cactoos.scalar.IoCheckedScalar has been removed in the new version of the dependency.
+     Constructor org.cactoos.scalar.IoCheckedScalar(org.cactoos.Scalar) has been removed in the new version of the dependency.
 
 Additional error information:
 
 <error_information>
-[ERROR] /java-api/src/main/java/io/zold/api/WalletsIn.java:[53,19] cannot find symbol
-  symbol:   class IoCheckedScalar
-  location: class io.zold.api.WalletsIn
-
-[ERROR] /java-api/src/main/java/io/zold/api/WalletsIn.java:[37,26] cannot find symbol
-  symbol:   class IoCheckedScalar
+[ERROR] /java-api/src/main/java/io/zold/api/WalletsIn.java:[38,26] cannot find symbol
+  symbol:   class SolidScalar
   location: package org.cactoos.scalar
 
 [ERROR] /java-api/src/main/java/io/zold/api/WalletsIn.java:[40,24] cannot find symbol
   symbol:   class JoinedText
   location: package org.cactoos.text
 
-[ERROR] /java-api/src/main/java/io/zold/api/WalletsIn.java:[38,26] cannot find symbol
-  symbol:   class SolidScalar
+[ERROR] /java-api/src/main/java/io/zold/api/WalletsIn.java:[37,26] cannot find symbol
+  symbol:   class IoCheckedScalar
   location: package org.cactoos.scalar
-<error_information>
+
+[ERROR] /java-api/src/main/java/io/zold/api/WalletsIn.java:[53,19] cannot find symbol
+  symbol:   class IoCheckedScalar
+  location: class io.zold.api.WalletsIn
+</error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:
 

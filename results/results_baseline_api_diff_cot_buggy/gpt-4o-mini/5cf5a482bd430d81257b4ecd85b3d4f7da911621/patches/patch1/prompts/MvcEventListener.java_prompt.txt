@@ -50,32 +50,14 @@ public class MvcEventListener {
 
 ```
 
-The errors are triggered in the following specific line:
+The errors are triggered in the following specific lines:
 
 <error_lines>
-```java
-private void onControllerMatched(@Observes BeforeControllerEvent event) {
-```
-```java
-import javax.mvc.event.BeforeProcessViewEvent;
-```
-```java
-import javax.mvc.event.AfterProcessViewEvent;
-```
 ```java
 import javax.mvc.event.BeforeControllerEvent;
 ```
 ```java
-private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
-```
-```java
-private void onAfterProcessViewEvent(@Observes AfterProcessViewEvent event) {
-```
-```java
-private void onAfterControllerEvent(@Observes AfterControllerEvent event) {
-```
-```java
-import javax.mvc.event.AfterControllerEvent;
+import javax.mvc.event.AfterProcessViewEvent;
 ```
 ```java
 import javax.mvc.event.ControllerRedirectEvent;
@@ -84,10 +66,28 @@ import javax.mvc.event.ControllerRedirectEvent;
 private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
 ```
 ```java
-private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
+import javax.mvc.event.AfterControllerEvent;
+```
+```java
+private void onControllerMatched(@Observes BeforeControllerEvent event) {
+```
+```java
+private void onAfterProcessViewEvent(@Observes AfterProcessViewEvent event) {
 ```
 ```java
 private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
+```
+```java
+import javax.mvc.event.BeforeProcessViewEvent;
+```
+```java
+private void onViewEngineSelected(@Observes BeforeProcessViewEvent event) {
+```
+```java
+private void onControllerRedirectEvent(@Observes ControllerRedirectEvent event) {
+```
+```java
+private void onAfterControllerEvent(@Observes AfterControllerEvent event) {
 ```
 </error_lines>
 
@@ -95,46 +95,26 @@ The API of the dependency has changed. Here are the relevant changes:
 
      Interface jakarta.mvc.event.BeforeControllerEvent has been added in the new version of the dependency.
      Class javax.mvc.event.BeforeControllerEvent has been removed in the new version of the dependency.
-     Interface jakarta.mvc.event.BeforeProcessViewEvent has been added in the new version of the dependency.
-     Class javax.mvc.event.BeforeProcessViewEvent has been removed in the new version of the dependency.
-     Class javax.mvc.event.AfterProcessViewEvent has been removed in the new version of the dependency.
      Interface jakarta.mvc.event.AfterProcessViewEvent has been added in the new version of the dependency.
+     Class javax.mvc.event.AfterProcessViewEvent has been removed in the new version of the dependency.
      Interface jakarta.mvc.event.ControllerRedirectEvent has been added in the new version of the dependency.
      Class javax.mvc.event.ControllerRedirectEvent has been removed in the new version of the dependency.
-     Class javax.mvc.event.AfterControllerEvent has been removed in the new version of the dependency.
+     Class javax.mvc.engine.ViewEngine has been removed in the new version of the dependency.
      Interface jakarta.mvc.event.AfterControllerEvent has been added in the new version of the dependency.
-     Method jakarta.mvc.event.BeforeProcessViewEvent.getEngine() has been added in the new version of the dependency.
+     Class javax.mvc.event.AfterControllerEvent has been removed in the new version of the dependency.
      Method javax.mvc.event.AfterProcessViewEvent.getEngine() has been removed in the new version of the dependency.
      Method jakarta.mvc.event.AfterProcessViewEvent.getEngine() has been added in the new version of the dependency.
+     Method jakarta.mvc.event.BeforeProcessViewEvent.getEngine() has been added in the new version of the dependency.
      Method javax.mvc.event.BeforeProcessViewEvent.getEngine() has been removed in the new version of the dependency.
-     Class javax.mvc.engine.ViewEngine has been removed in the new version of the dependency.
+     Interface jakarta.mvc.event.BeforeProcessViewEvent has been added in the new version of the dependency.
+     Class javax.mvc.event.BeforeProcessViewEvent has been removed in the new version of the dependency.
 
 Additional error information:
 
 <error_information>
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[20,48] cannot find symbol
-  symbol:   class BeforeControllerEvent
-  location: class com.example.MvcEventListener
-
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[11,23] package javax.mvc.event does not exist
-
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[9,23] package javax.mvc.event does not exist
-
 [ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[10,23] package javax.mvc.event does not exist
 
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[36,55] cannot find symbol
-  symbol:   class ControllerRedirectEvent
-  location: class com.example.MvcEventListener
-
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[32,52] cannot find symbol
-  symbol:   class AfterProcessViewEvent
-  location: class com.example.MvcEventListener
-
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[28,51] cannot find symbol
-  symbol:   class AfterControllerEvent
-  location: class com.example.MvcEventListener
-
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[8,23] package javax.mvc.event does not exist
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[9,23] package javax.mvc.event does not exist
 
 [ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[12,23] package javax.mvc.event does not exist
 
@@ -142,14 +122,26 @@ Additional error information:
   symbol:   class BeforeProcessViewEvent
   location: class com.example.MvcEventListener
 
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[24,49] cannot find symbol
-  symbol:   class BeforeProcessViewEvent
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[8,23] package javax.mvc.event does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[20,48] cannot find symbol
+  symbol:   class BeforeControllerEvent
   location: class com.example.MvcEventListener
 
-[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[24,49] cannot find symbol
-  symbol:   class BeforeProcessViewEvent
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[32,52] cannot find symbol
+  symbol:   class AfterProcessViewEvent
   location: class com.example.MvcEventListener
-<error_information>
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[11,23] package javax.mvc.event does not exist
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[36,55] cannot find symbol
+  symbol:   class ControllerRedirectEvent
+  location: class com.example.MvcEventListener
+
+[ERROR] /jakartaee-mvc-sample/src/main/java/com/example/MvcEventListener.java:[28,51] cannot find symbol
+  symbol:   class AfterControllerEvent
+  location: class com.example.MvcEventListener
+</error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:
 

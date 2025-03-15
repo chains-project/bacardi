@@ -11,7 +11,7 @@ import org.spongepowered.api.command.source.CommandSource; // Updated import
 public class NameResolver extends SharedNameResolver {
 
     private final ChangeSkinSponge plugin;
-    private final CommandSource invoker; // Updated type
+    private final CommandSource invoker;
     private final Player receiver;
     private final boolean keepSkin;
 
