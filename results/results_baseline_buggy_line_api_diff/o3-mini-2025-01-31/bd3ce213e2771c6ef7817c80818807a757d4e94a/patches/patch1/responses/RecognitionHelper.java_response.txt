@@ -2,7 +2,6 @@ package de.uniwue.helper;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.ArrayList;
@@ -17,7 +16,6 @@ import java.util.TreeMap;
 import org.apache.commons.io.FileUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import de.uniwue.config.ProjectConfiguration;
@@ -239,10 +237,13 @@ public class RecognitionHelper {
 				// Add affected line segment images with their absolute path to the json file
 				dataList.add(pageList);
 			}
-			ObjectWriter writer = mapper.writer();
-            try (FileOutputStream fos = new FileOutputStream(segmentListFile)) {
-                writer.writeValue(fos, dataList);
-            }
+			try (FileWriter fw = new FileWriter(segmentListFile)) {
+			    mapper.writeValue(fw, dataList);
+			}
+
+            processHandler = new ProcessHandler();
+            processHandler.setFetchProcessConsole(true);
+            processHandler.startProcess("ocr4all-helper-scripts", skewparams, false);
 
         	cmdArgsWork.remove("--estimate_skew");
         }

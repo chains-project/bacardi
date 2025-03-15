@@ -18,8 +18,7 @@
  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * OUT OF OR IN THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package io.zold.api;
 
@@ -47,7 +46,7 @@ public final class WalletsIn implements Wallets {
     /**
      * Path containing wallets.
      */
-    private final Scalar<Path> path;
+    private final Path path;
 
     /**
      * Filter for matching file extensions.
@@ -96,13 +95,11 @@ public final class WalletsIn implements Wallets {
      * @param ext Wallets file extension
      */
     public WalletsIn(final Scalar<Path> pth, final String ext, final Random random) {
-        this.path = () -> {
-            try {
-                return pth.value();
-            } catch (final Exception e) {
-                throw new IOException(e);
-            }
-        };
+        try {
+            this.path = pth.value();
+        } catch (final Exception e) {
+            throw new IllegalStateException(e);
+        }
         this.filter = new IoCheckedFunc<Path, Boolean>(
             (file) -> file.toFile().isFile()
                 && FileSystems.getDefault()
@@ -115,14 +112,8 @@ public final class WalletsIn implements Wallets {
 
     @Override
     public Wallet create() throws IOException {
-        final Path base;
-        try {
-            base = this.path.value();
-        } catch (final Exception e) {
-            throw new IOException(e);
-        }
-        final String fileName = String.join(".", Long.toHexString(this.random.nextLong()), this.ext);
-        final Path wpth = base.resolve(fileName);
+        final String filename = Long.toHexString(this.random.nextLong()) + "." + this.ext;
+        final Path wpth = this.path.resolve(filename);
         if (wpth.toFile().exists()) {
             throw new IOException(
                 new UncheckedText(
@@ -138,10 +129,6 @@ public final class WalletsIn implements Wallets {
     }
 
     @Override
-    // @todo #65:30min Create the new wallet in the path with all wallets.
-    //  It should contain the correct content according to the
-    //  white paper (network, protocol version, id and public RSA key). After
-    //  this remove exception expect for tests on WalletsInTest.
     public Wallet create(final long id, final String pubkey, final String network) throws IOException {
         throw new UnsupportedOperationException(
             "WalletsIn.create(String, String, String) not supported"
@@ -153,9 +140,9 @@ public final class WalletsIn implements Wallets {
         try {
             return new Mapped<Path, Wallet>(
                 (pth) -> new Wallet.File(pth),
-                new Filtered<>(this.filter, new Directory(this.path.value()))
+                new Filtered<>(this.filter, new Directory(this.path))
             ).iterator();
-        } catch (final Exception ex) {
+        } catch (final IOException ex) {
             throw new IllegalStateException(ex);
         }
     }

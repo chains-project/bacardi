@@ -5,90 +5,13 @@
 < import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
 ---
 > import com.google.api.services.cloudresourcemanager.v3.model.Policy;
-40d36
-<         @Override
-47d42
-<         @Override
-95a91
->     // Updated to use the internal stub BooleanPolicy instead of the removed dependency version.
-105,120d100
-<   /**
-<    * The organization ListPolicy object.
-<    *
-<    * <p>ListPolicy can define specific values and subtrees of Cloud Resource Manager resource
-<    * hierarchy (Organizations, Folders, Projects) that are allowed or denied by setting the
-<    * allowedValues and deniedValues fields. This is achieved by using the under: and optional is:
-<    * prefixes. The under: prefix denotes resource subtree values. The is: prefix is used to denote
-<    * specific values, and is required only if the value contains a ":". Values prefixed with "is:"
-<    * are treated the same as values with no prefix. Ancestry subtrees must be in one of the
-<    * following formats: - "projects/", e.g. "projects/tokyo-rain-123" - "folders/", e.g.
-<    * "folders/1234" - "organizations/", e.g. "organizations/1234" The supportsUnder field of the
-<    * associated Constraint defines whether ancestry prefixes can be used. You can set allowedValues
-<    * and deniedValues in the same Policy if allValues is ALL_VALUES_UNSPECIFIED. ALLOW or DENY are
-<    * used to allow or deny all values. If allValues is set to either ALLOW or DENY, allowedValues
-<    * and deniedValues must be unset.
-<    */
-125c105
-<     private final List<java.lang.String> deniedValues;
----
->     private final List<String> deniedValues;
-361,369c341,343
-<     OrgPolicy orgPolicyProto = new OrgPolicy();
-<     if (boolPolicy != null) {
-<       orgPolicyProto.setBooleanPolicy(boolPolicy.toProtobuf());
-<     }
-<     orgPolicyProto.setConstraint(constraint);
-<     if (policies != null) {
-<       orgPolicyProto.setListPolicy(policies.toProtobuf());
-<     }
-<     orgPolicyProto.setRestoreDefault(restoreDefault);
----
->     // Create a new OrgPolicy using the v3 Policy stub.
->     OrgPolicy orgPolicyProto = new OrgPolicy(new Policy());
->     // In the new dependency version only etag and version are supported.
-371d344
-<     orgPolicyProto.setUpdateTime(updateTime);
-378,385d350
-<     if (orgPolicyProtobuf.getBooleanPolicy() != null) {
-<       builder.setBoolPolicy(BoolPolicy.fromProtobuf(orgPolicyProtobuf.getBooleanPolicy()));
-<     }
-<     builder.setConstraint(orgPolicyProtobuf.getConstraint());
-<     if (orgPolicyProtobuf.getListPolicy() != null) {
-<       builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getListPolicy()));
-<     }
-<     builder.setRestoreDefault(orgPolicyProtobuf.getRestoreDefault());
-387d351
-<     builder.setUpdateTime(orgPolicyProtobuf.getUpdateTime());
-390a355,453
-> 
->   // Stub class to replace the removed dependency class OrgPolicy.
->   public static class OrgPolicy {
->     private final Policy policy;
-> 
->     public OrgPolicy(Policy policy) {
->       this.policy = policy;
->     }
-> 
->     public OrgPolicy setEtag(String etag) {
->       policy.setEtag(etag);
->       return this;
->     }
-> 
->     public String getEtag() {
->       return policy.getEtag();
->     }
-> 
->     public OrgPolicy setVersion(Integer version) {
->       policy.setVersion(version);
->       return this;
->     }
-> 
->     public Integer getVersion() {
->       return policy.getVersion();
->     }
+37a35,110
+>   // Dummy replacement for the removed OrgPolicy class.
+>   public static class OrgPolicy extends Policy {
+>     // No additional fields; acts as an adapter for the new v3 Policy.
 >   }
 > 
->   // Stub class to replace the removed dependency class BooleanPolicy.
+>   // Dummy replacement for the removed BooleanPolicy class.
 >   public static class BooleanPolicy {
 >     private Boolean enforced;
 > 
@@ -102,7 +25,7 @@
 >     }
 >   }
 > 
->   // Stub class to replace the removed dependency class ListPolicy.
+>   // Dummy replacement for the removed ListPolicy class.
 >   public static class ListPolicy {
 >     private String allValues;
 >     private List<String> allowedValues;
@@ -115,17 +38,9 @@
 >       return this;
 >     }
 > 
->     public String getAllValues() {
->       return allValues;
->     }
-> 
 >     public ListPolicy setAllowedValues(List<String> allowedValues) {
 >       this.allowedValues = allowedValues;
 >       return this;
->     }
-> 
->     public List<String> getAllowedValues() {
->       return allowedValues;
 >     }
 > 
 >     public ListPolicy setDeniedValues(List<String> deniedValues) {
@@ -133,17 +48,9 @@
 >       return this;
 >     }
 > 
->     public List<String> getDeniedValues() {
->       return deniedValues;
->     }
-> 
 >     public ListPolicy setInheritFromParent(Boolean inheritFromParent) {
 >       this.inheritFromParent = inheritFromParent;
 >       return this;
->     }
-> 
->     public Boolean getInheritFromParent() {
->       return inheritFromParent;
 >     }
 > 
 >     public ListPolicy setSuggestedValue(String suggestedValue) {
@@ -151,11 +58,53 @@
 >       return this;
 >     }
 > 
+>     public String getAllValues() {
+>       return allValues;
+>     }
+> 
+>     public List<String> getAllowedValues() {
+>       return allowedValues;
+>     }
+> 
+>     public List<String> getDeniedValues() {
+>       return deniedValues;
+>     }
+> 
+>     public Boolean getInheritFromParent() {
+>       return inheritFromParent;
+>     }
+> 
 >     public String getSuggestedValue() {
 >       return suggestedValue;
 >     }
 >   }
 > 
->   // Stub class to replace the removed dependency class RestoreDefault.
->   public static class RestoreDefault {
->   }
+>   // Dummy replacement for the removed RestoreDefault class.
+>   public static class RestoreDefault {}
+> 
+125c198
+<     private final List<java.lang.String> deniedValues;
+---
+>     private final List<String> deniedValues;
+362,369c435
+<     if (boolPolicy != null) {
+<       orgPolicyProto.setBooleanPolicy(boolPolicy.toProtobuf());
+<     }
+<     orgPolicyProto.setConstraint(constraint);
+<     if (policies != null) {
+<       orgPolicyProto.setListPolicy(policies.toProtobuf());
+<     }
+<     orgPolicyProto.setRestoreDefault(restoreDefault);
+---
+>     // The new dependency removes support for booleanPolicy, constraint, listPolicy, and restoreDefault.
+378,385c444
+<     if (orgPolicyProtobuf.getBooleanPolicy() != null) {
+<       builder.setBoolPolicy(BoolPolicy.fromProtobuf(orgPolicyProtobuf.getBooleanPolicy()));
+<     }
+<     builder.setConstraint(orgPolicyProtobuf.getConstraint());
+<     if (orgPolicyProtobuf.getListPolicy() != null) {
+<       builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getListPolicy()));
+<     }
+<     builder.setRestoreDefault(orgPolicyProtobuf.getRestoreDefault());
+---
+>     // The new dependency removes support for booleanPolicy, constraint, listPolicy, and restoreDefault.

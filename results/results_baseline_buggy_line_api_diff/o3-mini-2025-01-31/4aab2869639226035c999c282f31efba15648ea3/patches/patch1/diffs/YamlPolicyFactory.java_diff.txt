@@ -1,16 +1,57 @@
-9c9,10
+9c9,13
 < import com.artipie.asto.factory.Storages;
 ---
+> import com.artipie.asto.Storage;
 > import com.artipie.asto.factory.Config;
-> import com.artipie.asto.factory.StorageFactory;
-40a42,45
->             final Config cfg = new Config(
->                 sub.string("type"),
->                 Yaml.createYamlInput(sub.toString()).readYamlMapping()
->             );
-43,45c48
+> import com.artipie.asto.fs.FileStorageFactory;
+> import com.artipie.asto.etcd.EtcdStorageFactory;
+> import com.artipie.asto.s3.S3StorageFactory;
+13,33d16
+< /**
+<  * Policy factory to create {@link YamlPolicy}. Yaml policy is read from storage, and it's required
+<  * to describe this storage in the configuration. Configuration format is the following:
+<  *
+<  * policy:
+<  *   type: yaml_policy
+<  *   storage:
+<  *     type: fs
+<  *     path: /some/path
+<  *
+<  * The storage itself is expected to have yaml files with permissions in the following structure:
+<  *
+<  * ..
+<  * ├── roles.yaml
+<  * ├── users
+<  * │   ├── david.yaml
+<  * │   ├── jane.yaml
+<  * │   ├── ...
+<  *
+<  * @since 1.2
+<  */
+41,47c24,41
+<             return new YamlPolicy(
+<                 new BlockingStorage(
 <                     new Storages().newStorage(
 <                         sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
 <                     )
+<                 )
+<             );
 ---
->                     new StorageFactory().newStorage(cfg)
+>             final String type = sub.string("type");
+>             final com.amihaiemil.eoyaml.YamlMapping mapping = Yaml.createYamlInput(sub.toString()).readYamlMapping();
+>             final Config storageConfig = new Config.Yaml(mapping);
+>             final Storage storage;
+>             switch (type) {
+>                 case "fs":
+>                     storage = new FileStorageFactory().newStorage(storageConfig);
+>                     break;
+>                 case "etcd":
+>                     storage = new EtcdStorageFactory().newStorage(storageConfig);
+>                     break;
+>                 case "s3":
+>                     storage = new S3StorageFactory().newStorage(storageConfig);
+>                     break;
+>                 default:
+>                     throw new IllegalArgumentException("Unsupported storage type: " + type);
+>             }
+>             return new YamlPolicy(new BlockingStorage(storage));

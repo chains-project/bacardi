@@ -7,32 +7,14 @@ package com.artipie.security.policy;
 
 import com.amihaiemil.eoyaml.Yaml;
 import com.artipie.asto.blocking.BlockingStorage;
+import com.artipie.asto.Storage;
 import com.artipie.asto.factory.Config;
-import com.artipie.asto.factory.StorageFactory;
+import com.artipie.asto.fs.FileStorageFactory;
+import com.artipie.asto.etcd.EtcdStorageFactory;
+import com.artipie.asto.s3.S3StorageFactory;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
-/**
- * Policy factory to create {@link YamlPolicy}. Yaml policy is read from storage, and it's required
- * to describe this storage in the configuration. Configuration format is the following:
- *
- * policy:
- *   type: yaml_policy
- *   storage:
- *     type: fs
- *     path: /some/path
- *
- * The storage itself is expected to have yaml files with permissions in the following structure:
- *
- * ..
- * ├── roles.yaml
- * ├── users
- * │   ├── david.yaml
- * │   ├── jane.yaml
- * │   ├── ...
- *
- * @since 1.2
- */
 @ArtipiePolicyFactory("yaml_policy")
 public final class YamlPolicyFactory implements PolicyFactory {
 
@@ -40,15 +22,24 @@ public final class YamlPolicyFactory implements PolicyFactory {
     public Policy<?> getPolicy(final PolicyConfig config) {
         final PolicyConfig sub = config.config("storage");
         try {
-            final Config cfg = new Config(
-                sub.string("type"),
-                Yaml.createYamlInput(sub.toString()).readYamlMapping()
-            );
-            return new YamlPolicy(
-                new BlockingStorage(
-                    new StorageFactory().newStorage(cfg)
-                )
-            );
+            final String type = sub.string("type");
+            final com.amihaiemil.eoyaml.YamlMapping mapping = Yaml.createYamlInput(sub.toString()).readYamlMapping();
+            final Config storageConfig = new Config.Yaml(mapping);
+            final Storage storage;
+            switch (type) {
+                case "fs":
+                    storage = new FileStorageFactory().newStorage(storageConfig);
+                    break;
+                case "etcd":
+                    storage = new EtcdStorageFactory().newStorage(storageConfig);
+                    break;
+                case "s3":
+                    storage = new S3StorageFactory().newStorage(storageConfig);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported storage type: " + type);
+            }
+            return new YamlPolicy(new BlockingStorage(storage));
         } catch (final IOException err) {
             throw new UncheckedIOException(err);
         }

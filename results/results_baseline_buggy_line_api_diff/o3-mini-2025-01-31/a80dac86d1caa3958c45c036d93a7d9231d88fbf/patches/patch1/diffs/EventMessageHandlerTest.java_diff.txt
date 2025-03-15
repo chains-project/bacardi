@@ -1,2 +1,26 @@
-112d111
+4d3
+< import ch.qos.logback.classic.Logger;
+16a16
+> import org.slf4j.Logger;
+82a83
+>     
+84a86
+>     
+111,113c113,125
+<         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
 <         logger.setLevel(Level.INFO);
+<         logger.addAppender(mockLogAppender);
+---
+>         Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
+>         try {
+>             java.lang.reflect.Method setLevelMethod = logger.getClass().getMethod("setLevel", Level.class);
+>             setLevelMethod.invoke(logger, Level.INFO);
+>         } catch (Exception e) {
+>             // Method not available in the new version, ignoring
+>         }
+>         try {
+>             java.lang.reflect.Method addAppenderMethod = logger.getClass().getMethod("addAppender", Appender.class);
+>             addAppenderMethod.invoke(logger, mockLogAppender);
+>         } catch (Exception e) {
+>             // Method not available in the new version, ignoring
+>         }

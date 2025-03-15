@@ -69,6 +69,7 @@ public class NPCTeleport
 
         new BukkitRunnable()
         {
+            @Override
             public void run()
             {
                 now[0]++;
@@ -115,6 +116,7 @@ public class NPCTeleport
                     float finalHead = head;
                     new BukkitRunnable()
                     {
+                        @Override
                         public void run()
                         {
                             Bukkit.getOnlinePlayers().parallelStream().filter(p -> p.hasPermission("psac.viewnpc"))
@@ -173,7 +175,8 @@ public class NPCTeleport
                     double rangeTmp = radius;
 
                     if (config.getBoolean("npc.wave"))
-                        rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin")).get(0.01, true);
+                        rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
+                            .get(0.01, count[0] < 20);
 
                     final Location center = player.getLocation();
                     final Location n = new Location(
@@ -192,6 +195,7 @@ public class NPCTeleport
                     NPC.setArmor(player, target, arm);
                     new BukkitRunnable()
                     {
+                        @Override
                         public void run()
                         {
                             Bukkit.getOnlinePlayers()
@@ -212,7 +216,7 @@ public class NPCTeleport
                     meta.setNpcLocation(n.toVector());
                 }
                 time[0] += config.getDouble("npc.time") + (config.getBoolean("npc.speed.wave")
-                    ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
+                    ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), -config.getDouble("npc.speed.waveRange")).get(0.001, true)
                     : 0.0);
             }
         };
@@ -220,6 +224,7 @@ public class NPCTeleport
 
         new BukkitRunnable()
         {
+            @Override
             public void run()
             {
                 r.cancel();

@@ -21,10 +21,8 @@ import de.gwdg.metadataqa.marc.definition.structure.DataFieldDefinition;
 import de.gwdg.metadataqa.marc.definition.MarcVersion;
 import de.gwdg.metadataqa.marc.definition.structure.SubfieldDefinition;
 import de.gwdg.metadataqa.marc.definition.TagDefinitionLoader;
-
 import de.gwdg.metadataqa.marc.utils.alephseq.AlephseqLine;
 import de.gwdg.metadataqa.marc.utils.MapToDatafield;
-
 import de.gwdg.metadataqa.marc.utils.alephseq.MarcMakerLine;
 import de.gwdg.metadataqa.marc.utils.alephseq.MarclineLine;
 import de.gwdg.metadataqa.marc.utils.pica.PicaFieldDefinition;
@@ -35,7 +33,11 @@ import net.minidev.json.JSONArray;
 import org.marc4j.marc.ControlField;
 import org.marc4j.marc.Record;
 import org.marc4j.marc.Subfield;
-import org.marc4j.marc.impl.*;
+import org.marc4j.marc.impl.ControlFieldImpl;
+import org.marc4j.marc.impl.DataFieldImpl;
+import org.marc4j.marc.impl.LeaderImpl;
+import org.marc4j.marc.impl.RecordImpl;
+import org.marc4j.marc.impl.SubfieldImpl;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
@@ -61,10 +63,10 @@ public class MarcFactory {
 
   public static BibliographicRecord create(JsonPathCache cache, MarcVersion version) {
     var marcRecord = new Marc21Record();
-    // The new MarcJsonSchema now returns a list of JSON path strings.
-    for (String path : schema.getPaths()) {
-      JsonBranch branch = wrapJsonBranch(path);
-      // Nested branches are no longer used; skip any parent check.
+    for (var obj : schema.getPaths()) {
+      JsonBranch branch = asJsonBranch(obj);
+      if (branch.getParent() != null)
+        continue;
       switch (branch.getLabel()) {
         case "leader":
           marcRecord.setLeader(new Leader(extractFirst(cache, branch)));
@@ -79,13 +81,16 @@ public class MarcFactory {
           marcRecord.setControl005(new Control005(extractFirst(cache, branch), marcRecord));
           break;
         case "006":
-          marcRecord.setControl006(new Control006(extractFirst(cache, branch), marcRecord));
+          marcRecord.setControl006(
+            new Control006(extractFirst(cache, branch), marcRecord));
           break;
         case "007":
-          marcRecord.setControl007(new Control007(extractFirst(cache, branch), marcRecord));
+          marcRecord.setControl007(
+            new Control007(extractFirst(cache, branch), marcRecord));
           break;
         case "008":
-          marcRecord.setControl008(new Control008(extractFirst(cache, branch), marcRecord));
+          marcRecord.setControl008(
+            new Control008(extractFirst(cache, branch), marcRecord));
           break;
         default:
           JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());
@@ -466,28 +471,39 @@ public class MarcFactory {
       marc4jRecord.addVariableField(new ControlFieldImpl("001", id));
     return marc4jRecord;
   }
-
-  private static JsonBranch wrapJsonBranch(String path) {
-    return new JsonBranch() {
-      @Override
-      public Object getParent() {
-        return null;
-      }
-      @Override
-      public String getLabel() {
-        return path;
-      }
-      @Override
-      public String getJsonPath() {
-        return path;
-      }
-    };
+  
+  private static JsonBranch asJsonBranch(Object obj) {
+    if (obj instanceof JsonBranch)
+      return (JsonBranch) obj;
+    if (obj instanceof String) {
+      String s = (String) obj;
+      return new JsonBranch(null, s, s);
+    }
+    throw new IllegalArgumentException("Unsupported type from schema.getPaths()");
   }
 
-  private static interface JsonBranch {
-    Object getParent();
-    String getLabel();
-    String getJsonPath();
+  private static class JsonBranch {
+    private final JsonBranch parent;
+    private final String label;
+    private final String jsonPath;
+
+    public JsonBranch(JsonBranch parent, String label, String jsonPath) {
+      this.parent = parent;
+      this.label = label;
+      this.jsonPath = jsonPath;
+    }
+
+    public JsonBranch getParent() {
+      return parent;
+    }
+
+    public String getLabel() {
+      return label;
+    }
+
+    public String getJsonPath() {
+      return jsonPath;
+    }
   }
 }
 ```

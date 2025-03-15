@@ -8,11 +8,14 @@
 <     public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
 ---
 >     public void onPlayerPreLogin(ServerSideConnectionEvent.Auth preLoginEvent) {
-31c30
+31,33c30,31
 <         GameProfile profile = preLoginEvent.getProfile();
+<         UUID playerUUID = profile.getUniqueId();
+< 
 ---
 >         GameProfile profile = preLoginEvent.getConnection().getProfile();
-45c44
+>         UUID playerUUID = profile.getId();
+45c43
 <             String playerName = profile.getName().get();
 ---
->             String playerName = preLoginEvent.getConnection().getName();
+>             String playerName = profile.getId().toString();

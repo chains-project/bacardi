@@ -33,27 +33,27 @@ interface PublisherFactory {
 the error is triggered in the following specific lines in the previous code:
 
 ```java
-Publisher<PublishMetadata> newPublisher(Map<String, String> params);
+import com.google.cloud.pubsublite.PublishMetadata;
 ```
 ```java
-import com.google.cloud.pubsublite.PublishMetadata;
+Publisher<PublishMetadata> newPublisher(Map<String, String> params);
 ```
 
 
 
  with the following error information:
-[ERROR] /java-pubsub-group-kafka-connector/src/main/java/com/google/pubsublite/kafka/sink/PublisherFactory.java:[24,13] cannot find symbol
-  symbol:   class PublishMetadata
-  location: interface com.google.pubsublite.kafka.sink.PublisherFactory
-
 [ERROR] /java-pubsub-group-kafka-connector/src/main/java/com/google/pubsublite/kafka/sink/PublisherFactory.java:[18,35] cannot find symbol
   symbol:   class PublishMetadata
   location: package com.google.cloud.pubsublite
 
+[ERROR] /java-pubsub-group-kafka-connector/src/main/java/com/google/pubsublite/kafka/sink/PublisherFactory.java:[24,13] cannot find symbol
+  symbol:   class PublishMetadata
+  location: interface com.google.pubsublite.kafka.sink.PublisherFactory
+
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
-     Class com.google.cloud.pubsublite.PublishMetadata has been removed in the new version of the dependency.
      Constructor com.google.cloud.pubsublite.PublishMetadata() has been removed in the new version of the dependency.
+     Class com.google.cloud.pubsublite.PublishMetadata has been removed in the new version of the dependency.
 
 
 

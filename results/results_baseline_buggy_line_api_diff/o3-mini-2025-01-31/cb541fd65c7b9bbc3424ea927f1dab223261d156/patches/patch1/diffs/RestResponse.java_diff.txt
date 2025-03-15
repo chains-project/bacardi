@@ -1,71 +1,25 @@
-48d47
+48c48,51
 < import org.hamcrest.Matchers;
-60,61c59,60
+---
+> import static org.hamcrest.collection.IsIterableContainingInAnyOrder.hasItems;
+> import static org.hamcrest.CoreMatchers.not;
+> import static org.hamcrest.collection.IsEmptyIterable.emptyIterable;
+> import static org.hamcrest.core.IsNull.notNullValue;
+60,61c63,64
 <  *   .assertBody(Matchers.containsString("hello, world!"))
 <  *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
 ---
 >  *   .assertBody(org.hamcrest.CoreMatchers.containsString("hello, world!"))
->  *   .assertHeader("Content-Type", org.hamcrest.CoreMatchers.hasItem("text/plain"))
-332a332,393
->     private static final class Matchers {
->         
->         private Matchers() {
->             // no instances
->         }
->         
->         public static <T> Matcher<Iterable<T>> hasItems(final T... items) {
->             return new CustomMatcher<Iterable<T>>("an iterable containing " + java.util.Arrays.toString(items)) {
->                 @Override
->                 public boolean matches(final Object item) {
->                     if (!(item instanceof Iterable)) {
->                         return false;
->                     }
->                     @SuppressWarnings("unchecked")
->                     Iterable<T> iterable = (Iterable<T>) item;
->                     for (T expected : items) {
->                         boolean found = false;
->                         for (T actual : iterable) {
->                             if (expected == null ? actual == null : expected.equals(actual)) {
->                                 found = true;
->                                 break;
->                             }
->                         }
->                         if (!found) {
->                             return false;
->                         }
->                     }
->                     return true;
->                 }
->             };
->         }
->         
->         public static <T> Matcher<Iterable<T>> emptyIterableOf(final Class<T> type) {
->             return new CustomMatcher<Iterable<T>>("an empty iterable of " + type.getName()) {
->                 @Override
->                 public boolean matches(final Object item) {
->                     if (!(item instanceof Iterable)) {
->                         return false;
->                     }
->                     return !((Iterable<?>) item).iterator().hasNext();
->                 }
->             };
->         }
->         
->         public static <T> Matcher<T> not(final Matcher<T> matcher) {
->             return new CustomMatcher<T>("not (" + matcher + ")") {
->                 @Override
->                 public boolean matches(final Object item) {
->                     return !matcher.matches(item);
->                 }
->             };
->         }
->         
->         public static <T> Matcher<T> notNullValue() {
->             return new CustomMatcher<T>("not null") {
->                 @Override
->                 public boolean matches(final Object item) {
->                     return item != null;
->                 }
->             };
->         }
->     }
+>  *   .assertHeader("Content-Type", hasItems("text/plain"))
+210c213
+<         return this.assertHeader(name, Matchers.hasItems(value));
+---
+>         return this.assertHeader(name, hasItems(value));
+246c249
+<             Matchers.not(Matchers.emptyIterableOf(String.class))
+---
+>             not(emptyIterable())
+284c287
+<             Matchers.notNullValue()
+---
+>             notNullValue()

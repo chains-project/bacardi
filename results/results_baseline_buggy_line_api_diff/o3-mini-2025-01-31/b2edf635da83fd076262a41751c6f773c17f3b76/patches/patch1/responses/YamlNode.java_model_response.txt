@@ -26,8 +26,10 @@ import java.util.Map;
 import org.jclouds.byon.Node;
 import org.jclouds.util.Closeables2;
 import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.representer.SafeRepresenter;
+import org.yaml.snakeyaml.resolver.Resolver;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
@@ -39,6 +41,33 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.io.ByteSource;
 
+/**
+ * Serializes to the following
+ * 
+ * <pre>
+ *       id: cluster-1
+ *       name: cluster-1
+ *       description: xyz
+ *       hostname: cluster-1.mydomain.com
+ *       location_id: virginia
+ *       os_arch: x86
+ *       os_family: linux
+ *       os_description: redhat
+ *       os_version: 5.3
+ *       os_64bit: 5.3
+ *       login_port: 2022
+ *       group: hadoop
+ *       tags:
+ *           - vanilla
+ *       metadata:
+ *           key1: val1
+ *       username: kelvin
+ *       credential: password_or_rsa
+ *         or
+ *       credential_url: password_or_rsa_file ex. resource:///id_rsa will get the classpath /id_rsa; file://path/to/id_rsa
+ *       sudo_password: password
+ * </pre>
+ */
 public class YamlNode {
    public String id;
    public String name;
@@ -85,7 +114,9 @@ public class YamlNode {
          InputStream in = null;
          try {
             in = byteSource.openStream();
-            return new Yaml().loadAs(in, YamlNode.class);
+            LoaderOptions loaderOptions = new LoaderOptions();
+            Yaml yaml = new Yaml(loaderOptions);
+            return yaml.loadAs(in, YamlNode.class);
          } catch (IOException ioe) {
             throw Throwables.propagate(ioe);
          } finally {
@@ -142,7 +173,10 @@ public class YamlNode {
             prettier.put("sudo_password", in.sudo_password);
          DumperOptions options = new DumperOptions();
          options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-         return ByteSource.wrap(new Yaml(options).dump(prettier.build()).getBytes(Charsets.UTF_8));
+         LoaderOptions loaderOptions = new LoaderOptions();
+         SafeRepresenter representer = new SafeRepresenter();
+         Yaml yaml = new Yaml(representer, options, loaderOptions, new Resolver());
+         return ByteSource.wrap(yaml.dump(prettier.build()).getBytes(Charsets.UTF_8));
       }
    };
 

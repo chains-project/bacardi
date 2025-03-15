@@ -5,12 +5,13 @@
 // Generated on: 2023.08.18 at 08:13:47 AM GMT 
 //
 
-package com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema;
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
@@ -26,13 +27,13 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}BuildingNumber" minOccurs="0"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}StreetName" minOccurs="0"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}AddressDetail"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}City"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PostalCode"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Region" minOccurs="0"/&gt;
- *         &lt;element name="Country" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierCountry"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}BuildingNumber" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}StreetName" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}AddressDetail"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}City"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}PostalCode"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Region" minOccurs="0"/&gt;
+ *         &lt;element name="Country" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SupplierCountry"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
@@ -51,8 +52,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "region",
     "country"
 })
-public class SupplierAddressStructure implements ToString2
-{
+public class SupplierAddressStructure implements ToString2 {
 
     @XmlElement(name = "BuildingNumber")
     protected String buildingNumber;
@@ -258,37 +258,37 @@ public class SupplierAddressStructure implements ToString2
         {
             String theBuildingNumber;
             theBuildingNumber = this.getBuildingNumber();
-            strategy.appendField(locator, this, "buildingNumber", buffer, theBuildingNumber, (this.buildingNumber!= null));
+            strategy.appendField(locator, this, "buildingNumber", buffer, theBuildingNumber, (this.buildingNumber != null));
         }
         {
             String theStreetName;
             theStreetName = this.getStreetName();
-            strategy.appendField(locator, this, "streetName", buffer, theStreetName, (this.streetName!= null));
+            strategy.appendField(locator, this, "streetName", buffer, theStreetName, (this.streetName != null));
         }
         {
             String theAddressDetail;
             theAddressDetail = this.getAddressDetail();
-            strategy.appendField(locator, this, "addressDetail", buffer, theAddressDetail, (this.addressDetail!= null));
+            strategy.appendField(locator, this, "addressDetail", buffer, theAddressDetail, (this.addressDetail != null));
         }
         {
             String theCity;
             theCity = this.getCity();
-            strategy.appendField(locator, this, "city", buffer, theCity, (this.city!= null));
+            strategy.appendField(locator, this, "city", buffer, theCity, (this.city != null));
         }
         {
             String thePostalCode;
             thePostalCode = this.getPostalCode();
-            strategy.appendField(locator, this, "postalCode", buffer, thePostalCode, (this.postalCode!= null));
+            strategy.appendField(locator, this, "postalCode", buffer, thePostalCode, (this.postalCode != null));
         }
         {
             String theRegion;
             theRegion = this.getRegion();
-            strategy.appendField(locator, this, "region", buffer, theRegion, (this.region!= null));
+            strategy.appendField(locator, this, "region", buffer, theRegion, (this.region != null));
         }
         {
             String theCountry;
             theCountry = this.getCountry();
-            strategy.appendField(locator, this, "country", buffer, theCountry, (this.country!= null));
+            strategy.appendField(locator, this, "country", buffer, theCountry, (this.country != null));
         }
         return buffer;
     }

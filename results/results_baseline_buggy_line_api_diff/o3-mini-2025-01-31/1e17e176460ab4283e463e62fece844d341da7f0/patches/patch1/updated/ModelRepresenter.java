@@ -22,7 +22,6 @@ import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
 
-import java.beans.IntrospectionException;
 import java.util.*;
 
 import static java.lang.String.format;
@@ -223,17 +222,17 @@ class ModelRepresenter extends Representer {
       return sortTypeWithOrder(type, ORDER_DEVELOPER);
     } else if (type.isAssignableFrom(Contributor.class)) {
       return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
-    } else if (type.isAssignableFrom(Dependency.class)) {
+    }  else if (type.isAssignableFrom(Dependency.class)) {
       return sortTypeWithOrder(type, ORDER_DEPENDENCY);
-    } else if (type.isAssignableFrom(Plugin.class)) {
+    }  else if (type.isAssignableFrom(Plugin.class)) {
       return sortTypeWithOrder(type, ORDER_PLUGIN);
     } else {
-      return this.getPropertyUtils().getProperties(type);
+      return super.getProperties(type);
     }
   }
 
   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
-      Set<Property> standard = this.getPropertyUtils().getProperties(type);
+      Set<Property> standard = super.getProperties(type);
       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
       sorted.addAll(standard);
       return sorted;
@@ -264,7 +263,7 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0;// compare further
+      return 0;
     }
   }
 }

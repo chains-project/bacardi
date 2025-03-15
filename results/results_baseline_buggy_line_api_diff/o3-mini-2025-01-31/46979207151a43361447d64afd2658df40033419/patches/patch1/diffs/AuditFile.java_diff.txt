@@ -23,24 +23,24 @@
 <  *   &lt;complexContent&gt;
 <  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
 <  *       &lt;sequence&gt;
-<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Header"/&gt;
+<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Header"/&gt;
 <  *         &lt;element name="MasterFiles"&gt;
 <  *           &lt;complexType&gt;
 <  *             &lt;complexContent&gt;
 <  *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
 <  *                 &lt;sequence&gt;
-<  *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GeneralLedgerAccounts" minOccurs="0"/&gt;
-<  *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Customer" maxOccurs="unbounded" minOccurs="0"/&gt;
-<  *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Supplier" maxOccurs="unbounded" minOccurs="0"/&gt;
-<  *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Product" maxOccurs="unbounded" minOccurs="0"/&gt;
-<  *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxTable" minOccurs="0"/&gt;
+<  *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}GeneralLedger" maxOccurs="unbounded" minOccurs="0"/&gt;
+<  *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Customer" maxOccurs="unbounded" minOccurs="0"/&gt;
+<  *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Supplier" maxOccurs="unbounded" minOccurs="0"/&gt;
+<  *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Product" maxOccurs="unbounded" minOccurs="0"/&gt;
+<  *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxTable" minOccurs="0"/&gt;
 <  *                 &lt;/sequence&gt;
 <  *               &lt;/restriction&gt;
 <  *             &lt;/complexContent&gt;
 <  *           &lt;/complexType&gt;
 <  *         &lt;/element&gt;
-<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GeneralLedgerEntries" minOccurs="0"/&gt;
-<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SourceDocuments" minOccurs="0"/&gt;
+<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}GeneralLedgerEntries" minOccurs="0"/&gt;
+<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SourceDocuments" minOccurs="0"/&gt;
 <  *       &lt;/sequence&gt;
 <  *     &lt;/restriction&gt;
 <  *   &lt;/complexContent&gt;
@@ -54,47 +54,83 @@
 < {
 ---
 > public class AuditFile implements ToString2 {
-86d39
+80,87d33
+<     /**
+<      * Gets the value of the header property.
+<      * 
+<      * @return
+<      *     possible object is
+<      *     {@link Header }
 <      *     
-98d50
+<      */
+92,99d37
+<     /**
+<      * Sets the value of the header property.
+<      * 
+<      * @param value
+<      *     allowed object is
+<      *     {@link Header }
 <      *     
-110d61
+<      */
+104,111d41
+<     /**
+<      * Gets the value of the masterFiles property.
+<      * 
+<      * @return
+<      *     possible object is
+<      *     {@link AuditFile.MasterFiles }
 <      *     
-122d72
+<      */
+116,123d45
+<     /**
+<      * Sets the value of the masterFiles property.
+<      * 
+<      * @param value
+<      *     allowed object is
+<      *     {@link AuditFile.MasterFiles }
 <      *     
-134d83
+<      */
+128,135d49
+<     /**
+<      * Gets the value of the generalLedgerEntries property.
+<      * 
+<      * @return
+<      *     possible object is
+<      *     {@link GeneralLedgerEntries }
 <      *     
-146d94
+<      */
+140,147d53
+<     /**
+<      * Sets the value of the generalLedgerEntries property.
+<      * 
+<      * @param value
+<      *     allowed object is
+<      *     {@link GeneralLedgerEntries }
 <      *     
-158d105
+<      */
+152,159d57
+<     /**
+<      * Gets the value of the sourceDocuments property.
+<      * 
+<      * @return
+<      *     possible object is
+<      *     {@link SourceDocuments }
 <      *     
-170d116
+<      */
+164,171d61
+<     /**
+<      * Sets the value of the sourceDocuments property.
+<      * 
+<      * @param value
+<      *     allowed object is
+<      *     {@link SourceDocuments }
 <      *     
-178c124
+<      */
+178c68
 <         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
 ---
 >         final ToStringStrategy2 strategy = new DefaultToStringStrategy();
-195,196c141
-<             Header theHeader;
-<             theHeader = this.getHeader();
----
->             Header theHeader = this.getHeader();
-200,201c145
-<             AuditFile.MasterFiles theMasterFiles;
-<             theMasterFiles = this.getMasterFiles();
----
->             AuditFile.MasterFiles theMasterFiles = this.getMasterFiles();
-205,206c149
-<             GeneralLedgerEntries theGeneralLedgerEntries;
-<             theGeneralLedgerEntries = this.getGeneralLedgerEntries();
----
->             GeneralLedgerEntries theGeneralLedgerEntries = this.getGeneralLedgerEntries();
-210,211c153
-<             SourceDocuments theSourceDocuments;
-<             theSourceDocuments = this.getSourceDocuments();
----
->             SourceDocuments theSourceDocuments = this.getSourceDocuments();
-217,240d158
+217,240d106
 < 
 <     /**
 <      * <p>Java class for anonymous complex type.
@@ -106,11 +142,11 @@
 <      *   &lt;complexContent&gt;
 <      *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
 <      *       &lt;sequence&gt;
-<      *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}GeneralLedgerAccounts" minOccurs="0"/&gt;
-<      *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Customer" maxOccurs="unbounded" minOccurs="0"/&gt;
-<      *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Supplier" maxOccurs="unbounded" minOccurs="0"/&gt;
-<      *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Product" maxOccurs="unbounded" minOccurs="0"/&gt;
-<      *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}TaxTable" minOccurs="0"/&gt;
+<      *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}GeneralLedger" maxOccurs="unbounded" minOccurs="0"/&gt;
+<      *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Customer" maxOccurs="unbounded" minOccurs="0"/&gt;
+<      *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Supplier" maxOccurs="unbounded" minOccurs="0"/&gt;
+<      *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Product" maxOccurs="unbounded" minOccurs="0"/&gt;
+<      *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxTable" minOccurs="0"/&gt;
 <      *       &lt;/sequence&gt;
 <      *     &lt;/restriction&gt;
 <      *   &lt;/complexContent&gt;
@@ -119,64 +155,124 @@
 <      * 
 <      * 
 <      */
-249,250c167
+249,250c115
 <     public static class MasterFiles implements ToString2
 <     {
 ---
 >     public static class MasterFiles implements ToString2 {
-269d185
+263,284d127
+<         /**
+<          * Gets the value of the generalLedger property.
+<          * 
+<          * <p>
+<          * This accessor method returns a reference to the live list,
+<          * not a snapshot. Therefore any modification you make to the
+<          * returned list will be present inside the JAXB object.
+<          * This is why there is not a <CODE>set</CODE> method for the generalLedger property.
+<          * 
+<          * <p>
+<          * For example, to add a new item, do as follows:
+<          * <pre>
+<          *    getGeneralLedger().add(newItem);
+<          * </pre>
+<          * 
+<          * 
+<          * <p>
+<          * Objects of the following type(s) are allowed in the list
+<          * {@link GeneralLedger }
+<          * 
+<          * 
+<          */
+292,313d134
+<         /**
+<          * Gets the value of the customer property.
+<          * 
+<          * <p>
+<          * This accessor method returns a reference to the live list,
+<          * not a snapshot. Therefore any modification you make to the
+<          * returned list will be present inside the JAXB object.
+<          * This is why there is not a <CODE>set</CODE> method for the customer property.
+<          * 
+<          * <p>
+<          * For example, to add a new item, do as follows:
+<          * <pre>
+<          *    getCustomer().add(newItem);
+<          * </pre>
+<          * 
+<          * 
+<          * <p>
+<          * Objects of the following type(s) are allowed in the list
+<          * {@link Customer }
+<          * 
+<          * 
+<          */
+321,342d141
+<         /**
+<          * Gets the value of the supplier property.
+<          * 
+<          * <p>
+<          * This accessor method returns a reference to the live list,
+<          * not a snapshot. Therefore any modification you make to the
+<          * returned list will be present inside the JAXB object.
+<          * This is why there is not a <CODE>set</CODE> method for the supplier property.
+<          * 
+<          * <p>
+<          * For example, to add a new item, do as follows:
+<          * <pre>
+<          *    getSupplier().add(newItem);
+<          * </pre>
+<          * 
+<          * 
+<          * <p>
+<          * Objects of the following type(s) are allowed in the list
+<          * {@link Supplier }
+<          * 
+<          * 
+<          */
+350,371d148
+<         /**
+<          * Gets the value of the product property.
+<          * 
+<          * <p>
+<          * This accessor method returns a reference to the live list,
+<          * not a snapshot. Therefore any modification you make to the
+<          * returned list will be present inside the JAXB object.
+<          * This is why there is not a <CODE>set</CODE> method for the product property.
+<          * 
+<          * <p>
+<          * For example, to add a new item, do as follows:
+<          * <pre>
+<          *    getProduct().add(newItem);
+<          * </pre>
+<          * 
+<          * 
+<          * <p>
+<          * Objects of the following type(s) are allowed in the list
+<          * {@link Product }
+<          * 
+<          * 
+<          */
+379,386d155
+<         /**
+<          * Gets the value of the taxTable property.
+<          * 
+<          * @return
+<          *     possible object is
+<          *     {@link TaxTable }
 <          *     
-281d196
+<          */
+391,398d159
+<         /**
+<          * Sets the value of the taxTable property.
+<          * 
+<          * @param value
+<          *     allowed object is
+<          *     {@link TaxTable }
 <          *     
-302d216
-<          * 
-306,307d219
-<          * 
-<          * 
-331d242
-<          * 
-335,336d245
-<          * 
-<          * 
-360d268
-<          * 
-364,365d271
-<          * 
-<          * 
-380d285
-<          *     
-392d296
-<          *     
-400c304
+<          */
+405c166
 <             final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
 ---
 >             final ToStringStrategy2 strategy = new DefaultToStringStrategy();
-417,418c321
-<                 GeneralLedgerAccounts theGeneralLedgerAccounts;
-<                 theGeneralLedgerAccounts = this.getGeneralLedgerAccounts();
----
->                 GeneralLedgerAccounts theGeneralLedgerAccounts = this.getGeneralLedgerAccounts();
-422,423c325
-<                 List<Customer> theCustomer;
-<                 theCustomer = (((this.customer!= null)&&(!this.customer.isEmpty()))?this.getCustomer():null);
----
->                 List<Customer> theCustomer = ((this.customer != null) && (!this.customer.isEmpty())) ? this.getCustomer() : null;
-427,428c329
-<                 List<Supplier> theSupplier;
-<                 theSupplier = (((this.supplier!= null)&&(!this.supplier.isEmpty()))?this.getSupplier():null);
----
->                 List<Supplier> theSupplier = ((this.supplier != null) && (!this.supplier.isEmpty())) ? this.getSupplier() : null;
-432,433c333
-<                 List<Product> theProduct;
-<                 theProduct = (((this.product!= null)&&(!this.product.isEmpty()))?this.getProduct():null);
----
->                 List<Product> theProduct = ((this.product != null) && (!this.product.isEmpty())) ? this.getProduct() : null;
-437,438c337
-<                 TaxTable theTaxTable;
-<                 theTaxTable = this.getTaxTable();
----
->                 TaxTable theTaxTable = this.getTaxTable();
-443d341
-< 
-445d342
+448d208
 < 

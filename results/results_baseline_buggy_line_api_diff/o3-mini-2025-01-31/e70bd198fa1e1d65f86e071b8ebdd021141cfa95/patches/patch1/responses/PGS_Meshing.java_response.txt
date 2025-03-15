@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.math3.random.RandomGenerator;
+import org.tinspin.index.phtree.PHTreeP;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.alg.interfaces.VertexColoringAlgorithm.Coloring;
 import org.jgrapht.alg.spanning.GreedyMultiplicativeSpanner;
@@ -35,7 +36,6 @@ import org.tinfour.common.IQuadEdge;
 import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
 import org.tinfour.utils.TriangleCollector;
-import org.tinspin.index.phtree.PHTreeMMP;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
 import micycle.pgs.PGS_Conversion.PShapeData;
 import micycle.pgs.color.Colors;
@@ -49,6 +49,18 @@ import processing.core.PConstants;
 import processing.core.PShape;
 import processing.core.PVector;
 
+/**
+ * Mesh generation (excluding triangulation) and processing.
+ * <p>
+ * Many of the methods within this class process an existing Delaunay
+ * triangulation; you may first generate such a triangulation from a shape using
+ * the
+ * {@link PGS_Triangulation#delaunayTriangulationMesh(PShape, Collection, boolean, int, boolean)
+ * delaunayTriangulationMesh()} method.
+ * 
+ * @author Michael Carleton
+ * @since 1.2.0
+ */
 public class PGS_Meshing {
 
 	private PGS_Meshing() {
@@ -56,6 +68,30 @@ public class PGS_Meshing {
 
 	/**
 	 * Generates a shape consisting of polygonal faces of an <i>Urquhart graph</i>.
+	 * An Urquhart graph is obtained by removing the longest edge from each triangle
+	 * in a triangulation.
+	 * <p>
+	 * In practice this is a way to tessellate a shape into polygons (with the
+	 * resulting tessellation being in between a
+	 * {@link PGS_Triangulation#delaunayTriangulation(PShape) triangulation} and a
+	 * {@link micycle.pgs.PGS_Processing#convexPartition(PShape) partition}).
+	 * <p>
+	 * Note that this method processes a Delaunay triangulation. Process a shape
+	 * using
+	 * {@link PGS_Triangulation#delaunayTriangulationMesh(PShape, Collection, boolean, int, boolean)
+	 * delaunayTriangulationMesh()} first and then feed it to this method.
+	 * <p>
+	 * The <i>Urquhart graph</i> is a good approximation to the
+	 * {@link #relativeNeighborFaces(IIncrementalTin, boolean) <i>relative
+	 * neighborhood</i>} graph (having only about 2% additional edges).
+	 * 
+	 * @param triangulation     a triangulation mesh
+	 * @param preservePerimeter whether to retain/preserve edges on the perimeter
+	 *                          even if they should be removed according to the
+	 *                          urquhart condition
+	 * @return a GROUP PShape where each child shape is a single face
+	 * @since 1.1.0
+	 * @see #gabrielFaces(IIncrementalTin, boolean)
 	 */
 	public static PShape urquhartFaces(final IIncrementalTin triangulation, final boolean preservePerimeter) {
 		final HashSet<IQuadEdge> edges = PGS.makeHashSet(triangulation.getMaximumEdgeAllocationIndex());
@@ -85,7 +121,27 @@ public class PGS_Meshing {
 	}
 
 	/**
-	 * Generates a shape consisting of polygonal faces of a <i>Gabriel graph</i>.
+	 * Generates a shape consisting of polygonal faces of a <i>Gabriel graph</i>. A
+	 * Gabriel graph is obtained by removing each edge E from a triangulation if a
+	 * vertex lies within a circle of diameter = length(E), centered on the midpoint
+	 * of E.
+	 * <p>
+	 * In practice this is a way to tessellate a shape into polygons (with the
+	 * resulting tessellation being reminiscent of shattering the shape as if it
+	 * were glass).
+	 * <p>
+	 * Note that this method processes a Delaunay triangulation. Process a shape
+	 * using
+	 * {@link PGS_Triangulation#delaunayTriangulationMesh(PShape, Collection, boolean, int, boolean)
+	 * delaunayTriangulationMesh()} first and then feed it to this method.
+	 * 
+	 * @param triangulation     a triangulation mesh
+	 * @param preservePerimeter whether to retain/preserve edges on the perimeter
+	 *                          even if they should be removed according to the
+	 *                          gabriel condition
+	 * @return a GROUP PShape where each child shape is a single face
+	 * @since 1.1.0
+	 * @see #urquhartFaces(IIncrementalTin, boolean)
 	 */
 	public static PShape gabrielFaces(final IIncrementalTin triangulation, final boolean preservePerimeter) {
 		final HashSet<IQuadEdge> edges = new HashSet<>();
@@ -104,14 +160,13 @@ public class PGS_Meshing {
 			}
 		});
 
-		// Use the new PHTreeMMP API in place of the removed PointIndex/KDTree
-		final PHTreeMMP<Vertex> tree = PHTreeMMP.create(2);
-		vertices.forEach(v -> tree.insert(new double[] { v.x, v.y }, v));
+		final PHTreeP<Vertex> tree = PHTreeP.create(2);
+		vertices.forEach(v -> tree.put(new double[] { v.x, v.y }, v));
 
 		final HashSet<IQuadEdge> nonGabrielEdges = new HashSet<>();
 		edges.forEach(edge -> {
 			final double[] midpoint = midpoint(edge);
-			final Vertex near = tree.query1NN(midpoint).value();
+			final Vertex near = tree.queryKNN(midpoint, 1).get(0).value();
 			if (near != edge.getA() && near != edge.getB()) {
 				if (!preservePerimeter || (preservePerimeter && !edge.isConstrainedRegionBorder())) {
 					nonGabrielEdges.add(edge);
@@ -129,6 +184,19 @@ public class PGS_Meshing {
 	/**
 	 * Generates a shape consisting of polygonal faces of a <i>Relative neighborhood
 	 * graph</i> (RNG).
+	 * <p>
+	 * An RNG is obtained by removing each edge E from a triangulation if any vertex
+	 * is nearer to both vertices of E than the length of E.
+	 * <p>
+	 * The RNG is a subgraph of the {@link #urquhartFaces(IIncrementalTin, boolean)
+	 * urquhart} graph, having only slightly fewer edges.
+	 * 
+	 * @param triangulation     a triangulation mesh
+	 * @param preservePerimeter whether to retain/preserve edges on the perimeter
+	 *                          even if they should be removed according to the
+	 *                          relative neighbor condition
+	 * @return
+	 * @since 1.3.0
 	 */
 	public static PShape relativeNeighborFaces(final IIncrementalTin triangulation, final boolean preservePerimeter) {
 		SimpleGraph<Vertex, IQuadEdge> graph = PGS_Triangulation.toTinfourGraph(triangulation);
@@ -137,7 +205,8 @@ public class PGS_Meshing {
 		Set<IQuadEdge> edges = new HashSet<>(graph.edgeSet());
 
 		/*
-		 * If any vertex is nearer to both vertices of an edge, than the length of the edge, this edge does not belong in the RNG.
+		 * If any vertex is nearer to both vertices of an edge, than the length of the
+		 * edge, this edge does not belong in the RNG.
 		 */
 		graph.edgeSet().forEach(e -> {
 			double l = e.getLength();
@@ -170,6 +239,16 @@ public class PGS_Meshing {
 	/**
 	 * Generates a shape consisting of polygonal faces formed by edges returned by a
 	 * greedy sparse spanner applied to a triangulation.
+	 * 
+	 * @param triangulation     a triangulation mesh
+	 * @param k                 the order of the spanner. Should be at least 1.
+	 *                          Higher numbers collapse more edges resulting in
+	 *                          larger faces, until a single face remains
+	 * @param preservePerimeter whether to retain/preserve edges on the perimeter
+	 *                          even if they should be removed according to the
+	 *                          spanner condition
+	 * @return a GROUP PShape where each child shape is a single face
+	 * @since 1.3.0
 	 */
 	public static PShape spannerFaces(final IIncrementalTin triangulation, int k, final boolean preservePerimeter) {
 		SimpleGraph<PVector, PEdge> graph = PGS_Triangulation.toGraph(triangulation);
@@ -177,13 +256,13 @@ public class PGS_Meshing {
 			return new PShape();
 		}
 
-		k = Math.max(2, k);
+		k = Math.max(2, k); // min(2) since k=1 returns triangulation
 		GreedyMultiplicativeSpanner<PVector, PEdge> spanner = new GreedyMultiplicativeSpanner<>(graph, k);
 		List<PEdge> spannerEdges = spanner.getSpanner().stream().collect(Collectors.toList());
 		if (preservePerimeter) {
-			if (triangulation.getConstraints().isEmpty()) {
+			if (triangulation.getConstraints().isEmpty()) { // does not have constraints
 				spannerEdges.addAll(triangulation.getPerimeter().stream().map(PGS_Triangulation::toPEdge).collect(Collectors.toList()));
-			} else {
+			} else { // has constraints
 				spannerEdges.addAll(triangulation.getEdges().stream().filter(IQuadEdge::isConstrainedRegionBorder)
 						.map(PGS_Triangulation::toPEdge).collect(Collectors.toList()));
 			}
@@ -193,10 +272,25 @@ public class PGS_Meshing {
 	}
 
 	/**
-	 * Generates a shape consisting of polygonal faces of the dual graph
+	 * Generates a (mesh-like) shape consisting of polygonal faces of the dual graph
 	 * of the given triangulation.
+	 * <p>
+	 * In practice, the resulting dual mesh has hexagonal-like cells.
+	 * <p>
+	 * Note that this method processes a Delaunay triangulation. Process a shape
+	 * using
+	 * {@link PGS_Triangulation#delaunayTriangulationMesh(PShape, Collection, boolean, int, boolean)
+	 * delaunayTriangulationMesh()} first and then feed it to this method.
+	 * <p>
+	 * If the input has been generated from a PShape, consider generating the
+	 * triangulation with <code>refinements > 1</code> for better dual mesh results.
+	 * 
+	 * @param triangulation a triangulation mesh
+	 * @return a GROUP PShape where each child shape is a single face
+	 * @since 1.2.0
 	 */
 	public static PShape dualFaces(final IIncrementalTin triangulation) {
+		// TODO SEE HOT: Hodge-Optimized Triangulations - use voronoi dual / HOT
 		final IncrementalTinDual dual = new IncrementalTinDual(triangulation);
 		final PShape dualMesh = dual.getMesh();
 		PGS_Conversion.setAllFillColor(dualMesh, Colors.WHITE);
@@ -206,11 +300,34 @@ public class PGS_Meshing {
 
 	/**
 	 * Produces a quadrangulation from a triangulation, by splitting each triangle
-	 * into three quadrangles (using the <i>Catmull and Clark</i> technique).
+	 * into three quadrangles (using the <i>Catmull and Clark</i> technique). A
+	 * quadrangulation is a mesh where every face is a quadrangle.
+	 * <p>
+	 * Since this method employs a very simple technique to produce a
+	 * quadrangulation, the result is poor-quality, containing many helix-like
+	 * structures (it's not at all "regular").
+	 * <p>
+	 * Note that this method processes a Delaunay triangulation. Process a shape
+	 * using
+	 * {@link PGS_Triangulation#delaunayTriangulationMesh(PShape, Collection, boolean, int, boolean)
+	 * delaunayTriangulationMesh()} first and then feed it to this method.
+	 * 
+	 * @param triangulation a triangulation mesh
+	 * @return a GROUP PShape, where each child shape is one quadrangle
+	 * @since 1.2.0
 	 */
 	public static PShape splitQuadrangulation(final IIncrementalTin triangulation) {
+		// https://www.cs.mcgill.ca/~cs507/projects/1998/rachelp/welcome.html
 		final PShape quads = new PShape(PConstants.GROUP);
 
+		/*-
+		 * 1. Insert a Steiner point along the interior of every edge of each 
+		 * triangle.
+		 * 2. Insert an extra Steiner point in the interior of each triangle.
+		 * 3. Connect the Steiner point inside each triangle to the Steiner points on the
+		 * edges of that triangle.
+		 * Each triangle is converted into three quadrangles.
+		 */
 		final boolean unconstrained = triangulation.getConstraints().isEmpty();
 
 		TriangleCollector.visitSimpleTriangles(triangulation, t -> {
@@ -219,18 +336,26 @@ public class PGS_Meshing {
 				final PVector p1 = PGS_Triangulation.toPVector(t.getVertexA());
 				final PVector p2 = PGS_Triangulation.toPVector(t.getVertexB());
 				final PVector p3 = PGS_Triangulation.toPVector(t.getVertexC());
-				final PVector sA = PVector.add(p1, p2).div(2);
-				final PVector sB = PVector.add(p2, p3).div(2);
-				final PVector sC = PVector.add(p3, p1).div(2);
+				final PVector sA = PVector.add(p1, p2).div(2); // steiner point p1-p2
+				final PVector sB = PVector.add(p2, p3).div(2); // steiner point p2-p3
+				final PVector sC = PVector.add(p3, p1).div(2); // steiner point p3-p1
 
+				// compute ?barycenter? of triangle = interior steiner point
 				final PVector cSeg = PVector.add(sA, sB).div(2);
-				final PVector sI = PVector.add(cSeg, sC).div(2);
+				final PVector sI = PVector.add(cSeg, sC).div(2); // interior steiner point
 
+				// anti-clockwise, starting at original vertex
 				quads.addChild(PGS_Conversion.fromPVector(p1, sC, sI, sA, p1));
 				quads.addChild(PGS_Conversion.fromPVector(p2, sA, sI, sB, p2));
 				quads.addChild(PGS_Conversion.fromPVector(p3, sB, sI, sC, p3));
 			}
 		});
+
+		/*-
+		 * Now ideally "regularize" the mesh using techniques explored here:
+		 * https://acdl.mit.edu/ESP/Publications/AIAApaper2019-1988.pdf
+		 * https://acdl.mit.edu/ESP/Publications/IMR28.pdf
+		 */
 
 		PGS_Conversion.setAllFillColor(quads, Colors.WHITE);
 		PGS_Conversion.setAllStrokeColor(quads, Colors.PINK, 2);
@@ -241,8 +366,30 @@ public class PGS_Meshing {
 	/**
 	 * Generates a quadrangulation from a triangulation by selectively removing (or
 	 * "collapsing") the edges shared by neighboring triangles (via edge coloring).
+	 * <p>
+	 * This method may be slow on large inputs (as measured by vertex count), owing
+	 * to the graph coloring it performs.
+	 * 
+	 * @param triangulation     a triangulation mesh
+	 * @param preservePerimeter whether to preserve the perimeter of the input
+	 *                          triangulation; when true, retains edges that lie on
+	 *                          the perimeter of the triangulation mesh that would
+	 *                          have otherwise been removed (this results in some
+	 *                          triangles being included in the output).
+	 * @return a GROUP PShape, where each child shape is one quadrangle
+	 * @since 1.2.0
 	 */
 	public static PShape edgeCollapseQuadrangulation(final IIncrementalTin triangulation, final boolean preservePerimeter) {
+		/*-
+		 * From 'Fast unstructured quadrilateral mesh generation'.
+		 * A better coloring approach is given in 'Face coloring in unstructured CFD codes'.
+		 * 
+		 * First partition the edges of the triangular mesh into three groups such that
+		 * no triangle has two edges of the same color (find groups by reducing to a
+		 * graph-coloring).
+		 * Then obtain an all-quadrilateral mesh by removing all edges of *one* 
+		 * particular color.
+		 */
 		final boolean unconstrained = triangulation.getConstraints().isEmpty();
 		final AbstractBaseGraph<IQuadEdge, DefaultEdge> graph = new SimpleGraph<>(DefaultEdge.class);
 		TriangleCollector.visitSimpleTriangles(triangulation, t -> {
@@ -262,18 +409,24 @@ public class PGS_Meshing {
 
 		final HashSet<IQuadEdge> perimeter = new HashSet<>(triangulation.getPerimeter());
 		if (!unconstrained) {
-			perimeter.clear();
+			perimeter.clear(); // clear, the perimeter of constrained tin is unaffected by the constraint
 		}
 
 		final Collection<PEdge> meshEdges = new ArrayList<>();
 		coloring.getColors().forEach((edge, color) -> {
+			/*
+			 * "We can remove the edges of any one of the colors, however a convenient
+			 * choice is the one that leaves the fewest number of unmerged boundary
+			 * triangles". -- ideal, but not implemented here...
+			 */
+			// NOTE could now apply Topological optimization, as given in paper.
 			if ((color < 2) || (preservePerimeter && (edge.isConstrainedRegionBorder() || perimeter.contains(edge)))) {
 				meshEdges.add(new PEdge(edge.getA().x, edge.getA().y, edge.getB().x, edge.getB().y));
 			}
 		});
 
 		PShape quads = PGS.polygonizeEdges(meshEdges);
-		if (triangulation.getConstraints().size() < 2) {
+		if (triangulation.getConstraints().size() < 2) { // assume constraint 1 is the boundary (not a hole)
 			return quads;
 		} else {
 			return removeHoles(quads, triangulation);
@@ -281,7 +434,22 @@ public class PGS_Meshing {
 	}
 
 	/**
-	 * Generates a quadrangulation from a triangulation by "inverting" triangles.
+	 * Generates a quadrangulation from a triangulation by "inverting" triangles
+	 * (for each triangle, create edges joining its centroid to each of its
+	 * vertices).
+	 * <p>
+	 * This approach tends to create a denser quad mesh than
+	 * {@link #edgeCollapseQuadrangulation(IIncrementalTin, boolean)
+	 * <code>edgeCollapseQuadrangulation()</code>} on the same input.
+	 * 
+	 * @param triangulation     a triangulation mesh
+	 * @param preservePerimeter whether to preserve the perimeter of the input
+	 *                          triangulation; when true, retains edges that lie on
+	 *                          the perimeter of the triangulation mesh that would
+	 *                          have otherwise been removed (this results in some
+	 *                          triangles being included in the output).
+	 * @return a GROUP PShape, where each child shape is one quadrangle
+	 * @since 1.2.0
 	 */
 	public static PShape centroidQuadrangulation(final IIncrementalTin triangulation, final boolean preservePerimeter) {
 		final boolean unconstrained = triangulation.getConstraints().isEmpty();
@@ -306,7 +474,7 @@ public class PGS_Meshing {
 		}
 
 		final PShape quads = PGS.polygonizeEdges(edges);
-		if (triangulation.getConstraints().size() < 2) {
+		if (triangulation.getConstraints().size() < 2) { // assume constraint 1 is the boundary (not a hole)
 			return quads;
 		} else {
 			return removeHoles(quads, triangulation);
@@ -315,24 +483,40 @@ public class PGS_Meshing {
 
 	/**
 	 * Removes (what should be) holes from a polygonized quadrangulation.
+	 * <p>
+	 * When the polygonizer is applied to the collapsed triangles of a
+	 * triangulation, it cannot determine which collapsed regions represent holes in
+	 * the quadrangulation and will consequently fill them in. The subroutine below
+	 * restores holes/topology, detecting which polygonized face(s) are original
+	 * holes. Note the geometry of the original hole/constraint and its associated
+	 * polygonized face are different, since quads are polygonized, not triangles
+	 * (hence an overlap metric is used to match candidates).
+	 * 
+	 * @param faces         faces of the quadrangulation
+	 * @param triangulation
+	 * @return
 	 */
 	private static PShape removeHoles(PShape faces, IIncrementalTin triangulation) {
-		List<IConstraint> holes = new ArrayList<>(triangulation.getConstraints());
-		holes = holes.subList(1, holes.size());
+		List<IConstraint> holes = new ArrayList<>(triangulation.getConstraints()); // copy list
+		holes = holes.subList(1, holes.size()); // slice off perimeter constraint (not a hole)
 
 		STRtree tree = new STRtree();
 		holes.stream().map(constraint -> constraint.getVertices()).iterator().forEachRemaining(vertices -> {
-			CoordinateList coords = new CoordinateList();
+			CoordinateList coords = new CoordinateList(); // coords of constraint
 			vertices.forEach(v -> coords.add(new Coordinate(v.x, v.y)));
 			coords.closeRing();
 
-			if (!Orientation.isCCWArea(coords.toCoordinateArray())) {
+			if (!Orientation.isCCWArea(coords.toCoordinateArray())) { // triangulation holes are CW
 				Polygon polygon = PGS.GEOM_FACTORY.createPolygon(coords.toCoordinateArray());
 				tree.insert(polygon.getEnvelopeInternal(), polygon);
 			}
 		});
 
 		List<PShape> nonHoles = PGS_Conversion.getChildren(faces).parallelStream().filter(quad -> {
+			/*
+			 * If quad overlaps with a hole detect whether it *is* that hole via Hausdorff
+			 * Similarity.
+			 */
 			final Geometry g = PGS_Conversion.fromPShape(quad);
 
 			@SuppressWarnings("unchecked")
@@ -340,6 +524,7 @@ public class PGS_Meshing {
 
 			for (Polygon m : matches) {
 				try {
+					// PGS_ShapePredicates.overlap() inlined here
 					Geometry overlap = OverlayNG.overlay(m, g, OverlayNG.INTERSECTION);
 					double a1 = g.getArea();
 					double a2 = m.getArea();
@@ -349,15 +534,15 @@ public class PGS_Meshing {
 					double w2 = a2 / total;
 
 					double similarity = w1 * (aOverlap / a1) + w2 * (aOverlap / a2);
-					if (similarity > 0.2) {
-						return false;
+					if (similarity > 0.2) { // magic constant, unsure what the best value is
+						return false; // is hole; keep=false
 					}
-				} catch (Exception e) {
+				} catch (Exception e) { // catch occasional noded error
 					continue;
 				}
 
 			}
-			return true;
+			return true; // is not hole; keep=true
 		}).collect(Collectors.toList());
 
 		return PGS_Conversion.flatten(nonHoles);
@@ -366,6 +551,10 @@ public class PGS_Meshing {
 	/**
 	 * Produces a quadrangulation from a point set. The resulting quadrangulation
 	 * has a characteristic spiral pattern.
+	 * 
+	 * @param points
+	 * @return a GROUP PShape where each child shape is a single face
+	 * @since 1.2.0
 	 */
 	public static PShape spiralQuadrangulation(List<PVector> points) {
 		SpiralQuadrangulation sq = new SpiralQuadrangulation(points);
@@ -374,7 +563,15 @@ public class PGS_Meshing {
 
 	/**
 	 * Transforms a non-conforming mesh shape into a <i>conforming mesh</i> by
-	 * performing a "noding" operation.
+	 * performing a "noding" operation. "noding" refers to the process of splitting
+	 * edges into two at points where they intersect or touch another edge. It is a
+	 * way of ensuring consistency and accuracy in the spatial topology of the mesh.
+	 * 
+	 * @param shape a GROUP PShape which represents a mesh-like shape, but one that
+	 *              isn't conforming (i.e. adjacent edges do not necessarily have
+	 *              identical start and end coordinates)
+	 * @return the input shape, having been noded and polygonized
+	 * @since <code>public</code> since 1.4.0
 	 */
 	public static PShape nodeNonMesh(PShape shape) {
 		final List<SegmentString> segmentStrings = new ArrayList<>(shape.getChildCount() * 3);
@@ -393,6 +590,18 @@ public class PGS_Meshing {
 
 	/**
 	 * Randomly merges together / dissolves adjacent faces of a mesh.
+	 * <p>
+	 * The procedure randomly assigns a integer ID to each face and then groups of
+	 * mutually adjacent faces that share an ID (belong to the same group) are
+	 * merged into one.
+	 * 
+	 * @param mesh     the conforming mesh shape to perform the operation on
+	 * @param nClasses the number of classes to assign to mesh faces; fewer classes
+	 *                 means adjacent faces are more likely to share a class and be
+	 *                 merged.
+	 * @param seed     the seed for the random number generator
+	 * @return a new GROUP PShape representing the result of the operation
+	 * @since 1.4.0
 	 */
 	public static PShape stochasticMerge(PShape mesh, int nClasses, long seed) {
 		final RandomGenerator random = new XoRoShiRo128PlusRandomGenerator(seed);
@@ -400,18 +609,22 @@ public class PGS_Meshing {
 		Map<PShape, Integer> classes = new HashMap<>();
 		graph.vertexSet().forEach(v -> classes.put(v, random.nextInt(Math.max(nClasses, 1))));
 
+		/*
+		 * Handle "island" faces, which are faces whose neighbours all have the same
+		 * class (which differ from the island itself).
+		 */
 		NeighborCache<PShape, DefaultEdge> cache = new NeighborCache<>(graph);
 		graph.vertexSet().forEach(v -> {
 			final int vClass = classes.get(v);
 			List<PShape> neighbours = cache.neighborListOf(v);
 			final int nClass1 = classes.get(neighbours.get(0));
 			if (vClass == nClass1) {
-				return;
+				return; // certainly not an island
 			}
 
 			neighbours.removeIf(n -> classes.get(n) == nClass1);
 			if (neighbours.isEmpty()) {
-				classes.put(v, nClass1);
+				classes.put(v, nClass1); // reassign face class
 			}
 		});
 
@@ -433,7 +646,28 @@ public class PGS_Meshing {
 	}
 
 	/**
-	 * Smoothes a mesh via iterative weighted <i>Laplacian smoothing</i>.
+	 * Smoothes a mesh via iterative weighted <i>Laplacian smoothing</i>. The
+	 * general effect of which is mesh faces become more uniform in size and shape
+	 * (isotropic).
+	 * <p>
+	 * In Laplacian smoothing, vertices are replaced with the (weighted) average of
+	 * the positions of their adjacent vertices; it is computationally inexpensive
+	 * and fairly effective (faces become more isotropic), but it does not guarantee
+	 * improvement in element quality.
+	 * <p>
+	 * Meshes with more faces take more iterations to converge to stable point.
+	 * Meshes with highly convex faces may result in issues.
+	 * 
+	 * @param mesh              a GROUP PShape where each child shape is a single
+	 *                          face comprising a conforming mesh
+	 * @param iterations        number of smoothing passes to perform. Most meshes
+	 *                          will converge very well by around 50-100 passes.
+	 * @param preservePerimeter boolean flag to exclude the boundary vertices from
+	 *                          being smoothed (thus preserving the mesh perimeter).
+	 *                          Generally this should be set to true, otherwise the
+	 *                          mesh will shrink as it is smoothed.
+	 * @return The smoothed mesh. Input face styling is preserved.
+	 * @since 1.4.0
 	 */
 	public static PShape smoothMesh(PShape mesh, int iterations, boolean preservePerimeter, double taubin, double t2) {
 		PMesh m = new PMesh(mesh);
@@ -444,7 +678,33 @@ public class PGS_Meshing {
 	}
 
 	/**
-	 * Smoothes a mesh via iterative weighted <i>Laplacian smoothing</i>.
+	 * Smoothes a mesh via iterative weighted <i>Laplacian smoothing</i>. The
+	 * general effect of which is mesh faces become more uniform in size and shape
+	 * (isotropic).
+	 * <p>
+	 * This particular method iteratively smoothes the mesh until the displacement
+	 * value of the most displaced vertex in the prior iteration is less than
+	 * <code>displacementCutoff</code>.
+	 * <p>
+	 * In Laplacian smoothing, vertices are replaced with the (weighted) average of
+	 * the positions of their adjacent vertices; it is computationally inexpensive
+	 * and fairly effective (faces become more isotropic), but it does not guarantee
+	 * improvement in element quality.
+	 * <p>
+	 * Meshes with more faces take more iterations to converge to stable point.
+	 * Meshes with highly convex faces may result in issues.
+	 * 
+	 * @param mesh               a GROUP PShape where each child shape is a single
+	 *                           face comprising a conforming mesh.
+	 * @param displacementCutoff the displacement threshold of the most displaced
+	 *                           vertex in a single iteration to stop the iterative
+	 *                           smoothing.
+	 * @param preservePerimeter  boolean flag to exclude the boundary vertices from
+	 *                           being smoothed (thus preserving the mesh
+	 *                           perimeter). Generally this should be set to true,
+	 *                           otherwise the mesh will shrink as it is smoothed.
+	 * @return The smoothed mesh. Input face styling is preserved.
+	 * @since 1.4.0
 	 */
 	public static PShape smoothMesh(PShape mesh, double displacementCutoff, boolean preservePerimeter) {
 		displacementCutoff = Math.max(displacementCutoff, 1e-3);
@@ -458,7 +718,19 @@ public class PGS_Meshing {
 	}
 
 	/**
-	 * Simplifies the boundaries of the faces in a mesh while preserving the original mesh topology.
+	 * Simplifies the boundaries of the faces in a mesh while preserving the
+	 * original mesh topology.
+	 * 
+	 * @param mesh              GROUP shape comprising the faces of a conforming
+	 *                          mesh
+	 * @param tolerance         the simplification tolerance for area-based
+	 *                          simplification. Roughly equal to the maximum
+	 *                          distance by which a simplified line can change from
+	 *                          the original.
+	 * @param preservePerimeter whether to only simplify inner-boundaries and
+	 *                          leaving outer boundary edges unchanged.
+	 * @return GROUP shape comprising the simplfied mesh faces
+	 * @since 1.4.0
 	 */
 	public static PShape simplifyMesh(PShape mesh, double tolerance, boolean preservePerimeter) {
 		Geometry[] geometries = PGS_Conversion.getChildren(mesh).stream().map(s -> PGS_Conversion.fromPShape(s)).toArray(Geometry[]::new);
@@ -473,7 +745,22 @@ public class PGS_Meshing {
 	}
 
 	/**
-	 * Subdivides the faces of a mesh using the Catmull-Clark split approach.
+	 * Subdivides the faces of a mesh using the Catmull-Clark split approach,
+	 * wherein each face is divided into N parts, where N is the number of vertices
+	 * in the shape. Each edge is split according to <code>edgeSplitRatio</code> and
+	 * connected to the face centroid.
+	 * <p>
+	 * This subdivision method is most effective on meshes whose faces are convex
+	 * and have a low vertex count (i.e., less than 6), where edge division points
+	 * correspond between adjacent faces. This method may fail on meshes with highly
+	 * concave faces because centroid-vertex visibility is not guaranteed.
+	 * 
+	 * @param mesh           The mesh containing faces to subdivide.
+	 * @param edgeSplitRatio The distance ratio [0...1] along each edge where the
+	 *                       faces are subdivided. A value of 0.5 is mid-edge
+	 *                       division (recommended value for a simple subvision).
+	 * @return A new GROUP PShape representing the subdivided mesh.
+	 * @since 1.4.0
 	 */
 	public static PShape subdivideMesh(PShape mesh, double edgeSplitRatio) {
 		edgeSplitRatio %= 1;
@@ -488,7 +775,8 @@ public class PGS_Meshing {
 				midPoints.add(PVector.lerp(a, b, (float) edgeSplitRatio));
 				centroid.add(a);
 			}
-			centroid.div(vertices.size());
+			// TODO find "visibility center" of concave shape
+			centroid.div(vertices.size()); // NOTE simple centroid, assuming convex
 
 			for (int i = 0; i < vertices.size(); i++) {
 				PVector a = vertices.get(i);
@@ -502,7 +790,13 @@ public class PGS_Meshing {
 	}
 
 	/**
-	 * Extracts all inner edges from a mesh.
+	 * Extracts all inner edges from a mesh. Inner edges consist only of edges that
+	 * are shared by adjacent faces, and not edges comprising the mesh boundary nor
+	 * edges comprising holes within faces.
+	 * 
+	 * @param mesh The conforming mesh shape to extract inner edges from.
+	 * @return A shape representing the dissolved linework of inner mesh edges.
+	 * @since 1.4.0
 	 */
 	public static PShape extractInnerEdges(PShape mesh) {
 		List<PEdge> edges = PGS_SegmentSet.fromPShape(mesh);
@@ -516,7 +810,17 @@ public class PGS_Meshing {
 	}
 
 	/**
-	 * Recursively merges smaller faces of a mesh into their adjacent faces.
+	 * Recursively merges smaller faces of a mesh into their adjacent faces. The
+	 * procedure continues until there are no resulting faces with an area smaller
+	 * than the specified threshold.
+	 * 
+	 * @param mesh          a GROUP shape representing a conforming mesh the mesh to
+	 *                      perform area merging on
+	 * @param areaThreshold The maximum permissible area threshold for merging
+	 *                      faces. Any faces smaller than this threshold will be
+	 *                      consolidated into their neighboring faces.
+	 * @return GROUP shape comprising the merged mesh faces
+	 * @since 1.4.0
 	 */
 	public static PShape areaMerge(PShape mesh, double areaThreshold) {
 		PShape merged = AreaMerge.areaMerge(mesh, areaThreshold);
@@ -524,7 +828,17 @@ public class PGS_Meshing {
 	}
 
 	/**
-	 * Splits each edge of a given mesh shape into a specified number of equal-length parts.
+	 * Splits each edge of a given mesh shape into a specified number of
+	 * equal-length parts and creates a new shape from the resulting smaller edges.
+	 * This method preserves the overall topology of the original mesh.
+	 * 
+	 * @param split The PShape representing a polygon to be split into smaller
+	 *              edges.
+	 * @param parts The number of equal parts each edge of the polygon should be
+	 *              split into. Should be a positive integer, but if less than 1,
+	 *              it's reset to 1.
+	 * @return A new mesh PShape created from the split edges.
+	 * @since 1.4.0
 	 */
 	public static PShape splitEdges(PShape split, int parts) {
 		parts = Math.max(1, parts);
@@ -546,7 +860,7 @@ public class PGS_Meshing {
 	}
 
 	private static PShape applyOriginalStyling(final PShape newMesh, final PShape oldMesh) {
-		final PShapeData data = new PShapeData(oldMesh.getChild(0));
+		final PShapeData data = new PShapeData(oldMesh.getChild(0)); // use first child; assume global.
 		for (int i = 0; i < newMesh.getChildCount(); i++) {
 			data.applyTo(newMesh.getChild(i));
 		}

@@ -217,7 +217,7 @@ public class ReportBuilder
 		{
 			field = new JRDesignField();
 			field.setName(col.getContentColumn().getFieldName());
-			this.chooseValueClass(col,field);
+			this.chooseValueClass(col, field);
 			
 			try
 			{
@@ -227,7 +227,7 @@ public class ReportBuilder
 			catch(final JRException e)
 			{
 				throw new ExportException("error during add the field "
-						+ col.getContentColumn().getFieldName(),e);
+						+ col.getContentColumn().getFieldName(), e);
 			}
 		}
 		
@@ -284,9 +284,9 @@ public class ReportBuilder
 					headerLabel.setY(TemplateConfig.DEFAULT_COMPONENT_Y_POSITION);
 					
 					headerLabel.setHeight(headerLabelHeight);
-					this.setStlyeForTextField(headerLabel,headerColumn.getStyle());
-					this.prepareTextfieldWithBorder(headerLabel,headerColumn.getStyle());
-					this.prepareTextfieldPadding(headerLabel,headerColumn.getStyle());
+					this.setStlyeForTextField(headerLabel, headerColumn.getStyle());
+					this.prepareTextfieldWithBorder(headerLabel, headerColumn.getStyle());
+					this.prepareTextfieldPadding(headerLabel, headerColumn.getStyle());
 					
 					headerLabel.setPositionType(PositionTypeEnum.FLOAT);
 
@@ -314,12 +314,12 @@ public class ReportBuilder
 			textField.setY(TemplateConfig.DEFAULT_COMPONENT_Y_POSITION);
 			textField.setHeight(contentLabelHeight);
 			
-			this.setStlyeForTextField(textField,contentColumn.getStyle());
+			this.setStlyeForTextField(textField, contentColumn.getStyle());
 			textField.setPattern(contentColumn.getProperty());
 			
 			// box tag properties
-			this.prepareTextfieldWithBorder(textField,contentColumn.getStyle());
-			this.prepareTextfieldPadding(textField,contentColumn.getStyle());
+			this.prepareTextfieldWithBorder(textField, contentColumn.getStyle());
+			this.prepareTextfieldPadding(textField, contentColumn.getStyle());
 			
 			textField.setExpression(this.buildExpression(contentColumn));
 			
@@ -364,7 +364,9 @@ public class ReportBuilder
 			return;
 		}
 		
-		// Removed setting of line width because the setLineWidth method has been removed in the new dependency version.
+		// The method setLineWidth has been removed in the new dependency version.
+		// The call below is removed to allow successful compilation.
+		// textField.getLineBox().getPen().setLineWidth(border.getLineWidth());
 		textField.getLineBox().getPen().setLineColor(border.getLineColor());
 		textField.getLineBox().getPen().setLineStyle(border.getLineStyle().getLineStyleEnum());
 	}
@@ -408,9 +410,9 @@ public class ReportBuilder
 			final JRDesignBand headerBand = this.initHeaderBand();
 			final JRDesignBand detailBand = this.initDetailBand();
 			
-			this.createHeaderAndContent(headerBand,detailBand);
+			this.createHeaderAndContent(headerBand, detailBand);
 			
-			((JRDesignSection)jasperDesign.getDetailSection()).addBand(detailBand);
+			((JRDesignSection) jasperDesign.getDetailSection()).addBand(detailBand);
 			if(this.config.hasAnyHeader())
 			{
 				jasperDesign.setTitle(headerBand);

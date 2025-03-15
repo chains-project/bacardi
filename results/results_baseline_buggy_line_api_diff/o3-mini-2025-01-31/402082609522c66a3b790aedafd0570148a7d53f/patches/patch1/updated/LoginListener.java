@@ -28,8 +28,7 @@ public class LoginListener extends SharedListener {
     public void onPlayerPreLogin(ServerSideConnectionEvent.Auth preLoginEvent) {
         SkinStorage storage = core.getStorage();
         GameProfile profile = preLoginEvent.getConnection().getProfile();
-        UUID playerUUID = profile.getUniqueId();
-
+        UUID playerUUID = profile.getId();
         UserPreference preferences = storage.getPreferences(playerUUID);
         Optional<SkinModel> optSkin = preferences.getTargetSkin();
         if (optSkin.isPresent()) {
@@ -41,7 +40,7 @@ public class LoginListener extends SharedListener {
             plugin.getApi().applyProperties(profile, targetSkin);
             save(preferences);
         } else {
-            String playerName = preLoginEvent.getConnection().getName();
+            String playerName = profile.getId().toString();
             if (!core.getConfig().getBoolean("restoreSkins") || !refetchSkin(playerName, preferences)) {
                 setDefaultSkin(preferences, profile);
             }

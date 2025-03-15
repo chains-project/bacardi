@@ -19,10 +19,37 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
+
+/**
+ * <p>Java class for ShippingPointStructure complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType name="ShippingPointStructure"&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DeliveryID" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DeliveryDate" minOccurs="0"/&gt;
+ *         &lt;sequence maxOccurs="unbounded" minOccurs="0"&gt;
+ *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}WarehouseID" minOccurs="0"/&gt;
+ *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}LocationID" minOccurs="0"/&gt;
+ *         &lt;/sequence&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Address" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ShippingPointStructure", propOrder = {
     "deliveryID",
@@ -30,7 +57,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "warehouseIDAndLocationID",
     "address"
 })
-public class ShippingPointStructure implements ToString2 {
+public class ShippingPointStructure implements ToString2
+{
 
     @XmlElement(name = "DeliveryID")
     protected List<String> deliveryID;
@@ -45,6 +73,28 @@ public class ShippingPointStructure implements ToString2 {
     @XmlElement(name = "Address")
     protected AddressStructure address;
 
+    /**
+     * Gets the value of the deliveryID property.
+     * 
+     * <p>
+     * This accessor method returns a reference to the live list,
+     * not a snapshot. Therefore any modification you make to the
+     * returned list will be present inside the JAXB object.
+     * This is why there is not a <CODE>set</CODE> method for the deliveryID property.
+     * 
+     * <p>
+     * For example, to add a new item, do as follows:
+     * <pre>
+     *    getDeliveryID().add(newItem);
+     * </pre>
+     * 
+     * 
+     * <p>
+     * Objects of the following type(s) are allowed in the list
+     * {@link String }
+     * 
+     * 
+     */
     public List<String> getDeliveryID() {
         if (deliveryID == null) {
             deliveryID = new ArrayList<String>();
@@ -52,14 +102,53 @@ public class ShippingPointStructure implements ToString2 {
         return this.deliveryID;
     }
 
+    /**
+     * Gets the value of the deliveryDate property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
+     */
     public XMLGregorianCalendar getDeliveryDate() {
         return deliveryDate;
     }
 
+    /**
+     * Sets the value of the deliveryDate property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
+     */
     public void setDeliveryDate(XMLGregorianCalendar value) {
         this.deliveryDate = value;
     }
 
+    /**
+     * Gets the value of the warehouseIDAndLocationID property.
+     * 
+     * <p>
+     * This accessor method returns a reference to the live list,
+     * not a snapshot. Therefore any modification you make to the
+     * returned list will be present inside the JAXB object.
+     * This is why there is not a <CODE>set</CODE> method for the warehouseIDAndLocationID property.
+     * 
+     * <p>
+     * For example, to add a new item, do as follows:
+     * <pre>
+     *    getWarehouseIDAndLocationID().add(newItem);
+     * </pre>
+     * 
+     * 
+     * <p>
+     * Objects of the following type(s) are allowed in the list
+     * {@link JAXBElement }{@code <}{@link String }{@code >}
+     * {@link JAXBElement }{@code <}{@link String }{@code >}
+     * 
+     * 
+     */
     public List<JAXBElement<String>> getWarehouseIDAndLocationID() {
         if (warehouseIDAndLocationID == null) {
             warehouseIDAndLocationID = new ArrayList<JAXBElement<String>>();
@@ -67,10 +156,26 @@ public class ShippingPointStructure implements ToString2 {
         return this.warehouseIDAndLocationID;
     }
 
+    /**
+     * Gets the value of the address property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link AddressStructure }
+     *     
+     */
     public AddressStructure getAddress() {
         return address;
     }
 
+    /**
+     * Sets the value of the address property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link AddressStructure }
+     *     
+     */
     public void setAddress(AddressStructure value) {
         this.address = value;
     }
@@ -95,23 +200,23 @@ public class ShippingPointStructure implements ToString2 {
     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         {
             List<String> theDeliveryID;
-            theDeliveryID = (((this.deliveryID != null) && (!this.deliveryID.isEmpty())) ? this.getDeliveryID() : null);
-            strategy.appendField(locator, this, "deliveryID", buffer, theDeliveryID, ((this.deliveryID != null) && (!this.deliveryID.isEmpty())));
+            theDeliveryID = (((this.deliveryID!= null)&&(!this.deliveryID.isEmpty()))?this.getDeliveryID():null);
+            strategy.appendField(locator, this, "deliveryID", buffer, theDeliveryID, ((this.deliveryID!= null)&&(!this.deliveryID.isEmpty())));
         }
         {
             XMLGregorianCalendar theDeliveryDate;
             theDeliveryDate = this.getDeliveryDate();
-            strategy.appendField(locator, this, "deliveryDate", buffer, theDeliveryDate, (this.deliveryDate != null));
+            strategy.appendField(locator, this, "deliveryDate", buffer, theDeliveryDate, (this.deliveryDate!= null));
         }
         {
             List<JAXBElement<String>> theWarehouseIDAndLocationID;
-            theWarehouseIDAndLocationID = (((this.warehouseIDAndLocationID != null) && (!this.warehouseIDAndLocationID.isEmpty())) ? this.getWarehouseIDAndLocationID() : null);
-            strategy.appendField(locator, this, "warehouseIDAndLocationID", buffer, theWarehouseIDAndLocationID, ((this.warehouseIDAndLocationID != null) && (!this.warehouseIDAndLocationID.isEmpty())));
+            theWarehouseIDAndLocationID = (((this.warehouseIDAndLocationID!= null)&&(!this.warehouseIDAndLocationID.isEmpty()))?this.getWarehouseIDAndLocationID():null);
+            strategy.appendField(locator, this, "warehouseIDAndLocationID", buffer, theWarehouseIDAndLocationID, ((this.warehouseIDAndLocationID!= null)&&(!this.warehouseIDAndLocationID.isEmpty())));
         }
         {
             AddressStructure theAddress;
             theAddress = this.getAddress();
-            strategy.appendField(locator, this, "address", buffer, theAddress, (this.address != null));
+            strategy.appendField(locator, this, "address", buffer, theAddress, (this.address!= null));
         }
         return buffer;
     }

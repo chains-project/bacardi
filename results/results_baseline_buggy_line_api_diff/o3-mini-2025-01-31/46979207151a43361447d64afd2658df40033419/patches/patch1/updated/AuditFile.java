@@ -1,4 +1,4 @@
-package com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema;
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_02_01.schema;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,90 +31,34 @@ public class AuditFile implements ToString2 {
     @XmlElement(name = "SourceDocuments")
     protected SourceDocuments sourceDocuments;
 
-    /**
-     * Gets the value of the header property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Header }
-     */
     public Header getHeader() {
         return header;
     }
 
-    /**
-     * Sets the value of the header property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Header }
-     */
     public void setHeader(Header value) {
         this.header = value;
     }
 
-    /**
-     * Gets the value of the masterFiles property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link AuditFile.MasterFiles }
-     */
     public AuditFile.MasterFiles getMasterFiles() {
         return masterFiles;
     }
 
-    /**
-     * Sets the value of the masterFiles property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link AuditFile.MasterFiles }
-     */
     public void setMasterFiles(AuditFile.MasterFiles value) {
         this.masterFiles = value;
     }
 
-    /**
-     * Gets the value of the generalLedgerEntries property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link GeneralLedgerEntries }
-     */
     public GeneralLedgerEntries getGeneralLedgerEntries() {
         return generalLedgerEntries;
     }
 
-    /**
-     * Sets the value of the generalLedgerEntries property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link GeneralLedgerEntries }
-     */
     public void setGeneralLedgerEntries(GeneralLedgerEntries value) {
         this.generalLedgerEntries = value;
     }
 
-    /**
-     * Gets the value of the sourceDocuments property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link SourceDocuments }
-     */
     public SourceDocuments getSourceDocuments() {
         return sourceDocuments;
     }
 
-    /**
-     * Sets the value of the sourceDocuments property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link SourceDocuments }
-     */
     public void setSourceDocuments(SourceDocuments value) {
         this.sourceDocuments = value;
     }
@@ -138,19 +82,23 @@ public class AuditFile implements ToString2 {
     @Override
     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         {
-            Header theHeader = this.getHeader();
+            Header theHeader;
+            theHeader = this.getHeader();
             strategy.appendField(locator, this, "header", buffer, theHeader, (this.header != null));
         }
         {
-            AuditFile.MasterFiles theMasterFiles = this.getMasterFiles();
+            AuditFile.MasterFiles theMasterFiles;
+            theMasterFiles = this.getMasterFiles();
             strategy.appendField(locator, this, "masterFiles", buffer, theMasterFiles, (this.masterFiles != null));
         }
         {
-            GeneralLedgerEntries theGeneralLedgerEntries = this.getGeneralLedgerEntries();
+            GeneralLedgerEntries theGeneralLedgerEntries;
+            theGeneralLedgerEntries = this.getGeneralLedgerEntries();
             strategy.appendField(locator, this, "generalLedgerEntries", buffer, theGeneralLedgerEntries, (this.generalLedgerEntries != null));
         }
         {
-            SourceDocuments theSourceDocuments = this.getSourceDocuments();
+            SourceDocuments theSourceDocuments;
+            theSourceDocuments = this.getSourceDocuments();
             strategy.appendField(locator, this, "sourceDocuments", buffer, theSourceDocuments, (this.sourceDocuments != null));
         }
         return buffer;
@@ -158,7 +106,7 @@ public class AuditFile implements ToString2 {
 
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlType(name = "", propOrder = {
-        "generalLedgerAccounts",
+        "generalLedger",
         "customer",
         "supplier",
         "product",
@@ -166,8 +114,8 @@ public class AuditFile implements ToString2 {
     })
     public static class MasterFiles implements ToString2 {
 
-        @XmlElement(name = "GeneralLedgerAccounts")
-        protected GeneralLedgerAccounts generalLedgerAccounts;
+        @XmlElement(name = "GeneralLedger")
+        protected List<GeneralLedger> generalLedger;
         @XmlElement(name = "Customer")
         protected List<Customer> customer;
         @XmlElement(name = "Supplier")
@@ -177,47 +125,13 @@ public class AuditFile implements ToString2 {
         @XmlElement(name = "TaxTable")
         protected TaxTable taxTable;
 
-        /**
-         * Gets the value of the generalLedgerAccounts property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link GeneralLedgerAccounts }
-         */
-        public GeneralLedgerAccounts getGeneralLedgerAccounts() {
-            return generalLedgerAccounts;
+        public List<GeneralLedger> getGeneralLedger() {
+            if (generalLedger == null) {
+                generalLedger = new ArrayList<GeneralLedger>();
+            }
+            return this.generalLedger;
         }
 
-        /**
-         * Sets the value of the generalLedgerAccounts property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link GeneralLedgerAccounts }
-         */
-        public void setGeneralLedgerAccounts(GeneralLedgerAccounts value) {
-            this.generalLedgerAccounts = value;
-        }
-
-        /**
-         * Gets the value of the customer property.
-         * 
-         * <p>
-         * This accessor method returns a reference to the live list,
-         * not a snapshot. Therefore any modification you make to the
-         * returned list will be present inside the JAXB object.
-         * This is why there is not a <CODE>set</CODE> method for the customer property.
-         * 
-         * <p>
-         * For example, to add a new item, do as follows:
-         * <pre>
-         *    getCustomer().add(newItem);
-         * </pre>
-         * 
-         * <p>
-         * Objects of the following type(s) are allowed in the list
-         * {@link Customer }
-         */
         public List<Customer> getCustomer() {
             if (customer == null) {
                 customer = new ArrayList<Customer>();
@@ -225,25 +139,6 @@ public class AuditFile implements ToString2 {
             return this.customer;
         }
 
-        /**
-         * Gets the value of the supplier property.
-         * 
-         * <p>
-         * This accessor method returns a reference to the live list,
-         * not a snapshot. Therefore any modification you make to the
-         * returned list will be present inside the JAXB object.
-         * This is why there is not a <CODE>set</CODE> method for the supplier property.
-         * 
-         * <p>
-         * For example, to add a new item, do as follows:
-         * <pre>
-         *    getSupplier().add(newItem);
-         * </pre>
-         * 
-         * <p>
-         * Objects of the following type(s) are allowed in the list
-         * {@link Supplier }
-         */
         public List<Supplier> getSupplier() {
             if (supplier == null) {
                 supplier = new ArrayList<Supplier>();
@@ -251,25 +146,6 @@ public class AuditFile implements ToString2 {
             return this.supplier;
         }
 
-        /**
-         * Gets the value of the product property.
-         * 
-         * <p>
-         * This accessor method returns a reference to the live list,
-         * not a snapshot. Therefore any modification you make to the
-         * returned list will be present inside the JAXB object.
-         * This is why there is not a <CODE>set</CODE> method for the product property.
-         * 
-         * <p>
-         * For example, to add a new item, do as follows:
-         * <pre>
-         *    getProduct().add(newItem);
-         * </pre>
-         * 
-         * <p>
-         * Objects of the following type(s) are allowed in the list
-         * {@link Product }
-         */
         public List<Product> getProduct() {
             if (product == null) {
                 product = new ArrayList<Product>();
@@ -277,24 +153,10 @@ public class AuditFile implements ToString2 {
             return this.product;
         }
 
-        /**
-         * Gets the value of the taxTable property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link TaxTable }
-         */
         public TaxTable getTaxTable() {
             return taxTable;
         }
 
-        /**
-         * Sets the value of the taxTable property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link TaxTable }
-         */
         public void setTaxTable(TaxTable value) {
             this.taxTable = value;
         }
@@ -318,26 +180,32 @@ public class AuditFile implements ToString2 {
         @Override
         public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
             {
-                GeneralLedgerAccounts theGeneralLedgerAccounts = this.getGeneralLedgerAccounts();
-                strategy.appendField(locator, this, "generalLedgerAccounts", buffer, theGeneralLedgerAccounts, (this.generalLedgerAccounts != null));
+                List<GeneralLedger> theGeneralLedger;
+                theGeneralLedger = (((this.generalLedger != null) && (!this.generalLedger.isEmpty())) ? this.getGeneralLedger() : null);
+                strategy.appendField(locator, this, "generalLedger", buffer, theGeneralLedger, ((this.generalLedger != null) && (!this.generalLedger.isEmpty())));
             }
             {
-                List<Customer> theCustomer = ((this.customer != null) && (!this.customer.isEmpty())) ? this.getCustomer() : null;
+                List<Customer> theCustomer;
+                theCustomer = (((this.customer != null) && (!this.customer.isEmpty())) ? this.getCustomer() : null);
                 strategy.appendField(locator, this, "customer", buffer, theCustomer, ((this.customer != null) && (!this.customer.isEmpty())));
             }
             {
-                List<Supplier> theSupplier = ((this.supplier != null) && (!this.supplier.isEmpty())) ? this.getSupplier() : null;
+                List<Supplier> theSupplier;
+                theSupplier = (((this.supplier != null) && (!this.supplier.isEmpty())) ? this.getSupplier() : null);
                 strategy.appendField(locator, this, "supplier", buffer, theSupplier, ((this.supplier != null) && (!this.supplier.isEmpty())));
             }
             {
-                List<Product> theProduct = ((this.product != null) && (!this.product.isEmpty())) ? this.getProduct() : null;
+                List<Product> theProduct;
+                theProduct = (((this.product != null) && (!this.product.isEmpty())) ? this.getProduct() : null);
                 strategy.appendField(locator, this, "product", buffer, theProduct, ((this.product != null) && (!this.product.isEmpty())));
             }
             {
-                TaxTable theTaxTable = this.getTaxTable();
+                TaxTable theTaxTable;
+                theTaxTable = this.getTaxTable();
                 strategy.appendField(locator, this, "taxTable", buffer, theTaxTable, (this.taxTable != null));
             }
             return buffer;
         }
     }
+
 }

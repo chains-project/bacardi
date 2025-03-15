@@ -3,13 +3,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
-/**
- * Provides I18n messages for the UI per request. To get the correct locale, the method {@link HttpServletRequest#getLocale()}
- * is used.
- *
- * @author Tobias Erdle
- * @see HttpServletRequest#getLocale()
- */
+
 @RequestScoped
 @Named("msg")
 public class Messages {

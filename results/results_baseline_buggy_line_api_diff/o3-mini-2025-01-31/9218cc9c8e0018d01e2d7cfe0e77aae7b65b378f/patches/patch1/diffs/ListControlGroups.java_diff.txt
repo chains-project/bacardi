@@ -1,4 +1,4 @@
-37,44c37,42
+37,43c37,43
 < import javax.validation.Validator;
 < import javax.validation.constraints.NotBlank;
 < import javax.validation.constraints.NotEmpty;
@@ -6,7 +6,6 @@
 < import javax.validation.metadata.BeanDescriptor;
 < import javax.validation.metadata.ConstraintDescriptor;
 < import javax.validation.metadata.ElementDescriptor;
-< 
 ---
 > import jakarta.validation.Validator;
 > import jakarta.validation.constraints.NotBlank;
@@ -14,35 +13,6 @@
 > import jakarta.validation.constraints.NotNull;
 > import jakarta.validation.metadata.BeanDescriptor;
 > import jakarta.validation.metadata.ConstraintDescriptor;
-133,135c131,134
-<                         ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
-<                         if(constraintDescriptor!=null){
-<                                 Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
----
->                         // Use jakarta.validation.metadata.PropertyDescriptor (fully qualified to avoid conflict with java.beans.PropertyDescriptor)
->                         jakarta.validation.metadata.PropertyDescriptor validationPropertyDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
->                         if (validationPropertyDescriptor != null) {
->                                 Set<ConstraintDescriptor<?>> constraintsSet = validationPropertyDescriptor.getConstraintDescriptors();
-155,156c154,157
-<                                                 if(objectProperty.type.isEnum()) typesControlGroup = EnumControlGroup.class;
-<                                                 else typesControlGroup = ObjectChoiceControlGroup.class;
----
->                                                 if (objectProperty.type.isEnum())
->                                                         typesControlGroup = EnumControlGroup.class;
->                                                 else
->                                                         typesControlGroup = ObjectChoiceControlGroup.class;
-165d165
+> import jakarta.validation.metadata.ElementDescriptor;
+165d164
 < 
-185,187c185,187
-<                                                         .createControlGroup(view.newChildId()
-<                                                                         , new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name)
-<                                                                         , objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
----
->                                                         .createControlGroup(view.newChildId(),
->                                                                         new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name),
->                                                                         objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
-226c226,227
-<                         if(type.isAssignableFrom(mapType)) return typesControlGroups.get(mapType);
----
->                         if (type.isAssignableFrom(mapType))
->                                 return typesControlGroups.get(mapType);

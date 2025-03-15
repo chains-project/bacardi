@@ -63,6 +63,7 @@ public final class ModelConstructor extends Constructor {
     desc.putListPropertyType("pluginRepositories", Repository.class);
     desc.putListPropertyType("developers", Developer.class);
     desc.putListPropertyType("contributors", Contributor.class);
+    desc.putListPropertyType("exclusions", Exclusion.class);
     addTypeDescription(desc);
 
     desc = new TypeDescription(Dependency.class);
@@ -165,6 +166,7 @@ public final class ModelConstructor extends Constructor {
         if (entryValue instanceof List && !((List) entryValue).isEmpty()) {
           toDom(child, key, (List) entryValue);
         } else if (entryValue instanceof Map) {
+          //noinspection unchecked
           child = toDom(child, (Map) entryValue);
         } else { // if not a list or map then copy the string value
           child.setValue(entryValue.toString());
@@ -239,7 +241,8 @@ public final class ModelConstructor extends Constructor {
   }
 
   class MavenObjectConstruct extends Constructor.ConstructMapping {
-    public Object constructJavaBean2ndStep(MappingNode node, Object object) {
+    @Override
+    protected Object constructJavaBean2ndStep(MappingNode node, Object object) {
       Class<?> type = node.getType();
 
       List<Class> specialCases = Arrays.<Class>asList(Dependency.class, Model.class, Plugin.class, ReportPlugin.class);

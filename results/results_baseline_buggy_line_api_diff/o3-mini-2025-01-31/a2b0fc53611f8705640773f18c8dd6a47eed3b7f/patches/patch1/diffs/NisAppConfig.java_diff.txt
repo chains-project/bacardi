@@ -1,24 +1,32 @@
 3a4,5
-> import org.flywaydb.core.api.configuration.ClassicConfiguration;
 > import org.flywaydb.core.api.Location;
+> import org.flywaydb.core.api.configuration.ClassicConfiguration;
 41a44
 > import java.util.Arrays;
-108,112c111,122
+108,113c111,129
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
 <                 flyway.setLocations(prop.getProperty("flyway.locations"));
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+<                 return flyway;
 ---
->                 ClassicConfiguration configuration = new ClassicConfiguration();
->                 configuration.setDataSource(this.dataSource());
->                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
->                 String locationsProp = prop.getProperty("flyway.locations");
->                 String[] locationsArray = locationsProp.split(",");
->                 Location[] locations = Arrays.stream(locationsArray)
+>                 final NisConfiguration configuration = this.nisConfiguration();
+>                 final String nemFolder = configuration.getNemFolder();
+>                 final String jdbcUrl = prop.getProperty("jdbc.url")
+>                                 .replace("${nem.folder}", nemFolder)
+>                                 .replace("${nem.network}", configuration.getNetworkName());
+> 
+>                 ClassicConfiguration config = new ClassicConfiguration();
+>                 config.setDataSource(jdbcUrl, prop.getProperty("jdbc.username"), prop.getProperty("jdbc.password"));
+>                 config.setClassLoader(NisAppConfig.class.getClassLoader());
+> 
+>                 String[] locationsStrings = prop.getProperty("flyway.locations").split(",");
+>                 Location[] locations = Arrays.stream(locationsStrings)
 >                                 .map(String::trim)
 >                                 .map(Location::new)
 >                                 .toArray(Location[]::new);
->                 configuration.setLocations(locations);
->                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
->                 final Flyway flyway = new Flyway(configuration);
+>                 config.setLocations(locations);
+> 
+>                 config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 return new Flyway(config);

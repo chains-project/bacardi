@@ -1,30 +1,27 @@
 package com.github.games647.changeskin.sponge.task;
 
+import org.spongepowered.math.vector.Vector3d;
+import com.github.games647.changeskin.core.model.UserPreference;
+import com.github.games647.changeskin.core.model.skin.SkinModel;
+import com.github.games647.changeskin.core.shared.task.SharedApplier;
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import java.util.UUID;
+import net.kyori.adventure.audience.Audience;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.tab.TabListEntry;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
-import org.spongepowered.math.vector.Vector3d;
-
-import com.github.games647.changeskin.core.model.UserPreference;
-import com.github.games647.changeskin.core.model.skin.SkinModel;
-import com.github.games647.changeskin.core.shared.task.SharedApplier;
-import com.github.games647.changeskin.sponge.ChangeSkinSponge;
-
-import java.util.UUID;
 
 public class SkinApplier extends SharedApplier {
 
     private final ChangeSkinSponge plugin;
-    private final CommandCause invoker;
+    private final Audience invoker;
     private final Player receiver;
 
-    public SkinApplier(ChangeSkinSponge plugin, CommandCause invoker, Player receiver, SkinModel targetSkin, boolean keepSkin) {
+    public SkinApplier(ChangeSkinSponge plugin, Audience invoker, Player receiver, SkinModel targetSkin, boolean keepSkin) {
         super(plugin.getCore(), targetSkin, keepSkin);
-
         this.plugin = plugin;
         this.invoker = invoker;
         this.receiver = receiver;
@@ -36,10 +33,11 @@ public class SkinApplier extends SharedApplier {
             return;
         }
 
-        invoker.first(Player.class).ifPresent(player -> {
-            UUID uniqueId = player.getUniqueId();
+        // uuid was successfully resolved, we can now make a cooldown check
+        if (invoker instanceof Player) {
+            UUID uniqueId = ((Player) invoker).getUniqueId();
             core.getCooldownService().trackPlayer(uniqueId);
-        });
+        }
 
         if (core.getStorage() != null) {
             UserPreference preferences = core.getStorage().getPreferences(receiver.getUniqueId());
@@ -57,7 +55,6 @@ public class SkinApplier extends SharedApplier {
     @Override
     protected void applyInstantUpdate() {
         plugin.getApi().applySkin(receiver, targetSkin);
-
         sendUpdate();
         plugin.sendMessage(invoker, "skin-changed");
     }
@@ -77,7 +74,7 @@ public class SkinApplier extends SharedApplier {
     private void sendUpdate() {
         sendUpdateSelf();
 
-        // triggers an update for others player to see the new skin
+        // triggers an update for other players to see the new skin
         receiver.setVanished(true);
         receiver.setVanished(false);
     }

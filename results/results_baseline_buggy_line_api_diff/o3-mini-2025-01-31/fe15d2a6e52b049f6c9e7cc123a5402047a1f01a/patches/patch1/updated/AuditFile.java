@@ -14,10 +14,12 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
+
 
 /**
  * <p>Java class for anonymous complex type.
@@ -63,7 +65,8 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "sourceDocuments"
 })
 @XmlRootElement(name = "AuditFile")
-public class AuditFile implements ToString2 {
+public class AuditFile implements ToString2
+{
 
     @XmlElement(name = "Header", required = true)
     protected Header header;
@@ -191,25 +194,26 @@ public class AuditFile implements ToString2 {
         {
             Header theHeader;
             theHeader = this.getHeader();
-            strategy.appendField(locator, this, "header", buffer, theHeader, (this.header != null));
+            strategy.appendField(locator, this, "header", buffer, theHeader, (this.header!= null));
         }
         {
             AuditFile.MasterFiles theMasterFiles;
             theMasterFiles = this.getMasterFiles();
-            strategy.appendField(locator, this, "masterFiles", buffer, theMasterFiles, (this.masterFiles != null));
+            strategy.appendField(locator, this, "masterFiles", buffer, theMasterFiles, (this.masterFiles!= null));
         }
         {
             GeneralLedgerEntries theGeneralLedgerEntries;
             theGeneralLedgerEntries = this.getGeneralLedgerEntries();
-            strategy.appendField(locator, this, "generalLedgerEntries", buffer, theGeneralLedgerEntries, (this.generalLedgerEntries != null));
+            strategy.appendField(locator, this, "generalLedgerEntries", buffer, theGeneralLedgerEntries, (this.generalLedgerEntries!= null));
         }
         {
             SourceDocuments theSourceDocuments;
             theSourceDocuments = this.getSourceDocuments();
-            strategy.appendField(locator, this, "sourceDocuments", buffer, theSourceDocuments, (this.sourceDocuments != null));
+            strategy.appendField(locator, this, "sourceDocuments", buffer, theSourceDocuments, (this.sourceDocuments!= null));
         }
         return buffer;
     }
+
 
     /**
      * <p>Java class for anonymous complex type.
@@ -242,7 +246,8 @@ public class AuditFile implements ToString2 {
         "product",
         "taxTable"
     })
-    public static class MasterFiles implements ToString2 {
+    public static class MasterFiles implements ToString2
+    {
 
         @XmlElement(name = "GeneralLedger")
         protected List<GeneralLedger> generalLedger;
@@ -415,30 +420,32 @@ public class AuditFile implements ToString2 {
         public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
             {
                 List<GeneralLedger> theGeneralLedger;
-                theGeneralLedger = (((this.generalLedger != null) && (!this.generalLedger.isEmpty())) ? this.getGeneralLedger() : null);
-                strategy.appendField(locator, this, "generalLedger", buffer, theGeneralLedger, ((this.generalLedger != null) && (!this.generalLedger.isEmpty())));
+                theGeneralLedger = (((this.generalLedger!= null)&&(!this.generalLedger.isEmpty()))?this.getGeneralLedger():null);
+                strategy.appendField(locator, this, "generalLedger", buffer, theGeneralLedger, ((this.generalLedger!= null)&&(!this.generalLedger.isEmpty())));
             }
             {
                 List<Customer> theCustomer;
-                theCustomer = (((this.customer != null) && (!this.customer.isEmpty())) ? this.getCustomer() : null);
-                strategy.appendField(locator, this, "customer", buffer, theCustomer, ((this.customer != null) && (!this.customer.isEmpty())));
+                theCustomer = (((this.customer!= null)&&(!this.customer.isEmpty()))?this.getCustomer():null);
+                strategy.appendField(locator, this, "customer", buffer, theCustomer, ((this.customer!= null)&&(!this.customer.isEmpty())));
             }
             {
                 List<Supplier> theSupplier;
-                theSupplier = (((this.supplier != null) && (!this.supplier.isEmpty())) ? this.getSupplier() : null);
-                strategy.appendField(locator, this, "supplier", buffer, theSupplier, ((this.supplier != null) && (!this.supplier.isEmpty())));
+                theSupplier = (((this.supplier!= null)&&(!this.supplier.isEmpty()))?this.getSupplier():null);
+                strategy.appendField(locator, this, "supplier", buffer, theSupplier, ((this.supplier!= null)&&(!this.supplier.isEmpty())));
             }
             {
                 List<Product> theProduct;
-                theProduct = (((this.product != null) && (!this.product.isEmpty())) ? this.getProduct() : null);
-                strategy.appendField(locator, this, "product", buffer, theProduct, ((this.product != null) && (!this.product.isEmpty())));
+                theProduct = (((this.product!= null)&&(!this.product.isEmpty()))?this.getProduct():null);
+                strategy.appendField(locator, this, "product", buffer, theProduct, ((this.product!= null)&&(!this.product.isEmpty())));
             }
             {
                 TaxTable theTaxTable;
                 theTaxTable = this.getTaxTable();
-                strategy.appendField(locator, this, "taxTable", buffer, theTaxTable, (this.taxTable != null));
+                strategy.appendField(locator, this, "taxTable", buffer, theTaxTable, (this.taxTable!= null));
             }
             return buffer;
         }
+
     }
+
 }

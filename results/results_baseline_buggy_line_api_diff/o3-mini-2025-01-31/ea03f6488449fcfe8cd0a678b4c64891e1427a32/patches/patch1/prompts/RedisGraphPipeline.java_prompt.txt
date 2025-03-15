@@ -177,16 +177,16 @@ import redis.clients.jedis.commands.RedisPipeline;
 MultiKeyCommandsPipeline, ClusterPipeline,
 ```
 ```java
-MultiKeyBinaryRedisPipeline,
+BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
+```
+```java
+MultiKeyCommandsPipeline, ClusterPipeline,
 ```
 ```java
 BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
 ```
 ```java
-BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
-```
-```java
-BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
+import redis.clients.jedis.commands.BinaryRedisPipeline;
 ```
 ```java
 import redis.clients.jedis.commands.BasicRedisPipeline;
@@ -198,22 +198,22 @@ BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
 import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
 ```
 ```java
-MultiKeyCommandsPipeline, ClusterPipeline,
-```
-```java
-import redis.clients.jedis.commands.ClusterPipeline;
+BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
 ```
 ```java
 BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
 ```
 ```java
-import redis.clients.jedis.commands.BinaryRedisPipeline;
+import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
+```
+```java
+import redis.clients.jedis.commands.ClusterPipeline;
+```
+```java
+MultiKeyBinaryRedisPipeline,
 ```
 ```java
 import redis.clients.jedis.commands.ScriptingCommandsPipeline;
-```
-```java
-import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
 ```
 
 
@@ -230,35 +230,8 @@ import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
 [ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[22,9] cannot find symbol
   symbol: class MultiKeyCommandsPipeline
 
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[21,9] cannot find symbol
-  symbol: class MultiKeyBinaryRedisPipeline
-
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[23,9] cannot find symbol
-  symbol: class BinaryScriptingCommandsPipeline
-
 [ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[24,9] cannot find symbol
   symbol: class BasicRedisPipeline
-
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[24,9] cannot find symbol
-  symbol: class BasicRedisPipeline
-
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[4,36] cannot find symbol
-  symbol:   class BasicRedisPipeline
-  location: package redis.clients.jedis.commands
-
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[24,9] cannot find symbol
-  symbol: class BasicRedisPipeline
-
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[6,36] cannot find symbol
-  symbol:   class BinaryScriptingCommandsPipeline
-  location: package redis.clients.jedis.commands
-
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[22,9] cannot find symbol
-  symbol: class MultiKeyCommandsPipeline
-
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[7,36] cannot find symbol
-  symbol:   class ClusterPipeline
-  location: package redis.clients.jedis.commands
 
 [ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[23,9] cannot find symbol
   symbol: class BinaryScriptingCommandsPipeline
@@ -267,28 +240,43 @@ import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
   symbol:   class BinaryRedisPipeline
   location: package redis.clients.jedis.commands
 
-[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[11,36] cannot find symbol
-  symbol:   class ScriptingCommandsPipeline
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[4,36] cannot find symbol
+  symbol:   class BasicRedisPipeline
+  location: package redis.clients.jedis.commands
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[6,36] cannot find symbol
+  symbol:   class BinaryScriptingCommandsPipeline
   location: package redis.clients.jedis.commands
 
 [ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[9,36] cannot find symbol
   symbol:   class MultiKeyCommandsPipeline
   location: package redis.clients.jedis.commands
 
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[7,36] cannot find symbol
+  symbol:   class ClusterPipeline
+  location: package redis.clients.jedis.commands
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[21,9] cannot find symbol
+  symbol: class MultiKeyBinaryRedisPipeline
+
+[ERROR] /JRedisGraph/src/main/java/com/redislabs/redisgraph/RedisGraphPipeline.java:[11,36] cannot find symbol
+  symbol:   class ScriptingCommandsPipeline
+  location: package redis.clients.jedis.commands
+
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
      Class redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline has been removed in the new version of the dependency.
      Class redis.clients.jedis.commands.RedisPipeline has been removed in the new version of the dependency.
-     Class redis.clients.jedis.commands.ClusterPipeline has been removed in the new version of the dependency.
-     Interface redis.clients.jedis.ClusterPipeline has been added in the new version of the dependency.
-     Type reference redis.clients.jedis.ClusterPipeline(redis.clients.jedis.providers.ClusterConnectionProvider) has been added in the new version of the dependency.
-     Type reference redis.clients.jedis.ClusterPipeline(java.util.Set,redis.clients.jedis.JedisClientConfig,org.apache.commons.pool2.impl.GenericObjectPoolConfig) has been added in the new version of the dependency.
-     Type reference redis.clients.jedis.ClusterPipeline(java.util.Set,redis.clients.jedis.JedisClientConfig) has been added in the new version of the dependency.
-     Class redis.clients.jedis.commands.BinaryScriptingCommandsPipeline has been removed in the new version of the dependency.
-     Class redis.clients.jedis.commands.BasicRedisPipeline has been removed in the new version of the dependency.
-     Class redis.clients.jedis.commands.BinaryRedisPipeline has been removed in the new version of the dependency.
      Class redis.clients.jedis.commands.MultiKeyCommandsPipeline has been removed in the new version of the dependency.
+     Class redis.clients.jedis.commands.BinaryRedisPipeline has been removed in the new version of the dependency.
+     Type reference redis.clients.jedis.ClusterPipeline(java.util.Set,redis.clients.jedis.JedisClientConfig,org.apache.commons.pool2.impl.GenericObjectPoolConfig) has been added in the new version of the dependency.
+     Type reference redis.clients.jedis.ClusterPipeline(redis.clients.jedis.providers.ClusterConnectionProvider) has been added in the new version of the dependency.
+     Interface redis.clients.jedis.ClusterPipeline has been added in the new version of the dependency.
+     Class redis.clients.jedis.commands.ClusterPipeline has been removed in the new version of the dependency.
+     Type reference redis.clients.jedis.ClusterPipeline(java.util.Set,redis.clients.jedis.JedisClientConfig) has been added in the new version of the dependency.
      Class redis.clients.jedis.commands.ScriptingCommandsPipeline has been removed in the new version of the dependency.
+     Class redis.clients.jedis.commands.BasicRedisPipeline has been removed in the new version of the dependency.
+     Class redis.clients.jedis.commands.BinaryScriptingCommandsPipeline has been removed in the new version of the dependency.
 
 
 

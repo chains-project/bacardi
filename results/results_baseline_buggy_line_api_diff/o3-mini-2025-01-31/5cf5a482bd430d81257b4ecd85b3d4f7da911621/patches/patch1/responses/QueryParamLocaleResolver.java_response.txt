@@ -1,4 +1,5 @@
 package com.example.web;
+// https://www.mvc-spec.org/learn/cookbook/custom_localeresolver_en.html
 
 import java.util.Locale;
 import java.util.logging.Level;

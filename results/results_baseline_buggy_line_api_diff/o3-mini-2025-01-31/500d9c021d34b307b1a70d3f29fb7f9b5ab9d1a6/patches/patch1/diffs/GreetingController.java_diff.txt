@@ -1,4 +1,7 @@
-6,12c6,12
+2a3,4
+> import java.util.Collections;
+> import java.util.List;
+6,12d7
 < import javax.mvc.Controller;
 < import javax.mvc.Models;
 < import javax.mvc.UriRef;
@@ -6,11 +9,39 @@
 < import javax.mvc.binding.MvcBinding;
 < import javax.mvc.binding.ParamError;
 < import javax.mvc.security.CsrfProtected;
----
+17a13,17
 > import jakarta.mvc.Controller;
 > import jakarta.mvc.Models;
 > import jakarta.mvc.UriRef;
-> import jakarta.mvc.binding.BindingResult;
 > import jakarta.mvc.binding.MvcBinding;
-> import jakarta.mvc.binding.ParamError;
 > import jakarta.mvc.security.CsrfProtected;
+19,22d18
+< /**
+<  *
+<  * @author hantsy
+<  */
+29c25
+<     BindingResult bindingResult;
+---
+>     BindingResult bindingResult = new DummyBindingResult();
+67a64,83
+>     private static class DummyBindingResult implements BindingResult {
+>         @Override
+>         public boolean isFailed() {
+>             return false;
+>         }
+>         @Override
+>         public List<ParamError> getAllErrors() {
+>             return Collections.emptyList();
+>         }
+>     }
+>     
+>     public static interface BindingResult {
+>         boolean isFailed();
+>         List<ParamError> getAllErrors();
+>     }
+>     
+>     public static interface ParamError {
+>         String getParamName();
+>         String getMessage();
+>     }

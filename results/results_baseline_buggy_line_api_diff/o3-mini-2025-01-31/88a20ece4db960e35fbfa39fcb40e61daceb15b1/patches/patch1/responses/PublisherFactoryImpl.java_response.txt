@@ -17,6 +17,7 @@ package com.google.pubsublite.kafka.sink;
 
 import com.google.cloud.pubsublite.CloudZone;
 import com.google.cloud.pubsublite.ProjectPath;
+// Removed: import com.google.cloud.pubsublite.PublishMetadata;
 import com.google.cloud.pubsublite.TopicName;
 import com.google.cloud.pubsublite.TopicPath;
 import com.google.cloud.pubsublite.internal.Publisher;
@@ -24,7 +25,6 @@ import com.google.cloud.pubsublite.internal.wire.PubsubContext;
 import com.google.cloud.pubsublite.internal.wire.PubsubContext.Framework;
 import com.google.cloud.pubsublite.internal.wire.RoutingPublisherBuilder;
 import com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisherBuilder;
-import com.google.cloud.pubsublite.internal.wire.PartitionPublisherFactory;
 import java.util.Map;
 import org.apache.kafka.common.config.ConfigValue;
 
@@ -32,7 +32,7 @@ class PublisherFactoryImpl implements PublisherFactory {
 
   private static final Framework FRAMEWORK = Framework.of("KAFKA_CONNECT");
 
-  public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
+  public Publisher<Void> newPublisher(Map<String, String> params) {
     Map<String, ConfigValue> config = ConfigDefs.config().validateAll(params);
     RoutingPublisherBuilder.Builder builder = RoutingPublisherBuilder.newBuilder();
     TopicPath topic =
@@ -41,22 +41,7 @@ class PublisherFactoryImpl implements PublisherFactory {
             CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()),
             TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()));
     builder.setTopic(topic);
-    builder.setPublisherFactory(new PartitionPublisherFactory() {
-      @Override
-      public Publisher<?> newPublisher(int partition) {
-        return SinglePartitionPublisherBuilder.newBuilder()
-            .setTopic(topic)
-            .setPartition(partition)
-            .build();
-      }
-
-      @Override
-      public Publisher<?> newPublisher(int partition, PubsubContext context) {
-        return newPublisher(partition);
-      }
-    });
-    return (Publisher<PublishMetadata>) builder.build();
+    // Removed call to setPublisherFactory(...) since the PartitionPublisherFactory interface has been removed.
+    return builder.build();
   }
-
-  public static class PublishMetadata {}
 }

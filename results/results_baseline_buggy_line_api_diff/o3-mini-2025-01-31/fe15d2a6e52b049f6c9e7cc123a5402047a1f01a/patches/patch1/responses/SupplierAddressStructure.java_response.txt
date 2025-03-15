@@ -51,8 +51,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "region",
     "country"
 })
-public class SupplierAddressStructure implements ToString2
-{
+public class SupplierAddressStructure implements ToString2 {
 
     @XmlElement(name = "BuildingNumber")
     protected String buildingNumber;
@@ -239,7 +238,7 @@ public class SupplierAddressStructure implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
+        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();

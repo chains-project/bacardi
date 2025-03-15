@@ -14,10 +14,10 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
-import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 
 /**
  * <p>Java class for anonymous complex type.
@@ -36,15 +36,13 @@ import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
  * &lt;/complexType&gt;
  * </pre>
  * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "taxTableEntry"
 })
 @XmlRootElement(name = "TaxTable")
-public class TaxTable implements ToString2
-{
+public class TaxTable implements ToString2 {
 
     @XmlElement(name = "TaxTableEntry", required = true)
     protected List<TaxTableEntry> taxTableEntry;
@@ -64,11 +62,9 @@ public class TaxTable implements ToString2
      *    getTaxTableEntry().add(newItem);
      * </pre>
      * 
-     * 
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link TaxTableEntry }
-     * 
      * 
      */
     public List<TaxTableEntry> getTaxTableEntry() {

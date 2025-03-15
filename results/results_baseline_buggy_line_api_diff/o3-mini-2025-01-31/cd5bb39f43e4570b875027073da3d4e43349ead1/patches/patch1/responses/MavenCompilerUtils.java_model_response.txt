@@ -19,10 +19,9 @@ package org.simplify4u.plugins.utils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.repository.RepositorySystem;
-import org.apache.maven.plugin.descriptor.Xpp3Dom;
+import org.apache.maven.shared.utils.xml.Xpp3Dom;
 
 import java.util.Set;
-import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
@@ -70,9 +69,8 @@ public final class MavenCompilerUtils {
             return emptySet();
         }
         if (config instanceof Xpp3Dom) {
-            Xpp3Dom dom = (Xpp3Dom) config;
-            return stream(getChildren(dom, "annotationProcessorPaths"))
-                    .flatMap(aggregate -> stream(getChildren(aggregate, "path")))
+            return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
+                    .flatMap(aggregate -> stream(aggregate.getChildren("path")))
                     .map(processor -> system.createArtifact(
                             extractChildValue(processor, "groupId"),
                             extractChildValue(processor, "artifactId"),
@@ -102,12 +100,6 @@ public final class MavenCompilerUtils {
     private static String extractChildValue(Xpp3Dom node, String name) {
         final Xpp3Dom child = node.getChild(name);
         return child == null ? "" : child.getValue();
-    }
-
-    private static Xpp3Dom[] getChildren(Xpp3Dom node, String name) {
-        return Arrays.stream(node.getChildren())
-                .filter(child -> name.equals(child.getName()))
-                .toArray(Xpp3Dom[]::new);
     }
 }
 ```

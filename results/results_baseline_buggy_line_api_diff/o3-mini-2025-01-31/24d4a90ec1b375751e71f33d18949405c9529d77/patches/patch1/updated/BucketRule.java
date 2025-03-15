@@ -108,7 +108,8 @@ final class BucketRule implements TestRule {
         );
         final String name = String.format(
             "%s.s3.jcabi.com",
-            RandomStringUtils.randomAlphabetic(5).toLowerCase(Locale.ENGLISH)
+            RandomStringUtils.randomAlphabetic(5)
+                .toLowerCase(Locale.ENGLISH)
         );
         this.subj = region.bucket(name);
         final AmazonS3 aws = this.subj.region().aws();

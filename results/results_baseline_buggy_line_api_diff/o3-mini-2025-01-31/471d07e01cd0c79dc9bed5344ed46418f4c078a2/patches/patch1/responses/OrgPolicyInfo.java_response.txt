@@ -32,14 +32,92 @@ import java.util.Objects;
 @Deprecated
 public class OrgPolicyInfo {
 
+  // Dummy replacement for the removed OrgPolicy class.
+  public static class OrgPolicy extends Policy {
+    // No additional fields; acts as an adapter for the new v3 Policy.
+  }
+
+  // Dummy replacement for the removed BooleanPolicy class.
+  public static class BooleanPolicy {
+    private Boolean enforced;
+
+    public BooleanPolicy setEnforced(Boolean enforced) {
+      this.enforced = enforced;
+      return this;
+    }
+
+    public Boolean getEnforced() {
+      return enforced;
+    }
+  }
+
+  // Dummy replacement for the removed ListPolicy class.
+  public static class ListPolicy {
+    private String allValues;
+    private List<String> allowedValues;
+    private List<String> deniedValues;
+    private Boolean inheritFromParent;
+    private String suggestedValue;
+
+    public ListPolicy setAllValues(String allValues) {
+      this.allValues = allValues;
+      return this;
+    }
+
+    public ListPolicy setAllowedValues(List<String> allowedValues) {
+      this.allowedValues = allowedValues;
+      return this;
+    }
+
+    public ListPolicy setDeniedValues(List<String> deniedValues) {
+      this.deniedValues = deniedValues;
+      return this;
+    }
+
+    public ListPolicy setInheritFromParent(Boolean inheritFromParent) {
+      this.inheritFromParent = inheritFromParent;
+      return this;
+    }
+
+    public ListPolicy setSuggestedValue(String suggestedValue) {
+      this.suggestedValue = suggestedValue;
+      return this;
+    }
+
+    public String getAllValues() {
+      return allValues;
+    }
+
+    public List<String> getAllowedValues() {
+      return allowedValues;
+    }
+
+    public List<String> getDeniedValues() {
+      return deniedValues;
+    }
+
+    public Boolean getInheritFromParent() {
+      return inheritFromParent;
+    }
+
+    public String getSuggestedValue() {
+      return suggestedValue;
+    }
+  }
+
+  // Dummy replacement for the removed RestoreDefault class.
+  public static class RestoreDefault {}
+
   static final Function<OrgPolicy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
       new Function<OrgPolicy, OrgPolicyInfo>() {
+        @Override
         public OrgPolicyInfo apply(OrgPolicy protobuf) {
           return OrgPolicyInfo.fromProtobuf(protobuf);
         }
       };
   static final Function<OrgPolicyInfo, OrgPolicy> TO_PROTOBUF_FUNCTION =
       new Function<OrgPolicyInfo, OrgPolicy>() {
+        @Override
         public OrgPolicy apply(OrgPolicyInfo orgPolicyInfo) {
           return orgPolicyInfo.toProtobuf();
         }
@@ -88,7 +166,6 @@ public class OrgPolicyInfo {
       return Objects.hash(enforce);
     }
 
-    // Updated to use the internal stub BooleanPolicy instead of the removed dependency version.
     BooleanPolicy toProtobuf() {
       return new BooleanPolicy().setEnforced(enforce);
     }
@@ -98,6 +175,22 @@ public class OrgPolicyInfo {
     }
   }
 
+  /**
+   * The organization ListPolicy object.
+   *
+   * <p>ListPolicy can define specific values and subtrees of Cloud Resource Manager resource
+   * hierarchy (Organizations, Folders, Projects) that are allowed or denied by setting the
+   * allowedValues and deniedValues fields. This is achieved by using the under: and optional is:
+   * prefixes. The under: prefix denotes resource subtree values. The is: prefix is used to denote
+   * specific values, and is required only if the value contains a ":". Values prefixed with "is:"
+   * are treated the same as values with no prefix. Ancestry subtrees must be in one of the
+   * following formats: - "projects/", e.g. "projects/tokyo-rain-123" - "folders/", e.g.
+   * "folders/1234" - "organizations/", e.g. "organizations/1234" The supportsUnder field of the
+   * associated Constraint defines whether ancestry prefixes can be used. You can set allowedValues
+   * and deniedValues in the same Policy if allValues is ALL_VALUES_UNSPECIFIED. ALLOW or DENY are
+   * used to allow or deny all values. If allValues is set to either ALLOW or DENY, allowedValues
+   * and deniedValues must be unset.
+   */
   static class Policies {
 
     private final String allValues;
@@ -338,117 +431,20 @@ public class OrgPolicyInfo {
   }
 
   OrgPolicy toProtobuf() {
-    // Create a new OrgPolicy using the v3 Policy stub.
-    OrgPolicy orgPolicyProto = new OrgPolicy(new Policy());
-    // In the new dependency version only etag and version are supported.
+    OrgPolicy orgPolicyProto = new OrgPolicy();
+    // The new dependency removes support for booleanPolicy, constraint, listPolicy, and restoreDefault.
     orgPolicyProto.setEtag(etag);
+    orgPolicyProto.setUpdateTime(updateTime);
     orgPolicyProto.setVersion(version);
     return orgPolicyProto;
   }
 
   static OrgPolicyInfo fromProtobuf(OrgPolicy orgPolicyProtobuf) {
     Builder builder = newBuilder();
+    // The new dependency removes support for booleanPolicy, constraint, listPolicy, and restoreDefault.
     builder.setEtag(orgPolicyProtobuf.getEtag());
+    builder.setUpdateTime(orgPolicyProtobuf.getUpdateTime());
     builder.setVersion(orgPolicyProtobuf.getVersion());
     return builder.build();
-  }
-
-  // Stub class to replace the removed dependency class OrgPolicy.
-  public static class OrgPolicy {
-    private final Policy policy;
-
-    public OrgPolicy(Policy policy) {
-      this.policy = policy;
-    }
-
-    public OrgPolicy setEtag(String etag) {
-      policy.setEtag(etag);
-      return this;
-    }
-
-    public String getEtag() {
-      return policy.getEtag();
-    }
-
-    public OrgPolicy setVersion(Integer version) {
-      policy.setVersion(version);
-      return this;
-    }
-
-    public Integer getVersion() {
-      return policy.getVersion();
-    }
-  }
-
-  // Stub class to replace the removed dependency class BooleanPolicy.
-  public static class BooleanPolicy {
-    private Boolean enforced;
-
-    public BooleanPolicy setEnforced(Boolean enforced) {
-      this.enforced = enforced;
-      return this;
-    }
-
-    public Boolean getEnforced() {
-      return enforced;
-    }
-  }
-
-  // Stub class to replace the removed dependency class ListPolicy.
-  public static class ListPolicy {
-    private String allValues;
-    private List<String> allowedValues;
-    private List<String> deniedValues;
-    private Boolean inheritFromParent;
-    private String suggestedValue;
-
-    public ListPolicy setAllValues(String allValues) {
-      this.allValues = allValues;
-      return this;
-    }
-
-    public String getAllValues() {
-      return allValues;
-    }
-
-    public ListPolicy setAllowedValues(List<String> allowedValues) {
-      this.allowedValues = allowedValues;
-      return this;
-    }
-
-    public List<String> getAllowedValues() {
-      return allowedValues;
-    }
-
-    public ListPolicy setDeniedValues(List<String> deniedValues) {
-      this.deniedValues = deniedValues;
-      return this;
-    }
-
-    public List<String> getDeniedValues() {
-      return deniedValues;
-    }
-
-    public ListPolicy setInheritFromParent(Boolean inheritFromParent) {
-      this.inheritFromParent = inheritFromParent;
-      return this;
-    }
-
-    public Boolean getInheritFromParent() {
-      return inheritFromParent;
-    }
-
-    public ListPolicy setSuggestedValue(String suggestedValue) {
-      this.suggestedValue = suggestedValue;
-      return this;
-    }
-
-    public String getSuggestedValue() {
-      return suggestedValue;
-    }
-  }
-
-  // Stub class to replace the removed dependency class RestoreDefault.
-  public static class RestoreDefault {
   }
 }

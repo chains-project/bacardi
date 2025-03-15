@@ -1,6 +1,32 @@
-30d29
+1,23d0
+< /*
+<  * The MIT License (MIT)
+<  *
+<  * Copyright (c) 2018-2023 Yegor Bugayenko
+<  *
+<  * Permission is hereby granted, free of charge, to any person obtaining a copy
+<  * of this software and associated documentation files (the "Software"), to deal
+<  * in the Software without restriction, including without limitation the rights
+<  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+<  *
+<  * The above copyright notice and this permission notice shall be included
+<  * in all copies or substantial portions of the Software.
+<  *
+<  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+<  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+<  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+<  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+<  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+<  * SOFTWARE.
+<  */
+30c7
 < import java.util.List;
-32,43d30
+---
+> import java.util.Objects;
+32,43d8
 < import org.cactoos.Text;
 < import org.cactoos.iterable.LengthOf;
 < import org.cactoos.list.ListOf;
@@ -13,18 +39,16 @@
 < import org.cactoos.text.TextOf;
 < import org.cactoos.text.TrimmedText;
 < import org.cactoos.text.UncheckedText;
-60,61c47
+50d14
+<  * @checkstyle ClassDataAbstractionCoupling (3 lines)
+60d23
 <         //@checkstyle LineLengthCheck (1 line)
-<         "^([A-Za-z0-9+\\/]{4})*([A-Za-z0-9+\\/]{4}|[A-Za-z0-9+\\/]{3}=|[A-Za-z0-9+\\/]{2}==)$"
----
->         "^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$"
-88c74
+88c51,52
 <     private final IoCheckedScalar<String> transaction;
 ---
 >     private final String transaction;
-92a79
->      * @throws IOException if transaction is invalid
-94,105c81,83
+>     private final String[] parts;
+94,105c58,61
 <     RtTransaction(final String trnsct) {
 <         this.transaction = new IoCheckedScalar<>(
 <             new StickyScalar<>(
@@ -39,9 +63,10 @@
 <                         );
 ---
 >     RtTransaction(final String trnsct) throws IOException {
->         if (trnsct.trim().isEmpty()) {
+>         final String trimmed = trnsct.trim();
+>         if (trimmed.isEmpty()) {
 >             throw new IOException("Invalid transaction string: string is empty");
-107,112c85,86
+107,112c63,64
 <                     final List<Text> pieces =
 <                         new ListOf<>(
 <                             new SplitText(trnsct, ";")
@@ -49,24 +74,27 @@
 <                     // @checkstyle MagicNumberCheck (1 line)
 <                     if (new LengthOf(pieces).intValue() != 7) {
 ---
->         String[] parts = trnsct.split(";", -1);
->         if (parts.length != 7) {
-114,118c88
+>         String[] items = trnsct.split(";", -1);
+>         if (items.length != 7) {
+114,115c66
 <                             new FormattedText(
 <                                 // @checkstyle LineLength (1 line)
-<                                 "Invalid transaction string: expected 7 fields, but found %d",
+---
+>                 String.format(
+117,122c68
 <                                 pieces.size()
 <                             ).asString()
----
->                 String.format("Invalid transaction string: expected 7 fields, but found %d", parts.length)
-121,124c91
+<                         );
+<                     }
 <                     return trnsct;
 <                 }
-<             )
-<         );
 ---
+>                     items.length
+125a72,74
 >         this.transaction = trnsct;
-130,136c97,98
+>         this.parts = items;
+>     }
+130,136c79
 <         final String ident = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
@@ -75,22 +103,18 @@
 <             ).value()
 <         ).asString();
 ---
->         String[] parts = this.transaction.split(";", -1);
->         final String ident = parts[0];
-139,145c101
+>         final String ident = this.parts[0];
+139,141c82
 <                 new UncheckedText(
 <                     new FormattedText(
 <                         // @checkstyle LineLength (1 line)
-<                         "Invalid ID '%s' expecting 16-bit unsigned hex string with 4 symbols",
-<                         ident
-<                     )
-<                 ).asString()
 ---
->                 String.format("Invalid ID '%s' expecting 16-bit unsigned hex string with 4 symbols", ident)
-148d103
+>                 String.format(
+145d85
+<                 ).asString()
+148d87
 <         // @checkstyle MagicNumber (1 line)
-154,163c109,111
-<         return new ZonedDateTimeOf(
+155,161c94
 <             new UncheckedText(
 <                 new IoCheckedScalar<>(
 <                     new ItemAt<>(
@@ -98,13 +122,9 @@
 <                     )
 <                 ).value()
 <             ).asString(),
-<             DateTimeFormatter.ISO_OFFSET_DATE_TIME
-<         ).value();
 ---
->         String[] parts = this.transaction.split(";", -1);
->         final String timeString = parts[1];
->         return new ZonedDateTimeOf(timeString, DateTimeFormatter.ISO_OFFSET_DATE_TIME).value();
-168,174c116,117
+>             this.parts[1],
+168,174c101
 <         final String amnt = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
@@ -113,21 +133,18 @@
 <             ).value()
 <         ).asString();
 ---
->         String[] parts = this.transaction.split(";", -1);
->         final String amnt = parts[2];
-177,183c120
+>         final String amnt = this.parts[2];
+177,179c104
 <                 new UncheckedText(
 <                     new FormattedText(
 <                         // @checkstyle LineLength (1 line)
-<                         "Invalid amount '%s' expecting 64-bit signed hex string with 16 symbols",
-<                         amnt
-<                     )
-<                 ).asString()
 ---
->                 String.format("Invalid amount '%s' expecting 64-bit signed hex string with 16 symbols", amnt)
-186d122
+>                 String.format(
+183d107
+<                 ).asString()
+186d109
 <         // @checkstyle MagicNumber (1 line)
-192,200c128,129
+192,200c115
 <         final String prefix = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
@@ -138,9 +155,8 @@
 <         ).asString();
 <         //@checkstyle MagicNumberCheck (1 line)
 ---
->         String[] parts = this.transaction.split(";", -1);
->         final String prefix = parts[3];
-212,219c141,142
+>         final String prefix = this.parts[3];
+212,219c127
 <         final String bnf = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
@@ -150,19 +166,16 @@
 <             ).value()
 <         ).asString();
 ---
->         String[] parts = this.transaction.split(";", -1);
->         final String bnf = parts[4];
-222,228c145
+>         final String bnf = this.parts[4];
+222,224c130
 <                 new UncheckedText(
 <                     new FormattedText(
 <                         // @checkstyle LineLength (1 line)
-<                         "Invalid bnf string '%s', expecting hex string with 16 symbols",
-<                         bnf
-<                     )
-<                 ).asString()
 ---
->                 String.format("Invalid bnf string '%s', expecting hex string with 16 symbols", bnf)
-236,243c153,154
+>                 String.format(
+228d133
+<                 ).asString()
+236,243c141
 <         final String dtls = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
@@ -172,19 +185,16 @@
 <             ).value()
 <         ).asString();
 ---
->         String[] parts = this.transaction.split(";", -1);
->         final String dtls = parts[5];
-246,252c157
+>         final String dtls = this.parts[5];
+246,248c144
 <                 new UncheckedText(
 <                     new FormattedText(
 <                         // @checkstyle LineLength (1 line)
-<                         "Invalid details string '%s', does not match pattern '%s'",
-<                         dtls, RtTransaction.DTLS
-<                     )
-<                 ).asString()
 ---
->                 String.format("Invalid details string '%s', does not match pattern '%s'", dtls, RtTransaction.DTLS)
-260,270c165,167
+>                 String.format(
+252d147
+<                 ).asString()
+260,270c155,156
 <         final String sign = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
@@ -197,20 +207,25 @@
 <         if (sign.length() != 684
 <             || !RtTransaction.SIGN.matcher(sign).matches()) {
 ---
->         String[] parts = this.transaction.split(";", -1);
->         final String sign = parts[6];
+>         final String sign = this.parts[6];
 >         if (sign.length() != 684 || !RtTransaction.SIGN.matcher(sign).matches()) {
-272,278c169
+272,274c158
 <                 new UncheckedText(
 <                     new FormattedText(
 <                         // @checkstyle LineLength (1 line)
-<                         "Invalid signature '%s', expecting base64 string with 684 characters",
-<                         sign
-<                     )
-<                 ).asString()
 ---
->                 String.format("Invalid signature '%s', expecting base64 string with 684 characters", sign)
-286c177
+>                 String.format(
+278d161
+<                 ).asString()
+286c169
 <         return new UncheckedScalar<>(this.transaction).value();
 ---
 >         return this.transaction;
+299c182
+<         return this.transaction.equals(that.transaction);
+---
+>         return Objects.equals(this.transaction, that.transaction);
+304c187
+<         return this.transaction.hashCode();
+---
+>         return Objects.hash(this.transaction);

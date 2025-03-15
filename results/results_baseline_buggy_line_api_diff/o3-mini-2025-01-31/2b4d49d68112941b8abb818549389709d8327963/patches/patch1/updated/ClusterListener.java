@@ -16,14 +16,14 @@
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.cluster.Cluster;
-import com.hazelcast.cluster.Member;
-import com.hazelcast.cluster.MembershipEvent;
-import com.hazelcast.cluster.MembershipListener;
-import com.hazelcast.cluster.MemberAttributeEvent;
+import com.hazelcast.cluster.EntryListener;
 import com.hazelcast.cluster.LifecycleEvent;
 import com.hazelcast.cluster.LifecycleEvent.LifecycleState;
 import com.hazelcast.cluster.LifecycleListener;
-import com.hazelcast.map.listener.EntryListener;
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MemberAttributeEvent;
+import com.hazelcast.cluster.MembershipEvent;
+import com.hazelcast.cluster.MembershipListener;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterManager;
 import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
@@ -55,11 +55,11 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
 
     private boolean seniorClusterMember = false;
 
-    private final Map<Cache<?,?>, EntryListener> entryListeners = new HashMap<>();
-    
+    private final Map<Cache<?, ?>, EntryListener> entryListeners = new HashMap<>();
+
     private final Cluster cluster;
     private final Map<NodeID, ClusterNodeInfo> clusterNodesInfo = new ConcurrentHashMap<>();
-    
+
     /**
      * Flag that indicates if the listener has done all clean up work when noticed that the
      * cluster has been stopped. This will force Openfire to wait until all clean
@@ -83,9 +83,9 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
 
     private void addEntryListener(final Cache<?, ?> cache, final EntryListener listener) {
         if (cache instanceof CacheWrapper) {
-            final Cache wrapped = ((CacheWrapper)cache).getWrappedCache();
+            final Cache wrapped = ((CacheWrapper) cache).getWrappedCache();
             if (wrapped instanceof ClusteredCache) {
-                ((ClusteredCache)wrapped).addEntryListener(listener);
+                ((ClusteredCache) wrapped).addEntryListener(listener);
                 // Keep track of the listener that we added to the cache
                 entryListeners.put(cache, listener);
             }
@@ -119,7 +119,7 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
         CacheFactory.doClusterTask(new NewClusterMemberJoinedTask());
 
         logger.info("Joined cluster. XMPPServer node={}, Hazelcast UUID={}, seniorClusterMember={}",
-            new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), seniorClusterMember});
+                new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), seniorClusterMember});
         done = false;
     }
 
@@ -147,7 +147,7 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
             XMPPServer.getInstance().getPresenceUpdateHandler().removedExpiredPresences();
         }
         logger.info("Left cluster. XMPPServer node={}, Hazelcast UUID={}, wasSeniorClusterMember={}",
-            new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), wasSeniorClusterMember});
+                new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), wasSeniorClusterMember});
         done = true;
     }
 
@@ -230,10 +230,8 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
 
         if (event.getMember().localMember()) {
             logger.info("Leaving cluster: " + nodeID);
-            // This node may have realized that it got kicked out of the cluster
             leaveCluster();
         } else {
-            // Trigger event that a node left the cluster
             ClusterManager.fireLeftCluster(nodeID.toByteArray());
 
             if (!seniorClusterMember && isSeniorClusterMember()) {
@@ -241,15 +239,12 @@ public class ClusterListener implements MembershipListener, LifecycleListener {
                 ClusterManager.fireMarkedAsSeniorClusterMember();
             }
 
-            // Remove traces of directed presences sent from local entities to handlers that no longer exist.
-            // At this point c2s sessions are gone from the routing table so we can identify expired sessions
             XMPPServer.getInstance().getPresenceUpdateHandler().removedExpiredPresences();
         }
-        // Delete nodeID instance (release from memory)
         NodeID.deleteInstance(nodeID.toByteArray());
         clusterNodesInfo.remove(nodeID);
     }
-    
+
     @SuppressWarnings("WeakerAccess")
     public List<ClusterNodeInfo> getClusterNodesInfo() {
         return new ArrayList<>(clusterNodesInfo.values());

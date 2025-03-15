@@ -1,13 +1,18 @@
-37,38d36
+21,22c21
+<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+<  * SOFTWARE.
+---
+>  * OUT OF OR IN THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+37,38d35
 < import org.cactoos.scalar.IoCheckedScalar;
 < import org.cactoos.scalar.SolidScalar;
-40d37
+40d36
 < import org.cactoos.text.JoinedText;
-53c50
+53c49
 <     private final IoCheckedScalar<Path> path;
 ---
->     private final Scalar<Path> path;
-101,105c98,105
+>     private final Path path;
+101,105c97,102
 <     public WalletsIn(final Scalar<Path> pth, final String ext,
 <         final Random random) {
 <         this.path = new IoCheckedScalar<>(
@@ -15,14 +20,12 @@
 <         );
 ---
 >     public WalletsIn(final Scalar<Path> pth, final String ext, final Random random) {
->         this.path = () -> {
->             try {
->                 return pth.value();
->             } catch (final Exception e) {
->                 throw new IOException(e);
->             }
->         };
-118,124c118,125
+>         try {
+>             this.path = pth.value();
+>         } catch (final Exception e) {
+>             throw new IllegalStateException(e);
+>         }
+118,124c115,116
 <         final Path wpth = this.path.value().resolve(
 <             new JoinedText(
 <                 ".",
@@ -31,20 +34,18 @@
 <             ).asString()
 <         );
 ---
->         final Path base;
->         try {
->             base = this.path.value();
->         } catch (final Exception e) {
->             throw new IOException(e);
->         }
->         final String fileName = String.join(".", Long.toHexString(this.random.nextLong()), this.ext);
->         final Path wpth = base.resolve(fileName);
-144,145c145
+>         final String filename = Long.toHexString(this.random.nextLong()) + "." + this.ext;
+>         final Path wpth = this.path.resolve(filename);
+140,145c132
+<     // @todo #65:30min Create the new wallet in the path with all wallets.
+<     //  It should contain the correct content according to the
+<     //  white paper (network, protocol version, id and public RSA key). After
+<     //  this remove exception expect for tests on WalletsInTest.
 <     public Wallet create(final long id, final String pubkey, final String
 <         network) throws IOException {
 ---
 >     public Wallet create(final long id, final String pubkey, final String network) throws IOException {
-158c158
-<         } catch (final IOException ex) {
+156c143
+<                 new Filtered<>(this.filter, new Directory(this.path.value()))
 ---
->         } catch (final Exception ex) {
+>                 new Filtered<>(this.filter, new Directory(this.path))

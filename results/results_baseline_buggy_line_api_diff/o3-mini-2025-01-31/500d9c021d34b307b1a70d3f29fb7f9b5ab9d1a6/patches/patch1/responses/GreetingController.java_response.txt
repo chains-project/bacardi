@@ -1,32 +1,28 @@
 package com.example.web;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import jakarta.mvc.Controller;
-import jakarta.mvc.Models;
-import jakarta.mvc.UriRef;
-import jakarta.mvc.binding.BindingResult;
-import jakarta.mvc.binding.MvcBinding;
-import jakarta.mvc.binding.ParamError;
-import jakarta.mvc.security.CsrfProtected;
 import javax.validation.constraints.NotBlank;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import jakarta.mvc.UriRef;
+import jakarta.mvc.binding.MvcBinding;
+import jakarta.mvc.security.CsrfProtected;
 
-/**
- *
- * @author hantsy
- */
 @Path("greeting")
 @Controller
 @RequestScoped
 public class GreetingController {
 
     @Inject
-    BindingResult bindingResult;
+    BindingResult bindingResult = new DummyBindingResult();
 
     @Inject
     Models models;
@@ -65,4 +61,24 @@ public class GreetingController {
         return "redirect:greeting";
     }
 
+    private static class DummyBindingResult implements BindingResult {
+        @Override
+        public boolean isFailed() {
+            return false;
+        }
+        @Override
+        public List<ParamError> getAllErrors() {
+            return Collections.emptyList();
+        }
+    }
+    
+    public static interface BindingResult {
+        boolean isFailed();
+        List<ParamError> getAllErrors();
+    }
+    
+    public static interface ParamError {
+        String getParamName();
+        String getMessage();
+    }
 }

@@ -162,7 +162,28 @@ the error is triggered in the following specific lines in the previous code:
 new SubscribeCallback() {
 ```
 ```java
+new SubscribeCallback() {
+```
+```java
+public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
+```
+```java
+public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
+```
+```java
+new SubscribeCallback() {
+```
+```java
+new SubscribeCallback() {
+```
+```java
+import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
+```
+```java
 public void user(PubNub pubnub, PNUserResult pnUserResult) {
+```
+```java
+new SubscribeCallback() {
 ```
 ```java
 new SubscribeCallback() {
@@ -174,34 +195,13 @@ import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
 PNConfiguration pnConfiguration = new PNConfiguration();
 ```
 ```java
-import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
-```
-```java
 @Override
 ```
 ```java
-public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
-```
-```java
-public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
-```
-```java
-new SubscribeCallback() {
-```
-```java
-new SubscribeCallback() {
-```
-```java
-new SubscribeCallback() {
+@Override
 ```
 ```java
 import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
-```
-```java
-@Override
-```
-```java
-new SubscribeCallback() {
 ```
 ```java
 new SubscribeCallback() {
@@ -212,10 +212,18 @@ new SubscribeCallback() {
  with the following error information:
 [ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[50,39] <anonymous info.bitrich.xchangestream.service.pubnub.PubnubStreamingService$1> is not abstract and does not override abstract method file(com.pubnub.api.PubNub,com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult) in com.pubnub.api.callbacks.SubscribeCallback
 
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[99,50] cannot find symbol
+  symbol: class PNSpaceResult
+
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[104,55] cannot find symbol
+  symbol: class PNMembershipResult
+
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[15,53] cannot find symbol
+  symbol:   class PNMembershipResult
+  location: package com.pubnub.api.models.consumer.pubsub.objects
+
 [ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[94,49] cannot find symbol
   symbol: class PNUserResult
-
-[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[50,39] <anonymous info.bitrich.xchangestream.service.pubnub.PubnubStreamingService$1> is not abstract and does not override abstract method file(com.pubnub.api.PubNub,com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult) in com.pubnub.api.callbacks.SubscribeCallback
 
 [ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[17,53] cannot find symbol
   symbol:   class PNUserResult
@@ -227,48 +235,28 @@ new SubscribeCallback() {
     constructor com.pubnub.api.PNConfiguration.PNConfiguration(java.lang.String) is not applicable
       (actual and formal argument lists differ in length)
 
-[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[15,53] cannot find symbol
-  symbol:   class PNMembershipResult
-  location: package com.pubnub.api.models.consumer.pubsub.objects
-
 [ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[93,17] method does not override or implement a method from a supertype
 
-[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[104,55] cannot find symbol
-  symbol: class PNMembershipResult
-
-[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[99,50] cannot find symbol
-  symbol: class PNSpaceResult
-
-[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[50,39] <anonymous info.bitrich.xchangestream.service.pubnub.PubnubStreamingService$1> is not abstract and does not override abstract method file(com.pubnub.api.PubNub,com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult) in com.pubnub.api.callbacks.SubscribeCallback
-
-[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[50,39] <anonymous info.bitrich.xchangestream.service.pubnub.PubnubStreamingService$1> is not abstract and does not override abstract method file(com.pubnub.api.PubNub,com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult) in com.pubnub.api.callbacks.SubscribeCallback
-
-[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[50,39] <anonymous info.bitrich.xchangestream.service.pubnub.PubnubStreamingService$1> is not abstract and does not override abstract method file(com.pubnub.api.PubNub,com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult) in com.pubnub.api.callbacks.SubscribeCallback
+[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[98,17] method does not override or implement a method from a supertype
 
 [ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[16,53] cannot find symbol
   symbol:   class PNSpaceResult
   location: package com.pubnub.api.models.consumer.pubsub.objects
 
-[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[98,17] method does not override or implement a method from a supertype
-
-[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[50,39] <anonymous info.bitrich.xchangestream.service.pubnub.PubnubStreamingService$1> is not abstract and does not override abstract method file(com.pubnub.api.PubNub,com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult) in com.pubnub.api.callbacks.SubscribeCallback
-
-[ERROR] /XChange/xchange-stream-service-pubnub/src/main/java/info/bitrich/xchangestream/service/pubnub/PubnubStreamingService.java:[50,39] <anonymous info.bitrich.xchangestream.service.pubnub.PubnubStreamingService$1> is not abstract and does not override abstract method file(com.pubnub.api.PubNub,com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult) in com.pubnub.api.callbacks.SubscribeCallback
-
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
+     Interface com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult has been removed in the new version of the dependency.
+     Interface com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult has been removed in the new version of the dependency.
+     Class com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult has been removed in the new version of the dependency.
+     Class com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult has been removed in the new version of the dependency.
+     Type reference com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult(com.pubnub.api.models.consumer.pubsub.BasePubSubResult,java.lang.String,com.pubnub.api.models.consumer.objects_api.membership.PNMembership) has been added in the new version of the dependency.
+     Interface com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult has been added in the new version of the dependency.
      Interface com.pubnub.api.models.consumer.pubsub.PNSignalResult has been removed in the new version of the dependency.
      Class com.pubnub.api.models.consumer.pubsub.objects.PNUserResult has been removed in the new version of the dependency.
      Interface com.pubnub.api.models.consumer.pubsub.PNMessageResult has been removed in the new version of the dependency.
-     Constructor com.pubnub.api.PNConfiguration() has been removed in the new version of the dependency.
      Field com.pubnub.api.PNConfiguration(java.lang.String) has been added in the new version of the dependency.
+     Constructor com.pubnub.api.PNConfiguration() has been removed in the new version of the dependency.
      Construct com.pubnub.api.PNConfiguration(com.pubnub.api.UserId) has been added in the new version of the dependency.
-     Class com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult has been removed in the new version of the dependency.
-     Interface com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult has been added in the new version of the dependency.
-     Type reference com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult(com.pubnub.api.models.consumer.pubsub.BasePubSubResult,java.lang.String,com.pubnub.api.models.consumer.objects_api.membership.PNMembership) has been added in the new version of the dependency.
-     Class com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult has been removed in the new version of the dependency.
-     Interface com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult has been removed in the new version of the dependency.
-     Interface com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult has been removed in the new version of the dependency.
 
 
 

@@ -90,14 +90,9 @@ public final class Copies extends IterableEnvelope<Copy> {
         return first.id() == second.id() && size(first.ledger()) == size(second.ledger());
     }
 
-    /**
-     * Helper method to calculate the size of an Iterable.
-     * @param iterable The iterable whose elements are to be counted.
-     * @return The number of elements.
-     */
     private static int size(final Iterable<?> iterable) {
         int count = 0;
-        for (Object ignored : iterable) {
+        for (Object item : iterable) {
             count++;
         }
         return count;

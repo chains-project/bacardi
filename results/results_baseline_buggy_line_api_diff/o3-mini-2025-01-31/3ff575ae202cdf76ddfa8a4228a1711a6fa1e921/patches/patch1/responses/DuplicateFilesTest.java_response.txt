@@ -66,6 +66,7 @@ public class DuplicateFilesTest
         Archiver archiver = (Archiver) lookup( Archiver.ROLE, "dir" );
         createArchive( archiver, "dir" );
         testFinalFile( "target/output/duplicateFiles.dir/duplicateFiles/foo.txt" );
+
     }
 
     public void testTarArchiver()

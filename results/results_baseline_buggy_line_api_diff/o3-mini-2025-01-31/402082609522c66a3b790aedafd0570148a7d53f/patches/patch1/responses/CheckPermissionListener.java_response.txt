@@ -10,32 +10,28 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
 import java.util.UUID;
-import java.util.function.Consumer;
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.network.RemoteConnection;
+import org.spongepowered.api.network.channel.ChannelBuf;
 import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
 import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
 
 public class CheckPermissionListener {
 
     private final ChangeSkinSponge plugin;
-    private final RawPlayDataChannel permissionsResultChannel;
+    private final String permissionsResultChannelName;
 
     @Inject
     CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
         this.plugin = plugin;
-
         String combinedName = new NamespaceKey(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL).getCombinedName();
-        permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
+        this.permissionsResultChannelName = combinedName;
     }
 
     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
-        int len = data.readableBytes();
-        byte[] rawBytes = new byte[len];
-        data.readBytes(rawBytes);
-        ByteArrayDataInput dataInput = ByteStreams.newDataInput(rawBytes);
-
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.readByteArray());
         CheckPermMessage checkMessage = new CheckPermMessage();
         checkMessage.readFrom(dataInput);
 
@@ -74,56 +70,13 @@ public class CheckPermissionListener {
     private void sendResultMessage(Player receiver, PermResultMessage resultMessage) {
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
         resultMessage.writeTo(dataOutput);
-        permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
-    }
-
-    public interface ChannelBuf {
-        int readableBytes();
-        void readBytes(byte[] dest);
-        void writeByteArray(byte[] bytes);
-    }
-
-    private static class DummyChannelBuf implements ChannelBuf {
-        private byte[] data = new byte[0];
-
-        @Override
-        public int readableBytes() {
-            return data.length;
-        }
-
-        @Override
-        public void readBytes(byte[] dest) {
-            System.arraycopy(data, 0, dest, 0, Math.min(dest.length, data.length));
-        }
-
-        @Override
-        public void writeByteArray(byte[] bytes) {
-            data = bytes;
+        if (receiver instanceof ServerPlayer) {
+            ServerPlayer serverPlayer = (ServerPlayer) receiver;
+            serverPlayer.getConnection().sendPluginMessage(permissionsResultChannelName, dataOutput.toByteArray());
         }
     }
-
-    public interface RawPlayDataChannel {
-        void sendTo(Player receiver, Consumer<ChannelBuf> action);
-    }
-
-    private static class DummyRawPlayDataChannel implements RawPlayDataChannel {
-        private final String channelName;
-
-        public DummyRawPlayDataChannel(String channelName) {
-            this.channelName = channelName;
-        }
-
-        @Override
-        public void sendTo(Player receiver, Consumer<ChannelBuf> action) {
-            ChannelBuf buf = new DummyChannelBuf();
-            action.accept(buf);
-            // In a real implementation, the data in buf would be transmitted to the receiver.
-        }
-    }
-
+    
     public static class ChannelRegistrar {
-        public RawPlayDataChannel getOrCreateRaw(Object plugin, String channelName) {
-            return new DummyRawPlayDataChannel(channelName);
-        }
+        // Dummy class to satisfy the constructor parameter after the API removal.
     }
 }

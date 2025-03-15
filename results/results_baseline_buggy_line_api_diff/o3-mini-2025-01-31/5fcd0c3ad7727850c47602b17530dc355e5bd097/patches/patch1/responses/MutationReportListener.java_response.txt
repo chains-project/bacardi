@@ -1,5 +1,7 @@
 package org.pitest.elements;
 
+import org.pitest.classinfo.ClassInfoVisitor;
+import org.pitest.classinfo.ClassName;
 import org.pitest.coverage.CoverageDatabase;
 import org.pitest.mutationtest.ClassMutationResults;
 import org.pitest.mutationtest.MutationResultListener;
@@ -9,15 +11,12 @@ import org.pitest.elements.models.PackageSummaryMap;
 import org.pitest.elements.utils.JsonParser;
 import org.pitest.util.FileUtil;
 import org.pitest.util.ResultOutputStrategy;
-import org.pitest.classinfo.ClassInfoVisitor;
-import org.pitest.classinfo.ClassName;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -106,8 +105,15 @@ public class MutationReportListener implements MutationResultListener {
 
   private MutationTestSummaryData createSummaryData(
       final CoverageDatabase coverage, final ClassMutationResults data) {
-    return new MutationTestSummaryData(data.getFileName(),
-        data.getMutations(), getClassInfo(data.getMutatedClass()));
+    try {
+      byte[] classBytes = loadClassBytes(data.getMutatedClass());
+      ClassInfoVisitor visitor = new ClassInfoVisitor();
+      Object classInfo = visitor.getClassInfo(data.getMutatedClass(), classBytes, System.currentTimeMillis());
+      return new MutationTestSummaryData(data.getFileName(),
+          data.getMutations(), classInfo);
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load class bytes for " + data.getMutatedClass(), e);
+    }
   }
 
   private void updatePackageSummary(
@@ -116,37 +122,6 @@ public class MutationReportListener implements MutationResultListener {
 
     this.packageSummaryData.update(packageName,
         createSummaryData(this.coverage, mutationMetaData));
-  }
-  
-  private Object getClassInfo(final ClassName mutatedClass) {
-    String resourcePath = mutatedClass.asJavaName().replace('.', '/') + ".class";
-    URL resourceUrl = this.getClass().getClassLoader().getResource(resourcePath);
-    byte[] classBytes = new byte[0];
-    long lastModified = 0L;
-    if (resourceUrl != null) {
-      try (InputStream is = resourceUrl.openStream()) {
-        classBytes = readAllBytes(is);
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-      try {
-        File classFile = new File(resourceUrl.toURI());
-        lastModified = classFile.lastModified();
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-    }
-    return ClassInfoVisitor.getClassInfo(mutatedClass, classBytes, lastModified);
-  }
-  
-  private byte[] readAllBytes(InputStream is) throws IOException {
-    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-    int nRead;
-    byte[] data = new byte[4096];
-    while ((nRead = is.read(data, 0, data.length)) != -1) {
-      buffer.write(data, 0, nRead);
-    }
-    return buffer.toByteArray();
   }
 
   @Override
@@ -169,5 +144,28 @@ public class MutationReportListener implements MutationResultListener {
     } catch (IOException e) {
       e.printStackTrace();
     }
+  }
+  
+  private byte[] loadClassBytes(ClassName clazzName) throws IOException {
+    String resourcePath = clazzName.asJavaName().replace('.', '/') + ".class";
+    InputStream is = this.getClass().getClassLoader().getResourceAsStream(resourcePath);
+    if (is == null) {
+      throw new IOException("Resource not found: " + resourcePath);
+    }
+    try {
+      return readAllBytes(is);
+    } finally {
+      is.close();
+    }
+  }
+  
+  private byte[] readAllBytes(InputStream is) throws IOException {
+    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+    byte[] data = new byte[8192];
+    int nRead;
+    while ((nRead = is.read(data, 0, data.length)) != -1) {
+      buffer.write(data, 0, nRead);
+    }
+    return buffer.toByteArray();
   }
 }

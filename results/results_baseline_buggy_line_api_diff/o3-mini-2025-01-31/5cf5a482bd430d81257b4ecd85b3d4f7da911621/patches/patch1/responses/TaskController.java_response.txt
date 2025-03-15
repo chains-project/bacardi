@@ -3,17 +3,11 @@ package com.example.web;
 import com.example.domain.Task;
 import com.example.domain.TaskRepository;
 import com.example.web.AlertMessage.Type;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import jakarta.mvc.Controller;
-import jakarta.mvc.Models;
-import jakarta.mvc.View;
-import jakarta.mvc.security.CsrfProtected;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
@@ -27,10 +21,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import org.eclipse.krazo.engine.Viewable;
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import jakarta.mvc.View;
+import jakarta.mvc.security.CsrfProtected;
 
 @Path("tasks")
 @Controller
-@RequestScoped
 public class TaskController {
 
     @Inject
@@ -38,8 +35,6 @@ public class TaskController {
 
     @Inject
     private Models models;
-
-    private BindingResult validationResult = new BindingResult();
 
     @Inject
     TaskRepository taskRepository;
@@ -61,7 +56,6 @@ public class TaskController {
         models.put("todotasks", todotasks);
         models.put("doingtasks", doingtasks);
         models.put("donetasks", donetasks);
-
     }
 
     @GET
@@ -87,18 +81,6 @@ public class TaskController {
     @CsrfProtected
     public Response save(@Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "saving new task @{0}", form);
-
-        if (validationResult.isFailed()) {
-            AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            validationResult.getAllErrors()
-                    .stream()
-                    .forEach((ParamError t) -> {
-                        alert.addError(t.getParamName(), "", t.getMessage());
-                    });
-            models.put("errors", alert);
-            models.put("task", form);
-            return Response.status(BAD_REQUEST).entity("add.xhtml").build();
-        }
 
         Task task = new Task();
         task.setName(form.getName());
@@ -131,18 +113,6 @@ public class TaskController {
     @CsrfProtected
     public Response update(@PathParam(value = "id") Long id, @Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "updating existed task@id:{0}, form data:{1}", new Object[]{id, form});
-
-        if (validationResult.isFailed()) {
-            AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            validationResult.getAllErrors()
-                    .stream()
-                    .forEach((ParamError t) -> {
-                        alert.addError(t.getParamName(), "", t.getMessage());
-                    });
-            models.put("errors", alert);
-            models.put("task", form);
-            return Response.status(BAD_REQUEST).entity("edit.xhtml").build();
-        }
 
         Task task = taskRepository.findById(id);
 
@@ -187,23 +157,5 @@ public class TaskController {
     @PostConstruct
     private void init() {
         log.config(() -> this.getClass().getSimpleName() + " created");
-    }
-    
-    public static class BindingResult {
-        public boolean isFailed() {
-            return false;
-        }
-        public List<ParamError> getAllErrors() {
-            return Collections.emptyList();
-        }
-    }
-    
-    public static class ParamError {
-        public String getParamName() {
-            return "";
-        }
-        public String getMessage() {
-            return "";
-        }
     }
 }

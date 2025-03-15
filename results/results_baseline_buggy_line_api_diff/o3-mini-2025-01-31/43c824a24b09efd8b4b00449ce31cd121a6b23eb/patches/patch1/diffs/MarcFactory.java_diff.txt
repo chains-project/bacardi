@@ -1,34 +1,27 @@
 3d2
 < import de.gwdg.metadataqa.api.json.JsonBranch;
-47,49d45
+24d22
+< 
+27d24
+< 
+38c35,39
+< import org.marc4j.marc.impl.*;
+---
+> import org.marc4j.marc.impl.ControlFieldImpl;
+> import org.marc4j.marc.impl.DataFieldImpl;
+> import org.marc4j.marc.impl.LeaderImpl;
+> import org.marc4j.marc.impl.RecordImpl;
+> import org.marc4j.marc.impl.SubfieldImpl;
+47,49d47
 < /**
 <  * Factory class to create MarcRecord from JsonPathCache
 <  */
-67,69c63,66
+67c65,66
 <     for (JsonBranch branch : schema.getPaths()) {
-<       if (branch.getParent() != null)
-<         continue;
 ---
->     // The new MarcJsonSchema now returns a list of JSON path strings.
->     for (String path : schema.getPaths()) {
->       JsonBranch branch = wrapJsonBranch(path);
->       // Nested branches are no longer used; skip any parent check.
-84,85c81
-<           marcRecord.setControl006(
-<             new Control006(extractFirst(cache, branch), marcRecord));
----
->           marcRecord.setControl006(new Control006(extractFirst(cache, branch), marcRecord));
-88,89c84
-<           marcRecord.setControl007(
-<             new Control007(extractFirst(cache, branch), marcRecord));
----
->           marcRecord.setControl007(new Control007(extractFirst(cache, branch), marcRecord));
-92,93c87
-<           marcRecord.setControl008(
-<             new Control008(extractFirst(cache, branch), marcRecord));
----
->           marcRecord.setControl008(new Control008(extractFirst(cache, branch), marcRecord));
-133,140d126
+>     for (var obj : schema.getPaths()) {
+>       JsonBranch branch = asJsonBranch(obj);
+133,140d131
 <   /**
 <    * Create a MarcRecord object from Marc4j object
 <    * @param marc4jRecord The Marc4j record
@@ -37,33 +30,44 @@
 <    * @param replecementInControlFields A ^ or # character which sould be replaced with space in control fields
 <    * @return
 <    */
-172d157
+172d162
 <     // marcRecord.setSchemaType(SchemaType.PICA);
-230d214
+230d219
 <         // System.err.println("getTag: " + dataField.getTag() + " ----");
-472d455
+472d460
 <       // String tag = schema.containsKey(line.getQualifiedTag()) ? line.getQualifiedTag() : line.getTag();
-484a468,490
-> 
->   private static JsonBranch wrapJsonBranch(String path) {
->     return new JsonBranch() {
->       @Override
->       public Object getParent() {
->         return null;
->       }
->       @Override
->       public String getLabel() {
->         return path;
->       }
->       @Override
->       public String getJsonPath() {
->         return path;
->       }
->     };
+484a473,506
+>   
+>   private static JsonBranch asJsonBranch(Object obj) {
+>     if (obj instanceof JsonBranch)
+>       return (JsonBranch) obj;
+>     if (obj instanceof String) {
+>       String s = (String) obj;
+>       return new JsonBranch(null, s, s);
+>     }
+>     throw new IllegalArgumentException("Unsupported type from schema.getPaths()");
 >   }
 > 
->   private static interface JsonBranch {
->     Object getParent();
->     String getLabel();
->     String getJsonPath();
+>   private static class JsonBranch {
+>     private final JsonBranch parent;
+>     private final String label;
+>     private final String jsonPath;
+> 
+>     public JsonBranch(JsonBranch parent, String label, String jsonPath) {
+>       this.parent = parent;
+>       this.label = label;
+>       this.jsonPath = jsonPath;
+>     }
+> 
+>     public JsonBranch getParent() {
+>       return parent;
+>     }
+> 
+>     public String getLabel() {
+>       return label;
+>     }
+> 
+>     public String getJsonPath() {
+>       return jsonPath;
+>     }
 >   }

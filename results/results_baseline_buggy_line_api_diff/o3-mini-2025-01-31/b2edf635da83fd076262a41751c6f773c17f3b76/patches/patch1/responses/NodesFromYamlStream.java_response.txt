@@ -30,9 +30,9 @@ import javax.inject.Singleton;
 import org.jclouds.byon.Node;
 import org.jclouds.byon.domain.YamlNode;
 import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.TypeDescription;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
@@ -43,30 +43,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteSource;
 
-/**
- * Parses the following syntax.
- * 
- * <pre>
- * nodes:
- *     - id: cluster-1:
- *       name: cluster-1
- *       description: xyz
- *       hostname: cluster-1.mydomain.com
- *       location_id: virginia
- *       os_arch: x86
- *       os_family: linux
- *       os_description: redhat
- *       os_version: 5.3
- *       group: hadoop
- *       tags:
- *           - vanilla
- *       username: kelvin
- *       credential: password_or_rsa
- *         or
- *       credential_url: password_or_rsa_file ex. resource:///id_rsa will get the classpath /id_rsa; file://path/to/id_rsa
- *       sudo_password: password
- * </pre>
- */
 @Singleton
 public class NodesFromYamlStream implements Function<ByteSource, LoadingCache<String, Node>> {
 

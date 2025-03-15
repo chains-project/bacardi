@@ -269,28 +269,16 @@ public class NPCTeleport
 the error is triggered in the following specific lines in the previous code:
 
 ```java
-center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
-```
-```java
-rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
-```
-```java
-rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
-```
-```java
-? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
-```
-```java
-center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
-```
-```java
 import develop.p2p.lib.*;
 ```
 ```java
+center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
+```
+```java
 ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
 ```
 ```java
-rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
+center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
 ```
 ```java
 WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
@@ -302,59 +290,49 @@ center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
 WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
 ```
 ```java
+rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
+```
+```java
+rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
+```
+```java
 ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
+```
+```java
+? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
+```
+```java
+rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
 ```
 
 
 
  with the following error information:
-[ERROR] /PeyangSuperbAntiCheat/src/main/java/ml/peya/plugins/Detect/NPCTeleport.java:[186,45] cannot find symbol
-  symbol: class WaveCreator
-
-[ERROR] /PeyangSuperbAntiCheat/src/main/java/ml/peya/plugins/Detect/NPCTeleport.java:[179,40] cannot find symbol
-  symbol: class WaveCreator
-
-[ERROR] /PeyangSuperbAntiCheat/src/main/java/ml/peya/plugins/Detect/NPCTeleport.java:[179,40] cannot find symbol
-  symbol: class WaveCreator
-
-[ERROR] /PeyangSuperbAntiCheat/src/main/java/ml/peya/plugins/Detect/NPCTeleport.java:[220,27] cannot find symbol
-  symbol: class WaveCreator
-
-[ERROR] /PeyangSuperbAntiCheat/src/main/java/ml/peya/plugins/Detect/NPCTeleport.java:[186,45] cannot find symbol
-  symbol: class WaveCreator
-
 [ERROR] /PeyangSuperbAntiCheat/src/main/java/ml/peya/plugins/Detect/NPCTeleport.java:[3,1] package develop.p2p.lib does not exist
 
-[ERROR] /PeyangSuperbAntiCheat/src/main/java/ml/peya/plugins/Detect/NPCTeleport.java:[220,27] cannot find symbol
-  symbol: class WaveCreator
-
-[ERROR] /PeyangSuperbAntiCheat/src/main/java/ml/peya/plugins/Detect/NPCTeleport.java:[179,40] cannot find symbol
-  symbol: class WaveCreator
-
-[ERROR] /PeyangSuperbAntiCheat/src/main/java/ml/peya/plugins/Detect/NPCTeleport.java:[161,9] cannot find symbol
-  symbol:   class WaveCreator
-  location: class ml.peya.plugins.Detect.NPCTeleport
-
 [ERROR] /PeyangSuperbAntiCheat/src/main/java/ml/peya/plugins/Detect/NPCTeleport.java:[186,45] cannot find symbol
   symbol: class WaveCreator
 
+[ERROR] /PeyangSuperbAntiCheat/src/main/java/ml/peya/plugins/Detect/NPCTeleport.java:[220,27] cannot find symbol
+  symbol: class WaveCreator
+
 [ERROR] /PeyangSuperbAntiCheat/src/main/java/ml/peya/plugins/Detect/NPCTeleport.java:[161,9] cannot find symbol
   symbol:   class WaveCreator
   location: class ml.peya.plugins.Detect.NPCTeleport
 
-[ERROR] /PeyangSuperbAntiCheat/src/main/java/ml/peya/plugins/Detect/NPCTeleport.java:[220,27] cannot find symbol
+[ERROR] /PeyangSuperbAntiCheat/src/main/java/ml/peya/plugins/Detect/NPCTeleport.java:[179,40] cannot find symbol
   symbol: class WaveCreator
 
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
+     Type reference tokyo.peya.lib.WaveCreator(double,double,double) has been added in the new version of the dependency.
      Class develop.p2p.lib.WaveCreator has been removed in the new version of the dependency.
      Constructor develop.p2p.lib.WaveCreator(double,double,double) has been removed in the new version of the dependency.
-     Construct tokyo.peya.lib.WaveCreator(double,double,double) has been added in the new version of the dependency.
-     Type reference tokyo.peya.lib.WaveCreator(double,double,double) has been added in the new version of the dependency.
-     Method tokyo.peya.lib.FileConfiguration.get(java.lang.String) has been added in the new version of the dependency.
      Method tokyo.peya.lib.WaveCreator.get(double,boolean) has been added in the new version of the dependency.
+     Method tokyo.peya.lib.FileConfiguration.get(java.lang.String) has been added in the new version of the dependency.
      Method develop.p2p.lib.WaveCreator.get(double,boolean) has been removed in the new version of the dependency.
      Method develop.p2p.lib.FileConfiguration.get(java.lang.String) has been removed in the new version of the dependency.
+     Construct tokyo.peya.lib.WaveCreator(double,double,double) has been added in the new version of the dependency.
 
 
 

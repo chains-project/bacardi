@@ -185,11 +185,12 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
     this.stopGracePeriodInSeconds = config.getStopGracePeriodInSeconds();
     this.badPartitions.add(-1);
     try {
-      serializer = new TSerializer();
+      this.serializer = new TSerializer();
     } catch (TTransportException e) {
-      throw new RuntimeException("Failed to initialize TSerializer", e);
+      throw new RuntimeException("Error initializing TSerializer", e);
     }
   }
+
 
   public KafkaProducer<byte[], byte[]> getKafkaProducer() {
     return kafkaProducer;
@@ -248,6 +249,13 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
     }
   }
 
+  /**
+   *  Sender dequeues LoggingAuditEvents and sends them to Kafka cluster. If send to one partition
+   *  fails, it will choose another partition. For each event, it will try at most
+   *  NUM_OF_PARTITIONS_TO_TRY_SENDING times (3 times) before dropping this event. Metrics are
+   *  used to track the queue size and usuage, number of events sent out to Kafka successfully, and
+   *  the number of events dropped.
+   */
   @Override
   public void run() {
     LoggingAuditEvent event = null;

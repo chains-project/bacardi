@@ -5,7 +5,7 @@
 // Generated on: 2023.08.18 at 08:13:47 AM GMT 
 //
 
-package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -14,33 +14,438 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
-import org.jvnet.jaxb2_commons.lang.JAXBEqualsStrategy;
-import org.jvnet.jaxb2_commons.lang.JAXBCopyStrategy;
-import org.jvnet.jaxb2_commons.lang.JAXBHashCodeStrategy;
-import org.jvnet.jaxb2_commons.lang.JAXBMergeCollectionsStrategy;
-import org.jvnet.jaxb2_commons.lang.JAXBMergeStrategy;
 import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
-import org.jvnet.jaxb2_commons.lang.ObjectLocator;
-import org.jvnet.jaxb2_commons.lang.DefaultEqualsStrategy;
-import org.jvnet.jaxb2_commons.lang.DefaultHashCodeStrategy;
-import org.jvnet.jaxb2_commons.lang.DefaultMergeStrategy;
-import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
-import org.jvnet.jaxb2_commons.lang.DefaultCopyStrategy;
+import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
+/**
+ * <p>Java class for SourceDocuments complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType name="SourceDocuments"&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="SalesInvoices" minOccurs="0"&gt;
+ *           &lt;complexType&gt;
+ *             &lt;complexContent&gt;
+ *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                 &lt;sequence&gt;
+ *                   &lt;element name="NumberOfEntries" type="{http://www.w3.org/2001/XMLSchema}nonNegativeInteger"/&gt;
+ *                   &lt;element name="TotalDebit" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                   &lt;element name="TotalCredit" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                   &lt;element name="Invoice" maxOccurs="unbounded" minOccurs="0"&gt;
+ *                     &lt;complexType&gt;
+ *                       &lt;complexContent&gt;
+ *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                           &lt;sequence&gt;
+ *                             &lt;element name="InvoiceNo" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="ATCUD" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="DocumentStatus"&gt;
+ *                               &lt;complexType&gt;
+ *                                 &lt;complexContent&gt;
+ *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                                     &lt;sequence&gt;
+ *                                       &lt;element name="InvoiceStatus" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                                       &lt;element name="InvoiceStatusDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
+ *                                       &lt;element name="Reason" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                                       &lt;element name="SourceID" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                                       &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTSourceBilling"/&gt;
+ *                                     &lt;/sequence&gt;
+ *                                   &lt;/restriction&gt;
+ *                                 &lt;/complexContent&gt;
+ *                               &lt;/complexType&gt;
+ *                             &lt;/element&gt;
+ *                             &lt;element name="Hash" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="HashControl" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="Period" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/&gt;
+ *                             &lt;element name="InvoiceDate" type="{http://www.w3.org/2001/XMLSchema}date"/&gt;
+ *                             &lt;element name="InvoiceType" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="SpecialRegimes" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SpecialRegimes"/&gt;
+ *                             &lt;element name="SourceID" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="EACCode" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                             &lt;element name="SystemEntryDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
+ *                             &lt;element name="TransactionID" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                             &lt;element name="CustomerID" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="ShipTo" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ShippingPointStructure" minOccurs="0"/&gt;
+ *                             &lt;element name="ShipFrom" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ShippingPointStructure" minOccurs="0"/&gt;
+ *                             &lt;element name="MovementEndTime" type="{http://www.w3.org/2001/XMLSchema}dateTime" minOccurs="0"/&gt;
+ *                             &lt;element name="MovementStartTime" type="{http://www.w3.org/2001/XMLSchema}dateTime" minOccurs="0"/&gt;
+ *                             &lt;element name="Line" maxOccurs="unbounded"&gt;
+ *                               &lt;complexType&gt;
+ *                                 &lt;complexContent&gt;
+ *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                                     &lt;sequence&gt;
+ *                                       &lt;element name="LineNumber" type="{http://www.w3.org/2001/XMLSchema}nonNegativeInteger"/&gt;
+ *                                       &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                                       &lt;element name="ProductCode" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                                       &lt;element name="ProductDescription" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                                       &lt;element name="Quantity" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                       &lt;element name="UnitOfMeasure" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                                       &lt;element name="UnitPrice" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                       &lt;element name="Description" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                                       &lt;element name="ProductSerialNumber" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductSerialNumber" minOccurs="0"/&gt;
+ *                                       &lt;choice&gt;
+ *                                         &lt;element name="DebitAmount" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                         &lt;element name="CreditAmount" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                       &lt;/choice&gt;
+ *                                       &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Tax" minOccurs="0"/&gt;
+ *                                       &lt;element name="TaxExemptionReason" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                                       &lt;element name="TaxExemptionCode" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                                       &lt;element name="SettlementAmount" type="{http://www.w3.org/2001/XMLSchema}decimal" minOccurs="0"/&gt;
+ *                                       &lt;element name="CustomsInformation" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomsInformation" minOccurs="0"/&gt;
+ *                                     &lt;/sequence&gt;
+ *                                   &lt;/restriction&gt;
+ *                                 &lt;/complexContent&gt;
+ *                               &lt;/complexType&gt;
+ *                             &lt;/element&gt;
+ *                             &lt;element name="DocumentTotals"&gt;
+ *                               &lt;complexType&gt;
+ *                                 &lt;complexContent&gt;
+ *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                                     &lt;sequence&gt;
+ *                                       &lt;element name="TaxPayable" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                       &lt;element name="NetTotal" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                       &lt;element name="GrossTotal" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                       &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Currency" minOccurs="0"/&gt;
+ *                                       &lt;element name="Settlement" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Settlement" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                                       &lt;element name="Payment" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentMethod" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                                     &lt;/sequence&gt;
+ *                                   &lt;/restriction&gt;
+ *                                 &lt;/complexContent&gt;
+ *                               &lt;/complexType&gt;
+ *                             &lt;/element&gt;
+ *                             &lt;element name="WithholdingTax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WithholdingTax" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                           &lt;/sequence&gt;
+ *                         &lt;/restriction&gt;
+ *                       &lt;/complexContent&gt;
+ *                     &lt;/complexType&gt;
+ *                   &lt;/element&gt;
+ *                 &lt;/sequence&gt;
+ *               &lt;/restriction&gt;
+ *             &lt;/complexContent&gt;
+ *           &lt;/complexType&gt;
+ *         &lt;/element&gt;
+ *         &lt;element name="MovementOfGoods" minOccurs="0"&gt;
+ *           &lt;complexType&gt;
+ *             &lt;complexContent&gt;
+ *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                 &lt;sequence&gt;
+ *                   &lt;element name="NumberOfMovementLines" type="{http://www.w3.org/2001/XMLSchema}nonNegativeInteger"/&gt;
+ *                   &lt;element name="TotalQuantityIssued" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                   &lt;element name="StockMovement" maxOccurs="unbounded" minOccurs="0"&gt;
+ *                     &lt;complexType&gt;
+ *                       &lt;complexContent&gt;
+ *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                           &lt;sequence&gt;
+ *                             &lt;element name="DocumentNumber" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="ATCUD" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="DocumentStatus"&gt;
+ *                               &lt;complexType&gt;
+ *                                 &lt;complexContent&gt;
+ *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                                     &lt;sequence&gt;
+ *                                       &lt;element name="MovementStatus" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                                       &lt;element name="MovementStatusDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
+ *                                       &lt;element name="Reason" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                                       &lt;element name="SourceID" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                                       &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTSourceBilling"/&gt;
+ *                                     &lt;/sequence&gt;
+ *                                   &lt;/restriction&gt;
+ *                                 &lt;/complexContent&gt;
+ *                               &lt;/complexType&gt;
+ *                             &lt;/element&gt;
+ *                             &lt;element name="Hash" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="HashControl" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="Period" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/&gt;
+ *                             &lt;element name="MovementDate" type="{http://www.w3.org/2001/XMLSchema}date"/&gt;
+ *                             &lt;element name="MovementType" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="SystemEntryDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
+ *                             &lt;element name="TransactionID" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                             &lt;choice&gt;
+ *                               &lt;element name="CustomerID" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                               &lt;element name="SupplierID" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;/choice&gt;
+ *                             &lt;element name="SourceID" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="EACCode" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                             &lt;element name="MovementComments" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                             &lt;element name="ShipTo" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ShippingPointStructure" minOccurs="0"/&gt;
+ *                             &lt;element name="ShipFrom" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ShippingPointStructure" minOccurs="0"/&gt;
+ *                             &lt;element name="MovementEndTime" type="{http://www.w3.org/2001/XMLSchema}dateTime" minOccurs="0"/&gt;
+ *                             &lt;element name="MovementStartTime" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
+ *                             &lt;element name="ATDocCodeID" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                             &lt;element name="Line" maxOccurs="unbounded"&gt;
+ *                               &lt;complexType&gt;
+ *                                 &lt;complexContent&gt;
+ *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                                     &lt;sequence&gt;
+ *                                       &lt;element name="LineNumber" type="{http://www.w3.org/2001/XMLSchema}nonNegativeInteger"/&gt;
+ *                                       &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                                       &lt;element name="ProductCode" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                                       &lt;element name="ProductDescription" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                                       &lt;element name="Quantity" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                       &lt;element name="UnitOfMeasure" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                                       &lt;element name="UnitPrice" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                       &lt;element name="Description" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                                       &lt;element name="ProductSerialNumber" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductSerialNumber" minOccurs="0"/&gt;
+ *                                       &lt;choice&gt;
+ *                                         &lt;element name="DebitAmount" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                         &lt;element name="CreditAmount" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                       &lt;/choice&gt;
+ *                                       &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}MovementTax" minOccurs="0"/&gt;
+ *                                       &lt;element name="TaxExemptionReason" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                                       &lt;element name="TaxExemptionCode" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                                       &lt;element name="SettlementAmount" type="{http://www.w3.org/2001/XMLSchema}decimal" minOccurs="0"/&gt;
+ *                                       &lt;element name="CustomsInformation" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CustomsInformation" minOccurs="0"/&gt;
+ *                                     &lt;/sequence&gt;
+ *                                   &lt;/restriction&gt;
+ *                                 &lt;/complexContent&gt;
+ *                               &lt;/complexType&gt;
+ *                             &lt;/element&gt;
+ *                             &lt;element name="DocumentTotals"&gt;
+ *                               &lt;complexType&gt;
+ *                                 &lt;complexContent&gt;
+ *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                                     &lt;sequence&gt;
+ *                                       &lt;element name="TaxPayable" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                       &lt;element name="NetTotal" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                       &lt;element name="GrossTotal" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                       &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Currency" minOccurs="0"/&gt;
+ *                                     &lt;/sequence&gt;
+ *                                   &lt;/restriction&gt;
+ *                                 &lt;/complexContent&gt;
+ *                               &lt;/complexType&gt;
+ *                             &lt;/element&gt;
+ *                             &lt;element name="WithholdingTax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WithholdingTax" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                           &lt;/sequence&gt;
+ *                         &lt;/restriction&gt;
+ *                       &lt;/complexContent&gt;
+ *                     &lt;/complexType&gt;
+ *                   &lt;/element&gt;
+ *                 &lt;/sequence&gt;
+ *               &lt;/restriction&gt;
+ *             &lt;/complexContent&gt;
+ *           &lt;/complexType&gt;
+ *         &lt;/element&gt;
+ *         &lt;element name="WorkingDocuments" minOccurs="0"&gt;
+ *           &lt;complexType&gt;
+ *             &lt;complexContent&gt;
+ *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                 &lt;sequence&gt;
+ *                   &lt;element name="NumberOfEntries" type="{http://www.w3.org/2001/XMLSchema}nonNegativeInteger"/&gt;
+ *                   &lt;element name="TotalDebit" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                   &lt;element name="TotalCredit" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                   &lt;element name="WorkDocument" maxOccurs="unbounded" minOccurs="0"&gt;
+ *                     &lt;complexType&gt;
+ *                       &lt;complexContent&gt;
+ *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                           &lt;sequence&gt;
+ *                             &lt;element name="DocumentNumber" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="ATCUD" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="DocumentStatus"&gt;
+ *                               &lt;complexType&gt;
+ *                                 &lt;complexContent&gt;
+ *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                                     &lt;sequence&gt;
+ *                                       &lt;element name="WorkStatus" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                                       &lt;element name="WorkStatusDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
+ *                                       &lt;element name="Reason" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                                       &lt;element name="SourceID" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                                       &lt;element name="SourceBilling" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTSourceBilling"/&gt;
+ *                                     &lt;/sequence&gt;
+ *                                   &lt;/restriction&gt;
+ *                                 &lt;/complexContent&gt;
+ *                               &lt;/complexType&gt;
+ *                             &lt;/element&gt;
+ *                             &lt;element name="Hash" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="HashControl" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="Period" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/&gt;
+ *                             &lt;element name="WorkDate" type="{http://www.w3.org/2001/XMLSchema}date"/&gt;
+ *                             &lt;element name="WorkType" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="SourceID" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="EACCode" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                             &lt;element name="SystemEntryDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
+ *                             &lt;element name="TransactionID" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                             &lt;element name="CustomerID" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="Line" maxOccurs="unbounded"&gt;
+ *                               &lt;complexType&gt;
+ *                                 &lt;complexContent&gt;
+ *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                                     &lt;sequence&gt;
+ *                                       &lt;element name="LineNumber" type="{http://www.w3.org/2001/XMLSchema}nonNegativeInteger"/&gt;
+ *                                       &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                                       &lt;element name="ProductCode" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                                       &lt;element name="ProductDescription" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                                       &lt;element name="Quantity" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                       &lt;element name="UnitOfMeasure" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                                       &lt;element name="UnitPrice" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                       &lt;element name="Description" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                                       &lt;element name="ProductSerialNumber" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}ProductSerialNumber" minOccurs="0"/&gt;
+ *                                       &lt;choice&gt;
+ *                                         &lt;element name="DebitAmount" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                         &lt;element name="CreditAmount" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                       &lt;/choice&gt;
+ *                                       &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentTax" minOccurs="0"/&gt;
+ *                                       &lt;element name="TaxExemptionReason" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                                       &lt;element name="TaxExemptionCode" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                                     &lt;/sequence&gt;
+ *                                   &lt;/restriction&gt;
+ *                                 &lt;/complexContent&gt;
+ *                               &lt;/complexType&gt;
+ *                             &lt;/element&gt;
+ *                             &lt;element name="DocumentTotals"&gt;
+ *                               &lt;complexType&gt;
+ *                                 &lt;complexContent&gt;
+ *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                                     &lt;sequence&gt;
+ *                                       &lt;element name="TaxPayable" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                       &lt;element name="NetTotal" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                       &lt;element name="GrossTotal" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                       &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Currency" minOccurs="0"/&gt;
+ *                                     &lt;/sequence&gt;
+ *                                   &lt;/restriction&gt;
+ *                                 &lt;/complexContent&gt;
+ *                               &lt;/complexType&gt;
+ *                             &lt;/element&gt;
+ *                           &lt;/sequence&gt;
+ *                         &lt;/restriction&gt;
+ *                       &lt;/complexContent&gt;
+ *                     &lt;/complexType&gt;
+ *                   &lt;/element&gt;
+ *                 &lt;/sequence&gt;
+ *               &lt;/restriction&gt;
+ *             &lt;/complexContent&gt;
+ *           &lt;/complexType&gt;
+ *         &lt;/element&gt;
+ *         &lt;element name="Payments" minOccurs="0"&gt;
+ *           &lt;complexType&gt;
+ *             &lt;complexContent&gt;
+ *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                 &lt;sequence&gt;
+ *                   &lt;element name="NumberOfEntries" type="{http://www.w3.org/2001/XMLSchema}nonNegativeInteger"/&gt;
+ *                   &lt;element name="TotalDebit" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                   &lt;element name="TotalCredit" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                   &lt;element name="Payment" maxOccurs="unbounded" minOccurs="0"&gt;
+ *                     &lt;complexType&gt;
+ *                       &lt;complexContent&gt;
+ *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                           &lt;sequence&gt;
+ *                             &lt;element name="PaymentRefNo" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="ATCUD" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="Period" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/&gt;
+ *                             &lt;element name="TransactionID" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                             &lt;element name="TransactionDate" type="{http://www.w3.org/2001/XMLSchema}date"/&gt;
+ *                             &lt;element name="PaymentType" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTPaymentType"/&gt;
+ *                             &lt;element name="Description" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                             &lt;element name="SystemID" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                             &lt;element name="DocumentStatus"&gt;
+ *                               &lt;complexType&gt;
+ *                                 &lt;complexContent&gt;
+ *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                                     &lt;sequence&gt;
+ *                                       &lt;element name="PaymentStatus" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                                       &lt;element name="PaymentStatusDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
+ *                                       &lt;element name="Reason" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                                       &lt;element name="SourceID" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                                       &lt;element name="SourcePayment" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SAFTPTSourcePayment"/&gt;
+ *                                     &lt;/sequence&gt;
+ *                                   &lt;/restriction&gt;
+ *                                 &lt;/complexContent&gt;
+ *                               &lt;/complexType&gt;
+ *                             &lt;/element&gt;
+ *                             &lt;element name="PaymentMethod" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentMethod" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                             &lt;element name="SourceID" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="SystemEntryDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
+ *                             &lt;element name="CustomerID" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                             &lt;element name="Line" maxOccurs="unbounded"&gt;
+ *                               &lt;complexType&gt;
+ *                                 &lt;complexContent&gt;
+ *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                                     &lt;sequence&gt;
+ *                                       &lt;element name="LineNumber" type="{http://www.w3.org/2001/XMLSchema}nonNegativeInteger"/&gt;
+ *                                       &lt;element name="SourceDocumentID" maxOccurs="unbounded"&gt;
+ *                                         &lt;complexType&gt;
+ *                                           &lt;complexContent&gt;
+ *                                             &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                                               &lt;sequence&gt;
+ *                                                 &lt;element name="OriginatingON" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *                                                 &lt;element name="InvoiceDate" type="{http://www.w3.org/2001/XMLSchema}date"/&gt;
+ *                                                 &lt;element name="Description" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                                               &lt;/sequence&gt;
+ *                                             &lt;/restriction&gt;
+ *                                           &lt;/complexContent&gt;
+ *                                         &lt;/complexType&gt;
+ *                                       &lt;/element&gt;
+ *                                       &lt;element name="SettlementAmount" type="{http://www.w3.org/2001/XMLSchema}decimal" minOccurs="0"/&gt;
+ *                                       &lt;choice&gt;
+ *                                         &lt;element name="DebitAmount" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                         &lt;element name="CreditAmount" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                       &lt;/choice&gt;
+ *                                       &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}PaymentTax" minOccurs="0"/&gt;
+ *                                       &lt;element name="TaxExemptionReason" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                                       &lt;element name="TaxExemptionCode" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *                                     &lt;/sequence&gt;
+ *                                   &lt;/restriction&gt;
+ *                                 &lt;/complexContent&gt;
+ *                               &lt;/complexType&gt;
+ *                             &lt;/element&gt;
+ *                             &lt;element name="DocumentTotals"&gt;
+ *                               &lt;complexType&gt;
+ *                                 &lt;complexContent&gt;
+ *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                                     &lt;sequence&gt;
+ *                                       &lt;element name="TaxPayable" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                       &lt;element name="NetTotal" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                       &lt;element name="GrossTotal" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                       &lt;element name="Settlement" minOccurs="0"&gt;
+ *                                         &lt;complexType&gt;
+ *                                           &lt;complexContent&gt;
+ *                                             &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *                                               &lt;sequence&gt;
+ *                                                 &lt;element name="SettlementAmount" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *                                               &lt;/sequence&gt;
+ *                                             &lt;/restriction&gt;
+ *                                           &lt;/complexContent&gt;
+ *                                         &lt;/complexType&gt;
+ *                                       &lt;/element&gt;
+ *                                       &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Currency" minOccurs="0"/&gt;
+ *                                     &lt;/sequence&gt;
+ *                                   &lt;/restriction&gt;
+ *                                 &lt;/complexContent&gt;
+ *                               &lt;/complexType&gt;
+ *                             &lt;/element&gt;
+ *                             &lt;element name="WithholdingTax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}WithholdingTax" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                           &lt;/sequence&gt;
+ *                         &lt;/restriction&gt;
+ *                       &lt;/complexContent&gt;
+ *                     &lt;/complexType&gt;
+ *                   &lt;/element&gt;
+ *                 &lt;/sequence&gt;
+ *               &lt;/restriction&gt;
+ *             &lt;/complexContent&gt;
+ *           &lt;/complexType&gt;
+ *         &lt;/element&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
+@XmlType(name = "SourceDocuments", propOrder = {
     "salesInvoices",
     "movementOfGoods",
     "workingDocuments",
     "payments"
 })
-@XmlRootElement(name = "SourceDocuments")
 public class SourceDocuments implements ToString2 {
 
     @XmlElement(name = "SalesInvoices")
@@ -52,34 +457,74 @@ public class SourceDocuments implements ToString2 {
     @XmlElement(name = "Payments")
     protected SourceDocuments.Payments payments;
 
+    /**
+     * Gets the value of the salesInvoices property.
+     * 
+     * @return possible object is {@link SourceDocuments.SalesInvoices }
+     */
     public SourceDocuments.SalesInvoices getSalesInvoices() {
         return salesInvoices;
     }
 
+    /**
+     * Sets the value of the salesInvoices property.
+     * 
+     * @param value allowed object is {@link SourceDocuments.SalesInvoices }
+     */
     public void setSalesInvoices(SourceDocuments.SalesInvoices value) {
         this.salesInvoices = value;
     }
 
+    /**
+     * Gets the value of the movementOfGoods property.
+     * 
+     * @return possible object is {@link SourceDocuments.MovementOfGoods }
+     */
     public SourceDocuments.MovementOfGoods getMovementOfGoods() {
         return movementOfGoods;
     }
 
+    /**
+     * Sets the value of the movementOfGoods property.
+     * 
+     * @param value allowed object is {@link SourceDocuments.MovementOfGoods }
+     */
     public void setMovementOfGoods(SourceDocuments.MovementOfGoods value) {
         this.movementOfGoods = value;
     }
 
+    /**
+     * Gets the value of the workingDocuments property.
+     * 
+     * @return possible object is {@link SourceDocuments.WorkingDocuments }
+     */
     public SourceDocuments.WorkingDocuments getWorkingDocuments() {
         return workingDocuments;
     }
 
+    /**
+     * Sets the value of the workingDocuments property.
+     * 
+     * @param value allowed object is {@link SourceDocuments.WorkingDocuments }
+     */
     public void setWorkingDocuments(SourceDocuments.WorkingDocuments value) {
         this.workingDocuments = value;
     }
 
+    /**
+     * Gets the value of the payments property.
+     * 
+     * @return possible object is {@link SourceDocuments.Payments }
+     */
     public SourceDocuments.Payments getPayments() {
         return payments;
     }
 
+    /**
+     * Sets the value of the payments property.
+     * 
+     * @param value allowed object is {@link SourceDocuments.Payments }
+     */
     public void setPayments(SourceDocuments.Payments value) {
         this.payments = value;
     }
@@ -203,6 +648,7 @@ public class SourceDocuments implements ToString2 {
         @XmlAccessorType(XmlAccessType.FIELD)
         @XmlType(name = "", propOrder = {
             "documentNumber",
+            "atcud",
             "documentStatus",
             "hash",
             "hashControl",
@@ -228,11 +674,13 @@ public class SourceDocuments implements ToString2 {
 
             @XmlElement(name = "DocumentNumber", required = true)
             protected String documentNumber;
+            @XmlElement(name = "ATCUD", required = true)
+            protected String atcud;
             @XmlElement(name = "DocumentStatus", required = true)
             protected SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus documentStatus;
             @XmlElement(name = "Hash", required = true)
             protected String hash;
-            @XmlElement(name = "HashControl")
+            @XmlElement(name = "HashControl", required = true)
             protected String hashControl;
             @XmlElement(name = "Period")
             protected Integer period;
@@ -279,6 +727,14 @@ public class SourceDocuments implements ToString2 {
 
             public void setDocumentNumber(String value) {
                 this.documentNumber = value;
+            }
+
+            public String getATCUD() {
+                return atcud;
+            }
+
+            public void setATCUD(String value) {
+                this.atcud = value;
             }
 
             public SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus getDocumentStatus() {
@@ -462,6 +918,11 @@ public class SourceDocuments implements ToString2 {
                     String theDocumentNumber;
                     theDocumentNumber = this.getDocumentNumber();
                     strategy.appendField(locator, this, "documentNumber", buffer, theDocumentNumber, (this.documentNumber != null));
+                }
+                {
+                    String theATCUD;
+                    theATCUD = this.getATCUD();
+                    strategy.appendField(locator, this, "atcud", buffer, theATCUD, (this.atcud != null));
                 }
                 {
                     SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus theDocumentStatus;
@@ -780,11 +1241,14 @@ public class SourceDocuments implements ToString2 {
                 "unitOfMeasure",
                 "unitPrice",
                 "description",
+                "productSerialNumber",
                 "debitAmount",
                 "creditAmount",
                 "tax",
                 "taxExemptionReason",
-                "settlementAmount"
+                "taxExemptionCode",
+                "settlementAmount",
+                "customsInformation"
             })
             public static class Line implements ToString2 {
 
@@ -805,6 +1269,8 @@ public class SourceDocuments implements ToString2 {
                 protected BigDecimal unitPrice;
                 @XmlElement(name = "Description", required = true)
                 protected String description;
+                @XmlElement(name = "ProductSerialNumber")
+                protected ProductSerialNumber productSerialNumber;
                 @XmlElement(name = "DebitAmount")
                 protected BigDecimal debitAmount;
                 @XmlElement(name = "CreditAmount")
@@ -813,8 +1279,12 @@ public class SourceDocuments implements ToString2 {
                 protected MovementTax tax;
                 @XmlElement(name = "TaxExemptionReason")
                 protected String taxExemptionReason;
+                @XmlElement(name = "TaxExemptionCode")
+                protected String taxExemptionCode;
                 @XmlElement(name = "SettlementAmount")
                 protected BigDecimal settlementAmount;
+                @XmlElement(name = "CustomsInformation")
+                protected CustomsInformation customsInformation;
 
                 public BigInteger getLineNumber() {
                     return lineNumber;
@@ -877,6 +1347,14 @@ public class SourceDocuments implements ToString2 {
 
                 public void setDescription(String value) {
                     this.description = value;
+                }
+
+                public ProductSerialNumber getProductSerialNumber() {
+                    return productSerialNumber;
+                }
+
+                public void setProductSerialNumber(ProductSerialNumber value) {
+                    this.productSerialNumber = value;
                 }
 
                 public BigDecimal getDebitAmount() {
@@ -911,12 +1389,28 @@ public class SourceDocuments implements ToString2 {
                     this.taxExemptionReason = value;
                 }
 
+                public String getTaxExemptionCode() {
+                    return taxExemptionCode;
+                }
+
+                public void setTaxExemptionCode(String value) {
+                    this.taxExemptionCode = value;
+                }
+
                 public BigDecimal getSettlementAmount() {
                     return settlementAmount;
                 }
 
                 public void setSettlementAmount(BigDecimal value) {
                     this.settlementAmount = value;
+                }
+
+                public CustomsInformation getCustomsInformation() {
+                    return customsInformation;
+                }
+
+                public void setCustomsInformation(CustomsInformation value) {
+                    this.customsInformation = value;
                 }
 
                 @Override
@@ -976,6 +1470,11 @@ public class SourceDocuments implements ToString2 {
                         String theDescription;
                         theDescription = this.getDescription();
                         strategy.appendField(locator, this, "description", buffer, theDescription, (this.description != null));
+                    }
+                    {
+                        ProductSerialNumber theProductSerialNumber;
+                        theProductSerialNumber = this.getProductSerialNumber();
+                        strategy.appendField(locator, this, "productSerialNumber", buffer, theProductSerialNumber, (this.productSerialNumber != null));
                     }
                     {
                         BigDecimal theDebitAmount;
@@ -998,926 +1497,19 @@ public class SourceDocuments implements ToString2 {
                         strategy.appendField(locator, this, "taxExemptionReason", buffer, theTaxExemptionReason, (this.taxExemptionReason != null));
                     }
                     {
-                        BigDecimal theSettlementAmount;
-                        theSettlementAmount = this.getSettlementAmount();
-                        strategy.appendField(locator, this, "settlementAmount", buffer, theSettlementAmount, (this.settlementAmount != null));
-                    }
-                    return buffer;
-                }
-
-            }
-
-        }
-
-    }
-
-    @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "", propOrder = {
-        "numberOfEntries",
-        "totalDebit",
-        "totalCredit",
-        "payment"
-    })
-    public static class Payments implements ToString2 {
-
-        @XmlElement(name = "NumberOfEntries", required = true)
-        @XmlSchemaType(name = "nonNegativeInteger")
-        protected BigInteger numberOfEntries;
-        @XmlElement(name = "TotalDebit", required = true)
-        protected BigDecimal totalDebit;
-        @XmlElement(name = "TotalCredit", required = true)
-        protected BigDecimal totalCredit;
-        @XmlElement(name = "Payment")
-        protected List<SourceDocuments.Payments.Payment> payment;
-
-        public BigInteger getNumberOfEntries() {
-            return numberOfEntries;
-        }
-
-        public void setNumberOfEntries(BigInteger value) {
-            this.numberOfEntries = value;
-        }
-
-        public BigDecimal getTotalDebit() {
-            return totalDebit;
-        }
-
-        public void setTotalDebit(BigDecimal value) {
-            this.totalDebit = value;
-        }
-
-        public BigDecimal getTotalCredit() {
-            return totalCredit;
-        }
-
-        public void setTotalCredit(BigDecimal value) {
-            this.totalCredit = value;
-        }
-
-        public List<SourceDocuments.Payments.Payment> getPayment() {
-            if (payment == null) {
-                payment = new ArrayList<SourceDocuments.Payments.Payment>();
-            }
-            return this.payment;
-        }
-
-        @Override
-        public String toString() {
-            final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
-            final StringBuilder buffer = new StringBuilder();
-            append(null, buffer, strategy);
-            return buffer.toString();
-        }
-
-        @Override
-        public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-            strategy.appendStart(locator, this, buffer);
-            appendFields(locator, buffer, strategy);
-            strategy.appendEnd(locator, this, buffer);
-            return buffer;
-        }
-
-        @Override
-        public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-            {
-                BigInteger theNumberOfEntries;
-                theNumberOfEntries = this.getNumberOfEntries();
-                strategy.appendField(locator, this, "numberOfEntries", buffer, theNumberOfEntries, (this.numberOfEntries != null));
-            }
-            {
-                BigDecimal theTotalDebit;
-                theTotalDebit = this.getTotalDebit();
-                strategy.appendField(locator, this, "totalDebit", buffer, theTotalDebit, (this.totalDebit != null));
-            }
-            {
-                BigDecimal theTotalCredit;
-                theTotalCredit = this.getTotalCredit();
-                strategy.appendField(locator, this, "totalCredit", buffer, theTotalCredit, (this.totalCredit != null));
-            }
-            {
-                List<SourceDocuments.Payments.Payment> thePayment;
-                thePayment = (((this.payment != null) && (!this.payment.isEmpty())) ? this.getPayment() : null);
-                strategy.appendField(locator, this, "payment", buffer, thePayment, ((this.payment != null) && (!this.payment.isEmpty())));
-            }
-            return buffer;
-        }
-
-        @XmlAccessorType(XmlAccessType.FIELD)
-        @XmlType(name = "", propOrder = {
-            "paymentRefNo",
-            "period",
-            "transactionID",
-            "transactionDate",
-            "paymentType",
-            "description",
-            "systemID",
-            "documentStatus",
-            "paymentMethod",
-            "sourceID",
-            "systemEntryDate",
-            "customerID",
-            "line",
-            "documentTotals",
-            "withholdingTax"
-        })
-        public static class Payment implements ToString2 {
-
-            @XmlElement(name = "PaymentRefNo", required = true)
-            protected String paymentRefNo;
-            @XmlElement(name = "Period")
-            protected Integer period;
-            @XmlElement(name = "TransactionID")
-            protected String transactionID;
-            @XmlElement(name = "TransactionDate", required = true)
-            @XmlSchemaType(name = "date")
-            protected XMLGregorianCalendar transactionDate;
-            @XmlElement(name = "PaymentType", required = true)
-            @XmlSchemaType(name = "string")
-            protected SAFTPTPaymentType paymentType;
-            @XmlElement(name = "Description")
-            protected String description;
-            @XmlElement(name = "SystemID")
-            protected String systemID;
-            @XmlElement(name = "DocumentStatus", required = true)
-            protected SourceDocuments.Payments.Payment.DocumentStatus documentStatus;
-            @XmlElement(name = "PaymentMethod")
-            protected List<PaymentMethod> paymentMethod;
-            @XmlElement(name = "SourceID", required = true)
-            protected String sourceID;
-            @XmlElement(name = "SystemEntryDate", required = true)
-            @XmlSchemaType(name = "dateTime")
-            protected XMLGregorianCalendar systemEntryDate;
-            @XmlElement(name = "CustomerID", required = true)
-            protected String customerID;
-            @XmlElement(name = "Line", required = true)
-            protected List<SourceDocuments.Payments.Payment.Line> line;
-            @XmlElement(name = "DocumentTotals", required = true)
-            protected SourceDocuments.Payments.Payment.DocumentTotals documentTotals;
-            @XmlElement(name = "WithholdingTax")
-            protected List<WithholdingTax> withholdingTax;
-
-            public String getPaymentRefNo() {
-                return paymentRefNo;
-            }
-
-            public void setPaymentRefNo(String value) {
-                this.paymentRefNo = value;
-            }
-
-            public Integer getPeriod() {
-                return period;
-            }
-
-            public void setPeriod(Integer value) {
-                this.period = value;
-            }
-
-            public String getTransactionID() {
-                return transactionID;
-            }
-
-            public void setTransactionID(String value) {
-                this.transactionID = value;
-            }
-
-            public XMLGregorianCalendar getTransactionDate() {
-                return transactionDate;
-            }
-
-            public void setTransactionDate(XMLGregorianCalendar value) {
-                this.transactionDate = value;
-            }
-
-            public SAFTPTPaymentType getPaymentType() {
-                return paymentType;
-            }
-
-            public void setPaymentType(SAFTPTPaymentType value) {
-                this.paymentType = value;
-            }
-
-            public String getDescription() {
-                return description;
-            }
-
-            public void setDescription(String value) {
-                this.description = value;
-            }
-
-            public String getSystemID() {
-                return systemID;
-            }
-
-            public void setSystemID(String value) {
-                this.systemID = value;
-            }
-
-            public SourceDocuments.Payments.Payment.DocumentStatus getDocumentStatus() {
-                return documentStatus;
-            }
-
-            public void setDocumentStatus(SourceDocuments.Payments.Payment.DocumentStatus value) {
-                this.documentStatus = value;
-            }
-
-            public List<PaymentMethod> getPaymentMethod() {
-                if (paymentMethod == null) {
-                    paymentMethod = new ArrayList<PaymentMethod>();
-                }
-                return this.paymentMethod;
-            }
-
-            public String getSourceID() {
-                return sourceID;
-            }
-
-            public void setSourceID(String value) {
-                this.sourceID = value;
-            }
-
-            public XMLGregorianCalendar getSystemEntryDate() {
-                return systemEntryDate;
-            }
-
-            public void setSystemEntryDate(XMLGregorianCalendar value) {
-                this.systemEntryDate = value;
-            }
-
-            public String getCustomerID() {
-                return customerID;
-            }
-
-            public void setCustomerID(String value) {
-                this.customerID = value;
-            }
-
-            public List<SourceDocuments.Payments.Payment.Line> getLine() {
-                if (line == null) {
-                    line = new ArrayList<SourceDocuments.Payments.Payment.Line>();
-                }
-                return this.line;
-            }
-
-            public SourceDocuments.Payments.Payment.DocumentTotals getDocumentTotals() {
-                return documentTotals;
-            }
-
-            public void setDocumentTotals(SourceDocuments.Payments.Payment.DocumentTotals value) {
-                this.documentTotals = value;
-            }
-
-            public List<WithholdingTax> getWithholdingTax() {
-                if (withholdingTax == null) {
-                    withholdingTax = new ArrayList<WithholdingTax>();
-                }
-                return this.withholdingTax;
-            }
-
-            @Override
-            public String toString() {
-                final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
-                final StringBuilder buffer = new StringBuilder();
-                append(null, buffer, strategy);
-                return buffer.toString();
-            }
-
-            @Override
-            public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                strategy.appendStart(locator, this, buffer);
-                appendFields(locator, buffer, strategy);
-                strategy.appendEnd(locator, this, buffer);
-                return buffer;
-            }
-
-            @Override
-            public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                {
-                    String thePaymentRefNo;
-                    thePaymentRefNo = this.getPaymentRefNo();
-                    strategy.appendField(locator, this, "paymentRefNo", buffer, thePaymentRefNo, (this.paymentRefNo != null));
-                }
-                {
-                    Integer thePeriod;
-                    thePeriod = this.getPeriod();
-                    strategy.appendField(locator, this, "period", buffer, thePeriod, (this.period != null));
-                }
-                {
-                    String theTransactionID;
-                    theTransactionID = this.getTransactionID();
-                    strategy.appendField(locator, this, "transactionID", buffer, theTransactionID, (this.transactionID != null));
-                }
-                {
-                    XMLGregorianCalendar theTransactionDate;
-                    theTransactionDate = this.getTransactionDate();
-                    strategy.appendField(locator, this, "transactionDate", buffer, theTransactionDate, (this.transactionDate != null));
-                }
-                {
-                    SAFTPTPaymentType thePaymentType;
-                    thePaymentType = this.getPaymentType();
-                    strategy.appendField(locator, this, "paymentType", buffer, thePaymentType, (this.paymentType != null));
-                }
-                {
-                    String theDescription;
-                    theDescription = this.getDescription();
-                    strategy.appendField(locator, this, "description", buffer, theDescription, (this.description != null));
-                }
-                {
-                    String theSystemID;
-                    theSystemID = this.getSystemID();
-                    strategy.appendField(locator, this, "systemID", buffer, theSystemID, (this.systemID != null));
-                }
-                {
-                    SourceDocuments.Payments.Payment.DocumentStatus theDocumentStatus;
-                    theDocumentStatus = this.getDocumentStatus();
-                    strategy.appendField(locator, this, "documentStatus", buffer, theDocumentStatus, (this.documentStatus != null));
-                }
-                {
-                    List<PaymentMethod> thePaymentMethod;
-                    thePaymentMethod = (((this.paymentMethod != null) && (!this.paymentMethod.isEmpty())) ? this.getPaymentMethod() : null);
-                    strategy.appendField(locator, this, "paymentMethod", buffer, thePaymentMethod, ((this.paymentMethod != null) && (!this.paymentMethod.isEmpty())));
-                }
-                {
-                    String theSourceID;
-                    theSourceID = this.getSourceID();
-                    strategy.appendField(locator, this, "sourceID", buffer, theSourceID, (this.sourceID != null));
-                }
-                {
-                    XMLGregorianCalendar theSystemEntryDate;
-                    theSystemEntryDate = this.getSystemEntryDate();
-                    strategy.appendField(locator, this, "systemEntryDate", buffer, theSystemEntryDate, (this.systemEntryDate != null));
-                }
-                {
-                    String theCustomerID;
-                    theCustomerID = this.getCustomerID();
-                    strategy.appendField(locator, this, "customerID", buffer, theCustomerID, (this.customerID != null));
-                }
-                {
-                    List<SourceDocuments.Payments.Payment.Line> theLine;
-                    theLine = (((this.line != null) && (!this.line.isEmpty())) ? this.getLine() : null);
-                    strategy.appendField(locator, this, "line", buffer, theLine, ((this.line != null) && (!this.line.isEmpty())));
-                }
-                {
-                    SourceDocuments.Payments.Payment.DocumentTotals theDocumentTotals;
-                    theDocumentTotals = this.getDocumentTotals();
-                    strategy.appendField(locator, this, "documentTotals", buffer, theDocumentTotals, (this.documentTotals != null));
-                }
-                {
-                    List<WithholdingTax> theWithholdingTax;
-                    theWithholdingTax = (((this.withholdingTax != null) && (!this.withholdingTax.isEmpty())) ? this.getWithholdingTax() : null);
-                    strategy.appendField(locator, this, "withholdingTax", buffer, theWithholdingTax, ((this.withholdingTax != null) && (!this.withholdingTax.isEmpty())));
-                }
-                return buffer;
-            }
-
-            @XmlAccessorType(XmlAccessType.FIELD)
-            @XmlType(name = "", propOrder = {
-                "paymentStatus",
-                "paymentStatusDate",
-                "reason",
-                "sourceID",
-                "sourcePayment"
-            })
-            public static class DocumentStatus implements ToString2 {
-
-                @XmlElement(name = "PaymentStatus", required = true)
-                protected String paymentStatus;
-                @XmlElement(name = "PaymentStatusDate", required = true)
-                @XmlSchemaType(name = "dateTime")
-                protected XMLGregorianCalendar paymentStatusDate;
-                @XmlElement(name = "Reason")
-                protected String reason;
-                @XmlElement(name = "SourceID", required = true)
-                protected String sourceID;
-                @XmlElement(name = "SourcePayment", required = true)
-                @XmlSchemaType(name = "string")
-                protected SAFTPTSourcePayment sourcePayment;
-
-                public String getPaymentStatus() {
-                    return paymentStatus;
-                }
-
-                public void setPaymentStatus(String value) {
-                    this.paymentStatus = value;
-                }
-
-                public XMLGregorianCalendar getPaymentStatusDate() {
-                    return paymentStatusDate;
-                }
-
-                public void setPaymentStatusDate(XMLGregorianCalendar value) {
-                    this.paymentStatusDate = value;
-                }
-
-                public String getReason() {
-                    return reason;
-                }
-
-                public void setReason(String value) {
-                    this.reason = value;
-                }
-
-                public String getSourceID() {
-                    return sourceID;
-                }
-
-                public void setSourceID(String value) {
-                    this.sourceID = value;
-                }
-
-                public SAFTPTSourcePayment getSourcePayment() {
-                    return sourcePayment;
-                }
-
-                public void setSourcePayment(SAFTPTSourcePayment value) {
-                    this.sourcePayment = value;
-                }
-
-                @Override
-                public String toString() {
-                    final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
-                    final StringBuilder buffer = new StringBuilder();
-                    append(null, buffer, strategy);
-                    return buffer.toString();
-                }
-
-                @Override
-                public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                    strategy.appendStart(locator, this, buffer);
-                    appendFields(locator, buffer, strategy);
-                    strategy.appendEnd(locator, this, buffer);
-                    return buffer;
-                }
-
-                @Override
-                public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                    {
-                        String thePaymentStatus;
-                        thePaymentStatus = this.getPaymentStatus();
-                        strategy.appendField(locator, this, "paymentStatus", buffer, thePaymentStatus, (this.paymentStatus != null));
-                    }
-                    {
-                        XMLGregorianCalendar thePaymentStatusDate;
-                        thePaymentStatusDate = this.getPaymentStatusDate();
-                        strategy.appendField(locator, this, "paymentStatusDate", buffer, thePaymentStatusDate, (this.paymentStatusDate != null));
-                    }
-                    {
-                        String theReason;
-                        theReason = this.getReason();
-                        strategy.appendField(locator, this, "reason", buffer, theReason, (this.reason != null));
-                    }
-                    {
-                        String theSourceID;
-                        theSourceID = this.getSourceID();
-                        strategy.appendField(locator, this, "sourceID", buffer, theSourceID, (this.sourceID != null));
-                    }
-                    {
-                        SAFTPTSourcePayment theSourcePayment;
-                        theSourcePayment = this.getSourcePayment();
-                        strategy.appendField(locator, this, "sourcePayment", buffer, theSourcePayment, (this.sourcePayment != null));
-                    }
-                    return buffer;
-                }
-
-            }
-
-            @XmlAccessorType(XmlAccessType.FIELD)
-            @XmlType(name = "", propOrder = {
-                "taxPayable",
-                "netTotal",
-                "grossTotal",
-                "settlement",
-                "currency"
-            })
-            public static class DocumentTotals implements ToString2 {
-
-                @XmlElement(name = "TaxPayable", required = true)
-                protected BigDecimal taxPayable;
-                @XmlElement(name = "NetTotal", required = true)
-                protected BigDecimal netTotal;
-                @XmlElement(name = "GrossTotal", required = true)
-                protected BigDecimal grossTotal;
-                @XmlElement(name = "Settlement")
-                protected List<com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema.Settlement> settlement;
-                @XmlElement(name = "Currency")
-                protected Currency currency;
-
-                public BigDecimal getTaxPayable() {
-                    return taxPayable;
-                }
-
-                public void setTaxPayable(BigDecimal value) {
-                    this.taxPayable = value;
-                }
-
-                public BigDecimal getNetTotal() {
-                    return netTotal;
-                }
-
-                public void setNetTotal(BigDecimal value) {
-                    this.netTotal = value;
-                }
-
-                public BigDecimal getGrossTotal() {
-                    return grossTotal;
-                }
-
-                public void setGrossTotal(BigDecimal value) {
-                    this.grossTotal = value;
-                }
-
-                public Currency getCurrency() {
-                    return currency;
-                }
-
-                public void setCurrency(Currency value) {
-                    this.currency = value;
-                }
-
-                public List<com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema.Settlement> getSettlement() {
-                    if (settlement == null) {
-                        settlement = new ArrayList<com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema.Settlement>();
-                    }
-                    return this.settlement;
-                }
-
-                @Override
-                public String toString() {
-                    final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
-                    final StringBuilder buffer = new StringBuilder();
-                    append(null, buffer, strategy);
-                    return buffer.toString();
-                }
-
-                @Override
-                public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                    strategy.appendStart(locator, this, buffer);
-                    appendFields(locator, buffer, strategy);
-                    strategy.appendEnd(locator, this, buffer);
-                    return buffer;
-                }
-
-                @Override
-                public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                    {
-                        BigDecimal theTaxPayable;
-                        theTaxPayable = this.getTaxPayable();
-                        strategy.appendField(locator, this, "taxPayable", buffer, theTaxPayable, (this.taxPayable != null));
-                    }
-                    {
-                        BigDecimal theNetTotal;
-                        theNetTotal = this.getNetTotal();
-                        strategy.appendField(locator, this, "netTotal", buffer, theNetTotal, (this.netTotal != null));
-                    }
-                    {
-                        BigDecimal theGrossTotal;
-                        theGrossTotal = this.getGrossTotal();
-                        strategy.appendField(locator, this, "grossTotal", buffer, theGrossTotal, (this.grossTotal != null));
-                    }
-                    {
-                        Currency theCurrency;
-                        theCurrency = this.getCurrency();
-                        strategy.appendField(locator, this, "currency", buffer, theCurrency, (this.currency != null));
-                    }
-                    {
-                        List<com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema.Settlement> theSettlement;
-                        theSettlement = (((this.settlement != null) && (!this.settlement.isEmpty())) ? this.getSettlement() : null);
-                        strategy.appendField(locator, this, "settlement", buffer, theSettlement, ((this.settlement != null) && (!this.settlement.isEmpty())));
-                    }
-                    return buffer;
-                }
-
-            }
-
-            @XmlAccessorType(XmlAccessType.FIELD)
-            @XmlType(name = "", propOrder = {
-                "lineNumber",
-                "sourceDocumentID",
-                "settlementAmount",
-                "debitAmount",
-                "creditAmount",
-                "tax",
-                "taxExemptionReason"
-            })
-            public static class SourceDocumentID implements ToString2 {
-
-                @XmlElement(name = "OriginatingON", required = true)
-                protected String originatingON;
-                @XmlElement(name = "InvoiceDate", required = true)
-                @XmlSchemaType(name = "date")
-                protected XMLGregorianCalendar invoiceDate;
-                @XmlElement(name = "Description")
-                protected String description;
-
-                public String getOriginatingON() {
-                    return originatingON;
-                }
-
-                public void setOriginatingON(String value) {
-                    this.originatingON = value;
-                }
-
-                public XMLGregorianCalendar getInvoiceDate() {
-                    return invoiceDate;
-                }
-
-                public void setInvoiceDate(XMLGregorianCalendar value) {
-                    this.invoiceDate = value;
-                }
-
-                public String getDescription() {
-                    return description;
-                }
-
-                public void setDescription(String value) {
-                    this.description = value;
-                }
-
-                @Override
-                public String toString() {
-                    final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
-                    final StringBuilder buffer = new StringBuilder();
-                    append(null, buffer, strategy);
-                    return buffer.toString();
-                }
-
-                @Override
-                public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                    strategy.appendStart(locator, this, buffer);
-                    appendFields(locator, buffer, strategy);
-                    strategy.appendEnd(locator, this, buffer);
-                    return buffer;
-                }
-
-                @Override
-                public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                    {
-                        String theOriginatingON;
-                        theOriginatingON = this.getOriginatingON();
-                        strategy.appendField(locator, this, "originatingON", buffer, theOriginatingON, (this.originatingON != null));
-                    }
-                    {
-                        XMLGregorianCalendar theInvoiceDate;
-                        theInvoiceDate = this.getInvoiceDate();
-                        strategy.appendField(locator, this, "invoiceDate", buffer, theInvoiceDate, (this.invoiceDate != null));
-                    }
-                    {
-                        String theDescription;
-                        theDescription = this.getDescription();
-                        strategy.appendField(locator, this, "description", buffer, theDescription, (this.description != null));
-                    }
-                    return buffer;
-                }
-
-            }
-
-            @XmlAccessorType(XmlAccessType.FIELD)
-            @XmlType(name = "", propOrder = {
-                "lineNumber",
-                "orderReferences",
-                "productCode",
-                "productDescription",
-                "quantity",
-                "unitOfMeasure",
-                "unitPrice",
-                "taxPointDate",
-                "description",
-                "debitAmount",
-                "creditAmount",
-                "tax",
-                "taxExemptionReason",
-                "settlementAmount"
-            })
-            public static class Line implements ToString2 {
-
-                @XmlElement(name = "LineNumber", required = true)
-                @XmlSchemaType(name = "nonNegativeInteger")
-                protected BigInteger lineNumber;
-                @XmlElement(name = "OrderReferences")
-                protected List<OrderReferences> orderReferences;
-                @XmlElement(name = "ProductCode", required = true)
-                protected String productCode;
-                @XmlElement(name = "ProductDescription", required = true)
-                protected String productDescription;
-                @XmlElement(name = "Quantity", required = true)
-                protected BigDecimal quantity;
-                @XmlElement(name = "UnitOfMeasure", required = true)
-                protected String unitOfMeasure;
-                @XmlElement(name = "UnitPrice", required = true)
-                protected BigDecimal unitPrice;
-                @XmlElement(name = "TaxPointDate", required = true)
-                @XmlSchemaType(name = "date")
-                protected XMLGregorianCalendar taxPointDate;
-                @XmlElement(name = "Description", required = true)
-                protected String description;
-                @XmlElement(name = "DebitAmount")
-                protected BigDecimal debitAmount;
-                @XmlElement(name = "CreditAmount")
-                protected BigDecimal creditAmount;
-                @XmlElement(name = "Tax")
-                protected Tax tax;
-                @XmlElement(name = "TaxExemptionReason")
-                protected String taxExemptionReason;
-                @XmlElement(name = "SettlementAmount")
-                protected BigDecimal settlementAmount;
-
-                public BigInteger getLineNumber() {
-                    return lineNumber;
-                }
-
-                public void setLineNumber(BigInteger value) {
-                    this.lineNumber = value;
-                }
-
-                public List<OrderReferences> getOrderReferences() {
-                    if (orderReferences == null) {
-                        orderReferences = new ArrayList<OrderReferences>();
-                    }
-                    return this.orderReferences;
-                }
-
-                public String getProductCode() {
-                    return productCode;
-                }
-
-                public void setProductCode(String value) {
-                    this.productCode = value;
-                }
-
-                public String getProductDescription() {
-                    return productDescription;
-                }
-
-                public void setProductDescription(String value) {
-                    this.productDescription = value;
-                }
-
-                public BigDecimal getQuantity() {
-                    return quantity;
-                }
-
-                public void setQuantity(BigDecimal value) {
-                    this.quantity = value;
-                }
-
-                public String getUnitOfMeasure() {
-                    return unitOfMeasure;
-                }
-
-                public void setUnitOfMeasure(String value) {
-                    this.unitOfMeasure = value;
-                }
-
-                public BigDecimal getUnitPrice() {
-                    return unitPrice;
-                }
-
-                public void setUnitPrice(BigDecimal value) {
-                    this.unitPrice = value;
-                }
-
-                public XMLGregorianCalendar getTaxPointDate() {
-                    return taxPointDate;
-                }
-
-                public void setTaxPointDate(XMLGregorianCalendar value) {
-                    this.taxPointDate = value;
-                }
-
-                public String getDescription() {
-                    return description;
-                }
-
-                public void setDescription(String value) {
-                    this.description = value;
-                }
-
-                public BigDecimal getDebitAmount() {
-                    return debitAmount;
-                }
-
-                public void setDebitAmount(BigDecimal value) {
-                    this.debitAmount = value;
-                }
-
-                public BigDecimal getCreditAmount() {
-                    return creditAmount;
-                }
-
-                public void setCreditAmount(BigDecimal value) {
-                    this.creditAmount = value;
-                }
-
-                public Tax getTax() {
-                    return tax;
-                }
-
-                public void setTax(Tax value) {
-                    this.tax = value;
-                }
-
-                public String getTaxExemptionReason() {
-                    return taxExemptionReason;
-                }
-
-                public void setTaxExemptionReason(String value) {
-                    this.taxExemptionReason = value;
-                }
-
-                public BigDecimal getSettlementAmount() {
-                    return settlementAmount;
-                }
-
-                public void setSettlementAmount(BigDecimal value) {
-                    this.settlementAmount = value;
-                }
-
-                @Override
-                public String toString() {
-                    final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
-                    final StringBuilder buffer = new StringBuilder();
-                    append(null, buffer, strategy);
-                    return buffer.toString();
-                }
-
-                @Override
-                public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                    strategy.appendStart(locator, this, buffer);
-                    appendFields(locator, buffer, strategy);
-                    strategy.appendEnd(locator, this, buffer);
-                    return buffer;
-                }
-
-                @Override
-                public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-                    {
-                        BigInteger theLineNumber;
-                        theLineNumber = this.getLineNumber();
-                        strategy.appendField(locator, this, "lineNumber", buffer, theLineNumber, (this.lineNumber != null));
-                    }
-                    {
-                        List<OrderReferences> theOrderReferences;
-                        theOrderReferences = (((this.orderReferences != null) && (!this.orderReferences.isEmpty())) ? this.getOrderReferences() : null);
-                        strategy.appendField(locator, this, "orderReferences", buffer, theOrderReferences, ((this.orderReferences != null) && (!this.orderReferences.isEmpty())));
-                    }
-                    {
-                        String theProductCode;
-                        theProductCode = this.getProductCode();
-                        strategy.appendField(locator, this, "productCode", buffer, theProductCode, (this.productCode != null));
-                    }
-                    {
-                        String theProductDescription;
-                        theProductDescription = this.getProductDescription();
-                        strategy.appendField(locator, this, "productDescription", buffer, theProductDescription, (this.productDescription != null));
-                    }
-                    {
-                        BigDecimal theQuantity;
-                        theQuantity = this.getQuantity();
-                        strategy.appendField(locator, this, "quantity", buffer, theQuantity, (this.quantity != null));
-                    }
-                    {
-                        String theUnitOfMeasure;
-                        theUnitOfMeasure = this.getUnitOfMeasure();
-                        strategy.appendField(locator, this, "unitOfMeasure", buffer, theUnitOfMeasure, (this.unitOfMeasure != null));
-                    }
-                    {
-                        BigDecimal theUnitPrice;
-                        theUnitPrice = this.getUnitPrice();
-                        strategy.appendField(locator, this, "unitPrice", buffer, theUnitPrice, (this.unitPrice != null));
-                    }
-                    {
-                        XMLGregorianCalendar theTaxPointDate;
-                        theTaxPointDate = this.getTaxPointDate();
-                        strategy.appendField(locator, this, "taxPointDate", buffer, theTaxPointDate, (this.taxPointDate != null));
-                    }
-                    {
-                        String theDescription;
-                        theDescription = this.getDescription();
-                        strategy.appendField(locator, this, "description", buffer, theDescription, (this.description != null));
-                    }
-                    {
-                        BigDecimal theDebitAmount;
-                        theDebitAmount = this.getDebitAmount();
-                        strategy.appendField(locator, this, "debitAmount", buffer, theDebitAmount, (this.debitAmount != null));
-                    }
-                    {
-                        BigDecimal theCreditAmount;
-                        theCreditAmount = this.getCreditAmount();
-                        strategy.appendField(locator, this, "creditAmount", buffer, theCreditAmount, (this.creditAmount != null));
-                    }
-                    {
-                        Tax theTax;
-                        theTax = this.getTax();
-                        strategy.appendField(locator, this, "tax", buffer, theTax, (this.tax != null));
-                    }
-                    {
-                        String theTaxExemptionReason;
-                        theTaxExemptionReason = this.getTaxExemptionReason();
-                        strategy.appendField(locator, this, "taxExemptionReason", buffer, theTaxExemptionReason, (this.taxExemptionReason != null));
+                        String theTaxExemptionCode;
+                        theTaxExemptionCode = this.getTaxExemptionCode();
+                        strategy.appendField(locator, this, "taxExemptionCode", buffer, theTaxExemptionCode, (this.taxExemptionCode != null));
                     }
                     {
                         BigDecimal theSettlementAmount;
                         theSettlementAmount = this.getSettlementAmount();
                         strategy.appendField(locator, this, "settlementAmount", buffer, theSettlementAmount, (this.settlementAmount != null));
+                    }
+                    {
+                        CustomsInformation theCustomsInformation;
+                        theCustomsInformation = this.getCustomsInformation();
+                        strategy.appendField(locator, this, "customsInformation", buffer, theCustomsInformation, (this.customsInformation != null));
                     }
                     return buffer;
                 }
@@ -2022,6 +1614,7 @@ public class SourceDocuments implements ToString2 {
         @XmlAccessorType(XmlAccessType.FIELD)
         @XmlType(name = "", propOrder = {
             "invoiceNo",
+            "atcud",
             "documentStatus",
             "hash",
             "hashControl",
@@ -2046,11 +1639,13 @@ public class SourceDocuments implements ToString2 {
 
             @XmlElement(name = "InvoiceNo", required = true)
             protected String invoiceNo;
+            @XmlElement(name = "ATCUD", required = true)
+            protected String atcud;
             @XmlElement(name = "DocumentStatus", required = true)
             protected SourceDocuments.SalesInvoices.Invoice.DocumentStatus documentStatus;
             @XmlElement(name = "Hash", required = true)
             protected String hash;
-            @XmlElement(name = "HashControl")
+            @XmlElement(name = "HashControl", required = true)
             protected String hashControl;
             @XmlElement(name = "Period")
             protected Integer period;
@@ -2095,6 +1690,14 @@ public class SourceDocuments implements ToString2 {
 
             public void setInvoiceNo(String value) {
                 this.invoiceNo = value;
+            }
+
+            public String getATCUD() {
+                return atcud;
+            }
+
+            public void setATCUD(String value) {
+                this.atcud = value;
             }
 
             public SourceDocuments.SalesInvoices.Invoice.DocumentStatus getDocumentStatus() {
@@ -2269,6 +1872,11 @@ public class SourceDocuments implements ToString2 {
                     String theInvoiceNo;
                     theInvoiceNo = this.getInvoiceNo();
                     strategy.appendField(locator, this, "invoiceNo", buffer, theInvoiceNo, (this.invoiceNo != null));
+                }
+                {
+                    String theATCUD;
+                    theATCUD = this.getATCUD();
+                    strategy.appendField(locator, this, "atcud", buffer, theATCUD, (this.atcud != null));
                 }
                 {
                     SourceDocuments.SalesInvoices.Invoice.DocumentStatus theDocumentStatus;
@@ -2572,6 +2180,1171 @@ public class SourceDocuments implements ToString2 {
 
             }
 
+            @XmlAccessorType(XmlAccessType.FIELD)
+            @XmlType(name = "", propOrder = {
+                "lineNumber",
+                "orderReferences",
+                "productCode",
+                "productDescription",
+                "quantity",
+                "unitOfMeasure",
+                "unitPrice",
+                "taxBase",
+                "taxPointDate",
+                "references",
+                "description",
+                "productSerialNumber",
+                "debitAmount",
+                "creditAmount",
+                "tax",
+                "taxExemptionReason",
+                "taxExemptionCode",
+                "settlementAmount",
+                "customsInformation"
+            })
+            public static class Line implements ToString2 {
+
+                @XmlElement(name = "LineNumber", required = true)
+                @XmlSchemaType(name = "nonNegativeInteger")
+                protected BigInteger lineNumber;
+                @XmlElement(name = "OrderReferences")
+                protected List<OrderReferences> orderReferences;
+                @XmlElement(name = "ProductCode", required = true)
+                protected String productCode;
+                @XmlElement(name = "ProductDescription", required = true)
+                protected String productDescription;
+                @XmlElement(name = "Quantity", required = true)
+                protected BigDecimal quantity;
+                @XmlElement(name = "UnitOfMeasure", required = true)
+                protected String unitOfMeasure;
+                @XmlElement(name = "UnitPrice", required = true)
+                protected BigDecimal unitPrice;
+                @XmlElement(name = "TaxBase")
+                protected BigDecimal taxBase;
+                @XmlElement(name = "TaxPointDate", required = true)
+                @XmlSchemaType(name = "date")
+                protected XMLGregorianCalendar taxPointDate;
+                @XmlElement(name = "References")
+                protected List<References> references;
+                @XmlElement(name = "Description", required = true)
+                protected String description;
+                @XmlElement(name = "ProductSerialNumber")
+                protected ProductSerialNumber productSerialNumber;
+                @XmlElement(name = "DebitAmount")
+                protected BigDecimal debitAmount;
+                @XmlElement(name = "CreditAmount")
+                protected BigDecimal creditAmount;
+                @XmlElement(name = "Tax")
+                protected Tax tax;
+                @XmlElement(name = "TaxExemptionReason")
+                protected String taxExemptionReason;
+                @XmlElement(name = "TaxExemptionCode")
+                protected String taxExemptionCode;
+                @XmlElement(name = "SettlementAmount")
+                protected BigDecimal settlementAmount;
+                @XmlElement(name = "CustomsInformation")
+                protected CustomsInformation customsInformation;
+
+                public BigInteger getLineNumber() {
+                    return lineNumber;
+                }
+
+                public void setLineNumber(BigInteger value) {
+                    this.lineNumber = value;
+                }
+
+                public List<OrderReferences> getOrderReferences() {
+                    if (orderReferences == null) {
+                        orderReferences = new ArrayList<OrderReferences>();
+                    }
+                    return this.orderReferences;
+                }
+
+                public String getProductCode() {
+                    return productCode;
+                }
+
+                public void setProductCode(String value) {
+                    this.productCode = value;
+                }
+
+                public String getProductDescription() {
+                    return productDescription;
+                }
+
+                public void setProductDescription(String value) {
+                    this.productDescription = value;
+                }
+
+                public BigDecimal getQuantity() {
+                    return quantity;
+                }
+
+                public void setQuantity(BigDecimal value) {
+                    this.quantity = value;
+                }
+
+                public String getUnitOfMeasure() {
+                    return unitOfMeasure;
+                }
+
+                public void setUnitOfMeasure(String value) {
+                    this.unitOfMeasure = value;
+                }
+
+                public BigDecimal getUnitPrice() {
+                    return unitPrice;
+                }
+
+                public void setUnitPrice(BigDecimal value) {
+                    this.unitPrice = value;
+                }
+
+                public BigDecimal getTaxBase() {
+                    return taxBase;
+                }
+
+                public void setTaxBase(BigDecimal value) {
+                    this.taxBase = value;
+                }
+
+                public XMLGregorianCalendar getTaxPointDate() {
+                    return taxPointDate;
+                }
+
+                public void setTaxPointDate(XMLGregorianCalendar value) {
+                    this.taxPointDate = value;
+                }
+
+                public List<References> getReferences() {
+                    if (references == null) {
+                        references = new ArrayList<References>();
+                    }
+                    return this.references;
+                }
+
+                public String getDescription() {
+                    return description;
+                }
+
+                public void setDescription(String value) {
+                    this.description = value;
+                }
+
+                public ProductSerialNumber getProductSerialNumber() {
+                    return productSerialNumber;
+                }
+
+                public void setProductSerialNumber(ProductSerialNumber value) {
+                    this.productSerialNumber = value;
+                }
+
+                public BigDecimal getDebitAmount() {
+                    return debitAmount;
+                }
+
+                public void setDebitAmount(BigDecimal value) {
+                    this.debitAmount = value;
+                }
+
+                public BigDecimal getCreditAmount() {
+                    return creditAmount;
+                }
+
+                public void setCreditAmount(BigDecimal value) {
+                    this.creditAmount = value;
+                }
+
+                public Tax getTax() {
+                    return tax;
+                }
+
+                public void setTax(Tax value) {
+                    this.tax = value;
+                }
+
+                public String getTaxExemptionReason() {
+                    return taxExemptionReason;
+                }
+
+                public void setTaxExemptionReason(String value) {
+                    this.taxExemptionReason = value;
+                }
+
+                public String getTaxExemptionCode() {
+                    return taxExemptionCode;
+                }
+
+                public void setTaxExemptionCode(String value) {
+                    this.taxExemptionCode = value;
+                }
+
+                public BigDecimal getSettlementAmount() {
+                    return settlementAmount;
+                }
+
+                public void setSettlementAmount(BigDecimal value) {
+                    this.settlementAmount = value;
+                }
+
+                public CustomsInformation getCustomsInformation() {
+                    return customsInformation;
+                }
+
+                public void setCustomsInformation(CustomsInformation value) {
+                    this.customsInformation = value;
+                }
+
+                @Override
+                public String toString() {
+                    final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
+                    final StringBuilder buffer = new StringBuilder();
+                    append(null, buffer, strategy);
+                    return buffer.toString();
+                }
+
+                @Override
+                public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                    strategy.appendStart(locator, this, buffer);
+                    appendFields(locator, buffer, strategy);
+                    strategy.appendEnd(locator, this, buffer);
+                    return buffer;
+                }
+
+                @Override
+                public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                    {
+                        BigInteger theLineNumber;
+                        theLineNumber = this.getLineNumber();
+                        strategy.appendField(locator, this, "lineNumber", buffer, theLineNumber, (this.lineNumber != null));
+                    }
+                    {
+                        List<OrderReferences> theOrderReferences;
+                        theOrderReferences = (((this.orderReferences != null) && (!this.orderReferences.isEmpty())) ? this.getOrderReferences() : null);
+                        strategy.appendField(locator, this, "orderReferences", buffer, theOrderReferences, ((this.orderReferences != null) && (!this.orderReferences.isEmpty())));
+                    }
+                    {
+                        String theProductCode;
+                        theProductCode = this.getProductCode();
+                        strategy.appendField(locator, this, "productCode", buffer, theProductCode, (this.productCode != null));
+                    }
+                    {
+                        String theProductDescription;
+                        theProductDescription = this.getProductDescription();
+                        strategy.appendField(locator, this, "productDescription", buffer, theProductDescription, (this.productDescription != null));
+                    }
+                    {
+                        BigDecimal theQuantity;
+                        theQuantity = this.getQuantity();
+                        strategy.appendField(locator, this, "quantity", buffer, theQuantity, (this.quantity != null));
+                    }
+                    {
+                        String theUnitOfMeasure;
+                        theUnitOfMeasure = this.getUnitOfMeasure();
+                        strategy.appendField(locator, this, "unitOfMeasure", buffer, theUnitOfMeasure, (this.unitOfMeasure != null));
+                    }
+                    {
+                        BigDecimal theUnitPrice;
+                        theUnitPrice = this.getUnitPrice();
+                        strategy.appendField(locator, this, "unitPrice", buffer, theUnitPrice, (this.unitPrice != null));
+                    }
+                    {
+                        BigDecimal theTaxBase;
+                        theTaxBase = this.getTaxBase();
+                        strategy.appendField(locator, this, "taxBase", buffer, theTaxBase, (this.taxBase != null));
+                    }
+                    {
+                        XMLGregorianCalendar theTaxPointDate;
+                        theTaxPointDate = this.getTaxPointDate();
+                        strategy.appendField(locator, this, "taxPointDate", buffer, theTaxPointDate, (this.taxPointDate != null));
+                    }
+                    {
+                        List<References> theReferences;
+                        theReferences = (((this.references != null) && (!this.references.isEmpty())) ? this.getReferences() : null);
+                        strategy.appendField(locator, this, "references", buffer, theReferences, ((this.references != null) && (!this.references.isEmpty())));
+                    }
+                    {
+                        String theDescription;
+                        theDescription = this.getDescription();
+                        strategy.appendField(locator, this, "description", buffer, theDescription, (this.description != null));
+                    }
+                    {
+                        ProductSerialNumber theProductSerialNumber;
+                        theProductSerialNumber = this.getProductSerialNumber();
+                        strategy.appendField(locator, this, "productSerialNumber", buffer, theProductSerialNumber, (this.productSerialNumber != null));
+                    }
+                    {
+                        BigDecimal theDebitAmount;
+                        theDebitAmount = this.getDebitAmount();
+                        strategy.appendField(locator, this, "debitAmount", buffer, theDebitAmount, (this.debitAmount != null));
+                    }
+                    {
+                        BigDecimal theCreditAmount;
+                        theCreditAmount = this.getCreditAmount();
+                        strategy.appendField(locator, this, "creditAmount", buffer, theCreditAmount, (this.creditAmount != null));
+                    }
+                    {
+                        Tax theTax;
+                        theTax = this.getTax();
+                        strategy.appendField(locator, this, "tax", buffer, theTax, (this.tax != null));
+                    }
+                    {
+                        String theTaxExemptionReason;
+                        theTaxExemptionReason = this.getTaxExemptionReason();
+                        strategy.appendField(locator, this, "taxExemptionReason", buffer, theTaxExemptionReason, (this.taxExemptionReason != null));
+                    }
+                    {
+                        String theTaxExemptionCode;
+                        theTaxExemptionCode = this.getTaxExemptionCode();
+                        strategy.appendField(locator, this, "taxExemptionCode", buffer, theTaxExemptionCode, (this.taxExemptionCode != null));
+                    }
+                    {
+                        BigDecimal theSettlementAmount;
+                        theSettlementAmount = this.getSettlementAmount();
+                        strategy.appendField(locator, this, "settlementAmount", buffer, theSettlementAmount, (this.settlementAmount != null));
+                    }
+                    {
+                        CustomsInformation theCustomsInformation;
+                        theCustomsInformation = this.getCustomsInformation();
+                        strategy.appendField(locator, this, "customsInformation", buffer, theCustomsInformation, (this.customsInformation != null));
+                    }
+                    return buffer;
+                }
+
+            }
+
+        }
+
+    }
+
+    @XmlAccessorType(XmlAccessType.FIELD)
+    @XmlType(name = "", propOrder = {
+        "numberOfEntries",
+        "totalDebit",
+        "totalCredit",
+        "payment"
+    })
+    public static class Payments implements ToString2 {
+
+        @XmlElement(name = "NumberOfEntries", required = true)
+        @XmlSchemaType(name = "nonNegativeInteger")
+        protected BigInteger numberOfEntries;
+        @XmlElement(name = "TotalDebit", required = true)
+        protected BigDecimal totalDebit;
+        @XmlElement(name = "TotalCredit", required = true)
+        protected BigDecimal totalCredit;
+        @XmlElement(name = "Payment")
+        protected List<SourceDocuments.Payments.Payment> payment;
+
+        public BigInteger getNumberOfEntries() {
+            return numberOfEntries;
+        }
+
+        public void setNumberOfEntries(BigInteger value) {
+            this.numberOfEntries = value;
+        }
+
+        public BigDecimal getTotalDebit() {
+            return totalDebit;
+        }
+
+        public void setTotalDebit(BigDecimal value) {
+            this.totalDebit = value;
+        }
+
+        public BigDecimal getTotalCredit() {
+            return totalCredit;
+        }
+
+        public void setTotalCredit(BigDecimal value) {
+            this.totalCredit = value;
+        }
+
+        public List<SourceDocuments.Payments.Payment> getPayment() {
+            if (payment == null) {
+                payment = new ArrayList<SourceDocuments.Payments.Payment>();
+            }
+            return this.payment;
+        }
+
+        @Override
+        public String toString() {
+            final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
+            final StringBuilder buffer = new StringBuilder();
+            append(null, buffer, strategy);
+            return buffer.toString();
+        }
+
+        @Override
+        public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+            strategy.appendStart(locator, this, buffer);
+            appendFields(locator, buffer, strategy);
+            strategy.appendEnd(locator, this, buffer);
+            return buffer;
+        }
+
+        @Override
+        public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+            {
+                BigInteger theNumberOfEntries;
+                theNumberOfEntries = this.getNumberOfEntries();
+                strategy.appendField(locator, this, "numberOfEntries", buffer, theNumberOfEntries, (this.numberOfEntries != null));
+            }
+            {
+                BigDecimal theTotalDebit;
+                theTotalDebit = this.getTotalDebit();
+                strategy.appendField(locator, this, "totalDebit", buffer, theTotalDebit, (this.totalDebit != null));
+            }
+            {
+                BigDecimal theTotalCredit;
+                theTotalCredit = this.getTotalCredit();
+                strategy.appendField(locator, this, "totalCredit", buffer, theTotalCredit, (this.totalCredit != null));
+            }
+            {
+                List<SourceDocuments.Payments.Payment> thePayment;
+                thePayment = (((this.payment != null) && (!this.payment.isEmpty())) ? this.getPayment() : null);
+                strategy.appendField(locator, this, "payment", buffer, thePayment, ((this.payment != null) && (!this.payment.isEmpty())));
+            }
+            return buffer;
+        }
+
+        @XmlAccessorType(XmlAccessType.FIELD)
+        @XmlType(name = "", propOrder = {
+            "paymentRefNo",
+            "atcud",
+            "period",
+            "transactionID",
+            "transactionDate",
+            "paymentType",
+            "description",
+            "systemID",
+            "documentStatus",
+            "paymentMethod",
+            "sourceID",
+            "systemEntryDate",
+            "customerID",
+            "line",
+            "documentTotals",
+            "withholdingTax"
+        })
+        public static class Payment implements ToString2 {
+
+            @XmlElement(name = "PaymentRefNo", required = true)
+            protected String paymentRefNo;
+            @XmlElement(name = "ATCUD", required = true)
+            protected String atcud;
+            @XmlElement(name = "Period")
+            protected Integer period;
+            @XmlElement(name = "TransactionID")
+            protected String transactionID;
+            @XmlElement(name = "TransactionDate", required = true)
+            @XmlSchemaType(name = "date")
+            protected XMLGregorianCalendar transactionDate;
+            @XmlElement(name = "PaymentType", required = true)
+            @XmlSchemaType(name = "string")
+            protected SAFTPTPaymentType paymentType;
+            @XmlElement(name = "Description")
+            protected String description;
+            @XmlElement(name = "SystemID")
+            protected String systemID;
+            @XmlElement(name = "DocumentStatus", required = true)
+            protected SourceDocuments.Payments.Payment.DocumentStatus documentStatus;
+            @XmlElement(name = "PaymentMethod")
+            protected List<PaymentMethod> paymentMethod;
+            @XmlElement(name = "SourceID", required = true)
+            protected String sourceID;
+            @XmlElement(name = "SystemEntryDate", required = true)
+            @XmlSchemaType(name = "dateTime")
+            protected XMLGregorianCalendar systemEntryDate;
+            @XmlElement(name = "CustomerID", required = true)
+            protected String customerID;
+            @XmlElement(name = "Line", required = true)
+            protected List<SourceDocuments.Payments.Payment.Line> line;
+            @XmlElement(name = "DocumentTotals", required = true)
+            protected SourceDocuments.Payments.Payment.DocumentTotals documentTotals;
+            @XmlElement(name = "WithholdingTax")
+            protected List<WithholdingTax> withholdingTax;
+
+            public String getPaymentRefNo() {
+                return paymentRefNo;
+            }
+
+            public void setPaymentRefNo(String value) {
+                this.paymentRefNo = value;
+            }
+
+            public String getATCUD() {
+                return atcud;
+            }
+
+            public void setATCUD(String value) {
+                this.atcud = value;
+            }
+
+            public Integer getPeriod() {
+                return period;
+            }
+
+            public void setPeriod(Integer value) {
+                this.period = value;
+            }
+
+            public String getTransactionID() {
+                return transactionID;
+            }
+
+            public void setTransactionID(String value) {
+                this.transactionID = value;
+            }
+
+            public XMLGregorianCalendar getTransactionDate() {
+                return transactionDate;
+            }
+
+            public void setTransactionDate(XMLGregorianCalendar value) {
+                this.transactionDate = value;
+            }
+
+            public SAFTPTPaymentType getPaymentType() {
+                return paymentType;
+            }
+
+            public void setPaymentType(SAFTPTPaymentType value) {
+                this.paymentType = value;
+            }
+
+            public String getDescription() {
+                return description;
+            }
+
+            public void setDescription(String value) {
+                this.description = value;
+            }
+
+            public String getSystemID() {
+                return systemID;
+            }
+
+            public void setSystemID(String value) {
+                this.systemID = value;
+            }
+
+            public SourceDocuments.Payments.Payment.DocumentStatus getDocumentStatus() {
+                return documentStatus;
+            }
+
+            public void setDocumentStatus(SourceDocuments.Payments.Payment.DocumentStatus value) {
+                this.documentStatus = value;
+            }
+
+            public List<PaymentMethod> getPaymentMethod() {
+                if (paymentMethod == null) {
+                    paymentMethod = new ArrayList<PaymentMethod>();
+                }
+                return this.paymentMethod;
+            }
+
+            public String getSourceID() {
+                return sourceID;
+            }
+
+            public void setSourceID(String value) {
+                this.sourceID = value;
+            }
+
+            public XMLGregorianCalendar getSystemEntryDate() {
+                return systemEntryDate;
+            }
+
+            public void setSystemEntryDate(XMLGregorianCalendar value) {
+                this.systemEntryDate = value;
+            }
+
+            public String getCustomerID() {
+                return customerID;
+            }
+
+            public void setCustomerID(String value) {
+                this.customerID = value;
+            }
+
+            public List<SourceDocuments.Payments.Payment.Line> getLine() {
+                if (line == null) {
+                    line = new ArrayList<SourceDocuments.Payments.Payment.Line>();
+                }
+                return this.line;
+            }
+
+            public SourceDocuments.Payments.Payment.DocumentTotals getDocumentTotals() {
+                return documentTotals;
+            }
+
+            public void setDocumentTotals(SourceDocuments.Payments.Payment.DocumentTotals value) {
+                this.documentTotals = value;
+            }
+
+            public List<WithholdingTax> getWithholdingTax() {
+                if (withholdingTax == null) {
+                    withholdingTax = new ArrayList<WithholdingTax>();
+                }
+                return this.withholdingTax;
+            }
+
+            @Override
+            public String toString() {
+                final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
+                final StringBuilder buffer = new StringBuilder();
+                append(null, buffer, strategy);
+                return buffer.toString();
+            }
+
+            @Override
+            public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                strategy.appendStart(locator, this, buffer);
+                appendFields(locator, buffer, strategy);
+                strategy.appendEnd(locator, this, buffer);
+                return buffer;
+            }
+
+            @Override
+            public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                {
+                    String thePaymentRefNo;
+                    thePaymentRefNo = this.getPaymentRefNo();
+                    strategy.appendField(locator, this, "paymentRefNo", buffer, thePaymentRefNo, (this.paymentRefNo != null));
+                }
+                {
+                    String theATCUD;
+                    theATCUD = this.getATCUD();
+                    strategy.appendField(locator, this, "atcud", buffer, theATCUD, (this.atcud != null));
+                }
+                {
+                    Integer thePeriod;
+                    thePeriod = this.getPeriod();
+                    strategy.appendField(locator, this, "period", buffer, thePeriod, (this.period != null));
+                }
+                {
+                    String theTransactionID;
+                    theTransactionID = this.getTransactionID();
+                    strategy.appendField(locator, this, "transactionID", buffer, theTransactionID, (this.transactionID != null));
+                }
+                {
+                    XMLGregorianCalendar theTransactionDate;
+                    theTransactionDate = this.getTransactionDate();
+                    strategy.appendField(locator, this, "transactionDate", buffer, theTransactionDate, (this.transactionDate != null));
+                }
+                {
+                    SAFTPTPaymentType thePaymentType;
+                    thePaymentType = this.getPaymentType();
+                    strategy.appendField(locator, this, "paymentType", buffer, thePaymentType, (this.paymentType != null));
+                }
+                {
+                    String theDescription;
+                    theDescription = this.getDescription();
+                    strategy.appendField(locator, this, "description", buffer, theDescription, (this.description != null));
+                }
+                {
+                    String theSystemID;
+                    theSystemID = this.getSystemID();
+                    strategy.appendField(locator, this, "systemID", buffer, theSystemID, (this.systemID != null));
+                }
+                {
+                    SourceDocuments.Payments.Payment.DocumentStatus theDocumentStatus;
+                    theDocumentStatus = this.getDocumentStatus();
+                    strategy.appendField(locator, this, "documentStatus", buffer, theDocumentStatus, (this.documentStatus != null));
+                }
+                {
+                    List<PaymentMethod> thePaymentMethod;
+                    thePaymentMethod = (((this.paymentMethod != null) && (!this.paymentMethod.isEmpty())) ? this.getPaymentMethod() : null);
+                    strategy.appendField(locator, this, "paymentMethod", buffer, thePaymentMethod, ((this.paymentMethod != null) && (!this.paymentMethod.isEmpty())));
+                }
+                {
+                    String theSourceID;
+                    theSourceID = this.getSourceID();
+                    strategy.appendField(locator, this, "sourceID", buffer, theSourceID, (this.sourceID != null));
+                }
+                {
+                    XMLGregorianCalendar theSystemEntryDate;
+                    theSystemEntryDate = this.getSystemEntryDate();
+                    strategy.appendField(locator, this, "systemEntryDate", buffer, theSystemEntryDate, (this.systemEntryDate != null));
+                }
+                {
+                    String theCustomerID;
+                    theCustomerID = this.getCustomerID();
+                    strategy.appendField(locator, this, "customerID", buffer, theCustomerID, (this.customerID != null));
+                }
+                {
+                    List<SourceDocuments.Payments.Payment.Line> theLine;
+                    theLine = (((this.line != null) && (!this.line.isEmpty())) ? this.getLine() : null);
+                    strategy.appendField(locator, this, "line", buffer, theLine, ((this.line != null) && (!this.line.isEmpty())));
+                }
+                {
+                    SourceDocuments.Payments.Payment.DocumentTotals theDocumentTotals;
+                    theDocumentTotals = this.getDocumentTotals();
+                    strategy.appendField(locator, this, "documentTotals", buffer, theDocumentTotals, (this.documentTotals != null));
+                }
+                {
+                    List<WithholdingTax> theWithholdingTax;
+                    theWithholdingTax = (((this.withholdingTax != null) && (!this.withholdingTax.isEmpty())) ? this.getWithholdingTax() : null);
+                    strategy.appendField(locator, this, "withholdingTax", buffer, theWithholdingTax, ((this.withholdingTax != null) && (!this.withholdingTax.isEmpty())));
+                }
+                return buffer;
+            }
+
+            @XmlAccessorType(XmlAccessType.FIELD)
+            @XmlType(name = "", propOrder = {
+                "paymentStatus",
+                "paymentStatusDate",
+                "reason",
+                "sourceID",
+                "sourcePayment"
+            })
+            public static class DocumentStatus implements ToString2 {
+
+                @XmlElement(name = "PaymentStatus", required = true)
+                protected String paymentStatus;
+                @XmlElement(name = "PaymentStatusDate", required = true)
+                @XmlSchemaType(name = "dateTime")
+                protected XMLGregorianCalendar paymentStatusDate;
+                @XmlElement(name = "Reason")
+                protected String reason;
+                @XmlElement(name = "SourceID", required = true)
+                protected String sourceID;
+                @XmlElement(name = "SourcePayment", required = true)
+                @XmlSchemaType(name = "string")
+                protected SAFTPTSourcePayment sourcePayment;
+
+                public String getPaymentStatus() {
+                    return paymentStatus;
+                }
+
+                public void setPaymentStatus(String value) {
+                    this.paymentStatus = value;
+                }
+
+                public XMLGregorianCalendar getPaymentStatusDate() {
+                    return paymentStatusDate;
+                }
+
+                public void setPaymentStatusDate(XMLGregorianCalendar value) {
+                    this.paymentStatusDate = value;
+                }
+
+                public String getReason() {
+                    return reason;
+                }
+
+                public void setReason(String value) {
+                    this.reason = value;
+                }
+
+                public String getSourceID() {
+                    return sourceID;
+                }
+
+                public void setSourceID(String value) {
+                    this.sourceID = value;
+                }
+
+                public SAFTPTSourcePayment getSourcePayment() {
+                    return sourcePayment;
+                }
+
+                public void setSourcePayment(SAFTPTSourcePayment value) {
+                    this.sourcePayment = value;
+                }
+
+                @Override
+                public String toString() {
+                    final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
+                    final StringBuilder buffer = new StringBuilder();
+                    append(null, buffer, strategy);
+                    return buffer.toString();
+                }
+
+                @Override
+                public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                    strategy.appendStart(locator, this, buffer);
+                    appendFields(locator, buffer, strategy);
+                    strategy.appendEnd(locator, this, buffer);
+                    return buffer;
+                }
+
+                @Override
+                public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                    {
+                        String thePaymentStatus;
+                        thePaymentStatus = this.getPaymentStatus();
+                        strategy.appendField(locator, this, "paymentStatus", buffer, thePaymentStatus, (this.paymentStatus != null));
+                    }
+                    {
+                        XMLGregorianCalendar thePaymentStatusDate;
+                        thePaymentStatusDate = this.getPaymentStatusDate();
+                        strategy.appendField(locator, this, "paymentStatusDate", buffer, thePaymentStatusDate, (this.paymentStatusDate != null));
+                    }
+                    {
+                        String theReason;
+                        theReason = this.getReason();
+                        strategy.appendField(locator, this, "reason", buffer, theReason, (this.reason != null));
+                    }
+                    {
+                        String theSourceID;
+                        theSourceID = this.getSourceID();
+                        strategy.appendField(locator, this, "sourceID", buffer, theSourceID, (this.sourceID != null));
+                    }
+                    {
+                        SAFTPTSourcePayment theSourcePayment;
+                        theSourcePayment = this.getSourcePayment();
+                        strategy.appendField(locator, this, "sourcePayment", buffer, theSourcePayment, (this.sourcePayment != null));
+                    }
+                    return buffer;
+                }
+
+            }
+
+            @XmlAccessorType(XmlAccessType.FIELD)
+            @XmlType(name = "", propOrder = {
+                "taxPayable",
+                "netTotal",
+                "grossTotal",
+                "settlement",
+                "currency"
+            })
+            public static class DocumentTotals implements ToString2 {
+
+                @XmlElement(name = "TaxPayable", required = true)
+                protected BigDecimal taxPayable;
+                @XmlElement(name = "NetTotal", required = true)
+                protected BigDecimal netTotal;
+                @XmlElement(name = "GrossTotal", required = true)
+                protected BigDecimal grossTotal;
+                @XmlElement(name = "Settlement")
+                protected List<com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema.Settlement> settlement;
+                @XmlElement(name = "Currency")
+                protected Currency currency;
+
+                public BigDecimal getTaxPayable() {
+                    return taxPayable;
+                }
+
+                public void setTaxPayable(BigDecimal value) {
+                    this.taxPayable = value;
+                }
+
+                public BigDecimal getNetTotal() {
+                    return netTotal;
+                }
+
+                public void setNetTotal(BigDecimal value) {
+                    this.netTotal = value;
+                }
+
+                public BigDecimal getGrossTotal() {
+                    return grossTotal;
+                }
+
+                public void setGrossTotal(BigDecimal value) {
+                    this.grossTotal = value;
+                }
+
+                public List<com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema.Settlement> getSettlement() {
+                    if (settlement == null) {
+                        settlement = new ArrayList<com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema.Settlement>();
+                    }
+                    return this.settlement;
+                }
+
+                public Currency getCurrency() {
+                    return currency;
+                }
+
+                public void setCurrency(Currency value) {
+                    this.currency = value;
+                }
+
+                @Override
+                public String toString() {
+                    final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
+                    final StringBuilder buffer = new StringBuilder();
+                    append(null, buffer, strategy);
+                    return buffer.toString();
+                }
+
+                @Override
+                public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                    strategy.appendStart(locator, this, buffer);
+                    appendFields(locator, buffer, strategy);
+                    strategy.appendEnd(locator, this, buffer);
+                    return buffer;
+                }
+
+                @Override
+                public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                    {
+                        BigDecimal theTaxPayable;
+                        theTaxPayable = this.getTaxPayable();
+                        strategy.appendField(locator, this, "taxPayable", buffer, theTaxPayable, (this.taxPayable != null));
+                    }
+                    {
+                        BigDecimal theNetTotal;
+                        theNetTotal = this.getNetTotal();
+                        strategy.appendField(locator, this, "netTotal", buffer, theNetTotal, (this.netTotal != null));
+                    }
+                    {
+                        BigDecimal theGrossTotal;
+                        theGrossTotal = this.getGrossTotal();
+                        strategy.appendField(locator, this, "grossTotal", buffer, theGrossTotal, (this.grossTotal != null));
+                    }
+                    {
+                        List<com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema.Settlement> theSettlement;
+                        theSettlement = (((this.settlement != null) && (!this.settlement.isEmpty())) ? this.getSettlement() : null);
+                        strategy.appendField(locator, this, "settlement", buffer, theSettlement, ((this.settlement != null) && (!this.settlement.isEmpty())));
+                    }
+                    {
+                        Currency theCurrency;
+                        theCurrency = this.getCurrency();
+                        strategy.appendField(locator, this, "currency", buffer, theCurrency, (this.currency != null));
+                    }
+                    return buffer;
+                }
+
+            }
+
+            @XmlAccessorType(XmlAccessType.FIELD)
+            @XmlType(name = "", propOrder = {
+                "lineNumber",
+                "sourceDocumentID",
+                "settlementAmount",
+                "debitAmount",
+                "creditAmount",
+                "tax",
+                "taxExemptionReason",
+                "taxExemptionCode"
+            })
+            public static class Line implements ToString2 {
+
+                @XmlElement(name = "LineNumber", required = true)
+                @XmlSchemaType(name = "nonNegativeInteger")
+                protected BigInteger lineNumber;
+                @XmlElement(name = "SourceDocumentID", required = true)
+                protected List<SourceDocuments.Payments.Payment.Line.SourceDocumentID> sourceDocumentID;
+                @XmlElement(name = "SettlementAmount")
+                protected BigDecimal settlementAmount;
+                @XmlElement(name = "DebitAmount")
+                protected BigDecimal debitAmount;
+                @XmlElement(name = "CreditAmount")
+                protected BigDecimal creditAmount;
+                @XmlElement(name = "Tax")
+                protected PaymentTax tax;
+                @XmlElement(name = "TaxExemptionReason")
+                protected String taxExemptionReason;
+                @XmlElement(name = "TaxExemptionCode")
+                protected String taxExemptionCode;
+
+                public BigInteger getLineNumber() {
+                    return lineNumber;
+                }
+
+                public void setLineNumber(BigInteger value) {
+                    this.lineNumber = value;
+                }
+
+                public List<SourceDocuments.Payments.Payment.Line.SourceDocumentID> getSourceDocumentID() {
+                    if (sourceDocumentID == null) {
+                        sourceDocumentID = new ArrayList<SourceDocuments.Payments.Payment.Line.SourceDocumentID>();
+                    }
+                    return this.sourceDocumentID;
+                }
+
+                public BigDecimal getSettlementAmount() {
+                    return settlementAmount;
+                }
+
+                public void setSettlementAmount(BigDecimal value) {
+                    this.settlementAmount = value;
+                }
+
+                public BigDecimal getDebitAmount() {
+                    return debitAmount;
+                }
+
+                public void setDebitAmount(BigDecimal value) {
+                    this.debitAmount = value;
+                }
+
+                public BigDecimal getCreditAmount() {
+                    return creditAmount;
+                }
+
+                public void setCreditAmount(BigDecimal value) {
+                    this.creditAmount = value;
+                }
+
+                public PaymentTax getTax() {
+                    return tax;
+                }
+
+                public void setTax(PaymentTax value) {
+                    this.tax = value;
+                }
+
+                public String getTaxExemptionReason() {
+                    return taxExemptionReason;
+                }
+
+                public void setTaxExemptionReason(String value) {
+                    this.taxExemptionReason = value;
+                }
+
+                public String getTaxExemptionCode() {
+                    return taxExemptionCode;
+                }
+
+                public void setTaxExemptionCode(String value) {
+                    this.taxExemptionCode = value;
+                }
+
+                @Override
+                public String toString() {
+                    final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
+                    final StringBuilder buffer = new StringBuilder();
+                    append(null, buffer, strategy);
+                    return buffer.toString();
+                }
+
+                @Override
+                public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                    strategy.appendStart(locator, this, buffer);
+                    appendFields(locator, buffer, strategy);
+                    strategy.appendEnd(locator, this, buffer);
+                    return buffer;
+                }
+
+                @Override
+                public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                    {
+                        BigInteger theLineNumber;
+                        theLineNumber = this.getLineNumber();
+                        strategy.appendField(locator, this, "lineNumber", buffer, theLineNumber, (this.lineNumber != null));
+                    }
+                    {
+                        List<SourceDocuments.Payments.Payment.Line.SourceDocumentID> theSourceDocumentID;
+                        theSourceDocumentID = (((this.sourceDocumentID != null) && (!this.sourceDocumentID.isEmpty())) ? this.getSourceDocumentID() : null);
+                        strategy.appendField(locator, this, "sourceDocumentID", buffer, theSourceDocumentID, ((this.sourceDocumentID != null) && (!this.sourceDocumentID.isEmpty())));
+                    }
+                    {
+                        BigDecimal theSettlementAmount;
+                        theSettlementAmount = this.getSettlementAmount();
+                        strategy.appendField(locator, this, "settlementAmount", buffer, theSettlementAmount, (this.settlementAmount != null));
+                    }
+                    {
+                        BigDecimal theDebitAmount;
+                        theDebitAmount = this.getDebitAmount();
+                        strategy.appendField(locator, this, "debitAmount", buffer, theDebitAmount, (this.debitAmount != null));
+                    }
+                    {
+                        BigDecimal theCreditAmount;
+                        theCreditAmount = this.getCreditAmount();
+                        strategy.appendField(locator, this, "creditAmount", buffer, theCreditAmount, (this.creditAmount != null));
+                    }
+                    {
+                        PaymentTax theTax;
+                        theTax = this.getTax();
+                        strategy.appendField(locator, this, "tax", buffer, theTax, (this.tax != null));
+                    }
+                    {
+                        String theTaxExemptionReason;
+                        theTaxExemptionReason = this.getTaxExemptionReason();
+                        strategy.appendField(locator, this, "taxExemptionReason", buffer, theTaxExemptionReason, (this.taxExemptionReason != null));
+                    }
+                    {
+                        String theTaxExemptionCode;
+                        theTaxExemptionCode = this.getTaxExemptionCode();
+                        strategy.appendField(locator, this, "taxExemptionCode", buffer, theTaxExemptionCode, (this.taxExemptionCode != null));
+                    }
+                    return buffer;
+                }
+
+                @XmlAccessorType(XmlAccessType.FIELD)
+                @XmlType(name = "", propOrder = {
+                    "originatingON",
+                    "invoiceDate",
+                    "description"
+                })
+                public static class SourceDocumentID implements ToString2 {
+
+                    @XmlElement(name = "OriginatingON", required = true)
+                    protected String originatingON;
+                    @XmlElement(name = "InvoiceDate", required = true)
+                    @XmlSchemaType(name = "date")
+                    protected XMLGregorianCalendar invoiceDate;
+                    @XmlElement(name = "Description")
+                    protected String description;
+
+                    public String getOriginatingON() {
+                        return originatingON;
+                    }
+
+                    public void setOriginatingON(String value) {
+                        this.originatingON = value;
+                    }
+
+                    public XMLGregorianCalendar getInvoiceDate() {
+                        return invoiceDate;
+                    }
+
+                    public void setInvoiceDate(XMLGregorianCalendar value) {
+                        this.invoiceDate = value;
+                    }
+
+                    public String getDescription() {
+                        return description;
+                    }
+
+                    public void setDescription(String value) {
+                        this.description = value;
+                    }
+
+                    @Override
+                    public String toString() {
+                        final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
+                        final StringBuilder buffer = new StringBuilder();
+                        append(null, buffer, strategy);
+                        return buffer.toString();
+                    }
+
+                    @Override
+                    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                        strategy.appendStart(locator, this, buffer);
+                        appendFields(locator, buffer, strategy);
+                        strategy.appendEnd(locator, this, buffer);
+                        return buffer;
+                    }
+
+                    @Override
+                    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                        {
+                            String theOriginatingON;
+                            theOriginatingON = this.getOriginatingON();
+                            strategy.appendField(locator, this, "originatingON", buffer, theOriginatingON, (this.originatingON != null));
+                        }
+                        {
+                            XMLGregorianCalendar theInvoiceDate;
+                            theInvoiceDate = this.getInvoiceDate();
+                            strategy.appendField(locator, this, "invoiceDate", buffer, theInvoiceDate, (this.invoiceDate != null));
+                        }
+                        {
+                            String theDescription;
+                            theDescription = this.getDescription();
+                            strategy.appendField(locator, this, "description", buffer, theDescription, (this.description != null));
+                        }
+                        return buffer;
+                    }
+
+                }
+
+            }
+
         }
 
     }
@@ -2670,6 +3443,7 @@ public class SourceDocuments implements ToString2 {
         @XmlAccessorType(XmlAccessType.FIELD)
         @XmlType(name = "", propOrder = {
             "documentNumber",
+            "atcud",
             "documentStatus",
             "hash",
             "hashControl",
@@ -2679,6 +3453,7 @@ public class SourceDocuments implements ToString2 {
             "sourceID",
             "eacCode",
             "systemEntryDate",
+            "transactionID",
             "customerID",
             "line",
             "documentTotals"
@@ -2687,11 +3462,13 @@ public class SourceDocuments implements ToString2 {
 
             @XmlElement(name = "DocumentNumber", required = true)
             protected String documentNumber;
+            @XmlElement(name = "ATCUD", required = true)
+            protected String atcud;
             @XmlElement(name = "DocumentStatus", required = true)
             protected SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus documentStatus;
             @XmlElement(name = "Hash", required = true)
             protected String hash;
-            @XmlElement(name = "HashControl")
+            @XmlElement(name = "HashControl", required = true)
             protected String hashControl;
             @XmlElement(name = "Period")
             protected Integer period;
@@ -2707,6 +3484,8 @@ public class SourceDocuments implements ToString2 {
             @XmlElement(name = "SystemEntryDate", required = true)
             @XmlSchemaType(name = "dateTime")
             protected XMLGregorianCalendar systemEntryDate;
+            @XmlElement(name = "TransactionID")
+            protected String transactionID;
             @XmlElement(name = "CustomerID", required = true)
             protected String customerID;
             @XmlElement(name = "Line", required = true)
@@ -2720,6 +3499,14 @@ public class SourceDocuments implements ToString2 {
 
             public void setDocumentNumber(String value) {
                 this.documentNumber = value;
+            }
+
+            public String getATCUD() {
+                return atcud;
+            }
+
+            public void setATCUD(String value) {
+                this.atcud = value;
             }
 
             public SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus getDocumentStatus() {
@@ -2794,6 +3581,14 @@ public class SourceDocuments implements ToString2 {
                 this.systemEntryDate = value;
             }
 
+            public String getTransactionID() {
+                return transactionID;
+            }
+
+            public void setTransactionID(String value) {
+                this.transactionID = value;
+            }
+
             public String getCustomerID() {
                 return customerID;
             }
@@ -2841,6 +3636,11 @@ public class SourceDocuments implements ToString2 {
                     strategy.appendField(locator, this, "documentNumber", buffer, theDocumentNumber, (this.documentNumber != null));
                 }
                 {
+                    String theATCUD;
+                    theATCUD = this.getATCUD();
+                    strategy.appendField(locator, this, "atcud", buffer, theATCUD, (this.atcud != null));
+                }
+                {
                     SourceDocuments.WorkingDocuments.WorkDocument.DocumentStatus theDocumentStatus;
                     theDocumentStatus = this.getDocumentStatus();
                     strategy.appendField(locator, this, "documentStatus", buffer, theDocumentStatus, (this.documentStatus != null));
@@ -2884,6 +3684,11 @@ public class SourceDocuments implements ToString2 {
                     XMLGregorianCalendar theSystemEntryDate;
                     theSystemEntryDate = this.getSystemEntryDate();
                     strategy.appendField(locator, this, "systemEntryDate", buffer, theSystemEntryDate, (this.systemEntryDate != null));
+                }
+                {
+                    String theTransactionID;
+                    theTransactionID = this.getTransactionID();
+                    strategy.appendField(locator, this, "transactionID", buffer, theTransactionID, (this.transactionID != null));
                 }
                 {
                     String theCustomerID;
@@ -3111,4 +3916,11 @@ public class SourceDocuments implements ToString2 {
 
     }
 
+    @Override
+    public String toString() {
+        final ToStringStrategy2 strategy = JAXBToStringStrategy.INSTANCE;
+        final StringBuilder buffer = new StringBuilder();
+        append(null, buffer, strategy);
+        return buffer.toString();
+    }
 }

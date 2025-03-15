@@ -84,7 +84,23 @@ public class Detection implements Serializable {
     return Objects.equals(language, other.language) && Objects.equals(confidence, other.confidence);
   }
 
-  static Detection fromPb(DetectedLanguage detectionPb) {
+  static Detection fromPb(DetectionsResourceItems detectionPb) {
     return new Detection(detectionPb.getLanguage(), detectionPb.getConfidence());
+  }
+
+  public static class DetectionsResourceItems {
+    private final DetectedLanguage detectedLanguage;
+
+    public DetectionsResourceItems(DetectedLanguage detectedLanguage) {
+      this.detectedLanguage = detectedLanguage;
+    }
+
+    public String getLanguage() {
+      return detectedLanguage.getLanguageCode();
+    }
+
+    public Float getConfidence() {
+      return detectedLanguage.getConfidence();
+    }
   }
 }

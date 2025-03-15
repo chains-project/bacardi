@@ -1,24 +1,178 @@
-62c62
+13c13,15
+< import org.snmp4j.agent.*;
+---
+> import org.snmp4j.agent.BaseAgent;
+> import org.snmp4j.agent.DuplicateRegistrationException;
+> import org.snmp4j.agent.MOScope;
+16c18,22
+< import org.snmp4j.agent.mo.snmp.*;
+---
+> import org.snmp4j.agent.mo.snmp.DefaultMOContextScope;
+> import org.snmp4j.agent.mo.snmp.DefaultMOQuery;
+> import org.snmp4j.agent.mo.snmp.SnmpCommunityMIB;
+> import org.snmp4j.agent.mo.snmp.SnmpNotificationMIB;
+> import org.snmp4j.agent.mo.snmp.SnmpTargetMIB;
+22c28,37
+< import org.snmp4j.smi.*;
+---
+> import org.snmp4j.smi.Gauge32;
+> import org.snmp4j.smi.Integer32;
+> import org.snmp4j.smi.IpAddress;
+> import org.snmp4j.smi.OctetString;
+> import org.snmp4j.smi.OID;
+> import org.snmp4j.smi.TimeTicks;
+> import org.snmp4j.smi.Variable;
+> import org.snmp4j.smi.VariableBinding;
+> import org.snmp4j.smi.Counter32;
+> import org.snmp4j.smi.Counter64;
+26c41,47
+< import java.io.*;
+---
+> import java.io.BufferedReader;
+> import java.io.File;
+> import java.io.FileInputStream;
+> import java.io.FileNotFoundException;
+> import java.io.IOException;
+> import java.io.InputStreamReader;
+> import java.io.UnsupportedEncodingException;
+30c51,57
+< import java.util.*;
+---
+> import java.util.ArrayList;
+> import java.util.Collections;
+> import java.util.HashMap;
+> import java.util.List;
+> import java.util.Map;
+> import java.util.SortedMap;
+> import java.util.TreeMap;
+62c89
 <     private final List<ManagedObject> groups = new ArrayList<>();
 ---
->     private final List<ManagedObject<?>> groups = new ArrayList<>();
-266c266
+>     private final List<org.snmp4j.agent.ManagedObject<?>> groups = new ArrayList<>();
+70c97
+<         super(SnmpmanAgent.getBootCounterFile(configuration), SnmpmanAgent.getConfigurationFile(configuration), new CommandProcessor(new OctetString(MPv3.createLocalEngineID())));
+---
+>         super(SnmpmanAgent.getBootCounterFile(configuration), SnmpmanAgent.getConfigurationFile(configuration), new org.snmp4j.agent.CommandProcessor(new OctetString(MPv3.createLocalEngineID())));
+237c264
+<         TransportMapping tm = TransportMappings.getInstance().createTransportMapping(configuration.getAddress());
+---
+>         TransportMapping<?> tm = TransportMappings.getInstance().createTransportMapping(configuration.getAddress());
+266c293
 <                     ManagedObject mo = server.lookup(new DefaultMOQuery(scope, false));
 ---
->                     ManagedObject<?> mo = server.lookup(new DefaultMOQuery(scope, false));
-357c357
+>                     org.snmp4j.agent.ManagedObject<?> mo = server.lookup(new DefaultMOQuery(scope, false));
+338c365
+<      * Registers a {@link ManagedObject} to the server with an empty {@link OctetString} community context.
+---
+>      * Registers a {@link org.snmp4j.agent.ManagedObject} to the server with an empty {@link OctetString} community context.
+340c367
+<      * @param group {@link ManagedObject} to register.
+---
+>      * @param group {@link org.snmp4j.agent.ManagedObject} to register.
+348c375
+<      * Registers a {@link ManagedObject} to the server with a {@link OctetString} community context.
+---
+>      * Registers a {@link org.snmp4j.agent.ManagedObject} to the server with a {@link OctetString} community context.
+350c377
+<      * @param group   {@link ManagedObject} to register.
+---
+>      * @param group   {@link org.snmp4j.agent.ManagedObject} to register.
+356,357c383,384
+<                 MOContextScope contextScope = new DefaultMOContextScope(new OctetString(), group.getScope());
 <                 ManagedObject other = server.lookup(new DefaultMOQuery(contextScope, false));
 ---
->                 ManagedObject<?> other = server.lookup(new DefaultMOQuery(contextScope, false));
-389c389
+>                 DefaultMOContextScope contextScope = new DefaultMOContextScope(new OctetString(), group.getScope());
+>                 org.snmp4j.agent.ManagedObject<?> other = server.lookup(new DefaultMOQuery(contextScope, false));
+379,380c406
+<      * Sets the private registry value of {@link DefaultMOServer} via reflection.
+<      * FIXME
+---
+>      * Sets the private registry value of the MOServer via reflection.
+383c409
+<      * @param group {@link ManagedObject} to register.
+---
+>      * @param group {@link MOGroup} to register.
+389c415
 <             final SortedMap<MOScope, ManagedObject> reg = server.getRegistry();
 ---
->             final SortedMap<MOScope, ManagedObject<?>> reg = server.getRegistry();
-440c440
+>             final SortedMap<MOScope, org.snmp4j.agent.ManagedObject<?>> reg = server.getRegistry();
+440c466
 <         ManagedObject query;
 ---
->         ManagedObject<?> query;
-489c489
+>         org.snmp4j.agent.ManagedObject<?> query;
+489c515
 <         for (final ManagedObject mo : groups) {
 ---
->         for (final ManagedObject<?> mo : groups) {
+>         for (final org.snmp4j.agent.ManagedObject<?> mo : groups) {
+507c533
+<     protected void addViews(final VacmMIB vacmMIB) {
+---
+>     protected void addViews(final MutableVACM vacmMIB) {
+509,514c535,540
+<         vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_SNMPv1, new OctetString(configuration.getCommunity()), new OctetString("v1v2group"), StorageType.nonVolatile);
+<         vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_SNMPv2c, new OctetString(configuration.getCommunity()), new OctetString("v1v2group"), StorageType.nonVolatile);
+<         vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("SHADES"), new OctetString("v3group"), StorageType.nonVolatile);
+<         vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("TEST"), new OctetString("v3test"), StorageType.nonVolatile);
+<         vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("SHA"), new OctetString("v3restricted"), StorageType.nonVolatile);
+<         vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("v3notify"), new OctetString("v3restricted"), StorageType.nonVolatile);
+---
+>         vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_SNMPv1, new OctetString(configuration.getCommunity()), new OctetString("v1v2group"), org.snmp4j.smi.StorageType.nonVolatile);
+>         vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_SNMPv2c, new OctetString(configuration.getCommunity()), new OctetString("v1v2group"), org.snmp4j.smi.StorageType.nonVolatile);
+>         vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("SHADES"), new OctetString("v3group"), org.snmp4j.smi.StorageType.nonVolatile);
+>         vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("TEST"), new OctetString("v3test"), org.snmp4j.smi.StorageType.nonVolatile);
+>         vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("SHA"), new OctetString("v3restricted"), org.snmp4j.smi.StorageType.nonVolatile);
+>         vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("v3notify"), new OctetString("v3restricted"), org.snmp4j.smi.StorageType.nonVolatile);
+518,540c544,566
+<             vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_SNMPv1, new OctetString(configuration.getCommunity() + "@" + vlan), new OctetString("v1v2group"), StorageType.nonVolatile);
+<             vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_SNMPv2c, new OctetString(configuration.getCommunity() + "@" + vlan), new OctetString("v1v2group"), StorageType.nonVolatile);
+<             vacmMIB.addAccess(new OctetString("v1v2group"), new OctetString(String.valueOf(vlan)), SecurityModel.SECURITY_MODEL_ANY, SecurityLevel.NOAUTH_NOPRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
+<         }
+< 
+<         vacmMIB.addAccess(new OctetString("v1v2group"), new OctetString(), SecurityModel.SECURITY_MODEL_ANY, SecurityLevel.NOAUTH_NOPRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
+<         vacmMIB.addAccess(new OctetString("v3group"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.AUTH_PRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
+<         vacmMIB.addAccess(new OctetString("v3restricted"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.NOAUTH_NOPRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("restrictedReadView"), new OctetString("restrictedWriteView"), new OctetString("restrictedNotifyView"), StorageType.nonVolatile);
+<         vacmMIB.addAccess(new OctetString("v3test"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.AUTH_PRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("testReadView"), new OctetString("testWriteView"), new OctetString("testNotifyView"), StorageType.nonVolatile);
+< 
+<         vacmMIB.addViewTreeFamily(new OctetString("fullReadView"), new OID("1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
+<         vacmMIB.addViewTreeFamily(new OctetString("fullWriteView"), new OID("1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
+<         vacmMIB.addViewTreeFamily(new OctetString("fullNotifyView"), new OID("1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
+< 
+<         vacmMIB.addViewTreeFamily(new OctetString("restrictedReadView"), new OID("1.3.6.1.2"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
+<         vacmMIB.addViewTreeFamily(new OctetString("restrictedWriteView"), new OID("1.3.6.1.2.1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
+<         vacmMIB.addViewTreeFamily(new OctetString("restrictedNotifyView"), new OID("1.3.6.1.2"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
+<         vacmMIB.addViewTreeFamily(new OctetString("restrictedNotifyView"), new OID("1.3.6.1.6.3.1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
+< 
+<         vacmMIB.addViewTreeFamily(new OctetString("testReadView"), new OID("1.3.6.1.2"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
+<         vacmMIB.addViewTreeFamily(new OctetString("testReadView"), new OID("1.3.6.1.2.1.1"), new OctetString(), VacmMIB.vacmViewExcluded, StorageType.nonVolatile);
+<         vacmMIB.addViewTreeFamily(new OctetString("testWriteView"), new OID("1.3.6.1.2.1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
+<         vacmMIB.addViewTreeFamily(new OctetString("testNotifyView"), new OID("1.3.6.1.2"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
+---
+>             vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_SNMPv1, new OctetString(configuration.getCommunity() + "@" + vlan), new OctetString("v1v2group"), org.snmp4j.smi.StorageType.nonVolatile);
+>             vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_SNMPv2c, new OctetString(configuration.getCommunity() + "@" + vlan), new OctetString("v1v2group"), org.snmp4j.smi.StorageType.nonVolatile);
+>             vacmMIB.addAccess(new OctetString("v1v2group"), new OctetString(String.valueOf(vlan)), SecurityModel.SECURITY_MODEL_ANY, SecurityLevel.NOAUTH_NOPRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), org.snmp4j.smi.StorageType.nonVolatile);
+>         }
+> 
+>         vacmMIB.addAccess(new OctetString("v1v2group"), new OctetString(), SecurityModel.SECURITY_MODEL_ANY, SecurityLevel.NOAUTH_NOPRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), org.snmp4j.smi.StorageType.nonVolatile);
+>         vacmMIB.addAccess(new OctetString("v3group"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.AUTH_PRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), org.snmp4j.smi.StorageType.nonVolatile);
+>         vacmMIB.addAccess(new OctetString("v3restricted"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.NOAUTH_NOPRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("restrictedReadView"), new OctetString("restrictedWriteView"), new OctetString("restrictedNotifyView"), org.snmp4j.smi.StorageType.nonVolatile);
+>         vacmMIB.addAccess(new OctetString("v3test"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.AUTH_PRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("testReadView"), new OctetString("testWriteView"), new OctetString("testNotifyView"), org.snmp4j.smi.StorageType.nonVolatile);
+> 
+>         vacmMIB.addViewTreeFamily(new OctetString("fullReadView"), new OID("1"), new OctetString(), MutableVACM.vacmViewIncluded, org.snmp4j.smi.StorageType.nonVolatile);
+>         vacmMIB.addViewTreeFamily(new OctetString("fullWriteView"), new OID("1"), new OctetString(), MutableVACM.vacmViewIncluded, org.snmp4j.smi.StorageType.nonVolatile);
+>         vacmMIB.addViewTreeFamily(new OctetString("fullNotifyView"), new OID("1"), new OctetString(), MutableVACM.vacmViewIncluded, org.snmp4j.smi.StorageType.nonVolatile);
+> 
+>         vacmMIB.addViewTreeFamily(new OctetString("restrictedReadView"), new OID("1.3.6.1.2"), new OctetString(), MutableVACM.vacmViewIncluded, org.snmp4j.smi.StorageType.nonVolatile);
+>         vacmMIB.addViewTreeFamily(new OctetString("restrictedWriteView"), new OID("1.3.6.1.2.1"), new OctetString(), MutableVACM.vacmViewIncluded, org.snmp4j.smi.StorageType.nonVolatile);
+>         vacmMIB.addViewTreeFamily(new OctetString("restrictedNotifyView"), new OID("1.3.6.1.2"), new OctetString(), MutableVACM.vacmViewIncluded, org.snmp4j.smi.StorageType.nonVolatile);
+>         vacmMIB.addViewTreeFamily(new OctetString("restrictedNotifyView"), new OID("1.3.6.1.6.3.1"), new OctetString(), MutableVACM.vacmViewIncluded, org.snmp4j.smi.StorageType.nonVolatile);
+> 
+>         vacmMIB.addViewTreeFamily(new OctetString("testReadView"), new OID("1.3.6.1.2"), new OctetString(), MutableVACM.vacmViewIncluded, org.snmp4j.smi.StorageType.nonVolatile);
+>         vacmMIB.addViewTreeFamily(new OctetString("testReadView"), new OID("1.3.6.1.2.1.1"), new OctetString(), MutableVACM.vacmViewExcluded, org.snmp4j.smi.StorageType.nonVolatile);
+>         vacmMIB.addViewTreeFamily(new OctetString("testWriteView"), new OID("1.3.6.1.2.1"), new OctetString(), MutableVACM.vacmViewIncluded, org.snmp4j.smi.StorageType.nonVolatile);
+>         vacmMIB.addViewTreeFamily(new OctetString("testNotifyView"), new OID("1.3.6.1.2"), new OctetString(), MutableVACM.vacmViewIncluded, org.snmp4j.smi.StorageType.nonVolatile);
+575,576c601,602
+<                 new Integer32(StorageType.readOnly),    // storage type
+<                 new Integer32(RowStatus.active)         // row status
+---
+>                 new Integer32(org.snmp4j.smi.StorageType.readOnly),    // storage type
+>                 new Integer32(org.snmp4j.smi.RowStatus.active)         // row status

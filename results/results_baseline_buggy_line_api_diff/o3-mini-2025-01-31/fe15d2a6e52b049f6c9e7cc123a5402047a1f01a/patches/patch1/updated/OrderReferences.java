@@ -13,9 +13,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
-import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
+import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
 /**
@@ -121,12 +122,12 @@ public class OrderReferences implements ToString2
         {
             String theOriginatingON;
             theOriginatingON = this.getOriginatingON();
-            strategy.appendField(locator, this, "originatingON", buffer, theOriginatingON, (this.originatingON!= null));
+            strategy.appendField(locator, this, "originatingON", buffer, theOriginatingON, (this.originatingON != null));
         }
         {
             XMLGregorianCalendar theOrderDate;
             theOrderDate = this.getOrderDate();
-            strategy.appendField(locator, this, "orderDate", buffer, theOrderDate, (this.orderDate!= null));
+            strategy.appendField(locator, this, "orderDate", buffer, theOrderDate, (this.orderDate != null));
         }
         return buffer;
     }

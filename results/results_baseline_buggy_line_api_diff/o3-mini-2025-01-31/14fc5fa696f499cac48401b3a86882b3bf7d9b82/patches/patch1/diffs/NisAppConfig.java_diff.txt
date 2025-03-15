@@ -1,5 +1,7 @@
-107,113c107,114
-< 
+3a4,5
+> import org.flywaydb.core.api.configuration.ClassicConfiguration;
+> import org.flywaydb.core.api.Location;
+108,113c110,121
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
@@ -7,11 +9,49 @@
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 <                 return flyway;
 ---
->                 String[] locations = prop.getProperty("flyway.locations").split(",");
->                 boolean validateOnMigrate = Boolean.parseBoolean(prop.getProperty("flyway.validate"));
->                 return Flyway.configure()
->                                 .dataSource(this.dataSource())
->                                 .locations(locations)
->                                 .classLoader(NisAppConfig.class.getClassLoader())
->                                 .validateOnMigrate(validateOnMigrate)
->                                 .load();
+>                 final ClassicConfiguration config = new ClassicConfiguration();
+>                 config.setDataSource(this.dataSource());
+>                 config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 config.setClassLoader(NisAppConfig.class.getClassLoader());
+>                 String locationsStr = prop.getProperty("flyway.locations");
+>                 String[] locationsRaw = locationsStr.split(",");
+>                 Location[] locations = new Location[locationsRaw.length];
+>                 for (int i = 0; i < locationsRaw.length; i++) {
+>                         locations[i] = new Location(locationsRaw[i].trim());
+>                 }
+>                 config.setLocations(locations);
+>                 return new Flyway(config);
+145,146d152
+<         // region mappers
+< 
+167,170d172
+<         // endregion
+< 
+<         // region observers + validators
+< 
+191,192d192
+<                 // this is only consumed by the TransactionController and used in transaction/prepare,
+<                 // which should propagate incomplete transactions
+196,197d195
+<         // endregion
+< 
+307,308d304
+< 
+<                 // initialize network info
+310,311d305
+< 
+<                 // initialize other globals
+322d315
+< 
+325d317
+< 
+362d353
+< 
+364d354
+< 
+366d355
+< 
+430d418
+< 
+435d422
+< 
