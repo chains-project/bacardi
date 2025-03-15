@@ -6,17 +6,17 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import java.util.UUID;
 
+import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.service.permission.Subject;
 
 public class SkinDownloader extends SharedDownloader {
 
     private final ChangeSkinSponge plugin;
-    private final Subject invoker;
+    private final CommandSource invoker;
     private final Player receiver;
 
-    public SkinDownloader(ChangeSkinSponge plugin, Subject invoker, Player receiver, UUID targetUUID
+    public SkinDownloader(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, UUID targetUUID
             , boolean keepSkin) {
         super(plugin.getCore(), keepSkin, targetUUID, receiver.getUniqueId());
 

@@ -1,11 +1,15 @@
-14d13
-< import org.spongepowered.api.command.CommandSource;
-19a19
+12c12
+< import org.spongepowered.api.Platform.Type;
+---
+> import org.spongepowered.api.Platform;
+19a20
 > import org.spongepowered.api.scheduler.TaskExecutorService;
-35,36c35,37
-<             Runnable skinUpdater = new SkinApplier(plugin, (CommandSource) connection, receiver.get(), null, false);
+27c28
+<     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+---
+>     public void handlePayload(ChannelBuf data, RemoteConnection connection, Platform.Type side) {
+36c37,38
 <             Task.builder().execute(skinUpdater).submit(plugin);
 ---
->             Runnable skinUpdater = new SkinApplier(plugin, (org.spongepowered.api.command.CommandSource) connection, receiver.get(), null, false);
 >             TaskExecutorService taskExecutorService = Sponge.getServer().getScheduler().createSyncExecutor(plugin);
 >             taskExecutorService.execute(skinUpdater);

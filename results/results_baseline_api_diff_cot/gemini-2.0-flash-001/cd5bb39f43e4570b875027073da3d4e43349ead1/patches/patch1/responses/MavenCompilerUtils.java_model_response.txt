@@ -30,6 +30,7 @@ import org.xml.sax.InputSource;
 import java.io.StringReader;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptySet;
@@ -98,28 +99,30 @@ public final class MavenCompilerUtils {
                 doc.getDocumentElement().normalize();
 
                 NodeList annotationProcessorPathsList = doc.getElementsByTagName("annotationProcessorPaths");
-                return stream(IntStream.range(0, annotationProcessorPathsList.getLength()).mapToObj(annotationProcessorPathsList::item))
+
+                return IntStream.range(0, annotationProcessorPathsList.getLength())
+                        .mapToObj(annotationProcessorPathsList::item)
                         .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
                         .map(node -> (Element) node)
                         .flatMap(aggregate -> {
                             NodeList pathList = aggregate.getElementsByTagName("path");
-                            return stream(IntStream.range(0, pathList.getLength()).mapToObj(pathList::item))
-                                    .filter(pathNode -> pathNode.getNodeType() == Node.ELEMENT_NODE)
-                                    .map(pathNode -> (Element) pathNode);
+                            return IntStream.range(0, pathList.getLength())
+                                    .mapToObj(pathList::item)
+                                    .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
+                                    .map(node -> (Element) node);
                         })
                         .map(processor -> system.createArtifact(
-                                extractChildValue(processor, "groupId"),
-                                extractChildValue(processor, "artifactId"),
-                                extractChildValue(processor, "version"),
+                                extractChildValue(processor, "groupId", processor),
+                                extractChildValue(processor, "artifactId", processor),
+                                extractChildValue(processor, "version", processor),
                                 PACKAGING))
-                        // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
-                        // therefore there is little use in logging incomplete paths that are filtered out.
                         .filter(a -> !a.getGroupId().isEmpty())
                         .filter(a -> !a.getArtifactId().isEmpty())
                         .filter(a -> !a.getVersion().isEmpty())
                         .collect(Collectors.toSet());
+
             } catch (Exception e) {
-                throw new RuntimeException("Error parsing configuration XML", e);
+                throw new RuntimeException("Error parsing XML configuration", e);
             }
         }
         // It is expected that this will never occur due to all Configuration instances of all plugins being provided as
@@ -129,11 +132,6 @@ public final class MavenCompilerUtils {
                 " was encountered: " + config.getClass());
     }
 
-    private static String extractChildValue(org.codehaus.plexus.util.xml.Xpp3Dom node, String name) {
-        org.codehaus.plexus.util.xml.Xpp3Dom child = node.getChild(name);
-        return child == null ? "" : child.getValue();
-    }
-
     /**
      * Extract child value if child is present, or return empty string if absent.
      *
@@ -141,13 +139,17 @@ public final class MavenCompilerUtils {
      * @param name the child node name
      * @return Returns child value if child node present or otherwise empty string.
      */
-    private static String extractChildValue(Element node, String name) {
-        NodeList children = node.getElementsByTagName(name);
-        if (children.getLength() == 0) {
-            return "";
-        }
-        return children.item(0).getTextContent();
+    private static String extractChildValue(org.codehaus.plexus.util.xml.Xpp3Dom node, String name) {
+        org.codehaus.plexus.util.xml.Xpp3Dom child = node.getChild(name);
+        return child == null ? "" : child.getValue();
     }
-    private static java.util.stream.IntStream IntStream;
+
+    private static String extractChildValue(Element node, String name, Element processor) {
+        NodeList children = processor.getElementsByTagName(name);
+        if (children.getLength() > 0) {
+            return children.item(0).getTextContent();
+        }
+        return "";
+    }
 }
 ```

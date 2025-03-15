@@ -130,7 +130,7 @@ public class AppenderUtils {
 
     policy.setTimeBasedFileNamingAndTriggeringPolicy(fnatp);
     appender.setRollingPolicy(policy);
-    appender.setTriggeringPolicy(policy);
+    appender.setTriggeringPolicy(fnatp);
 
     policy.start();
     appender.start();

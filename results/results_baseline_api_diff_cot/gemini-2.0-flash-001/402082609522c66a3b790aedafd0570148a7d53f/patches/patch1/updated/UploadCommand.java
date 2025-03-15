@@ -12,14 +12,16 @@ import java.util.List;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.parameter.CommandContext;
-import org.spongepowered.api.command.CommandExecutor;
+import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.parameter.Parameter;
 import org.spongepowered.api.scheduler.Task;
 
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.Component;
 
-public class UploadCommand implements CommandExecutor {
+import static org.spongepowered.api.command.parameter.CommonParameters.STRING;
+
+public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
     private final ChangeSkinCore core;
@@ -30,12 +32,9 @@ public class UploadCommand implements CommandExecutor {
         this.core = core;
     }
 
-    @Override
-    public CommandResult execute(CommandContext context) {
-        String url = context.one(Parameter.string("url")).orElse("");
-        org.spongepowered.api.command.CommandSource src = context.cause().root();
-
-        if (url.startsWith("http://") || url.startsWith("https://")) {
+    public CommandResult execute(CommandSource src, CommandContext args) {
+        String url = args.<String>getOne(Parameter.key("url", String.class)).orElse(null);
+        if (url != null && (url.startsWith("http://") || url.startsWith("https://"))) {
             List<Account> accounts = plugin.getCore().getUploadAccounts();
             if (accounts.isEmpty()) {
                 plugin.sendMessage(src, "no-accounts");
@@ -51,10 +50,15 @@ public class UploadCommand implements CommandExecutor {
         return CommandResult.success();
     }
 
-    public Command.Builder buildSpec() {
+    @Override
+    public Command buildSpec() {
+        Parameter.Key<String> urlKey = Parameter.key("url", String.class);
+        Parameter urlParameter = Parameter.builder(String.class).key(urlKey).addParser(STRING).build();
+
         return Command.builder()
                 .executor(this)
-                .addParameter(Parameter.string("url"))
-                .permission(PomData.ARTIFACT_ID + ".command.skinupload.base");
+                .addParameter(urlParameter)
+                .permission(PomData.ARTIFACT_ID + ".command.skinupload.base")
+                .build();
     }
 }

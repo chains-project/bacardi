@@ -9,12 +9,12 @@ package org.sonatype.maven.polyglot.yaml;
 
 import org.apache.maven.model.*;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
-import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.constructor.Construct;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.error.YAMLException;
 import org.yaml.snakeyaml.nodes.*;
+import org.yaml.snakeyaml.LoaderOptions;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -41,11 +41,8 @@ public final class ModelConstructor extends Constructor {
   private final Map<Class<?>, Construct> pomConstructors = new HashMap<>();
 
   public ModelConstructor() {
-    this(new LoaderOptions());
-  }
+    super(new LoaderOptions());
 
-  public ModelConstructor(LoaderOptions loaderOptions) {
-    super(loaderOptions);
     yamlConstructors.put(XPP3DOM_TAG, new ConstructXpp3Dom());
     yamlClassConstructors.put(NodeId.mapping, new MavenObjectConstruct());
     pomConstructors.put(Dependency.class, new ConstructDependency());

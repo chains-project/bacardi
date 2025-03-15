@@ -1,21 +1,24 @@
-4,10c4,5
+4,6d3
 < import redis.clients.jedis.commands.BasicRedisPipeline;
 < import redis.clients.jedis.commands.BinaryRedisPipeline;
 < import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
-< import redis.clients.jedis.commands.ClusterPipeline;
+8,11d4
 < import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;
 < import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
 < import redis.clients.jedis.commands.RedisPipeline;
----
-> import redis.clients.jedis.commands.BasicCommandsPipeline;
-> import redis.clients.jedis.commands.BinaryCommandsPipeline;
-21,24c16,19
+< import redis.clients.jedis.commands.ScriptingCommandsPipeline;
+21,24c14
 <         MultiKeyBinaryRedisPipeline,
 <         MultiKeyCommandsPipeline, ClusterPipeline,
 <         BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
 <         BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
 ---
->         BinaryCommandsPipeline,
->         BasicCommandsPipeline,
->         ScriptingCommandsPipeline,
->         Closeable {
+>         ClusterPipeline, Closeable {
+146c136
+<     public void sync();
+---
+>     void sync();
+159c149
+<     public Response<Long> waitReplicas(int replicas, long timeout);
+---
+>     Response<Long> waitReplicas(int replicas, long timeout);

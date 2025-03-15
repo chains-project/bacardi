@@ -17,6 +17,7 @@
 package com.feedzai.commons.sql.abstraction.engine.impl.abs;
 
 import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.spi.LoggingEvent;
 import com.feedzai.commons.sql.abstraction.ddl.AlterColumn;
 import com.feedzai.commons.sql.abstraction.ddl.DbColumn;
 import com.feedzai.commons.sql.abstraction.ddl.DbColumnConstraint;
@@ -65,7 +66,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
@@ -179,8 +179,7 @@ public class EngineGeneralTest {
 
     @BeforeClass
     public static void initStatic() {
-        Logger root = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
-        ((ch.qos.logback.classic.Logger) root).setLevel(Level.TRACE);
+        ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME)).setLevel(Level.TRACE);
     }
 
     @Before
@@ -755,4 +754,4 @@ public class EngineGeneralTest {
 
     @Test
     public void blobTest() throws DatabaseEngineException {
-        final double
+        final double[] original = new double

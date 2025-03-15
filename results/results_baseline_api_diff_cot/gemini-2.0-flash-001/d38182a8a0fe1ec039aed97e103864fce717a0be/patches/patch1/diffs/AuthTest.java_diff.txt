@@ -1,19 +1,19 @@
 16a17
 > import com.artipie.http.auth.AuthUser;
-30a32
-> import java.util.Optional;
-350c352,353
+350,353c351,356
 <                     token -> CompletableFuture.completedFuture(
+<                         Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
+<                             .filter(user -> token.equals(token(user)))
+<                             .map(user -> new Authentication.User(user.name()))
 ---
 >                     token -> {
->                         final Optional<TestAuthentication.User> found =
-353,355c356,360
-<                             .map(user -> new Authentication.User(user.name()))
-<                             .findFirst()
+>                         Stream<TestAuthentication.User> filtered = Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
+>                             .filter(user -> token.equals(token(user)));
+>                         return CompletableFuture.completedFuture(
+>                             filtered
+>                             .map(user -> new AuthUser(user.name()))
+355c358,359
 <                     ),
 ---
->                                 .findFirst();
->                         return CompletableFuture.completedFuture(
->                             found.map(user -> new AuthUser(user.name()))
 >                         );
 >                     },

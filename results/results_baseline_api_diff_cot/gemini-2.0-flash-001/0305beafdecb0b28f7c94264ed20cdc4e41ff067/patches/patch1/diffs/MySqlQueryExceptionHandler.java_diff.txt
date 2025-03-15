@@ -1,9 +1,0 @@
-21,22d20
-< import com.mysql.jdbc.exceptions.MySQLTimeoutException;
-< 
-40c38,40
-<         return exception instanceof MySQLTimeoutException || super.isTimeoutException(exception);
----
->         // The MySQLTimeoutException class has been removed in newer versions of the driver.
->         // We now rely on the error code to identify timeout exceptions.
->         return (exception.getErrorCode() == 1815 && "HY000".equals(exception.getSQLState())) || super.isTimeoutException(exception);

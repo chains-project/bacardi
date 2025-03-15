@@ -2,13 +2,11 @@
 <  * copies of the Software, and to permit persons to whom the Software is
 <  * furnished to do so, subject to the following conditions:
 ---
->  * copies of this software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+>  * copies of this software, and to permit persons to whom the Software is subject to the following conditions:
 40a40
-> import org.kohsuke.github.GHCompare.Status;
-239,240c239,241
+> import org.kohsuke.github.GHCompare.Comparison;
+239c239,240
 <             GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).status;
-<             return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
 ---
->             GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
->             Status status = compare.getStatus();
->             return status == Status.identical || status == Status.behind;
+>             Comparison compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
+>             GHCompare.Status status = compare.getStatus();

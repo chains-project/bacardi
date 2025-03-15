@@ -67,7 +67,7 @@ public class Signer {
         } else {
             signatureParameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_B);
         }
-        //CertificationPermission has been removed. The following line is removed to fix the compilation error.
+        //CertificationPermission is removed, so this line is removed as well
         //signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
 
         // Create common certificate verifier

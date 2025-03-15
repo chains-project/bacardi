@@ -3,6 +3,7 @@ import java.util.ResourceBundle;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import jakarta.mvc.MvcContext;
 import jakarta.servlet.http.HttpServletRequest;
 //https://www.mvc-spec.org/learn/cookbook/multilang_en.html
 /**
@@ -20,6 +21,9 @@ public class Messages {
     private static final String BASE_NAME = "messages";
 
     @Inject
+    private MvcContext mvcContext;
+
+    @Inject
     private HttpServletRequest request;
 
     /**
@@ -30,7 +34,7 @@ public class Messages {
      * placeholder for unknown keys.
      */
     public final String get(final String key) {
-        final Locale locale = request.getLocale();
+        Locale locale = request.getLocale();
         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, locale);
 
         return bundle.containsKey(key) ? bundle.getString(key) : formatUnknownKey(key);

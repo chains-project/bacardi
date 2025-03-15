@@ -1,29 +1,19 @@
 15a16
 > import org.yaml.snakeyaml.DumperOptions;
-16a18
-> import org.yaml.snakeyaml.introspector.BeanAccess;
-37a40
->     super(new DumperOptions());
-218,220c221,222
+37a39,43
+>     this(new DumperOptions());
+>   }
+> 
+>   public ModelRepresenter(DumperOptions dumperOptions) {
+>     super(dumperOptions);
+217,219c223,224
+<   @Override
 <   protected Set<Property> getProperties(Class<? extends Object> type)
 <           throws IntrospectionException {
-<     if (type.isAssignableFrom(Model.class)) {
 ---
 >   protected Set<Property> getProperties(Class<? extends Object> type) {
 >     try {
-222,230c224
-<     } else if (type.isAssignableFrom(Developer.class)) {
-<       return sortTypeWithOrder(type, ORDER_DEVELOPER);
-<     } else if (type.isAssignableFrom(Contributor.class)) {
-<       return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
-<     }  else if (type.isAssignableFrom(Dependency.class)) {
-<       return sortTypeWithOrder(type, ORDER_DEPENDENCY);
-<     }  else if (type.isAssignableFrom(Plugin.class)) {
-<       return sortTypeWithOrder(type, ORDER_PLUGIN);
-<     } else {
----
+232a238,240
 >     } catch (IntrospectionException e) {
-237c231
-<       Set<Property> standard = super.getProperties(type);
----
->       Set<Property> standard = super.getProperties(type, BeanAccess.DEFAULT);
+>       throw new YAMLException(e);
+>     }

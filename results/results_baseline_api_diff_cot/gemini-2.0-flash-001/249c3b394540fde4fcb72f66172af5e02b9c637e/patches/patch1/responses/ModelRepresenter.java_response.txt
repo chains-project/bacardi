@@ -20,6 +20,7 @@ import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
+import org.yaml.snakeyaml.introspector.PropertyUtils;
 
 import java.beans.IntrospectionException;
 import java.util.*;
@@ -214,10 +215,26 @@ class ModelRepresenter extends Representer {
   /*
    * Change the default order. Important data goes first.
    */
-  @Override
   protected Set<Property> getProperties(Class<? extends Object> type) {
     try {
-      return sortTypeWithOrder(type, ORDER_MODEL);
+      PropertyUtils propertyUtils = this.getPropertyUtils();
+      Set<Property> standard = propertyUtils.getProperties(type);
+      Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(ORDER_MODEL));
+      if (type.isAssignableFrom(Model.class)) {
+        sorted = new TreeSet<Property>(new ModelPropertyComparator(ORDER_MODEL));
+      } else if (type.isAssignableFrom(Developer.class)) {
+        sorted = new TreeSet<Property>(new ModelPropertyComparator(ORDER_DEVELOPER));
+      } else if (type.isAssignableFrom(Contributor.class)) {
+        sorted = new TreeSet<Property>(new ModelPropertyComparator(ORDER_CONTRIBUTOR));
+      } else if (type.isAssignableFrom(Dependency.class)) {
+        sorted = new TreeSet<Property>(new ModelPropertyComparator(ORDER_DEPENDENCY));
+      } else if (type.isAssignableFrom(Plugin.class)) {
+        sorted = new TreeSet<Property>(new ModelPropertyComparator(ORDER_PLUGIN));
+      } else {
+        return super.getProperties(type);
+      }
+      sorted.addAll(standard);
+      return sorted;
     } catch (IntrospectionException e) {
       throw new YAMLException(e);
     }
@@ -225,7 +242,8 @@ class ModelRepresenter extends Representer {
 
   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
           throws IntrospectionException {
-      Set<Property> standard = super.getProperties(type);
+      PropertyUtils propertyUtils = this.getPropertyUtils();
+      Set<Property> standard = propertyUtils.getProperties(type);
       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
       sorted.addAll(standard);
       return sorted;

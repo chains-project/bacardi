@@ -1,14 +1,12 @@
 20a21
 > import java.util.function.Predicate;
-64c65,67
+64c65,66
 <             return new FilterBuilder().include(".+\\.class").apply(s);
 ---
->             FilterBuilder filterBuilder = new FilterBuilder().include(".+\\.class");
->             Predicate<String> predicate = filterBuilder.build();
->             return predicate.test(s);
-69c72,74
+>             Predicate<String> filter = new FilterBuilder().include(".+\\.class");
+>             return filter.test(s);
+69c71,72
 <             if (new FilterBuilder().include(regex).apply(s)) {
 ---
->             FilterBuilder filterBuilder = new FilterBuilder().include(regex);
->             Predicate<String> predicate = filterBuilder.build();
->             if (predicate.test(s)) {
+>             Predicate<String> filter = new FilterBuilder().include(regex);
+>             if (filter.test(s)) {

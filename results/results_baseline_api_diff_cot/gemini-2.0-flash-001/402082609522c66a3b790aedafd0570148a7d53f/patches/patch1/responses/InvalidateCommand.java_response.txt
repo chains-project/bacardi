@@ -8,10 +8,9 @@ import com.google.inject.Inject;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.parameter.CommandContext;
-import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.scheduler.TaskExecutor;
 
 public class InvalidateCommand implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
 
@@ -23,15 +22,14 @@ public class InvalidateCommand implements org.spongepowered.api.command.CommandE
     }
 
     @Override
-    public CommandResult execute(CommandSource src, CommandContext args) {
-        if (!(src instanceof Player)) {
-            plugin.sendMessage(src, "no-console");
+    public CommandResult execute(CommandCause src, CommandContext args) {
+        if (!(src.getCause() instanceof Player)) {
+            plugin.sendMessage(src.getCause(), "no-console");
             return CommandResult.empty();
         }
 
-        Player receiver = (Player) src;
-        TaskExecutor taskExecutor = plugin.getServer().getScheduler().executor(plugin);
-        Task.builder().execute(new SkinInvalidator(plugin, receiver)).submit(taskExecutor);
+        Player receiver = (Player) src.getCause();
+        org.spongepowered.api.scheduler.Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
         return CommandResult.success();
     }
 
