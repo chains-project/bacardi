@@ -24,6 +24,7 @@ import org.locationtech.jts.util.GeometricShapeFactory;
 import org.tinfour.common.IIncrementalTin;
 import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
+import org.tinspin.index.PointEntry;
 import org.tinspin.index.covertree.CoverTree;
 
 import micycle.pgs.commons.FrontChainPacker;
@@ -231,30 +232,16 @@ public final class PGS_CirclePacking {
 		float largestR = 0; // the radius of the largest circle in the tree
 
 		for (PVector p : steinerPoints) {
-			final double[] point = new double[] { p.x, p.y, largestR };
-			PVector nearest = null;
-			double nearestDist = Double.POSITIVE_INFINITY;
-
-			final double[] query = new double[] { p.x, p.y, largestR };
-			nearest = tree.nearestNeighbour(query);
-
-			if (nearest != null) {
-				double dist = tree.pointDistance(query, new double[] { nearest.x, nearest.y, nearest.z });
-				if (dist < nearestDist) {
-					nearestDist = dist;
-				}
-			}
-
-			PVector nn = nearest;
+			final PointEntry<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
 
 			/*
 			 * nn.dist() does not return the radius (since it's a distance metric used to
 			 * find nearest circle), so calculate maximum radius for candidate circle using
 			 * 2d euclidean distance between center points minus radius of nearest circle.
 			 */
-			final float dx = p.x - nn.x;
-			final float dy = p.y - nn.y;
-			final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.z);
+			final float dx = p.x - nn.value().x;
+			final float dy = p.y - nn.value().y;
+			final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z);
 			if (radius > minRadius) {
 				largestR = (radius >= largestR) ? radius : largestR;
 				p.z = radius;
@@ -662,4 +649,13 @@ public final class PGS_CirclePacking {
 	 *
 	 * @param p1 3D point representing the first circle (x1, y1, r1)
 	 * @param p2 3D point representing the second circle (x2, y2, r2)
+	 * @return the distance between the two points based on the custom metric
+	 */
+	
 
+	/**
+	 * A streams filter to remove triangulation triangles that share at least one
+	 * edge with the shape edge.
+	 */
+	private static final Predicate<SimpleTriangle> filterBorderTriangles = t -> t.getContainingRegion() != null
+			&& !t.getEdgeA().isConst

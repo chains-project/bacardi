@@ -15,7 +15,7 @@ import jakarta.jws.soap.SOAPBinding;
  */
 @WebService(name = "fatcorewsPort", targetNamespace = "http://factemi.at.min_financas.pt/documents")
 @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
-@XmlSeeAlso({
+@javax.xml.bind.annotation.XmlSeeAlso({
     ObjectFactory.class
 })
 public interface FatcorewsPort {

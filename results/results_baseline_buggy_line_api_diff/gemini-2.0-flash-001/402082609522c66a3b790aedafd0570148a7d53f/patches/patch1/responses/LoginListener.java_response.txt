@@ -9,8 +9,9 @@ import com.google.inject.Inject;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.network.ServerSideConnectionEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.scheduler.Task;
 
@@ -26,9 +27,10 @@ public class LoginListener extends SharedListener {
     }
 
     @Listener
-    public void onPlayerPreLogin(ServerSideConnectionEvent.Auth preLoginEvent) {
+    public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
         SkinStorage storage = core.getStorage();
-        GameProfile profile = preLoginEvent.getProfile();
+        Player player = preLoginEvent.getTargetUser();
+        GameProfile profile = player.getProfile();
         UUID playerUUID = profile.getUniqueId();
 
         UserPreference preferences = storage.getPreferences(playerUUID);
@@ -42,12 +44,9 @@ public class LoginListener extends SharedListener {
             plugin.getApi().applyProperties(profile, targetSkin);
             save(preferences);
         } else {
-            Optional<String> playerNameOpt = profile.getName();
-            if (playerNameOpt.isPresent()) {
-                String playerName = playerNameOpt.get();
-                if (!core.getConfig().getBoolean("restoreSkins") || !refetchSkin(playerName, preferences)) {
-                    setDefaultSkin(preferences, profile);
-                }
+            Optional<String> playerName = profile.getName();
+            if (!core.getConfig().getBoolean("restoreSkins") || !refetchSkin(playerName.orElse(player.getName()), preferences)) {
+                setDefaultSkin(preferences, profile);
             }
         }
     }

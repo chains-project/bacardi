@@ -9,7 +9,7 @@
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * is distributed under the License is distributed on an "AS IS" BASIS,
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -397,7 +397,7 @@ public class ProjectInfo implements Serializable {
     projectPb.setProjectId(projectId);
     projectPb.setLabels(labels);
     if (projectNumber != null) {
-      projectPb.setDisplayName(projectNumber.toString());
+        projectPb.setDisplayName(projectNumber.toString());
     }
     if (state != null) {
       projectPb.setState(state.toString());
@@ -409,14 +409,21 @@ public class ProjectInfo implements Serializable {
               .format(Instant.ofEpochMilli(createTimeMillis)));
     }
     if (parent != null) {
-      projectPb.setParent(parent.toPb().toString());
+      projectPb.setParent(String.format("%s/%s", parent.getType(), parent.getId()));
     }
     return projectPb;
   }
 
   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) {
     Builder builder =
-        newBuilder(projectPb.getProjectId()).setProjectNumber(Long.valueOf(projectPb.getDisplayName()));
+        newBuilder(projectPb.getProjectId());
+    if (projectPb.getDisplayName() != null) {
+        try {
+            builder.setProjectNumber(Long.parseLong(projectPb.getDisplayName()));
+        } catch (NumberFormatException e) {
+            // ignore
+        }
+    }
     if (projectPb.getName() != null && !projectPb.getName().equals("Unnamed")) {
       builder.setName(projectPb.getName());
     }
@@ -431,11 +438,10 @@ public class ProjectInfo implements Serializable {
           DATE_TIME_FORMATTER.parse(projectPb.getCreateTime(), Instant.FROM).toEpochMilli());
     }
     if (projectPb.getParent() != null) {
-      String parentString = projectPb.getParent();
-      String[] parts = parentString.split("/");
-      String type = parts[0];
-      String id = parts[1];
-      builder.setParent(ResourceId.of(id, type));
+      String[] parentParts = projectPb.getParent().split("/");
+      if (parentParts.length == 2) {
+        builder.setParent(ResourceId.of(parentParts[1], parentParts[0]));
+      }
     }
     return builder.build();
   }

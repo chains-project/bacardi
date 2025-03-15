@@ -32,15 +32,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-final class TranslateImpl extends com.google.cloud.BaseService<TranslateOptions> implements Translate {
+final class TranslateImpl extends BaseService<TranslateOptions> implements Translate {
 
   private final TranslateRpc translateRpc;
 
-  private static final Function<List<com.google.cloud.translate.Detection>, Detection>
+  private static final Function<List<com.google.cloud.translate.spi.v2.TranslateRpc.Detection>, Detection>
       DETECTION_FROM_PB_FUNCTION =
-          new Function<List<com.google.cloud.translate.Detection>, Detection>() {
+          new Function<List<com.google.cloud.translate.spi.v2.TranslateRpc.Detection>, Detection>() {
             @Override
-            public Detection apply(List<com.google.cloud.translate.Detection> detectionPb) {
+            public Detection apply(List<com.google.cloud.translate.spi.v2.TranslateRpc.Detection> detectionPb) {
               return Detection.fromPb(detectionPb.get(0));
             }
           };
@@ -55,9 +55,9 @@ final class TranslateImpl extends com.google.cloud.BaseService<TranslateOptions>
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<com.google.cloud.translate.Language>>() {
+              new Callable<List<com.google.cloud.translate.spi.v2.TranslateRpc.Language>>() {
                 @Override
-                public List<com.google.cloud.translate.Language> call() {
+                public List<com.google.cloud.translate.spi.v2.TranslateRpc.Language> call() {
                   return translateRpc.listSupportedLanguages(optionMap(options));
                 }
               },
@@ -73,21 +73,21 @@ final class TranslateImpl extends com.google.cloud.BaseService<TranslateOptions>
   @Override
   public List<Detection> detect(final List<String> texts) {
     try {
-      List<List<com.google.cloud.translate.Detection>> detectionsPb =
+      List<List<com.google.cloud.translate.spi.v2.TranslateRpc.Detection>> detectionsPb =
           runWithRetries(
-              new Callable<List<List<com.google.cloud.translate.Detection>>>() {
+              new Callable<List<List<com.google.cloud.translate.spi.v2.TranslateRpc.Detection>>>() {
                 @Override
-                public List<List<com.google.cloud.translate.Detection>> call() {
+                public List<List<com.google.cloud.translate.spi.v2.TranslateRpc.Detection>> call() {
                   return translateRpc.detect(texts);
                 }
               },
               getOptions().getRetrySettings(),
               EXCEPTION_HANDLER,
               getOptions().getClock());
-      Iterator<List<com.google.cloud.translate.Detection>> detectionIterator = detectionsPb.iterator();
+      Iterator<List<com.google.cloud.translate.spi.v2.TranslateRpc.Detection>> detectionIterator = detectionsPb.iterator();
       Iterator<String> textIterator = texts.iterator();
       while (detectionIterator.hasNext() && textIterator.hasNext()) {
-        List<com.google.cloud.translate.Detection> detectionPb = detectionIterator.next();
+        List<com.google.cloud.translate.spi.v2.TranslateRpc.Detection> detectionPb = detectionIterator.next();
         String text = textIterator.next();
         checkState(
             detectionPb != null && !detectionPb.isEmpty(), "No detection found for text: %s", text);
@@ -114,9 +114,9 @@ final class TranslateImpl extends com.google.cloud.BaseService<TranslateOptions>
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<com.google.cloud.translate.Translation>>() {
+              new Callable<List<com.google.cloud.translate.spi.v2.TranslateRpc.Translation>>() {
                 @Override
-                public List<com.google.cloud.translate.Translation> call() {
+                public List<com.google.cloud.translate.spi.v2.TranslateRpc.Translation> call() {
                   return translateRpc.translate(texts, optionMap(options));
                 }
               },

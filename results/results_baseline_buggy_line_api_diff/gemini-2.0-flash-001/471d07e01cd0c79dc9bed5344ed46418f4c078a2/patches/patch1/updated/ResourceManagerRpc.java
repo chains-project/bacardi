@@ -8,7 +8,7 @@
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * is distributed on an "AS IS" BASIS,
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -16,8 +16,6 @@
 
 package com.google.cloud.resourcemanager.spi.v1beta1;
 
-import com.google.api.services.cloudresourcemanager.v3.model.Constraint;
-import com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy;
 import com.google.api.services.cloudresourcemanager.v3.model.Policy;
 import com.google.api.services.cloudresourcemanager.v3.model.Project;
 import com.google.cloud.ServiceRpc;
@@ -164,7 +162,7 @@ public interface ResourceManagerRpc extends ServiceRpc {
   // TODO(ajaykannan): implement "Organization" functionality when available (issue #319)
 
   /** Clears the Policy from a resource. */
-  void clearOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
+  void clearOrgPolicy(String resource, com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy orgPolicy) throws IOException;
 
   /**
    * Gets the effective Policy on a resource.
@@ -175,7 +173,7 @@ public interface ResourceManagerRpc extends ServiceRpc {
    *
    * @throws ResourceManagerException upon failure
    */
-  OrgPolicy getEffectiveOrgPolicy(String resource, String constraint) throws IOException;
+  com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy getEffectiveOrgPolicy(String resource, String constraint) throws IOException;
 
   /**
    * Gets the Policy on a resource.
@@ -186,14 +184,14 @@ public interface ResourceManagerRpc extends ServiceRpc {
    *
    * @throws ResourceManagerException upon failure
    */
-  OrgPolicy getOrgPolicy(String resource, String constraint) throws IOException;
+  com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy getOrgPolicy(String resource, String constraint) throws IOException;
 
   /**
    * Lists all the Constraints that can be applied on the specified resource.
    *
    * @throws ResourceManagerException upon failure
    */
-  ListResult<Constraint> listAvailableOrgPolicyConstraints(String resource, Map<Option, ?> options)
+  ListResult<com.google.api.services.cloudresourcemanager.v3.model.Constraint> listAvailableOrgPolicyConstraints(String resource, Map<Option, ?> options)
       throws IOException;
 
   /**
@@ -201,7 +199,7 @@ public interface ResourceManagerRpc extends ServiceRpc {
    *
    * @throws ResourceManagerException upon failure
    */
-  ListResult<OrgPolicy> listOrgPolicies(String resource, Map<Option, ?> options) throws IOException;
+  ListResult<com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy> listOrgPolicies(String resource, Map<Option, ?> options) throws IOException;
 
   /**
    * Updates the specified Policy on the resource. Creates a new Policy for that Constraint on the
@@ -211,5 +209,5 @@ public interface ResourceManagerRpc extends ServiceRpc {
    *
    * @throws ResourceManagerException upon failure
    */
-  OrgPolicy replaceOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
+  com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy replaceOrgPolicy(String resource, com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy orgPolicy) throws IOException;
 }

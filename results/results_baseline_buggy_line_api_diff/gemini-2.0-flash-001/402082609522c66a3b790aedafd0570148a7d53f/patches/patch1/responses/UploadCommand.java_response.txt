@@ -8,18 +8,23 @@ import com.github.games647.changeskin.sponge.task.SkinUploader;
 import com.google.inject.Inject;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.command.parameter.CommandContext;
-import org.spongepowered.api.command.CommandExecutor;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.scheduler.Task;
 
 import net.kyori.adventure.text.TextComponent;
-import org.spongepowered.api.command.parameter.Parameter;
+import net.kyori.adventure.text.Component;
 
-public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
+import org.spongepowered.api.scheduler.Scheduler;
+import org.spongepowered.api.scheduler.ScheduledTask;
+
+public class UploadCommand implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
     private final ChangeSkinCore core;
@@ -31,19 +36,27 @@ public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
     }
 
     @Override
-    public CommandResult execute(CommandContext args) {
-        String url = args.<String>getOne(Parameter.string().key("url").build()).orElse(null);
-        if (url != null && (url.startsWith("http://") || url.startsWith("https://"))) {
+    public CommandResult execute(CommandCause cause, CommandContext args) throws CommandException {
+        Optional<String> urlOptional = args.one(Parameter.string().key("url").build());
+        if (!urlOptional.isPresent()) {
+            plugin.sendMessage(cause, "no-valid-url");
+            return CommandResult.empty();
+        }
+
+        String url = urlOptional.get();
+        if (url.startsWith("http://") || url.startsWith("https://")) {
             List<Account> accounts = plugin.getCore().getUploadAccounts();
             if (accounts.isEmpty()) {
-                plugin.sendMessage(args.getCause().get(Player.class).orElse(null), "no-accounts");
+                plugin.sendMessage(cause, "no-accounts");
             } else {
                 Account uploadAccount = accounts.get(0);
-                Runnable skinUploader = new SkinUploader(plugin, args.getCause().get(Player.class).orElse(null), uploadAccount, url);
-                plugin.getServer().getScheduler().submit(Task.builder().plugin(plugin).execute(skinUploader).build());
+                Runnable skinUploader = new SkinUploader(plugin, cause, uploadAccount, url);
+
+                Scheduler scheduler = plugin.getServer().scheduler();
+                Task.builder().plugin(plugin).execute(skinUploader).async().build(plugin).schedule();
             }
         } else {
-            plugin.sendMessage(args.getCause().get(Player.class).orElse(null), "no-valid-url");
+            plugin.sendMessage(cause, "no-valid-url");
         }
 
         return CommandResult.success();
@@ -51,11 +64,11 @@ public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
 
     @Override
     public Command.Builder buildSpec() {
-        Parameter.Value<String> urlParameter = Parameter.string().key("url").build();
+        Parameter urlParameter = Parameter.string().key("url").build();
 
         return Command.builder()
                 .addParameter(urlParameter)
-                .executor(this)
-                .permission(PomData.ARTIFACT_ID + ".command.skinupload.base");
+                .permission(PomData.ARTIFACT_ID + ".command.skinupload.base")
+                .executor(this);
     }
 }

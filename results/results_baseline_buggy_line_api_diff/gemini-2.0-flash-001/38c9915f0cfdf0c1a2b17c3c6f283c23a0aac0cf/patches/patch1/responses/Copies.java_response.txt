@@ -23,7 +23,6 @@
  */
 package io.zold.api;
 
-import io.zold.api.Copies.Copy;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,11 +88,7 @@ public final class Copies extends IterableEnvelope<Copy> {
      */
     private static boolean equalWallets(final Wallet first,
         final Wallet second) throws IOException {
-        return first.id() == second.id() && Copies.iterableSize(first.ledger()) == Copies.iterableSize(second.ledger());
-    }
-
-    private static int iterableSize(final Iterable<?> iterable) {
-        return (int) StreamSupport.stream(iterable.spliterator(), false).count();
+        return first.id() == second.id() && StreamSupport.stream(first.ledger().spliterator(), false).collect(Collectors.toList()).size() == StreamSupport.stream(second.ledger().spliterator(), false).collect(Collectors.toList()).size();
     }
 
     /**

@@ -1,6 +1,9 @@
-6a7
+3a4
+> import liquibase.database.Database;
+6a8
 > import liquibase.Scope;
-18c19
+18c20,21
 <         ExecutorService.getInstance().getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
 ---
->         Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+>         Database database = this;
+>         Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor(database).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));

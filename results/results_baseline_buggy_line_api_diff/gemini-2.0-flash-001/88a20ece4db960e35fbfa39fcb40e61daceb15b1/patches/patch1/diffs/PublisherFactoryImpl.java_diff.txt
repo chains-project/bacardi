@@ -1,13 +1,20 @@
-19,20c19
+18,20c18,19
+< import com.google.cloud.pubsublite.CloudZone;
 < import com.google.cloud.pubsublite.ProjectPath;
 < import com.google.cloud.pubsublite.PublishMetadata;
 ---
+> import com.google.cloud.pubsublite.CloudRegion;
 > import com.google.cloud.pubsublite.ProjectName;
 36c35
 <   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
 ---
 >   public Publisher<?> newPublisher(Map<String, String> params) {
-40,46c39,42
+38a38,41
+>     String project = "projects/" + config.get(ConfigDefs.PROJECT_FLAG).value();
+>     String location = config.get(ConfigDefs.LOCATION_FLAG).value().toString();
+>     String topicName = config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString();
+> 
+40,46c43,46
 <         TopicPath.newBuilder()
 <             .setProject(
 <                 ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
@@ -17,10 +24,8 @@
 <             .build();
 ---
 >         TopicPath.of(
->             ProjectName.of("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value()),
->             CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()),
->             TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()));
-53c49
+>             ProjectName.parse(project).value(),
+>             CloudRegion.parse(location).value(),
+>             TopicName.of(topicName).value());
+53d52
 <                 .setContext(PubsubContext.of(FRAMEWORK))
----
->                 // .setContext(PubsubContext.of(FRAMEWORK)) // Removed setContext as it is no longer available

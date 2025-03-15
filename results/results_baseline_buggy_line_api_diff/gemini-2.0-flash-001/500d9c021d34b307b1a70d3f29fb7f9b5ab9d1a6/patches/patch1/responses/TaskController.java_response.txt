@@ -13,8 +13,7 @@ import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.mvc.View;
 import jakarta.mvc.binding.BindingResult;
-import java.util.Set;
-import jakarta.validation.ConstraintViolation;
+import jakarta.mvc.binding.ParamError;
 import jakarta.mvc.security.CsrfProtected;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -94,8 +93,11 @@ public class TaskController {
 
         if (validationResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            Set<ConstraintViolation<?>> errors = validationResult.getConstraintViolations();
-            errors.forEach(t -> alert.addError(t.getPropertyPath().toString(), "", t.getMessage()));
+            validationResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
             models.put("errors", alert);
             models.put("task", form);
             return Response.status(BAD_REQUEST).entity("add.xhtml").build();
@@ -135,8 +137,11 @@ public class TaskController {
 
         if (validationResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            Set<ConstraintViolation<?>> errors = validationResult.getConstraintViolations();
-            errors.forEach(t -> alert.addError(t.getPropertyPath().toString(), "", t.getMessage()));
+            validationResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
             models.put("errors", alert);
             models.put("task", form);
             return Response.status(BAD_REQUEST).entity("edit.xhtml").build();

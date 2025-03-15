@@ -1,25 +1,54 @@
-21c21,27
+11c11
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+---
+>  * is distributed under the License is distributed on an "AS IS" BASIS,
+21,22c21,28
 < import org.codehaus.plexus.util.xml.Xpp3Dom;
+< 
 ---
 > import org.w3c.dom.Element;
 > import org.w3c.dom.Node;
 > import org.w3c.dom.NodeList;
 > 
-> import javax.xml.parsers.DocumentBuilder;
-> import javax.xml.parsers.DocumentBuilderFactory;
-> import org.xml.sax.InputSource;
-22a29
-> import java.io.StringReader;
-70,71c77,79
+> import javax.xml.xpath.XPathConstants;
+> import javax.xml.xpath.XPathExpression;
+> import javax.xml.xpath.XPathExpressionException;
+> import javax.xml.xpath.XPathFactory;
+70,72c76,80
 <         if (config instanceof Xpp3Dom) {
 <             return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
+<                     .flatMap(aggregate -> stream(aggregate.getChildren("path")))
 ---
->         if (config instanceof org.codehaus.plexus.util.xml.Xpp3Dom) {
->             org.codehaus.plexus.util.xml.Xpp3Dom xpp3DomConfig = (org.codehaus.plexus.util.xml.Xpp3Dom) config;
->             return stream(xpp3DomConfig.getChildren("annotationProcessorPaths"))
-99,100c107,108
+>         if (config instanceof org.w3c.dom.Element) {
+>             Element configElement = (Element) config;
+>             NodeList annotationProcessorPathsList = configElement.getElementsByTagName("annotationProcessorPaths");
+>             return stream(unwrap(annotationProcessorPathsList))
+>                     .flatMap(aggregate -> stream(unwrap(((Element) aggregate).getElementsByTagName("path"))))
+74,76c82,84
+<                             extractChildValue(processor, "groupId"),
+<                             extractChildValue(processor, "artifactId"),
+<                             extractChildValue(processor, "version"),
+---
+>                             extractChildValue((Element) processor, "groupId"),
+>                             extractChildValue((Element) processor, "artifactId"),
+>                             extractChildValue((Element) processor, "version"),
+91a100,107
+>     private static Node[] unwrap(NodeList nodeList) {
+>         Node[] nodes = new Node[nodeList.getLength()];
+>         for (int i = 0; i < nodeList.getLength(); i++) {
+>             nodes[i] = nodeList.item(i);
+>         }
+>         return nodes;
+>     }
+> 
+99,101c115,120
 <     private static String extractChildValue(Xpp3Dom node, String name) {
 <         final Xpp3Dom child = node.getChild(name);
+<         return child == null ? "" : child.getValue();
 ---
->     private static String extractChildValue(org.codehaus.plexus.util.xml.Xpp3Dom node, String name) {
->         org.codehaus.plexus.util.xml.Xpp3Dom child = node.getChild(name);
+>     private static String extractChildValue(Element node, String name) {
+>         NodeList children = node.getElementsByTagName(name);
+>         if (children.getLength() > 0) {
+>             return children.item(0).getTextContent();
+>         }
+>         return "";

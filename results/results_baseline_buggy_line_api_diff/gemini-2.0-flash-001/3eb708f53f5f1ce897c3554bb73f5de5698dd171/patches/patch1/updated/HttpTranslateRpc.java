@@ -16,18 +16,18 @@
 
 package com.google.cloud.translate.spi.v2;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
+import staticcom.google.common.base.MoreObjects.firstNonNull;
 
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.translate.v3.Translate;
-import com.google.api.services.translate.v3.Translate.Projects.Locations.DetectLanguage;
 import com.google.api.services.translate.v3.Translate.Projects.Locations.TranslateText;
 import com.google.api.services.translate.v3.model.DetectLanguageRequest;
 import com.google.api.services.translate.v3.model.DetectLanguageResponse;
 import com.google.api.services.translate.v3.model.Language;
+import com.google.api.services.translate.v3.model.Location;
 import com.google.api.services.translate.v3.model.TranslateTextRequest;
 import com.google.api.services.translate.v3.model.TranslateTextResponse;
 import com.google.api.services.translate.v3.model.Translation;
@@ -78,14 +78,13 @@ public class HttpTranslateRpc implements TranslateRpc {
       List<List<com.google.api.services.translate.v3.model.DetectedLanguage>> detections =
           new ArrayList<>();
       for (String text : texts) {
-        DetectLanguageRequest request = new DetectLanguageRequest().setContent(text);
-        DetectLanguage detectLanguage =
+        Translate.Projects.Locations.DetectLanguage detect =
             translate
                 .projects()
                 .locations()
-                .detectLanguage("projects/" + options.getProjectId() + "/locations/global", request);
-        detectLanguage.setKey(options.getApiKey());
-        DetectLanguageResponse response = detectLanguage.execute();
+                .detectLanguage("projects/" + options.getProjectId() + "/locations/global",
+                    new DetectLanguageRequest().setContent(text));
+        DetectLanguageResponse response = detect.execute();
         detections.add(response.getLanguages());
       }
       return detections;
@@ -97,15 +96,16 @@ public class HttpTranslateRpc implements TranslateRpc {
   @Override
   public List<Language> listSupportedLanguages(Map<Option, ?> optionMap) {
     try {
+      String targetLanguageCode =
+          firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
       Translate.Projects.Locations.GetSupportedLanguages list =
           translate
               .projects()
               .locations()
               .getSupportedLanguages("projects/" + options.getProjectId() + "/locations/global");
-      list.setKey(options.getApiKey());
-      list.setTarget(
-          firstNonNull(
-              Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()));
+      if (targetLanguageCode != null) {
+        list.setTarget(targetLanguageCode);
+      }
       List<Language> languages = list.execute().getLanguages();
       return languages != null ? languages : ImmutableList.<Language>of();
     } catch (IOException ex) {
@@ -120,36 +120,22 @@ public class HttpTranslateRpc implements TranslateRpc {
       String targetLanguage =
           firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
       final String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
-
-      List<com.google.api.services.translate.v3.model.Translation> translations =
+      List<com.google.api.services.translate.v3.model.Translation> allTranslations =
           new ArrayList<>();
       for (String text : texts) {
-        TranslateTextRequest request =
-            new TranslateTextRequest()
-                .setSourceLanguageCode(sourceLanguage)
-                .setTargetLanguageCode(targetLanguage)
-                .setContents(ImmutableList.of(text));
-        TranslateText translateText =
-            translate
-                .projects()
-                .locations()
-                .translateText("projects/" + options.getProjectId() + "/locations/global", request);
-        translateText.setKey(options.getApiKey());
+        TranslateTextRequest request = new TranslateTextRequest()
+            .setTargetLanguageCode(targetLanguage)
+            .setSourceLanguageCode(sourceLanguage)
+            .setContents(ImmutableList.of(text));
+
+        TranslateText translateText = translate.projects().locations().translateText(
+            "projects/" + options.getProjectId() + "/locations/global", request);
+
         TranslateTextResponse response = translateText.execute();
-        translations.addAll(response.getTranslations());
+        allTranslations.addAll(response.getTranslations());
       }
 
-      return Lists.transform(
-          translations,
-          new Function<
-              com.google.api.services.translate.v3.model.Translation,
-              com.google.api.services.translate.v3.model.Translation>() {
-            @Override
-            public com.google.api.services.translate.v3.model.Translation apply(
-                com.google.api.services.translate.v3.model.Translation translationsResource) {
-              return translationsResource;
-            }
-          });
+      return allTranslations;
     } catch (IOException ex) {
       throw translate(ex);
     }

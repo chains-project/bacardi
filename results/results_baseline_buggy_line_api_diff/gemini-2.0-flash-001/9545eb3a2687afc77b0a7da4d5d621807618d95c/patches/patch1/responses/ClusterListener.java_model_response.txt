@@ -17,12 +17,13 @@
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.cluster.Cluster;
+import com.hazelcast.cluster.Member;
 import com.hazelcast.cluster.MembershipEvent;
 import com.hazelcast.cluster.MembershipListener;
-import com.hazelcast.cluster.Member;
-import com.hazelcast.cluster.MemberAttributeEvent;
+import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.LifecycleEvent;
 import com.hazelcast.core.LifecycleEvent.LifecycleState;
+import com.hazelcast.core.MemberAttributeEvent;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterManager;
 import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
@@ -43,7 +44,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import com.hazelcast.core.EntryListener;
 
 /**
  * ClusterListener reacts to membership changes in the cluster. It takes care of cleaning up the state
@@ -158,9 +158,8 @@ public class ClusterListener implements MembershipListener, com.hazelcast.core.L
         final boolean wasSenior = isSenior;
         isSenior = isSeniorClusterMember();
         // local member only
-        final Member member = event.getMember();
-        final NodeID nodeID = ClusteredCacheFactory.getNodeID(member);
-        if (member.localMember()) { // We left and re-joined the cluster
+        final NodeID nodeID = ClusteredCacheFactory.getNodeID(event.getMember());
+        if (event.getMember().localMember()) { // We left and re-joined the cluster
             joinCluster();
 
         } else {
@@ -188,7 +187,7 @@ public class ClusterListener implements MembershipListener, com.hazelcast.core.L
             }
         }
         clusterNodesInfo.put(nodeID,
-                new HazelcastClusterNodeInfo(member, cluster.getClusterTime()));
+                new HazelcastClusterNodeInfo(event.getMember(), cluster.getClusterTime()));
     }
 
     /**
@@ -230,10 +229,9 @@ public class ClusterListener implements MembershipListener, com.hazelcast.core.L
         logger.info("Received a Hazelcast memberRemoved event {}", event);
 
         isSenior = isSeniorClusterMember();
-        final Member member = event.getMember();
-        final NodeID nodeID = ClusteredCacheFactory.getNodeID(member);
+        final NodeID nodeID = ClusteredCacheFactory.getNodeID(event.getMember());
 
-        if (member.localMember()) {
+        if (event.getMember().localMember()) {
             logger.info("Leaving cluster: " + nodeID);
             // This node may have realized that it got kicked out of the cluster
             leaveCluster();
@@ -269,14 +267,12 @@ public class ClusterListener implements MembershipListener, com.hazelcast.core.L
         }
     }
 
-    @Override
     public void memberAttributeChanged(final MemberAttributeEvent event) {
         logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
         isSenior = isSeniorClusterMember();
-        final Member member = event.getMember();
-        final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(member));
-        clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(member),
-                new HazelcastClusterNodeInfo(member, priorNodeInfo.getJoinedTime()));
+        final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));
+        clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(event.getMember()),
+                new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));
     }
 
     boolean isClusterMember() {

@@ -1,15 +1,38 @@
+7c7
+<  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+---
+>  * Unless required by applicable law or agreed to in writing, software is distributed on
 16,17d15
 < import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector;
 < import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 21a20,22
-> import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy;
-> import org.assertj.core.internal.bytebuddy.dynamic.loading.InjectionClassLoader;
+> import net.bytebuddy.dynamic.loading.ClassInjector;
+> import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 > 
 30c31
 <         if (ClassInjector.UsingReflection.isAvailable()) {
 ---
->         if (InjectionClassLoader.isAvailable()) {
+>         if (isReflectionAvailable()) {
 32c33
 <         } else if (ClassInjector.UsingLookup.isAvailable() && PRIVATE_LOOKUP_IN != null) {
 ---
->         } else if (ClassLoadingStrategy.UsingLookup.isAvailable() && PRIVATE_LOOKUP_IN != null) {
+>         } else if (isLookupAvailable() && PRIVATE_LOOKUP_IN != null) {
+42a44,61
+>     private static boolean isReflectionAvailable() {
+>         try {
+>             Class.forName("sun.misc.Unsafe");
+>             return true;
+>         } catch (ClassNotFoundException e) {
+>             return false;
+>         }
+>     }
+> 
+>     private static boolean isLookupAvailable() {
+>         try {
+>             MethodHandles.Lookup.class.getMethod("defineClass", byte[].class);
+>             return true;
+>         } catch (NoSuchMethodException e) {
+>             return false;
+>         }
+>     }
+> 

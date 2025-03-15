@@ -3,13 +3,21 @@
 ---
 > import org.w3c.dom.Element;
 > import org.w3c.dom.NodeList;
-38a40,44
+38a40,48
 > import javax.xml.parsers.DocumentBuilder;
 > import javax.xml.parsers.DocumentBuilderFactory;
 > import java.io.ByteArrayInputStream;
-> import java.nio.charset.StandardCharsets;
+> import javax.xml.xpath.XPath;
+> import javax.xml.xpath.XPathConstants;
+> import javax.xml.xpath.XPathExpression;
+> import javax.xml.xpath.XPathFactory;
 > 
-162,165c168,190
+> 
+157a168
+>   @SneakyThrows
+159a171
+> 
+162,165c174,194
 <         .map(exec -> (Xpp3Dom) exec.getConfiguration())
 <         .map(config -> config.getChild("processors"))
 <         .map(Xpp3Dom::getChildren)
@@ -17,24 +25,22 @@
 ---
 >             .map(exec -> {
 >               try {
->                 String configString = exec.getConfiguration().toString();
->                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
->                 DocumentBuilder builder = factory.newDocumentBuilder();
->                 org.w3c.dom.Document doc = builder.parse(new ByteArrayInputStream(configString.getBytes(StandardCharsets.UTF_8)));
->                 NodeList processorsNodes = doc.getElementsByTagName("processors");
->                 if (processorsNodes.getLength() > 0) {
->                   Element processorsElement = (Element) processorsNodes.item(0);
->                   NodeList processorNodes = processorsElement.getElementsByTagName("processor");
->                   Set<String> processors = new HashSet<>();
->                   for (int i = 0; i < processorNodes.getLength(); i++) {
->                     processors.add(processorNodes.item(i).getTextContent());
->                   }
->                   return processors;
->                 } else {
->                   return of();
+>                 DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+>                 DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+>                 org.w3c.dom.Document doc = dBuilder.parse(new ByteArrayInputStream(exec.getConfiguration().toString().getBytes()));
+> 
+>                 XPathFactory xPathfactory = XPathFactory.newInstance();
+>                 XPath xpath = xPathfactory.newXPath();
+>                 XPathExpression expr = xpath.compile("//processors/processor/text()");
+>                 NodeList nodes = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
+> 
+>                 Set<String> processors = new HashSet<>();
+>                 for (int i = 0; i < nodes.getLength(); i++) {
+>                   processors.add(nodes.item(i).getNodeValue());
 >                 }
+>                 return processors;
 >               } catch (Exception e) {
 >                 logger.error("Error parsing processors configuration", e);
->                 return of();
+>                 return null;
 >               }
 >             })

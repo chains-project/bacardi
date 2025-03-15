@@ -24,8 +24,8 @@ import org.locationtech.jts.util.GeometricShapeFactory;
 import org.tinfour.common.IIncrementalTin;
 import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
-import org.tinspin.index.PointIndex;
 import org.tinspin.index.covertree.CoverTree;
+import org.tinspin.index.covertree.PointDistance;
 
 import micycle.pgs.commons.FrontChainPacker;
 import micycle.pgs.commons.LargestEmptyCircles;
@@ -200,7 +200,7 @@ public final class PGS_CirclePacking {
 	public static List<PVector> stochasticPack(final PShape shape, final int points, final double minRadius, boolean triangulatePoints,
 			long seed) {
 
-		final PointIndex<PVector> tree = CoverTree.create(3);
+		final CoverTree<PVector> tree = CoverTree.create(3, circleDistanceMetric);
 		final List<PVector> out = new ArrayList<>();
 
 		List<PVector> steinerPoints = PGS_Processing.generateRandomPoints(shape, points, seed);
@@ -223,44 +223,25 @@ public final class PGS_CirclePacking {
 		float largestR = 0; // the radius of the largest circle in the tree
 
 		for (PVector p : steinerPoints) {
-			double[] point = new double[] { p.x, p.y, largestR };
-			PVector nnValue = null;
-			double nnDist = Double.POSITIVE_INFINITY;
-
-			double[] nearest = tree.queryNearest(point,
-					(p1, p2) -> {
-						final double dx = p1[0] - p2[0];
-						final double dy = p1[1] - p2[1];
-						final double dz = p1[2] - p2[2];
-
-						double euclideanDistance = Math.sqrt(dx * dx + dy * dy);
-						double absZDifference = Math.abs(dz);
-						return euclideanDistance + absZDifference;
-					});
-
-			if (nearest != null) {
-				nnValue = tree.getValue(nearest);
-				final double dx = p.x - nnValue.x;
-				final double dy = p.y - nnValue.y;
-				nnDist = Math.sqrt(dx * dx + dy * dy) + Math.abs(largestR - nnValue.z);
+			double[] nearest = tree.queryNearest(new double[] { p.x, p.y, largestR }, 1); // find nearest-neighbour circle
+			if (nearest == null) {
+				continue;
 			}
+			PVector nn = tree.getValue(nearest);
 
-			if (nnValue != null) {
-
-				/*
-				 * nn.dist() does not return the radius (since it's a distance metric used to
-				 * find nearest circle), so calculate maximum radius for candidate circle using
-				 * 2d euclidean distance between center points minus radius of nearest circle.
-				 */
-				final float dx = p.x - nnValue.x;
-				final float dy = p.y - nnValue.y;
-				final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nnValue.z);
-				if (radius > minRadius) {
-					largestR = (radius >= largestR) ? radius : largestR;
-					p.z = radius;
-					tree.insert(new double[] { p.x, p.y, radius }, p); // insert circle into tree
-					out.add(p);
-				}
+			/*
+			 * nn.dist() does not return the radius (since it's a distance metric used to
+			 * find nearest circle), so calculate maximum radius for candidate circle using
+			 * 2d euclidean distance between center points minus radius of nearest circle.
+			 */
+			final float dx = p.x - nn.x;
+			final float dy = p.y - nn.y;
+			final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.z);
+			if (radius > minRadius) {
+				largestR = (radius >= largestR) ? radius : largestR;
+				p.z = radius;
+				tree.insert(new double[] { p.x, p.y, radius }, p); // insert circle into tree
+				out.add(p);
 			}
 		}
 		return out;
@@ -663,4 +644,21 @@ public final class PGS_CirclePacking {
 	 *
 	 * @param p1 3D point representing the first circle (x1, y1, r1)
 	 * @param p2 3D point representing the second circle (x2, y2, r2)
-	 * @return
+	 * @return the distance between the two points based on the custom metric
+	 */
+	private static final PointDistance<PVector> circleDistanceMetric = (p1, p2) -> {
+		// from https://stackoverflow.com/a/21975136/
+		final double dx = p1[0] - p2[0];
+		final double dy = p1[1] - p2[1];
+		final double dz = p1[2] - p2[2];
+
+		double euclideanDistance = Math.sqrt(dx * dx + dy * dy);
+		double absZDifference = Math.abs(dz);
+		return euclideanDistance + absZDifference; // negative if inside
+	};
+
+	/**
+	 * A streams filter to remove triangulation triangles that share at least one
+	 * edge with the shape edge.
+	 */
+

@@ -21,7 +21,7 @@
  * THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; BUSINESS INTERRUPTION)
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
  * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
@@ -45,7 +45,11 @@ import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import org.hamcrest.CoreMatchers;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.emptyIterableOf;
+import static org.hamcrest.Matchers.notNullValue;
 
 /**
  * REST response.
@@ -57,8 +61,8 @@ import org.hamcrest.CoreMatchers;
  *   .fetch()
  *   .as(RestResponse.class)
  *   .assertStatus(200)
- *   .assertBody(CoreMatchers.containsString("hello, world!"))
- *   .assertHeader("Content-Type", CoreMatchers.hasItem("text/plain"))
+ *   .assertBody(Matchers.containsString("hello, world!"))
+ *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
  *   .jump(URI.create("/users"))
  *   .fetch();</pre>
  *
@@ -207,7 +211,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, CoreMatchers.hasItems(value));
+        return this.assertHeader(name, hasItems(value));
     }
 
     /**
@@ -243,7 +247,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            CoreMatchers.not(CoreMatchers.emptyIterableOf(String.class))
+            not(emptyIterableOf(String.class))
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -281,7 +285,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            CoreMatchers.notNullValue()
+            notNullValue()
         );
         assert cookie != null;
         return cookie;

@@ -1,7 +1,3 @@
-11c11
-<  * distributed under the License is distributed on an "AS IS" BASIS,
----
->  * is distributed under the License is distributed on an "AS IS" BASIS,
 146,148c146,148
 <     com.google.api.services.cloudresourcemanager.model.ResourceId toPb() {
 <       com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb =
@@ -26,7 +22,7 @@
 <     projectPb.setProjectNumber(projectNumber);
 ---
 >     if (projectNumber != null) {
->       projectPb.setDisplayName(projectNumber.toString());
+>         projectPb.setDisplayName(projectNumber.toString());
 >     }
 400c402
 <       projectPb.setLifecycleState(state.toString());
@@ -35,26 +31,32 @@
 409c411
 <       projectPb.setParent(parent.toPb());
 ---
->       projectPb.setParent(parent.toPb().toString());
+>       projectPb.setParent(String.format("%s/%s", parent.getType(), parent.getId()));
 414c416
 <   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.model.Project projectPb) {
 ---
 >   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) {
-416c418
+416c418,425
 <         newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
 ---
->         newBuilder(projectPb.getProjectId()).setProjectNumber(Long.valueOf(projectPb.getDisplayName()));
-423,424c425,426
+>         newBuilder(projectPb.getProjectId());
+>     if (projectPb.getDisplayName() != null) {
+>         try {
+>             builder.setProjectNumber(Long.parseLong(projectPb.getDisplayName()));
+>         } catch (NumberFormatException e) {
+>             // ignore
+>         }
+>     }
+423,424c432,433
 <     if (projectPb.getLifecycleState() != null) {
 <       builder.setState(State.valueOf(projectPb.getLifecycleState()));
 ---
 >     if (projectPb.getState() != null) {
 >       builder.setState(State.valueOf(projectPb.getState()));
-431c433,437
+431c440,443
 <       builder.setParent(ResourceId.fromPb(projectPb.getParent()));
 ---
->       String parentString = projectPb.getParent();
->       String[] parts = parentString.split("/");
->       String type = parts[0];
->       String id = parts[1];
->       builder.setParent(ResourceId.of(id, type));
+>       String[] parentParts = projectPb.getParent().split("/");
+>       if (parentParts.length == 2) {
+>         builder.setParent(ResourceId.of(parentParts[1], parentParts[0]));
+>       }

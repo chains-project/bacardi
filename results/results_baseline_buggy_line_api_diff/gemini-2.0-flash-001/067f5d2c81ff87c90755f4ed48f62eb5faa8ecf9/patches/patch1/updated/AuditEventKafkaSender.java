@@ -118,7 +118,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
   /**
    * Serialize key and value to byte[]
    */
-  private TSerializer serializer = new TSerializer();
+  private TSerializer serializer;
 
   /**
    *  flag to control the start and stop of the executing thread.
@@ -183,6 +183,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
     this.name = name;
     this.stopGracePeriodInSeconds = config.getStopGracePeriodInSeconds();
     this.badPartitions.add(-1);
+    this.serializer = new TSerializer();
   }
 
 

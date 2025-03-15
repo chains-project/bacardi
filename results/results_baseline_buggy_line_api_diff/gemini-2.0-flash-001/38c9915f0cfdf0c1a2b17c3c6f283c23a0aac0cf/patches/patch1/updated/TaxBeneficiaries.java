@@ -7,7 +7,8 @@
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of this software, and to permit persons to do so, subject to the following conditions:
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
@@ -26,8 +27,8 @@ import java.util.Comparator;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.IterableEnvelope;
 import org.cactoos.scalar.LengthOf;
-
-import java.util.stream.StreamSupport;
+import org.cactoos.iterable.Sorted;
+import org.cactoos.text.TextOf;
 
 /**
  * {@link Remote} nodes that should receive taxes.
@@ -46,7 +47,7 @@ public final class TaxBeneficiaries extends IterableEnvelope<Remote> {
             Comparator.comparing(Remote::score),
             new Filtered<>(
                 // @checkstyle MagicNumberCheck (1 line)
-                n -> new LengthOf(n.score().suffixes()).value().intValue() >= 16,
+                n -> new LengthOf(new TextOf(n.score().suffixes())).intValue() >= 16,
                 nodes
             )
         ));

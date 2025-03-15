@@ -1,19 +1,40 @@
-24c24,26
+13,14c13
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+---
+>  * See the License governing permissions and limitations under the License.
+24c23,25
 < import com.hazelcast.core.Member;
 ---
 > import com.hazelcast.cluster.Member;
 > 
 > import java.net.InetSocketAddress;
-42c44,53
+42c43,68
 <         this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";
 ---
 >         String hostnameAttribute = null;
 >         try {
->             hostnameAttribute = (String) member.getAttribute(HOST_NAME_ATTRIBUTE);
+>             hostnameAttribute = member.getStringAttribute(HOST_NAME_ATTRIBUTE);
 >         } catch (NoSuchMethodError e) {
 >             // Handle the case where getStringAttribute is not available
->             hostnameAttribute = ""; // Provide a default value or alternative logic
+>             hostnameAttribute = null; // Or provide a default value
 >         }
->         InetSocketAddress socketAddress = member.getSocketAddress();
->         String hostString = socketAddress != null ? socketAddress.getHostString() : "unknown";
->         this.hostname = hostnameAttribute + " (" + hostString + ")";
+> 
+>         InetSocketAddress socketAddress = null;
+>         try {
+>             socketAddress = member.getSocketAddress();
+>         } catch (NoSuchMethodError e) {
+>             // Handle the case where getSocketAddress() with no arguments is not available.
+>             // Attempt to use getSocketAddress(EndpointQualifier) if available.
+>             try {
+>                 java.lang.reflect.Method getSocketAddressMethod = member.getClass().getMethod("getSocketAddress", com.hazelcast.instance.EndpointQualifier.class);
+>                 socketAddress = (InetSocketAddress) getSocketAddressMethod.invoke(member, (Object) null); // Or pass an appropriate EndpointQualifier if needed
+>             } catch (Exception ex) {
+>                 // If even the alternative method fails, handle the error appropriately.
+>                 socketAddress = null; // Or provide a default value
+>             }
+>         }
+> 
+>         String hostString = (socketAddress != null) ? socketAddress.getHostString() : "unknown";
+> 
+>         this.hostname = (hostnameAttribute != null ? hostnameAttribute : "unknown") + " (" + hostString + ")";

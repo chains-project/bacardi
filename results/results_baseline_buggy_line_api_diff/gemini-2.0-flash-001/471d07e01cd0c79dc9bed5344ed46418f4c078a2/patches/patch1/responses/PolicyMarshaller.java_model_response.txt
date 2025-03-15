@@ -17,9 +17,11 @@
 
 package com.google.cloud.resourcemanager;
 
+import com.google.api.services.cloudresourcemanager.v3.model.Binding;
+import com.google.api.services.cloudresourcemanager.v3.model.Policy;
 import com.google.cloud.Identity;
-import com.google.cloud.Policy;
 import com.google.cloud.Role;
+import com.google.cloud.Policy.Marshaller;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -54,8 +56,7 @@ final class PolicyMarshaller
   protected Policy fromPb(com.google.api.services.cloudresourcemanager.v3.model.Policy policyPb) {
     Map<Role, Set<Identity>> bindings = new HashMap<>();
     if (policyPb.getBindings() != null) {
-      for (com.google.api.services.cloudresourcemanager.v3.model.Binding bindingPb :
-          policyPb.getBindings()) {
+      for (Binding bindingPb : policyPb.getBindings()) {
         bindings.put(
             Role.of(bindingPb.getRole()),
             ImmutableSet.copyOf(
@@ -69,19 +70,16 @@ final class PolicyMarshaller
                     })));
       }
     }
-    Integer version = policyPb.getVersion() != null ? policyPb.getVersion() : null;
-    return new Builder(bindings, policyPb.getEtag(), version).build();
+    return new Builder(bindings, policyPb.getEtag(), policyPb.getVersion()).build();
   }
 
   @Override
   protected com.google.api.services.cloudresourcemanager.v3.model.Policy toPb(Policy policy) {
     com.google.api.services.cloudresourcemanager.v3.model.Policy policyPb =
         new com.google.api.services.cloudresourcemanager.v3.model.Policy();
-    List<com.google.api.services.cloudresourcemanager.v3.model.Binding> bindingPbList =
-        new LinkedList<>();
+    List<Binding> bindingPbList = new LinkedList<>();
     for (Map.Entry<Role, Set<Identity>> binding : policy.getBindings().entrySet()) {
-      com.google.api.services.cloudresourcemanager.v3.model.Binding bindingPb =
-          new com.google.api.services.cloudresourcemanager.v3.model.Binding();
+      Binding bindingPb = new Binding();
       bindingPb.setRole(binding.getKey().getValue());
       bindingPb.setMembers(
           Lists.transform(

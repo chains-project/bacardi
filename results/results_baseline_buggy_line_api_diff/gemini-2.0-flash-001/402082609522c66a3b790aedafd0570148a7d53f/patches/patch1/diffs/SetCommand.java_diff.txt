@@ -1,45 +1,77 @@
 11a12
 > import org.spongepowered.api.command.Command;
-12a14
-> import org.spongepowered.api.command.parameter.CommandContext;
-14,17c16,17
+13,17c14,18
+< import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.args.GenericArguments;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
-> import org.spongepowered.api.command.parameter.CommonParameters;
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.parameter.Parameter;
+> import org.spongepowered.api.command.CommandCause;
+> import org.spongepowered.api.command.CommandExecutor;
 > import org.spongepowered.api.command.CommandSpec;
-19a20
+19a21
 > import org.spongepowered.api.text.Text;
-21,23c22
+21,23c23,24
 < import static org.spongepowered.api.command.args.GenericArguments.flags;
 < import static org.spongepowered.api.command.args.GenericArguments.string;
 < import static org.spongepowered.api.text.Text.of;
 ---
 > import java.util.Optional;
-50c49,56
-<         String targetSkin = args.<String>getOne("skin").get();
+> import org.spongepowered.api.command.parameter.Flag;
+37,39c38,40
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
 ---
->         Optional<String> targetSkinOptional = args.one(Text.of("skin"), String.class);
-> 
+>     public CommandResult execute(CommandCause cause, CommandContext args) {
+>         if (!(cause.root() instanceof Player)) {
+>             plugin.sendMessage(cause, "no-console");
+43c44
+<         UUID uniqueId = ((Player) src).getUniqueId();
+---
+>         UUID uniqueId = ((Player) cause.root()).getUniqueId();
+45c46
+<             plugin.sendMessage(src, "cooldown");
+---
+>             plugin.sendMessage(cause, "cooldown");
+49,51c50,58
+<         Player receiver = (Player) src;
+<         String targetSkin = args.<String>getOne("skin").get();
+<         boolean keepSkin = args.hasAny("keep");
+---
+>         Player receiver = (Player) cause.root();
+>         Optional<String> targetSkinOptional = args.one(Parameter.string().key("skin").build());
 >         if (!targetSkinOptional.isPresent()) {
->             plugin.sendMessage(src, "invalid-skin-name");
+>             plugin.sendMessage(cause, "invalid-skin");
 >             return CommandResult.empty();
 >         }
 > 
 >         String targetSkin = targetSkinOptional.get();
-57a64
->             try {
-67a75,78
->             } catch (IllegalArgumentException ex) {
->                 plugin.sendMessage(src, "invalid-uuid");
->                 return CommandResult.empty();
->             }
-79,81c90,91
+>         boolean keepSkin = args.hasFlag("keep");
+60c67
+<             if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(src, targetUUID, true)) {
+---
+>             if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(cause, targetUUID, true)) {
+64,65c71,72
+<             plugin.sendMessage(src, "skin-change-queue");
+<             Runnable skinDownloader = new SkinDownloader(plugin, src, receiver, targetUUID, keepSkin);
+---
+>             plugin.sendMessage(cause, "skin-change-queue");
+>             Runnable skinDownloader = new SkinDownloader(plugin, cause, receiver, targetUUID, keepSkin);
+70c77
+<         Runnable nameResolver = new NameResolver(plugin, src, targetSkin, receiver, keepSkin);
+---
+>         Runnable nameResolver = new NameResolver(plugin, cause, targetSkin, receiver, keepSkin);
+76a84,85
+>         Parameter skinParam = Parameter.string().key("skin").build();
+> 
+79,81c88,89
 <                 .arguments(
 <                         string(of("skin")),
 <                         flags().flag("keep").buildWith(GenericArguments.none()))
 ---
->                 .addParameter(org.spongepowered.api.command.parameter.Parameter.string().key("skin").build())
->                 .addFlag(org.spongepowered.api.command.parameter.Flag.builder().alias("keep").build())
+>                 .addParameter(skinParam)
+>                 .addFlag(Flag.builder().alias("keep").build())

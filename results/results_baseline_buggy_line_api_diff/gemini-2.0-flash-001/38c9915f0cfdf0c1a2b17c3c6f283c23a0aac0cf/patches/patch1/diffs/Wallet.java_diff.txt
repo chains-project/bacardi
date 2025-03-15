@@ -1,80 +1,74 @@
-30,31c30,36
+10,11c10
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+---
+>  * copies of this software, and to permit persons to do so, subject to the following conditions:
+18c17
+<  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+---
+>  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+30c29,31
 < import org.cactoos.collection.Filtered;
-< import org.cactoos.iterable.IterableOf;
 ---
 > import java.util.Iterator;
-> import java.util.stream.Collectors;
-> import java.util.stream.StreamSupport;
 > import org.cactoos.Func;
-> import org.cactoos.Scalar;
-> import org.cactoos.Text;
-> import org.cactoos.collection.IterableOf;
-36d40
+> import org.cactoos.iterable.Filtered;
+36d36
 < import org.cactoos.scalar.CheckedScalar;
-38d41
+38d37
 < import org.cactoos.scalar.UncheckedScalar;
-40d42
+40d38
 < import org.cactoos.text.SplitText;
-201,202c203,204
+42a41,43
+> import org.cactoos.scalar.IoChecked;
+> import org.cactoos.scalar.Unchecked;
+> import org.cactoos.text.Split;
+201c202
 <             return new CheckedScalar<>(
-<                 () -> Long.parseUnsignedLong(
 ---
->             return new org.cactoos.scalar.Checked<>(
->                 (Scalar<Long>) () -> Long.parseUnsignedLong(
-204c206
+>             return new IoChecked<>(
+204c205
 <                         new SplitText(
 ---
->                         new org.cactoos.text.Split(
-206c208
-<                             "\n"
+>                         new Split(
+211c212,213
+<                 ),
 ---
->                             new TextOf("\n")
-247,252c249,256
-<             final Iterable<Transaction> candidates = new Filtered<>(
+>                 )
+>                 ,
+248,261c250,265
 <                 incoming -> new Filtered<>(
 <                     origin -> new UncheckedScalar<>(
 <                         new Or(
 <                             () -> incoming.equals(origin),
 <                             () -> incoming.id() == origin.id()
----
->             final Iterable<Transaction> candidates = StreamSupport.stream(other.ledger().spliterator(), false)
->                 .filter(incoming -> StreamSupport.stream(ledger.spliterator(), false)
->                     .noneMatch(origin -> {
->                         try {
->                             return new org.cactoos.scalar.Unchecked<>(
->                                 (Scalar<Boolean>) () -> new Or(
->                                     (org.cactoos.Scalar<Boolean>) () -> incoming.equals(origin),
->                                     (org.cactoos.Scalar<Boolean>) () -> incoming.id() == origin.id()
-254c258
+<                                 && incoming.bnf().equals(origin.bnf()),
 <                             () -> incoming.id() == origin.id()
----
->                                     (org.cactoos.Scalar<Boolean>) () -> incoming.id() == origin.id()
-256,262c260,267
+<                                 && incoming.amount() < 0L,
 <                             () -> incoming.prefix().equals(origin.prefix())
 <                         )
 <                     ).value(),
 <                     ledger
 <                 ).isEmpty(),
 <                 other.ledger()
-<             );
 ---
->                                     (org.cactoos.Scalar<Boolean>) () -> incoming.prefix().equals(origin.prefix())
->                                 ).value()
->                             ).value();
->                         } catch (final Exception ex) {
->                             throw new IllegalStateException(ex);
+>                 other.ledger(),
+>                 incoming -> {
+>                     final Iterator<Transaction> iterator = ledger.iterator();
+>                     while (iterator.hasNext()) {
+>                         final Transaction origin = iterator.next();
+>                         if (incoming.equals(origin)
+>                             || (incoming.id() == origin.id()
+>                                 && incoming.bnf().equals(origin.bnf()))
+>                             || (incoming.id() == origin.id()
+>                                 && incoming.amount() < 0L)
+>                             || incoming.prefix().equals(origin.prefix())) {
+>                             return false;
 >                         }
->                     }))
->                 .collect(Collectors.toList());
-265c270
-<                 new Joined<Transaction>(ledger, candidates)
----
->                 new Joined<Transaction>(ledger, (Iterable<Transaction>) candidates)
-275c280
+>                     }
+>                     return true;
+>                 }
+275c279
 <                         new SplitText(
 ---
->                         new org.cactoos.text.Split(
-277c282
-<                             "\\n"
----
->                             new TextOf("\\n")
+>                         new Split(

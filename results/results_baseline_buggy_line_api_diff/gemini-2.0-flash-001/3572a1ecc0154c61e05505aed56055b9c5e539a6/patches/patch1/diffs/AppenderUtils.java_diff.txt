@@ -1,9 +1,15 @@
+11c11
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+---
+>  * is distributed on an "AS IS" BASIS,
 30d29
 < import org.apache.thrift.transport.TFastFramedTransport;
 32a32
 > import org.apache.thrift.transport.layered.TFastFramedTransport;
-63,64c63
+62,64c62,63
+<       final int bufferCapacity = 10;
 <       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
 <           bufferCapacity);
 ---
->       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os));
+>       TIOStreamTransport transport = new TIOStreamTransport(os);
+>       framedTransport = new TFastFramedTransport(transport);

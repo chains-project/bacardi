@@ -82,7 +82,7 @@ public class CheckPermissionListener implements RawDataReceiver {
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
         resultMessage.writeTo(dataOutput);
         byte[] bytes = dataOutput.toByteArray();
-        Consumer<ChannelBuf> writeBytes = buf -> buf.writeByteArray(bytes);
-        permissionsResultChannel.sendTo(receiver, writeBytes);
+        Consumer<ChannelBuf> byteBufConsumer = buf -> buf.writeByteArray(bytes);
+        permissionsResultChannel.sendTo(receiver, byteBufConsumer);
     }
 }

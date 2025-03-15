@@ -38,7 +38,7 @@ import org.apache.kafka.connect.sink.SinkTask;
 public class PubSubLiteSinkTask extends SinkTask {
 
   private final PublisherFactory factory;
-  private @Nullable Publisher<String> publisher;
+  private @Nullable Publisher<?> publisher;
 
   @VisibleForTesting
   PubSubLiteSinkTask(PublisherFactory factory) {
@@ -104,6 +104,7 @@ public class PubSubLiteSinkTask extends SinkTask {
             ByteString.copyFromUtf8(record.timestampType().name));
         message.setEventTime(Timestamps.fromMillis(record.timestamp()));
       }
+      message.setAttributes(attributes.build());
       publisher.publish(message.build());
     }
   }

@@ -10,8 +10,6 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 package com.google.cloud.translate.spi.v2;
@@ -52,7 +50,7 @@ public interface TranslateRpc extends ServiceRpc {
    *
    * @param optionMap options to listing language translations
    */
-  List<Map<String, String>> listSupportedLanguages(Map<Option, ?> optionMap);
+  List<String> listSupportedLanguages(Map<Option, ?> optionMap);
 
   /**
    * Detects the language of the provided texts.
@@ -60,7 +58,7 @@ public interface TranslateRpc extends ServiceRpc {
    * @param texts the texts to translate
    * @return a list of lists of detections, one list of detections for each provided text, in order
    */
-  List<List<Map<String, Object>>> detect(List<String> texts);
+  List<List<String>> detect(List<String> texts);
 
   /**
    * Translates the provided texts.
@@ -70,5 +68,5 @@ public interface TranslateRpc extends ServiceRpc {
    * @return a list of resources containing translation information, in the same order of the
    *     provided texts
    */
-  List<Map<String, String>> translate(List<String> texts, Map<Option, ?> optionMap);
+  List<String> translate(List<String> texts, Map<Option, ?> optionMap);
 }

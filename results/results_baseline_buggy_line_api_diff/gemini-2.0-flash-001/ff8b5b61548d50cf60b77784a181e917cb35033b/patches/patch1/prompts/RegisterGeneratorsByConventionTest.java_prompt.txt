@@ -79,24 +79,24 @@ public class RegisterGeneratorsByConventionTest {
 the error is triggered in the following specific lines in the previous code:
 
 ```java
-@RunWith(MockitoJUnitRunner.class)
+import org.mockito.runners.MockitoJUnitRunner;
 ```
 ```java
-import org.mockito.runners.MockitoJUnitRunner;
+@RunWith(MockitoJUnitRunner.class)
 ```
 
 
 
  with the following error information:
+[ERROR] /junit-quickcheck/core/src/test/java/com/pholser/junit/quickcheck/internal/generator/RegisterGeneratorsByConventionTest.java:[20,27] package org.mockito.runners does not exist
+
 [ERROR] /junit-quickcheck/core/src/test/java/com/pholser/junit/quickcheck/internal/generator/RegisterGeneratorsByConventionTest.java:[22,10] cannot find symbol
   symbol: class MockitoJUnitRunner
 
-[ERROR] /junit-quickcheck/core/src/test/java/com/pholser/junit/quickcheck/internal/generator/RegisterGeneratorsByConventionTest.java:[20,27] package org.mockito.runners does not exist
-
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
-     Constructor org.mockito.runners.MockitoJUnitRunner(java.lang.Class) has been removed in the new version of the dependency.
      Class org.mockito.runners.MockitoJUnitRunner has been removed in the new version of the dependency.
+     Constructor org.mockito.runners.MockitoJUnitRunner(java.lang.Class) has been removed in the new version of the dependency.
 
 
 

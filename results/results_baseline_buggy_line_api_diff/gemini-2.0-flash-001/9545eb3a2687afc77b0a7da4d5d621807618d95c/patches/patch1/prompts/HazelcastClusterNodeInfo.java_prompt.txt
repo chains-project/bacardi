@@ -74,10 +74,10 @@ the error is triggered in the following specific lines in the previous code:
 public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {
 ```
 ```java
-import com.hazelcast.core.Member;
+public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {
 ```
 ```java
-public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {
+import com.hazelcast.core.Member;
 ```
 ```java
 public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {
@@ -94,35 +94,27 @@ public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {
   symbol:   class Member
   location: package com.hazelcast.core
 
-[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cluster/HazelcastClusterNodeInfo.java:[41,43] cannot find symbol
-  symbol:   class Member
-  location: class org.jivesoftware.openfire.plugin.util.cluster.HazelcastClusterNodeInfo
-
-[ERROR] /openfire-hazelcast-plugin/src/java/org/jivesoftware/openfire/plugin/util/cluster/HazelcastClusterNodeInfo.java:[41,43] cannot find symbol
-  symbol:   class Member
-  location: class org.jivesoftware.openfire.plugin.util.cluster.HazelcastClusterNodeInfo
-
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
-     Method com.hazelcast.cluster.impl.AbstractMember.getSocketAddress(com.hazelcast.instance.EndpointQualifier) has been added in the new version of the dependency.
-     Method com.hazelcast.core.Member.getSocketAddress() has been removed in the new version of the dependency.
-     Method com.hazelcast.instance.AbstractMember.getSocketAddress(com.hazelcast.instance.EndpointQualifier) has been removed in the new version of the dependency.
-     Method com.hazelcast.cluster.impl.AbstractMember.getSocketAddress() has been added in the new version of the dependency.
-     Method com.hazelcast.cluster.Member.getSocketAddress(com.hazelcast.instance.EndpointQualifier) has been added in the new version of the dependency.
-     Method com.hazelcast.core.Member.getSocketAddress(com.hazelcast.instance.EndpointQualifier) has been removed in the new version of the dependency.
-     Method com.hazelcast.core.Client.getSocketAddress() has been removed in the new version of the dependency.
-     Method com.hazelcast.core.Endpoint.getSocketAddress() has been removed in the new version of the dependency.
-     Method com.hazelcast.cp.internal.CPMemberInfo.getSocketAddress() has been removed in the new version of the dependency.
-     Method com.hazelcast.instance.AbstractMember.getSocketAddress() has been removed in the new version of the dependency.
-     Method com.hazelcast.client.Client.getSocketAddress() has been added in the new version of the dependency.
-     Method com.hazelcast.cluster.Member.getSocketAddress() has been added in the new version of the dependency.
-     Method com.hazelcast.cluster.Endpoint.getSocketAddress() has been added in the new version of the dependency.
-     Interface com.hazelcast.cluster.Member has been added in the new version of the dependency.
      Class com.hazelcast.core.Member has been removed in the new version of the dependency.
-     Method com.hazelcast.config.MemberAttributeConfig.getStringAttribute(java.lang.String) has been removed in the new version of the dependency.
-     Method com.hazelcast.client.impl.MemberImpl.getStringAttribute(java.lang.String) has been removed in the new version of the dependency.
+     Interface com.hazelcast.cluster.Member has been added in the new version of the dependency.
+     Method com.hazelcast.core.Client.getSocketAddress() has been removed in the new version of the dependency.
+     Method com.hazelcast.cluster.Member.getSocketAddress(com.hazelcast.instance.EndpointQualifier) has been added in the new version of the dependency.
+     Method com.hazelcast.core.Endpoint.getSocketAddress() has been removed in the new version of the dependency.
+     Method com.hazelcast.instance.AbstractMember.getSocketAddress() has been removed in the new version of the dependency.
+     Method com.hazelcast.core.Member.getSocketAddress(com.hazelcast.instance.EndpointQualifier) has been removed in the new version of the dependency.
+     Method com.hazelcast.cp.internal.CPMemberInfo.getSocketAddress() has been removed in the new version of the dependency.
+     Method com.hazelcast.cluster.impl.AbstractMember.getSocketAddress() has been added in the new version of the dependency.
+     Method com.hazelcast.core.Member.getSocketAddress() has been removed in the new version of the dependency.
+     Method com.hazelcast.cluster.impl.AbstractMember.getSocketAddress(com.hazelcast.instance.EndpointQualifier) has been added in the new version of the dependency.
+     Method com.hazelcast.cluster.Member.getSocketAddress() has been added in the new version of the dependency.
+     Method com.hazelcast.instance.AbstractMember.getSocketAddress(com.hazelcast.instance.EndpointQualifier) has been removed in the new version of the dependency.
+     Method com.hazelcast.cluster.Endpoint.getSocketAddress() has been added in the new version of the dependency.
+     Method com.hazelcast.client.Client.getSocketAddress() has been added in the new version of the dependency.
      Method com.hazelcast.instance.MemberImpl.getStringAttribute(java.lang.String) has been removed in the new version of the dependency.
      Method com.hazelcast.core.Member.getStringAttribute(java.lang.String) has been removed in the new version of the dependency.
+     Method com.hazelcast.client.impl.MemberImpl.getStringAttribute(java.lang.String) has been removed in the new version of the dependency.
+     Method com.hazelcast.config.MemberAttributeConfig.getStringAttribute(java.lang.String) has been removed in the new version of the dependency.
 
 
 

@@ -83,20 +83,20 @@ public class ClasspathScanner {
 the error is triggered in the following specific lines in the previous code:
 
 ```java
-return new FilterBuilder().include(".+\\.class").apply(s);
+if (new FilterBuilder().include(regex).apply(s)) {
 ```
 ```java
-if (new FilterBuilder().include(regex).apply(s)) {
+return new FilterBuilder().include(".+\\.class").apply(s);
 ```
 
 
 
  with the following error information:
-[ERROR] /gauge-java/src/main/java/com/thoughtworks/gauge/scan/ClasspathScanner.java:[64,61] cannot find symbol
+[ERROR] /gauge-java/src/main/java/com/thoughtworks/gauge/scan/ClasspathScanner.java:[69,51] cannot find symbol
   symbol:   method apply(java.lang.String)
   location: class org.reflections.util.FilterBuilder
 
-[ERROR] /gauge-java/src/main/java/com/thoughtworks/gauge/scan/ClasspathScanner.java:[69,51] cannot find symbol
+[ERROR] /gauge-java/src/main/java/com/thoughtworks/gauge/scan/ClasspathScanner.java:[64,61] cannot find symbol
   symbol:   method apply(java.lang.String)
   location: class org.reflections.util.FilterBuilder
 

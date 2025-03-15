@@ -1,23 +1,22 @@
-9a10
-> import java.nio.ByteBuffer;
-10a12
-> import java.util.UUID;
-14d15
+14d13
 < import org.spongepowered.api.command.CommandSource;
-19a21
-> import org.spongepowered.api.scheduler.TaskExecutorService;
-28c30,33
+16,17d14
+< import org.spongepowered.api.network.ChannelBuf;
+< import org.spongepowered.api.network.RawDataListener;
+19a17,19
+> import org.spongepowered.api.network.channel.ChannelReceiver;
+> import org.spongepowered.api.network.channel.ChannelBuf;
+> import org.spongepowered.api.command.source.CommandSource;
+21c21
+< public class UpdateSkinListener implements RawDataListener {
+---
+> public class UpdateSkinListener implements ChannelReceiver {
+28c28,29
 <         ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
 ---
->         byte[] rawData = new byte[data.available()];
->         data.readBytes(rawData);
-> 
->         ByteArrayDataInput dataInput = ByteStreams.newDataInput(rawData);
-35,36c40,43
-<             Runnable skinUpdater = new SkinApplier(plugin, (CommandSource) connection, receiver.get(), null, false);
+>         byte[] bytes = data.readByteArray();
+>         ByteArrayDataInput dataInput = ByteStreams.newDataInput(bytes);
+36c37
 <             Task.builder().execute(skinUpdater).submit(plugin);
 ---
->             Player player = receiver.get();
->             TaskExecutorService taskExecutorService = Sponge.getServer().getScheduler().createSyncExecutor(plugin);
->             Runnable skinUpdater = new SkinApplier(plugin, player.getCommandSource().orElse(null), player, null, false);
->             taskExecutorService.execute(skinUpdater);
+>             Sponge.getServer().getScheduler().createTaskBuilder().execute(skinUpdater).submit(plugin);

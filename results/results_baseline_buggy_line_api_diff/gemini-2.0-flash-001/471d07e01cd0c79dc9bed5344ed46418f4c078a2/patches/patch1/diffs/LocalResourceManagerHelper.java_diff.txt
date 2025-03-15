@@ -1,126 +1,59 @@
-11c11
-<  * distributed under the License is distributed on an "AS IS" BASIS,
----
->  * is distributed on an "AS IS" BASIS,
-25,28c25,28
+25,28d24
 < import com.google.api.services.cloudresourcemanager.model.Binding;
 < import com.google.api.services.cloudresourcemanager.model.Operation;
 < import com.google.api.services.cloudresourcemanager.model.Policy;
 < import com.google.api.services.cloudresourcemanager.model.Project;
----
+68a65,69
 > import com.google.api.services.cloudresourcemanager.v3.model.Binding;
 > import com.google.api.services.cloudresourcemanager.v3.model.Operation;
 > import com.google.api.services.cloudresourcemanager.v3.model.Policy;
 > import com.google.api.services.cloudresourcemanager.v3.model.Project;
-449c449
+> 
+449c450,451
 <       project.setLifecycleState("ACTIVE");
 ---
->       //project.setLifecycleState("ACTIVE"); //LifecycleState is not present in v3
-451,454c451,454
-<       project.setCreateTime(
-<           DateTimeFormatter.ISO_DATE_TIME
-<               .withZone(ZoneOffset.UTC)
-<               .format(Instant.ofEpochMilli(System.currentTimeMillis())));
----
->       //project.setCreateTime( //CreateTime is not present in v3
->       //    DateTimeFormatter.ISO_DATE_TIME
->       //        .withZone(ZoneOffset.UTC)
->       //        .format(Instant.ofEpochMilli(System.currentTimeMillis())));
-469c469
-<                 new Operation().setDone(false).setName("operations/" + project.getProjectId()));
----
->                 new Operation().setDone(true).setName("operations/" + project.getProjectId()));
-483,487c483,487
+>       //project.setLifecycleState("ACTIVE");
+>           project.setState(Project.State.ACTIVE);
+483c485
 <     if (!project.getLifecycleState().equals("ACTIVE")) {
-<       return Error.FAILED_PRECONDITION.response(
-<           "Error when deleting " + projectId + " because the lifecycle state was not ACTIVE.");
-<     } else {
+---
+>     if (!Project.State.ACTIVE.equals(project.getState())) {
+487c489,490
 <       project.setLifecycleState("DELETE_REQUESTED");
 ---
->     //if (!project.getLifecycleState().equals("ACTIVE")) { //LifecycleState is not present in v3
->     //  return Error.FAILED_PRECONDITION.response(
->     //      "Error when deleting " + projectId + " because the lifecycle state was not ACTIVE.");
->     //} else {
->     //  project.setLifecycleState("DELETE_REQUESTED");
-489c489
-<     }
----
->     //}
-584a585,586
->         Map<String, String> labels = project.getLabels();
->         if (labels != null) {
-586,587c588
-<         if (project.getLabels() != null) {
-<           String labelValue = project.getLabels().get(labelKey);
----
->           String labelValue = labels.get(labelKey);
-611,613c612,614
-<         case "createTime":
-<           project.setCreateTime(fullProject.getCreateTime());
-<           break;
----
->           //case "createTime": //CreateTime is not present in v3
->           //  project.setCreateTime(fullProject.getCreateTime());
->           //  break;
-617,619c618,620
-<         case "lifecycleState":
+>       //project.setLifecycleState("DELETE_REQUESTED");
+>           project.setState(Project.State.DELETE_REQUESTED);
+618c621,622
 <           project.setLifecycleState(fullProject.getLifecycleState());
-<           break;
 ---
->           //case "lifecycleState": //LifecycleState is not present in v3
->           //  project.setLifecycleState(fullProject.getLifecycleState());
->           //  break;
-629,631c630,632
-<         case "projectNumber":
-<           project.setProjectNumber(fullProject.getProjectNumber());
-<           break;
----
->           //case "projectNumber": //ProjectNumber is not present in v3
->           //  project.setProjectNumber(fullProject.getProjectNumber());
->           //  break;
-642,645c643,648
+>           //project.setLifecycleState(fullProject.getLifecycleState());
+>                   project.setState(fullProject.getState());
+642c646
 <     } else if (!originalProject.getLifecycleState().equals("ACTIVE")) {
-<       return Error.FAILED_PRECONDITION.response(
-<           "Error when replacing " + projectId + " because the lifecycle state was not ACTIVE.");
-<     } else if (!Objects.equal(originalProject.getParent(), project.getParent())) {
 ---
->     }
->     //else if (!originalProject.getLifecycleState().equals("ACTIVE")) { //LifecycleState is not present in v3
->     //  return Error.FAILED_PRECONDITION.response(
->     //      "Error when replacing " + projectId + " because the lifecycle state was not ACTIVE.");
->     //}
->     else if (!Objects.equal(originalProject.getParent(), project.getParent())) {
-651,652c654,655
+>     } else if (!Project.State.ACTIVE.equals(originalProject.getState())) {
+651c655,656
 <     project.setLifecycleState(originalProject.getLifecycleState());
-<     project.setCreateTime(originalProject.getCreateTime());
 ---
->     //project.setLifecycleState(originalProject.getLifecycleState()); //LifecycleState is not present in v3
->     //project.setCreateTime(originalProject.getCreateTime()); //CreateTime is not present in v3
-670,677c673,682
+>     //project.setLifecycleState(originalProject.getLifecycleState());
+>         project.setState(originalProject.getState());
+670c675
 <     } else if (!project.getLifecycleState().equals("DELETE_REQUESTED")) {
-<       response =
-<           Error.FAILED_PRECONDITION.response(
-<               "Error when undeleting "
-<                   + projectId
-<                   + " because the lifecycle state was not DELETE_REQUESTED.");
-<     } else {
+---
+>     } else if (!Project.State.DELETE_REQUESTED.equals(project.getState())) {
+677c682,683
 <       project.setLifecycleState("ACTIVE");
 ---
->     }
->     //else if (!project.getLifecycleState().equals("DELETE_REQUESTED")) { //LifecycleState is not present in v3
->     //  response =
->     //      Error.FAILED_PRECONDITION.response(
->     //          "Error when undeleting "
->     //              + projectId
->     //              + " because the lifecycle state was not DELETE_REQUESTED.");
->     //}
->     else {
->       //project.setLifecycleState("ACTIVE"); //LifecycleState is not present in v3
-729c734
-<           jsonFactory.toString(new TestIamPermissionsResponse().setPermissions(permissions)));
----
->           jsonFactory.toString(new com.google.api.services.cloudresourcemanager.model.TestIamPermissionsResponse().setPermissions(permissions)));
-787c792
+>       //project.setLifecycleState("ACTIVE");
+>           project.setState(Project.State.ACTIVE);
+787c793,800
 <       project.setLifecycleState(lifecycleState);
 ---
->       //project.setLifecycleState(lifecycleState); //LifecycleState is not present in v3
+>       //project.setLifecycleState(lifecycleState);
+>           if("ACTIVE".equals(lifecycleState)) {
+>                   project.setState(Project.State.ACTIVE);
+>           } else if ("DELETE_REQUESTED".equals(lifecycleState)) {
+>                   project.setState(Project.State.DELETE_REQUESTED);
+>           } else {
+>                   project.setState(Project.State.DELETE_IN_PROGRESS);
+>           }

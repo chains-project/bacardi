@@ -9,22 +9,21 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import java.util.UUID;
 
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.tab.TabListEntry;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.api.world.server.ServerWorld;
-import org.spongepowered.api.util.Direction;
-
-import org.spongepowered.api.service.permission.Subject;
+import org.spongepowered.math.vector.Vector3d;
 
 public class SkinApplier extends SharedApplier {
 
     private final ChangeSkinSponge plugin;
-    private final Subject invoker;
+    private final CommandCause invoker;
     private final Player receiver;
 
-    public SkinApplier(ChangeSkinSponge plugin, Subject invoker, Player receiver, SkinModel targetSkin
+    public SkinApplier(ChangeSkinSponge plugin, CommandCause invoker, Player receiver, SkinModel targetSkin
             , boolean keepSkin) {
         super(plugin.getCore(), targetSkin, keepSkin);
 
@@ -40,8 +39,8 @@ public class SkinApplier extends SharedApplier {
         }
 
         //uuid was successful resolved, we could now make a cooldown check
-        if (invoker instanceof Player) {
-            UUID uniqueId = ((Player) invoker).getUniqueId();
+        if (invoker.getCause().root() instanceof Player) {
+            UUID uniqueId = ((Player) invoker.getCause().root()).getUniqueId();
             core.getCooldownService().trackPlayer(uniqueId);
         }
 
@@ -97,7 +96,7 @@ public class SkinApplier extends SharedApplier {
                 .build());
 
         ServerLocation oldLocation = receiver.getLocation();
-        Direction rotation = receiver.getRotation();
+        Vector3d rotation = receiver.getRotation();
         ServerWorld receiverWorld = receiver.getWorld();
         Sponge.getServer().getWorlds()
                 .stream()

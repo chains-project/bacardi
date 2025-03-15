@@ -1,13 +1,16 @@
-10,12c10,12
+6,12c6,12
+< import javax.annotation.Priority;
+< import javax.enterprise.context.Dependent;
+< import javax.enterprise.inject.Instance;
+< import javax.inject.Inject;
 < import javax.interceptor.AroundInvoke;
 < import javax.interceptor.Interceptor;
 < import javax.interceptor.InvocationContext;
 ---
+> import jakarta.annotation.Priority;
+> import jakarta.enterprise.context.Dependent;
+> import jakarta.enterprise.inject.Instance;
+> import jakarta.inject.Inject;
 > import jakarta.interceptor.AroundInvoke;
 > import jakarta.interceptor.Interceptor;
 > import jakarta.interceptor.InvocationContext;
-57c57,58
-<             return ctx.getMethod().invoke(invocationTargetManager.get().mock(javaClass), ctx.getParameters());
----
->             Method method = ctx.getMethod();
->             return method.invoke(invocationTargetManager.get().mock(javaClass), ctx.getParameters());
