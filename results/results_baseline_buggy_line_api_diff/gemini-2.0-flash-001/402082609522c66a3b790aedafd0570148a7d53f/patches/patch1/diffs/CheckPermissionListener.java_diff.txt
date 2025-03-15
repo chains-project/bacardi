@@ -27,5 +27,5 @@
 <         permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
 ---
 >         byte[] bytes = dataOutput.toByteArray();
->         Consumer<ChannelBuf> writeBytes = buf -> buf.writeByteArray(bytes);
->         permissionsResultChannel.sendTo(receiver, writeBytes);
+>         Consumer<ChannelBuf> byteBufConsumer = buf -> buf.writeByteArray(bytes);
+>         permissionsResultChannel.sendTo(receiver, byteBufConsumer);

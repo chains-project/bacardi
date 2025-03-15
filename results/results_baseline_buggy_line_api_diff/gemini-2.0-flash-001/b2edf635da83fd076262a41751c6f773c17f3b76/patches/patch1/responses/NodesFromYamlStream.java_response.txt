@@ -82,21 +82,22 @@ public class NodesFromYamlStream implements Function<ByteSource, LoadingCache<St
    public LoadingCache<String, Node> apply(ByteSource source) {
 
       LoaderOptions loaderOptions = new LoaderOptions();
-      Constructor constructor = new Constructor();
-
       TypeDescription nodeDesc = new TypeDescription(YamlNode.class);
       nodeDesc.putListPropertyType("tags", String.class);
-      constructor.addTypeDescription(nodeDesc);
+      loaderOptions.addTypeDescription(nodeDesc);
 
       TypeDescription configDesc = new TypeDescription(Config.class);
       configDesc.putListPropertyType("nodes", YamlNode.class);
-      constructor.addTypeDescription(configDesc);
-      Yaml yaml = new Yaml(constructor, loaderOptions);
+      loaderOptions.addTypeDescription(configDesc);
+
+      Constructor constructor = new Constructor(Config.class, loaderOptions);
+
+      Yaml yaml = new Yaml(constructor);
       Config config;
       InputStream in = null;
       try {
          in = source.openStream();
-         config = yaml.loadAs(in, Config.class);
+         config = (Config) yaml.load(in);
       } catch (IOException ioe) {
          throw propagate(ioe);
       } finally {

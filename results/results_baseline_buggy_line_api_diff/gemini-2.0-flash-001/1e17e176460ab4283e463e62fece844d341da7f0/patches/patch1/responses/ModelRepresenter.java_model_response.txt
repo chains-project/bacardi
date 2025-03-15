@@ -243,20 +243,10 @@ class ModelRepresenter extends Representer {
 
   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
           throws IntrospectionException {
-      Set<Property> standard = getPropertySet(type);
+      Set<Property> standard = getPropertyUtils().getProperties(type);
       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
       sorted.addAll(standard);
       return sorted;
-  }
-
-  private Set<Property> getPropertySet(Class<? extends Object> type) throws IntrospectionException {
-    Set<Property> propertySet = new HashSet<>();
-    BeanInfo beanInfo = Introspector.getBeanInfo(type);
-    PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
-    for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
-      propertySet.add(new PropertyAdapter(propertyDescriptor));
-    }
-    return propertySet;
   }
 
   private class ModelPropertyComparator implements Comparator<Property> {
@@ -285,29 +275,6 @@ class ModelRepresenter extends Representer {
         return 1;
       }
       return 0;// compare further
-    }
-  }
-
-  private static class PropertyAdapter extends Property {
-    private final PropertyDescriptor propertyDescriptor;
-
-    public PropertyAdapter(PropertyDescriptor propertyDescriptor) {
-      super(propertyDescriptor.getName(), propertyDescriptor.getPropertyType());
-      this.propertyDescriptor = propertyDescriptor;
-    }
-
-    @Override
-    public void set(Object object, Object value) throws Exception {
-      propertyDescriptor.getWriteMethod().invoke(object, value);
-    }
-
-    @Override
-    public Object get(Object object) {
-      try {
-        return propertyDescriptor.getReadMethod().invoke(object);
-      } catch (Exception e) {
-        return null;
-      }
     }
   }
 }

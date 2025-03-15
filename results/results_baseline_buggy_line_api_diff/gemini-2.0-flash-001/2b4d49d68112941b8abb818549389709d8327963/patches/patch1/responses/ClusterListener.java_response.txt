@@ -22,7 +22,7 @@ import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.LifecycleEvent;
 import com.hazelcast.core.LifecycleEvent.LifecycleState;
 import com.hazelcast.cluster.Member;
-import com.hazelcast.core.MemberAttributeEvent;
+import com.hazelcast.cluster.MemberAttributeEvent;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterManager;
 import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
@@ -266,6 +266,7 @@ public class ClusterListener implements MembershipListener, com.hazelcast.core.L
         }
     }
 
+    @Override
     public void memberAttributeChanged(final MemberAttributeEvent event) {
         logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
         isSenior = isSeniorClusterMember();

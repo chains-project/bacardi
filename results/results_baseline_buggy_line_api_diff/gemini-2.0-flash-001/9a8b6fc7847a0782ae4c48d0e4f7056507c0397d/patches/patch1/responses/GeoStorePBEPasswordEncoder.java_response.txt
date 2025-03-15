@@ -30,8 +30,7 @@ import java.util.Base64;
 import org.acegisecurity.providers.encoding.PasswordEncoder;
 import org.jasypt.encryption.pbe.StandardPBEByteEncryptor;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
-import org.springframework.security.crypto.password.PasswordEncoder as SpringPasswordEncoder;
-import org.springframework.security.crypto.password.StandardPasswordEncoder;
+import org.springframework.security.authentication.encoding.PasswordEncoderUtils;
 
 /**
  * Password Encoder using symmetric encryption
@@ -101,9 +100,6 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 			}
 			stringEncrypter.setAlgorithm(getAlgorithm());
 
-			StandardPasswordEncoder encoder = new StandardPasswordEncoder();
-			//encoder.setPbeStringEncryptor(stringEncrypter); //No setter available
-
 			return new PasswordEncoder() {
 				@Override
 				public String encodePassword(String rawPass, Object salt) {
@@ -112,7 +108,7 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 
 				@Override
 				public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
-					return stringEncrypter.decrypt(rawPass).equals(removePrefix(encPass));
+					return PasswordEncoderUtils.equals(encPass, stringEncrypter.encrypt(rawPass));
 				}
 			};
 		} finally {

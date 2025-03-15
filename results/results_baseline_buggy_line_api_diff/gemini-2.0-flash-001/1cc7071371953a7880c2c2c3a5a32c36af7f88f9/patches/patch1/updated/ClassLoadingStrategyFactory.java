@@ -4,7 +4,7 @@
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * Unless required by applicable law or agreed to in writing, software is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  *
@@ -17,8 +17,8 @@ import io.vavr.control.Try;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 
-import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy;
-import org.assertj.core.internal.bytebuddy.dynamic.loading.InjectionClassLoader;
+import net.bytebuddy.dynamic.loading.ClassInjector;
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 
 class ClassLoadingStrategyFactory {
 
@@ -28,9 +28,9 @@ class ClassLoadingStrategyFactory {
     ).getOrElse((Method) null);
 
     static ClassLoadingStrategy<ClassLoader> classLoadingStrategy(Class<?> assertClass) {
-        if (InjectionClassLoader.isAvailable()) {
+        if (isReflectionAvailable()) {
             return ClassLoadingStrategy.Default.INJECTION;
-        } else if (ClassLoadingStrategy.UsingLookup.isAvailable() && PRIVATE_LOOKUP_IN != null) {
+        } else if (isLookupAvailable() && PRIVATE_LOOKUP_IN != null) {
             try {
                 return ClassLoadingStrategy.UsingLookup.of(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));
             } catch (Exception e) {
@@ -38,6 +38,24 @@ class ClassLoadingStrategyFactory {
             }
         } else {
             throw new IllegalStateException("No code generation strategy available");
+        }
+    }
+
+    private static boolean isReflectionAvailable() {
+        try {
+            Class.forName("sun.misc.Unsafe");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    private static boolean isLookupAvailable() {
+        try {
+            MethodHandles.Lookup.class.getMethod("defineClass", byte[].class);
+            return true;
+        } catch (NoSuchMethodException e) {
+            return false;
         }
     }
 

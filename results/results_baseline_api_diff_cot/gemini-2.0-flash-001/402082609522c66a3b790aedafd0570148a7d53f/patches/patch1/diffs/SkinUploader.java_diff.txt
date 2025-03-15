@@ -1,12 +1,11 @@
 9d8
 < import org.spongepowered.api.command.CommandSource;
-10a10
-> import org.spongepowered.api.service.permission.Subject;
-15c15
-<     private final CommandSource invoker;
----
->     private final Subject invoker;
-17c17
-<     public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url) {
----
->     public SkinUploader(ChangeSkinSponge plugin, Subject invoker, Account owner, String url) {
+10a10,11
+> import org.spongepowered.api.entity.living.player.Player;
+> import org.spongepowered.api.command.CommandSource;
+25a27,29
+>         if (invoker instanceof Player) {
+>             plugin.sendMessage((Player) invoker, key);
+>         } else {
+27a32
+>     }

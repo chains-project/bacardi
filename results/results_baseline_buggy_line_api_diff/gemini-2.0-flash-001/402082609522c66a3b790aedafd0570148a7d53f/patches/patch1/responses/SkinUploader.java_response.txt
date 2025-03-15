@@ -6,9 +6,8 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import java.util.concurrent.TimeUnit;
 
-import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.permission.Subject;
+import org.spongepowered.api.scheduler.Task;
 
 public class SkinUploader extends SharedUploader {
 
@@ -24,11 +23,7 @@ public class SkinUploader extends SharedUploader {
 
     @Override
     public void sendMessageInvoker(String key) {
-        if (invoker instanceof Player) {
-            plugin.sendMessage((Player) invoker, key);
-        } else {
-            plugin.getCore().sendMessage(null, key);
-        }
+        plugin.sendMessage(invoker, key);
     }
 
     @Override

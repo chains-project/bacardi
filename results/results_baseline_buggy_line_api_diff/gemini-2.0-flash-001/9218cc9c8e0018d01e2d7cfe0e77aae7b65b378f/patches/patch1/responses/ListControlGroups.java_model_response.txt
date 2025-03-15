@@ -132,15 +132,15 @@ public abstract class ListControlGroups<T> extends Panel {
 
 			boolean required = false;
 
-			ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+			ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getPropertyType(), descriptor.getName());
 			if(constraintDescriptor!=null){
 				Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
 				for(ConstraintDescriptor<?> constraint : constraintsSet){
-					if(constraint.getAnnotation() instanceof NotNull ||
-					   constraint.getAnnotation() instanceof NotEmpty ||
-					   constraint.getAnnotation() instanceof NotBlank) {
+					Object annotation = constraint.getAnnotation();
+					if(annotation instanceof NotNull ||
+					   annotation instanceof NotEmpty ||
+					   annotation instanceof NotBlank)
 						required = true;
-					}
 				}
 			}
 

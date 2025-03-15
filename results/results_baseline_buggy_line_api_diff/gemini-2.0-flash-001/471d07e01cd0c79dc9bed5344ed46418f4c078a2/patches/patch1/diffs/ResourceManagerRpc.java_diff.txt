@@ -1,14 +1,32 @@
-11c11
-<  * distributed under the License is distributed on an "AS IS" BASIS,
----
->  * is distributed on an "AS IS" BASIS,
-19,22c19,22
+19,22c19,20
 < import com.google.api.services.cloudresourcemanager.model.Constraint;
 < import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
 < import com.google.api.services.cloudresourcemanager.model.Policy;
 < import com.google.api.services.cloudresourcemanager.model.Project;
 ---
-> import com.google.api.services.cloudresourcemanager.v3.model.Constraint;
-> import com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy;
 > import com.google.api.services.cloudresourcemanager.v3.model.Policy;
 > import com.google.api.services.cloudresourcemanager.v3.model.Project;
+167c165
+<   void clearOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
+---
+>   void clearOrgPolicy(String resource, com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy orgPolicy) throws IOException;
+178c176
+<   OrgPolicy getEffectiveOrgPolicy(String resource, String constraint) throws IOException;
+---
+>   com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy getEffectiveOrgPolicy(String resource, String constraint) throws IOException;
+189c187
+<   OrgPolicy getOrgPolicy(String resource, String constraint) throws IOException;
+---
+>   com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy getOrgPolicy(String resource, String constraint) throws IOException;
+196c194
+<   ListResult<Constraint> listAvailableOrgPolicyConstraints(String resource, Map<Option, ?> options)
+---
+>   ListResult<com.google.api.services.cloudresourcemanager.v3.model.Constraint> listAvailableOrgPolicyConstraints(String resource, Map<Option, ?> options)
+204c202
+<   ListResult<OrgPolicy> listOrgPolicies(String resource, Map<Option, ?> options) throws IOException;
+---
+>   ListResult<com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy> listOrgPolicies(String resource, Map<Option, ?> options) throws IOException;
+214c212
+<   OrgPolicy replaceOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
+---
+>   com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy replaceOrgPolicy(String resource, com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy orgPolicy) throws IOException;

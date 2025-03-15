@@ -8,7 +8,7 @@
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * is distributed on an "AS IS" BASIS,
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -22,10 +22,6 @@ import static java.net.HttpURLConnection.HTTP_OK;
 
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.cloudresourcemanager.v3.model.Binding;
-import com.google.api.services.cloudresourcemanager.v3.model.Operation;
-import com.google.api.services.cloudresourcemanager.v3.model.Policy;
-import com.google.api.services.cloudresourcemanager.v3.model.Project;
 import com.google.api.services.cloudresourcemanager.model.SetIamPolicyRequest;
 import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsRequest;
 import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsResponse;
@@ -65,6 +61,11 @@ import java.util.zip.GZIPInputStream;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.format.DateTimeFormatter;
+
+import com.google.api.services.cloudresourcemanager.v3.model.Binding;
+import com.google.api.services.cloudresourcemanager.v3.model.Operation;
+import com.google.api.services.cloudresourcemanager.v3.model.Policy;
+import com.google.api.services.cloudresourcemanager.v3.model.Project;
 
 /**
  * Utility to create a local Resource Manager mock for testing.
@@ -446,12 +447,13 @@ public class LocalResourceManagerHelper {
     if (customErrorMessage != null) {
       return Error.INVALID_ARGUMENT.response(customErrorMessage);
     } else {
-      //project.setLifecycleState("ACTIVE"); //LifecycleState is not present in v3
+      //project.setLifecycleState("ACTIVE");
+	  project.setState(Project.State.ACTIVE);
       project.setProjectNumber(Math.abs(PROJECT_NUMBER_GENERATOR.nextLong() % Long.MAX_VALUE));
-      //project.setCreateTime( //CreateTime is not present in v3
-      //    DateTimeFormatter.ISO_DATE_TIME
-      //        .withZone(ZoneOffset.UTC)
-      //        .format(Instant.ofEpochMilli(System.currentTimeMillis())));
+      project.setCreateTime(
+          DateTimeFormatter.ISO_DATE_TIME
+              .withZone(ZoneOffset.UTC)
+              .format(Instant.ofEpochMilli(System.currentTimeMillis())));
       if (projects.putIfAbsent(project.getProjectId(), project) != null) {
         return Error.ALREADY_EXISTS.response(
             "A project with the same project ID (" + project.getProjectId() + ") already exists.");
@@ -466,7 +468,7 @@ public class LocalResourceManagerHelper {
         // Pretend it's not done yet.
         String createdProjectStr =
             jsonFactory.toString(
-                new Operation().setDone(true).setName("operations/" + project.getProjectId()));
+                new Operation().setDone(false).setName("operations/" + project.getProjectId()));
         return new Response(HTTP_OK, createdProjectStr);
       } catch (IOException e) {
         return Error.INTERNAL_ERROR.response("Error serializing project " + project.getProjectId());
@@ -480,13 +482,14 @@ public class LocalResourceManagerHelper {
       return Error.PERMISSION_DENIED.response(
           "Error when deleting " + projectId + " because the project was not found.");
     }
-    //if (!project.getLifecycleState().equals("ACTIVE")) { //LifecycleState is not present in v3
-    //  return Error.FAILED_PRECONDITION.response(
-    //      "Error when deleting " + projectId + " because the lifecycle state was not ACTIVE.");
-    //} else {
-    //  project.setLifecycleState("DELETE_REQUESTED");
-    return new Response(HTTP_OK, "{}");
-    //}
+    if (!Project.State.ACTIVE.equals(project.getState())) {
+      return Error.FAILED_PRECONDITION.response(
+          "Error when deleting " + projectId + " because the lifecycle state was not ACTIVE.");
+    } else {
+      //project.setLifecycleState("DELETE_REQUESTED");
+	  project.setState(Project.State.DELETE_REQUESTED);
+      return new Response(HTTP_OK, "{}");
+    }
   }
 
   Response get(String projectId, String[] fields) {
@@ -582,10 +585,9 @@ public class LocalResourceManagerHelper {
           return false;
         }
       } else if (filterType.startsWith("labels.")) {
-        Map<String, String> labels = project.getLabels();
-        if (labels != null) {
-          String labelKey = filterType.substring("labels.".length());
-          String labelValue = labels.get(labelKey);
+        String labelKey = filterType.substring("labels.".length());
+        if (project.getLabels() != null) {
+          String labelValue = project.getLabels().get(labelKey);
           if (!satisfiesFilter(labelValue, filterEntry[1])) {
             return false;
           }
@@ -609,15 +611,16 @@ public class LocalResourceManagerHelper {
     Project project = new Project();
     for (String field : fields) {
       switch (field) {
-          //case "createTime": //CreateTime is not present in v3
-          //  project.setCreateTime(fullProject.getCreateTime());
-          //  break;
+        case "createTime":
+          project.setCreateTime(fullProject.getCreateTime());
+          break;
         case "labels":
           project.setLabels(fullProject.getLabels());
           break;
-          //case "lifecycleState": //LifecycleState is not present in v3
-          //  project.setLifecycleState(fullProject.getLifecycleState());
-          //  break;
+        case "lifecycleState":
+          //project.setLifecycleState(fullProject.getLifecycleState());
+		  project.setState(fullProject.getState());
+          break;
         case "name":
           project.setName(fullProject.getName());
           break;
@@ -627,9 +630,9 @@ public class LocalResourceManagerHelper {
         case "projectId":
           project.setProjectId(fullProject.getProjectId());
           break;
-          //case "projectNumber": //ProjectNumber is not present in v3
-          //  project.setProjectNumber(fullProject.getProjectNumber());
-          //  break;
+        case "projectNumber":
+          project.setProjectNumber(fullProject.getProjectNumber());
+          break;
       }
     }
     return project;
@@ -640,19 +643,18 @@ public class LocalResourceManagerHelper {
     if (originalProject == null) {
       return Error.PERMISSION_DENIED.response(
           "Error when replacing " + projectId + " because the project was not found.");
-    }
-    //else if (!originalProject.getLifecycleState().equals("ACTIVE")) { //LifecycleState is not present in v3
-    //  return Error.FAILED_PRECONDITION.response(
-    //      "Error when replacing " + projectId + " because the lifecycle state was not ACTIVE.");
-    //}
-    else if (!Objects.equal(originalProject.getParent(), project.getParent())) {
+    } else if (!Project.State.ACTIVE.equals(originalProject.getState())) {
+      return Error.FAILED_PRECONDITION.response(
+          "Error when replacing " + projectId + " because the lifecycle state was not ACTIVE.");
+    } else if (!Objects.equal(originalProject.getParent(), project.getParent())) {
       return Error.INVALID_ARGUMENT.response(
           "The server currently only supports setting the parent once "
               + "and does not allow unsetting it.");
     }
     project.setProjectId(projectId);
-    //project.setLifecycleState(originalProject.getLifecycleState()); //LifecycleState is not present in v3
-    //project.setCreateTime(originalProject.getCreateTime()); //CreateTime is not present in v3
+    //project.setLifecycleState(originalProject.getLifecycleState());
+	project.setState(originalProject.getState());
+    project.setCreateTime(originalProject.getCreateTime());
     project.setProjectNumber(originalProject.getProjectNumber());
     // replace cannot fail because both this method and removeProject are synchronized
     projects.replace(projectId, project);
@@ -670,16 +672,15 @@ public class LocalResourceManagerHelper {
       response =
           Error.PERMISSION_DENIED.response(
               "Error when undeleting " + projectId + " because the project was not found.");
-    }
-    //else if (!project.getLifecycleState().equals("DELETE_REQUESTED")) { //LifecycleState is not present in v3
-    //  response =
-    //      Error.FAILED_PRECONDITION.response(
-    //          "Error when undeleting "
-    //              + projectId
-    //              + " because the lifecycle state was not DELETE_REQUESTED.");
-    //}
-    else {
-      //project.setLifecycleState("ACTIVE"); //LifecycleState is not present in v3
+    } else if (!Project.State.DELETE_REQUESTED.equals(project.getState())) {
+      response =
+          Error.FAILED_PRECONDITION.response(
+              "Error when undeleting "
+                  + projectId
+                  + " because the lifecycle state was not DELETE_REQUESTED.");
+    } else {
+      //project.setLifecycleState("ACTIVE");
+	  project.setState(Project.State.ACTIVE);
       response = new Response(HTTP_OK, "{}");
     }
     return response;
@@ -731,7 +732,7 @@ public class LocalResourceManagerHelper {
     try {
       return new Response(
           HTTP_OK,
-          jsonFactory.toString(new com.google.api.services.cloudresourcemanager.model.TestIamPermissionsResponse().setPermissions(permissions)));
+          jsonFactory.toString(new TestIamPermissionsResponse().setPermissions(permissions)));
     } catch (IOException e) {
       return Error.INTERNAL_ERROR.response("Error when serializing permissions " + permissions);
     }
@@ -789,7 +790,14 @@ public class LocalResourceManagerHelper {
         "Lifecycle state must be ACTIVE, DELETE_REQUESTED, or DELETE_IN_PROGRESS");
     Project project = projects.get(checkNotNull(projectId));
     if (project != null) {
-      //project.setLifecycleState(lifecycleState); //LifecycleState is not present in v3
+      //project.setLifecycleState(lifecycleState);
+	  if("ACTIVE".equals(lifecycleState)) {
+		  project.setState(Project.State.ACTIVE);
+	  } else if ("DELETE_REQUESTED".equals(lifecycleState)) {
+		  project.setState(Project.State.DELETE_REQUESTED);
+	  } else {
+		  project.setState(Project.State.DELETE_IN_PROGRESS);
+	  }
       return true;
     }
     return false;

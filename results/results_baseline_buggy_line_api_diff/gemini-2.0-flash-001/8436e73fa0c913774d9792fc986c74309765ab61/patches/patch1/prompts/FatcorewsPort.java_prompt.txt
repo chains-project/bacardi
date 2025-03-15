@@ -142,52 +142,25 @@ public interface FatcorewsPort {
 the error is triggered in the following specific lines in the previous code:
 
 ```java
-@WebResult(name = "ChangePaymentStatusResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangePaymentStatusResponse")
+@SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
 ```
 ```java
-import javax.jws.soap.SOAPBinding;
-```
-```java
-@WebMethod(operationName = "ChangeWorkStatus")
-```
-```java
-@WebResult(name = "RegisterWorkResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterWorkResponse")
+@WebResult(name = "ChangeWorkStatusResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangeWorkStatusResponse")
 ```
 ```java
 import javax.jws.WebParam;
 ```
 ```java
-@WebResult(name = "RegisterPaymentResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterPaymentResponse")
+@WebResult(name = "DeletePaymentResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeletePaymentResponse")
 ```
 ```java
-@WebParam(name = "DeleteWorkRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeleteWorkRequest")
-```
-```java
-@WebParam(name = "RegisterPaymentRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterPaymentRequest")
-```
-```java
-@WebResult(name = "ChangeInvoiceStatusResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangeInvoiceStatusResponse")
-```
-```java
-@WebMethod(operationName = "ChangeInvoiceStatus")
-```
-```java
-import javax.jws.WebMethod;
-```
-```java
-@SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
-```
-```java
-@WebMethod(operationName = "ChangePaymentStatus")
-```
-```java
-@WebMethod(operationName = "DeleteInvoice")
+import javax.jws.WebService;
 ```
 ```java
 @WebService(name = "fatcorewsPort", targetNamespace = "http://factemi.at.min_financas.pt/documents")
 ```
 ```java
-@WebParam(name = "RegisterWorkRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterWorkRequest")
+@WebMethod(operationName = "DeleteInvoice")
 ```
 ```java
 @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
@@ -196,22 +169,7 @@ import javax.jws.WebMethod;
 import javax.jws.WebResult;
 ```
 ```java
-import javax.jws.WebService;
-```
-```java
-@WebParam(name = "RegisterInvoiceRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterInvoiceRequest")
-```
-```java
-@WebResult(name = "ChangeWorkStatusResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangeWorkStatusResponse")
-```
-```java
-@WebMethod(operationName = "DeleteWork")
-```
-```java
-@WebMethod(operationName = "DeletePayment")
-```
-```java
-@WebResult(name = "DeletePaymentResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeletePaymentResponse")
+@WebParam(name = "RegisterWorkRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterWorkRequest")
 ```
 ```java
 @WebParam(name = "DeleteInvoiceRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeleteInvoiceRequest")
@@ -220,117 +178,104 @@ import javax.jws.WebService;
 @WebParam(name = "ChangePaymentStatusRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangePaymentStatusRequest")
 ```
 ```java
-@WebParam(name = "ChangeWorkStatusRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangeWorkStatusRequest")
-```
-```java
-@WebParam(name = "DeletePaymentRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeletePaymentRequest")
-```
-```java
-@WebResult(name = "DeleteWorkResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeleteWorkResponse")
-```
-```java
-@WebMethod(operationName = "RegisterWork")
-```
-```java
-@WebResult(name = "DeleteInvoiceResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeleteInvoiceResponse")
-```
-```java
-@WebMethod(operationName = "RegisterPayment")
-```
-```java
-@WebParam(name = "ChangeInvoiceStatusRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangeInvoiceStatusRequest")
+@WebMethod(operationName = "ChangePaymentStatus")
 ```
 ```java
 @WebResult(name = "RegisterInvoiceResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterInvoiceResponse")
 ```
 ```java
+import javax.jws.soap.SOAPBinding;
+```
+```java
+@WebResult(name = "ChangePaymentStatusResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangePaymentStatusResponse")
+```
+```java
+@WebMethod(operationName = "DeleteWork")
+```
+```java
 @WebMethod(operationName = "RegisterInvoice")
+```
+```java
+@WebResult(name = "RegisterWorkResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterWorkResponse")
+```
+```java
+@WebMethod(operationName = "RegisterWork")
+```
+```java
+@WebParam(name = "RegisterInvoiceRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterInvoiceRequest")
+```
+```java
+@WebParam(name = "ChangeInvoiceStatusRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangeInvoiceStatusRequest")
+```
+```java
+@WebResult(name = "ChangeInvoiceStatusResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangeInvoiceStatusResponse")
+```
+```java
+@WebMethod(operationName = "DeletePayment")
+```
+```java
+@WebMethod(operationName = "ChangeInvoiceStatus")
+```
+```java
+@WebResult(name = "RegisterPaymentResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterPaymentResponse")
+```
+```java
+@WebParam(name = "DeleteWorkRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeleteWorkRequest")
+```
+```java
+@WebMethod(operationName = "RegisterPayment")
+```
+```java
+@WebResult(name = "DeleteWorkResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeleteWorkResponse")
+```
+```java
+@WebParam(name = "DeletePaymentRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeletePaymentRequest")
+```
+```java
+@WebParam(name = "ChangeWorkStatusRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangeWorkStatusRequest")
+```
+```java
+@WebParam(name = "RegisterPaymentRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterPaymentRequest")
+```
+```java
+@WebMethod(operationName = "ChangeWorkStatus")
+```
+```java
+@WebResult(name = "DeleteInvoiceResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeleteInvoiceResponse")
+```
+```java
+import javax.jws.WebMethod;
 ```
 
 
 
  with the following error information:
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[117,6] cannot find symbol
-  symbol:   class WebResult
-  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
-
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[8,22] package javax.jws.soap does not exist
-
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[80,6] cannot find symbol
-  symbol:   class WebMethod
-  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
-
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[69,6] cannot find symbol
-  symbol:   class WebResult
-  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
-
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[5,17] package javax.jws does not exist
-
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[105,6] cannot find symbol
-  symbol:   class WebResult
-  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
-
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[95,10] cannot find symbol
-  symbol:   class WebParam
-  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
-
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[107,10] cannot find symbol
-  symbol:   class WebParam
-  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
-
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[45,6] cannot find symbol
-  symbol:   class WebResult
-  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
-
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[44,6] cannot find symbol
-  symbol:   class WebMethod
-  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
-
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[4,17] package javax.jws does not exist
-
 [ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[19,2] cannot find symbol
   symbol: class SOAPBinding
-
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[116,6] cannot find symbol
-  symbol:   class WebMethod
-  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
-
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[56,6] cannot find symbol
-  symbol:   class WebMethod
-  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
-
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[18,2] cannot find symbol
-  symbol: class WebService
-
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[71,10] cannot find symbol
-  symbol:   class WebParam
-  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
-
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[19,2] cannot find symbol
-  symbol: class SOAPBinding
-
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[6,17] package javax.jws does not exist
-
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[7,17] package javax.jws does not exist
-
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[35,10] cannot find symbol
-  symbol:   class WebParam
-  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
 
 [ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[81,6] cannot find symbol
   symbol:   class WebResult
   location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
 
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[92,6] cannot find symbol
-  symbol:   class WebMethod
-  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
-
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[128,6] cannot find symbol
-  symbol:   class WebMethod
-  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[5,17] package javax.jws does not exist
 
 [ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[129,6] cannot find symbol
   symbol:   class WebResult
+  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
+
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[7,17] package javax.jws does not exist
+
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[18,2] cannot find symbol
+  symbol: class WebService
+
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[56,6] cannot find symbol
+  symbol:   class WebMethod
+  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
+
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[6,17] package javax.jws does not exist
+
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[71,10] cannot find symbol
+  symbol:   class WebParam
   location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
 
 [ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[59,10] cannot find symbol
@@ -341,15 +286,29 @@ import javax.jws.WebService;
   symbol:   class WebParam
   location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
 
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[83,10] cannot find symbol
-  symbol:   class WebParam
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[116,6] cannot find symbol
+  symbol:   class WebMethod
   location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
 
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[131,10] cannot find symbol
-  symbol:   class WebParam
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[33,6] cannot find symbol
+  symbol:   class WebResult
   location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
 
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[93,6] cannot find symbol
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[8,22] package javax.jws.soap does not exist
+
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[117,6] cannot find symbol
+  symbol:   class WebResult
+  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
+
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[92,6] cannot find symbol
+  symbol:   class WebMethod
+  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
+
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[32,6] cannot find symbol
+  symbol:   class WebMethod
+  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
+
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[69,6] cannot find symbol
   symbol:   class WebResult
   location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
 
@@ -357,40 +316,78 @@ import javax.jws.WebService;
   symbol:   class WebMethod
   location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
 
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[57,6] cannot find symbol
-  symbol:   class WebResult
-  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
-
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[104,6] cannot find symbol
-  symbol:   class WebMethod
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[35,10] cannot find symbol
+  symbol:   class WebParam
   location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
 
 [ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[47,10] cannot find symbol
   symbol:   class WebParam
   location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
 
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[33,6] cannot find symbol
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[45,6] cannot find symbol
   symbol:   class WebResult
   location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
 
-[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[32,6] cannot find symbol
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[128,6] cannot find symbol
   symbol:   class WebMethod
   location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
 
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[44,6] cannot find symbol
+  symbol:   class WebMethod
+  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
+
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[105,6] cannot find symbol
+  symbol:   class WebResult
+  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
+
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[95,10] cannot find symbol
+  symbol:   class WebParam
+  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
+
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[104,6] cannot find symbol
+  symbol:   class WebMethod
+  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
+
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[93,6] cannot find symbol
+  symbol:   class WebResult
+  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
+
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[131,10] cannot find symbol
+  symbol:   class WebParam
+  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
+
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[83,10] cannot find symbol
+  symbol:   class WebParam
+  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
+
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[107,10] cannot find symbol
+  symbol:   class WebParam
+  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
+
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[80,6] cannot find symbol
+  symbol:   class WebMethod
+  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
+
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[57,6] cannot find symbol
+  symbol:   class WebResult
+  location: interface com.premiumminds.billy.portugal.webservices.documents.FatcorewsPort
+
+[ERROR] /billy/billy-portugal/src-generated/main/java/com/premiumminds/billy/portugal/webservices/documents/FatcorewsPort.java:[4,17] package javax.jws does not exist
+
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
-     Interface jakarta.jws.WebResult has been added in the new version of the dependency.
+     Interface jakarta.jws.soap.SOAPBinding$ParameterStyle has been added in the new version of the dependency.
+     Class javax.jws.soap.SOAPBinding$ParameterStyle has been removed in the new version of the dependency.
      Class javax.jws.WebResult has been removed in the new version of the dependency.
-     Class javax.jws.soap.SOAPBinding has been removed in the new version of the dependency.
-     Interface jakarta.jws.soap.SOAPBinding has been added in the new version of the dependency.
-     Class javax.jws.WebMethod has been removed in the new version of the dependency.
-     Interface jakarta.jws.WebMethod has been added in the new version of the dependency.
+     Interface jakarta.jws.WebResult has been added in the new version of the dependency.
      Interface jakarta.jws.WebParam has been added in the new version of the dependency.
      Class javax.jws.WebParam has been removed in the new version of the dependency.
-     Class javax.jws.soap.SOAPBinding$ParameterStyle has been removed in the new version of the dependency.
-     Interface jakarta.jws.soap.SOAPBinding$ParameterStyle has been added in the new version of the dependency.
      Class javax.jws.WebService has been removed in the new version of the dependency.
      Interface jakarta.jws.WebService has been added in the new version of the dependency.
+     Class javax.jws.WebMethod has been removed in the new version of the dependency.
+     Interface jakarta.jws.WebMethod has been added in the new version of the dependency.
+     Interface jakarta.jws.soap.SOAPBinding has been added in the new version of the dependency.
+     Class javax.jws.soap.SOAPBinding has been removed in the new version of the dependency.
 
 
 

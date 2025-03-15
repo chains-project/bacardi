@@ -31,7 +31,7 @@ package com.jcabi.http.mock;
 
 import java.net.URI;
 import org.hamcrest.Matcher;
-import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
+import static org.hamcrest.Matchers.hasProperty;
 
 /**
  * Convenient set of matchers for {@link MkQuery}.

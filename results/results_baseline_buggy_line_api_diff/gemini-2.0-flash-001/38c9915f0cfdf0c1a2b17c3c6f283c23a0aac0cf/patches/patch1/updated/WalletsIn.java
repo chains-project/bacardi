@@ -7,7 +7,8 @@
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to do so, subject to the following conditions:
+ * copies of the software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
@@ -34,8 +35,8 @@ import org.cactoos.io.Directory;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.scalar.Unchecked;
-import org.cactoos.text.Text;
-import org.cactoos.text.TextOf;
+import org.cactoos.text.Joined;
+import org.cactoos.text.FormattedText;
 import org.cactoos.text.UncheckedText;
 
 /**
@@ -112,20 +113,18 @@ public final class WalletsIn implements Wallets {
     @Override
     public Wallet create() throws IOException {
         final Path wpth = new Unchecked<>(this.path).value().resolve(
-            String.join(
+            new Joined(
                 ".",
                 Long.toHexString(this.random.nextLong()),
                 this.ext
-            )
+            ).asString()
         );
         if (wpth.toFile().exists()) {
             throw new IOException(
                 new UncheckedText(
-                    new TextOf(
-                        String.format(
-                            "Wallet in path %s already exists",
-                            wpth.toUri().getPath()
-                        )
+                    new FormattedText(
+                        "Wallet in path %s already exists",
+                        wpth.toUri().getPath()
                     )
                 ).asString()
             );

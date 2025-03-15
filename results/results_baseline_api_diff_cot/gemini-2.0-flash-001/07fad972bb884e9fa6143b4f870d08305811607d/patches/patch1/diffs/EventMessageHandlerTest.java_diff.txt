@@ -2,10 +2,9 @@
 < import ch.qos.logback.classic.Logger;
 17a17
 > import org.slf4j.Logger;
-112,113c112,114
+112,113c112,113
 <         logger.setLevel(Level.INFO);
 <         logger.addAppender(mockLogAppender);
 ---
->         ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
->         root.setLevel(Level.INFO);
->         root.addAppender(mockLogAppender);
+>         ((ch.qos.logback.classic.Logger) logger).setLevel(Level.INFO);
+>         ((ch.qos.logback.classic.Logger) logger).addAppender(mockLogAppender);

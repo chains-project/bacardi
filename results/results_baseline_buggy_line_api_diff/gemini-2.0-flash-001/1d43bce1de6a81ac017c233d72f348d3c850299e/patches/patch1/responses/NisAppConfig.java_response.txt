@@ -111,10 +111,12 @@ public class NisAppConfig {
 		configuration.setDataSource(this.dataSource());
 		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
 		String locations = prop.getProperty("flyway.locations");
-		configuration.setLocations(Stream.of(locations.split(",")).map(org.flywaydb.core.api.Location::new).toArray(org.flywaydb.core.api.Location[]::new));
+		if (locations != null) {
+			configuration.setLocationsAsStrings(locations);
+		}
 		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 
-		final Flyway flyway = new Flyway(configuration);
+		final org.flywaydb.core.Flyway flyway = new Flyway(configuration);
 		return flyway;
 	}
 
@@ -245,7 +247,7 @@ public class NisAppConfig {
 	@Bean
 	@SuppressWarnings("serial")
 	public ImportanceCalculator importanceCalculator() {
-		final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<ImportanceCalculator>>() {
+		final Map<BlockChainFeature, Supplier<ImportanceCalculator>> featureSupplierMap = new HashMap<BlockChainFeature, Supplier<Supplier<ImportanceCalculator>>>() {
 			{
 				this.put(BlockChainFeature.PROOF_OF_IMPORTANCE,
 						() -> new PoiImportanceCalculator(new PoiScorer(), NisAppConfig::getBlockDependentPoiOptions));

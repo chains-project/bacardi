@@ -1,16 +1,9 @@
-162,168c162,168
+162,163c162,166
 <         return AnalysisEngineConfiguration.builder()
 <                 .addEnabledLanguages(globalConfig.getEnabledLanguages())
-<                 .setClientPid(globalConfig.getClientPid())
-<                 .setExtraProperties(globalConfig.extraProperties())
-<                 .setWorkDir(globalConfig.getWorkDir())
-<                 .setModulesProvider(globalConfig.getModulesProvider())
-<                 .build();
 ---
 >         AnalysisEngineConfiguration.Builder builder = AnalysisEngineConfiguration.builder();
->         builder.addEnabledLanguages(globalConfig.getEnabledLanguages().toArray(new Language[0]));
->         builder.setClientPid(globalConfig.getClientPid());
->         builder.setExtraProperties(globalConfig.extraProperties());
->         builder.setWorkDir(globalConfig.getWorkDir());
->         builder.setModulesProvider(globalConfig.getModulesProvider());
->         return builder.build();
+>         for (Language language : globalConfig.getEnabledLanguages()) {
+>             builder.addEnabledLanguage(language);
+>         }
+>         return builder

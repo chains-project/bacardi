@@ -2,6 +2,7 @@ package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.configuration.ClassicConfiguration;
+import org.flywaydb.core.api.Location;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -110,12 +111,10 @@ public class NisAppConfig {
 		configuration.setDataSource(this.dataSource());
 		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
 		String locations = prop.getProperty("flyway.locations");
-		if (locations != null) {
-			configuration.setLocationsAsStrings(locations);
-		}
+		configuration.setLocations(new Location(locations));
 		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 
-		final org.flywaydb.core.Flyway flyway = new Flyway(configuration);
+		final Flyway flyway = new Flyway(configuration);
 		return flyway;
 	}
 

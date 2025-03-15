@@ -41,7 +41,11 @@ import se.kth.depclean.util.json.ParsedDependencies;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
+
 
 /**
  * Maven's implementation of the dependency manager wrapper.
@@ -162,31 +166,31 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
    * }</pre>
    */
   @Override
+  @SneakyThrows
   public Set<String> collectUsedClassesFromProcessors() {
     getLog().debug("# collectUsedClassesFromProcessors()");
+
     return Optional.ofNullable(project.getPlugin("org.bsc.maven:maven-processor-plugin"))
             .map(plugin -> plugin.getExecutionsAsMap().get("process"))
             .map(exec -> {
               try {
-                String configString = exec.getConfiguration().toString();
-                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder builder = factory.newDocumentBuilder();
-                org.w3c.dom.Document doc = builder.parse(new ByteArrayInputStream(configString.getBytes(StandardCharsets.UTF_8)));
-                NodeList processorsNodes = doc.getElementsByTagName("processors");
-                if (processorsNodes.getLength() > 0) {
-                  Element processorsElement = (Element) processorsNodes.item(0);
-                  NodeList processorNodes = processorsElement.getElementsByTagName("processor");
-                  Set<String> processors = new HashSet<>();
-                  for (int i = 0; i < processorNodes.getLength(); i++) {
-                    processors.add(processorNodes.item(i).getTextContent());
-                  }
-                  return processors;
-                } else {
-                  return of();
+                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                org.w3c.dom.Document doc = dBuilder.parse(new ByteArrayInputStream(exec.getConfiguration().toString().getBytes()));
+
+                XPathFactory xPathfactory = XPathFactory.newInstance();
+                XPath xpath = xPathfactory.newXPath();
+                XPathExpression expr = xpath.compile("//processors/processor/text()");
+                NodeList nodes = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
+
+                Set<String> processors = new HashSet<>();
+                for (int i = 0; i < nodes.getLength(); i++) {
+                  processors.add(nodes.item(i).getNodeValue());
                 }
+                return processors;
               } catch (Exception e) {
                 logger.error("Error parsing processors configuration", e);
-                return of();
+                return null;
               }
             })
             .orElse(of());

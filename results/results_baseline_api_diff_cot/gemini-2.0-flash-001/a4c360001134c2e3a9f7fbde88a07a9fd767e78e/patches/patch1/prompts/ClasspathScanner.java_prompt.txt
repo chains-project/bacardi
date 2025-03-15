@@ -84,27 +84,23 @@ public class ClasspathScanner {
 2. The error information:
 <error_information>
 [ERROR] /gauge-java/src/main/java/com/thoughtworks/gauge/scan/ClasspathScanner.java:[64,61] cannot find symbol
-</error_information>
   symbol:   method apply(java.lang.String)
   location: class org.reflections.util.FilterBuilder
 
-<error_information>
 [ERROR] /gauge-java/src/main/java/com/thoughtworks/gauge/scan/ClasspathScanner.java:[69,51] cannot find symbol
-</error_information>
   symbol:   method apply(java.lang.String)
   location: class org.reflections.util.FilterBuilder
-
+</error_information>
 
 3. The changes in the API of the dependency:
 <api_changes>
+     Method org.reflections.util.FilterBuilder$Matcher.apply(java.lang.String) has been removed in the new version of the dependency.
      Method org.reflections.util.FilterBuilder.apply(java.lang.String) has been removed in the new version of the dependency.
      Method org.reflections.util.QueryFunction.apply(java.lang.Object) has been added in the new version of the dependency.
-     Method org.reflections.util.FilterBuilder$Matcher.apply(java.lang.String) has been removed in the new version of the dependency.
-     Method org.reflections.util.FilterBuilder$Exclude.apply(java.lang.String) has been removed in the new version of the dependency.
      Method org.reflections.util.FilterBuilder$Include.apply(java.lang.String) has been removed in the new version of the dependency.
+     Method org.reflections.util.FilterBuilder$Exclude.apply(java.lang.String) has been removed in the new version of the dependency.
 
 </api_changes>
-
 
 
 Before proposing a fix, please analyze the situation and plan your approach within <repair_strategy> tags:

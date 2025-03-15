@@ -322,7 +322,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.Changes.Create applyChangeRequestCall(
       String zoneName, Change changeRequest, Map<Option, ?> options) throws IOException {
     return dns.changes()
-        .create(this.options.getProjectId(), this.options.getProjectId(), zoneName, changeRequest)
+        .create(this.options.getProjectId(), zoneName, this.options.getProjectId(), changeRequest)
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -349,7 +349,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.Changes.Get getChangeRequestCall(
       String zoneName, String changeRequestId, Map<Option, ?> options) throws IOException {
     return dns.changes()
-        .get(this.options.getProjectId(), this.options.getProjectId(), zoneName, changeRequestId)
+        .get(this.options.getProjectId(), zoneName, this.options.getProjectId(), changeRequestId)
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -369,7 +369,7 @@ public class HttpDnsRpc implements DnsRpc {
     // options are fields, page token, page size, sort order
     Dns.Changes.List request =
         dns.changes()
-            .list(this.options.getProjectId(), this.options.getProjectId(), zoneName)
+            .list(this.options.getProjectId(), zoneName, this.options.getProjectId())
             .setFields(Option.FIELDS.getString(options))
             .setMaxResults(Option.PAGE_SIZE.getInt(options))
             .setPageToken(Option.PAGE_TOKEN.getString(options));

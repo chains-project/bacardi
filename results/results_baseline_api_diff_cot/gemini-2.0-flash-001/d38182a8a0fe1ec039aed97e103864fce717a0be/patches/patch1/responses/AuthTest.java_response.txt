@@ -29,7 +29,6 @@ import com.artipie.http.rs.RsStatus;
 import io.reactivex.Flowable;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 import org.hamcrest.MatcherAssert;
@@ -350,12 +349,12 @@ public final class AuthTest {
                 new Permissions.Single(TestAuthentication.ALICE.name(), action),
                 new BearerAuthScheme(
                     token -> {
-                        final Optional<TestAuthentication.User> found =
-                            Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
-                                .filter(user -> token.equals(token(user)))
-                                .findFirst();
+                        Stream<TestAuthentication.User> filtered = Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
+                            .filter(user -> token.equals(token(user)));
                         return CompletableFuture.completedFuture(
-                            found.map(user -> new AuthUser(user.name()))
+                            filtered
+                            .map(user -> new AuthUser(user.name()))
+                            .findFirst()
                         );
                     },
                     ""

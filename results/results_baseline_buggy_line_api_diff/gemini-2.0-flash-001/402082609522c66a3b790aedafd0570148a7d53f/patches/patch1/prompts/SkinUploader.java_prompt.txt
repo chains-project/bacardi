@@ -45,10 +45,10 @@ the error is triggered in the following specific lines in the previous code:
 private final CommandSource invoker;
 ```
 ```java
-public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url) {
+import org.spongepowered.api.command.CommandSource;
 ```
 ```java
-import org.spongepowered.api.command.CommandSource;
+public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url) {
 ```
 
 
@@ -58,13 +58,13 @@ import org.spongepowered.api.command.CommandSource;
   symbol:   class CommandSource
   location: class com.github.games647.changeskin.sponge.task.SkinUploader
 
-[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinUploader.java:[17,50] cannot find symbol
-  symbol:   class CommandSource
-  location: class com.github.games647.changeskin.sponge.task.SkinUploader
-
 [ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinUploader.java:[9,37] cannot find symbol
   symbol:   class CommandSource
   location: package org.spongepowered.api.command
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinUploader.java:[17,50] cannot find symbol
+  symbol:   class CommandSource
+  location: class com.github.games647.changeskin.sponge.task.SkinUploader
 
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:

@@ -1,76 +1,22 @@
-10c10
-< import redis.clients.jedis.Client;
+4,11c4,6
+< import redis.clients.jedis.commands.BasicRedisPipeline;
+< import redis.clients.jedis.commands.BinaryRedisPipeline;
+< import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
+< import redis.clients.jedis.commands.ClusterPipeline;
+< import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;
+< import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
+< import redis.clients.jedis.commands.RedisPipeline;
+< import redis.clients.jedis.commands.ScriptingCommandsPipeline;
 ---
-> import redis.clients.jedis.Jedis;
-12a13,14
-> import redis.clients.jedis.commands.ProtocolCommand;
-> import redis.clients.jedis.util.CommandArguments;
-23a26
->     private final Jedis jedis;
-26,27c29,31
-<     public RedisGraphPipeline(Client client, RedisGraph redisGraph){
-<         super.setClient(client);
+> import redis.clients.jedis.commands.PipelineBinaryCommands;
+> import redis.clients.jedis.commands.PipelineCommands;
+> import redis.clients.jedis.commands.PipelineScriptingCommands;
+21,24c16,18
+<         MultiKeyBinaryRedisPipeline,
+<         MultiKeyCommandsPipeline, ClusterPipeline,
+<         BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
+<         BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
 ---
->     public RedisGraphPipeline(Jedis jedis, RedisGraph redisGraph){
->         super(jedis);
->         this.jedis = jedis;
-39c43,44
-<         client.sendCommand(RedisGraphCommand.QUERY, graphId, query, Utils.COMPACT_STRING);
----
->         CommandArguments args = new CommandArguments().add(graphId).add(query).add(Utils.COMPACT_STRING);
->         sendCommand(RedisGraphCommand.QUERY, args);
-57c62,63
-<         client.sendCommand(RedisGraphCommand.RO_QUERY, graphId, query, Utils.COMPACT_STRING);
----
->         CommandArguments args = new CommandArguments().add(graphId).add(query).add(Utils.COMPACT_STRING);
->         sendCommand(RedisGraphCommand.RO_QUERY, args);
-78,79c84,85
-<         client.sendCommand(RedisGraphCommand.QUERY, graphId, query, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING,
-<                 Long.toString(timeout));
----
->         CommandArguments args = new CommandArguments().add(graphId).add(query).add(Utils.COMPACT_STRING).add(Utils.TIMEOUT_STRING).add(Long.toString(timeout));
->         sendCommand(RedisGraphCommand.QUERY, args);
-100,101c106,107
-<         client.sendCommand(RedisGraphCommand.RO_QUERY, graphId, query, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING,
-<                 Long.toString(timeout));
----
->         CommandArguments args = new CommandArguments().add(graphId).add(query).add(Utils.COMPACT_STRING).add(Utils.TIMEOUT_STRING).add(Long.toString(timeout));
->         sendCommand(RedisGraphCommand.RO_QUERY, args);
-121c127,128
-<         client.sendCommand(RedisGraphCommand.QUERY, graphId, preparedQuery, Utils.COMPACT_STRING);
----
->         CommandArguments args = new CommandArguments().add(graphId).add(preparedQuery).add(Utils.COMPACT_STRING);
->         sendCommand(RedisGraphCommand.QUERY, args);
-141c148,149
-<         client.sendCommand(RedisGraphCommand.RO_QUERY, graphId, preparedQuery, Utils.COMPACT_STRING);
----
->         CommandArguments args = new CommandArguments().add(graphId).add(preparedQuery).add(Utils.COMPACT_STRING);
->         sendCommand(RedisGraphCommand.RO_QUERY, args);
-165,166c173,174
-<         client.sendCommand(RedisGraphCommand.QUERY, graphId, preparedQuery, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING,
-<                 Long.toString(timeout));
----
->         CommandArguments args = new CommandArguments().add(graphId).add(preparedQuery).add(Utils.COMPACT_STRING).add(Utils.TIMEOUT_STRING).add(Long.toString(timeout));
->         sendCommand(RedisGraphCommand.QUERY, args);
-190,192c198,199
-<         client.sendCommand(RedisGraphCommand.RO_QUERY, graphId, preparedQuery, Utils.COMPACT_STRING,
-<                 Utils.TIMEOUT_STRING,
-<                 Long.toString(timeout));
----
->         CommandArguments args = new CommandArguments().add(graphId).add(preparedQuery).add(Utils.COMPACT_STRING).add(Utils.TIMEOUT_STRING).add(Long.toString(timeout));
->         sendCommand(RedisGraphCommand.RO_QUERY, args);
-245,246c252,253
-< 
-<         client.sendCommand(RedisGraphCommand.DELETE, graphId);
----
->         CommandArguments args = new CommandArguments().add(graphId);
->         sendCommand(RedisGraphCommand.DELETE, args);
-255a263,270
-> 
->     private void sendCommand(ProtocolCommand cmd, CommandArguments args) {
->         jedis.sendCommand(cmd, args);
->     }
-> 
->     private <T> Response<T> getResponse(Builder<T> builder) {
->         return super.getResponse(builder);
->     }
+>         PipelineBinaryCommands,
+>         PipelineCommands, redis.clients.jedis.ClusterPipeline,
+>         PipelineScriptingCommands, Closeable {

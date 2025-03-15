@@ -15,9 +15,16 @@
 > import jakarta.validation.metadata.BeanDescriptor;
 > import jakarta.validation.metadata.ConstraintDescriptor;
 > import jakarta.validation.metadata.ElementDescriptor;
-139c140
+133c134
+<                         ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+---
+>                         ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getPropertyType(), descriptor.getName());
+137,139c138,141
+<                                         if(constraint.getAnnotation() instanceof NotNull ||
+<                                            constraint.getAnnotation() instanceof NotEmpty ||
 <                                            constraint.getAnnotation() instanceof NotBlank)
 ---
->                                            constraint.getAnnotation() instanceof NotBlank) {
-142a144
->                         }
+>                                         Object annotation = constraint.getAnnotation();
+>                                         if(annotation instanceof NotNull ||
+>                                            annotation instanceof NotEmpty ||
+>                                            annotation instanceof NotBlank)

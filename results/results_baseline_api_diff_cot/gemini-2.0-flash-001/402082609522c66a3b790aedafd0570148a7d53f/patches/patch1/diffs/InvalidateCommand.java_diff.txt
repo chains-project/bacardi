@@ -1,23 +1,32 @@
 7a8
 > import org.spongepowered.api.command.Command;
-8a10
-> import org.spongepowered.api.command.parameter.CommandContext;
-10,12d11
+9,12c10,11
+< import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
-14a14
-> import org.spongepowered.api.scheduler.TaskExecutor;
-16c16
+---
+> import org.spongepowered.api.command.parameter.CommandContext;
+> import org.spongepowered.api.command.CommandCause;
+16c15
 < public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
 ---
 > public class InvalidateCommand implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
-33c33,34
+26,28c25,27
+<     public CommandResult execute(CommandSource src, CommandContext args) {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+---
+>     public CommandResult execute(CommandCause src, CommandContext args) {
+>         if (!(src.getCause() instanceof Player)) {
+>             plugin.sendMessage(src.getCause(), "no-console");
+32,33c31,32
+<         Player receiver = (Player) src;
 <         Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
 ---
->         TaskExecutor taskExecutor = plugin.getServer().getScheduler().executor(plugin);
->         Task.builder().execute(new SkinInvalidator(plugin, receiver)).submit(taskExecutor);
-38,39c39,40
+>         Player receiver = (Player) src.getCause();
+>         org.spongepowered.api.scheduler.Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
+38,39c37,38
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
 ---

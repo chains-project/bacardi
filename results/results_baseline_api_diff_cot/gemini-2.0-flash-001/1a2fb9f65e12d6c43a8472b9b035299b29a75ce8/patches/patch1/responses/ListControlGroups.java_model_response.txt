@@ -132,9 +132,9 @@ public abstract class ListControlGroups<T> extends Panel {
 
 			boolean required = false;
 
-			jakarta.validation.metadata.PropertyDescriptor propertyDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
-			if(propertyDescriptor!=null){
-				Set<ConstraintDescriptor<?>> constraintsSet = propertyDescriptor.getConstraintDescriptors();
+			ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+			if(constraintDescriptor!=null){
+				Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
 				for(ConstraintDescriptor<?> constraint : constraintsSet){
 					if(constraint.getAnnotation() instanceof NotNull ||
 					   constraint.getAnnotation() instanceof NotEmpty ||

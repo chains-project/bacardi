@@ -1,38 +1,26 @@
-19d18
+19c19,20
 < import com.google.api.services.cloudresourcemanager.model.Binding;
-22d20
+---
+> import com.google.api.services.cloudresourcemanager.v3.model.Binding;
+> import com.google.api.services.cloudresourcemanager.v3.model.Policy;
+21,22d21
+< import com.google.cloud.Policy;
 < import com.google.cloud.Policy.Marshaller;
-37c35
+23a23
+> import com.google.cloud.Policy.Marshaller;
+37c37
 <     extends Marshaller<com.google.api.services.cloudresourcemanager.model.Policy> {
 ---
 >     extends Marshaller<com.google.api.services.cloudresourcemanager.v3.model.Policy> {
-55c53
+55c55
 <   protected Policy fromPb(com.google.api.services.cloudresourcemanager.model.Policy policyPb) {
 ---
 >   protected Policy fromPb(com.google.api.services.cloudresourcemanager.v3.model.Policy policyPb) {
-58c56,57
-<       for (Binding bindingPb : policyPb.getBindings()) {
----
->       for (com.google.api.services.cloudresourcemanager.v3.model.Binding bindingPb :
->           policyPb.getBindings()) {
-72c71,72
-<     return new Builder(bindings, policyPb.getEtag(), policyPb.getVersion()).build();
----
->     Integer version = policyPb.getVersion() != null ? policyPb.getVersion() : null;
->     return new Builder(bindings, policyPb.getEtag(), version).build();
-76,79c76,80
+76,78c76,78
 <   protected com.google.api.services.cloudresourcemanager.model.Policy toPb(Policy policy) {
 <     com.google.api.services.cloudresourcemanager.model.Policy policyPb =
 <         new com.google.api.services.cloudresourcemanager.model.Policy();
-<     List<Binding> bindingPbList = new LinkedList<>();
 ---
 >   protected com.google.api.services.cloudresourcemanager.v3.model.Policy toPb(Policy policy) {
 >     com.google.api.services.cloudresourcemanager.v3.model.Policy policyPb =
 >         new com.google.api.services.cloudresourcemanager.v3.model.Policy();
->     List<com.google.api.services.cloudresourcemanager.v3.model.Binding> bindingPbList =
->         new LinkedList<>();
-81c82,83
-<       Binding bindingPb = new Binding();
----
->       com.google.api.services.cloudresourcemanager.v3.model.Binding bindingPb =
->           new com.google.api.services.cloudresourcemanager.v3.model.Binding();

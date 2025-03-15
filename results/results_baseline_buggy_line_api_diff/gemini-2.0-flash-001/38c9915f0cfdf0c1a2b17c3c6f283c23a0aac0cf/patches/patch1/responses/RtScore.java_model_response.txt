@@ -8,7 +8,7 @@
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to do so, subject to the following conditions:
+ * copies of this software, and to permit persons to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
@@ -23,9 +23,9 @@
  */
 package io.zold.api;
 
-import java.util.Iterator;
 import org.cactoos.Text;
 import org.cactoos.scalar.LengthOf;
+import org.cactoos.scalar.Unchecked;
 
 /**
  * Default implementation for {@link Score}.
@@ -50,21 +50,8 @@ public final class RtScore implements Score {
 
     @Override
     public int compareTo(final Score other) {
-        final Iterable<Text> otherSuffixes = other.suffixes();
-        final Iterator<Text> iterator = otherSuffixes.iterator();
-        int length = 0;
-        while (iterator.hasNext()) {
-            iterator.next();
-            length++;
-        }
-        final Iterable<Text> thisSuffixes = this.sfxs;
-        final Iterator<Text> thisIterator = thisSuffixes.iterator();
-        int thisLength = 0;
-        while (thisIterator.hasNext()) {
-            thisIterator.next();
-            thisLength++;
-        }
-        return length - thisLength;
+        return new Unchecked<>(new LengthOf(other.suffixes())).value().intValue()
+            - new Unchecked<>(new LengthOf(this.sfxs)).value().intValue();
     }
 
     @Override

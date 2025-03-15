@@ -3,10 +3,10 @@ package de.hilling.junit.cdi.scope;
 import de.hilling.junit.cdi.util.ReflectionsUtils;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 
-import javax.annotation.Priority;
-import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
+import jakarta.annotation.Priority;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
 import jakarta.interceptor.AroundInvoke;
 import jakarta.interceptor.Interceptor;
 import jakarta.interceptor.InvocationContext;
@@ -54,8 +54,7 @@ public class CallRedirectionInterceptor implements Serializable {
     @SuppressWarnings("squid:S00112")
     private Object callMock(InvocationContext ctx, Class<?> javaClass) throws Throwable {
         try {
-            Method method = ctx.getMethod();
-            return method.invoke(invocationTargetManager.get().mock(javaClass), ctx.getParameters());
+            return ctx.getMethod().invoke(invocationTargetManager.get().mock(javaClass), ctx.getParameters());
         } catch (InvocationTargetException ite) {
             throw ite.getCause();
         }

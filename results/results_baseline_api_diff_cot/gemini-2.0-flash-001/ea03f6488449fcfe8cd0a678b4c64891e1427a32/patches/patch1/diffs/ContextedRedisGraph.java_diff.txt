@@ -1,32 +1,20 @@
 12d11
 < import redis.clients.jedis.Client;
-15a15
-> import redis.clients.jedis.commands.RedisCommand;
-54c54
-<             List<Object> rawResponse = (List<Object>) conn.sendCommand(RedisGraphCommand.QUERY, graphId, preparedQuery, Utils.COMPACT_STRING);
----
->             List<Object> rawResponse = (List<Object>) conn.sendCommand((RedisCommand)RedisGraphCommand.QUERY, graphId, preparedQuery, Utils.COMPACT_STRING);
-74c74
-<             List<Object> rawResponse = (List<Object>) conn.sendCommand(RedisGraphCommand.RO_QUERY, graphId, preparedQuery, Utils.COMPACT_STRING);
----
->             List<Object> rawResponse = (List<Object>) conn.sendCommand((RedisCommand)RedisGraphCommand.RO_QUERY, graphId, preparedQuery, Utils.COMPACT_STRING);
-95c95
-<             List<Object> rawResponse = (List<Object>) conn.sendBlockingCommand(RedisGraphCommand.QUERY,
----
->             List<Object> rawResponse = (List<Object>) conn.sendBlockingCommand((RedisCommand)RedisGraphCommand.QUERY,
-117c117
-<             List<Object> rawResponse = (List<Object>) conn.sendBlockingCommand(RedisGraphCommand.RO_QUERY,
----
->             List<Object> rawResponse = (List<Object>) conn.sendBlockingCommand((RedisCommand)RedisGraphCommand.RO_QUERY,
-142c142
+13a13
+> import redis.clients.jedis.Transaction;
+15a16
+> import redis.clients.jedis.Pipeline;
+142,145c143,144
 <         Client client = jedis.getClient();
+<         client.multi();
+<         client.getOne();
+<         RedisGraphTransaction transaction = new RedisGraphTransaction(client, this);
 ---
->         redis.clients.jedis.Connection client = jedis.getClient();
-157c157
+>         Transaction transaction1 = jedis.multi();
+>         RedisGraphTransaction transaction = new RedisGraphTransaction(transaction1, this);
+157,158c156,157
 <         Client client = jedis.getClient();
+<         RedisGraphPipeline pipeline = new RedisGraphPipeline(client, this);
 ---
->         redis.clients.jedis.Connection client = jedis.getClient();
-192c192
-<             response = conn.sendCommand(RedisGraphCommand.DELETE, graphId);
----
->             response = conn.sendCommand((RedisCommand)RedisGraphCommand.DELETE, graphId);
+>         Pipeline pipeline1 = jedis.pipelined();
+>         RedisGraphPipeline pipeline = new RedisGraphPipeline(pipeline1, this);

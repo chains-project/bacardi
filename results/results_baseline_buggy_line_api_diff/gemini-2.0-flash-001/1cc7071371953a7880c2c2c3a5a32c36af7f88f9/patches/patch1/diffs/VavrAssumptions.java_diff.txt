@@ -1,4 +1,4 @@
-24,33c24,33
+24,33c24,34
 < import org.assertj.core.internal.bytebuddy.ByteBuddy;
 < import org.assertj.core.internal.bytebuddy.TypeCache;
 < import org.assertj.core.internal.bytebuddy.TypeCache.SimpleKey;
@@ -20,17 +20,13 @@
 > import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 > import net.bytebuddy.implementation.bind.annotation.SuperCall;
 > import net.bytebuddy.implementation.bind.annotation.This;
-40c40
+> import net.bytebuddy.matcher.ElementMatchers;
+40d40
 < import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any;
----
-> import static net.bytebuddy.matcher.ElementMatchers.any;
-50,51c50
-<     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(TypeValidation.DISABLED)
-<             .with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
----
->     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(TypeValidation.DISABLED);
-222c221,222
+222,223c222,224
 <         return BYTE_BUDDY.subclass(assertionType)
+<                 .method(any())
 ---
 >         return new ByteBuddy()
 >                 .subclass(assertionType)
+>                 .method(ElementMatchers.any())

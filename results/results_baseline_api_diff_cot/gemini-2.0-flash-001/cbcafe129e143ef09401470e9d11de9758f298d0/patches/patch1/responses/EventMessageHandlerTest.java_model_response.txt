@@ -110,9 +110,8 @@ class EventMessageHandlerTest {
         );
 
         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        root.setLevel(Level.INFO);
-        root.addAppender(mockLogAppender);
+        ((ch.qos.logback.classic.Logger) logger).setLevel(Level.INFO);
+        ((ch.qos.logback.classic.Logger) logger).addAppender(mockLogAppender);
     }
 
     @Test

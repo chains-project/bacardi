@@ -120,8 +120,8 @@ public class Signer {
             signatureParameters.setImageParameters(imageParameters);
 
 
-            PdfBoxNativeObjectFactory pdfBoxNativeTableObjectFactory = new PdfBoxNativeTableObjectFactory();
-            service.setPdfObjFactory(pdfBoxNativeTableObjectFactory);
+            PdfBoxNativeObjectFactory pdfBoxNativeObjectFactory = new PdfBoxNativeTableObjectFactory();
+            service.setPdfObjFactory(pdfBoxNativeObjectFactory);
             log.debug("Visible signature parameters set");
         }
 

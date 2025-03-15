@@ -1,9 +1,7 @@
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
-import redis.clients.jedis.commands.BasicCommandsPipeline;
-import redis.clients.jedis.commands.BinaryCommandsPipeline;
-import redis.clients.jedis.commands.ScriptingCommandsPipeline;
+import redis.clients.jedis.commands.ClusterPipeline;
 
 import java.io.Closeable;
 import java.util.List;
@@ -13,10 +11,7 @@ import java.util.Map;
  * An interface which aligned to Jedis Pipeline interface
  */
 public interface RedisGraphPipeline extends
-        BinaryCommandsPipeline,
-        BasicCommandsPipeline,
-        ScriptingCommandsPipeline,
-        Closeable {
+        ClusterPipeline, Closeable {
 
     /**
      * Execute a Cypher query.
@@ -138,7 +133,7 @@ public interface RedisGraphPipeline extends
      * get return values from pipelined commands, capture the different Response&lt;?&gt; of the
      * commands you execute.
      */
-    public void sync();
+    void sync();
     
     
     /**
@@ -151,5 +146,5 @@ public interface RedisGraphPipeline extends
      * @return the number of replicas reached by all the writes performed in the context of the
      *         current connection
      */
-    public Response<Long> waitReplicas(int replicas, long timeout);
+    Response<Long> waitReplicas(int replicas, long timeout);
 }

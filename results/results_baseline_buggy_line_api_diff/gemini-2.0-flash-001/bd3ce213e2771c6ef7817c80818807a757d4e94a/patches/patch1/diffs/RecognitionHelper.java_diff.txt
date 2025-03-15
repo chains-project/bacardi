@@ -1,8 +1,0 @@
-14a15
-> import java.io.FileOutputStream;
-242c243,245
-<                         writer.writeValue(segmentListFile, dataList);
----
->                         try (FileOutputStream fos = new FileOutputStream(segmentListFile)) {
->                 writer.writeValue(fos, dataList);
->             }

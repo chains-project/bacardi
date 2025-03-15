@@ -113,7 +113,7 @@ public abstract class FOPPDFTransformer {
         StreamSource transformSource = new StreamSource(templateStream);
 
         // create an instance of fop factory
-        FopFactoryBuilder fopFactoryBuilder = new FopFactoryBuilder(null, null);
+        FopFactoryBuilder fopFactoryBuilder = new FopFactoryBuilder(null);
         FopFactory fopFactory = null;
         try {
             fopFactory = fopFactoryBuilder.build();

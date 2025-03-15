@@ -1,110 +1,24 @@
-18a19,20
-> import com.hazelcast.cluster.Cluster;
+18a19
 > import com.hazelcast.cluster.Member;
-22,23d23
+22d22
 < import com.hazelcast.config.MaxSizeConfig;
-< import com.hazelcast.config.MemberAttributeConfig;
 27d26
 < import com.hazelcast.core.Cluster;
-30d28
+30c29
 < import com.hazelcast.core.Member;
-192a191
->                 /*
-195a195,198
->                 */
->                 config.setProperty("hazelcast.member.attributes." + HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
->                 config.setProperty("hazelcast.member.attributes." + HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
-> 
-288c291,294
+---
+> import com.hazelcast.cluster.Cluster;
+194,195c193,194
+<                 memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
+<                 memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
+---
+>                 memberAttributeConfig.setAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
+>                 memberAttributeConfig.setAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
+288c287
 <             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
 ---
->             com.hazelcast.config.MaxSizeConfig maxSizeConfig = new com.hazelcast.config.MaxSizeConfig();
->             maxSizeConfig.setSize(hazelcastMaxCacheSizeInMegaBytes);
->             maxSizeConfig.setMaxSizePolicy(com.hazelcast.config.MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE);
->             dynamicConfig.setMaxSizeConfig(maxSizeConfig);
-356c362
-<         return cluster == null ? System.currentTimeMillis() : cluster.getClusterTime();
----
->         return cluster == null ? System.currentTimeMillis() : hazelcast.getCluster().getClusterTime();
-496c502
-<             result = new HazelcastClusterNodeInfo(member, cluster.getClusterTime());
----
->             result = new HazelcastClusterNodeInfo(member, hazelcast.getCluster().getClusterTime());
-587,654d592
-<     private static class ClusterLock implements Lock {
-< 
-<         private final Serializable key;
-<         private final ClusteredCache<Serializable, ?> cache;
-< 
-<         ClusterLock(final Serializable key, final ClusteredCache<Serializable, ?> cache) {
-<             this.key = key;
-<             this.cache = cache;
-<         }
-< 
-<         @Override
-<         public void lock() {
-<             cache.lock(key, -1);
-<         }
-< 
-<         @Override
-<         public void lockInterruptibly() {
-<             cache.lock(key, -1);
-<         }
-< 
-<         @Override
-<         public boolean tryLock() {
-<             return cache.lock(key, 0);
-<         }
-< 
-<         @Override
-<         public boolean tryLock(final long time, final TimeUnit unit) {
-<             return cache.lock(key, unit.toMillis(time));
-<         }
-< 
-<         @Override
-<         public void unlock() {
-<             cache.unlock(key);
-<         }
-< 
-<         @Override
-<         public Condition newCondition() {
-<             throw new UnsupportedOperationException();
-<         }
-<     }
-< 
-<     private static class CallableTask<V> implements Callable<V>, Serializable {
-<         private static final long serialVersionUID = -8761271979427214681L;
-<         private final ClusterTask<V> task;
-< 
-<         CallableTask(final ClusterTask<V> task) {
-<             this.task = task;
-<         }
-< 
-<         @Override
-<         public V call() {
-<             try {
-<                 task.run();
-<                 logger.trace("CallableTask[{}] result: {}", task.getClass().getName(), task.getResult());
-<                 return task.getResult();
-<             } catch (final Exception e) {
-<                 logger.error("Unexpected exception running CallableTask[{}]", task.getClass().getName(), e);
-<                 throw e;
-<             }
-<         }
-<     }
-< 
-<     private enum State {
-<         stopped,
-<         starting,
-<         started
-<     }
-< 
-656c594,595
-<         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
----
->         String nodeIdString = member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE);
->         return NodeID.getInstance(nodeIdString.getBytes(StandardCharsets.UTF_8));
-701,703d639
+>             dynamicConfig.setMaxSizeConfig(new com.hazelcast.config.MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, com.hazelcast.config.MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
+701,703d699
 < 
 < 
 < 

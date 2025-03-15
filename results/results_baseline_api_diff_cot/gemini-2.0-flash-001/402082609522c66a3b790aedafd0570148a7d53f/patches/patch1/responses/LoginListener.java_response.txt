@@ -9,11 +9,11 @@ import com.google.inject.Inject;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.entity.living.player.User;
 
 public class LoginListener extends SharedListener {
 
@@ -29,8 +29,8 @@ public class LoginListener extends SharedListener {
     @Listener
     public void onPlayerPreLogin(ServerSideConnectionEvent.Auth preLoginEvent) {
         SkinStorage storage = core.getStorage();
-        User user = preLoginEvent.getUser();
-        GameProfile profile = user.getProfile();
+        Player player = preLoginEvent.getPlayer();
+        GameProfile profile = player.getProfile();
         UUID playerUUID = profile.getUniqueId();
 
         UserPreference preferences = storage.getPreferences(playerUUID);
@@ -50,8 +50,6 @@ public class LoginListener extends SharedListener {
                 if (!core.getConfig().getBoolean("restoreSkins") || !refetchSkin(playerName, preferences)) {
                     setDefaultSkin(preferences, profile);
                 }
-            } else {
-                setDefaultSkin(preferences, profile);
             }
         }
     }

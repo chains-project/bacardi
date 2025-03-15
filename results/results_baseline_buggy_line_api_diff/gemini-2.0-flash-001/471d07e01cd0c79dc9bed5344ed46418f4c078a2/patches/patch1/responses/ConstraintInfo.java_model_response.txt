@@ -16,6 +16,9 @@
  */
 package com.google.cloud.resourcemanager;
 
+import com.google.api.services.cloudresourcemanager.v3.model.BooleanConstraint;
+import com.google.api.services.cloudresourcemanager.v3.model.Constraint;
+import com.google.api.services.cloudresourcemanager.v3.model.ListConstraint;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.Objects;
@@ -30,22 +33,22 @@ import java.util.Objects;
 @Deprecated
 public class ConstraintInfo {
 
-  static final Function<ConstraintInfo, com.google.api.services.cloudresourcemanager.model.Constraint> TO_PROTOBUF_FUNCTION =
-      new Function<ConstraintInfo, com.google.api.services.cloudresourcemanager.model.Constraint>() {
+  static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+      new Function<Constraint, ConstraintInfo>() {
         @Override
-        public com.google.api.services.cloudresourcemanager.model.Constraint apply(ConstraintInfo constraintInfo) {
-          return constraintInfo.toProtobuf();
-        }
-      };
-  static final Function<com.google.api.services.cloudresourcemanager.model.Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
-      new Function<com.google.api.services.cloudresourcemanager.model.Constraint, ConstraintInfo>() {
-        @Override
-        public ConstraintInfo apply(com.google.api.services.cloudresourcemanager.model.Constraint protobuf) {
+        public ConstraintInfo apply(Constraint protobuf) {
           return ConstraintInfo.fromProtobuf(protobuf);
         }
       };
+  static final Function<ConstraintInfo, Constraint> TO_PROTOBUF_FUNCTION =
+      new Function<ConstraintInfo, Constraint>() {
+        @Override
+        public Constraint apply(ConstraintInfo constraintInfo) {
+          return constraintInfo.toProtobuf();
+        }
+      };
 
-  private com.google.api.services.cloudresourcemanager.model.BooleanConstraint booleanConstraint;
+  private BooleanConstraint booleanConstraint;
   private String constraintDefault;
   private String description;
   private String displayName;
@@ -109,21 +112,23 @@ public class ConstraintInfo {
           && Objects.equals(supportsUnder, that.supportsUnder);
     }
 
-    com.google.api.services.cloudresourcemanager.model.ListConstraint toProtobuf() {
-      com.google.api.services.cloudresourcemanager.model.ListConstraint listConstraint = new com.google.api.services.cloudresourcemanager.model.ListConstraint();
+    ListConstraint toProtobuf() {
+      ListConstraint listConstraint = new ListConstraint();
       listConstraint.setSuggestedValue(suggestedValue);
       listConstraint.setSupportsUnder(supportsUnder);
       return listConstraint;
     }
 
-    static Constraints fromProtobuf(com.google.api.services.cloudresourcemanager.model.ListConstraint listConstraint) {
-      return new Constraints(listConstraint.getSuggestedValue(), listConstraint.getSupportsUnder());
+    static Constraints fromProtobuf(ListConstraint listConstraint) {
+      String suggestedValue = listConstraint.getSuggestedValue();
+      Boolean supportsUnder = listConstraint.getSupportsUnder();
+      return new Constraints(suggestedValue, supportsUnder);
     }
   }
 
   /** Builder for {@code ConstraintInfo}. */
   static class Builder {
-    private com.google.api.services.cloudresourcemanager.model.BooleanConstraint booleanConstraint;
+    private BooleanConstraint booleanConstraint;
     private String constraintDefault;
     private String description;
     private String displayName;
@@ -145,7 +150,7 @@ public class ConstraintInfo {
       this.version = info.version;
     }
 
-    Builder setBooleanConstraint(com.google.api.services.cloudresourcemanager.model.BooleanConstraint booleanConstraint) {
+    Builder setBooleanConstraint(BooleanConstraint booleanConstraint) {
       this.booleanConstraint = booleanConstraint;
       return this;
     }
@@ -196,7 +201,7 @@ public class ConstraintInfo {
   }
 
   /** Returns the boolean constraint to check whether the constraint is enforced or not. */
-  public com.google.api.services.cloudresourcemanager.model.BooleanConstraint getBooleanConstraint() {
+  public BooleanConstraint getBooleanConstraint() {
     return booleanConstraint;
   }
 
@@ -264,21 +269,22 @@ public class ConstraintInfo {
     return new Builder(this);
   }
 
-  com.google.api.services.cloudresourcemanager.model.Constraint toProtobuf() {
-    com.google.api.services.cloudresourcemanager.model.Constraint constraintProto = new com.google.api.services.cloudresourcemanager.model.Constraint();
-    constraintProto.setBooleanConstraint(booleanConstraint);
+  Constraint toProtobuf() {
+    Constraint constraintProto = new Constraint();
     constraintProto.setConstraintDefault(constraintDefault);
     constraintProto.setDescription(description);
     constraintProto.setDisplayName(displayName);
+    constraintProto.setName(name);
+    constraintProto.setVersion(version);
+    constraintProto.setBooleanConstraint(booleanConstraint);
     if (constraints != null) {
       constraintProto.setListConstraint(constraints.toProtobuf());
     }
-    constraintProto.setName(name);
-    constraintProto.setVersion(version);
+
     return constraintProto;
   }
 
-  static ConstraintInfo fromProtobuf(com.google.api.services.cloudresourcemanager.model.Constraint constraintProtobuf) {
+  static ConstraintInfo fromProtobuf(Constraint constraintProtobuf) {
     Builder builder = newBuilder(constraintProtobuf.getName());
     builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint());
     builder.setConstraintDefault(constraintProtobuf.getConstraintDefault());

@@ -1,22 +1,12 @@
 9c9
 < import org.spongepowered.api.command.CommandSource;
 ---
-> import org.spongepowered.api.entity.living.player.Player;
-10a11
 > import org.spongepowered.api.service.permission.Subject;
-15c16
+15c15
 <     private final CommandSource invoker;
 ---
 >     private final Subject invoker;
-17c18
+17c17
 <     public SkinUploader(ChangeSkinSponge plugin, CommandSource invoker, Account owner, String url) {
 ---
 >     public SkinUploader(ChangeSkinSponge plugin, Subject invoker, Account owner, String url) {
-26c27,31
-<         plugin.sendMessage(invoker, key);
----
->         if (invoker instanceof Player) {
->             plugin.sendMessage((Player) invoker, key);
->         } else {
->             plugin.getCore().sendMessage(null, key);
->         }

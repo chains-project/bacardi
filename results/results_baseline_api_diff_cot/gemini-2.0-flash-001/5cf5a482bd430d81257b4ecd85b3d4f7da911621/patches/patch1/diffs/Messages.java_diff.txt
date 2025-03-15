@@ -2,16 +2,17 @@
 < 
 ---
 > import java.util.Locale;
-6c6
+6c6,7
 < import javax.mvc.MvcContext;
 ---
+> import jakarta.mvc.MvcContext;
 > import jakarta.servlet.http.HttpServletRequest;
-23c23
-<     private MvcContext mvcContext;
----
+24a26,28
+>     @Inject
 >     private HttpServletRequest request;
-33c33,34
+> 
+33c37,38
 <         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
 ---
->         final Locale locale = request.getLocale();
+>         Locale locale = request.getLocale();
 >         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, locale);
