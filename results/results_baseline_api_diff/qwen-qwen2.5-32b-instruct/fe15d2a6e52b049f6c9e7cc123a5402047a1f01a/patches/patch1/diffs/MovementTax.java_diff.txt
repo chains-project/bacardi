@@ -4,29 +4,15 @@
 < import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 22d19
 < 
-163d159
+163c160
 <         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
-165c161,181
-<         append(null, buffer, strategy);
 ---
->         append(null, buffer, new ToStringStrategy2() {
->             @Override
->             public StringBuilder appendField(ObjectLocator locator, Object object, String getterName, StringBuilder buffer, Object value, boolean isPrimitive) {
->                 if (value != null) {
->                     buffer.append(getterName).append(": ").append(value.toString()).append(", ");
->                 }
->                 return buffer;
->             }
-> 
->             @Override
->             public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
->                 buffer.append(object.getClass().getSimpleName()).append("{");
->                 return buffer;
->             }
-> 
->             @Override
->             public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
->                 buffer.append("}");
->                 return buffer;
->             }
->         });
+>         final org.jvnet.jaxb2_commons.lang.ToStringStrategy2 strategy = new org.jvnet.jaxb2_commons.lang.ToStringStrategy2.Default();
+170c167
+<     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+---
+>     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, org.jvnet.jaxb2_commons.lang.ToStringStrategy2 strategy) {
+178c175
+<     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+---
+>     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, org.jvnet.jaxb2_commons.lang.ToStringStrategy2 strategy) {

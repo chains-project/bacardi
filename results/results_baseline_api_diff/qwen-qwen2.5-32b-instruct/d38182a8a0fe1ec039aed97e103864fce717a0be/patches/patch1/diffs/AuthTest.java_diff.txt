@@ -2,30 +2,6 @@
 < import com.artipie.http.rq.RequestLine;
 < import com.artipie.http.rq.RqMethod;
 < import com.artipie.http.rs.RsStatus;
-97c94
-<                 method.headers(TestAuthentication.BOB),
----
->                 method.headers(new TestAuthentication.User("bob", "password")),
-113c110
-<             basic.headers(TestAuthentication.ALICE),
----
->             basic.headers(new TestAuthentication.User("alice", "password")),
-119c116
-<                 basic.headers(TestAuthentication.ALICE),
----
->                 basic.headers(new TestAuthentication.User("alice", "password")),
-137c134
-<                 basic.headers(TestAuthentication.ALICE),
----
->                 basic.headers(new TestAuthentication.User("alice", "password")),
-154c151
-<                 basic.headers(TestAuthentication.ALICE),
----
->                 basic.headers(new TestAuthentication.User("alice", "password")),
-178c175
-<             method.headers(TestAuthentication.ALICE),
----
->             method.headers(new TestAuthentication.User("alice", "password")),
 194,214d190
 <         return Stream.of(new Basic(), new Bearer()).flatMap(AuthTest::setups);
 <     }
@@ -115,17 +91,10 @@
 >                 new Bearer(),
 >                 new RequestLine(RqMethod.GET, "/v2/"),
 >                 "registry:base:*"
-321c242
-<                 new Permissions.Single(TestAuthentication.ALICE.name(), action),
----
->                 new Permissions.Single(new TestAuthentication.User("alice", "password").name(), action),
-348c269
-<                 new Permissions.Single(TestAuthentication.ALICE.name(), action),
----
->                 new Permissions.Single(new TestAuthentication.User("alice", "password").name(), action),
-351c272
-<                         Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
----
->                         Stream.of(new TestAuthentication.User("alice", "password"), new TestAuthentication.User("bob", "password"))
 353d273
 <                             .map(user -> new Authentication.User(user.name()))
+355c275,276
+<                     ),
+---
+>                             .map(user -> new Authentication.User(user.name()))
+>                     ,

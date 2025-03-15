@@ -29,12 +29,11 @@ public class JettyStubHttpServer implements StubHttpServer {
     public JettyStubHttpServer(final int port) {
         this.server = new Server();
         HttpConfiguration httpConfig = new HttpConfiguration();
-        httpConfig.setSendServerVersion(false);
         httpConfig.setSendDateHeader(true);
+        httpConfig.setSendServerVersion(false);
 
-        this.httpConnector = new ServerConnector(server, new org.eclipse.jetty.util.thread.QueuedThreadPool());
+        this.httpConnector = new ServerConnector(server, new org.eclipse.jetty.server.ServerConnector.ServerConnectionFactory(httpConfig));
         this.httpConnector.setPort(port);
-        this.httpConnector.setHttpConfiguration(httpConfig);
         server.addConnector(this.httpConnector);
     }
 

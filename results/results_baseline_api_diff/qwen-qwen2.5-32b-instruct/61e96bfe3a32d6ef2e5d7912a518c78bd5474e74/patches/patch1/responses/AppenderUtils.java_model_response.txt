@@ -34,55 +34,28 @@ public class AppenderUtils {
     private TProtocol protocol;
     private OutputStream os;
 
+    @Override
     public void init(OutputStream os) {
       this.os = os;
       final int bufferCapacity = 10;
-      framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity);
+      framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
+          bufferCapacity);
       protocol = new TBinaryProtocol(framedTransport);
     }
 
     @Override
-    public byte[] encode(LogMessage logMessage) throws IOException {
+    public void doEncode(LogMessage logMessage) throws IOException {
       try {
-        byte[] bytes = new byte[0];
-        try (TTransport transport = new TFastFramedTransport(null)) {
-          TProtocol protocol = new TBinaryProtocol(transport);
-          logMessage.write(protocol);
-          bytes = transport.getBuffer().array();
-        }
-        return bytes;
+        logMessage.write(protocol);
+        framedTransport.flush();
       } catch (TException e) {
         throw new IOException(e);
       }
     }
 
     @Override
-    public void start() {
-    }
-
-    @Override
-    public void stop() {
-      if (framedTransport != null) {
-        framedTransport.close();
-      }
-    }
-
-    @Override
-    public void setContext(Context context) {
-    }
-
-    @Override
-    public Context getContext() {
-      return null;
-    }
-
-    @Override
-    public void setProperty(String key, String value) {
-    }
-
-    @Override
-    public String getProperty(String key) {
-      return null;
+    public void close() throws IOException {
+      framedTransport.close();
     }
 
     @Override
@@ -125,7 +98,6 @@ public class AppenderUtils {
 
     policy.setTimeBasedFileNamingAndTriggeringPolicy(fnatp);
     appender.setRollingPolicy(policy);
-    appender.setTriggeringPolicy(policy);
 
     policy.start();
     appender.start();

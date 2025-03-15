@@ -157,33 +157,14 @@ public class MovementTax implements ToString2
 
     @Override
     public String toString() {
+        final org.jvnet.jaxb2_commons.lang.ToStringStrategy2 strategy = new org.jvnet.jaxb2_commons.lang.ToStringStrategy2.Default();
         final StringBuilder buffer = new StringBuilder();
-        append(null, buffer, new ToStringStrategy2() {
-            @Override
-            public StringBuilder appendField(ObjectLocator locator, Object object, String getterName, StringBuilder buffer, Object value, boolean isPrimitive) {
-                if (value != null) {
-                    buffer.append(getterName).append(": ").append(value.toString()).append(", ");
-                }
-                return buffer;
-            }
-
-            @Override
-            public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
-                buffer.append(object.getClass().getSimpleName()).append("{");
-                return buffer;
-            }
-
-            @Override
-            public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
-                buffer.append("}");
-                return buffer;
-            }
-        });
+        append(null, buffer, strategy);
         return buffer.toString();
     }
 
     @Override
-    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, org.jvnet.jaxb2_commons.lang.ToStringStrategy2 strategy) {
         strategy.appendStart(locator, this, buffer);
         appendFields(locator, buffer, strategy);
         strategy.appendEnd(locator, this, buffer);
@@ -191,7 +172,7 @@ public class MovementTax implements ToString2
     }
 
     @Override
-    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, org.jvnet.jaxb2_commons.lang.ToStringStrategy2 strategy) {
         {
             SAFTPTMovementTaxType theTaxType;
             theTaxType = this.getTaxType();

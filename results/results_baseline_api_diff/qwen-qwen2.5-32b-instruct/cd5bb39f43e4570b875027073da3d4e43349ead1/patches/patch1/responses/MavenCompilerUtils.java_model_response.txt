@@ -70,17 +70,12 @@ public final class MavenCompilerUtils {
             return emptySet();
         }
         if (config instanceof Element) {
-            Element configElement = (Element) config;
-            NodeList annotationProcessorPaths = configElement.getElementsByTagName("annotationProcessorPaths");
-            return stream(0, annotationProcessorPaths.getLength())
-                    .flatMap(i -> stream(0, annotationProcessorPaths.item(i).getChildNodes().getLength())
-                            .mapToObj(j -> annotationProcessorPaths.item(i).getChildNodes().item(j))
-                            .filter(node -> "path".equals(node.getNodeName()))
-                            .map(node -> (Element) node))
+            return stream(((Element) config).getElementsByTagName("annotationProcessorPaths"))
+                    .flatMap(aggregate -> stream(((NodeList) aggregate).item(0).getElementsByTagName("path")))
                     .map(processor -> system.createArtifact(
-                            extractChildValue(processor, "groupId"),
-                            extractChildValue(processor, "artifactId"),
-                            extractChildValue(processor, "version"),
+                            extractChildValue((Element) processor, "groupId"),
+                            extractChildValue((Element) processor, "artifactId"),
+                            extractChildValue((Element) processor, "version"),
                             PACKAGING))
                     // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
                     // therefore there is little use in logging incomplete paths that are filtered out.
@@ -104,8 +99,11 @@ public final class MavenCompilerUtils {
      * @return Returns child value if child node present or otherwise empty string.
      */
     private static String extractChildValue(Element node, String name) {
-        NodeList children = node.getElementsByTagName(name);
-        return children.getLength() > 0 ? children.item(0).getTextContent() : "";
+        final NodeList childNodes = node.getElementsByTagName(name);
+        if (childNodes.getLength() > 0) {
+            return childNodes.item(0).getTextContent();
+        }
+        return "";
     }
 }
 ```

@@ -23,16 +23,11 @@
 >   /**
 >    * Returns the {@link ResourceManager} service object associated with this Project.
 >    */
-134c121,122
-<    * Fetches the project's latest information. Returns {@code null} if the project does not exist.
----
->    * Fetches the project's latest information. Returns {@code null} if the project does not exist or
->    * if you do not have adequate permission to view the project or get the policy.
-137a126,128
+137a125,127
 >    * @see <a href=
->    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/get">Cloud
->    *     Resource Manager get</a>
-146,160c137
+>    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/delete">Cloud
+>    *     Resource Manager delete</a>
+146,160c136
 <    * <p>This method will only affect the project if the following criteria are met:
 <    *
 <    * <ul>
@@ -50,14 +45,20 @@
 <    * ResourceManager#list} methods. The caller must have modify permissions for this project.
 ---
 >    * <p>The caller must have modify permissions for this project.
-174,177c151
+164,165c140,141
+<    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/delete">Cloud
+<    *     Resource Manager delete</a>
+---
+>    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/undelete">Cloud
+>    *     Resource Manager undelete</a>
+174,177c150
 <    * <p>You can only use this method for a project that has a lifecycle state of {@link
 <    * ProjectInfo.State#DELETE_REQUESTED}. After deletion starts, as indicated by a lifecycle state
 <    * of {@link ProjectInfo.State#DELETE_IN_PROGRESS}, the project cannot be restored. The caller
 <    * must have modify permissions for this project.
 ---
 >    * <p>The caller must have modify permissions for this project.
-236,239c210,213
+236,239c209,212
 <    * For example, the Cloud Platform Console tests IAM permissions internally to determine which UI
 <    * should be available to the logged-in user. Each service that supports IAM lists the possible
 <    * permissions; see the <i>Supported Cloud Platform services</i> page below for links to these
@@ -67,7 +68,13 @@
 >    * elements should be available to the logged-in user. Each service that supports IAM lists the
 >    * possible permissions; see the <i>Supported Cloud Platform services</i> page below for links to
 >    * these lists.
-283c257
+241,242c214,215
+<    * @return a list of booleans representing whether the caller has the permissions specified (in
+<    *     the order of the given permissions)
+---
+>    * @return a list of booleans representing whether the caller has the permissions specified (in the
+>    *     order of the given permissions)
+283c256
 <       com.google.api.services.cloudresourcemanager.model.Project answer) {
 ---
->       com.google.api.services.cloudresourcemanager.v3.model.Project answer) {
+>       com.google.cloud.resourcemanager.v3.model.Project answer) {

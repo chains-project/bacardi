@@ -130,29 +130,19 @@ public class PaymentMethod implements ToString2
 
     @Override
     public String toString() {
+        final org.jvnet.jaxb2_commons.lang.ToStringStrategy2 strategy = new org.jvnet.jaxb2_commons.lang.ToStringStrategy2() {
+            @Override
+            public StringBuilder append(ObjectLocator locator, StringBuilder buffer, Object object) {
+                return buffer.append(object == null ? "null" : object.toString());
+            }
+        };
         final StringBuilder buffer = new StringBuilder();
-        append(null, buffer, new ToStringStrategy2() {
-            @Override
-            public void appendStart(ObjectLocator locator, Object objectToAppend, StringBuilder buffer) {
-                buffer.append(objectToAppend.getClass().getSimpleName()).append("@").append(System.identityHashCode(objectToAppend)).append(" {");
-            }
-
-            @Override
-            public void appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object fieldValue, boolean isNullable) {
-                buffer.append(fieldName).append("=").append(fieldValue).append(", ");
-            }
-
-            @Override
-            public void appendEnd(ObjectLocator locator, Object objectToAppend, StringBuilder buffer) {
-                buffer.setLength(buffer.length() - 2); // Remove the last ", "
-                buffer.append("}");
-            }
-        });
+        append(null, buffer, strategy);
         return buffer.toString();
     }
 
     @Override
-    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, org.jvnet.jaxb2_commons.lang.ToStringStrategy2 strategy) {
         strategy.appendStart(locator, this, buffer);
         appendFields(locator, buffer, strategy);
         strategy.appendEnd(locator, this, buffer);
@@ -160,7 +150,7 @@ public class PaymentMethod implements ToString2
     }
 
     @Override
-    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, org.jvnet.jaxb2_commons.lang.ToStringStrategy2 strategy) {
         {
             String thePaymentMechanism;
             thePaymentMechanism = this.getPaymentMechanism();

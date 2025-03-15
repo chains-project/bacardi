@@ -1,11 +1,7 @@
 3c3
 < import develop.p2p.lib.*;
 ---
-> import tokyo.peya.lib.WaveCreator; // Update import for WaveCreator
-72d71
-<             @Override
-91a91
->             @Override
+> import tokyo.peya.lib.*;
 113,114c113,116
 <                     connection.sendPacket(new PacketPlayOutEntityTeleport(target));
 <                     connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) head));
@@ -14,42 +10,25 @@
 >                         .sendPacket(new PacketPlayOutEntityTeleport(target));
 >                     ((CraftPlayer) player).getHandle().playerConnection
 >                         .sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) head));
-117d118
-<                     float finalHead = head;
-123c124,126
+123c125,127
 <                             Bukkit.getOnlinePlayers().parallelStream().filter(p -> p.hasPermission("psac.viewnpc"))
 ---
 >                             Bukkit.getOnlinePlayers()
 >                                 .parallelStream()
 >                                 .filter(p -> p.hasPermission("psac.viewnpc"))
-129c132
+128,129d131
+<                                     ((CraftPlayer) p).getHandle().playerConnection
 <                                         .sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) finalHead));
----
->                                         .sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) head));
-161c164
+161c163
 <         WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
 ---
->         WaveCreator ypp = new WaveCreator(10.0, 100.0, 0.0); // Update WaveCreator instantiation
-176,181d178
-<                     double rangeTmp = radius;
-< 
-<                     if (config.getBoolean("npc.wave"))
+>         WaveCreator ypp = new WaveCreator(10.0, 100.0, 0.0);
+179,180c181
 <                         rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
 <                             .get(0.01, true);
-< 
-185,187c182,184
-<                         auraBotXPos(time[0], rangeTmp + speed) + center.getX(),
-<                         center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
-<                         auraBotZPos(time[0], rangeTmp + speed) + center.getZ(),
 ---
->                         auraBotXPos(time[0], radius + speed) + center.getX(),
->                         center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20), // Update WaveCreator instantiation
->                         auraBotZPos(time[0], radius + speed) + center.getZ(),
-220c217
-<                     ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
+>                         rangeTmp = new WaveCreator(radius - 0.1, radius, 0 - config.getDouble("npc.waveRange")).get(0.01, true);
+188c189
+<                         (float) ypp.getStatic(),
 ---
->                     ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true) // Update WaveCreator instantiation
-247c244
-<         return Math.sin(time) * radius * Math.cos(Math.PI / 180 * 360.0);
----
->         return Math.sin(time) * radius;
+>                         (float) ypp.get(0.01, false),

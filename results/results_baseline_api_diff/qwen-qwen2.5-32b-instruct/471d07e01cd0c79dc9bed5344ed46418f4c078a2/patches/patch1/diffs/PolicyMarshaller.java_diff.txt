@@ -26,11 +26,28 @@
 <     extends Marshaller<com.google.api.services.cloudresourcemanager.model.Policy> {
 ---
 >     extends Marshaller<com.google.api.services.cloudresourcemanager.v3.model.Policy> {
-55c39
+46c30,39
+<       setBindings(bindings);
+---
+>       setBindings(bindings.entrySet().stream()
+>           .map(entry -> {
+>             Binding binding = new Binding();
+>             binding.setRole(entry.getKey().getValue());
+>             binding.setMembers(entry.getValue().stream()
+>                 .map(IDENTITY_STR_VALUE_FUNCTION)
+>                 .collect(ImmutableSet.toImmutableSet()));
+>             return binding;
+>           })
+>           .collect(ImmutableSet.toImmutableSet()));
+55c48
 <   protected Policy fromPb(com.google.api.services.cloudresourcemanager.model.Policy policyPb) {
 ---
 >   protected Policy fromPb(com.google.api.services.cloudresourcemanager.v3.model.Policy policyPb) {
-76,78c60,62
+63c56
+<                     bindingPb.getMembers(),
+---
+>                     new ArrayList<>(bindingPb.getMembers()),
+76,78c69,71
 <   protected com.google.api.services.cloudresourcemanager.model.Policy toPb(Policy policy) {
 <     com.google.api.services.cloudresourcemanager.model.Policy policyPb =
 <         new com.google.api.services.cloudresourcemanager.model.Policy();

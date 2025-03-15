@@ -7,7 +7,12 @@
 <     private static final Pattern VARIABLE_BINDING_PATTERN = Pattern.compile("(((iso)?\\.[0-9]+)+) = ((([a-zA-Z0-9-]+): (.*)$)|(\"\"$))");
 ---
 >     private static final Pattern VARIABLE_BINDING_PATTERN = Pattern.compile("(((iso)?\\.[0-9]+)+) = ((([a-zA-Z0-9-]+): (.*)$)|(\"\"$)");
-124,164d122
+112c111,112
+<      * @return the translated {@code String}
+---
+>      * @return a a {@code String} instance with the specified type and value
+>      * @throws IllegalArgumentException if the type could not be mapped to a {@code Variable} implementation
+124,164d123
 <      * Returns the root OIDs of the bindings.
 <      *
 <      * @param bindings the variable bindings
@@ -49,6 +54,32 @@
 <     }
 < 
 <     /**
+187c146
+<                 return new Gauge32(Long.parseLong(value.replaceAll("[^-?0-9]+", "")));
+---
+>                 return new Gauge32(Long.parseLong(value.replaceAll("[^-?0-9]+", ""));
+194c153
+<                 return new TimeTicks(Long.parseLong(value.substring(openBracket, closeBracket)));
+---
+>                 return new TimeTicks(Long.parseLong(value.substring(openBracket, closeBracket));
+196c155
+<                 return new Counter32(Long.parseLong(value.replaceAll("[^-?0-9]+", "")));
+---
+>                 return new Counter32(Long.parseLong(value.replaceAll("[^-?0-9]+", ""));
+201c160
+<                 return new Integer32(Integer.parseInt(value.replaceAll("[^-?0-9]+", "")));
+---
+>                 return new Integer32(Integer.parseInt(value.replaceAll("[^-?0-9]+", ""));
+244c203
+<         unregisterDefaultManagedObjects(new OctetString());
+---
+>         registerDefaultManagedObjects(new OctetString());
+247c206
+<             unregisterDefaultManagedObjects(new OctetString(String.valueOf(vlan)));
+---
+>             registerDefaultManagedObjects(new OctetString(String.valueOf(vlan)));
+256d214
+< 
 259,260d216
 <                 final OctetString context = new OctetString(String.valueOf(vlan));
 < 
@@ -67,77 +98,26 @@
 281c237
 <                         registerGroupAndContext(group, context);
 ---
->                         registerGroupAndContext(group, new OctetString(String.valueOf(vlan)));
-334c290
-<                 map(binding -> new VariableBinding(binding.getKey(), binding.getValue())).collect(Collectors.toCollection(ArrayList::new));
----
->                 map(binding -> new VariableBinding(binding.getKey(), binding.getValue())).collect(Collectors.toCollection(ArrayList::new);
-356,367c312,315
-<                 MOContextScope contextScope = new DefaultMOContextScope(new OctetString(), group.getScope());
-<                 ManagedObject other = server.lookup(new DefaultMOQuery(contextScope, false));
-<                 if (other != null) {
-<                     log.warn("group {} already existed", group);
-<                     return;
-<                 }
-< 
-<                 contextScope = new DefaultMOContextScope(null, group.getScope());
-<                 other = server.lookup(new DefaultMOQuery(contextScope, false));
-<                 if (other != null) {
-<                     registerHard(group);
-<                     return;
----
->                 MOContextScope contextScope = new DefaultMOContextScope(new OctetString(""), group.getScope());
->                 ManagedObject query;
->                 while ((query = server.lookup(new DefaultMOQuery(contextScope, false)) != null) {
->                     server.unregister(query, context);
-379,398d326
-<      * Sets the private registry value of {@link DefaultMOServer} via reflection.
-<      * FIXME
-<      * If there is any possibility to avoid this, then replace!
+>                         registerGroupAndContext(group, new OctetString(String.valueOf(vlan));
+325,337d280
+<      * Creates a list of {@link VariableBinding} out of a mapping of {@link OID} and {@link Variable}.
 <      *
-<      * @param group {@link ManagedObject} to register.
+<      * @param variableBindings mapping of {@link OID} and {@link Variable}.
+<      * @param root             root SNMP OID.
+<      * @return list of {@link VariableBinding}.
 <      */
-<     private void registerHard(final MOGroup group) {
-<         try {
-<             final Field registry = server.getClass().getDeclaredField("registry");
-<             registry.setAccessible(true);
-<             final SortedMap<MOScope, ManagedObject> reg = server.getRegistry();
-<             DefaultMOContextScope contextScope = new DefaultMOContextScope(new OctetString(""), group.getScope());
-<             reg.put(contextScope, group);
-<             registry.set(server, reg);
-<         } catch (NoSuchFieldException | IllegalAccessException e) {
-<             log.warn("could not set server registry", e);
-<         }
+<     private ArrayList<VariableBinding> generateSubtreeBindings(final SortedMap<OID, Variable> variableBindings, final OID root) {
+<         return variableBindings.entrySet().stream().filter(binding -> binding.getKey().size() >= root.size()).
+<                 filter(binding -> binding.getKey().leftMostCompare(root.size(), root) == 0).
+<                 map(binding -> new VariableBinding(binding.getKey(), binding.getValue())).collect(Collectors.toCollection(ArrayList::new));
 <     }
 < 
 <     /**
-441c369
+356c299
+<                 MOContextScope contextScope = new DefaultMOContextScope(new OctetString(), group.getScope());
+---
+>                 MOContextScope contextScope = new DefaultMOContextScope(new OctetString(""), group.getScope());
+441c384
 <         while ((query = server.lookup(new DefaultMOQuery(hackScope, false))) != null) {
 ---
 >         while ((query = server.lookup(new DefaultMOQuery(hackScope, false)) != null) {
-526,527d453
-<         vacmMIB.addAccess(new OctetString("v3test"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.AUTH_PRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("testReadView"), new OctetString("testWriteView"), new OctetString("testNotifyView"), StorageType.nonVolatile);
-< 
-559,578c485
-<     private void configureSnmpCommunity(final SnmpCommunityMIB snmpCommunityMIB, final Long context) {
-<         String communityString;
-<         OctetString contextName;
-<         if (context != null) {
-<             communityString = configuration.getCommunity() + "@" + context;
-<             contextName = new OctetString(String.valueOf(context));
-<         } else {
-<             communityString = configuration.getCommunity();
-<             contextName = new OctetString();
-<         }
-<         final Variable[] com2sec = new Variable[]{
-<                 new OctetString(communityString),       // community name
-<                 new OctetString(communityString),       // security name
-<                 getAgent().getContextEngineID(),        // local engine ID
-<                 contextName,                            // default context name
-<                 new OctetString(),                      // transport tag
-<                 new Integer32(StorageType.readOnly),    // storage type
-<                 new Integer32(RowStatus.active)         // row status
-<         };
-<         final SnmpCommunityMIB.SnmpCommunityEntryRow row = snmpCommunityMIB.getSnmpCommunityEntry().createRow(
----
->     private void configureSnmpCommunity(final SnmpCommunityMIB.SnmpCommunityEntryRow row = snmpCommunityMIB.getSnmpCommunityEntry().createRow(

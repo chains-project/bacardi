@@ -2,6 +2,10 @@
 < import develop.p2p.lib.WaveCreator;
 ---
 > import tokyo.peya.lib.WaveCreator;
+180c180
+<      * @param seconds 秒数
+---
+>      * @param sec    秒数
 194,207c194,195
 <                     Location center = player.getLocation();
 < 
@@ -19,18 +23,18 @@
 <                     circle(center.clone().add(0, 1.5, 0), count[0], 5, Particle.SPELL_WITCH);
 ---
 >                     Location c = player.getLocation().clone();
->                     Location X = new Location(c.getWorld(), particle_x(count[0], 3) + c.getX(), 5.0 + c.getY(), particle_z(count[0], 3) + c.getZ());
-208a197,198
+>                     Location X = new Location(c.getWorld(), particle_x(count[0], 2.5) + c.getX(), 5.0 + c.getY(), particle_z(count[0], 2.5) + c.getZ());
+209c197,199
+<                     count[0]++;
+---
 >                     for (int i = 0; i < 10; i++)
 >                         line(c, X, Particle.TOWN_AURA);
-216,220c206
+>                     count[0] += Math.E;
+216,219d205
 <                 line(center.clone().add(3, 0.7, 0), center.clone().add(-1.5, 0.7, -2.3));
 < 
 <                 line(center.clone().add(-3, 0.7, 0), center.clone().add(1.5, 0.7, -2.3));
 <                 line(center.clone().add(1.5, 0.7, -2.3), center.clone().add(1.5, 0.7, 2.3)); //三角(反転)
-<                 line(center.clone().add(-3, 0.7, 0), center.clone().add(1.5, 0.7, 2.3));
----
->                 line(center.clone().add(3, 0.7, 0), center.clone().add(1.5, 0.7, 2.3));
 233,270d218
 < 
 <     }
@@ -70,3 +74,11 @@
 <                 runnable.cancel();
 <             }
 <         }.runTaskLater(PeyangSuperbAntiCheat.getPlugin(), sec);
+307c255
+<             magic(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20));
+---
+>             magic(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20);
+309c257
+<             laser(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20));
+---
+>             laser(player, Math.multiplyExact(Variables.config.getInt("kick.delay"), 20);

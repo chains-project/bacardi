@@ -83,7 +83,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasPath(final Matcher<String> path) {
         return new MkQueryUriMatcher(
-            IsEqual.equalTo(path)
+            new IsEqual<>(path)
         );
     }
 
@@ -95,7 +95,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasQuery(final Matcher<String> query) {
         return new MkQueryUriMatcher(
-            StringContains.containsString(query.toString())
+            new StringContains(query)
         );
     }
 

@@ -25,15 +25,13 @@
 <    *       </plugin>
 <    * }</pre>
 <    */
-161,165c138,142
-<         .map(plugin -> plugin.getExecutionsAsMap().get("process"))
+162c139
 <         .map(exec -> (Xpp3Dom) exec.getConfiguration())
-<         .map(config -> config.getChild("processors"))
+---
+>         .map(exec -> (org.apache.maven.model.Configuration) exec.getConfiguration())
+164,165c141,142
 <         .map(Xpp3Dom::getChildren)
 <         .map(arr -> Arrays.stream(arr).map(Xpp3Dom::getValue).collect(Collectors.toSet()))
 ---
->         .map(plugin -> plugin.getExecutions().get(0))
->         .map(exec -> exec.getConfiguration())
->         .map(config -> config.get("processors"))
->         .map(processors -> processors.getChildren())
->         .map(arr -> Arrays.stream(arr).map(processor -> processor.getValue()).collect(Collectors.toSet()))
+>         .map(children -> children.getChildren("processor"))
+>         .map(processors -> processors.stream().map(Xpp3Dom::getValue).collect(Collectors.toSet()))

@@ -1,0 +1,60 @@
+package com.github.games647.changeskin.sponge.command;
+
+import com.github.games647.changeskin.sponge.ChangeSkinSponge;
+import com.github.games647.changeskin.sponge.PomData;
+import com.github.games647.changeskin.sponge.task.SkinSelector;
+import com.google.inject.Inject;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.parameter.managed.Flag;
+import org.spongepowered.api.command.parameter.managed.ValueParameter;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
+
+import java.util.Optional;
+
+public class SelectCommand implements Command.Executor, ChangeSkinCommand {
+
+{
+    private final ChangeSkinSponge plugin;
+
+    @Inject
+    SelectCommand(ChangeSkinSponge plugin) {
+        this.plugin = plugin;
+    }
+
+    @Override
+    public CommandResult execute(CommandSource src, CommandContext args) {
+        if (!(src instanceof Player)) || !args.hasAny("skinName")) {
+            plugin.sendMessage(src, "no-console");
+            return CommandResult.success();
+        }
+
+        String skinName = args.getOne("skinName").get().toLowerCase().replace("skin-", "");
+
+        try {
+            int targetId = Integer.parseInt(skinName);
+            Player receiver = (Player) src;
+            Task.builder().async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+        } catch (NumberFormatException numberFormatException) {
+            plugin.sendMessage(src, "invalid-skin-name");
+        }
+
+        return CommandResult.success();
+    }
+
+    @Override
+    public Command build() {
+        return Command.builder()
+                .executor(this)
+                .argument(new ValueParameter<String>(PlainTextComponentSerializer.PLAIN.plain("skinName"), Flag.of("skinName"))
+                .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
+                .build();
+    }
+}

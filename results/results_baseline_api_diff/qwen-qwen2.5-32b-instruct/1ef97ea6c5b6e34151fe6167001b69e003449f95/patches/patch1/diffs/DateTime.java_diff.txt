@@ -1,4 +1,6 @@
-43c43
+43d42
 <   @Override
+45c44
+<     return new Timestamp(super.between(from, to).getTime());
 ---
->   // Removed @Override as the method signature no longer exists in the superclass
+>     return new Timestamp(super.between(new Timestamp(from.getTime()), new Timestamp(to.getTime())).getTime());

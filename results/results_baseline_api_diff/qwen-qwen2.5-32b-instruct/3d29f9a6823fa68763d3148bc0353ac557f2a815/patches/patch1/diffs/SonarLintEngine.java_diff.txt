@@ -1,10 +1,6 @@
 36,37d35
 < import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneAnalysisConfiguration;
 < import org.sonarsource.sonarlint.core.client.api.standalone.StandaloneGlobalConfiguration;
-46c44
-< import org.sonarsource.sonarlint.core.plugin.commons.PluginsLoader.Configuration;
----
-> import org.sonarsource.sonarlint.core.plugin.commons.Configuration;
 49d46
 < import org.sonarsource.sonarlint.core.plugin.commons.loading.PluginRequirementsCheckResult;
 67c64
@@ -19,5 +15,7 @@
 <                 .addEnabledLanguages(globalConfig.getEnabledLanguages())
 ---
 >                 .addEnabledLanguages(List.of(Language.JAVA))
-223d219
-<                                             logOutput),
+222c219
+<                                                                             i.getRuleKey()))),
+---
+>                                                                             i.getRuleKey())),

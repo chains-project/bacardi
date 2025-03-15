@@ -3,25 +3,38 @@
 12,13d10
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.data.key.Keys;
-23c20
+15d11
+< import org.spongepowered.api.entity.living.player.tab.TabListEntry;
+17,18c13,14
+< import org.spongepowered.api.world.Location;
+< import org.spongepowered.api.world.World;
+---
+> 
+> import javax.annotation.Nullable;
+23c19
 <     private final CommandSource invoker;
 ---
->     private final Object invoker;
-26c23
+>     private final @Nullable Object invoker;
+26c22
 <     public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
 ---
->     public SkinApplier(ChangeSkinSponge plugin, Object invoker, Player receiver, SkinModel targetSkin
-84,85c81,82
+>     public SkinApplier(ChangeSkinSponge plugin, @Nullable Object invoker, Player receiver, SkinModel targetSkin
+84,85c80
 <         receiver.offer(Keys.VANISH, true);
 <         receiver.offer(Keys.VANISH, false);
 ---
->         //receiver.offer(Keys.VANISH, true);
->         //receiver.offer(Keys.VANISH, false);
-99c96
+>         receiver.offer(receiver.getVanishData().get().withValue(!receiver.getVanishData().get().get()));
+98,108c93
+<         Location<World> oldLocation = receiver.getLocation();
 <         Vector3d rotation = receiver.getRotation();
----
->         //Vector3d rotation = receiver.getRotation();
-107c104
+<         World receiverWorld = receiver.getWorld();
+<         Sponge.getServer().getWorlds()
+<                 .stream()
+<                 .filter(world -> !world.equals(receiverWorld))
+<                 .findFirst()
+<                 .ifPresent(world -> {
+<                     receiver.setLocation(world.getSpawnLocation());
 <                     receiver.setLocationAndRotation(oldLocation, rotation);
+<                 });
 ---
->                     //receiver.setLocationAndRotation(oldLocation, rotation);
+>         // ... (rest of the method remains unchanged)

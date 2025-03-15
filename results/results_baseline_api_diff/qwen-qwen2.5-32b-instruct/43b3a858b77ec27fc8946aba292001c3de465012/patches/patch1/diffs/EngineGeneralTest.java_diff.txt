@@ -7,23 +7,38 @@
 < import java.sql.SQLException;
 ---
 > import java.sql.Connection;
-71d71
+71c72
 < import java.sql.Connection;
-126d125
+---
+> import java.sql.SQLException;
+87,93c88,94
+< import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.BLOB;
+< import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.BOOLEAN;
+< import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.CLOB;
+< import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.DOUBLE;
+< import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.INT;
+< import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.LONG;
+< import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.STRING;
+---
+> import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.BLOB;
+> import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.BOOLEAN;
+> import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.CLOB;
+> import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.DOUBLE;
+> import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.INT;
+> import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.LONG;
+> import static com.feedzai.commons.sql.abstraction.ddl.DbColumnTypeType.STRING;
+126d126
 < import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.notIn;
-165c164
+165c165
 < 
 ---
 > {
-181c180,184
+181c181,182
 <         ((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.TRACE);
 ---
->         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerContext();
->         loggerContext.reset();
->         JoranConfigurator configurator = new JoranConfigurator();
->         configurator.setContext(loggerContext);
->         configurator.doConfigure("src/test/resources/logback-test-logback.xml");
-204,4335c207
+>         LoggerContext loggerContext = ((LoggerContext) LoggerFactory.getILoggerContext());
+>         loggerContext.getLogger(Logger.ROOT_LOGGER_NAME).setLevel(Level.TRACE);
+204,4335c205
 <     @Test
 <     public void createEntityTest() throws DatabaseEngineException {
 < 

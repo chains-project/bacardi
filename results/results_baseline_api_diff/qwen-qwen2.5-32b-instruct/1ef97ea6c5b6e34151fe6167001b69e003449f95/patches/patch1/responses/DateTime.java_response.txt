@@ -40,9 +40,8 @@ public class DateTime extends DateAndTime {
     return new Timestamp(super.past(atMost, unit, referenceDate).getTime());
   }
 
-  // Removed @Override as the method signature no longer exists in the superclass
   public Timestamp between(Date from, Date to) throws IllegalArgumentException {
-    return new Timestamp(super.between(from, to).getTime());
+    return new Timestamp(super.between(new Timestamp(from.getTime()), new Timestamp(to.getTime())).getTime());
   }
 
   @Override

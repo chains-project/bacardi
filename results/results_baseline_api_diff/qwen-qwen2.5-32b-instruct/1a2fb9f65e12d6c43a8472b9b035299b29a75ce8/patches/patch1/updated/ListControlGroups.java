@@ -1,3 +1,21 @@
+/**
+ * Copyright (C) 2014 Premium Minds.
+ *
+ * This file is part of wicket-crudifier.
+ *
+ * wicket-crudifier is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * wicket-crudifier is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with wicket-crudifier. If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.premiumminds.wicket.crudifier.form.elements;
 
 import java.beans.PropertyDescriptor;
@@ -16,18 +34,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.metadata.BeanDescriptor;
 import jakarta.validation.metadata.ConstraintDescriptor;
 import jakarta.validation.metadata.ElementDescriptor;
-
-import com.premiumminds.webapp.wicket.validators.HibernateValidatorProperty;
-import com.premiumminds.wicket.crudifier.IObjectRenderer;
-import com.premiumminds.wicket.crudifier.form.CrudifierEntitySettings;
-import com.premiumminds.wicket.crudifier.form.EntityProvider;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -43,11 +56,7 @@ public abstract class ListControlGroups<T> extends Panel {
 	private Map<Class<?>, ControlGroupProvider<?>> controlGroupProviders = new HashMap<Class<?>, ControlGroupProvider<?>>();
 
 	@SuppressWarnings("rawtypes")
-	private final Map<Class<?>, Class<? extends AbstractControlGroup>> typesControlGroups = new HashMap<Class<?>, Class<? extends AbstractControlGroup>>();
-
-	private List<ObjectProperties> objectProperties;
-	private CrudifierEntitySettings entitySettings;
-	private Map<Class<?>, IObjectRenderer<?>> renderers;
+	private Map<Class<?>, Class<? extends AbstractControlGroup>> typesControlGroups = new HashMap<Class<?>, Class<? extends AbstractControlGroup>>();
 
 	public ListControlGroups(String id, IModel<T> model, CrudifierEntitySettings entitySettings, Map<Class<?>, IObjectRenderer<?>> renderers) {
 		super(id, model);
@@ -64,33 +73,7 @@ public abstract class ListControlGroups<T> extends Panel {
 		typesControlGroups.put(double.class, TextFieldControlGroup.class);
 		typesControlGroups.put(BigDecimal.class, TextFieldControlGroup.class);
 		typesControlGroups.put(BigInteger.class, TextFieldControlGroup.class);
-		typesControlGroups.put(Boolean.class, CheckboxControlGroup.class);
-		typesControlGroups.put(boolean.class, CheckboxControlGroup.class);
-		typesControlGroups.put(Set.class, CollectionControlGroup.class);
-
-		objectProperties = new ArrayList<ObjectProperties>();
-		this.entitySettings = entitySettings;
-		this.renderers = renderers;
 	}
-
-	private Set<String> getPropertiesByOrder(Class<?> modelClass) {
-		Set<String> properties = new LinkedHashSet<String>();
-
-		for(String property : entitySettings.getOrderOfFields()){
-			if(!entitySettings.getHiddenFields().contains(property))
-				properties.add(property);
-		}
-		for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
-			if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
-			   !properties.contains(descriptor.getName()) &&
-			   !descriptor.getName().equals("class"))
-				properties.add(descriptor.getName());
-		}
-
-		return properties;
-	}
-
-	protected abstract EntityProvider<?> getEntityProvider(String name);
 
 	@Override
 	protected void onInitialize() {
@@ -188,7 +171,7 @@ public abstract class ListControlGroups<T> extends Panel {
 		add(view);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public IModel<T> getModel(){
 		return (IModel<T>) getDefaultModel();
 	}
@@ -200,7 +183,7 @@ public abstract class ListControlGroups<T> extends Panel {
 	public Map<String, AbstractControlGroup<?>> getFieldsControlGroup(){
 		return Collections.unmodifiableMap(fieldComponents);
 	}
-
+	
 	@SuppressWarnings("rawtypes")
 	private Class<? extends AbstractControlGroup> getControlGroupByType(Class<?> type){
 		for(Class<?> mapType : typesControlGroups.keySet()){

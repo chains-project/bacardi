@@ -1,0 +1,172 @@
+```java
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
+
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import org.jvnet.jaxb2_commons.lang.ToString2;
+import org.jvnet.jaxb2_commons.locator.ObjectLocator;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "", propOrder = {
+    "header",
+    "masterFiles",
+    "generalLedgerEntries",
+    "sourceDocuments"
+})
+@XmlRootElement(name = "AuditFile")
+public class AuditFile implements ToString2
+{
+
+    @XmlElement(name = "Header", required = true)
+    protected Header header;
+    @XmlElement(name = "MasterFiles", required = true)
+    protected AuditFile.MasterFiles masterFiles;
+    @XmlElement(name = "GeneralLedgerEntries")
+    protected GeneralLedgerEntries generalLedgerEntries;
+    @XmlElement(name = "SourceDocuments")
+    protected SourceDocuments sourceDocuments;
+
+    public Header getHeader() {
+        return header;
+    }
+
+    public void setHeader(Header value) {
+        this.header = value;
+    }
+
+    public AuditFile.MasterFiles getMasterFiles() {
+        return masterFiles;
+    }
+
+    public void setMasterFiles(AuditFile.MasterFiles value) {
+        this.masterFiles = value;
+    }
+
+    public GeneralLedgerEntries getGeneralLedgerEntries() {
+        return generalLedgerEntries;
+    }
+
+    public void setGeneralLedgerEntries(GeneralLedgerEntries value) {
+        this.generalLedgerEntries = value;
+    }
+
+    public SourceDocuments getSourceDocuments() {
+        return sourceDocuments;
+    }
+
+    public void setSourceDocuments(SourceDocuments value) {
+        this.sourceDocuments = value;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder buffer = new StringBuilder();
+        append(null, buffer);
+        return buffer.toString();
+    }
+
+    public StringBuilder append(ObjectLocator locator, StringBuilder buffer) {
+        buffer.append("AuditFile{");
+        appendFields(locator, buffer);
+        buffer.append("}");
+        return buffer;
+    }
+
+    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer) {
+        buffer.append("header=").append(header);
+        buffer.append(", masterFiles=").append(masterFiles);
+        buffer.append(", generalLedgerEntries=").append(generalLedgerEntries);
+        buffer.append(", sourceDocuments=").append(sourceDocuments);
+        return buffer;
+    }
+
+    @XmlAccessorType(XmlAccessType.FIELD)
+    @XmlType(name = "", propOrder = {
+        "generalLedger",
+        "customer",
+        "supplier",
+        "product",
+        "taxTable"
+    })
+    public static class MasterFiles implements ToString2
+    {
+
+        @XmlElement(name = "GeneralLedger")
+        protected List<GeneralLedger> generalLedger;
+        @XmlElement(name = "Customer")
+        protected List<Customer> customer;
+        @XmlElement(name = "Supplier")
+        protected List<Supplier> supplier;
+        @XmlElement(name = "Product")
+        protected List<Product> product;
+        @XmlElement(name = "TaxTable")
+        protected TaxTable taxTable;
+
+        public List<GeneralLedger> getGeneralLedger() {
+            if (generalLedger == null) {
+                generalLedger = new ArrayList<GeneralLedger>();
+            }
+            return this.generalLedger;
+        }
+
+        public List<Customer> getCustomer() {
+            if (customer == null) {
+                customer = new ArrayList<Customer>();
+            }
+            return this.customer;
+        }
+
+        public List<Supplier> getSupplier() {
+            if (supplier == null) {
+                supplier = new ArrayList<Supplier>();
+            }
+            return this.supplier;
+        }
+
+        public List<Product> getProduct() {
+            if (product == null) {
+                product = new ArrayList<Product>();
+            }
+            return this.product;
+        }
+
+        public TaxTable getTaxTable() {
+            return taxTable;
+        }
+
+        public void setTaxTable(TaxTable value) {
+            this.taxTable = value;
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder buffer = new StringBuilder();
+            append(null, buffer);
+            return buffer.toString();
+        }
+
+        public StringBuilder append(ObjectLocator locator, StringBuilder buffer) {
+            buffer.append("MasterFiles{");
+            appendFields(locator, buffer);
+            buffer.append("}");
+            return buffer;
+        }
+
+        public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer) {
+            buffer.append("generalLedger=").append(generalLedger);
+            buffer.append(", customer=").append(customer);
+            buffer.append(", supplier=").append(supplier);
+            buffer.append(", product=").append(product);
+            buffer.append(", taxTable=").append(taxTable);
+            return buffer;
+        }
+
+    }
+
+}
+```

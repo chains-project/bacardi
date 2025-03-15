@@ -1,0 +1,334 @@
+ Act as an Automatic Program Repair (APR) tool, reply only with code, without explanation.
+You are specialized in breaking dependency updates, in which the failure is caused by an external dependency.
+To solve the failure you can only work on the client code.
+ the following client code fails:
+
+```java
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ *
+ * Copyright 2017-2022 the original author or authors.
+ */
+package org.assertj.vavr.api;
+
+import io.vavr.control.Try;
+import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector;
+import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Method;
+
+class ClassLoadingStrategyFactory {
+
+    private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
+    private static final Method PRIVATE_LOOKUP_IN = Try.of(
+        () -> MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class)
+    ).getOrElse((Method) null);
+
+    static ClassLoadingStrategy<ClassLoader> classLoadingStrategy(Class<?> assertClass) {
+        if (ClassInjector.UsingReflection.isAvailable()) {
+            return ClassLoadingStrategy.Default.INJECTION;
+        } else if (ClassInjector.UsingLookup.isAvailable() && PRIVATE_LOOKUP_IN != null) {
+            try {
+                return ClassLoadingStrategy.UsingLookup.of(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));
+            } catch (Exception e) {
+                throw new IllegalStateException("Could not access package of " + assertClass, e);
+            }
+        } else {
+            throw new IllegalStateException("No code generation strategy available");
+        }
+    }
+
+}
+
+```
+
+ with the following error information:
+[ERROR] /assertj-vavr/src/main/java/org/assertj/vavr/api/ClassLoadingStrategyFactory.java:[16,59] package org.assertj.core.internal.bytebuddy.dynamic.loading does not exist
+
+[ERROR] /assertj-vavr/src/main/java/org/assertj/vavr/api/ClassLoadingStrategyFactory.java:[32,33] package ClassInjector does not exist
+
+[ERROR] /assertj-vavr/src/main/java/org/assertj/vavr/api/ClassLoadingStrategyFactory.java:[29,12] cannot find symbol
+  symbol:   class ClassLoadingStrategy
+  location: class org.assertj.vavr.api.ClassLoadingStrategyFactory
+
+[ERROR] /assertj-vavr/src/main/java/org/assertj/vavr/api/ClassLoadingStrategyFactory.java:[31,40] package ClassLoadingStrategy does not exist
+
+[ERROR] /assertj-vavr/src/main/java/org/assertj/vavr/api/ClassLoadingStrategyFactory.java:[17,59] package org.assertj.core.internal.bytebuddy.dynamic.loading does not exist
+
+[ERROR] /assertj-vavr/src/main/java/org/assertj/vavr/api/ClassLoadingStrategyFactory.java:[34,44] package ClassLoadingStrategy does not exist
+
+[ERROR] /assertj-vavr/src/main/java/org/assertj/vavr/api/ClassLoadingStrategyFactory.java:[30,26] package ClassInjector does not exist
+
+
+The error is caused by a change in the API of the dependency. The new library version includes the following changes:
+     Class org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector has been removed in the new version of the dependency.
+     Class org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$UsingLookup has been removed in the new version of the dependency.
+     Constructor org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$UsingLookup(org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector) has been removed in the new version of the dependency.
+     Class org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingJna$Dispatcher.isAvailable() has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingReflection$Dispatcher$Initializable.isAvailable() has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingReflection$Dispatcher$Direct.isAvailable() has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingJna$Dispatcher$Enabled.isAvailable() has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingUnsafe.isAvailable() has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingUnsafe$Dispatcher$Initializable.isAvailable() has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingReflection.isAvailable() has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingUnsafe$Dispatcher$Enabled.isAvailable() has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingReflection$Dispatcher$Initializable$Unavailable.isAvailable() has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingLookup.isAvailable() has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingUnsafe$Factory.isAvailable() has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingUnsafe$Dispatcher$Unavailable.isAvailable() has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingJna.isAvailable() has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingReflection$Dispatcher$UsingUnsafeInjection.isAvailable() has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingInstrumentation.isAvailable() has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingJna$Dispatcher$Unavailable.isAvailable() has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingReflection$Dispatcher$UsingUnsafeOverride.isAvailable() has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.JavaType.isAvailable() has been removed in the new version of the dependency.
+     Constructor org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingLookup(java.lang.Object) has been removed in the new version of the dependency.
+     Class org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingLookup has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator$ForClassLoader$WeaklyReferenced.of(java.lang.ClassLoader) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForConstant.of(double[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$LambdaInstrumentationStrategy$LambdaInstanceFactory$LambdaMethodImplementation$Appender.of(org.assertj.core.internal.bytebuddy.description.method.MethodDescription,org.assertj.core.internal.bytebuddy.utility.JavaConstant$MethodType,java.util.List,org.assertj.core.internal.bytebuddy.utility.JavaConstant$MethodHandle$HandleType,org.assertj.core.internal.bytebuddy.description.type.TypeDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.method.ParameterList$ForLoadedExecutable.of(java.lang.reflect.Method,org.assertj.core.internal.bytebuddy.description.method.ParameterDescription$ForLoadedParameter$ParameterAnnotationSource) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.asm.Advice$OffsetMapping$ForEnterValue$Factory.of(org.assertj.core.internal.bytebuddy.description.type.TypeDefinition) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.asm.Advice$OffsetMapping$ForStackManipulation$Factory.of(java.lang.Class,java.lang.Object) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForConstant.of(java.lang.String[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation$ImplementationDelegate$ForStaticMethod.of(org.assertj.core.internal.bytebuddy.description.method.MethodList,org.assertj.core.internal.bytebuddy.implementation.bind.MethodDelegationBinder) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.pool.TypePool$Default$LazyTypeDescription$TokenizedGenericType.of(org.assertj.core.internal.bytebuddy.pool.TypePool,org.assertj.core.internal.bytebuddy.pool.TypePool$Default$LazyTypeDescription$GenericTypeToken,java.lang.String,java.util.Map,org.assertj.core.internal.bytebuddy.description.TypeVariableSource) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bytecode.constant.ClassConstant.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.pool.TypePool$ClassLoading.of(java.lang.ClassLoader) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.pool.TypePool$Default$LazyTypeDescription$GenericTypeToken$ForPrimitiveType.of(char) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.modifier.ModifierContributor$Resolver.of(org.assertj.core.internal.bytebuddy.description.modifier.ModifierContributor$ForMethod[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingLookup.of(java.lang.Object) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator$ForClassLoader.of(java.lang.ClassLoader) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.ToStringMethod$ValueConsumer.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.auxiliary.PrivilegedMemberLookupAction.of(org.assertj.core.internal.bytebuddy.description.method.MethodDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bind.MethodDelegationBinder$ParameterBinding$Unique.of(org.assertj.core.internal.bytebuddy.implementation.bytecode.StackManipulation,java.lang.Object) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.asm.Advice$Dispatcher$RelocationHandler$ForType.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.description.type.TypeDefinition) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.attribute.MethodAttributeAppender$Explicit.of(org.assertj.core.internal.bytebuddy.description.method.MethodDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.pool.TypePool$Default.of(java.lang.ClassLoader) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.pool.TypePool$Default.of(org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator$Simple.of(java.lang.String,byte[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.Implementation$Simple.of(org.assertj.core.internal.bytebuddy.implementation.Implementation$Simple$Dispatcher,org.assertj.core.internal.bytebuddy.dynamic.scaffold.InstrumentedType$Prepareable) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.HashCodeMethod$ValueTransformer.of(org.assertj.core.internal.bytebuddy.description.type.TypeDefinition) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.build.Plugin$Engine$Default.of(org.assertj.core.internal.bytebuddy.build.EntryPoint,org.assertj.core.internal.bytebuddy.ClassFileVersion,org.assertj.core.internal.bytebuddy.dynamic.scaffold.inline.MethodNameTransformer) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForConstant.of(float[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bind.annotation.Default$Binder$TypeLocator$ForType.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.of(org.assertj.core.internal.bytebuddy.build.EntryPoint,org.assertj.core.internal.bytebuddy.build.Plugin[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeWriter$MethodPool$Record$AccessBridgeWrapper.of(org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeWriter$MethodPool$Record,org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.description.method.MethodDescription,java.util.Set,org.assertj.core.internal.bytebuddy.implementation.attribute.MethodAttributeAppender) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.type.TypeDescription$Generic$Visitor$Substitutor$ForAttachment.of(org.assertj.core.internal.bytebuddy.description.type.RecordComponentDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.ClassFileVersion.of(java.lang.Class,org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeWriter$Default$ValidatingClassVisitor.of(org.assertj.core.internal.bytebuddy.jar.asm.ClassVisitor,org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeValidation) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.JavaConstant$MethodType.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription,java.util.List) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator$ForModule.of(org.assertj.core.internal.bytebuddy.utility.JavaModule) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.asm.Advice$OffsetMapping$Target$ForStackManipulation.of(org.assertj.core.internal.bytebuddy.description.method.MethodDescription$InDefinedShape) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.asm.Advice$OffsetMapping$ForSerializedValue$Factory.of(java.lang.Class,java.io.Serializable,java.lang.Class) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.asm.Advice$Dispatcher$Delegating$Resolved$ForMethodEnter.of(org.assertj.core.internal.bytebuddy.description.method.MethodDescription$InDefinedShape,org.assertj.core.internal.bytebuddy.asm.Advice$PostProcessor,org.assertj.core.internal.bytebuddy.asm.Advice$Delegator,java.util.List,org.assertj.core.internal.bytebuddy.description.type.TypeDefinition,boolean) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bytecode.Removal.of(org.assertj.core.internal.bytebuddy.description.type.TypeDefinition) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.asm.MemberSubstitution$Replacement$ForElementMatchers$Factory.of(org.assertj.core.internal.bytebuddy.matcher.ElementMatcher,org.assertj.core.internal.bytebuddy.asm.MemberSubstitution$Substitution$Factory) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.InvokeDynamic$InvocationProvider$ArgumentProvider$ConstantPoolWrapper.of(java.lang.Object) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.JavaConstant$MethodHandle.of(java.lang.reflect.Method) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bind.annotation.TargetMethodAnnotationDrivenBinder$ParameterBinder$ForFixedValue$OfConstant.of(java.lang.Class,java.lang.Object) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Simple.of(java.util.List) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForConstant.of(char) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.pool.TypePool$AbstractBase$ArrayTypeResolution.of(org.assertj.core.internal.bytebuddy.pool.TypePool$Resolution,int) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler$Default$Key$Harmonized.of(org.assertj.core.internal.bytebuddy.description.method.MethodDescription,org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler$Default$Harmonizer) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.JavaConstant$Simple$Dispatcher$OfMethodTypeDesc.of(java.lang.Object,java.lang.Object[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bind.annotation.TargetMethodAnnotationDrivenBinder$DelegationProcessor.of(java.util.List) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.asm.Advice$OffsetMapping$ForThrowable$Factory.of(org.assertj.core.internal.bytebuddy.description.method.MethodDescription$InDefinedShape) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.asm.Advice$Dispatcher$Inlining$Resolved$ForMethodEnter.of(org.assertj.core.internal.bytebuddy.description.method.MethodDescription$InDefinedShape,org.assertj.core.internal.bytebuddy.asm.Advice$PostProcessor,java.util.Map,java.util.List,org.assertj.core.internal.bytebuddy.description.type.TypeDefinition,org.assertj.core.internal.bytebuddy.jar.asm.ClassReader,boolean) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.type.TypeDescription$Generic$OfNonGenericType$ForReifiedErasure.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.InvocationHandlerAdapter.of(java.lang.reflect.InvocationHandler,java.lang.String) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.asm.Advice$OffsetMapping$Target$ForStackManipulation.of(java.lang.Object) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.build.Plugin$Factory$UsingReflection$ArgumentResolver$ForType.of(java.lang.Class,java.lang.Object) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForConstant.of(long[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.pool.TypePool$Default$LazyTypeDescription$GenericTypeToken$Resolution$Raw$RawAnnotatedType$LazyRawAnnotatedTypeList.of(org.assertj.core.internal.bytebuddy.pool.TypePool,java.util.Map,java.util.List) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.pool.TypePool$Default$LazyTypeDescription$GenericTypeToken$Resolution$Raw$RawAnnotatedType.of(org.assertj.core.internal.bytebuddy.pool.TypePool,java.util.Map,java.lang.String) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.type.TypeList$Generic$ForLoadedTypes$OfTypeVariables.of(java.lang.reflect.GenericDeclaration) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.type.TypeDescription$Generic$LazyProjection$WithLazyNavigation$LazySuperClass.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription$Generic$LazyProjection) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.Implementation$Simple.of(org.assertj.core.internal.bytebuddy.implementation.Implementation$Simple$Dispatcher,org.assertj.core.internal.bytebuddy.dynamic.scaffold.InstrumentedType$Prepareable,int) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$Sort.of(org.assertj.core.internal.bytebuddy.description.type.TypeDefinition) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForDescriptionArray.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.description.enumeration.EnumerationDescription[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.dispatcher.JavaDispatcher.of(java.lang.Class,java.lang.ClassLoader) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Listener$ModuleReadEdgeCompleting.of(java.lang.instrument.Instrumentation,boolean,java.lang.Class[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator$Simple.of(org.assertj.core.internal.bytebuddy.dynamic.DynamicType) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.pool.TypePool$ClassLoading.of(java.lang.ClassLoader,org.assertj.core.internal.bytebuddy.pool.TypePool) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.type.TypeDescription$Generic$Visitor$Substitutor$ForAttachment.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.JavaConstant$MethodType.of(org.assertj.core.internal.bytebuddy.description.method.MethodDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator$ForJarFile.of(java.io.File) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassReloadingStrategy.of(java.lang.instrument.Instrumentation) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator$ForInstrumentation.of(java.lang.instrument.Instrumentation,java.lang.Class) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.CompoundList.of(java.util.List,java.util.List,java.util.List) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.asm.MemberSubstitution$TypePoolResolver$ForClassFileLocator.of(java.lang.ClassLoader) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.JavaConstant$MethodType.of(java.lang.reflect.Method) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.dispatcher.JavaDispatcher$Dispatcher$ForDefaultValue$OfNonPrimitiveArray.of(java.lang.Class) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.method.ParameterList$ForLoadedExecutable.of(java.lang.reflect.Constructor,org.assertj.core.internal.bytebuddy.description.method.ParameterDescription$ForLoadedParameter$ParameterAnnotationSource) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bytecode.assign.Assigner$Typing.of(boolean) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler$Default.of(org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler$Default$Harmonizer,org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler$Default$Merger) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.method.ParameterList$ForLoadedExecutable.of(java.lang.reflect.Method) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default$NativeMethodStrategy$ForPrefix.of(java.lang.String) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator$ForModuleFile.of(java.io.File) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForConstant.of(short) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.CompoundList.of(java.util.List,java.util.List) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.of(org.assertj.core.internal.bytebuddy.build.EntryPoint,org.assertj.core.internal.bytebuddy.ClassFileVersion,org.assertj.core.internal.bytebuddy.build.Plugin[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.CompoundList.of(java.lang.Object,java.util.List) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.JavaConstant$MethodHandle.of(org.assertj.core.internal.bytebuddy.description.method.MethodDescription$InDefinedShape) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.Implementation$Simple.of(org.assertj.core.internal.bytebuddy.implementation.Implementation$Simple$Dispatcher,int) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.type.TypeDescription$ArrayProjection.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription,int) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.EqualsMethod$ValueComparator.of(org.assertj.core.internal.bytebuddy.description.type.TypeDefinition) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$UsingLookup.of(java.lang.Object) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.type.TypeDescription$Generic$OfParameterizedType$ForGenerifiedErasure.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.scaffold.inline.RebaseImplementationTarget.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Linked,org.assertj.core.internal.bytebuddy.ClassFileVersion,org.assertj.core.internal.bytebuddy.dynamic.scaffold.inline.MethodRebaseResolver) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bytecode.Duplication.of(org.assertj.core.internal.bytebuddy.description.type.TypeDefinition) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.matcher.MethodSortMatcher.of(org.assertj.core.internal.bytebuddy.matcher.MethodSortMatcher$Sort) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.JavaConstant$MethodType.of(java.lang.Class,java.lang.Class[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.of(org.assertj.core.internal.bytebuddy.build.EntryPoint,java.util.List) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.JavaModule.of(java.lang.Object) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.CompoundList.of(java.util.List,java.lang.Object) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.SuperMethodCall$Appender$TerminationHandler.of(org.assertj.core.internal.bytebuddy.description.method.MethodDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationDescription$AnnotationInvocationHandler.of(java.lang.ClassLoader,java.lang.Class,java.util.Map) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationDescription$ForLoadedAnnotation.of(java.lang.annotation.Annotation) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bytecode.member.MethodInvocation$OfGenericMethod.of(org.assertj.core.internal.bytebuddy.description.method.MethodDescription,org.assertj.core.internal.bytebuddy.implementation.bytecode.member.MethodInvocation$WithImplicitInvocationTargetType) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.modifier.ModifierContributor$Resolver.of(java.util.Collection) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy$BatchAllocator$Partitioning.of(int) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForConstant.of(short[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.ClassFileVersion.of(java.lang.Class) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bytecode.StackSize.of(java.lang.Class) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$LambdaInstrumentationStrategy.of(boolean) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bytecode.constant.SerializedConstant.of(java.io.Serializable) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.FieldAccessor.of(java.lang.reflect.Field) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.type.TypeDescription$Generic$Builder.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription$Generic) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.asm.Advice$Dispatcher$Delegating$Resolved$ForMethodExit.of(org.assertj.core.internal.bytebuddy.description.method.MethodDescription$InDefinedShape,org.assertj.core.internal.bytebuddy.asm.Advice$PostProcessor,org.assertj.core.internal.bytebuddy.asm.Advice$Delegator,java.util.Map,java.util.List,org.assertj.core.internal.bytebuddy.description.type.TypeDefinition) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.type.TypeDescription$Generic$Visitor$Substitutor$ForAttachment.of(org.assertj.core.internal.bytebuddy.description.field.FieldDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForConstant.of(long) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.type.TypeList$Explicit.of(java.util.List) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.dispatcher.JavaDispatcher.of(java.lang.Class) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.of(org.assertj.core.internal.bytebuddy.build.EntryPoint,org.assertj.core.internal.bytebuddy.ClassFileVersion,java.util.List) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bytecode.StackSize.of(org.assertj.core.internal.bytebuddy.description.type.TypeDefinition[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.modifier.ModifierContributor$Resolver.of(org.assertj.core.internal.bytebuddy.description.modifier.ModifierContributor$ForField[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.MethodDelegation$ImplementationDelegate$ForConstruction.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.description.method.MethodList,org.assertj.core.internal.bytebuddy.implementation.bind.MethodDelegationBinder) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.Implementation$Simple.of(org.assertj.core.internal.bytebuddy.implementation.Implementation$Simple$Dispatcher) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bytecode.assign.InstanceCheck.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.JavaConstant$MethodType.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.description.type.TypeDescription[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForConstant.of(byte[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.JavaConstant$MethodHandle$HandleType.of(int) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bind.annotation.TargetMethodAnnotationDrivenBinder.of(java.util.List) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.FieldAccessor.of(org.assertj.core.internal.bytebuddy.description.field.FieldDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.type.TypeDescription$Generic$Visitor$Substitutor$ForDetachment.of(org.assertj.core.internal.bytebuddy.description.type.TypeDefinition) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.Implementation$Target$AbstractBase$DefaultMethodInvocation.of(org.assertj.core.internal.bytebuddy.ClassFileVersion) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$RedefinitionStrategy$Listener$Pausing.of(long,java.util.concurrent.TimeUnit) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler$Default$Key$Store$Entry$Ambiguous.of(org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler$Default$Key$Harmonized,org.assertj.core.internal.bytebuddy.description.method.MethodDescription,org.assertj.core.internal.bytebuddy.description.method.MethodDescription,org.assertj.core.internal.bytebuddy.description.modifier.Visibility) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeWriter$MethodPool$Record$ForDefinedMethod$OfVisibilityBridge.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.description.method.MethodDescription,org.assertj.core.internal.bytebuddy.implementation.attribute.MethodAttributeAppender) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.asm.Advice$StackMapFrameHandler$Default.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.description.method.MethodDescription,java.util.List,java.util.List,java.util.List,java.util.List,boolean,boolean,org.assertj.core.internal.bytebuddy.ClassFileVersion,int,int) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.type.TypeDescription$Generic$OfNonGenericType$ForLoadedType.of(java.lang.Class) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.type.RecordComponentDescription$ForLoadedRecordComponent.of(java.lang.Object) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForTypeDescription.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.ClassFileVersion.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.scaffold.inline.MethodRebaseResolver$Resolution$ForRebasedMethod.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.description.method.MethodDescription$InDefinedShape,org.assertj.core.internal.bytebuddy.dynamic.scaffold.inline.MethodNameTransformer) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.type.TypeDescription$Generic$LazyProjection$ForLoadedSuperClass.of(java.lang.Class) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.asm.Advice$Delegator$ForDynamicInvocation.of(org.assertj.core.internal.bytebuddy.description.method.MethodDescription$InDefinedShape) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.scaffold.inline.InliningImplementationMatcher.of(org.assertj.core.internal.bytebuddy.matcher.LatentMatcher,org.assertj.core.internal.bytebuddy.description.type.TypeDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.OpenedClassReader.of(byte[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.JavaConstant$MethodHandle$HandleType.of(org.assertj.core.internal.bytebuddy.description.method.MethodDescription$InDefinedShape) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.scaffold.inline.RebaseImplementationTarget$RebasedMethodInvocation.of(org.assertj.core.internal.bytebuddy.description.method.MethodDescription,org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.description.type.TypeList) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bytecode.member.MethodReturn.of(org.assertj.core.internal.bytebuddy.description.type.TypeDefinition) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.of(org.assertj.core.internal.bytebuddy.ClassFileVersion,java.util.List) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForConstant.of(boolean[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForConstant.of(char[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bytecode.constant.DefaultValue.of(org.assertj.core.internal.bytebuddy.description.type.TypeDefinition) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.modifier.ModifierContributor$Resolver.of(org.assertj.core.internal.bytebuddy.description.modifier.ModifierContributor$ForParameter[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator$ForInstrumentation$ClassLoadingDelegate$Default.of(java.lang.ClassLoader) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.pool.TypePool$Default$WithLazyResolution.of(org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeValidation.of(boolean) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.type.TypeDescription$ForLoadedType.of(java.lang.Class) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.modifier.ModifierContributor$Resolver.of(org.assertj.core.internal.bytebuddy.description.modifier.ModifierContributor$ForType[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.FieldAccessor.of(org.assertj.core.internal.bytebuddy.implementation.FieldAccessor$FieldNameExtractor) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.type.TypeDescription$Generic$Visitor$Substitutor$ForAttachment.of(org.assertj.core.internal.bytebuddy.description.method.ParameterDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.matcher.BooleanMatcher.of(boolean) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeWriter$Default$ForInlining$WithFullProcessing$InitializationHandler$Appending.of(boolean,org.assertj.core.internal.bytebuddy.jar.asm.MethodVisitor,org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.dynamic.scaffold.TypeWriter$MethodPool,org.assertj.core.internal.bytebuddy.implementation.attribute.AnnotationValueFilter$Factory,boolean,boolean) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.of(org.assertj.core.internal.bytebuddy.build.Plugin[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForEnumerationDescription.of(org.assertj.core.internal.bytebuddy.description.enumeration.EnumerationDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.type.TypeDescription$ArrayProjection.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler$Default$Key$Detached.of(org.assertj.core.internal.bytebuddy.description.method.MethodDescription$SignatureToken) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.MethodCall$ArgumentLoader$ForStackManipulation.of(java.lang.Object) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.matcher.ModifierMatcher.of(org.assertj.core.internal.bytebuddy.matcher.ModifierMatcher$Mode) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bytecode.TypeCreation.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForConstant.of(java.lang.Object) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForConstant.of(int) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.scaffold.inline.MethodRebaseResolver$Resolution$ForRebasedConstructor.of(org.assertj.core.internal.bytebuddy.description.method.MethodDescription$InDefinedShape,org.assertj.core.internal.bytebuddy.description.type.TypeDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bytecode.collection.ArrayAccess.of(org.assertj.core.internal.bytebuddy.description.type.TypeDefinition) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForAnnotationDescription.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription,java.util.Map) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.type.TypeDescription$Generic$Builder.of(java.lang.reflect.Type) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.scaffold.InstrumentedType$Default.of(java.lang.String,org.assertj.core.internal.bytebuddy.description.type.TypeDescription$Generic,org.assertj.core.internal.bytebuddy.description.modifier.ModifierContributor$ForType[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.JavaConstant$Simple$Dispatcher$OfMethodHandleDesc.of(java.lang.Object,java.lang.Object,java.lang.String,java.lang.String) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.asm.Advice$OffsetMapping$ForExitValue$Factory.of(org.assertj.core.internal.bytebuddy.description.type.TypeDefinition) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.scaffold.InstrumentedType$Default.of(java.lang.String,org.assertj.core.internal.bytebuddy.description.type.TypeDescription$Generic,int) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.asm.MemberSubstitution$Replacement$InvocationType.of(int,org.assertj.core.internal.bytebuddy.description.method.MethodDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator$ForModule$WeaklyReferenced.of(org.assertj.core.internal.bytebuddy.utility.JavaModule) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.asm.Advice$Dispatcher$RelocationHandler$ForValue.of(org.assertj.core.internal.bytebuddy.description.type.TypeDefinition,boolean) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.asm.Advice$Dispatcher$Inlining$Resolved$ForMethodExit.of(org.assertj.core.internal.bytebuddy.description.method.MethodDescription$InDefinedShape,org.assertj.core.internal.bytebuddy.asm.Advice$PostProcessor,java.util.Map,java.util.Map,java.util.List,org.assertj.core.internal.bytebuddy.jar.asm.ClassReader,org.assertj.core.internal.bytebuddy.description.type.TypeDefinition) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.asm.Advice$MethodSizeHandler$Default.of(org.assertj.core.internal.bytebuddy.description.method.MethodDescription,java.util.List,java.util.List,java.util.List,boolean,int) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.type.TypeDescription$Generic$Visitor$Substitutor$ForAttachment.of(org.assertj.core.internal.bytebuddy.description.method.MethodDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bytecode.member.FieldAccess$OfGenericField.of(org.assertj.core.internal.bytebuddy.description.field.FieldDescription,org.assertj.core.internal.bytebuddy.implementation.bytecode.member.FieldAccess$Defined) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForConstant.of(byte) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator$ForInstrumentation$ClassLoadingDelegate$Explicit.of(java.lang.Class) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.attribute.AnnotationRetention.of(boolean) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.pool.TypePool$Default$WithLazyResolution.of(java.lang.ClassLoader) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.asm.Advice$AssignReturned$DefaultValueSkip.of(org.assertj.core.internal.bytebuddy.implementation.bytecode.StackManipulation,org.assertj.core.internal.bytebuddy.asm.Advice$StackMapFrameHandler$ForPostProcessor,int,org.assertj.core.internal.bytebuddy.description.type.TypeDefinition) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.JavaConstant$MethodHandle.of(java.lang.reflect.Constructor) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler$Default.of(org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler$Default$Harmonizer,org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph$Compiler$Default$Merger,org.assertj.core.internal.bytebuddy.description.type.TypeDescription$Generic$Visitor) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForConstant.of(boolean) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.ClassFileLocator$Simple.of(java.util.Map) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingInstrumentation.of(java.io.File,org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingInstrumentation$Target,java.lang.instrument.Instrumentation) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.dispatcher.JavaDispatcher$Dispatcher$ForDefaultValue.of(java.lang.Class) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForDescriptionArray.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.InvocationHandlerAdapter.of(java.lang.reflect.InvocationHandler) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.InvokeDynamic$InvocationProvider$ArgumentProvider$ForInstance.of(java.lang.Object) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForDescriptionArray.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription,org.assertj.core.internal.bytebuddy.description.annotation.AnnotationDescription[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bytecode.StackSize.of(int) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.type.TypeVariableToken.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription$Generic,org.assertj.core.internal.bytebuddy.matcher.ElementMatcher) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.of(org.assertj.core.internal.bytebuddy.ClassFileVersion,org.assertj.core.internal.bytebuddy.build.Plugin[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder$Default.of(java.util.List) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.dispatcher.JavaDispatcher.of(java.lang.Class,java.lang.ClassLoader,boolean) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.asm.Advice$OffsetMapping$ForStackManipulation$OfAnnotationProperty.of(java.lang.Class,java.lang.String) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.asm.Advice$Dispatcher$SuppressionHandler$Suppressing.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.JavaConstant$MethodType.of(java.lang.reflect.Constructor) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.type.TypeDescription$Generic$LazyProjection$WithLazyNavigation$LazyInterfaceList.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription$Generic$LazyProjection) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bytecode.StackSize.of(java.util.Collection) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.utility.JavaConstant$Simple.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForConstant.of(double) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForConstant.of(int[]) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bind.annotation.TargetMethodAnnotationDrivenBinder$DelegationProcessor$Handler$Bound.of(org.assertj.core.internal.bytebuddy.description.method.ParameterDescription,org.assertj.core.internal.bytebuddy.implementation.bind.annotation.TargetMethodAnnotationDrivenBinder$ParameterBinder,org.assertj.core.internal.bytebuddy.description.annotation.AnnotationDescription,org.assertj.core.internal.bytebuddy.implementation.bytecode.assign.Assigner$Typing) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.Implementation$SpecialMethodInvocation$Simple.of(org.assertj.core.internal.bytebuddy.description.method.MethodDescription,org.assertj.core.internal.bytebuddy.description.type.TypeDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bytecode.member.MethodVariableAccess.of(org.assertj.core.internal.bytebuddy.description.type.TypeDefinition) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bytecode.constant.MethodConstant.of(org.assertj.core.internal.bytebuddy.description.method.MethodDescription$InDefinedShape) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.method.ParameterList$ForLoadedExecutable.of(java.lang.reflect.Constructor) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForConstant.of(float) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.implementation.bind.annotation.Super$Binder$TypeLocator$ForType.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.description.annotation.AnnotationValue$ForConstant.of(java.lang.String) has been removed in the new version of the dependency.
+     Method org.assertj.core.internal.bytebuddy.asm.Advice$OffsetMapping$Target$ForStackManipulation.of(org.assertj.core.internal.bytebuddy.description.type.TypeDescription) has been removed in the new version of the dependency.
+     Constructor org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingReflection(java.lang.ClassLoader,java.security.ProtectionDomain) has been removed in the new version of the dependency.
+     Constructor org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingReflection(java.lang.ClassLoader,java.security.ProtectionDomain,org.assertj.core.internal.bytebuddy.dynamic.loading.PackageDefinitionStrategy,boolean) has been removed in the new version of the dependency.
+     Class org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingReflection has been removed in the new version of the dependency.
+     Constructor org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingReflection(java.lang.ClassLoader) has been removed in the new version of the dependency.
+     Class org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy$Default has been removed in the new version of the dependency.
+
+
+
+
+ propose a patch that can be applied to the code to fix the issue.
+ Return only a complete and compilable class in a fenced code block.
+ Do not remove any code that you don't want to update keep it in the code block. Do not use "// ... (rest of the code remains unchanged)" in your response.
+ You CANNOT change the function signature of any method but may create variables if it simplifies the code.
+ You CAN remove the @Oxverride annotation IF AND ONLY IF the method no longer overrides a method in the updated dependency version.
+ If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version.
+ Avoid removing any existing code unless it directly causes a compilation or functionality error. Don't use the comment "// ... (rest of the class remains unchanged)".
+ Return only the fixed class, ensuring it fully compiles and adheres to these constraints.
+ 

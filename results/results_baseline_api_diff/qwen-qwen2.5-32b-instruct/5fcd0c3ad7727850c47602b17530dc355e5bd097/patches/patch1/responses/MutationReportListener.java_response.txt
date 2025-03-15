@@ -2,13 +2,11 @@ package org.pitest.elements;
 
 import org.pitest.classinfo.ClassInfoVisitor;
 import org.pitest.classinfo.ClassName;
-import org.pitest.classinfo.ClassInfo;
 import org.pitest.coverage.CoverageDatabase;
 import org.pitest.mutationtest.ClassMutationResults;
 import org.pitest.mutationtest.MutationResultListener;
 import org.pitest.elements.models.MutationTestSummaryData;
 import org.pitest.elements.models.PackageSummaryMap;
-import org.pitest.elements.utils.JsonParser;
 import org.pitest.util.FileUtil;
 import org.pitest.util.ResultOutputStrategy;
 
@@ -103,17 +101,15 @@ public class MutationReportListener implements MutationResultListener {
 
   private MutationTestSummaryData createSummaryData(
       final CoverageDatabase coverage, final ClassMutationResults data) {
-    // Assuming the new method signature requires a different approach to get class info
-    // This is a placeholder for the actual logic to get class info using the new API
     ClassInfoVisitor visitor = new ClassInfoVisitor() {
       @Override
-      public void visit(ClassInfo classInfo) {
-        // Implement the logic to handle classInfo
+      public void visit(ClassName className, byte[] classBytes, long timestamp) {
+        // Implement the logic to handle class info if necessary
       }
     };
-    coverage.accept(Collections.singleton(data.getMutatedClass()), visitor);
+    coverage.accept(visitor);
     return new MutationTestSummaryData(data.getFileName(),
-        data.getMutations(), null); // Adjust the third parameter as needed
+        data.getMutations(), visitor.getClassInfo(data.getMutatedClass()));
   }
 
   private void updatePackageSummary(

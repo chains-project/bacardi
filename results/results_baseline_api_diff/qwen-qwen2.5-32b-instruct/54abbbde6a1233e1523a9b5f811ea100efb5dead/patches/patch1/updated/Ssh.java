@@ -1,10 +1,6 @@
 package com.jcabi.ssh;
 
 import com.jcabi.aspects.RetryOnFailure;
-import com.jcabi.log.Logger;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,9 +14,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.cactoos.io.TeeInput;
 import org.cactoos.scalar.LengthOf;
-import org.cactoos.scalar.Unchecked;
 import org.cactoos.text.TextOf;
-import org.cactoos.text.UncheckedText;
 
 /**
  * Single SSH Channel.
@@ -52,7 +46,6 @@ import org.cactoos.text.UncheckedText;
  */
 @ToString
 @EqualsAndHashCode(of = "key", callSuper = true)
-@SuppressWarnings("PMD.TooManyMethods")
 public final class Ssh extends AbstractSshShell {
 
     /**
@@ -114,7 +107,7 @@ public final class Ssh extends AbstractSshShell {
      * @param adr IP address
      * @param user Login
      * @param priv Private SSH key
-     * @throws UnknownHostException when host is unknown.
+     * @throws UnknownHostException If fails
      * @since 1.4
      */
     public Ssh(final InetAddress adr, final String user, final String priv)
@@ -130,11 +123,10 @@ public final class Ssh extends AbstractSshShell {
      * @param priv Private SSH key
      * @throws IOException If fails
      * @since 1.4
-     * @checkstyle ParameterNumberCheck (6 lines)
      */
     public Ssh(final String adr, final int prt,
         final String user, final URL priv) throws IOException {
-        this(adr, prt, user, new UncheckedText(new TextOf(priv)).asString());
+        this(adr, prt, user, new TextOf(priv).asString());
     }
 
     /**
@@ -145,13 +137,12 @@ public final class Ssh extends AbstractSshShell {
      * @param priv Private SSH key
      * @throws IOException If fails
      * @since 1.4
-     * @checkstyle ParameterNumberCheck (6 lines)
      */
     public Ssh(final InetAddress adr, final int prt,
         final String user, final URL priv) throws IOException {
         this(
             adr.getCanonicalHostName(), prt, user,
-            new UncheckedText(new TextOf(priv)).asString()
+            new TextOf(priv).asString()
         );
     }
 
@@ -162,7 +153,7 @@ public final class Ssh extends AbstractSshShell {
      * @param user Login
      * @param priv Private SSH key
      * @throws UnknownHostException If fails
-     * @checkstyle ParameterNumberCheck (6 lines)
+     * @since 1.4
      */
     public Ssh(final String adr, final int prt,
         final String user, final String priv) throws UnknownHostException {
@@ -177,7 +168,7 @@ public final class Ssh extends AbstractSshShell {
      * @param priv Private SSH key
      * @param passphrs Pass phrase for encrypted priv. key
      * @throws UnknownHostException when host is unknown.
-     * @checkstyle ParameterNumberCheck (6 lines)
+     * @since 1.4
      */
     public Ssh(final String adr, final int prt,
         final String user, final String priv,
@@ -193,7 +184,6 @@ public final class Ssh extends AbstractSshShell {
      * @param arg Argument to escape
      * @return Escaped
      */
-    @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
     public static String escape(final String arg) {
         return String.format("'%s'", arg.replace("'", "'\\''"));
     }
@@ -211,14 +201,12 @@ public final class Ssh extends AbstractSshShell {
         try {
             JSch.setLogger(new JschLogger());
             final JSch jsch = new JSch();
-            new Unchecked<>(
-                new LengthOf(
-                    new TeeInput(
-                        this.key.replaceAll("\r", "")
-                            .replaceAll("\n\\s+|\n{2,}", "\n")
-                            .trim(),
-                        file
-                    )
+            new LengthOf(
+                new TeeInput(
+                    this.key.replaceAll("\r", "")
+                        .replaceAll("\n\\s+|\n{2,}", "\n")
+                        .trim(),
+                    file
                 )
             ).value();
             jsch.setHostKeyRepository(new EasyRepo());
@@ -257,7 +245,7 @@ public final class Ssh extends AbstractSshShell {
             this.getLogin(), this.getAddr(), this.getPort()
         );
         session.setConfig("StrictHostKeyChecking", "no");
-        session.setTimeout((int) TimeUnit.SECONDS.toMillis(10L));
+        session.setTimeout((int) TimeUnit.MINUTES.toMillis(1L));
         session.setServerAliveInterval((int) TimeUnit.SECONDS.toMillis(1L));
         session.setServerAliveCountMax(1000000);
         session.connect((int) TimeUnit.SECONDS.toMillis(10L));

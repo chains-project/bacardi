@@ -21,8 +21,8 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TIOStreamTransport;
-import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.layered.TFramedTransport;
+import org.apache.thrift.transport.TTransport;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -63,7 +63,6 @@ public class ThriftReader<T extends TBase> implements Closeable {
   // TProtocol implementation.
   private final TProtocol protocol;
 
-  // The framed framedTransport.
   private final TFramedTransport framedTransport;
 
   public ThriftReader(

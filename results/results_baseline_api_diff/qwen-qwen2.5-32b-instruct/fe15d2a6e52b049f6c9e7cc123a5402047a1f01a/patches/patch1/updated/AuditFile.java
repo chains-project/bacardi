@@ -41,17 +41,17 @@ public class AuditFile implements ToString2
             }
 
             @Override
-            public StringBuilder appendField(ObjectLocator locator, StringBuilder buffer, String name, Object value, boolean isNil) {
+            public StringBuilder appendField(ObjectLocator locator, StringBuilder buffer, String name, Object value, boolean isExplicit) {
                 return buffer.append(name).append(": ").append(value).append(", ");
             }
 
             @Override
-            public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+            public StringBuilder appendStart(ObjectLocator locator, StringBuilder buffer, Object object) {
                 return buffer.append(object.getClass().getSimpleName()).append(" [");
             }
 
             @Override
-            public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+            public StringBuilder appendEnd(ObjectLocator locator, StringBuilder buffer, Object object) {
                 return buffer.append("]");
             }
         };
@@ -73,22 +73,22 @@ public class AuditFile implements ToString2
         {
             Header theHeader;
             theHeader = this.getHeader();
-            strategy.appendField(locator, this, "header", buffer, theHeader, (this.header != null));
+            strategy.appendField(locator, this, "header", buffer, theHeader, (this.header!= null));
         }
         {
             AuditFile.MasterFiles theMasterFiles;
             theMasterFiles = this.getMasterFiles();
-            strategy.appendField(locator, this, "masterFiles", buffer, theMasterFiles, (this.masterFiles != null));
+            strategy.appendField(locator, this, "masterFiles", buffer, theMasterFiles, (this.masterFiles!= null));
         }
         {
             GeneralLedgerEntries theGeneralLedgerEntries;
             theGeneralLedgerEntries = this.getGeneralLedgerEntries();
-            strategy.appendField(locator, this, "generalLedgerEntries", buffer, theGeneralLedgerEntries, (this.generalLedgerEntries != null));
+            strategy.appendField(locator, this, "generalLedgerEntries", buffer, theGeneralLedgerEntries, (this.generalLedgerEntries!= null));
         }
         {
             SourceDocuments theSourceDocuments;
             theSourceDocuments = this.getSourceDocuments();
-            strategy.appendField(locator, this, "sourceDocuments", buffer, theSourceDocuments, (this.sourceDocuments != null));
+            strategy.appendField(locator, this, "sourceDocuments", buffer, theSourceDocuments, (this.sourceDocuments!= null));
         }
         return buffer;
     }
@@ -126,17 +126,17 @@ public class AuditFile implements ToString2
                 }
 
                 @Override
-                public StringBuilder appendField(ObjectLocator locator, StringBuilder buffer, String name, Object value, boolean isNil) {
-                    return buffer.append(name).append(": ").append(value).toString()).append(", ");
+                public StringBuilder appendField(ObjectLocator locator, StringBuilder buffer, String name, Object value, boolean isExplicit) {
+                    return buffer.append(name).append(": ").append(value).append(", ");
                 }
 
                 @Override
-                public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+                public StringBuilder appendStart(ObjectLocator locator, StringBuilder buffer, Object object) {
                     return buffer.append(object.getClass().getSimpleName()).append(" [");
                 }
 
                 @Override
-                public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+                public StringBuilder appendEnd(ObjectLocator locator, StringBuilder buffer, Object object) {
                     return buffer.append("]");
                 }
             };
@@ -157,28 +157,28 @@ public class AuditFile implements ToString2
         public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, org.jvnet.jaxb2_commons.lang.ToStringStrategy2 strategy) {
             {
                 List<GeneralLedger> theGeneralLedger;
-                theGeneralLedger = (((this.generalLedger != null) && (!this.generalLedger.isEmpty())) ? this.getGeneralLedger() : null);
-                strategy.appendField(locator, this, "generalLedger", buffer, theGeneralLedger, (this.generalLedger != null && !this.generalLedger.isEmpty()));
+                theGeneralLedger = (((this.generalLedger!= null)&&(!this.generalLedger.isEmpty()))?this.getGeneralLedger():null);
+                strategy.appendField(locator, this, "generalLedger", buffer, theGeneralLedger, ((this.generalLedger!= null)&&(!this.generalLedger.isEmpty())));
             }
             {
                 List<Customer> theCustomer;
-                theCustomer = (((this.customer != null) && (!this.customer.isEmpty())) ? this.getCustomer() : null);
-                strategy.appendField(locator, this, "customer", buffer, theCustomer, (this.customer != null && !this.customer.isEmpty()));
+                theCustomer = (((this.customer!= null)&&(!this.customer.isEmpty()))?this.getCustomer():null);
+                strategy.appendField(locator, this, "customer", buffer, theCustomer, ((this.customer!= null)&&(!this.customer.isEmpty()));
             }
             {
                 List<Supplier> theSupplier;
-                theSupplier = (((this.supplier != null) && (!this.supplier.isEmpty())) ? this.getSupplier() : null);
-                strategy.appendField(locator, this, "supplier", buffer, theSupplier, (this.supplier != null && !this.supplier.isEmpty()));
+                theSupplier = (((this.supplier!= null)&&(!this.supplier.isEmpty()))?this.getSupplier():null);
+                strategy.appendField(locator, this, "supplier", buffer, theSupplier, ((this.supplier!= null)&&(!this.supplier.isEmpty()));
             }
             {
                 List<Product> theProduct;
-                theProduct = (((this.product != null) && (!this.product.isEmpty())) ? this.getProduct() : null);
-                strategy.appendField(locator, this, "product", buffer, theProduct, (this.product != null && !this.product.isEmpty()));
+                theProduct = (((this.product!= null)&&(!this.product.isEmpty()))?this.getProduct():null);
+                strategy.appendField(locator, this, "product", buffer, theProduct, ((this.product!= null)&&(!this.product.isEmpty()));
             }
             {
                 TaxTable theTaxTable;
                 theTaxTable = this.getTaxTable();
-                strategy.appendField(locator, this, "taxTable", buffer, theTaxTable, (this.taxTable != null));
+                strategy.appendField(locator, this, "taxTable", buffer, theTaxTable, (this.taxTable!= null));
             }
             return buffer;
         }

@@ -1,51 +1,8 @@
-34d33
-< import java.io.IOException;
-44d42
-< import java.util.UUID;
-54c52
-< import org.apache.fop.apps.FOPException;
----
-> import org.apache.fop.apps.FOP;
-58c56,57
-< import org.apache.xmlgraphics.util.MimeConstants;
----
+57a58
 > import org.apache.fop.apps.FopFactoryBuilder;
-> import org.apache.fop.apps.MimeConstants;
-114,115d112
-<         // create an instance of fop factory
+115c116
 <         FopFactory fopFactory = FopFactory.newInstance();
-116a114
->         FopFactory fopFactory = FopFactoryBuilder.newInstance().build();
-118,132d115
-<         // to store output
-< 
-<         Optional<Node<String, String>> qrCodeString = documentParams
-<             .getRoot()
-<             .getChildren()
-<             .stream()
-<             .filter(stringStringNode -> stringStringNode.getKey().equals(QR_CODE))
-<             .findAny();
-< 
-<         Path qr = null;
-<         try {
-<             if(qrCodeString.isPresent() && !qrCodeString.get().getValue().isEmpty()){
-<                 qr = createQR(qrCodeString.get().getValue());
-<                 documentParams.getRoot().addChild(QR_CODE_PATH, qr.toString());
-<             }
-141,142c124
-<             // Resulting SAX events (the generated FO)
-<             // must be piped through to FOP
 ---
->         // Resulting SAX events (the generated FO) must be piped through to FOP
-148,156d129
-<         } catch (FOPException e) {
-<             throw new ExportServiceException("Error using FOP to open the template", e);
-<         } catch (TransformerException e) {
-<             throw new ExportServiceException("Error generating pdf from template and data source", e);
-<         } catch (IOException | WriterException e) {
-<             throw new ExportServiceException("Error generating qrCode", e);
-<         } finally {
-<             deleteTempFileIfExists(qr);
-<         }
-208d180
-< 
+>         FopFactory fopFactory = new FopFactoryBuilder(new File(".")).build();
+146d146
+<             // everything will happen here..

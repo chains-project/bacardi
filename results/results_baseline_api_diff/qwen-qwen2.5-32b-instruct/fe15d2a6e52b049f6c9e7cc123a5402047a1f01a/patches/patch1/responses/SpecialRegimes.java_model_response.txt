@@ -104,54 +104,18 @@ public class SpecialRegimes implements ToString2
     @Override
     public String toString() {
         final StringBuilder buffer = new StringBuilder();
-        append(null, buffer, new ToStringStrategy());
+        append(null, buffer);
         return buffer.toString();
     }
 
-    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy strategy) {
-        strategy.appendStart(locator, this, buffer);
-        appendFields(locator, buffer, strategy);
-        strategy.appendEnd(locator, this, buffer);
+    public StringBuilder append(ObjectLocator locator, StringBuilder buffer) {
+        buffer.append("SpecialRegimes{");
+        buffer.append("selfBillingIndicator=").append(selfBillingIndicator);
+        buffer.append(", cashVATSchemeIndicator=").append(cashVATSchemeIndicator);
+        buffer.append(", thirdPartiesBillingIndicator=").append(thirdPartiesBillingIndicator);
+        buffer.append("}");
         return buffer;
     }
 
-    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy strategy) {
-        {
-            int theSelfBillingIndicator;
-            theSelfBillingIndicator = this.getSelfBillingIndicator();
-            strategy.appendField(locator, this, "selfBillingIndicator", buffer, theSelfBillingIndicator, true);
-        }
-        {
-            int theCashVATSchemeIndicator;
-            theCashVATSchemeIndicator = this.getCashVATSchemeIndicator();
-            strategy.appendField(locator, this, "cashVATSchemeIndicator", buffer, theCashVATSchemeIndicator, true);
-        }
-        {
-            int theThirdPartiesBillingIndicator;
-            theThirdPartiesBillingIndicator = this.getThirdPartiesBillingIndicator();
-            strategy.appendField(locator, this, "thirdPartiesBillingIndicator", buffer, theThirdPartiesBillingIndicator, true);
-        }
-        return buffer;
-    }
-
-    private static class ToStringStrategy implements org.jvnet.jaxb2_commons.lang.ToStringStrategy {
-        @Override
-        public void appendStart(ObjectLocator locator, Object objectToAppend, StringBuilder buffer) {
-            buffer.append(objectToAppend.getClass().getSimpleName()).append("@").append(Integer.toHexString(System.identityHashCode(objectToAppend))).append(" {");
-        }
-
-        @Override
-        public void appendField(ObjectLocator locator, Object object, String name, StringBuilder buffer, Object value, boolean first) {
-            if (!first) {
-                buffer.append(", ");
-            }
-            buffer.append(name).append('=').append(value);
-        }
-
-        @Override
-        public void appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
-            buffer.append('}');
-        }
-    }
 }
 ```

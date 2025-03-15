@@ -1,89 +1,43 @@
-8,10c8
-< import redis.clients.jedis.Builder;
-< import redis.clients.jedis.BuilderFactory;
-< import redis.clients.jedis.Client;
+4,11c4,9
+< import redis.clients.jedis.commands.BasicRedisPipeline;
+< import redis.clients.jedis.commands.BinaryRedisPipeline;
+< import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
+< import redis.clients.jedis.commands.ClusterPipeline;
+< import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;
+< import redis.clients.jedis.commands.MultiKeyCommandsPipeline;
+< import redis.clients.jedis.commands.RedisPipeline;
+< import redis.clients.jedis.commands.ScriptingCommandsPipeline;
 ---
-> import redis.clients.jedis.Jedis;
-12a11,13
-> import redis.clients.jedis.commands.ProtocolCommand;
-> import redis.clients.jedis.params.CommandArguments;
+> import redis.clients.jedis.Pipeline;
+> import redis.clients.jedis.commands.ScriptingCommands;
+> import redis.clients.jedis.exceptions.JedisException;
+> import redis.clients.jedis.params.ScanParams;
+> import redis.clients.jedis.resps.ScanResult;
 > import redis.clients.jedis.util.SafeEncoder;
-21a23
-> {
-23a26
->     private Jedis jedis;
-25,27c28,30
-< 
-<     public RedisGraphPipeline(Client client, RedisGraph redisGraph){
-<         super.setClient(client);
+21,24c19
+<         MultiKeyBinaryRedisPipeline,
+<         MultiKeyCommandsPipeline, ClusterPipeline,
+<         BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline,
+<         BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {
 ---
->     public RedisGraphPipeline(Jedis jedis, RedisGraph redisGraph){
->         super(jedis);
->         this.jedis = jedis;
-39,40c42,43
-<         client.sendCommand(RedisGraphCommand.QUERY, graphId, query, Utils.COMPACT_STRING);
-<         return getResponse(new Builder<ResultSet>() {
----
->         jedis.sendCommand(ProtocolCommand.QUERY, graphId, query, Utils.COMPACT_STRING);
->         return getResponse(new redis.clients.jedis.Builder<ResultSet>() {
-53c56
-<      * @return a response which builds the result set with the query answer.
----
->      * @return response with result set with the query answer.
-57,142c60,61
-<         client.sendCommand(RedisGraphCommand.RO_QUERY, graphId, query, Utils.COMPACT_STRING);
-<         return getResponse(new Builder<ResultSet>() {
-<             @SuppressWarnings("unchecked")
-<             @Override
-<             public ResultSet build(Object o) {
-<                 return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
-<             }
-<         });
-<     }
-< 
-<     /**
+>         Pipeline, Closeable {
+43,78d37
 <      * Execute a Cypher query with timeout.
-<      *
-<      * NOTE: timeout is simply sent to DB. Socket timeout will not be changed.
 <      * @param graphId a graph to perform the query on
 <      * @param query Cypher query
 <      * @param timeout
 <      * @return a response which builds the result set with the query answer.
 <      */
-<     @Override
-<     public Response<ResultSet> query(String graphId, String query, long timeout) {
-<         client.sendCommand(RedisGraphCommand.QUERY, graphId, query, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING,
-<                 Long.toString(timeout));
-<         return getResponse(new Builder<ResultSet>() {
-<             @SuppressWarnings("unchecked")
-<             @Override
-<             public ResultSet build(Object o) {
-<                 return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
-<             }
-<         });
-<     }
+<     Response<ResultSet> query(String graphId, String query, long timeout);
 < 
 <     /**
 <      * Execute a Cypher read-only query with timeout.
-<      *
-<      * NOTE: timeout is simply sent to DB. Socket timeout will not be changed.
 <      * @param graphId a graph to perform the query on
 <      * @param query Cypher query
 <      * @param timeout
 <      * @return a response which builds the result set with the query answer.
 <      */
-<     @Override
-<     public Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout) {
-<         client.sendCommand(RedisGraphCommand.RO_QUERY, graphId, query, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING,
-<                 Long.toString(timeout));
-<         return getResponse(new Builder<ResultSet>() {
-<             @SuppressWarnings("unchecked")
-<             @Override
-<             public ResultSet build(Object o) {
-<                 return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
-<             }
-<         });
-<     }
+<     Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout);
 < 
 <     /**
 <      * Executes a cypher query with parameters.
@@ -92,18 +46,7 @@
 <      * @param params parameters map.
 <      * @return  a response which builds the result set with the query answer.
 <      */
-<     @Override
-<     public Response<ResultSet> query(String graphId, String query, Map<String, Object> params) {
-<         String preparedQuery = Utils.prepareQuery(query, params);
-<         client.sendCommand(RedisGraphCommand.QUERY, graphId, preparedQuery, Utils.COMPACT_STRING);
-<         return getResponse(new Builder<ResultSet>() {
-<             @SuppressWarnings("unchecked")
-<             @Override
-<             public ResultSet build(Object o) {
-<                 return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
-<             }
-<         });
-<     }
+<     Response<ResultSet> query(String graphId, String query, Map<String, Object> params);
 < 
 <     /**
 <      * Executes a cypher read-only query with parameters.
@@ -112,50 +55,17 @@
 <      * @param params parameters map.
 <      * @return  a response which builds the result set with the query answer.
 <      */
-<     @Override
-<     public Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params) {
-<         String preparedQuery = Utils.prepareQuery(query, params);
-<         client.sendCommand(RedisGraphCommand.RO_QUERY, graphId, preparedQuery, Utils.COMPACT_STRING);
-<         return getResponse(new Builder<ResultSet>() {
----
->         jedis.sendCommand(ProtocolCommand.RO_QUERY, graphId, query, Utils.COMPACT_STRING);
->         return getResponse(new redis.clients.jedis.Builder<ResultSet>() {
-160c79
-<      * @return  a response which builds the result set with the query answer.
----
->      * @return response with result set with the query answer.
-165c84
-<         client.sendCommand(RedisGraphCommand.QUERY, graphId, preparedQuery, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING,
----
->         jedis.sendCommand(ProtocolCommand.QUERY, graphId, preparedQuery, Utils.COMPACT_STRING, Utils.TIMEOUT_STRING,
-167c86
-<         return getResponse(new Builder<ResultSet>() {
----
->         return getResponse(new redis.clients.jedis.Builder<ResultSet>() {
-185c104
-<      * @return  a response which builds the result set with the query answer.
----
->      * @return response with result set with the query answer.
-190c109
-<         client.sendCommand(RedisGraphCommand.RO_QUERY, graphId, preparedQuery, Utils.COMPACT_STRING,
----
->         jedis.sendCommand(ProtocolCommand.RO_QUERY, graphId, preparedQuery, Utils.COMPACT_STRING,
-193c112
-<         return getResponse(new Builder<ResultSet>() {
----
->         return getResponse(new redis.clients.jedis.Builder<ResultSet>() {
-197c116
-<                 return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId));
----
->                 return new ResultSetImpl((List<Object>) o, redisGraph, caches.getGraphCache(graphId);
-223d141
+<     Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params);
 < 
-238d155
-< 
-245,247c162,163
-< 
-<         client.sendCommand(RedisGraphCommand.DELETE, graphId);
-<         Response<String> response =  getResponse(BuilderFactory.STRING);
+<     /**
+132d90
+<     
+146,147c104
+<     public void sync();
+<     
 ---
->         jedis.sendCommand(ProtocolCommand.DELETE, graphId);
->         Response<String> response =  getResponse(redis.clients.jedis.BuilderFactory.STRING);
+>     void sync();
+159c116
+<     public Response<Long> waitReplicas(int replicas, long timeout);
+---
+>     Response<Long> waitReplicas(int replicas, long timeout);

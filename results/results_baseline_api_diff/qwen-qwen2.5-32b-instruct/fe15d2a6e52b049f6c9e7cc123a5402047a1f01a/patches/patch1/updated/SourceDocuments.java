@@ -1,4 +1,4 @@
-package com.premiumminds.billy.portugal.services.exportsaftptv1_02_01schema;
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_02_01.schema;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -10,7 +10,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
-import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
@@ -25,26 +24,34 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 public class SourceDocuments implements ToString2 {
 
 {
+
+    @XmlElement(name = "SalesInvoices")
+    protected SourceDocuments.SalesInvoices salesInvoice;
+    @XmlElement(name = "MovementOfGoods")
+    protected SourceDocuments.MovementOfGoods movementOfGoods;
+    @XmlElement(name = "WorkingDocuments")
+    protected SourceDocuments.WorkingDocuments workingDocuments;
+
     // ... (rest of the class remains unchanged)
 
     @Override
     public String toString() {
         final ToStringStrategy2 strategy = new ToStringStrategy2() {
             @Override
-            public StringBuilder appendField(ObjectLocator locator, Object object, String name, StringBuilder buffer, Object value, boolean isPrimitive) {
-                buffer.append(name).append(": ").append(value);
+            public StringBuilder appendStart(ObjectLocator locator, Object o, StringBuilder buffer) {
                 return buffer;
             }
 
             @Override
-            public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
-                buffer.append(object.getClass().getName().append(": [");
+            public StringBuilder appendEnd(ObjectLocator locator, Object o, StringBuilder buffer) {
                 return buffer;
             }
 
             @Override
-            public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
-                buffer.append("]");
+            public StringBuilder appendField(ObjectLocator locator, Object o, String name, StringBuilder buffer, Object value, boolean isPrimitive) {
+                if (value != null) {
+                    buffer.append(name).concat(": ").append(value.toString());
+                }
                 return buffer;
             }
         };
@@ -64,9 +71,9 @@ public class SourceDocuments implements ToString2 {
     @Override
     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         {
-            SourceDocuments.SaleInvoices theSaleInvoices;
-            theSaleInvoices = this.getSaleInvoices();
-            strategy.appendField(locator, this, "saleInvoices", buffer, theSaleInvoices, (this.saleInvoices!= null);
+            SourceDocuments.SalesInvoice theSalesInvoice;
+            theSalesInvoice = this.getSalesInvoice();
+            strategy.appendField(locator, this, "salesInvoice", buffer, theSalesInvoice, (this.salesInvoice!= null);
         }
         {
             SourceDocuments.MovementOfGoods theMovementOfGoods;
@@ -76,10 +83,11 @@ public class SourceDocuments implements ToString2 {
         {
             SourceDocuments.WorkingDocuments theWorkingDocuments;
             theWorkingDocuments = this.getWorkingDocuments();
-            strategy.appendField(locator, this, "workingDocuments", buffer, theWorkingDocuments, (this.workingDocuments!= null)
+            strategy.appendField(locator, this, "workingDocuments", buffer, theWorkingDocuments, (this.workingDocuments!= null);
         }
         return buffer;
     }
 
     // ... (rest of the class remain unchanged)
+
 }

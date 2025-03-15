@@ -1,36 +1,6 @@
-17d16
-< import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
-19d17
-< import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
-22d19
+22d21
 < 
-107d103
+107c106
 <         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
-109c105
-<         append(null, buffer, strategy);
 ---
->         append(null, buffer);
-113,132c109,110
-<     @Override
-<     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-<         strategy.appendStart(locator, this, buffer);
-<         appendFields(locator, buffer, strategy);
-<         strategy.appendEnd(locator, this, buffer);
-<         return buffer;
-<     }
-< 
-<     @Override
-<     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-<         {
-<             String theOriginatingON;
-<             theOriginatingON = this.getOriginatingON();
-<             strategy.appendField(locator, this, "originatingON", buffer, theOriginatingON, (this.originatingON!= null));
-<         }
-<         {
-<             XMLGregorianCalendar theOrderDate;
-<             theOrderDate = this.getOrderDate();
-<             strategy.appendField(locator, this, "orderDate", buffer, theOrderDate, (this.orderDate!= null));
-<         }
----
->     public StringBuilder append(ObjectLocator locator, StringBuilder buffer) {
->         buffer.append("OrderReferences{originatingON=").append(originatingON).append(", orderDate=").append(orderDate).append('}');
+>         final ToStringStrategy2 strategy = new JAXBToStringStrategy();

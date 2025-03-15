@@ -118,14 +118,13 @@ public class Project extends ProjectInfo {
   }
 
   /**
-   * Fetches the project's latest information. Returns {@code null} if the project does not exist or
-   * if you do not have adequate permission to view the project or get the policy.
+   * Fetches the project's latest information. Returns {@code null} if the project does not exist.
    *
    * @return Project containing the project's updated metadata or {@code null} if not found
    * @throws ResourceManagerException upon failure
    * @see <a href=
-   *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/get">Cloud
-   *     Resource Manager get</a>
+   *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/delete">Cloud
+   *     Resource Manager delete</a>
    */
   public Project reload() {
     return resourceManager.get(getProjectId());
@@ -138,8 +137,8 @@ public class Project extends ProjectInfo {
    *
    * @throws ResourceManagerException upon failure
    * @see <a href=
-   *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/delete">Cloud
-   *     Resource Manager delete</a>
+   *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/undelete">Cloud
+   *     Resource Manager undelete</a>
    */
   public void delete() {
     resourceManager.delete(getProjectId());
@@ -212,8 +211,8 @@ public class Project extends ProjectInfo {
    * possible permissions; see the <i>Supported Cloud Platform services</i> page below for links to
    * these lists.
    *
-   * @return a list of booleans representing whether the caller has the permissions specified (in
-   *     the order of the given permissions)
+   * @return a list of booleans representing whether the caller has the permissions specified (in the
+   *     order of the given permissions)
    * @throws ResourceManagerException upon failure
    * @see <a href=
    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/testIamPermissions">
@@ -254,7 +253,7 @@ public class Project extends ProjectInfo {
 
   static Project fromPb(
       ResourceManager resourceManager,
-      com.google.api.services.cloudresourcemanager.v3.model.Project answer) {
+      com.google.cloud.resourcemanager.v3.model.Project answer) {
     ProjectInfo info = ProjectInfo.fromPb(answer);
     return new Project(resourceManager, new ProjectInfo.BuilderImpl(info));
   }

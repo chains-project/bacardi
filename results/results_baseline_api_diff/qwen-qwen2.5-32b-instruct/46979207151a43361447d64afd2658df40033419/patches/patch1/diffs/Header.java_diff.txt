@@ -1,0 +1,120 @@
+19d18
+< import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
+21d19
+< import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
+24d21
+< 
+39c36
+<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}CompanyName"/&gt;
+---
+>  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}CompanyNameName"/&gt;
+240c237
+<     public String getCompanyName() {
+---
+>     public String getCompanyNameName() {
+252c249
+<     public void setCompanyName(String value) {
+---
+>     public void setCompanyNameName(String value) {
+658,661c655,664
+<         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+<         final StringBuilder buffer = new StringBuilder();
+<         append(null, buffer, strategy);
+<         return buffer.toString();
+---
+>         StringBuilder buffer = new StringBuilder();
+>         append(null, buffer, new ToStringStrategy2() {
+>             @Override
+>             public void appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+>                 buffer.append("Header [");
+>             }
+> 
+>             @Override
+>             public void appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+>                 buffer.append("]");
+664a668,676
+>             public void appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object fieldValue, boolean isFieldPresent) {
+>                 if (isFieldPresent) {
+>                     buffer.append(fieldName).append("=").append(fieldValue).toString()).append(", ");
+>                 }
+>             }
+>         });
+>         return buffer.toString();
+>     }
+> 
+672d683
+<     @Override
+692c703
+<             strategy.appendField(locator, this, "taxAccountingBasis", buffer, theTaxAccountingBasis, (this.taxAccountingBasis!= null));
+---
+>             strategy.appendField(locator, this, "taxAccountingBasis", buffer, theTaxAccountingBasis, (this.taxAccountingBasis != null);
+696,697c707,708
+<             theCompanyName = this.getCompanyName();
+<             strategy.appendField(locator, this, "companyName", buffer, theCompanyName, (this.companyName!= null));
+---
+>             theCompanyName = this.getCompanyNameName();
+>             strategy.appendField(locator, this, "companyName", buffer, theCompany, (this.companyName != null);
+702c713
+<             strategy.appendField(locator, this, "businessName", buffer, theBusinessName, (this.businessName!= null));
+---
+>             strategy.appendField(locator, this, "businessName", buffer, theBusinessName, (this.businessName != null);
+707c718
+<             strategy.appendField(locator, this, "companyAddress", buffer, theCompanyAddress, (this.companyAddress!= null));
+---
+>             strategy.appendField(locator, this, "companyAddress", buffer, theCompanyAddress, (this.companyAddress != null);
+717c728
+<             strategy.appendField(locator, this, "startDate", buffer, theStartDate, (this.startDate!= null));
+---
+>             strategy.appendField(locator, this, "startDate", buffer, theStartDate, (this.startDate != null);
+722c733
+<             strategy.appendField(locator, this, "endDate", buffer, theEndDate, (this.endDate!= null));
+---
+>             strategy.appendField(locator, this, "endDate", buffer, theEndDate, (this.endDate != null);
+727c738
+<             strategy.appendField(locator, this, "currencyCode", buffer, theCurrencyCode, (this.currencyCode!= null));
+---
+>             strategy.appendField(locator, this, "currencyCode", buffer, theCurrencyCode, (this.currencyCode != null);
+732c743
+<             strategy.appendField(locator, this, "dateCreated", buffer, theDateCreated, (this.dateCreated!= null));
+---
+>             strategy.appendField(locator, this, "dateCreated", buffer, theDateCreated, (this.dateCreated != null);
+737c748
+<             strategy.appendField(locator, this, "taxEntity", buffer, theTaxEntity, (this.taxEntity!= null));
+---
+>             strategy.appendField(locator, this, "taxEntity", buffer, theTaxEntity, (this.taxEntity != null);
+742c753
+<             strategy.appendField(locator, this, "productCompanyTaxID", buffer, theProductCompanyTaxID, (this.productCompanyTaxID!= null));
+---
+>             strategy.appendField(locator, this, "productCompanyTaxID", buffer, theProductCompanyTaxID, (this.productCompanyTaxID != null);
+747c758
+<             strategy.appendField(locator, this, "softwareCertificateNumber", buffer, theSoftwareCertificateNumber, (this.softwareCertificateNumber!= null));
+---
+>             strategy.appendField(locator, this, "softwareCertificateNumber", buffer, theSoftwareCertificateNumber, (this.softwareCertificateNumber != null);
+752c763
+<             strategy.appendField(locator, this, "productID", buffer, theProductID, (this.productID!= null));
+---
+>             strategy.appendField(locator, this, "productID", buffer, theProductID, (this.productID != null);
+757c768
+<             strategy.appendField(locator, this, "productVersion", buffer, theProductVersion, (this.productVersion!= null));
+---
+>             strategy.appendField(locator, this, "productVersion", buffer, theProductVersion, (this.productVersion != null);
+762c773
+<             strategy.appendField(locator, this, "headerComment", buffer, theHeaderComment, (this.headerComment!= null));
+---
+>             strategy.appendField(locator, this, "headerComment", buffer, theHeaderComment, (this.headerComment != null);
+767c778
+<             strategy.appendField(locator, this, "telephone", buffer, theTelephone, (this.telephone!= null));
+---
+>             strategy.appendField(locator, this, "telephone", buffer, theTelephone, (this.telephone != null);
+772c783
+<             strategy.appendField(locator, this, "fax", buffer, theFax, (this.fax!= null));
+---
+>             strategy.appendField(locator, this, "fax", buffer, theFax, (this.fax != null);
+777c788
+<             strategy.appendField(locator, this, "email", buffer, theEmail, (this.email!= null));
+---
+>             strategy.appendField(locator, this, "email", buffer, theEmail, (this.email != null);
+782c793
+<             strategy.appendField(locator, this, "website", buffer, theWebsite, (this.website!= null));
+---
+>             strategy.appendField(locator, this, "website", buffer, theWebsite, (this.website != null);

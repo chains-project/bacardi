@@ -92,7 +92,7 @@ public final class AuthTest {
         MatcherAssert.assertThat(
             method.slice(action).response(
                 line.toString(),
-                method.headers(new TestAuthentication.User("bob", "password")),
+                method.headers(TestAuthentication.BOB),
                 Content.EMPTY
             ),
             new IsDeniedResponse()
@@ -108,13 +108,13 @@ public final class AuthTest {
         final String action = "repository:my-alpine:push";
         basic.slice(action).response(
             line,
-            basic.headers(new TestAuthentication.User("alice", "password")),
+            basic.headers(TestAuthentication.ALICE),
             this.manifest()
         );
         MatcherAssert.assertThat(
             basic.slice(action).response(
                 line,
-                basic.headers(new TestAuthentication.User("alice", "password")),
+                basic.headers(TestAuthentication.ALICE),
                 Content.EMPTY
             ),
             new RsHasStatus(RsStatus.FORBIDDEN)
@@ -132,7 +132,7 @@ public final class AuthTest {
             "Manifest was created for the first time",
             basic.slice(action).response(
                 line,
-                basic.headers(new TestAuthentication.User("alice", "password")),
+                basic.headers(TestAuthentication.ALICE),
                 manifest
             ),
             new ResponseMatcher(
@@ -149,7 +149,7 @@ public final class AuthTest {
             "Manifest was overwritten",
             basic.slice(action).response(
                 line,
-                basic.headers(new TestAuthentication.User("alice", "password")),
+                basic.headers(TestAuthentication.ALICE),
                 manifest
             ),
             new ResponseMatcher(
@@ -173,7 +173,7 @@ public final class AuthTest {
     ) {
         final Response response = method.slice(action).response(
             line.toString(),
-            method.headers(new TestAuthentication.User("alice", "password")),
+            method.headers(TestAuthentication.ALICE),
             Content.EMPTY
         );
         MatcherAssert.assertThat(
@@ -240,7 +240,7 @@ public final class AuthTest {
         public Slice slice(final String action) {
             return new DockerSlice(
                 this.docker,
-                new Permissions.Single(new TestAuthentication.User("alice", "password").name(), action),
+                new Permissions.Single(TestAuthentication.ALICE.name(), action),
                 new BasicAuthScheme(new TestAuthentication())
             );
         }
@@ -267,13 +267,14 @@ public final class AuthTest {
         public Slice slice(final String action) {
             return new DockerSlice(
                 new AstoDocker(new InMemoryStorage()),
-                new Permissions.Single(new TestAuthentication.User("alice", "password").name(), action),
+                new Permissions.Single(TestAuthentication.ALICE.name(), action),
                 new BearerAuthScheme(
                     token -> CompletableFuture.completedFuture(
-                        Stream.of(new TestAuthentication.User("alice", "password"), new TestAuthentication.User("bob", "password"))
+                        Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
                             .filter(user -> token.equals(token(user)))
                             .findFirst()
-                    ),
+                            .map(user -> new Authentication.User(user.name()))
+                    ,
                     ""
                 )
             );

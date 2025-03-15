@@ -31,5 +31,60 @@
 > import jakarta.validation.metadata.BeanDescriptor;
 > import jakarta.validation.metadata.ConstraintDescriptor;
 > import jakarta.validation.metadata.ElementDescriptor;
-165d146
+64,68c46
+<         private final Map<Class<?>, Class<? extends AbstractControlGroup>> typesControlGroups = new HashMap<Class<?>, Class<? extends AbstractControlGroup>>();
 < 
+<         private List<ObjectProperties> objectProperties;
+<         private CrudifierEntitySettings entitySettings;
+<         private Map<Class<?>, IObjectRenderer<?>> renderers;
+---
+>         private Map<Class<?>, Class<? extends AbstractControlGroup>> typesControlGroups = new HashMap<Class<?>, Class<? extends AbstractControlGroup>>();
+85,87d62
+<                 typesControlGroups.put(Boolean.class, CheckboxControlGroup.class);
+<                 typesControlGroups.put(boolean.class, CheckboxControlGroup.class);
+<                 typesControlGroups.put(Set.class, CollectionControlGroup.class);
+94,112d68
+<         private Set<String> getPropertiesByOrder(Class<?> modelClass) {
+<                 Set<String> properties = new LinkedHashSet<String>();
+< 
+<                 for(String property : entitySettings.getOrderOfFields()){
+<                         if(!entitySettings.getHiddenFields().contains(property))
+<                                 properties.add(property);
+<                 }
+<                 for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
+<                         if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
+<                            !properties.contains(descriptor.getName()) &&
+<                            !descriptor.getName().equals("class"))
+<                                 properties.add(descriptor.getName());
+<                 }
+< 
+<                 return properties;
+<         }
+< 
+<         protected abstract EntityProvider<?> getEntityProvider(String name);
+< 
+165d120
+< 
+210c165
+<         @SuppressWarnings("unchecked")
+---
+>         @SuppressWarnings("rawtypes")
+224,228c179,180
+<         private Class<? extends AbstractControlGroup> getControlGroupByType(Class<?> type){
+<                 for(Class<?> mapType : typesControlGroups.keySet()){
+<                         if(type.isAssignableFrom(mapType)) return typesControlGroups.get(mapType);
+<                 }
+<                 return null;
+---
+>         private Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap(){
+>                 return typesControlGroups;
+245,253d196
+< 
+<         @SuppressWarnings("rawtypes")
+<         public Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap(){
+<                 return typesControlGroups;
+<         }
+<         
+<         public Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> getControlGroupProviders(){
+<                 return this.controlGroupProviders;
+<         }

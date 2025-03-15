@@ -1,0 +1,90 @@
+25d24
+< 
+59d57
+< 
+62c60
+<  * information of the {@link TemplateConfig}.
+---
+>  * information of the {@link TemplateConfig} object.
+156,213d153
+<         /**
+<          * 
+<          * @return
+<          */
+<         private int calcMaxHeaderHeight()
+<         {
+<                 
+<                 final JLabel lbl = new JLabel("a");
+<                 int maxHeight = 0;
+<                 
+<                 for(final TemplateColumn col : this.config.getColumns())
+<                 {
+<                         final ColumnStyle style = col.getHeaderColumn().getStyle();
+<                         final Font font = style.getFont();
+<                         lbl.setFont(font);
+<                         //get the normal height of the label
+<                         int lblHeigh = (int)lbl.getPreferredSize().getHeight();
+<                         //add the column border width
+<                         lblHeigh+= style.getColBorder().getLineWidth()*2;
+<                         //Add padding
+<                         lblHeigh+= style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
+<                         
+<                         if(lblHeigh > maxHeight)
+<                         {
+<                                 maxHeight = lblHeigh;
+<                         }
+<                 }
+<                 
+<                 return maxHeight;
+<         }
+<         
+<         private int calcMaxContentHeight()
+<         {
+<                 
+<                 final JLabel lbl = new JLabel("a");
+<                 int maxHeight = 0;
+<                 
+<                 for(final TemplateColumn col : this.config.getColumns())
+<                 {
+<                         final ColumnStyle style = col.getContentColumn().getStyle();
+<                         final Font font = style.getFont();
+<                         lbl.setFont(font);
+<                         int lblHeigh = (int)lbl.getPreferredSize().getHeight();
+<                         //Add border width
+<                         lblHeigh+= style.getColBorder().getLineWidth()*2;
+<                         //Add padding
+<                         lblHeigh+= style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
+<                         
+<                         if(lblHeigh > maxHeight)
+<                         {
+<                                 maxHeight = lblHeigh;
+<                         }
+<                 }
+<                 
+<                 return maxHeight;
+<         }
+<         
+<         
+348,350c288,290
+<                 txtField.setFontSize(Float.valueOf(f.getSize()));
+<                 txtField.setBold(Boolean.valueOf(f.isBold()));
+<                 txtField.setItalic(Boolean.valueOf(f.isItalic()));
+---
+>                 txtField.setFontSize(f.getSize());
+>                 txtField.setBold(f.isBold());
+>                 txtField.setItalic(f.isItalic());
+369,371c309,312
+<                 textField.getLineBox().getPen().setLineWidth(border.getLineWidth());
+<                 textField.getLineBox().getPen().setLineColor(border.getLineColor());
+<                 textField.getLineBox().getPen().setLineStyle(border.getLineStyle().getLineStyleEnum());
+---
+>                 JRLineBox lineBox = textField.getLineBox();
+>                 lineBox.getPen().setLineWidth((float)border.getLineWidth());
+>                 lineBox.getPen().setLineColor(border.getLineColor());
+>                 lineBox.getPen().setLineStyle(border.getLineStyle().getLineStyleEnum());
+397,398c338,339
+<          * Assemble and compile a {@link JasperReport} based on the information of
+<          * the {@link TemplateConfig} object.
+---
+>          * Assemble and compile a {@link JasperReport} based on the
+>          * information of the {@link TemplateConfig}.

@@ -1,0 +1,29 @@
+import java.util.Locale;
+import java.util.ResourceBundle;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.mvc.annotation.Controller;
+import javax.servlet.http.HttpServletRequest;
+
+@RequestScoped
+@Named("msg")
+@Controller
+public class Messages {
+
+    private static final String BASE_NAME = "messages";
+
+    @Inject
+    private HttpServletRequest request;
+
+    public final String get(final String key) {
+        final Locale locale = request.getLocale();
+        final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, locale);
+
+        return bundle.containsKey(key) ? bundle.getString(key) : formatUnknownKey(key);
+    }
+
+    private static String formatUnknownKey(final String key) {
+        return String.format("???%s???", key);
+    }
+}

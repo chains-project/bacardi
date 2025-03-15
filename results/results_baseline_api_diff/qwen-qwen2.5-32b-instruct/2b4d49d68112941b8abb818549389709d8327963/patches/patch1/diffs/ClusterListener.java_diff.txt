@@ -1,0 +1,169 @@
+1,15d0
+< /*
+<  * Copyright (C) 1999-2009 Jive Software. All rights reserved.
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *     http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+18,27c3,11
+< import com.hazelcast.core.Cluster;
+< import com.hazelcast.core.EntryListener;
+< import com.hazelcast.core.LifecycleEvent;
+< import com.hazelcast.core.LifecycleEvent.LifecycleState;
+< import com.hazelcast.core.LifecycleListener;
+< import com.hazelcast.core.Member;
+< import com.hazelcast.core.MemberAttributeEvent;
+< import com.hazelcast.core.MembershipEvent;
+< import com.hazelcast.core.MembershipListener;
+< import org.jivesoftware.openfire.XMPPServer;
+---
+> import com.hazelcast.cluster.Cluster;
+> import com.hazelcast.cluster.Member;
+> import com.hazelcast.cluster.MembershipEvent;
+> import com.hazelcast.cluster.MembershipListener;
+> import com.hazelcast.cluster.MemberAttributeEvent;
+> import com.hazelcast.cluster.LifecycleEvent;
+> import com.hazelcast.cluster.LifecycleListener;
+> import com.hazelcast.cluster.MemberAttributeEvent.MemberAttributeOperationType;
+> import org.jivesoftware.openfire.XMppServer;
+53a38
+> {
+64,65c49
+<      * Flag that indicates if the listener has done all clean up work when noticed that the
+<      * cluster has been stopped. This will force Openfire to wait until all clean
+---
+>      * Flag that indicates if the listener has done all clean up work when noticed that the cluster has been stopped. This will force Openfire to wait until all clean
+76a61
+>     {
+86c71
+<             final Cache wrapped = ((CacheWrapper)cache).getWrappedCache();
+---
+>             final Cache wrapped = ((CacheWrapper) cache).getWrappedCache());
+95c80,110
+<     @SuppressWarnings("unchecked")
+---
+>     @SuppressWarnings("WeakerAccess")
+>     public List<ClusterNodeInfo> getClusterNodesInfo() {
+>         return new ArrayList<>(clusterNodesInfo.values());
+>     }
+> 
+>     @Override
+>     public void memberAdded(final MembershipEvent event) {
+>         logger.info("Received a Hazelcast memberAdded event {}", event);
+> 
+>         final boolean wasSenior = isSenior;
+>         isSenior = isSeniorClusterMember();
+> 
+>         final NodeID nodeID = ClusteredCacheFactory.nodeID(event.getMember());
+>         if (event.getMember().localMember()) { // We left and re-joined the cluster
+>             joinCluster();
+> 
+>         } else {
+>             if (!seniorClusterMember && isSeniorClusterMember()) {
+>                 seniorClusterMember = true;
+>                 ClusterManager.fireMarkedAsSeniorClusterMember();
+>             }
+> 
+>             // Remove traces of directed presences sent from local entities to handlers that no longer exist.
+>             // At this point c2s sessions are gone from the routing table so we can identify expired sessions
+>             XmppServer.getInstance().getPresenceUpdateHandler().removedExpiredPresences();
+>         }
+>         // Delete nodeID instance (release from memory)
+>         NodeID.deleteInstance(nodeID.toByteArray());
+>         clusterNodesInfo.remove(nodeID);
+>     }
+> 
+122c137
+<             new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), seniorClusterMember});
+---
+>                 new Object[]{ClusteredCacheFactory.nodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), seniorClusterMember});
+144c159
+<         if (!XMPPServer.getInstance().isShuttingDown()) {
+---
+>         if (!XmppServer.getInstance().isShuttingDown()) {
+147c162
+<             XMPPServer.getInstance().getPresenceUpdateHandler().removedExpiredPresences();
+---
+>             XmppServer.getInstance().getPresenceUpdateHandler().removedExpiredPresences();
+150c165
+<             new Object[]{ClusteredCacheFactory.getNodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), wasSeniorClusterMember});
+---
+>                 new Object[]{ClusteredCacheFactory.nodeID(cluster.getLocalMember()), cluster.getLocalMember().getUuid(), wasSeniorClusterMember});
+155,156c170,171
+<     public void memberAdded(final MembershipEvent event) {
+<         logger.info("Received a Hazelcast memberAdded event {}", event);
+---
+>     public void memberRemoved(final MembershipEvent event) {
+>         logger.info("Received a Hazelcast memberRemoved event {}", event);
+161c176
+<         final NodeID nodeID = ClusteredCacheFactory.getNodeID(event.getMember());
+---
+>         final NodeID nodeID = ClusteredCacheFactory.nodeID(event.getMember());
+181d195
+<                 // TODO Instead of the 30 second wait, we should look (and then wait) for some trigger or event that signifies that local handling has completed and caches have stabilized.
+228,230c242,243
+<     public void memberRemoved(final MembershipEvent event) {
+<         logger.info("Received a Hazelcast memberRemoved event {}", event);
+< 
+---
+>     public void memberAttributeChanged(final MemberAttributeEvent event) {
+>         logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
+232,258c245,247
+<         final NodeID nodeID = ClusteredCacheFactory.getNodeID(event.getMember());
+< 
+<         if (event.getMember().localMember()) {
+<             logger.info("Leaving cluster: " + nodeID);
+<             // This node may have realized that it got kicked out of the cluster
+<             leaveCluster();
+<         } else {
+<             // Trigger event that a node left the cluster
+<             ClusterManager.fireLeftCluster(nodeID.toByteArray());
+< 
+<             if (!seniorClusterMember && isSeniorClusterMember()) {
+<                 seniorClusterMember = true;
+<                 ClusterManager.fireMarkedAsSeniorClusterMember();
+<             }
+< 
+<             // Remove traces of directed presences sent from local entities to handlers that no longer exist.
+<             // At this point c2s sessions are gone from the routing table so we can identify expired sessions
+<             XMPPServer.getInstance().getPresenceUpdateHandler().removedExpiredPresences();
+<         }
+<         // Delete nodeID instance (release from memory)
+<         NodeID.deleteInstance(nodeID.toByteArray());
+<         clusterNodesInfo.remove(nodeID);
+<     }
+<     
+<     @SuppressWarnings("WeakerAccess")
+<     public List<ClusterNodeInfo> getClusterNodesInfo() {
+<         return new ArrayList<>(clusterNodesInfo.values());
+---
+>         final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.nodeID(event.getMember()));
+>         clusterNodesInfo.put(ClusteredCacheFactory.nodeID(event.getMember()),
+>                 new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));
+265c254
+<         } else if (event.getState().equals(LifecycleState.STARTED)) {
+---
+>         } else if (event.state().equals(LifecycleState.STARTED)) {
+269,281d257
+< 
+<     @Override
+<     public void memberAttributeChanged(final MemberAttributeEvent event) {
+<         logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
+<         isSenior = isSeniorClusterMember();
+<         final ClusterNodeInfo priorNodeInfo = clusterNodesInfo.get(ClusteredCacheFactory.getNodeID(event.getMember()));
+<         clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(event.getMember()),
+<                 new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));
+<     }
+< 
+<     boolean isClusterMember() {
+<         return clusterMember;
+<     }

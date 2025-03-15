@@ -120,7 +120,7 @@ public class ProjectInfo implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-      return obj instanceof ResourceId && Objects.equals(toPb(), ((ResourceIdId) obj).toPb());
+      return obj instanceof ResourceId && Objects.equals(toPb(), ((ResourceIdId) obj).toPb()));
     }
 
     @Override
@@ -131,13 +131,13 @@ public class ProjectInfo implements Serializable {
     com.google.api.services.cloudresourcemanager.v3.model.ResourceId toPb() {
       com.google.api.services.cloudresourcemanager.v3.model.ResourceId resourceIdPb =
           new com.google.api.services.cloudresourcemanager.v3.model.ResourceId();
-      resourceIdPb.setId(id);
-      resourceIdPb.setType(type.toLowerCase());
+      resourceIdP3.setId(id);
+      resourceIdP3.type(type.toLowerCase());
       return resourceIdPb;
     }
 
     static ResourceId fromPb(
-        (com.google.api.services.cloudresourcemanager.v3.model.ResourceId resourceIdPb) {
+        com.google.api.services.cloudresourcemanager.v3.model.ResourceId resourceIdPb) {
       return new ResourceId(resourceIdPb.getId(), resourceIdPb.getType());
     }
   }
@@ -145,11 +145,12 @@ public class ProjectInfo implements Serializable {
   /** Builder for {@code ProjectInfo}. */
   public abstract static class Builder {
 
+  {
     /**
      * Set the user-assigned name of the project.
      *
      * <p>This field is optional and can remain unset. Allowed characters are: lowercase and
-     * uppercase letters, digits, hyphen, single-quote, double-quote, space, and exclamation point.
+     * uppercase letters, numbers, hyphen, single-quote, double-quote, space, and exclamation point.
      * This field can be changed after project creation.
      */
     public abstract Builder setName(String name);
@@ -157,9 +158,9 @@ public class ProjectInfo implements Serializable {
     /**
      * Set the unique, user-assigned ID of the project.
      *
-     * <p>The ID must be 6 to 30 lowercase letters, digits, or hyphens. It must start with a
-     * letter. Trailing hyphens are prohibited. This field cannot be changed after the server creates
-     * the project.
+     * <p>The ID must be 6 to 30 lowercase letters, digits, or hyphens. It must start with a letter.
+     * Trailing hyphens are prohibited. This field cannot be changed after the server creates the
+     * project.
      */
     public abstract Builder setProjectId(String projectId);
 
@@ -200,6 +201,7 @@ public class ProjectInfo implements Serializable {
 
   static class BuilderImpl extends Builder {
 
+  {
     private String name;
     private String projectId;
     private Map<String, String> labels = new HashMap<>();
@@ -254,7 +256,7 @@ public class ProjectInfo implements Serializable {
 
     @Override
     public Builder setLabels(Map<String, String> labels) {
-      this.labels = Maps.newHashMap(checkNotNull(labels);
+      this.labels = Maps.newHashMap(checkNotNull(labels));
       return this;
     }
 
@@ -386,9 +388,9 @@ public class ProjectInfo implements Serializable {
     }
     if (createTimeMillis != null) {
       projectPb.setCreateTime(
-          (DateTimeFormatter.ISO_DATE_TIME
+          DateTimeFormatter.ISO_DATE_TIME
               .withZone(ZoneOffset.UTC)
-              .format(Instant.ofEpochMilli(createTimeMillis)));
+              .format(Instant.ofEpochMilli(createTimeMillis));
     }
     if (parent != null) {
       projectPb.setParent(parent);
@@ -410,7 +412,7 @@ public class ProjectInfo implements Serializable {
     }
     if (projectPb.getCreateTime() != null) {
       builder.setCreateTimeMillis(
-          (DATE_TIME_FORMATTER.parse(projectPb.getCreateTime(), Instant.FROM).toEpochMilli());
+          DATE_TIME_FORMATTER.parse(projectPb.getCreateTime(), Instant.FROM).toEpochMilli());
     }
     if (projectPb.getParent() != null) {
       builder.setParent(projectPb.getParent());
