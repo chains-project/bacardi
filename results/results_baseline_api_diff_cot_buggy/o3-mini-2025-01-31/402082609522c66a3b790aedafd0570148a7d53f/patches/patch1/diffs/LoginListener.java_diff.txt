@@ -1,18 +1,24 @@
-13c13
+8d7
+< 
+11d9
+< 
+13c11
 < import org.spongepowered.api.event.network.ClientConnectionEvent;
 ---
 > import org.spongepowered.api.event.network.ServerSideConnectionEvent;
-24d23
+24d21
 < 
-29c28
+29c26
 <     public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
 ---
 >     public void onPlayerPreLogin(ServerSideConnectionEvent.Auth preLoginEvent) {
-32c31
+31,32c28,29
+<         GameProfile profile = preLoginEvent.getProfile();
 <         UUID playerUUID = profile.getUniqueId();
 ---
+>         GameProfile profile = preLoginEvent.getConnection().getProfile();
 >         UUID playerUUID = profile.getId();
-45c44
+45c42
 <             String playerName = profile.getName().get();
 ---
->             String playerName = preLoginEvent.getName();
+>             String playerName = preLoginEvent.getConnection().getName();

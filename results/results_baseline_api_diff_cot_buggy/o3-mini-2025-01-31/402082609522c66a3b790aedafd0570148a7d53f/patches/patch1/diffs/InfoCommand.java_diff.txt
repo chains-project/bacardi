@@ -2,7 +2,7 @@
 < 
 12d10
 < 
-14,19c12,16
+14,19c12,15
 < import org.spongepowered.api.command.CommandException;
 < import org.spongepowered.api.command.CommandResult;
 < import org.spongepowered.api.command.CommandSource;
@@ -14,27 +14,43 @@
 > import org.spongepowered.api.command.CommandExecutor;
 > import org.spongepowered.api.command.exception.CommandException;
 > import org.spongepowered.api.command.parameter.CommandContext;
-> import org.spongepowered.api.command.source.CommandSource;
-21,23c18,19
+21,23c17,18
 < import org.spongepowered.api.scheduler.Task;
 < import org.spongepowered.api.text.Text;
 < import org.spongepowered.api.text.serializer.TextSerializers;
 ---
 > import net.kyori.adventure.text.Component;
 > import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-33d28
+33d27
 < 
-42,43c37
+35,38c29,33
+<     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+<         if (!(src instanceof Player)) {
+<             plugin.sendMessage(src, "no-console");
+<             return CommandResult.empty();
+---
+>     public void execute(CommandContext args) throws CommandException {
+>         Optional<Player> playerOpt = args.cause().first(Player.class);
+>         if (!playerOpt.isPresent()) {
+>             plugin.sendMessage(args.cause(), "no-console");
+>             return;
+41,47c36,37
+<         UUID uniqueId = ((Player) src).getUniqueId();
 <         Task.builder().async()
 <                 .execute(() -> {
----
->         Sponge.getScheduler().asyncExecutor(plugin).execute(() -> {
-45,47c39,40
+<                     UserPreference preferences = plugin.getCore().getStorage().getPreferences(uniqueId);
 <                     Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).submit(plugin);
 <                 })
 <                 .submit(plugin);
 ---
->             Sponge.getScheduler().syncExecutor(plugin).execute(() -> sendSkinDetails(uniqueId, preferences));
+>         Player player = playerOpt.get();
+>         UUID uniqueId = player.uniqueId();
+49c39,42
+<         return CommandResult.success();
+---
+>         Sponge.server().scheduler().executor(plugin).submit(() -> {
+>             UserPreference preferences = plugin.getCore().getStorage().getPreferences(uniqueId);
+>             Sponge.server().scheduler().executor(plugin).submit(() -> sendSkinDetails(uniqueId, preferences));
 >         });
 52,54c45,46
 <     @Override
@@ -43,28 +59,16 @@
 ---
 >     public Command buildSpec() {
 >         return Command.builder()
-61c53
+61c53,55
 <         Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
 ---
->         Optional<Player> optPlayer = Sponge.server().player(uuid);
-64d55
-< 
-69,71c60,61
+>         Optional<Player> optPlayer = Sponge.server().onlinePlayers().stream()
+>                 .filter(p -> p.uniqueId().equals(uuid))
+>                 .findFirst();
+69,71c63,64
 < 
 <                 Text text = TextSerializers.LEGACY_FORMATTING_CODE.deserialize(formatted);
 <                 player.sendMessage(text);
 ---
->                 Component message = LegacyComponentSerializer.legacySection().deserialize(formatted);
->                 player.sendMessage(message);
-76a67,77
-> 
->     public static class CommandResult {
-> 
->         public static CommandResult empty() {
->             return new CommandResult();
->         }
-> 
->         public static CommandResult success() {
->             return new CommandResult();
->         }
->     }
+>                 Component component = LegacyComponentSerializer.legacyAmpersand().deserialize(formatted);
+>                 player.sendMessage(component);

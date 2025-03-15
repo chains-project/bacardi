@@ -22,10 +22,10 @@ import java.util.Map;
 
 /**
  * YAML model reader.
- *
+ * 
  * @author jvanzyl
  * @author bentmann
- *
+ * 
  * @since 0.7
  */
 @Component(role = ModelReader.class, hint = "yaml")

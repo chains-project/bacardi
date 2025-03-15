@@ -1,2 +1,12 @@
-112d111
+3d2
+< import ch.qos.logback.classic.Level;
+82a82
+>     
+84a85
+>     
+111,112c112,113
+<         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
 <         logger.setLevel(Level.INFO);
+---
+>         // Use the underlying logger from the LoggerFactory and add our mock appender.
+>         Logger logger = (Logger) LoggerFactory.getILoggerFactory().getLogger(EventMessageHandler.class);

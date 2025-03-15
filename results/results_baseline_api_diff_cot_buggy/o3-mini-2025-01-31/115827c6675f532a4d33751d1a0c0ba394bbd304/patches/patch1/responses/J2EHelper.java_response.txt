@@ -19,7 +19,7 @@ import org.pac4j.jee.filter.SecurityFilter;
 /**
  *
  * @author Evan Meagher
- * @author Victor Noel
+ * @author Victor Noel - Linagora
  * @since 1.1.0
  *
  */
@@ -34,7 +34,7 @@ public final class J2EHelper {
 
         final SecurityFilter filter = new SecurityFilter();
 
-        filter.setClients(fConf.getClients());
+        filter.setClientNames(fConf.getClients());
         filter.setAuthorizers(fConf.getAuthorizers());
         filter.setMatchers(fConf.getMatchers());
         filter.setMultiProfile(fConf.getMultiProfile());

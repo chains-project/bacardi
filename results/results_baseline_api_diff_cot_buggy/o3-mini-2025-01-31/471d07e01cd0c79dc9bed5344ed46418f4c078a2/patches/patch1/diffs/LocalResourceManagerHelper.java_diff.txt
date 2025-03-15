@@ -14,58 +14,58 @@
 > import com.google.api.services.cloudresourcemanager.v3.model.SetIamPolicyRequest;
 > import com.google.api.services.cloudresourcemanager.v3.model.TestIamPermissionsRequest;
 > import com.google.api.services.cloudresourcemanager.v3.model.TestIamPermissionsResponse;
-285c285,289
+194d193
+<       // see https://cloud.google.com/resource-manager/reference/rest/
+265d263
+<       // see https://cloud.google.com/resource-manager/reference/rest/
+285c283
 <                     jsonFactory.toString(new Operation().setDone(true).setResponse(project)));
 ---
->                     jsonFactory.toString(
->                         new Operation()
->                             .setDone(true)
->                             .setName("operations/" + project.getProjectId())
->                             .setResponse(project)));
-449,450c453
+>                     jsonFactory.toString(new Operation().setDone(true).setName("operations/" + project.getProjectId()).setResponse(project)));
+359d356
+<             // List fields are in the form "projects(field1, field2, ...),nextPageToken"
+449c446
 <       project.setLifecycleState("ACTIVE");
-<       project.setProjectNumber(Math.abs(PROJECT_NUMBER_GENERATOR.nextLong() % Long.MAX_VALUE));
 ---
 >       project.setState("ACTIVE");
-483c486
+466d462
+<         // Pretend it's not done yet.
+483c479
 <     if (!project.getLifecycleState().equals("ACTIVE")) {
 ---
->     if (!project.getState().equals("ACTIVE")) {
-487c490
+>     if (!"ACTIVE".equals(project.getState())) {
+487c483
 <       project.setLifecycleState("DELETE_REQUESTED");
 ---
 >       project.setState("DELETE_REQUESTED");
-618c621
+540d535
+<     // If fields parameter is set but no project field is selected we must return no projects.
+618c613
 <           project.setLifecycleState(fullProject.getLifecycleState());
 ---
 >           project.setState(fullProject.getState());
-629,631d631
-<         case "projectNumber":
-<           project.setProjectNumber(fullProject.getProjectNumber());
-<           break;
-642c642
+642c637
 <     } else if (!originalProject.getLifecycleState().equals("ACTIVE")) {
 ---
->     } else if (!originalProject.getState().equals("ACTIVE")) {
-651c651
+>     } else if (!"ACTIVE".equals(originalProject.getState())) {
+651c646
 <     project.setLifecycleState(originalProject.getLifecycleState());
 ---
 >     project.setState(originalProject.getState());
-653,654d652
-<     project.setProjectNumber(originalProject.getProjectNumber());
+654d648
 <     // replace cannot fail because both this method and removeProject are synchronized
-670c668
+670c664
 <     } else if (!project.getLifecycleState().equals("DELETE_REQUESTED")) {
 ---
->     } else if (!project.getState().equals("DELETE_REQUESTED")) {
-677c675
+>     } else if (!"DELETE_REQUESTED".equals(project.getState())) {
+677c671
 <       project.setLifecycleState("ACTIVE");
 ---
 >       project.setState("ACTIVE");
-787c785
+787c781
 <       project.setLifecycleState(lifecycleState);
 ---
 >       project.setState(lifecycleState);
-802,803d799
+802,803d795
 <     // Because this method is synchronized, any code that relies on non-atomic read/write operations
 <     // should not fail if that code is also synchronized.

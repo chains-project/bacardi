@@ -5,127 +5,81 @@ import java.math.BigInteger;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.regex.Pattern;
-import org.cactoos.text.FormattedText;
-import org.cactoos.time.ZonedDateTimeOf;
 
-/**
- * RtTransaction.
- *
- * @since 0.1
- * @checkstyle ClassDataAbstractionCoupling (3 lines)
- */
-@SuppressWarnings({"PMD.AvoidCatchingGenericException",
-    "PMD.AvoidFieldNameMatchingMethodName"})
 final class RtTransaction implements Transaction {
 
-    /**
-     * Pattern for Prefix String.
-     */
     private static final Pattern PREFIX = Pattern.compile(
-        "^([A-Za-z0-9+\\/]{4})*([A-Za-z0-9+\\/]{4}|[A-Za-z0-9+\\/]{3}=|[A-Za-z0-9+\\/]{2}==)$"
+        "^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$"
     );
 
-    /**
-     * Pattern for 16 symbol hex string.
-     */
     private static final Pattern HEX = Pattern.compile("[A-Fa-f0-9]{16}");
 
-    /**
-     * Pattern for parsing Signature.
-     */
     private static final Pattern SIGN = Pattern.compile("[A-Za-z0-9+/]+={0,3}");
 
-    /**
-     * Pattern for Details string.
-     */
-    private static final Pattern DTLS =
-        Pattern.compile("[A-Za-z0-9 -.]{1,512}");
+    private static final Pattern DTLS = Pattern.compile("[A-Za-z0-9 -.]{1,512}");
 
-    /**
-     * Pattern for ID String.
-     */
     private static final Pattern IDENT = Pattern.compile("[A-Fa-f0-9]{4}");
 
-    /**
-     * String representation of transaction.
-     */
     private final String transaction;
+    private String[] tokensCache;
 
-    /**
-     * Ctor.
-     * @param trnsct String representation of transaction
-     */
     RtTransaction(final String trnsct) {
         this.transaction = trnsct;
     }
 
-    /**
-     * Splits and validates the transaction string.
-     *
-     * @return the parts of the transaction string.
-     * @throws IOException if the transaction string is invalid.
-     */
-    private String[] parts() throws IOException {
-        if (this.transaction.trim().isEmpty()) {
-            throw new IOException("Invalid transaction string: string is empty");
-        }
-        String[] parts = this.transaction.split(";", -1);
-        if (parts.length != 7) {
-            throw new IOException(
-                new FormattedText(
+    private String[] tokens() throws IOException {
+        if (this.tokensCache == null) {
+            if (this.transaction.trim().isEmpty()) {
+                throw new IOException("Invalid transaction string: string is empty");
+            }
+            String[] parts = this.transaction.split(";");
+            if (parts.length != 7) {
+                throw new IOException(String.format(
                     "Invalid transaction string: expected 7 fields, but found %d",
                     parts.length
-                ).asString()
-            );
+                ));
+            }
+            this.tokensCache = parts;
         }
-        return parts;
+        return this.tokensCache;
     }
 
     @Override
-    @SuppressWarnings("PMD.ShortMethodName")
     public int id() throws IOException {
-        String ident = parts()[0];
-        if (!RtTransaction.IDENT.matcher(ident).matches()) {
-            throw new IOException(
-                new FormattedText(
-                    "Invalid ID '%s' expecting 16-bit unsigned hex string with 4 symbols",
-                    ident
-                ).asString()
-            );
+        String ident = tokens()[0];
+        if (!IDENT.matcher(ident).matches()) {
+            throw new IOException(String.format(
+                "Invalid ID '%s' expecting 16-bit unsigned hex string with 4 symbols",
+                ident
+            ));
         }
         return Integer.parseUnsignedInt(ident, 16);
     }
 
     @Override
     public ZonedDateTime time() throws IOException {
-        String timeStr = parts()[1];
-        return new ZonedDateTimeOf(
-            timeStr,
-            DateTimeFormatter.ISO_OFFSET_DATE_TIME
-        ).value();
+        return ZonedDateTime.parse(tokens()[1], DateTimeFormatter.ISO_OFFSET_DATE_TIME);
     }
 
     @Override
     public long amount() throws IOException {
-        String amnt = parts()[2];
-        if (!RtTransaction.HEX.matcher(amnt).matches()) {
-            throw new IOException(
-                new FormattedText(
-                    "Invalid amount '%s' expecting 64-bit signed hex string with 16 symbols",
-                    amnt
-                ).asString()
-            );
+        String amnt = tokens()[2];
+        if (!HEX.matcher(amnt).matches()) {
+            throw new IOException(String.format(
+                "Invalid amount '%s' expecting 64-bit signed hex string with 16 symbols",
+                amnt
+            ));
         }
         return new BigInteger(amnt, 16).longValue();
     }
 
     @Override
     public String prefix() throws IOException {
-        String prefix = parts()[3];
+        String prefix = tokens()[3];
         if (prefix.length() < 8 || prefix.length() > 32) {
             throw new IOException("Invalid prefix size");
         }
-        if (!RtTransaction.PREFIX.matcher(prefix).matches()) {
+        if (!PREFIX.matcher(prefix).matches()) {
             throw new IOException("Invalid base64 prefix");
         }
         return prefix;
@@ -133,43 +87,36 @@ final class RtTransaction implements Transaction {
 
     @Override
     public String bnf() throws IOException {
-        String bnf = parts()[4];
-        if (!RtTransaction.HEX.matcher(bnf).matches()) {
-            throw new IOException(
-                new FormattedText(
-                    "Invalid bnf string '%s', expecting hex string with 16 symbols",
-                    bnf
-                ).asString()
-            );
+        String bnf = tokens()[4];
+        if (!HEX.matcher(bnf).matches()) {
+            throw new IOException(String.format(
+                "Invalid bnf string '%s', expecting hex string with 16 symbols",
+                bnf
+            ));
         }
         return bnf;
     }
 
     @Override
     public String details() throws IOException {
-        String dtls = parts()[5];
-        if (!RtTransaction.DTLS.matcher(dtls).matches()) {
-            throw new IOException(
-                new FormattedText(
-                    "Invalid details string '%s', does not match pattern '%s'",
-                    dtls, RtTransaction.DTLS
-                ).asString()
-            );
+        String dtls = tokens()[5];
+        if (!DTLS.matcher(dtls).matches()) {
+            throw new IOException(String.format(
+                "Invalid details string '%s', does not match pattern '%s'",
+                dtls, DTLS.toString()
+            ));
         }
         return dtls;
     }
 
     @Override
     public String signature() throws IOException {
-        String sign = parts()[6];
-        if (sign.length() != 684
-            || !RtTransaction.SIGN.matcher(sign).matches()) {
-            throw new IOException(
-                new FormattedText(
-                    "Invalid signature '%s', expecting base64 string with 684 characters",
-                    sign
-                ).asString()
-            );
+        String sign = tokens()[6];
+        if (sign.length() != 684 || !SIGN.matcher(sign).matches()) {
+            throw new IOException(String.format(
+                "Invalid signature '%s', expecting base64 string with 684 characters",
+                sign
+            ));
         }
         return sign;
     }
@@ -180,7 +127,6 @@ final class RtTransaction implements Transaction {
     }
 
     @Override
-    @SuppressWarnings("PMD.OnlyOneReturn")
     public boolean equals(final Object obj) {
         if (this == obj) {
             return true;

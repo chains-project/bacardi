@@ -7,17 +7,32 @@
 ---
 > import jakarta.mvc.Controller;
 > import jakarta.mvc.Models;
-> import jakarta.servlet.http.HttpServletRequest;
 > import jakarta.ws.rs.GET;
 > import jakarta.ws.rs.Path;
 > import jakarta.ws.rs.core.Context;
-22,23c23,24
+> import jakarta.servlet.http.HttpServletRequest;
+13,16d13
+< /**
+<  *
+<  * @author hantsy
+<  */
+22,23c19,20
 <     @Inject
 <     MvcContext mvc;
 ---
 >     @Context
 >     private HttpServletRequest request;
-33c34
+26c23
+<     Models models;
+---
+>     private Models models;
+29c26
+<     Logger log;
+---
+>     private Logger log;
+33c30
 <         Locale locale = mvc.getLocale();
 ---
 >         Locale locale = request.getLocale();
+37d33
+< 

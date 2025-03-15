@@ -45,9 +45,8 @@ import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.collection.IsIterableContainingInAnyOrder;
 
 /**
  * REST response.
@@ -59,8 +58,8 @@ import static org.hamcrest.CoreMatchers.notNullValue;
  *   .fetch()
  *   .as(RestResponse.class)
  *   .assertStatus(200)
- *   .assertBody(Matchers.containsString("hello, world!"))
- *   .assertHeader("Content-Type", hasItem("text/plain"))
+ *   .assertBody(CoreMatchers.containsString("hello, world!"))
+ *   .assertHeader("Content-Type", IsIterableContainingInAnyOrder.hasItems("text/plain"))
  *   .jump(URI.create("/users"))
  *   .fetch();</pre>
  *
@@ -209,7 +208,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, hasItem(value));
+        return this.assertHeader(name, IsIterableContainingInAnyOrder.hasItems(value));
     }
 
     /**
@@ -245,7 +244,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            not(emptyIterableOf(String.class))
+            CoreMatchers.not(CoreMatchers.equalTo(Collections.emptyList()))
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -283,7 +282,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            notNullValue()
+            CoreMatchers.notNullValue()
         );
         assert cookie != null;
         return cookie;
@@ -332,21 +331,4 @@ public final class RestResponse extends AbstractResponse {
         }
     }
 
-    /**
-     * Creates a matcher that matches an empty iterable.
-     * @param <T> type of items
-     * @param clazz Class of the items
-     * @return Matcher that matches an empty iterable.
-     */
-    private static <T> Matcher<Iterable<T>> emptyIterableOf(final Class<T> clazz) {
-        return new CustomMatcher<Iterable<T>>("an empty iterable of " + clazz.getSimpleName()) {
-            @Override
-            public boolean matches(final Object item) {
-                if (!(item instanceof Iterable)) {
-                    return false;
-                }
-                return !((Iterable<?>) item).iterator().hasNext();
-            }
-        };
-    }
 }

@@ -191,7 +191,6 @@ public class LocalResourceManagerHelper {
   private class RequestHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) {
-      // see https://cloud.google.com/resource-manager/reference/rest/
       Response response;
       String path = BASE_CONTEXT.relativize(exchange.getRequestURI()).getPath();
       String requestMethod = exchange.getRequestMethod();
@@ -262,7 +261,6 @@ public class LocalResourceManagerHelper {
   private class OperationRequestHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) {
-      // see https://cloud.google.com/resource-manager/reference/rest/
       String projectId;
       try {
         projectId = new URI(OPERATION_CONTEXT).relativize(exchange.getRequestURI()).getPath();
@@ -282,11 +280,7 @@ public class LocalResourceManagerHelper {
             response =
                 new Response(
                     HTTP_OK,
-                    jsonFactory.toString(
-                        new Operation()
-                            .setDone(true)
-                            .setName("operations/" + project.getProjectId())
-                            .setResponse(project)));
+                    jsonFactory.toString(new Operation().setDone(true).setName("operations/" + project.getProjectId()).setResponse(project)));
           } catch (IOException e) {
             response =
                 Error.INTERNAL_ERROR.response(
@@ -360,7 +354,6 @@ public class LocalResourceManagerHelper {
         String[] argEntry = arg.split("=");
         switch (argEntry[0]) {
           case "fields":
-            // List fields are in the form "projects(field1, field2, ...),nextPageToken"
             Matcher matcher = LIST_FIELDS_PATTERN.matcher(argEntry[1]);
             if (matcher.matches()) {
               options.put("projectFields", matcher.group(2).split(","));
@@ -451,6 +444,7 @@ public class LocalResourceManagerHelper {
       return Error.INVALID_ARGUMENT.response(customErrorMessage);
     } else {
       project.setState("ACTIVE");
+      project.setProjectNumber(Math.abs(PROJECT_NUMBER_GENERATOR.nextLong() % Long.MAX_VALUE));
       project.setCreateTime(
           DateTimeFormatter.ISO_DATE_TIME
               .withZone(ZoneOffset.UTC)
@@ -466,7 +460,6 @@ public class LocalResourceManagerHelper {
               .setVersion(0);
       policies.put(project.getProjectId(), emptyPolicy);
       try {
-        // Pretend it's not done yet.
         String createdProjectStr =
             jsonFactory.toString(
                 new Operation().setDone(false).setName("operations/" + project.getProjectId()));
@@ -483,7 +476,7 @@ public class LocalResourceManagerHelper {
       return Error.PERMISSION_DENIED.response(
           "Error when deleting " + projectId + " because the project was not found.");
     }
-    if (!project.getState().equals("ACTIVE")) {
+    if (!"ACTIVE".equals(project.getState())) {
       return Error.FAILED_PRECONDITION.response(
           "Error when deleting " + projectId + " because the lifecycle state was not ACTIVE.");
     } else {
@@ -540,7 +533,6 @@ public class LocalResourceManagerHelper {
     String[] listFields = (String[]) options.get("listFields");
     StringBuilder responseBody = new StringBuilder();
     responseBody.append('{');
-    // If fields parameter is set but no project field is selected we must return no projects.
     if (!(projectFields != null && projectFields.length == 0)) {
       responseBody.append("\"projects\": [");
       Joiner.on(",").appendTo(responseBody, projectsSerialized);
@@ -629,6 +621,9 @@ public class LocalResourceManagerHelper {
         case "projectId":
           project.setProjectId(fullProject.getProjectId());
           break;
+        case "projectNumber":
+          project.setProjectNumber(fullProject.getProjectNumber());
+          break;
       }
     }
     return project;
@@ -639,7 +634,7 @@ public class LocalResourceManagerHelper {
     if (originalProject == null) {
       return Error.PERMISSION_DENIED.response(
           "Error when replacing " + projectId + " because the project was not found.");
-    } else if (!originalProject.getState().equals("ACTIVE")) {
+    } else if (!"ACTIVE".equals(originalProject.getState())) {
       return Error.FAILED_PRECONDITION.response(
           "Error when replacing " + projectId + " because the lifecycle state was not ACTIVE.");
     } else if (!Objects.equal(originalProject.getParent(), project.getParent())) {
@@ -650,6 +645,7 @@ public class LocalResourceManagerHelper {
     project.setProjectId(projectId);
     project.setState(originalProject.getState());
     project.setCreateTime(originalProject.getCreateTime());
+    project.setProjectNumber(originalProject.getProjectNumber());
     projects.replace(projectId, project);
     try {
       return new Response(HTTP_OK, jsonFactory.toString(project));
@@ -665,7 +661,7 @@ public class LocalResourceManagerHelper {
       response =
           Error.PERMISSION_DENIED.response(
               "Error when undeleting " + projectId + " because the project was not found.");
-    } else if (!project.getState().equals("DELETE_REQUESTED")) {
+    } else if (!"DELETE_REQUESTED".equals(project.getState())) {
       response =
           Error.FAILED_PRECONDITION.response(
               "Error when undeleting "

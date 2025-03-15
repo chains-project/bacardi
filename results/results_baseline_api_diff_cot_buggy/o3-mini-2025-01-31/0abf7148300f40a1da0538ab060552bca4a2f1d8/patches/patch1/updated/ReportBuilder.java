@@ -22,7 +22,6 @@ package xdev.tableexport.export;
  * #L%
  */
 
-
 import java.awt.Color;
 import java.awt.Font;
 import java.util.HashSet;
@@ -171,9 +170,9 @@ public class ReportBuilder
 			//get the normal height of the label
 			int lblHeigh = (int)lbl.getPreferredSize().getHeight();
 			//add the column border width
-			lblHeigh += style.getColBorder().getLineWidth() * 2;
+			lblHeigh+= style.getColBorder().getLineWidth()*2;
 			//Add padding
-			lblHeigh += style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
+			lblHeigh+= style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
 			
 			if(lblHeigh > maxHeight)
 			{
@@ -197,9 +196,9 @@ public class ReportBuilder
 			lbl.setFont(font);
 			int lblHeigh = (int)lbl.getPreferredSize().getHeight();
 			//Add border width
-			lblHeigh += style.getColBorder().getLineWidth() * 2;
+			lblHeigh+= style.getColBorder().getLineWidth()*2;
 			//Add padding
-			lblHeigh += style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
+			lblHeigh+= style.getColumnPadding().getTopWidth() + style.getColumnPadding().getBottomWidth();
 			
 			if(lblHeigh > maxHeight)
 			{
@@ -219,7 +218,7 @@ public class ReportBuilder
 		{
 			field = new JRDesignField();
 			field.setName(col.getContentColumn().getFieldName());
-			this.chooseValueClass(col, field);
+			this.chooseValueClass(col,field);
 			
 			try
 			{
@@ -228,8 +227,8 @@ public class ReportBuilder
 			}
 			catch(final JRException e)
 			{
-				throw new ExportException("error during add the field " 
-						+ col.getContentColumn().getFieldName(), e);
+				throw new ExportException("error during add the field "
+						+ col.getContentColumn().getFieldName(),e);
 			}
 		}
 		
@@ -286,9 +285,9 @@ public class ReportBuilder
 					headerLabel.setY(TemplateConfig.DEFAULT_COMPONENT_Y_POSITION);
 					
 					headerLabel.setHeight(headerLabelHeight);
-					this.setStlyeForTextField(headerLabel, headerColumn.getStyle());
-					this.prepareTextfieldWithBorder(headerLabel, headerColumn.getStyle());
-					this.prepareTextfieldPadding(headerLabel, headerColumn.getStyle());
+					this.setStlyeForTextField(headerLabel,headerColumn.getStyle());
+					this.prepareTextfieldWithBorder(headerLabel,headerColumn.getStyle());
+					this.prepareTextfieldPadding(headerLabel,headerColumn.getStyle());
 					
 					headerLabel.setPositionType(PositionTypeEnum.FLOAT);
 
@@ -316,12 +315,12 @@ public class ReportBuilder
 			textField.setY(TemplateConfig.DEFAULT_COMPONENT_Y_POSITION);
 			textField.setHeight(contentLabelHeight);
 			
-			this.setStlyeForTextField(textField, contentColumn.getStyle());
+			this.setStlyeForTextField(textField,contentColumn.getStyle());
 			textField.setPattern(contentColumn.getProperty());
 			
 			// box tag properties
-			this.prepareTextfieldWithBorder(textField, contentColumn.getStyle());
-			this.prepareTextfieldPadding(textField, contentColumn.getStyle());
+			this.prepareTextfieldWithBorder(textField,contentColumn.getStyle());
+			this.prepareTextfieldPadding(textField,contentColumn.getStyle());
 			
 			textField.setExpression(this.buildExpression(contentColumn));
 			
@@ -366,8 +365,7 @@ public class ReportBuilder
 			return;
 		}
 		
-		// Removed the call to setLineWidth due to API changes
-		// textField.getLineBox().getPen().setLineWidth(border.getLineWidth());
+		textField.getLineBox().getPen().setLineWidth(Float.valueOf(border.getLineWidth()));
 		textField.getLineBox().getPen().setLineColor(border.getLineColor());
 		textField.getLineBox().getPen().setLineStyle(border.getLineStyle().getLineStyleEnum());
 	}
@@ -411,7 +409,7 @@ public class ReportBuilder
 			final JRDesignBand headerBand = this.initHeaderBand();
 			final JRDesignBand detailBand = this.initDetailBand();
 			
-			this.createHeaderAndContent(headerBand, detailBand);
+			this.createHeaderAndContent(headerBand,detailBand);
 			
 			((JRDesignSection)jasperDesign.getDetailSection()).addBand(detailBand);
 			if(this.config.hasAnyHeader())

@@ -41,7 +41,6 @@ public class SimpleLocalizeClient
 
   public SimpleLocalizeClient(String baseUrl, String apiKey)
   {
-
     Objects.requireNonNull(baseUrl);
     Objects.requireNonNull(apiKey);
     this.uriFactory = new SimpleLocalizeUriFactory(baseUrl);
@@ -162,4 +161,5 @@ public class SimpleLocalizeClient
     }
     return "";
   }
+
 }

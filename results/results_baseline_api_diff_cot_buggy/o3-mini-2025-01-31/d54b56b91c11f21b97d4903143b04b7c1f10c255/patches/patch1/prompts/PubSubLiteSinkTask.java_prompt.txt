@@ -159,10 +159,10 @@ The errors are triggered in the following specific lines:
 
 <error_lines>
 ```java
-private @Nullable Publisher<PublishMetadata> publisher;
+import com.google.cloud.pubsublite.PublishMetadata;
 ```
 ```java
-import com.google.cloud.pubsublite.PublishMetadata;
+private @Nullable Publisher<PublishMetadata> publisher;
 ```
 </error_lines>
 
@@ -174,14 +174,14 @@ The API of the dependency has changed. Here are the relevant changes:
 Additional error information:
 
 <error_information>
-[ERROR] /java-pubsub-group-kafka-connector/src/main/java/com/google/pubsublite/kafka/sink/PubSubLiteSinkTask.java:[43,31] cannot find symbol
-  symbol:   class PublishMetadata
-  location: class com.google.pubsublite.kafka.sink.PubSubLiteSinkTask
-
 [ERROR] /java-pubsub-group-kafka-connector/src/main/java/com/google/pubsublite/kafka/sink/PubSubLiteSinkTask.java:[22,35] cannot find symbol
   symbol:   class PublishMetadata
   location: package com.google.cloud.pubsublite
-<error_information>
+
+[ERROR] /java-pubsub-group-kafka-connector/src/main/java/com/google/pubsublite/kafka/sink/PubSubLiteSinkTask.java:[43,31] cannot find symbol
+  symbol:   class PublishMetadata
+  location: class com.google.pubsublite.kafka.sink.PubSubLiteSinkTask
+</error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:
 

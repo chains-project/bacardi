@@ -36,6 +36,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  * &lt;/complexType&gt;
  * </pre>
  * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Currency", propOrder = {
@@ -126,7 +127,7 @@ public class Currency implements ToString2 {
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
+        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();

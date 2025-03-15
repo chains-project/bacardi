@@ -4,98 +4,50 @@
 < 
 27d24
 < 
-47,49d43
-< /**
-<  * Factory class to create MarcRecord from JsonPathCache
-<  */
-67c61,70
+67,70c64,67
 <     for (JsonBranch branch : schema.getPaths()) {
+<       if (branch.getParent() != null)
+<         continue;
+<       switch (branch.getLabel()) {
 ---
->     // Wrap the objects returned by schema.getPaths() into our local JsonBranch wrapper.
->     for (Object obj : schema.getPaths()) {
->       JsonBranch branch;
->       if (obj instanceof JsonBranch) {
->         branch = (JsonBranch) obj;
->       } else if (obj instanceof String) {
->         branch = new JsonBranch((String) obj);
->       } else {
->         continue;
->       }
-84,85c87
+>     for (String branch : schema.getPaths()) {
+>       // In the previous version, branches with a non-null parent were skipped.
+>       // With the new API, we assume that schema.getPaths() returns top-level keys.
+>       switch (branch) {
+84,85c81
 <           marcRecord.setControl006(
 <             new Control006(extractFirst(cache, branch), marcRecord));
 ---
 >           marcRecord.setControl006(new Control006(extractFirst(cache, branch), marcRecord));
-88,89c90
+88,89c84
 <           marcRecord.setControl007(
 <             new Control007(extractFirst(cache, branch), marcRecord));
 ---
 >           marcRecord.setControl007(new Control007(extractFirst(cache, branch), marcRecord));
-92,93c93
+92,93c87
 <           marcRecord.setControl008(
 <             new Control008(extractFirst(cache, branch), marcRecord));
 ---
 >           marcRecord.setControl008(new Control008(extractFirst(cache, branch), marcRecord));
-172,173d171
-<     // marcRecord.setSchemaType(SchemaType.PICA);
-< 
-175d172
-< 
-177d173
-< 
-190c186,187
-<           marcRecord.setControl001(new Control001(data)); break;
+96,98c90,92
+<           JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());
+<           for (var fieldInsanceNr = 0; fieldInsanceNr < fieldInstances.size(); fieldInsanceNr++) {
+<             var fieldInstance = (Map) fieldInstances.get(fieldInsanceNr);
 ---
->           marcRecord.setControl001(new Control001(data));
->           break;
-192c189,190
-<           marcRecord.setControl003(new Control003(data)); break;
+>           JSONArray fieldInstances = (JSONArray) cache.getFragment(branch);
+>           for (int fieldInstanceNr = 0; fieldInstanceNr < fieldInstances.size(); fieldInstanceNr++) {
+>             var fieldInstance = (Map) fieldInstances.get(fieldInstanceNr);
+104c98
+<               marcRecord.addUnhandledTags(branch.getLabel());
 ---
->           marcRecord.setControl003(new Control003(data));
->           break;
-194c192,193
-<           marcRecord.setControl005(new Control005(data, marcRecord)); break;
+>               marcRecord.addUnhandledTags(branch);
+313,314c307,308
+<   private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
+<     List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());
 ---
->           marcRecord.setControl005(new Control005(data, marcRecord));
->           break;
-196c195,196
-<           marcRecord.setControl006(new Control006(data, marcRecord)); break;
+>   private static List<String> extractList(JsonPathCache cache, String branch) {
+>     List<XmlFieldInstance> instances = cache.get(branch);
+322c316
+<   private static String extractFirst(JsonPathCache cache, JsonBranch branch) {
 ---
->           marcRecord.setControl006(new Control006(data, marcRecord));
->           break;
-198c198,199
-<           marcRecord.setControl007(new Control007(data, marcRecord)); break;
----
->           marcRecord.setControl007(new Control007(data, marcRecord));
->           break;
-200c201,202
-<           marcRecord.setControl008(new Control008(data, marcRecord)); break;
----
->           marcRecord.setControl008(new Control008(data, marcRecord));
->           break;
-230d231
-<         // System.err.println("getTag: " + dataField.getTag() + " ----");
-472d472
-<       // String tag = schema.containsKey(line.getQualifiedTag()) ? line.getQualifiedTag() : line.getTag();
-484a485,505
->   
->   // Dummy replacement for the removed de.gwdg.metadataqa.api.json.JsonBranch class.
->   private static class JsonBranch {
->     private final String path;
->     
->     public JsonBranch(String path) {
->       this.path = path;
->     }
->     
->     public String getJsonPath() {
->       return this.path;
->     }
->     
->     public String getLabel() {
->       return this.path;
->     }
->     
->     public Object getParent() {
->       return null;
->     }
->   }
+>   private static String extractFirst(JsonPathCache cache, String branch) {

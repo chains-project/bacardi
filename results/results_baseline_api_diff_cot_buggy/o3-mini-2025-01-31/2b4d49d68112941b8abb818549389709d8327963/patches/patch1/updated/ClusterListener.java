@@ -16,12 +16,14 @@
 package org.jivesoftware.openfire.plugin.util.cache;
 
 import com.hazelcast.cluster.Cluster;
-import com.hazelcast.cluster.MembershipEvent;
-import com.hazelcast.cluster.MembershipListener;
-import com.hazelcast.cluster.Member;
+import com.hazelcast.map.listener.EntryListener;
 import com.hazelcast.cluster.LifecycleEvent;
 import com.hazelcast.cluster.LifecycleEvent.LifecycleState;
-import com.hazelcast.map.listener.EntryListener;
+import com.hazelcast.cluster.LifecycleListener;
+import com.hazelcast.cluster.Member;
+import com.hazelcast.cluster.MemberAttributeEvent;
+import com.hazelcast.cluster.MembershipEvent;
+import com.hazelcast.cluster.MembershipListener;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusterManager;
 import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
@@ -47,17 +49,17 @@ import java.util.concurrent.ConcurrentHashMap;
  * ClusterListener reacts to membership changes in the cluster. It takes care of cleaning up the state
  * of the routing table and the sessions within it when a node which manages those sessions goes down.
  */
-public class ClusterListener implements MembershipListener {
+public class ClusterListener implements MembershipListener, LifecycleListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ClusterListener.class);
 
     private boolean seniorClusterMember = false;
 
-    private final Map<Cache<?, ?>, EntryListener> entryListeners = new HashMap<>();
-
+    private final Map<Cache<?,?>, EntryListener> entryListeners = new HashMap<>();
+    
     private final Cluster cluster;
     private final Map<NodeID, ClusterNodeInfo> clusterNodesInfo = new ConcurrentHashMap<>();
-
+    
     /**
      * Flag that indicates if the listener has done all clean up work when noticed that the
      * cluster has been stopped. This will force Openfire to wait until all clean
@@ -71,6 +73,7 @@ public class ClusterListener implements MembershipListener {
     private boolean isSenior;
 
     ClusterListener(final Cluster cluster) {
+
         this.cluster = cluster;
         for (final Member member : cluster.getMembers()) {
             clusterNodesInfo.put(ClusteredCacheFactory.getNodeID(member),
@@ -80,9 +83,9 @@ public class ClusterListener implements MembershipListener {
 
     private void addEntryListener(final Cache<?, ?> cache, final EntryListener listener) {
         if (cache instanceof CacheWrapper) {
-            final Cache wrapped = ((CacheWrapper) cache).getWrappedCache();
+            final Cache wrapped = ((CacheWrapper)cache).getWrappedCache();
             if (wrapped instanceof ClusteredCache) {
-                ((ClusteredCache) wrapped).addEntryListener(listener);
+                ((ClusteredCache)wrapped).addEntryListener(listener);
                 // Keep track of the listener that we added to the cache
                 entryListeners.put(cache, listener);
             }
@@ -158,6 +161,7 @@ public class ClusterListener implements MembershipListener {
         final NodeID nodeID = ClusteredCacheFactory.getNodeID(event.getMember());
         if (event.getMember().localMember()) { // We left and re-joined the cluster
             joinCluster();
+
         } else {
             if (wasSenior && !isSenior) {
                 logger.warn("Recovering from split-brain; firing leftCluster()/joinedCluster() events");
@@ -249,11 +253,18 @@ public class ClusterListener implements MembershipListener {
         clusterNodesInfo.remove(nodeID);
     }
     
-    @SuppressWarnings("WeakerAccess")
-    public List<ClusterNodeInfo> getClusterNodesInfo() {
-        return new ArrayList<>(clusterNodesInfo.values());
+    @Override
+    public void memberAttributeChanged(final MemberAttributeEvent event) {
+        logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
+        isSenior = isSeniorClusterMember();
+        logger.warn("Member attribute update event ignored as new API does not support retrieving member info.");
     }
 
+    boolean isClusterMember() {
+        return clusterMember;
+    }
+
+    @Override
     public void stateChanged(final LifecycleEvent event) {
         if (event.getState().equals(LifecycleState.SHUTDOWN)) {
             leaveCluster();
@@ -262,7 +273,8 @@ public class ClusterListener implements MembershipListener {
         }
     }
 
-    boolean isClusterMember() {
-        return clusterMember;
+    @Override
+    public List<ClusterNodeInfo> getClusterNodesInfo() {
+        return new ArrayList<>(clusterNodesInfo.values());
     }
 }

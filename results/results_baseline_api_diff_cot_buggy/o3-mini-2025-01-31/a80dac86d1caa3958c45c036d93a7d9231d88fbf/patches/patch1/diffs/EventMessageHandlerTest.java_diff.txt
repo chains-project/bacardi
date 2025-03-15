@@ -1,17 +1,10 @@
-3,4d2
+3d2
 < import ch.qos.logback.classic.Level;
-< import ch.qos.logback.classic.Logger;
-32a31
-> import java.lang.reflect.Method;
-111,113c110,116
+4a4
+> import ch.qos.logback.classic.LoggerContext;
+111,112c111,112
 <         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
 <         logger.setLevel(Level.INFO);
-<         logger.addAppender(mockLogAppender);
 ---
->         org.slf4j.Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
->         try {
->             Method addAppenderMethod = logger.getClass().getMethod("addAppender", Appender.class);
->             addAppenderMethod.invoke(logger, mockLogAppender);
->         } catch (Exception e) {
->             // Ignore if the logger implementation does not support addAppender
->         }
+>         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+>         Logger logger = loggerContext.getLogger(EventMessageHandler.class.getName());

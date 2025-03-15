@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.example.config;
 
 import com.example.domain.TaskNotFoundException;
@@ -17,7 +12,7 @@ import javax.ws.rs.ext.Provider;
 @Provider
 public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFoundException> {
 
-    @Inject
+    @Inject 
     Logger log;
 
     @Inject

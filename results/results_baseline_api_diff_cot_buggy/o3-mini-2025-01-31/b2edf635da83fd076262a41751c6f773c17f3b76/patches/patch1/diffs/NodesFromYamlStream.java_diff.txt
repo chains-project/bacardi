@@ -1,7 +1,34 @@
 31a32
 > import org.yaml.snakeyaml.LoaderOptions;
-83c84,85
+45,68d45
+< /**
+<  * Parses the following syntax.
+<  * 
+<  * <pre>
+<  * nodes:
+<  *     - id: cluster-1:
+<  *       name: cluster-1
+<  *       description: xyz
+<  *       hostname: cluster-1.mydomain.com
+<  *       location_id: virginia
+<  *       os_arch: x86
+<  *       os_family: linux
+<  *       os_description: redhat
+<  *       os_version: 5.3
+<  *       group: hadoop
+<  *       tags:
+<  *           - vanilla
+<  *       username: kelvin
+<  *       credential: password_or_rsa
+<  *         or
+<  *       credential_url: password_or_rsa_file ex. resource:///id_rsa will get the classpath /id_rsa; file://path/to/id_rsa
+<  *       sudo_password: password
+<  * </pre>
+<  */
+83c60,61
 <       Constructor constructor = new Constructor(Config.class);
 ---
 >       LoaderOptions loaderOptions = new LoaderOptions();
 >       Constructor constructor = new Constructor(loaderOptions, Config.class);
+91a70
+>       

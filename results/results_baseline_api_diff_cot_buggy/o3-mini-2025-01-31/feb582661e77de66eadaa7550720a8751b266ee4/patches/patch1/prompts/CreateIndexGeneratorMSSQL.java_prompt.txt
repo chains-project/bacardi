@@ -98,10 +98,10 @@ The errors are triggered in the following specific lines:
 
 <error_lines>
 ```java
-import liquibase.util.StringUtils;
+if (StringUtils.trimToNull(statement.getTablespace()) != null) {
 ```
 ```java
-if (StringUtils.trimToNull(statement.getTablespace()) != null) {
+import liquibase.util.StringUtils;
 ```
 ```java
 if (StringUtils.trimToNull(statement.getTablespace()) != null) {
@@ -110,28 +110,24 @@ if (StringUtils.trimToNull(statement.getTablespace()) != null) {
 
 The API of the dependency has changed. Here are the relevant changes:
 
-     Type reference liquibase.repackaged.org.apache.commons.lang3.StringUtils() has been added in the new version of the dependency.
-     Constructor liquibase.util.StringUtils() has been removed in the new version of the dependency.
-     Class liquibase.util.StringUtils has been removed in the new version of the dependency.
+     Method liquibase.util.StringUtils.trimToNull(java.lang.String) has been removed in the new version of the dependency.
      Method liquibase.util.StringUtil.trimToNull(java.lang.String) has been added in the new version of the dependency.
      Method liquibase.repackaged.org.apache.commons.lang3.StringUtils.trimToNull(java.lang.String) has been added in the new version of the dependency.
-     Method liquibase.util.StringUtils.trimToNull(java.lang.String) has been removed in the new version of the dependency.
+     Class liquibase.util.StringUtils has been removed in the new version of the dependency.
+     Type reference liquibase.repackaged.org.apache.commons.lang3.StringUtils() has been added in the new version of the dependency.
+     Constructor liquibase.util.StringUtils() has been removed in the new version of the dependency.
 
 Additional error information:
 
 <error_information>
+[ERROR] /liquibase-mssql/src/java/liquibase/ext/mssql/sqlgenerator/CreateIndexGeneratorMSSQL.java:[77,9] cannot find symbol
+  symbol:   variable StringUtils
+  location: class liquibase.ext.mssql.sqlgenerator.CreateIndexGeneratorMSSQL
+
 [ERROR] /liquibase-mssql/src/java/liquibase/ext/mssql/sqlgenerator/CreateIndexGeneratorMSSQL.java:[12,22] cannot find symbol
   symbol:   class StringUtils
   location: package liquibase.util
-
-[ERROR] /liquibase-mssql/src/java/liquibase/ext/mssql/sqlgenerator/CreateIndexGeneratorMSSQL.java:[77,9] cannot find symbol
-  symbol:   variable StringUtils
-  location: class liquibase.ext.mssql.sqlgenerator.CreateIndexGeneratorMSSQL
-
-[ERROR] /liquibase-mssql/src/java/liquibase/ext/mssql/sqlgenerator/CreateIndexGeneratorMSSQL.java:[77,9] cannot find symbol
-  symbol:   variable StringUtils
-  location: class liquibase.ext.mssql.sqlgenerator.CreateIndexGeneratorMSSQL
-<error_information>
+</error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:
 

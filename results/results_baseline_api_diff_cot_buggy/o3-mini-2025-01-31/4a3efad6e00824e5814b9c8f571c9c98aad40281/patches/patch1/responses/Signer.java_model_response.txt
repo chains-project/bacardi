@@ -4,13 +4,9 @@ package org.openpdfsign;
 import com.beust.jcommander.Strings;
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
 import eu.europa.esig.dss.enumerations.SignatureLevel;
-import eu.europa.esig.dss.model.DSSDocument;
-import eu.europa.esig.dss.model.FileDocument;
-import eu.europa.esig.dss.model.ToBeSigned;
-import eu.europa.esig.dss.model.InMemoryDocument;
+import eu.europa.esig.dss.model.*;
 import eu.europa.esig.dss.pades.PAdESSignatureParameters;
 import eu.europa.esig.dss.pades.SignatureImageParameters;
-import eu.europa.esig.dss.pades.TableSignatureFieldParameters;
 import eu.europa.esig.dss.pades.signature.PAdESService;
 import eu.europa.esig.dss.pdf.pdfbox.PdfBoxNativeObjectFactory;
 import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
@@ -71,7 +67,8 @@ public class Signer {
         } else {
             signatureParameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_B);
         }
-        // Removed the setPermission call because CertificationPermission has been removed in the new dependency version
+        // Removed the call to setPermission as CertificationPermission has been removed from the dependency.
+        // signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
 
         // Create common certificate verifier
         CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
@@ -89,7 +86,7 @@ public class Signer {
             if (!Strings.isStringEmpty(params.getImageFile())) {
                 imageParameters.setImage(new InMemoryDocument(Files.readAllBytes(Paths.get(params.getImageFile()))));
             } else {
-                imageParameters.setImage(new InMemoryDocument(IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("signature.png"))));
+                imageParameters.setImage(new InMemoryDocument((IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("signature.png")))));
             }
 
             if (params.getPage() < 0) {
@@ -98,6 +95,7 @@ public class Signer {
                 fieldParameters.setPage(pageCount + (1 + params.getPage()));
                 pdDocument.close();
                 log.debug("PDF page count: " + pageCount);
+
             } else {
                 fieldParameters.setPage(params.getPage());
             }
@@ -106,9 +104,9 @@ public class Signer {
             fieldParameters.setWidth(params.getWidth() * POINTS_PER_MM * 10f);
 
             // Get the SignedInfo segment that need to be signed.
-            // Respect local timezone
+            // respect local timezone
             DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneId.systemDefault());
-            // User-provided timezone, if any
+            // user-provided timezone, if any
             if (params.getTimezone() != null) {
                 formatter = formatter.withZone(ZoneId.of(params.getTimezone()));
             }
@@ -127,7 +125,10 @@ public class Signer {
             log.debug("Visible signature parameters set");
         }
 
-        // Only use TSP source if parameter is set
+        //https://gist.github.com/Manouchehri/fd754e402d98430243455713efada710
+        //only use TSP source, if parameter is set
+        //if it is set to an url, us this
+        //otherwise, default
         if (params.getUseTimestamp() || params.getTSA() != null) {
             CompositeTSPSource compositeTSPSource = new CompositeTSPSource();
             Map<String, TSPSource> tspSources = new HashMap<>();

@@ -85,12 +85,12 @@ public class DSN {
         Path p = Paths.get(root, "testing-speed-notrans.csv");
         Files.deleteIfExists(p);
 
-     /*   for (int i = 10; i <= 30; i+=2) {
+     /*   for (int i = 10; i <= 30; i += 2) {
             Bench.transitions = false;
             Bench.population = 100;
             Bench.scale = i;
-            System.out.println("--- scaling factor " + i + "; transitions= " + Bench.transitions +" ---");
-            Bench.report = new CSVReport(p,"");
+            System.out.println("--- scaling factor " + i + "; transitions= " + Bench.transitions + " ---");
+            Bench.report = new CSVReport(p, "");
             System.out.println(sc.test(Bench.class).stream().mapToInt(TestCampaign::go).sum());
         }*/
 
@@ -281,7 +281,6 @@ public class DSN {
         });
     }
 
-
     //@Test
     //Extract the number of line of codes of tests
     public void testSloc() throws Exception {
@@ -331,16 +330,10 @@ public class DSN {
 
         private final List<Integer> l;
 
-        private final PrettyPrinterConfiguration noComments = createNoCommentsConfig();
+        private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
 
         UnitTestsVisitor(List<Integer> numbers) {
             this.l = numbers;
-        }
-
-        private static PrettyPrinterConfiguration createNoCommentsConfig() {
-            PrettyPrinterConfiguration config = new PrettyPrinterConfiguration();
-            config.setPrintComments(false);
-            return config;
         }
 
         @Override

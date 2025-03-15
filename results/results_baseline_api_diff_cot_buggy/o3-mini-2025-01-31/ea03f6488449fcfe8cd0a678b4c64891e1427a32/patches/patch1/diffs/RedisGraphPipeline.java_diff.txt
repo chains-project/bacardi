@@ -1,6 +1,4 @@
-2a3
-> import redis.clients.jedis.ClusterPipeline;
-4,12d4
+4,12c4
 < import redis.clients.jedis.commands.BasicRedisPipeline;
 < import redis.clients.jedis.commands.BinaryRedisPipeline;
 < import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;
@@ -10,6 +8,8 @@
 < import redis.clients.jedis.commands.RedisPipeline;
 < import redis.clients.jedis.commands.ScriptingCommandsPipeline;
 < 
+---
+> import redis.clients.jedis.ClusterPipeline;
 20,24c12
 < public interface RedisGraphPipeline extends
 <         MultiKeyBinaryRedisPipeline,
@@ -24,12 +24,5 @@
 <      * get return values from pipelined commands, capture the different Response&lt;?&gt; of the
 ---
 >      * get return values from pipelined commands, capture the different Response<?> of the
-146,147c133
-<     public void sync();
+148d134
 <     
----
->     void sync();
-159c145
-<     public Response<Long> waitReplicas(int replicas, long timeout);
----
->     Response<Long> waitReplicas(int replicas, long timeout);

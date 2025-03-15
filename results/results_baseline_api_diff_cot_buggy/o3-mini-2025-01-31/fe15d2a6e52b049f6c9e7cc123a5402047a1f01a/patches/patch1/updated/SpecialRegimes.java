@@ -35,7 +35,6 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  * &lt;/complexType&gt;
  * </pre>
  * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "SpecialRegimes", propOrder = {
@@ -102,7 +101,7 @@ public class SpecialRegimes implements ToString2 {
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+        final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
@@ -135,4 +134,5 @@ public class SpecialRegimes implements ToString2 {
         }
         return buffer;
     }
+
 }

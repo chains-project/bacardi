@@ -74,7 +74,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
     protected ClusteredCache(final String name, final IMap<K, V> cache) {
         this.map = cache;
         this.name = name;
-        logger = LoggerFactory.getLogger(ClusteredCache.class.getName() + "[cache: " + name + "]");
+        logger = LoggerFactory.getLogger(ClusteredCache.class.getName() + "[cache: "+name+"]");
     }
 
     void addEntryListener(final MapListener listener) {
@@ -82,7 +82,8 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
     }
 
     @Override
-    public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode) {
+    public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode)
+    {
         final EntryListener<K, V> listener = new EntryListener<K, V>() {
             @Override
             public void mapEvicted(MapEvent event) {

@@ -94,7 +94,8 @@ public class ServiceDateUserType implements UserType {
   }
 
   @Override
-  public Object assemble(Serializable cached, Object owner) throws HibernateException {
+  public Object assemble(Serializable cached, Object owner)
+      throws HibernateException {
     return deepCopy(cached);
   }
 
@@ -104,7 +105,8 @@ public class ServiceDateUserType implements UserType {
   }
 
   @Override
-  public Object replace(Object original, Object target, Object owner) throws HibernateException {
+  public Object replace(Object original, Object target, Object owner)
+      throws HibernateException {
     if (original == null)
       return null;
     return deepCopy(original);

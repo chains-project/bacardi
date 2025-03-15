@@ -5,13 +5,16 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import com.github.games647.changeskin.sponge.PomData;
 import com.github.games647.changeskin.sponge.task.SkinInvalidator;
 import com.google.inject.Inject;
-import org.spongepowered.api.Sponge;
+
+import java.util.Optional;
+
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandExecutor;
+import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.scheduler.SpongeExecutorService;
-import java.util.Optional;
+import org.spongepowered.api.scheduler.Task;
 
 public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
 
@@ -23,18 +26,18 @@ public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
     }
 
     @Override
-    public void execute(CommandContext context) throws Exception {
-        Optional<Player> optionalPlayer = context.cause().first(Player.class);
-        if (!optionalPlayer.isPresent()) {
-            plugin.sendMessage(context.cause().audience(), "no-console");
+    public void execute(CommandContext context) throws CommandException {
+        Optional<CommandSource> sourceOpt = context.cause().first(CommandSource.class);
+        if (!sourceOpt.isPresent() || !(sourceOpt.get() instanceof Player)) {
+            plugin.sendMessage(sourceOpt.orElse(null), "no-console");
             return;
         }
 
-        Player receiver = optionalPlayer.get();
-        SpongeExecutorService executor = Sponge.getScheduler().executor(plugin.getContainer());
-        executor.submit(new SkinInvalidator(plugin, receiver));
+        Player receiver = (Player) sourceOpt.get();
+        Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
     }
 
+    @Override
     public Command buildSpec() {
         return Command.builder()
                 .executor(this)

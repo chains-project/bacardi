@@ -4,46 +4,42 @@
 > import ch.qos.logback.core.encoder.Encoder;
 33a34
 > import java.io.ByteArrayOutputStream;
-36d36
-< import java.io.OutputStream;
-51,55c51
+51c52
 <   public static class LogMessageEncoder extends EncoderBase<LogMessage> {
-< 
-<     private TTransport framedTransport;
-<     private TProtocol protocol;
-<     private OutputStream os;
 ---
 >   public static class LogMessageEncoder implements Encoder<LogMessage> {
-58,65c54,55
-<     public void init(OutputStream os) {
-<       this.os = os;
+53,54d53
+<     private TTransport framedTransport;
+<     private TProtocol protocol;
+60,65d58
 <       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
 <       // log.
 <       final int bufferCapacity = 10;
 <       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
 <           bufferCapacity);
 <       protocol = new TBinaryProtocol(framedTransport);
----
->     public byte[] headerBytes() {
->       return new byte[0];
-69c59,63
+69c62,71
 <     public void doEncode(LogMessage logMessage) throws IOException {
 ---
+>     public byte[] headerBytes() {
+>       return null;
+>     }
+> 
+>     @Override
 >     public byte[] encode(LogMessage logMessage) throws IOException {
 >       ByteArrayOutputStream baos = new ByteArrayOutputStream();
 >       final int bufferCapacity = 10;
 >       TTransport framedTransport = new TFastFramedTransport(new TIOStreamTransport(baos), bufferCapacity);
 >       TProtocol protocol = new TBinaryProtocol(framedTransport);
-72a67
+72a75
 >         return baos.toByteArray();
-74a70,71
->       } finally {
->         framedTransport.close();
-79,80c76,77
-<     public void close() throws IOException {
+78a82,86
+>     public byte[] footerBytes() {
+>       return null;
+>     }
+> 
+>     @Override
+80c88
 <       framedTransport.close();
 ---
->     public byte[] footerBytes() {
->       return new byte[0];
-91a89
->    * @param maxRetentionHours maximum number of hours to retain old files.
+>       // No resources to close

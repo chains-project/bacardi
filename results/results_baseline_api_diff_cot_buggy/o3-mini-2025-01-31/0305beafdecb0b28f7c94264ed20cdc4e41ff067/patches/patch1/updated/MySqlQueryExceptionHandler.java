@@ -24,7 +24,7 @@ import java.sql.SQLException;
 /**
  * A specific implementation of {@link QueryExceptionHandler} for MySQL engine.
  *
- * @author José Fidalgo (jose.fidalgo@feedzai.com)
+ * @author José Fidalgo
  * @since 2.5.1
  */
 public class MySqlQueryExceptionHandler extends QueryExceptionHandler {

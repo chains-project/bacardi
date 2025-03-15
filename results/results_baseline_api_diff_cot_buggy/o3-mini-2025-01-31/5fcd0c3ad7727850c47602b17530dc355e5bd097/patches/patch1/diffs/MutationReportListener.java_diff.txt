@@ -1,33 +1,85 @@
-23d22
+12d11
 < 
-25d23
+18a18,21
+> import java.io.InputStream;
+> import java.io.ByteArrayOutputStream;
+> import org.pitest.classinfo.ClassName;
+> import org.pitest.classinfo.ClassInfoVisitor;
+23d25
 < 
-56,57c54
+25d26
+< 
+56,57c57
 <     this.jsonParser = new JsonParser(
 <         new HashSet<>(Arrays.asList(locators)));
 ---
 >     this.jsonParser = new JsonParser(new HashSet<>(Arrays.asList(locators)));
-78,79c75
+67,68c67
+<     final Writer writer = this.outputStrategy
+<         .createWriterForFile("html2" + File.separatorChar + "index.html");
+---
+>     final Writer writer = this.outputStrategy.createWriterForFile("html2" + File.separatorChar + "index.html");
+78,81c77,78
 <     final String content =
 <         "document.querySelector('mutation-test-report-app').report = " + json;
+<     final Writer writer = this.outputStrategy
+<         .createWriterForFile("html2" + File.separatorChar + "report.js");
 ---
 >     final String content = "document.querySelector('mutation-test-report-app').report = " + json;
-102,105c98,99
+>     final Writer writer = this.outputStrategy.createWriterForFile("html2" + File.separatorChar + "report.js");
+91,92c88
+<     final Writer writer = this.outputStrategy
+<       .createWriterForFile("html2" + File.separatorChar + "mutation-test-elements.js");
+---
+>     final Writer writer = this.outputStrategy.createWriterForFile("html2" + File.separatorChar + "mutation-test-elements.js");
+102,105c98,103
 <   private MutationTestSummaryData createSummaryData(
 <       final CoverageDatabase coverage, final ClassMutationResults data) {
 <     return new MutationTestSummaryData(data.getFileName(),
 <         data.getMutations(), coverage.getClassInfo(Collections.singleton(data.getMutatedClass())));
 ---
 >   private MutationTestSummaryData createSummaryData(final CoverageDatabase coverage, final ClassMutationResults data) {
->     return new MutationTestSummaryData(data.getFileName(), data.getMutations(), Collections.emptyMap());
-108,109c102
+>     return new MutationTestSummaryData(
+>         data.getFileName(),
+>         data.getMutations(),
+>         getClassInfoFor(data.getMutatedClass())
+>     );
+108,109c106
 <   private void updatePackageSummary(
 <       final ClassMutationResults mutationMetaData) {
 ---
 >   private void updatePackageSummary(final ClassMutationResults mutationMetaData) {
-111,113c104
+111,113c108
 < 
 <     this.packageSummaryData.update(packageName,
 <         createSummaryData(this.coverage, mutationMetaData));
 ---
 >     this.packageSummaryData.update(packageName, createSummaryData(this.coverage, mutationMetaData));
+134a130,156
+>     }
+>   }
+>   
+>   private Object getClassInfoFor(ClassName className) {
+>     try {
+>       byte[] classBytes = loadClassBytes(className);
+>       long timestamp = 0L;
+>       return ClassInfoVisitor.getClassInfo(className, classBytes, timestamp);
+>     } catch (IOException e) {
+>       e.printStackTrace();
+>       return null;
+>     }
+>   }
+>   
+>   private byte[] loadClassBytes(ClassName className) throws IOException {
+>     String resourceName = className.asJavaName().replace('.', '/') + ".class";
+>     try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(resourceName)) {
+>       if (is == null) {
+>         throw new IOException("Unable to load class resource: " + resourceName);
+>       }
+>       ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+>       int nRead;
+>       byte[] dataBuffer = new byte[1024];
+>       while ((nRead = is.read(dataBuffer, 0, dataBuffer.length)) != -1) {
+>         buffer.write(dataBuffer, 0, nRead);
+>       }
+>       return buffer.toByteArray();

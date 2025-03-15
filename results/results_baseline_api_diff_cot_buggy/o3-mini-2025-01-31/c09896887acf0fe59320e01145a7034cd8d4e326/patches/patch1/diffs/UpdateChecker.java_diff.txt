@@ -1,4 +1,20 @@
-239c239
+80c80,81
+<         @Override public int compareTo(VersionAndRepo o) {
+---
+>         @Override 
+>         public int compareTo(VersionAndRepo o) {
+95c96,97
+<         @Override public String toString() {
+---
+>         @Override 
+>         public String toString() {
+197c199,200
+<         @Override public String toString() {
+---
+>         @Override 
+>         public String toString() {
+239c242,243
 <             GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).status;
 ---
->             GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).getStatus();
+>             GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
+>             GHCompare.Status status = compare.getStatus();

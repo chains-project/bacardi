@@ -16,6 +16,7 @@ import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
+
 /**
  * <p>Java class for AddressStructurePT complex type.
  * 
@@ -258,37 +259,37 @@ public class AddressStructurePT implements ToString2
         {
             String theBuildingNumber;
             theBuildingNumber = this.getBuildingNumber();
-            strategy.appendField(locator, this, "buildingNumber", buffer, theBuildingNumber, (this.buildingNumber != null));
+            strategy.appendField(locator, this, "buildingNumber", buffer, theBuildingNumber, (this.buildingNumber!= null));
         }
         {
             String theStreetName;
             theStreetName = this.getStreetName();
-            strategy.appendField(locator, this, "streetName", buffer, theStreetName, (this.streetName != null));
+            strategy.appendField(locator, this, "streetName", buffer, theStreetName, (this.streetName!= null));
         }
         {
             String theAddressDetail;
             theAddressDetail = this.getAddressDetail();
-            strategy.appendField(locator, this, "addressDetail", buffer, theAddressDetail, (this.addressDetail != null));
+            strategy.appendField(locator, this, "addressDetail", buffer, theAddressDetail, (this.addressDetail!= null));
         }
         {
             String theCity;
             theCity = this.getCity();
-            strategy.appendField(locator, this, "city", buffer, theCity, (this.city != null));
+            strategy.appendField(locator, this, "city", buffer, theCity, (this.city!= null));
         }
         {
             String thePostalCode;
             thePostalCode = this.getPostalCode();
-            strategy.appendField(locator, this, "postalCode", buffer, thePostalCode, (this.postalCode != null));
+            strategy.appendField(locator, this, "postalCode", buffer, thePostalCode, (this.postalCode!= null));
         }
         {
             String theRegion;
             theRegion = this.getRegion();
-            strategy.appendField(locator, this, "region", buffer, theRegion, (this.region != null));
+            strategy.appendField(locator, this, "region", buffer, theRegion, (this.region!= null));
         }
         {
             Object theCountry;
             theCountry = this.getCountry();
-            strategy.appendField(locator, this, "country", buffer, theCountry, (this.country != null));
+            strategy.appendField(locator, this, "country", buffer, theCountry, (this.country!= null));
         }
         return buffer;
     }

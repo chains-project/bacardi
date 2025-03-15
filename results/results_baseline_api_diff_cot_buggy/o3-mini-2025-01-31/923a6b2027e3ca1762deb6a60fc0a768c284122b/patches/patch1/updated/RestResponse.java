@@ -46,9 +46,8 @@ import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
 import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.collection.IsEmptyIterable.emptyIterableOf;
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.hasItems;
-import static org.hamcrest.collection.IsEmptyIterable.emptyIterable;
 
 /**
  * REST response.
@@ -246,7 +245,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            not(emptyIterable())
+            not(emptyIterableOf(String.class))
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -284,7 +283,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            notNullValue()
+            org.hamcrest.CoreMatchers.notNullValue()
         );
         assert cookie != null;
         return cookie;

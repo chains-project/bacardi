@@ -15,7 +15,9 @@
 < import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector;
 < import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 < 
-30,40c15
+20a6
+> import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+30,40c16
 <         if (ClassInjector.UsingReflection.isAvailable()) {
 <             return ClassLoadingStrategy.Default.INJECTION;
 <         } else if (ClassInjector.UsingLookup.isAvailable() && PRIVATE_LOOKUP_IN != null) {
@@ -28,7 +30,4 @@
 <             throw new IllegalStateException("No code generation strategy available");
 <         }
 ---
->     throw new IllegalStateException("No code generation strategy available with the updated dependency");
-42a18,19
->   interface ClassLoadingStrategy<T> {
->   }
+>         return ClassLoadingStrategy.Default.WRAPPER;

@@ -64,10 +64,6 @@ import org.apache.commons.lang3.RandomStringUtils;
  * on JVM exit:
  *
  * <pre> Github github = new MkGithub("jeff");</pre>
- * @author Yegor Bugayenko (yegor256@gmail.com)
- * @version $Id: 2efb1ed33587ae680ea352251dda744d7a0ae3c6 $
- * @since 0.5
- * @checkstyle ClassDataAbstractionCoupling (500 lines)
  */
 @Immutable
 @Loggable(Loggable.DEBUG)
@@ -206,8 +202,7 @@ public final class MkGithub implements Github {
      * @param login User to login
      * @return Github
      */
-    public Github relogin(final String login
-    ) {
+    public Github relogin(final String login) {
         return new MkGithub(this.storage, login);
     }
 

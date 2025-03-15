@@ -1,10 +1,6 @@
-27a28
-> import org.yaml.snakeyaml.LoaderOptions;
-29d29
+29d28
 < import org.yaml.snakeyaml.constructor.Constructor;
-114c114,116
+114c113
 <             return (YamlNode) new Yaml(new Constructor(YamlNode.class)).load(in);
 ---
->             LoaderOptions loaderOptions = new LoaderOptions();
->             Yaml yaml = new Yaml(loaderOptions);
->             return yaml.loadAs(in, YamlNode.class);
+>             return new Yaml().loadAs(in, YamlNode.class);

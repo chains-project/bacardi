@@ -135,10 +135,7 @@ public class ProjectInfo implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj) return true;
-      if (!(obj instanceof ResourceId)) return false;
-      ResourceId other = (ResourceId) obj;
-      return Objects.equals(id, other.id) && Objects.equals(type, other.type);
+      return obj instanceof ResourceId && Objects.equals(toPb(), ((ResourceId) obj).toPb());
     }
 
     @Override
@@ -146,23 +143,19 @@ public class ProjectInfo implements Serializable {
       return Objects.hash(id, type);
     }
 
-    // Converts to a string representation in the format "type/id"
     String toPb() {
       return type.toLowerCase() + "/" + id;
     }
 
-    // Parses the string representation to create a ResourceId.
     static ResourceId fromPb(String parentPb) {
       if (parentPb == null) {
-        return null;
+        throw new IllegalArgumentException("parentPb cannot be null");
       }
-      String[] parts = parentPb.split("/");
-      if (parts.length == 2) {
-        // parts[0] is type, parts[1] is id.
-        return new ResourceId(parts[1], parts[0]);
+      if (!parentPb.contains("/")) {
+        return new ResourceId(parentPb, "unknown");
       }
-      // Fallback in case the format is unexpected.
-      return new ResourceId(parentPb, "");
+      String[] parts = parentPb.split("/", 2);
+      return new ResourceId(parts[1], parts[0]);
     }
   }
 

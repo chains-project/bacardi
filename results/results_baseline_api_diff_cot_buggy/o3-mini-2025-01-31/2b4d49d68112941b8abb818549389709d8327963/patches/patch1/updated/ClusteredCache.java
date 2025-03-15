@@ -15,10 +15,11 @@
  */
 package org.jivesoftware.openfire.plugin.util.cache;
 
+import com.hazelcast.core.EntryEvent;
+import com.hazelcast.core.EntryListener;
 import com.hazelcast.map.IMap;
 import com.hazelcast.map.MapEvent;
 import com.hazelcast.map.LocalMapStats;
-import com.hazelcast.core.EntryListener;
 import com.hazelcast.map.listener.MapListener;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.cluster.ClusteredCacheEntryListener;
@@ -81,8 +82,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
     }
 
     @Override
-    public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode)
-    {
+    public String addClusteredCacheEntryListener(@Nonnull final ClusteredCacheEntryListener<K, V> clusteredCacheEntryListener, final boolean includeValues, final boolean includeEventsFromLocalNode) {
         final EntryListener<K, V> listener = new EntryListener<K, V>() {
             @Override
             public void mapEvicted(MapEvent event) {
@@ -103,7 +103,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
             }
 
             @Override
-            public void entryUpdated(com.hazelcast.core.EntryEvent event) {
+            public void entryUpdated(EntryEvent event) {
                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
                     logger.trace("Processing entry update event of node '{}' for key '{}'", eventNodeId, event.getKey());
@@ -112,7 +112,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
             }
 
             @Override
-            public void entryRemoved(com.hazelcast.core.EntryEvent event) {
+            public void entryRemoved(EntryEvent event) {
                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
                     logger.trace("Processing entry removed event of node '{}' for key '{}'", eventNodeId, event.getKey());
@@ -121,7 +121,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
             }
 
             @Override
-            public void entryEvicted(com.hazelcast.core.EntryEvent event) {
+            public void entryEvicted(EntryEvent event) {
                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
                     logger.trace("Processing entry evicted event of node '{}' for key '{}'", eventNodeId, event.getKey());
@@ -130,7 +130,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
             }
 
             @Override
-            public void entryAdded(com.hazelcast.core.EntryEvent event) {
+            public void entryAdded(EntryEvent event) {
                 if (includeEventsFromLocalNode || !event.getMember().localMember()) {
                     final NodeID eventNodeId = ClusteredCacheFactory.getNodeID(event.getMember());
                     logger.trace("Processing entry added event of node '{}' for key '{}'", eventNodeId, event.getKey());
@@ -231,7 +231,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
     }
 
     @Override
-    public java.util.Collection<V> values() {
+    public Collection<V> values() {
         return map.values();
     }
 
@@ -325,6 +325,7 @@ public class ClusteredCache<K extends Serializable, V extends Serializable> impl
         if (o != null && o.getClass().getClassLoader() instanceof PluginClassLoader
             && lastPluginClassLoaderWarning.isBefore(Instant.now().minus(pluginClassLoaderWarningSupression)) )
         {
+            // Try to determine what plugin loaded the offending class.
             String pluginName = null;
             try {
                 final Collection<Plugin> plugins = XMPPServer.getInstance().getPluginManager().getPlugins();

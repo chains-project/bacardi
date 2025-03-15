@@ -20,7 +20,6 @@ public class ChachaDecoder {
       throws IOException {
 
     KeyParameter macKey = initRecordMAC(decryptCipher);
-
     byte[] calculatedMAC = PolyKeyCreator.create(macKey, additionalData, ciphertext);
 
     if (!Arrays.constantTimeAreEqual(calculatedMAC, receivedMAC)) {

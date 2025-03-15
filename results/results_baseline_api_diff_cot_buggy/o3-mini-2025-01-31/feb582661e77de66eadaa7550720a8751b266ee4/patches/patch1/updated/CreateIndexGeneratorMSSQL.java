@@ -37,7 +37,7 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
     if (statement.isUnique() != null && statement.isUnique()) {
       builder.append("UNIQUE ");
     }
-    
+
     if (statement.isClustered() != null) {
       if (statement.isClustered()) {
         builder.append("CLUSTERED ");
@@ -45,7 +45,7 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
         builder.append("NONCLUSTERED ");
       }
     }
-    
+
     builder.append("INDEX ");
 
     if (statement.getIndexName() != null) {
@@ -78,7 +78,7 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
       builder.append(" ON ").append(statement.getTablespace());
     }
 
-    return new Sql[]{new UnparsedSql(builder.toString(), getAffectedIndex(statement))};
+    return new Sql[] { new UnparsedSql(builder.toString(), getAffectedIndex(statement)) };
   }
 
   @Override

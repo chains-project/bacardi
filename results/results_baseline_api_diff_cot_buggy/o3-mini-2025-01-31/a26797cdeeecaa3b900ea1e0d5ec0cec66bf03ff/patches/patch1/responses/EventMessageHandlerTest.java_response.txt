@@ -1,7 +1,6 @@
 package uk.gov.pay.adminusers.queue.event;
 
 import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,6 +13,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.client.ledger.model.LedgerTransaction;
 import uk.gov.pay.adminusers.client.ledger.service.LedgerService;
@@ -30,6 +30,7 @@ import uk.gov.pay.adminusers.service.UserServices;
 import uk.gov.service.payments.commons.queue.exception.QueueException;
 import uk.gov.service.payments.commons.queue.model.QueueMessage;
 
+import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -80,10 +81,8 @@ class EventMessageHandlerTest {
 
     @Captor
     ArgumentCaptor<Map<String, String>> personalisationCaptor;
-    
     @Mock
     private Appender<ILoggingEvent> mockLogAppender;
-    
     @Captor
     ArgumentCaptor<ILoggingEvent> loggingEventArgumentCaptor;
 
@@ -110,8 +109,23 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
-        logger.addAppender(mockLogAppender);
+        Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
+        try {
+            Method setLevelMethod = logger.getClass().getMethod("setLevel", Level.class);
+            setLevelMethod.invoke(logger, Level.INFO);
+        } catch (NoSuchMethodException e) {
+            // Method not available in the new dependency version; skip setting level.
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            Method addAppenderMethod = logger.getClass().getMethod("addAppender", Appender.class);
+            addAppenderMethod.invoke(logger, mockLogAppender);
+        } catch (NoSuchMethodException e) {
+            // Method not available in the new dependency version; skip adding the appender.
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test

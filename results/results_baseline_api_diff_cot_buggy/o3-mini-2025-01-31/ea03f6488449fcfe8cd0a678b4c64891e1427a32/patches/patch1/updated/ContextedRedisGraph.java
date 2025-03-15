@@ -10,10 +10,10 @@ import com.redislabs.redisgraph.impl.graph_cache.RedisGraphCaches;
 import com.redislabs.redisgraph.impl.resultset.ResultSetImpl;
 
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Transaction;
-import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.util.SafeEncoder;
+import redis.clients.jedis.Transaction;
+import redis.clients.jedis.Pipeline;
 
 /**
  * An implementation of RedisGraphContext. Allows sending RedisGraph and some Redis commands,
@@ -140,8 +140,8 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphTransaction multi() {
         Jedis jedis = getConnection();
-        Transaction transactionCmd = jedis.multi();
-        RedisGraphTransaction transaction = new RedisGraphTransaction(transactionCmd, this);
+        Transaction transactionClient = jedis.multi();
+        RedisGraphTransaction transaction = new RedisGraphTransaction(transactionClient, this);
         transaction.setRedisGraphCaches(caches);
         return transaction;
     }
@@ -153,8 +153,8 @@ public class ContextedRedisGraph extends AbstractRedisGraph implements RedisGrap
     @Override
     public RedisGraphPipeline pipelined() {
         Jedis jedis = getConnection();
-        Pipeline pipelineCmd = jedis.pipelined();
-        RedisGraphPipeline pipeline = new RedisGraphPipeline(pipelineCmd, this);
+        Pipeline pipelineClient = jedis.pipelined();
+        RedisGraphPipeline pipeline = new RedisGraphPipeline(pipelineClient, this);
         pipeline.setRedisGraphCaches(caches);
         return pipeline;
     }

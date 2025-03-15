@@ -9,7 +9,7 @@
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 <                 return flyway;
 ---
->                 ClassicConfiguration config = new ClassicConfiguration();
+>                 final ClassicConfiguration config = new ClassicConfiguration();
 >                 config.setDataSource(this.dataSource());
 >                 config.setClassLoader(NisAppConfig.class.getClassLoader());
 >                 config.setLocations(new Location[] { new Location(prop.getProperty("flyway.locations")) });

@@ -9,13 +9,16 @@
 < import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.RuntimeType;
 < import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall;
 < import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This;
-38,42d27
-< import java.util.concurrent.Callable;
-< 
+35a26,28
+> import static org.assertj.core.util.Arrays.array;
+> import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrategy;
+> 
+40,43d32
 < import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any;
 < import static org.assertj.core.util.Arrays.array;
 < import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrategy;
-47,74d31
+< 
+47,74d35
 <      * This NamingStrategy takes the original class's name and adds a suffix to distinguish it.
 <      * The default is ByteBuddy but for debugging purposes, it makes sense to add AssertJ as a name.
 <      */
@@ -44,41 +47,32 @@
 <     }
 < 
 <     /**
-171c128
-<      * @param <VALUE> type of the value contained in the {@link io.vavr.control.Try}.
----
->      * @param <VALUE> type of the value contained in the {@link Try}.
-198c155
-<         return asAssumption(assertionType, array(actualType), array(actual));
----
->         return asAssumption(assertionType, new Class<?>[]{actualType}, actual);
-205,206c162
-<             Class<? extends ASSERTION> type = createAssumptionClass(assertionType);
-<             Constructor<? extends ASSERTION> constructor = type.getConstructor(constructorTypes);
----
->             Constructor<? extends ASSERTION> constructor = assertionType.getConstructor(constructorTypes);
-213,229d168
+213d173
 <     @SuppressWarnings("unchecked")
-<     private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass) {
+215,218c175,176
 <         SimpleKey cacheKey = new SimpleKey(assertClass);
 <         return (Class<ASSERTION>) CACHE.findOrInsert(VavrAssumptions.class.getClassLoader(),
 <                 cacheKey,
 <                 () -> generateAssumptionClass(assertClass));
-<     }
-< 
-<     private static <ASSERTION> Class<? extends ASSERTION> generateAssumptionClass(Class<ASSERTION> assertionType) {
+---
+>         // Dynamic proxy generation has been removed due to dependency updates.
+>         return assertClass;
+222,227c180,181
 <         return BYTE_BUDDY.subclass(assertionType)
 <                 .method(any())
 <                 .intercept(ASSUMPTION)
 <                 .make()
 <                 .load(VavrAssumptions.class.getClassLoader(), classLoadingStrategy(assertionType))
 <                 .getLoaded();
-<     }
-< 
-259d197
+---
+>         // Dynamic subclass generation has been removed due to dependency updates.
+>         return assertionType;
+257c211
+<     // for method that change the object under test (e.g. extracting)
+---
+>     // for methods that change the object under test (e.g. extracting)
+259d212
 <         // @format:off
-268,269d205
+268,269d220
 <         // @format:on
 <         // should not arrive here
-272d207
-< 

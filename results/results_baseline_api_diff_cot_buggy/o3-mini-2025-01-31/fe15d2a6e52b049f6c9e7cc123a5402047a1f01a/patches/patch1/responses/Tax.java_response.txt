@@ -50,8 +50,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "taxPercentage",
     "taxAmount"
 })
-public class Tax implements ToString2
-{
+public class Tax implements ToString2 {
 
     @XmlElement(name = "TaxType", required = true)
     protected String taxType;
@@ -186,7 +185,7 @@ public class Tax implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+        final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();

@@ -2,53 +2,20 @@
 < import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
 < import com.google.api.services.cloudresourcemanager.model.Constraint;
 < import com.google.api.services.cloudresourcemanager.model.ListConstraint;
-28,29c25
-<  * @see <a
-<  *     href="https://cloud.google.com/resource-manager/reference/rest/v1/ListAvailableOrgPolicyConstraintsResponse#Constraint">Constraint</a>
+37d33
+<         @Override
+44d39
+<         @Override
+73,74c68,69
+<      * The Google Cloud Console tries to default to a configuration that matches the value specified
+<      * in this Constraint.
 ---
->  * @see <a href="https://cloud.google.com/resource-manager/reference/rest/v1/ListAvailableOrgPolicyConstraintsResponse#Constraint">Constraint</a>
-34a31,147
->   public static class BooleanConstraint {
->     @Override
->     public boolean equals(Object obj) {
->       return (obj instanceof BooleanConstraint);
->     }
-> 
->     @Override
->     public int hashCode() {
->       return 1;
->     }
-> 
->     @Override
->     public String toString() {
->       return "BooleanConstraint{}";
->     }
+>      * The Google Cloud Console tries to default to a configuration that matches the value specified in
+>      * this Constraint.
+293a289,394
 >   }
 > 
->   public static class ListConstraint {
->     private String suggestedValue;
->     private Boolean supportsUnder;
-> 
->     public ListConstraint() {}
-> 
->     public String getSuggestedValue() {
->       return suggestedValue;
->     }
-> 
->     public ListConstraint setSuggestedValue(String suggestedValue) {
->       this.suggestedValue = suggestedValue;
->       return this;
->     }
-> 
->     public Boolean getSupportsUnder() {
->       return supportsUnder;
->     }
-> 
->     public ListConstraint setSupportsUnder(Boolean supportsUnder) {
->       this.supportsUnder = supportsUnder;
->       return this;
->     }
->   }
+>   // Stub classes to replace removed dependency classes
 > 
 >   public static class Constraint {
 >     private BooleanConstraint booleanConstraint;
@@ -61,17 +28,13 @@
 > 
 >     public Constraint() {}
 > 
->     public BooleanConstraint getBooleanConstraint() {
->       return booleanConstraint;
->     }
-> 
 >     public Constraint setBooleanConstraint(BooleanConstraint booleanConstraint) {
 >       this.booleanConstraint = booleanConstraint;
 >       return this;
 >     }
 > 
->     public String getConstraintDefault() {
->       return constraintDefault;
+>     public BooleanConstraint getBooleanConstraint() {
+>       return booleanConstraint;
 >     }
 > 
 >     public Constraint setConstraintDefault(String constraintDefault) {
@@ -79,8 +42,8 @@
 >       return this;
 >     }
 > 
->     public String getDescription() {
->       return description;
+>     public String getConstraintDefault() {
+>       return constraintDefault;
 >     }
 > 
 >     public Constraint setDescription(String description) {
@@ -88,8 +51,8 @@
 >       return this;
 >     }
 > 
->     public String getDisplayName() {
->       return displayName;
+>     public String getDescription() {
+>       return description;
 >     }
 > 
 >     public Constraint setDisplayName(String displayName) {
@@ -97,8 +60,8 @@
 >       return this;
 >     }
 > 
->     public ListConstraint getListConstraint() {
->       return listConstraint;
+>     public String getDisplayName() {
+>       return displayName;
 >     }
 > 
 >     public Constraint setListConstraint(ListConstraint listConstraint) {
@@ -106,8 +69,8 @@
 >       return this;
 >     }
 > 
->     public String getName() {
->       return name;
+>     public ListConstraint getListConstraint() {
+>       return listConstraint;
 >     }
 > 
 >     public Constraint setName(String name) {
@@ -115,13 +78,44 @@
 >       return this;
 >     }
 > 
->     public Integer getVersion() {
->       return version;
+>     public String getName() {
+>       return name;
 >     }
 > 
 >     public Constraint setVersion(Integer version) {
 >       this.version = version;
 >       return this;
 >     }
+> 
+>     public Integer getVersion() {
+>       return version;
+>     }
 >   }
 > 
+>   public static class BooleanConstraint {
+>     public BooleanConstraint() {}
+>   }
+> 
+>   public static class ListConstraint {
+>     private String suggestedValue;
+>     private Boolean supportsUnder;
+> 
+>     public ListConstraint() {}
+> 
+>     public ListConstraint setSuggestedValue(String suggestedValue) {
+>       this.suggestedValue = suggestedValue;
+>       return this;
+>     }
+> 
+>     public String getSuggestedValue() {
+>       return suggestedValue;
+>     }
+> 
+>     public ListConstraint setSupportsUnder(Boolean supportsUnder) {
+>       this.supportsUnder = supportsUnder;
+>       return this;
+>     }
+> 
+>     public Boolean getSupportsUnder() {
+>       return supportsUnder;
+>     }

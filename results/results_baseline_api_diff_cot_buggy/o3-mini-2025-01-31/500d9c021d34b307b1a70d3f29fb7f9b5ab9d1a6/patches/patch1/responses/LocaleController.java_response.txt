@@ -10,6 +10,10 @@ import jakarta.mvc.MvcContext;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
+/**
+ *
+ * @author hantsy
+ */
 @Path("locale")
 @Controller
 @RequestScoped
@@ -30,5 +34,4 @@ public class LocaleController {
         models.put("locale", locale);
         return "locale.xhtml";
     }
-
 }

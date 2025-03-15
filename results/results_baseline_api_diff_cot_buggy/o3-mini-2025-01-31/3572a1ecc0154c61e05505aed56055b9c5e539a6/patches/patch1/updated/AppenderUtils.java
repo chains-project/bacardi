@@ -28,7 +28,6 @@ import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TIOStreamTransport;
-import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.layered.TFastFramedTransport;
 
 import java.io.File;
@@ -50,14 +49,15 @@ public class AppenderUtils {
    */
   public static class LogMessageEncoder extends EncoderBase<LogMessage> {
 
-    private TTransport framedTransport;
+    private TFastFramedTransport framedTransport;
     private TProtocol protocol;
     private OutputStream os;
 
     @Override
     public void init(OutputStream os) {
       this.os = os;
-      // Use the TFlushingFastFramedTransport to be compatible with singer_thrift log.
+      // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
+      // log.
       final int bufferCapacity = 10;
       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity);
       protocol = new TBinaryProtocol(framedTransport);

@@ -9,13 +9,15 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
+
 import java.util.UUID;
+
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.network.RemoteConnection;
 import org.spongepowered.api.network.channel.ChannelBuf;
 import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
+
 import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
 import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
 
@@ -25,44 +27,9 @@ public class CheckPermissionListener {
     private final RawPlayDataChannel permissionsResultChannel;
 
     @Inject
-    CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+    CheckPermissionListener(ChangeSkinSponge plugin, RawPlayDataChannel permissionsResultChannel) {
         this.plugin = plugin;
-        String combinedName = new NamespaceKey(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL).getCombinedName();
-        // Since ChannelRegistrar is removed from the new dependency, we ignore it and create a dummy RawPlayDataChannel.
-        this.permissionsResultChannel = new RawPlayDataChannel() {
-            @Override
-            public void sendTo(ServerPlayer player, java.util.function.Consumer<ChannelBuf> bufferWriter) {
-                class SimpleChannelBuf implements ChannelBuf {
-                    private final java.io.ByteArrayOutputStream bout = new java.io.ByteArrayOutputStream();
-
-                    @Override
-                    public void writeByteArray(byte[] input) {
-                        try {
-                            bout.write(input);
-                        } catch (java.io.IOException ex) {
-                            // ignore
-                        }
-                    }
-
-                    @Override
-                    public void writeByteArray(byte[] input, int offset, int length) {
-                        try {
-                            bout.write(input, offset, length);
-                        } catch (java.io.IOException ex) {
-                            // ignore
-                        }
-                    }
-
-                    @Override
-                    public byte[] array() {
-                        return bout.toByteArray();
-                    }
-                }
-                SimpleChannelBuf buf = new SimpleChannelBuf();
-                bufferWriter.accept(buf);
-                // Sending logic should be implemented here if needed.
-            }
-        };
+        this.permissionsResultChannel = permissionsResultChannel;
     }
 
     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
@@ -90,6 +57,7 @@ public class CheckPermissionListener {
         if (player.getUniqueId().equals(receiverUUID)) {
             return checkPerm(player, "command.setskin", skinPerm, targetUUID);
         }
+
         return checkPerm(player, "command.setskin.other", skinPerm, targetUUID);
     }
 
@@ -99,16 +67,13 @@ public class CheckPermissionListener {
         if (skinPerm) {
             return hasCommandPerm && plugin.hasSkinPermission(invoker, targetUUID, false);
         }
+
         return hasCommandPerm;
     }
 
     private void sendResultMessage(Player receiver, PermResultMessage resultMessage) {
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
         resultMessage.writeTo(dataOutput);
-        permissionsResultChannel.sendTo((ServerPlayer) receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+        permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
     }
-}
-
-// Dummy interface to satisfy the constructor parameter since ChannelRegistrar was removed in the new API.
-interface ChannelRegistrar {
 }

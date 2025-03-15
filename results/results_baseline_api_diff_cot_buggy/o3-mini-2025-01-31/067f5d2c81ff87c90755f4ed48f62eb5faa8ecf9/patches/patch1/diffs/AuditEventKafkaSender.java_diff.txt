@@ -1,15 +1,14 @@
 33a34
 > import org.apache.thrift.transport.TTransportException;
-58,59d58
-<   private static final int PARTITIONS_REFRESH_INTERVAL_IN_SECONDS = 30;
-< 
-121c120
+121c122
 <   private TSerializer serializer = new TSerializer();
 ---
 >   private TSerializer serializer;
-185a185,189
+185a187,191
 >     try {
 >       this.serializer = new TSerializer();
 >     } catch (TTransportException e) {
 >       throw new RuntimeException("Failed to initialize TSerializer", e);
 >     }
+187d192
+< 

@@ -1,81 +1,30 @@
-12d11
-< 
-14d12
-< 
-17,20c15
+17,20d16
 < import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
 < import org.spongepowered.api.network.ChannelBuf;
 < import org.spongepowered.api.network.ChannelRegistrar;
 < import org.spongepowered.api.network.RawDataListener;
----
-> import org.spongepowered.api.entity.living.player.server.ServerPlayer;
-22c17,18
-< 
----
+21a18,19
 > import org.spongepowered.api.network.channel.ChannelBuf;
 > import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
-26c22
+26c24
 < public class CheckPermissionListener implements RawDataListener {
 ---
 > public class CheckPermissionListener {
-29c25
+29c27
 <     private final RawDataChannel permissionsResultChannel;
 ---
 >     private final RawPlayDataChannel permissionsResultChannel;
-34d29
+32c30
+<     CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
+---
+>     CheckPermissionListener(ChangeSkinSponge plugin, RawPlayDataChannel permissionsResultChannel) {
+34,36c32
 < 
-36c31,44
+<         String combinedName = new NamespaceKey(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL).getCombinedName();
 <         permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
 ---
->         // Since ChannelRegistrar is removed from the new dependency, we ignore it and create a dummy RawPlayDataChannel.
->         this.permissionsResultChannel = new RawPlayDataChannel() {
->             @Override
->             public void sendTo(ServerPlayer player, java.util.function.Consumer<ChannelBuf> bufferWriter) {
->                 class SimpleChannelBuf implements ChannelBuf {
->                     private final java.io.ByteArrayOutputStream bout = new java.io.ByteArrayOutputStream();
-> 
->                     @Override
->                     public void writeByteArray(byte[] input) {
->                         try {
->                             bout.write(input);
->                         } catch (java.io.IOException ex) {
->                             // ignore
->                         }
-40c48,54
-<     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
----
->                     public void writeByteArray(byte[] input, int offset, int length) {
->                         try {
->                             bout.write(input, offset, length);
->                         } catch (java.io.IOException ex) {
->                             // ignore
->                         }
->                     }
-41a56,68
->                     @Override
->                     public byte[] array() {
->                         return bout.toByteArray();
->                     }
->                 }
->                 SimpleChannelBuf buf = new SimpleChannelBuf();
->                 bufferWriter.accept(buf);
->                 // Sending logic should be implemented here if needed.
->             }
->         };
->     }
-> 
->     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
-66d92
+>         this.permissionsResultChannel = permissionsResultChannel;
+39d34
+<     @Override
+41d35
 < 
-76d101
-< 
-83c108
-<         permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
----
->         permissionsResultChannel.sendTo((ServerPlayer) receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
-85a111,114
-> 
-> // Dummy interface to satisfy the constructor parameter since ChannelRegistrar was removed in the new API.
-> interface ChannelRegistrar {
-> }
-\ No newline at end of file

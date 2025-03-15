@@ -21,10 +21,11 @@ import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.locationtech.jts.operation.distance.IndexedFacetDistance;
 import org.locationtech.jts.util.GeometricShapeFactory;
-import org.tinfour.common.IIncrementalTin;
-import org.tinfour.common.SimpleTriangle;
-import org.tinfour.common.Vertex;
-
+// Removed imports for the removed dependency API
+// import org.tinspin.index.PointEntryDist;
+// import org.tinspin.index.covertree.CoverTree;
+// import org.tinspin.index.PointDistanceFunction;
+ 
 import micycle.pgs.commons.FrontChainPacker;
 import micycle.pgs.commons.LargestEmptyCircles;
 import micycle.pgs.commons.RepulsionCirclePack;
@@ -153,13 +154,14 @@ public final class PGS_CirclePacking {
 	 *                          shape more evenly (particularly when points is
 	 *                          small), which is sometimes desirable
 	 * @return A list of PVectors, each representing one circle: (.x, .y) represent
-	 *         the center point and .z represents radius.
+	 *         the center point, and .z represents the radius.
 	 */
 	public static List<PVector> stochasticPack(final PShape shape, final int points, final double minRadius, boolean triangulatePoints) {
 		return stochasticPack(shape, points, minRadius, triangulatePoints, System.nanoTime());
 	}
 
 	/**
+	 * 
 	 * Generates a seeded random circle packing within the input shape. Circles are
 	 * created one-by-one by generating random points and calculating the maximum
 	 * possible radius for a circle at each point, ensuring it is tangent to its
@@ -197,8 +199,7 @@ public final class PGS_CirclePacking {
 	public static List<PVector> stochasticPack(final PShape shape, final int points, final double minRadius, boolean triangulatePoints,
 			long seed) {
 
-		// Replace spatial index with a simple list for linear search due to API changes
-		final List<PVector> treeList = new ArrayList<>();
+		final SimpleCircleIndex tree = new SimpleCircleIndex();
 		final List<PVector> out = new ArrayList<>();
 
 		List<PVector> steinerPoints = PGS_Processing.generateRandomPoints(shape, points, seed);
@@ -208,34 +209,31 @@ public final class PGS_CirclePacking {
 					.map(PGS_CirclePacking::centroid).collect(Collectors.toList());
 		}
 
-		// Model shape vertices as circles of radius 0, to constrain packed circles within shape edge
+		// Model shape vertices as circles of radius 0, to constrain packed circles
+		// within shape edge
 		final List<PVector> vertices = PGS_Conversion.toPVector(shape);
-		Collections.shuffle(vertices); // shuffle vertices to reduce imbalance during insertion
-		vertices.forEach(p -> {
+		Collections.shuffle(vertices); // shuffle vertices to reduce tree imbalance during insertion
+		for (PVector p : vertices) {
 			p.z = 0;
-			treeList.add(p);
-		});
+			tree.insert(p);
+		}
 
 		/*
-		 * For each candidate point, compute the maximum possible radius such that the circle
-		 * is tangent to the nearest circle (from treeList). This is computed as:
-		 *    radius = distance(candidate, existing circle center) - (existing circle radius)
-		 * We take the minimum such value over all existing circles.
+		 * "To find the circle nearest to a center (x, y), do a proximity search at (x,
+		 * y, R), where R is greater than or equal to the maximum radius of a circle."
 		 */
-		float largestR = 0; // the radius of the largest circle added so far
+		float largestR = 0; // the radius of the largest circle in the tree
 
 		for (PVector p : steinerPoints) {
-			float candidateRadius = Float.MAX_VALUE;
-			for (PVector q : treeList) {
-				float dx = p.x - q.x;
-				float dy = p.y - q.y;
-				float d = (float) Math.sqrt(dx * dx + dy * dy) - q.z;
-				candidateRadius = Math.min(candidateRadius, d);
-			}
-			if (candidateRadius > minRadius) {
-				largestR = Math.max(largestR, candidateRadius);
-				p.z = candidateRadius;
-				treeList.add(p);
+			final PVector nn = tree.queryNearest(p.x, p.y, largestR); // find nearest-neighbour circle
+
+			final float dx = p.x - nn.x;
+			final float dy = p.y - nn.y;
+			final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.z);
+			if (radius > minRadius) {
+				largestR = (radius >= largestR) ? radius : largestR;
+				p.z = radius;
+				tree.insert(p);
 				out.add(p);
 			}
 		}
@@ -629,6 +627,33 @@ public final class PGS_CirclePacking {
 	private static final Predicate<SimpleTriangle> filterBorderTriangles = t -> t.getContainingRegion() != null
 			&& !t.getEdgeA().isConstrainedRegionBorder() && !t.getEdgeB().isConstrainedRegionBorder()
 			&& !t.getEdgeC().isConstrainedRegionBorder();
+
+	// Removed the old circleDistanceMetric and related dependency code.
+
+	// SimpleCircleIndex performs a brute-force nearest neighbor search for circles.
+	private static class SimpleCircleIndex {
+		private final List<PVector> points = new ArrayList<>();
+
+		public void insert(PVector circle) {
+			points.add(circle);
+		}
+
+		public PVector queryNearest(float x, float y, float queryRadius) {
+			PVector best = null;
+			float bestMetric = Float.POSITIVE_INFINITY;
+			for (PVector v : points) {
+				float dx = x - v.x;
+				float dy = y - v.y;
+				float metric = (float) Math.sqrt(dx * dx + dy * dy) - v.z;
+				if (metric < bestMetric) {
+					bestMetric = metric;
+					best = v;
+				}
+			}
+			// In case there are no points inserted, which shouldn't happen because vertices are inserted first.
+			return best != null ? best : new PVector(x, y, 0);
+		}
+	}
 
 }
 ```

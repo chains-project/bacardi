@@ -63,6 +63,7 @@ public final class ModelConstructor extends Constructor {
     desc.putListPropertyType("pluginRepositories", Repository.class);
     desc.putListPropertyType("developers", Developer.class);
     desc.putListPropertyType("contributors", Contributor.class);
+    desc.putListPropertyType("plugins", Plugin.class);
     addTypeDescription(desc);
 
     desc = new TypeDescription(Dependency.class);

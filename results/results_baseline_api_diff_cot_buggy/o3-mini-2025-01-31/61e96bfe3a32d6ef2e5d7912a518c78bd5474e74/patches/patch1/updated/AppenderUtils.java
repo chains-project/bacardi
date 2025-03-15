@@ -34,6 +34,7 @@ import org.apache.thrift.transport.TTransport;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Utils to create logback appenders
@@ -50,9 +51,16 @@ public class AppenderUtils {
    */
   public static class LogMessageEncoder implements Encoder<LogMessage> {
 
+    private OutputStream os;
+
+    @Override
+    public void init(OutputStream os) {
+      this.os = os;
+    }
+
     @Override
     public byte[] headerBytes() {
-      return new byte[0];
+      return null;
     }
 
     @Override
@@ -67,14 +75,17 @@ public class AppenderUtils {
         return baos.toByteArray();
       } catch (TException e) {
         throw new IOException(e);
-      } finally {
-        framedTransport.close();
       }
     }
 
     @Override
     public byte[] footerBytes() {
-      return new byte[0];
+      return null;
+    }
+
+    @Override
+    public void close() throws IOException {
+      // No resources to close
     }
   }
 
@@ -86,7 +97,6 @@ public class AppenderUtils {
    * @param topic the topic name for the current appender.
    * @param rotateThresholdKBytes threshold in kilobytes to rotate after.
    * @param context the logback context.
-   * @param maxRetentionHours maximum number of hours to retain old files.
    */
   public static Appender<LogMessage> createFileRollingThriftAppender(
       File basePath,

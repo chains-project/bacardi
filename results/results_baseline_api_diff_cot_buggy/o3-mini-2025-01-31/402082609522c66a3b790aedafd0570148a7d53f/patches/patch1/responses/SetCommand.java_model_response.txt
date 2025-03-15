@@ -7,14 +7,15 @@ import com.github.games647.changeskin.sponge.PomData;
 import com.github.games647.changeskin.sponge.task.NameResolver;
 import com.github.games647.changeskin.sponge.task.SkinDownloader;
 import com.google.inject.Inject;
+
+import java.util.Optional;
 import java.util.UUID;
+
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandExecutor;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
-import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
@@ -30,22 +31,23 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
     }
 
     @Override
-    public CommandResult execute(CommandContext args) throws CommandException {
-        CommandSource src = args.cause().first(CommandSource.class).orElse(null);
-        if (!(src instanceof Player)) {
-            plugin.sendMessage(src, "no-console");
+    public CommandResult execute(CommandContext context) {
+        Optional<Player> playerOpt = context.cause().first(Player.class);
+        if (!playerOpt.isPresent()) {
+            plugin.sendMessage(context.cause().root(), "no-console");
             return CommandResult.empty();
         }
 
-        Player receiver = (Player) src;
-        UUID uniqueId = receiver.getUniqueId();
+        Player sender = playerOpt.get();
+        UUID uniqueId = sender.getUniqueId();
         if (core.getCooldownService().isTracked(uniqueId)) {
-            plugin.sendMessage(src, "cooldown");
+            plugin.sendMessage(sender, "cooldown");
             return CommandResult.empty();
         }
 
-        String targetSkin = args.requireOne("skin");
-        boolean keepSkin = args.getOne("keep").orElse(false);
+        Player receiver = sender;
+        String targetSkin = context.one(String.class, "skin").get();
+        boolean keepSkin = context.one(Boolean.class, "keep").orElse(false);
 
         if ("reset".equals(targetSkin)) {
             targetSkin = receiver.getUniqueId().toString();
@@ -54,21 +56,23 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
         if (targetSkin.length() > 16) {
             UUID targetUUID = UUID.fromString(targetSkin);
 
-            if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(src, targetUUID, true)) {
+            if (core.getConfig().getBoolean("skinPermission")
+                    && !plugin.hasSkinPermission(sender, targetUUID, true)) {
                 return CommandResult.empty();
             }
 
-            plugin.sendMessage(src, "skin-change-queue");
-            Runnable skinDownloader = new SkinDownloader(plugin, src, receiver, targetUUID, keepSkin);
+            plugin.sendMessage(sender, "skin-change-queue");
+            Runnable skinDownloader = new SkinDownloader(plugin, sender, receiver, targetUUID, keepSkin);
             Task.builder().async().execute(skinDownloader).submit(plugin);
             return CommandResult.success();
         }
 
-        Runnable nameResolver = new NameResolver(plugin, src, targetSkin, receiver, keepSkin);
+        Runnable nameResolver = new NameResolver(plugin, sender, targetSkin, receiver, keepSkin);
         Task.builder().async().execute(nameResolver).submit(plugin);
         return CommandResult.success();
     }
 
+    @Override
     public Command.Parameterized buildSpec() {
         return Command.builder()
                 .executor(this)

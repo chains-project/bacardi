@@ -6,7 +6,7 @@
 //
 
 
-package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,18 +31,18 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SupplierID"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}AccountID"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SupplierTaxID"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CompanyName"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Contact" minOccurs="0"/&gt;
- *         &lt;element name="BillingAddress" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SupplierAddressStructure"/&gt;
- *         &lt;element name="ShipFromAddress" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SupplierAddressStructure" maxOccurs="unbounded" minOccurs="0"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Telephone" minOccurs="0"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Fax" minOccurs="0"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Email" minOccurs="0"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Website" minOccurs="0"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SelfBillingIndicator"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierID"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}AccountID"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierTaxID"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}CompanyName"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Contact" minOccurs="0"/&gt;
+ *         &lt;element name="BillingAddress" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierAddressStructure"/&gt;
+ *         &lt;element name="ShipFromAddress" type="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SupplierAddressStructure" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Telephone" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Fax" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Email" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}Website" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.04_01}SelfBillingIndicator"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;

@@ -52,9 +52,11 @@ public class AddPrimaryKeyGeneratorMSSQL extends AddPrimaryKeyGenerator {
   private Sql[] generateMSSQLSql(AddPrimaryKeyStatementMSSQL statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
     String sql;
     if (statement.getConstraintName() == null) {
-      sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) + " ADD PRIMARY KEY (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
+      sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) 
+          + " ADD PRIMARY KEY (" + database.escapeColumnNameList(statement.getColumnNames()) + ")";
     } else {
-      sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) + " ADD CONSTRAINT " + database.escapeConstraintName(statement.getConstraintName()) + " PRIMARY KEY";
+      sql = "ALTER TABLE " + database.escapeTableName(statement.getCatalogName(), statement.getSchemaName(), statement.getTableName()) 
+          + " ADD CONSTRAINT " + database.escapeConstraintName(statement.getConstraintName()) + " PRIMARY KEY";
       if (!statement.isClustered()) {
         sql += " NONCLUSTERED";
       }

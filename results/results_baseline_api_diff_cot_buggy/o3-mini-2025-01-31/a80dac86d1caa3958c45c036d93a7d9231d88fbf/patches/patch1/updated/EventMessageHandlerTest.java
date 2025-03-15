@@ -1,5 +1,7 @@
 package uk.gov.pay.adminusers.queue.event;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,7 +30,6 @@ import uk.gov.pay.adminusers.service.UserServices;
 import uk.gov.service.payments.commons.queue.exception.QueueException;
 import uk.gov.service.payments.commons.queue.model.QueueMessage;
 
-import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -107,13 +108,9 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        org.slf4j.Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
-        try {
-            Method addAppenderMethod = logger.getClass().getMethod("addAppender", Appender.class);
-            addAppenderMethod.invoke(logger, mockLogAppender);
-        } catch (Exception e) {
-            // Ignore if the logger implementation does not support addAppender
-        }
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        Logger logger = loggerContext.getLogger(EventMessageHandler.class.getName());
+        logger.addAppender(mockLogAppender);
     }
 
     @Test

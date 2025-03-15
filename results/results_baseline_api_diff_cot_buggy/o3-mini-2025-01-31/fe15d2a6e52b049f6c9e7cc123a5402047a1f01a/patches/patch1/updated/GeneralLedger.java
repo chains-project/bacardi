@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
@@ -56,8 +56,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "groupingCode"
 })
 @XmlRootElement(name = "GeneralLedger")
-public class GeneralLedger implements ToString2
-{
+public class GeneralLedger implements ToString2 {
 
     @XmlElement(name = "AccountID", required = true)
     protected String accountID;
@@ -79,10 +78,7 @@ public class GeneralLedger implements ToString2
     /**
      * Gets the value of the accountID property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
      */
     public String getAccountID() {
         return accountID;
@@ -91,10 +87,7 @@ public class GeneralLedger implements ToString2
     /**
      * Sets the value of the accountID property.
      * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * @param value allowed object is {@link String }
      */
     public void setAccountID(String value) {
         this.accountID = value;
@@ -103,10 +96,7 @@ public class GeneralLedger implements ToString2
     /**
      * Gets the value of the accountDescription property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
      */
     public String getAccountDescription() {
         return accountDescription;
@@ -115,10 +105,7 @@ public class GeneralLedger implements ToString2
     /**
      * Sets the value of the accountDescription property.
      * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * @param value allowed object is {@link String }
      */
     public void setAccountDescription(String value) {
         this.accountDescription = value;
@@ -127,10 +114,7 @@ public class GeneralLedger implements ToString2
     /**
      * Gets the value of the openingDebitBalance property.
      * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
+     * @return possible object is {@link BigDecimal }
      */
     public BigDecimal getOpeningDebitBalance() {
         return openingDebitBalance;
@@ -139,10 +123,7 @@ public class GeneralLedger implements ToString2
     /**
      * Sets the value of the openingDebitBalance property.
      * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
+     * @param value allowed object is {@link BigDecimal }
      */
     public void setOpeningDebitBalance(BigDecimal value) {
         this.openingDebitBalance = value;
@@ -151,10 +132,7 @@ public class GeneralLedger implements ToString2
     /**
      * Gets the value of the openingCreditBalance property.
      * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
+     * @return possible object is {@link BigDecimal }
      */
     public BigDecimal getOpeningCreditBalance() {
         return openingCreditBalance;
@@ -163,10 +141,7 @@ public class GeneralLedger implements ToString2
     /**
      * Sets the value of the openingCreditBalance property.
      * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
+     * @param value allowed object is {@link BigDecimal }
      */
     public void setOpeningCreditBalance(BigDecimal value) {
         this.openingCreditBalance = value;
@@ -175,10 +150,7 @@ public class GeneralLedger implements ToString2
     /**
      * Gets the value of the closingDebitBalance property.
      * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
+     * @return possible object is {@link BigDecimal }
      */
     public BigDecimal getClosingDebitBalance() {
         return closingDebitBalance;
@@ -187,10 +159,7 @@ public class GeneralLedger implements ToString2
     /**
      * Sets the value of the closingDebitBalance property.
      * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
+     * @param value allowed object is {@link BigDecimal }
      */
     public void setClosingDebitBalance(BigDecimal value) {
         this.closingDebitBalance = value;
@@ -199,10 +168,7 @@ public class GeneralLedger implements ToString2
     /**
      * Gets the value of the closingCreditBalance property.
      * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
+     * @return possible object is {@link BigDecimal }
      */
     public BigDecimal getClosingCreditBalance() {
         return closingCreditBalance;
@@ -211,10 +177,7 @@ public class GeneralLedger implements ToString2
     /**
      * Sets the value of the closingCreditBalance property.
      * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
+     * @param value allowed object is {@link BigDecimal }
      */
     public void setClosingCreditBalance(BigDecimal value) {
         this.closingCreditBalance = value;
@@ -223,10 +186,7 @@ public class GeneralLedger implements ToString2
     /**
      * Gets the value of the groupingCategory property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
      */
     public String getGroupingCategory() {
         return groupingCategory;
@@ -235,10 +195,7 @@ public class GeneralLedger implements ToString2
     /**
      * Sets the value of the groupingCategory property.
      * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * @param value allowed object is {@link String }
      */
     public void setGroupingCategory(String value) {
         this.groupingCategory = value;
@@ -247,10 +204,7 @@ public class GeneralLedger implements ToString2
     /**
      * Gets the value of the groupingCode property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
      */
     public String getGroupingCode() {
         return groupingCode;
@@ -259,10 +213,7 @@ public class GeneralLedger implements ToString2
     /**
      * Sets the value of the groupingCode property.
      * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * @param value allowed object is {@link String }
      */
     public void setGroupingCode(String value) {
         this.groupingCode = value;
@@ -270,7 +221,7 @@ public class GeneralLedger implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = DefaultToStringStrategy.INSTANCE;
+        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();

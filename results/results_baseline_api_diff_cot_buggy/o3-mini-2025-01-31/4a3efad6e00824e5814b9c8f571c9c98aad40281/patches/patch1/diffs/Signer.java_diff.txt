@@ -1,39 +1,11 @@
-6,7c6,9
-< import eu.europa.esig.dss.model.*;
+7d6
 < import eu.europa.esig.dss.pades.CertificationPermission;
----
-> import eu.europa.esig.dss.model.DSSDocument;
-> import eu.europa.esig.dss.model.FileDocument;
-> import eu.europa.esig.dss.model.ToBeSigned;
-> import eu.europa.esig.dss.model.InMemoryDocument;
-9a12
-> import eu.europa.esig.dss.pades.TableSignatureFieldParameters;
-63d65
+63d61
 <         ;
-71c73
+71c69,70
 <         signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
 ---
->         // Removed the setPermission call because CertificationPermission has been removed in the new dependency version
-89c91
-<                 imageParameters.setImage(new InMemoryDocument((IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("signature.png")))));
----
->                 imageParameters.setImage(new InMemoryDocument(IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("signature.png"))));
-98d99
+>         // Removed the call to setPermission as CertificationPermission has been removed from the dependency.
+>         // signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
+122d120
 < 
-107c108
-<             // respect local timezone
----
->             // Respect local timezone
-109c110
-<             // user-provided timezone, if any
----
->             // User-provided timezone, if any
-123d123
-< 
-129,132c129
-<         //https://gist.github.com/Manouchehri/fd754e402d98430243455713efada710
-<         //only use TSP source, if parameter is set
-<         //if it is set to an url, us this
-<         //otherwise, default
----
->         // Only use TSP source if parameter is set

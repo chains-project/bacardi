@@ -6,7 +6,7 @@ import liquibase.executor.ExecutorService;
 import liquibase.ext.mssql.statement.DropStoredProcedureStatement;
 
 public class MSSQLDatabase extends liquibase.database.core.MSSQLDatabase {
-
+    
     @Override
     public int getPriority() {
         return PRIORITY_DATABASE;

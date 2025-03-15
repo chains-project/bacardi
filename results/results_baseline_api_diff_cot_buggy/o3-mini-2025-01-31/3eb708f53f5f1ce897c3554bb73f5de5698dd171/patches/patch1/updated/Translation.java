@@ -81,7 +81,7 @@ public class Translation implements Serializable {
   static Translation fromPb(com.google.api.services.translate.v3.model.Translation translationPb) {
     return new Translation(
         translationPb.getTranslatedText(),
-        null,
+        translationPb.getDetectedLanguageCode(),
         translationPb.getModel());
   }
 }

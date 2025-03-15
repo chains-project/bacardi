@@ -5,7 +5,7 @@
 // Generated on: 2023.08.18 at 08:13:47 AM GMT 
 //
 
-package com.premiumminds.billy.portugal.services.export.saftpt.v1_02_01.schema;
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_03_01.schema;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,24 +30,24 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Header"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Header"/&gt;
  *         &lt;element name="MasterFiles"&gt;
  *           &lt;complexType&gt;
  *             &lt;complexContent&gt;
  *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *                 &lt;sequence&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}GeneralLedger" maxOccurs="unbounded" minOccurs="0"/&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Customer" maxOccurs="unbounded" minOccurs="0"/&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Supplier" maxOccurs="unbounded" minOccurs="0"/&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Product" maxOccurs="unbounded" minOccurs="0"/&gt;
- *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxTable" minOccurs="0"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GeneralLedger" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Customer" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Supplier" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Product" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxTable" minOccurs="0"/&gt;
  *                 &lt;/sequence&gt;
  *               &lt;/restriction&gt;
  *             &lt;/complexContent&gt;
  *           &lt;/complexType&gt;
  *         &lt;/element&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}GeneralLedgerEntries" minOccurs="0"/&gt;
- *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SourceDocuments" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GeneralLedgerEntries" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceDocuments" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
@@ -224,11 +224,11 @@ public class AuditFile implements ToString2
      *   &lt;complexContent&gt;
      *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
      *       &lt;sequence&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}GeneralLedger" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Customer" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Supplier" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Product" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxTable" minOccurs="0"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GeneralLedger" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Customer" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Supplier" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Product" maxOccurs="unbounded" minOccurs="0"/&gt;
+     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TaxTable" minOccurs="0"/&gt;
      *       &lt;/sequence&gt;
      *     &lt;/restriction&gt;
      *   &lt;/complexContent&gt;
@@ -419,28 +419,28 @@ public class AuditFile implements ToString2
         public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
             {
                 List<GeneralLedger> theGeneralLedger;
-                theGeneralLedger = (((this.generalLedger != null) && (!this.generalLedger.isEmpty())) ? this.getGeneralLedger() : null);
-                strategy.appendField(locator, this, "generalLedger", buffer, theGeneralLedger, ((this.generalLedger != null) && (!this.generalLedger.isEmpty())));
+                theGeneralLedger = (((this.generalLedger!= null)&&(!this.generalLedger.isEmpty()))?this.getGeneralLedger():null);
+                strategy.appendField(locator, this, "generalLedger", buffer, theGeneralLedger, ((this.generalLedger!= null)&&(!this.generalLedger.isEmpty())));
             }
             {
                 List<Customer> theCustomer;
-                theCustomer = (((this.customer != null) && (!this.customer.isEmpty())) ? this.getCustomer() : null);
-                strategy.appendField(locator, this, "customer", buffer, theCustomer, ((this.customer != null) && (!this.customer.isEmpty())));
+                theCustomer = (((this.customer!= null)&&(!this.customer.isEmpty()))?this.getCustomer():null);
+                strategy.appendField(locator, this, "customer", buffer, theCustomer, ((this.customer!= null)&&(!this.customer.isEmpty())));
             }
             {
                 List<Supplier> theSupplier;
-                theSupplier = (((this.supplier != null) && (!this.supplier.isEmpty())) ? this.getSupplier() : null);
-                strategy.appendField(locator, this, "supplier", buffer, theSupplier, ((this.supplier != null) && (!this.supplier.isEmpty())));
+                theSupplier = (((this.supplier!= null)&&(!this.supplier.isEmpty()))?this.getSupplier():null);
+                strategy.appendField(locator, this, "supplier", buffer, theSupplier, ((this.supplier!= null)&&(!this.supplier.isEmpty())));
             }
             {
                 List<Product> theProduct;
-                theProduct = (((this.product != null) && (!this.product.isEmpty())) ? this.getProduct() : null);
-                strategy.appendField(locator, this, "product", buffer, theProduct, ((this.product != null) && (!this.product.isEmpty())));
+                theProduct = (((this.product!= null)&&(!this.product.isEmpty()))?this.getProduct():null);
+                strategy.appendField(locator, this, "product", buffer, theProduct, ((this.product!= null)&&(!this.product.isEmpty())));
             }
             {
                 TaxTable theTaxTable;
                 theTaxTable = this.getTaxTable();
-                strategy.appendField(locator, this, "taxTable", buffer, theTaxTable, (this.taxTable != null));
+                strategy.appendField(locator, this, "taxTable", buffer, theTaxTable, (this.taxTable!= null));
             }
             return buffer;
         }

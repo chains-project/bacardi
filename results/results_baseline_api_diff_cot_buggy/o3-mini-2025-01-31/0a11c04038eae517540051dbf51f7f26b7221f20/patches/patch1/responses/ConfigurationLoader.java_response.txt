@@ -3,8 +3,8 @@ package io.simplelocalize.cli.configuration;
 import io.simplelocalize.cli.exception.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
 import java.io.File;
@@ -37,7 +37,8 @@ public final class ConfigurationLoader
   private Configuration load(Path configurationFilePath)
   {
     File file = new File(URLDecoder.decode(String.valueOf(configurationFilePath.toFile()), StandardCharsets.UTF_8));
-    Constructor yamlTargetClass = new Constructor(Configuration.class, new LoaderOptions());
+    LoaderOptions loaderOptions = new LoaderOptions();
+    Constructor yamlTargetClass = new Constructor(Configuration.class, loaderOptions);
     Yaml yaml = new Yaml(yamlTargetClass);
 
     log.info("Loading configuration file from: {}", configurationFilePath);
@@ -57,7 +58,6 @@ public final class ConfigurationLoader
       throw new ConfigurationException();
     }
     return configuration;
-
   }
 
 }

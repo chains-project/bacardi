@@ -34,41 +34,41 @@ The errors are triggered in the following specific lines:
 
 <error_lines>
 ```java
-private final CommandSource invoker;
+import org.spongepowered.api.text.serializer.TextSerializers;
 ```
 ```java
 public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandSource invoker) {
 ```
 ```java
-import org.spongepowered.api.text.serializer.TextSerializers;
+import org.spongepowered.api.command.CommandSource;
 ```
 ```java
-import org.spongepowered.api.command.CommandSource;
+private final CommandSource invoker;
 ```
 </error_lines>
 
 The API of the dependency has changed. Here are the relevant changes:
 
-     Class org.spongepowered.api.command.CommandSource has been removed in the new version of the dependency.
      Class org.spongepowered.api.text.serializer.TextSerializers has been removed in the new version of the dependency.
+     Class org.spongepowered.api.command.CommandSource has been removed in the new version of the dependency.
 
 Additional error information:
 
 <error_information>
-[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinChanger.java:[12,19] cannot find symbol
-  symbol:   class CommandSource
-  location: class com.github.games647.changeskin.sponge.task.SkinChanger
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinChanger.java:[8,45] package org.spongepowered.api.text.serializer does not exist
 
 [ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinChanger.java:[14,95] cannot find symbol
   symbol:   class CommandSource
   location: class com.github.games647.changeskin.sponge.task.SkinChanger
 
-[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinChanger.java:[8,45] package org.spongepowered.api.text.serializer does not exist
-
 [ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinChanger.java:[7,37] cannot find symbol
   symbol:   class CommandSource
   location: package org.spongepowered.api.command
-<error_information>
+
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/task/SkinChanger.java:[12,19] cannot find symbol
+  symbol:   class CommandSource
+  location: class com.github.games647.changeskin.sponge.task.SkinChanger
+</error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:
 

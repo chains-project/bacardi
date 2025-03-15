@@ -15,11 +15,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
-import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
-
 
 /**
  * <p>Java class for anonymous complex type.
@@ -45,8 +43,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "taxTableEntry"
 })
 @XmlRootElement(name = "TaxTable")
-public class TaxTable implements ToString2
-{
+public class TaxTable implements ToString2 {
 
     @XmlElement(name = "TaxTableEntry", required = true)
     protected List<TaxTableEntry> taxTableEntry;

@@ -1,4 +1,4 @@
-18,26c18,24
+18,26c18,26
 < import com.hazelcast.core.Cluster;
 < import com.hazelcast.core.EntryListener;
 < import com.hazelcast.core.LifecycleEvent;
@@ -10,24 +10,29 @@
 < import com.hazelcast.core.MembershipListener;
 ---
 > import com.hazelcast.cluster.Cluster;
-> import com.hazelcast.cluster.MembershipEvent;
-> import com.hazelcast.cluster.MembershipListener;
-> import com.hazelcast.cluster.Member;
+> import com.hazelcast.map.listener.EntryListener;
 > import com.hazelcast.cluster.LifecycleEvent;
 > import com.hazelcast.cluster.LifecycleEvent.LifecycleState;
-> import com.hazelcast.map.listener.EntryListener;
-52c50
-< public class ClusterListener implements MembershipListener, LifecycleListener {
+> import com.hazelcast.cluster.LifecycleListener;
+> import com.hazelcast.cluster.Member;
+> import com.hazelcast.cluster.MemberAttributeEvent;
+> import com.hazelcast.cluster.MembershipEvent;
+> import com.hazelcast.cluster.MembershipListener;
+256,258c256,264
+<     @SuppressWarnings("WeakerAccess")
+<     public List<ClusterNodeInfo> getClusterNodesInfo() {
+<         return new ArrayList<>(clusterNodesInfo.values());
 ---
-> public class ClusterListener implements MembershipListener {
-76d73
-< 
-164d160
-< 
-261d256
-<     @Override
-270,278d264
-<     @Override
+>     @Override
+>     public void memberAttributeChanged(final MemberAttributeEvent event) {
+>         logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
+>         isSenior = isSeniorClusterMember();
+>         logger.warn("Member attribute update event ignored as new API does not support retrieving member info.");
+>     }
+> 
+>     boolean isClusterMember() {
+>         return clusterMember;
+271,280c277,278
 <     public void memberAttributeChanged(final MemberAttributeEvent event) {
 <         logger.info("Received a Hazelcast memberAttributeChanged event {}", event);
 <         isSenior = isSeniorClusterMember();
@@ -36,3 +41,8 @@
 <                 new HazelcastClusterNodeInfo(event.getMember(), priorNodeInfo.getJoinedTime()));
 <     }
 < 
+<     boolean isClusterMember() {
+<         return clusterMember;
+---
+>     public List<ClusterNodeInfo> getClusterNodesInfo() {
+>         return new ArrayList<>(clusterNodesInfo.values());

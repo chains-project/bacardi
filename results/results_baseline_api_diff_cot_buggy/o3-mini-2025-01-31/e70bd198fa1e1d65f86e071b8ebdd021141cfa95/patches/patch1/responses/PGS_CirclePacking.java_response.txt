@@ -20,6 +20,9 @@ import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.locationtech.jts.operation.distance.IndexedFacetDistance;
 import org.locationtech.jts.util.GeometricShapeFactory;
+import org.tinfour.common.IIncrementalTin;
+import org.tinfour.common.SimpleTriangle;
+import org.tinfour.common.Vertex;
 
 import micycle.pgs.commons.FrontChainPacker;
 import micycle.pgs.commons.LargestEmptyCircles;
@@ -47,6 +50,11 @@ import processing.core.PVector;
  *
  */
 public final class PGS_CirclePacking {
+
+	/*-
+	 * Roadmap (see/implement): 'A LINEARIZED CIRCLE PACKING ALGORITHM'? 
+	 * 'A note on circle packing' Young Joon AHN.
+	 */
 
 	private PGS_CirclePacking() {
 	}
@@ -144,7 +152,7 @@ public final class PGS_CirclePacking {
 	 *                          shape more evenly (particularly when points is
 	 *                          small), which is sometimes desirable
 	 * @return A list of PVectors, each representing one circle: (.x, .y) represent
-	 *         the center point, and .z represents the radius.
+	 *         the center point and .z represents radius.
 	 */
 	public static List<PVector> stochasticPack(final PShape shape, final int points, final double minRadius, boolean triangulatePoints) {
 		return stochasticPack(shape, points, minRadius, triangulatePoints, System.nanoTime());
@@ -188,39 +196,41 @@ public final class PGS_CirclePacking {
 	public static List<PVector> stochasticPack(final PShape shape, final int points, final double minRadius, boolean triangulatePoints,
 			long seed) {
 
-		final SimpleCircleIndex<PVector> tree = new SimpleCircleIndex<>();
+		// Replace the removed CoverTree-based proximity search with a simple linear search.
+		final List<PVector> circleTree = new ArrayList<>();
 		final List<PVector> out = new ArrayList<>();
 
 		List<PVector> steinerPoints = PGS_Processing.generateRandomPoints(shape, points, seed);
 		if (triangulatePoints) {
 			final IIncrementalTin tin = PGS_Triangulation.delaunayTriangulationMesh(shape, steinerPoints, true, 1, true);
-			steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false).filter(filterBorderTriangles)
-					.map(PGS_CirclePacking::centroid).collect(Collectors.toList());
+			steinerPoints = StreamSupport.stream(tin.triangles().spliterator(), false)
+					.filter(filterBorderTriangles)
+					.map(PGS_CirclePacking::centroid)
+					.collect(Collectors.toList());
 		}
 
-		// Model shape vertices as circles of radius 0, to constrain packed circles
-		// within shape edge
+		// Model shape vertices as circles of radius 0, to constrain packed circles within the shape edge.
 		final List<PVector> vertices = PGS_Conversion.toPVector(shape);
-		Collections.shuffle(vertices); // shuffle vertices to reduce tree imbalance during insertion
-		vertices.forEach(p -> tree.insert(new double[] { p.x, p.y, 0 }, p));
+		Collections.shuffle(vertices); // shuffle vertices to reduce imbalance during insertion
+		for (PVector p : vertices) {
+			circleTree.add(new PVector(p.x, p.y, 0));
+		}
 
-		float largestR = 0; // the radius of the largest circle in the tree
-
+		float largestR = 0; // the radius of the largest circle so far.
 		for (PVector p : steinerPoints) {
-			final SimplePointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
-
-			/*
-			 * nn.distance() is not used here; we calculate maximum radius for candidate
-			 * circle using 2d euclidean distance between center points minus radius of
-			 * nearest circle.
-			 */
-			final float dx = p.x - nn.value().x;
-			final float dy = p.y - nn.value().y;
-			final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z);
-			if (radius > minRadius) {
-				largestR = (radius >= largestR) ? radius : largestR;
-				p.z = radius;
-				tree.insert(new double[] { p.x, p.y, radius }, p); // insert circle into tree
+			float candidateRadius = Float.MAX_VALUE;
+			for (PVector q : circleTree) {
+				float dx = p.x - q.x;
+				float dy = p.y - q.y;
+				float d = (float) Math.sqrt(dx * dx + dy * dy) - q.z;
+				if (d < candidateRadius) {
+					candidateRadius = d;
+				}
+			}
+			if (candidateRadius > minRadius) {
+				largestR = Math.max(largestR, candidateRadius);
+				p.z = candidateRadius;
+				circleTree.add(new PVector(p.x, p.y, candidateRadius));
 				out.add(p);
 			}
 		}
@@ -228,7 +238,7 @@ public final class PGS_CirclePacking {
 	}
 
 	/**
-	 * Generates a random circle packing of tangential circles with varying radii
+	 * Generates a circle packing of tangential circles with varying radii
 	 * that overlap the given shape. The method name references the packing
 	 * algorithm used (Front Chain Packing), rather than any particular
 	 * characteristic of the circle packing.
@@ -615,60 +625,4 @@ public final class PGS_CirclePacking {
 			&& !t.getEdgeA().isConstrainedRegionBorder() && !t.getEdgeB().isConstrainedRegionBorder()
 			&& !t.getEdgeC().isConstrainedRegionBorder();
 
-	// Simple replacement classes for the removed tinspin index functionality.
-	private static class SimpleCircleIndex<T> {
-		private static class Entry<T> {
-			double[] key;
-			T value;
-
-			Entry(double[] key, T value) {
-				this.key = key;
-				this.value = value;
-			}
-		}
-
-		private final List<Entry<T>> entries = new ArrayList<>();
-
-		public void insert(double[] key, T value) {
-			entries.add(new Entry<>(key, value));
-		}
-
-		public SimplePointEntryDist<T> query1NN(double[] query) {
-			double bestDist = Double.MAX_VALUE;
-			T bestValue = null;
-			for (Entry<T> entry : entries) {
-				double d = computeDistance(query, entry.key);
-				if (d < bestDist) {
-					bestDist = d;
-					bestValue = entry.value;
-				}
-			}
-			return new SimplePointEntryDist<>(bestDist, bestValue);
-		}
-
-		private double computeDistance(double[] a, double[] b) {
-			double dx = a[0] - b[0];
-			double dy = a[1] - b[1];
-			double dz = a[2] - b[2];
-			return Math.sqrt(dx * dx + dy * dy) + Math.abs(dz);
-		}
-	}
-
-	private static class SimplePointEntryDist<T> {
-		private final double distance;
-		private final T value;
-
-		public SimplePointEntryDist(double distance, T value) {
-			this.distance = distance;
-			this.value = value;
-		}
-
-		public T value() {
-			return value;
-		}
-
-		public double distance() {
-			return distance;
-		}
-	}
 }

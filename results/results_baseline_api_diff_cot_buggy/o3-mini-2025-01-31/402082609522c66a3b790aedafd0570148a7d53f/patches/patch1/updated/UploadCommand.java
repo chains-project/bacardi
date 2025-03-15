@@ -7,14 +7,14 @@ import com.github.games647.changeskin.sponge.PomData;
 import com.github.games647.changeskin.sponge.task.SkinUploader;
 import com.google.inject.Inject;
 import java.util.List;
+import net.kyori.adventure.text.Component;
+import static net.kyori.adventure.text.Component.text;
 import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandExecutor;
-import org.spongepowered.api.command.exception.CommandException;
+import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
-import org.spongepowered.api.scheduler.Task;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.text.Component;
 
 public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
 
@@ -22,32 +22,30 @@ public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
     private final ChangeSkinCore core;
 
     @Inject
-    public UploadCommand(ChangeSkinSponge plugin, ChangeSkinCore core) {
+    UploadCommand(ChangeSkinSponge plugin, ChangeSkinCore core) {
         this.plugin = plugin;
         this.core = core;
     }
 
     @Override
-    public int execute(CommandContext context) throws CommandException {
-        Audience sender = context.cause().first(Audience.class)
-                .orElseThrow(() -> new CommandException(Component.text("No command sender found")));
-        String url = context.requireOne("url", String.class);
+    public CommandResult execute(CommandContext context) {
+        CommandCause cause = context.cause();
+        String url = context.one("url").get();
         if (url.startsWith("http://") || url.startsWith("https://")) {
             List<Account> accounts = plugin.getCore().getUploadAccounts();
             if (accounts.isEmpty()) {
-                plugin.sendMessage(sender, "no-accounts");
+                plugin.sendMessage(cause.audience(), "no-accounts");
             } else {
                 Account uploadAccount = accounts.get(0);
-                Runnable skinUploader = new SkinUploader(plugin, sender, uploadAccount, url);
-                Task.builder().async().execute(skinUploader).submit(plugin);
+                Runnable skinUploader = new SkinUploader(plugin, cause.audience(), uploadAccount, url);
+                plugin.getScheduler().submit(skinUploader);
             }
         } else {
-            plugin.sendMessage(sender, "no-valid-url");
+            plugin.sendMessage(cause.audience(), "no-valid-url");
         }
-        return 1;
+        return CommandResult.success();
     }
 
-    // This method no longer overrides a method from the updated dependency version
     public Command buildSpec() {
         return Command.builder()
                 .executor(this)

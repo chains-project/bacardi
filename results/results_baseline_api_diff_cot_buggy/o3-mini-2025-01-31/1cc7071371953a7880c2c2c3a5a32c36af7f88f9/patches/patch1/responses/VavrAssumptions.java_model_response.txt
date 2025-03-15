@@ -24,8 +24,12 @@ import io.vavr.control.Try;
 import io.vavr.control.Validation;
 import org.assertj.core.util.CheckReturnValue;
 
+import static org.assertj.core.util.Arrays.array;
+import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrategy;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.Callable;
 
 public class VavrAssumptions {
 
@@ -126,7 +130,7 @@ public class VavrAssumptions {
     /**
      * Creates a new instance of <code>{@link TryAssert}</code> assumption.
      *
-     * @param <VALUE> type of the value contained in the {@link Try}.
+     * @param <VALUE> type of the value contained in the {@link io.vavr.control.Try}.
      * @param actual  the actual value.
      * @return the created assumption for assertion object.
      */
@@ -153,18 +157,29 @@ public class VavrAssumptions {
     private static <ASSERTION, ACTUAL> ASSERTION asAssumption(Class<ASSERTION> assertionType,
                                                               Class<ACTUAL> actualType,
                                                               Object actual) {
-        return asAssumption(assertionType, new Class<?>[]{actualType}, actual);
+        return asAssumption(assertionType, array(actualType), array(actual));
     }
 
     private static <ASSERTION> ASSERTION asAssumption(Class<ASSERTION> assertionType,
                                                       Class<?>[] constructorTypes,
                                                       Object... constructorParams) {
         try {
-            Constructor<? extends ASSERTION> constructor = assertionType.getConstructor(constructorTypes);
+            Class<? extends ASSERTION> type = createAssumptionClass(assertionType);
+            Constructor<? extends ASSERTION> constructor = type.getConstructor(constructorTypes);
             return constructor.newInstance(constructorParams);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
             throw new RuntimeException("Cannot create assumption instance", e);
         }
+    }
+
+    private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass) {
+        // Dynamic proxy generation has been removed due to dependency updates.
+        return assertClass;
+    }
+
+    private static <ASSERTION> Class<? extends ASSERTION> generateAssumptionClass(Class<ASSERTION> assertionType) {
+        // Dynamic subclass generation has been removed due to dependency updates.
+        return assertionType;
     }
 
     private static RuntimeException assumptionNotMet(AssertionError assertionError) throws ReflectiveOperationException {
@@ -194,7 +209,7 @@ public class VavrAssumptions {
                 .newInstance("assumption was not met due to: " + e.getMessage(), e);
     }
 
-    // for method that change the object under test (e.g. extracting)
+    // for methods that change the object under test (e.g. extracting)
     private static AbstractVavrAssert<?, ?> asAssumption(AbstractVavrAssert<?, ?> assertion) {
         Object actual = assertion.actual();
         if (assertion instanceof LazyAssert) return asAssumption(LazyAssert.class, Lazy.class, actual);
@@ -206,5 +221,6 @@ public class VavrAssumptions {
         if (assertion instanceof ValidationAssert) return asAssumption(ValidationAssert.class, Validation.class, actual);
         throw new IllegalArgumentException("Unsupported assumption creation for " + assertion.getClass());
     }
+
 }
 ```

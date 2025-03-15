@@ -12,7 +12,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
@@ -41,7 +40,6 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  * &lt;/complexType&gt;
  * </pre>
  * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "PaymentTax", propOrder = {
@@ -51,8 +49,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "taxPercentage",
     "taxAmount"
 })
-public class PaymentTax implements ToString2
-{
+public class PaymentTax implements ToString2 {
 
     @XmlElement(name = "TaxType", required = true)
     protected String taxType;
@@ -71,7 +68,6 @@ public class PaymentTax implements ToString2
      * @return
      *     possible object is
      *     {@link String }
-     *     
      */
     public String getTaxType() {
         return taxType;
@@ -83,7 +79,6 @@ public class PaymentTax implements ToString2
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
      */
     public void setTaxType(String value) {
         this.taxType = value;
@@ -95,7 +90,6 @@ public class PaymentTax implements ToString2
      * @return
      *     possible object is
      *     {@link String }
-     *     
      */
     public String getTaxCountryRegion() {
         return taxCountryRegion;
@@ -107,7 +101,6 @@ public class PaymentTax implements ToString2
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
      */
     public void setTaxCountryRegion(String value) {
         this.taxCountryRegion = value;
@@ -119,7 +112,6 @@ public class PaymentTax implements ToString2
      * @return
      *     possible object is
      *     {@link String }
-     *     
      */
     public String getTaxCode() {
         return taxCode;
@@ -131,7 +123,6 @@ public class PaymentTax implements ToString2
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
      */
     public void setTaxCode(String value) {
         this.taxCode = value;
@@ -143,7 +134,6 @@ public class PaymentTax implements ToString2
      * @return
      *     possible object is
      *     {@link BigDecimal }
-     *     
      */
     public BigDecimal getTaxPercentage() {
         return taxPercentage;
@@ -155,7 +145,6 @@ public class PaymentTax implements ToString2
      * @param value
      *     allowed object is
      *     {@link BigDecimal }
-     *     
      */
     public void setTaxPercentage(BigDecimal value) {
         this.taxPercentage = value;
@@ -167,7 +156,6 @@ public class PaymentTax implements ToString2
      * @return
      *     possible object is
      *     {@link BigDecimal }
-     *     
      */
     public BigDecimal getTaxAmount() {
         return taxAmount;
@@ -179,7 +167,6 @@ public class PaymentTax implements ToString2
      * @param value
      *     allowed object is
      *     {@link BigDecimal }
-     *     
      */
     public void setTaxAmount(BigDecimal value) {
         this.taxAmount = value;
@@ -187,7 +174,7 @@ public class PaymentTax implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();

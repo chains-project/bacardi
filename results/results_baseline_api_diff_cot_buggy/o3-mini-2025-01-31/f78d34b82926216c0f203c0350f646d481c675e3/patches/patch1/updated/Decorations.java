@@ -241,7 +241,6 @@ public class Decorations
      */
     public static void laser(Player player, int sec)
     {
-
         final double[] time = {0.0};
         final double radius = 2.5;
 

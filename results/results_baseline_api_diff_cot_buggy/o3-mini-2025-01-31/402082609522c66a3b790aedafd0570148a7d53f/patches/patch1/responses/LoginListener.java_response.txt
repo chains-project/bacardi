@@ -5,10 +5,8 @@ import com.github.games647.changeskin.core.model.UserPreference;
 import com.github.games647.changeskin.core.model.skin.SkinModel;
 import com.github.games647.changeskin.core.shared.SharedListener;
 import com.google.inject.Inject;
-
 import java.util.Optional;
 import java.util.UUID;
-
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 import org.spongepowered.api.profile.GameProfile;
@@ -27,7 +25,7 @@ public class LoginListener extends SharedListener {
     @Listener
     public void onPlayerPreLogin(ServerSideConnectionEvent.Auth preLoginEvent) {
         SkinStorage storage = core.getStorage();
-        GameProfile profile = preLoginEvent.getProfile();
+        GameProfile profile = preLoginEvent.getConnection().getProfile();
         UUID playerUUID = profile.getId();
 
         UserPreference preferences = storage.getPreferences(playerUUID);
@@ -41,7 +39,7 @@ public class LoginListener extends SharedListener {
             plugin.getApi().applyProperties(profile, targetSkin);
             save(preferences);
         } else {
-            String playerName = preLoginEvent.getName();
+            String playerName = preLoginEvent.getConnection().getName();
             if (!core.getConfig().getBoolean("restoreSkins") || !refetchSkin(playerName, preferences)) {
                 setDefaultSkin(preferences, profile);
             }

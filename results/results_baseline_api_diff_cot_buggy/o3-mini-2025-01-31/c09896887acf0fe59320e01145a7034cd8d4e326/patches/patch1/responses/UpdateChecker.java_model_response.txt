@@ -78,7 +78,8 @@ public final class UpdateChecker {
             this.repo = repo;
         }
         /** Sort by version descending. */
-        @Override public int compareTo(VersionAndRepo o) {
+        @Override 
+        public int compareTo(VersionAndRepo o) {
             assert o.groupId.equals(groupId) && o.artifactId.equals(artifactId);
             return o.version.compareTo(version);
         }
@@ -93,7 +94,8 @@ public final class UpdateChecker {
         public String fullURL(String type) {
             return baseURL() + artifactId + '-' + version + '.' + type;
         }
-        @Override public String toString() {
+        @Override 
+        public String toString() {
             return baseURL();
         }
     }
@@ -195,7 +197,8 @@ public final class UpdateChecker {
             this.repo = repo;
             this.hash = hash;
         }
-        @Override public String toString() {
+        @Override 
+        public String toString() {
             return "https://github.com/" + owner + '/' + repo + "/commit/" + hash;
         }
     }
@@ -237,7 +240,8 @@ public final class UpdateChecker {
      */
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
-            GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).getStatus();
+            GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
+            GHCompare.Status status = compare.getStatus();
             return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
         } catch (FileNotFoundException x) {
             // For example, that branch does not exist in this repository.

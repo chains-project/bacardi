@@ -89,10 +89,10 @@ The errors are triggered in the following specific lines:
 
 <error_lines>
 ```java
-bind(StrutsPrepareAndExecuteFilter.class)
+import org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter;
 ```
 ```java
-import org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter;
+bind(StrutsPrepareAndExecuteFilter.class)
 ```
 ```java
 filter("/*").through(StrutsPrepareAndExecuteFilter.class);
@@ -101,19 +101,19 @@ filter("/*").through(StrutsPrepareAndExecuteFilter.class);
 
 The API of the dependency has changed. Here are the relevant changes:
 
-     Constructor org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter() has been removed in the new version of the dependency.
      Class org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter has been removed in the new version of the dependency.
+     Constructor org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter() has been removed in the new version of the dependency.
      Type reference org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter() has been added in the new version of the dependency.
 
 Additional error information:
 
 <error_information>
-[ERROR] /guice/extensions/struts2/test/com/google/inject/struts2/Struts2FactoryTest.java:[55,19] error: cannot find symbol
-
 [ERROR] /guice/extensions/struts2/test/com/google/inject/struts2/Struts2FactoryTest.java:[19,46] error: package org.apache.struts2.dispatcher.ng.filter does not exist
 
+[ERROR] /guice/extensions/struts2/test/com/google/inject/struts2/Struts2FactoryTest.java:[55,19] error: cannot find symbol
+
 [ERROR] /guice/extensions/struts2/test/com/google/inject/struts2/Struts2FactoryTest.java:[57,35] error: cannot find symbol
-<error_information>
+</error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:
 

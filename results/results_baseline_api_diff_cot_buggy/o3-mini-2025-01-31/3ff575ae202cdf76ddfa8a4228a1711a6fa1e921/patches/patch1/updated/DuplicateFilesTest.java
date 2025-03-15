@@ -15,11 +15,7 @@ import org.codehaus.plexus.archiver.tar.TarLongFileMode;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.FileUtils;
 
-/**
- * @author Erik Engstrom
- */
-public class DuplicateFilesTest
-    extends PlexusTestCase
+public class DuplicateFilesTest extends PlexusTestCase
 {
 
     private static final File file1 = getTestFile( "src/test/resources/group-writable/foo.txt" );
@@ -32,7 +28,7 @@ public class DuplicateFilesTest
         throws Exception
     {
         super.setUp();
-        // Removed logger threshold adjustment due to API changes.
+        // Removed call to getLoggerManager() because it has been removed in the new API.
     }
 
     public void testZipArchiver()

@@ -17,8 +17,6 @@
 
 package com.google.cloud.resourcemanager.spi.v1beta1;
 
-import com.google.api.services.cloudresourcemanager.v3.model.Constraint;
-import com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy;
 import com.google.api.services.cloudresourcemanager.v3.model.Policy;
 import com.google.api.services.cloudresourcemanager.v3.model.Project;
 import com.google.cloud.ServiceRpc;
@@ -85,6 +83,7 @@ public interface ResourceManagerRpc extends ServiceRpc {
       return pageToken;
     }
   }
+
   /**
    * Creates a new project.
    *
@@ -213,5 +212,13 @@ public interface ResourceManagerRpc extends ServiceRpc {
    * @throws ResourceManagerException upon failure
    */
   OrgPolicy replaceOrgPolicy(String resource, OrgPolicy orgPolicy) throws IOException;
+
+  public static class Constraint {
+    // Minimal stub to support API compatibility with the old dependency.
+  }
+
+  public static class OrgPolicy {
+    // Minimal stub to support API compatibility with the old dependency.
+  }
 }
 ```

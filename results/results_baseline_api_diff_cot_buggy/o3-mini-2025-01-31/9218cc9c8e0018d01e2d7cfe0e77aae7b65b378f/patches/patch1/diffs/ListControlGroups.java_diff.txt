@@ -1,4 +1,4 @@
-37,43c37,43
+37,43c37,44
 < import javax.validation.Validator;
 < import javax.validation.constraints.NotBlank;
 < import javax.validation.constraints.NotEmpty;
@@ -14,17 +14,22 @@
 > import jakarta.validation.constraints.NotNull;
 > import jakarta.validation.metadata.BeanDescriptor;
 > import jakarta.validation.metadata.ConstraintDescriptor;
-122c122
-<                 BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
+> import jakarta.validation.metadata.ElementDescriptor;
+155,156c156,159
+<                                                 if(objectProperty.type.isEnum()) typesControlGroup = EnumControlGroup.class;
+<                                                 else typesControlGroup = ObjectChoiceControlGroup.class;
 ---
->                 BeanDescriptor beanDescriptor = validator.getConstraintsForClass(modelClass);
-133,135c133,135
-<                         ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
-<                         if(constraintDescriptor!=null){
-<                                 Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
----
->                         jakarta.validation.metadata.PropertyDescriptor cvDescriptor = beanDescriptor.getConstraintsForProperty(descriptor.getName());
->                         if(cvDescriptor != null){
->                                 Set<ConstraintDescriptor<?>> constraintsSet = cvDescriptor.getConstraintDescriptors();
-165d164
+>                                                 if (objectProperty.type.isEnum())
+>                                                         typesControlGroup = EnumControlGroup.class;
+>                                                 else
+>                                                         typesControlGroup = ObjectChoiceControlGroup.class;
+165d167
 < 
+185,187c187,189
+<                                                         .createControlGroup(view.newChildId()
+<                                                                         , new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name)
+<                                                                         , objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
+---
+>                                                         .createControlGroup(view.newChildId(),
+>                                                                         new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name),
+>                                                                         objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);

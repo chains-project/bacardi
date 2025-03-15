@@ -37,7 +37,7 @@ public class MockHttpSession implements HttpSession {
 
   @Override
   public Enumeration<String> getAttributeNames() {
-    return new Vector(attributes.keySet()).elements();
+    return new Vector<>(attributes.keySet()).elements();
   }
 
   @Override

@@ -14,7 +14,6 @@ import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandExecutor;
 import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.command.parameter.CommandContext;
-import org.spongepowered.api.command.source.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -28,19 +27,20 @@ public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
     private SkinFormatter formatter;
 
     @Override
-    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        if (!(src instanceof Player)) {
-            plugin.sendMessage(src, "no-console");
-            return CommandResult.empty();
+    public void execute(CommandContext args) throws CommandException {
+        Optional<Player> playerOpt = args.cause().first(Player.class);
+        if (!playerOpt.isPresent()) {
+            plugin.sendMessage(args.cause(), "no-console");
+            return;
         }
 
-        UUID uniqueId = ((Player) src).getUniqueId();
-        Sponge.getScheduler().asyncExecutor(plugin).execute(() -> {
-            UserPreference preferences = plugin.getCore().getStorage().getPreferences(uniqueId);
-            Sponge.getScheduler().syncExecutor(plugin).execute(() -> sendSkinDetails(uniqueId, preferences));
-        });
+        Player player = playerOpt.get();
+        UUID uniqueId = player.uniqueId();
 
-        return CommandResult.success();
+        Sponge.server().scheduler().executor(plugin).submit(() -> {
+            UserPreference preferences = plugin.getCore().getStorage().getPreferences(uniqueId);
+            Sponge.server().scheduler().executor(plugin).submit(() -> sendSkinDetails(uniqueId, preferences));
+        });
     }
 
     public Command buildSpec() {
@@ -51,29 +51,21 @@ public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
     }
 
     private void sendSkinDetails(UUID uuid, UserPreference preference) {
-        Optional<Player> optPlayer = Sponge.server().player(uuid);
+        Optional<Player> optPlayer = Sponge.server().onlinePlayers().stream()
+                .filter(p -> p.uniqueId().equals(uuid))
+                .findFirst();
         if (optPlayer.isPresent()) {
             Player player = optPlayer.get();
+
             Optional<SkinModel> optSkin = preference.getTargetSkin();
             if (optSkin.isPresent()) {
                 String template = plugin.getCore().getMessage("skin-info");
                 String formatted = formatter.apply(template, optSkin.get());
-                Component message = LegacyComponentSerializer.legacySection().deserialize(formatted);
-                player.sendMessage(message);
+                Component component = LegacyComponentSerializer.legacyAmpersand().deserialize(formatted);
+                player.sendMessage(component);
             } else {
                 plugin.sendMessage(player, "skin-not-found");
             }
-        }
-    }
-
-    public static class CommandResult {
-
-        public static CommandResult empty() {
-            return new CommandResult();
-        }
-
-        public static CommandResult success() {
-            return new CommandResult();
         }
     }
 }

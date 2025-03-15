@@ -1,44 +1,104 @@
 8d7
 < 
-22d20
+22c21
 < import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
-26c24
-< 
 ---
 > import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
-110,111c108
-< public class GeneralLedgerEntries implements ToString2
-< {
----
-> public class GeneralLedgerEntries implements ToString2 {
-226c223
+27,101d25
+< 
+< /**
+<  * <p>Java class for anonymous complex type.
+<  * 
+<  * <p>The following schema fragment specifies the expected content contained within this class.
+<  * 
+<  * <pre>
+<  * &lt;complexType&gt;
+<  *   &lt;complexContent&gt;
+<  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+<  *       &lt;sequence&gt;
+<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}NumberOfEntries"/&gt;
+<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TotalDebit"/&gt;
+<  *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TotalCredit"/&gt;
+<  *         &lt;element name="Journal" maxOccurs="unbounded" minOccurs="0"&gt;
+<  *           &lt;complexType&gt;
+<  *             &lt;complexContent&gt;
+<  *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+<  *                 &lt;sequence&gt;
+<  *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}JournalID"/&gt;
+<  *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description"/&gt;
+<  *                   &lt;element name="Transaction" maxOccurs="unbounded" minOccurs="0"&gt;
+<  *                     &lt;complexType&gt;
+<  *                       &lt;complexContent&gt;
+<  *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+<  *                           &lt;sequence&gt;
+<  *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TransactionID"/&gt;
+<  *                             &lt;element name="Period" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFPTAccountingPeriod"/&gt;
+<  *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TransactionDate"/&gt;
+<  *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceID"/&gt;
+<  *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description"/&gt;
+<  *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DocArchivalNumber"/&gt;
+<  *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}TransactionType"/&gt;
+<  *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}GLPostingDate"/&gt;
+<  *                             &lt;choice&gt;
+<  *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CustomerID" minOccurs="0"/&gt;
+<  *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SupplierID" minOccurs="0"/&gt;
+<  *                             &lt;/choice&gt;
+<  *                             &lt;element name="Line" maxOccurs="unbounded" minOccurs="2"&gt;
+<  *                               &lt;complexType&gt;
+<  *                                 &lt;complexContent&gt;
+<  *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+<  *                                     &lt;sequence&gt;
+<  *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}RecordID"/&gt;
+<  *                                       &lt;element name="AccountID" type="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SAFPTGLAccountID"/&gt;
+<  *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SourceDocumentID" minOccurs="0"/&gt;
+<  *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}SystemEntryDate"/&gt;
+<  *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}Description"/&gt;
+<  *                                       &lt;choice&gt;
+<  *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}DebitAmount"/&gt;
+<  *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}CreditAmount"/&gt;
+<  *                                       &lt;/choice&gt;
+<  *                                     &lt;/sequence&gt;
+<  *                                   &lt;/restriction&gt;
+<  *                                 &lt;/complexContent&gt;
+<  *                               &lt;/complexType&gt;
+<  *                             &lt;/element&gt;
+<  *                           &lt;/sequence&gt;
+<  *                         &lt;/restriction&gt;
+<  *                       &lt;/complexContent&gt;
+<  *                     &lt;/complexType&gt;
+<  *                   &lt;/element&gt;
+<  *                 &lt;/sequence&gt;
+<  *               &lt;/restriction&gt;
+<  *             &lt;/complexContent&gt;
+<  *           &lt;/complexType&gt;
+<  *         &lt;/element&gt;
+<  *       &lt;/sequence&gt;
+<  *     &lt;/restriction&gt;
+<  *   &lt;/complexContent&gt;
+<  * &lt;/complexType&gt;
+<  * </pre>
+<  * 
+<  * 
+<  */
+226c150
 <         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
 ---
 >         final ToStringStrategy2 strategy = new DefaultToStringStrategy();
-333,334c330
-<     public static class Journal implements ToString2
-<     {
----
->     public static class Journal implements ToString2 {
-422c418
+265d188
+< 
+422c345
 <             final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
 ---
 >             final ToStringStrategy2 strategy = new DefaultToStringStrategy();
-520,521c516
-<         public static class Transaction implements ToString2
-<         {
----
->         public static class Transaction implements ToString2 {
-812c807
+456d378
+< 
+812c734
 <                 final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
 ---
 >                 final ToStringStrategy2 strategy = new DefaultToStringStrategy();
-924,925c919
-<             public static class Line implements ToString2
-<             {
----
->             public static class Line implements ToString2 {
-1113c1107
+886d807
+< 
+1113c1034
 <                     final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
 ---
 >                     final ToStringStrategy2 strategy = new DefaultToStringStrategy();

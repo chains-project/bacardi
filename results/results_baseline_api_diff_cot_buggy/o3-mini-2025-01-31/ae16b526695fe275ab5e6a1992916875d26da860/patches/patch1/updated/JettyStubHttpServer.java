@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2012 - 2016 Jadler contributors
+ * This program is made available under the terms of the MIT License.
+ */
 package net.jadler.stubbing.server.jetty;
 
 import net.jadler.RequestManager;
@@ -6,11 +10,13 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.Validate;
 
+/**
+ * Default stub http server implementation using Jetty as an http server.
+ */
 public class JettyStubHttpServer implements StubHttpServer {
 
     private static final Logger logger = LoggerFactory.getLogger(JettyStubHttpServer.class);
@@ -22,16 +28,11 @@ public class JettyStubHttpServer implements StubHttpServer {
     }
     
     public JettyStubHttpServer(final int port) {
-        // Initialize the Jetty server with a default thread pool.
-        this.server = new Server(new QueuedThreadPool());
-        
-        // Set up HTTP configuration with the desired headers.
-        HttpConfiguration httpConfiguration = new HttpConfiguration();
-        httpConfiguration.setSendServerVersion(false);
-        httpConfiguration.setSendDateHeader(true);
-        
-        // Create and configure the ServerConnector with the new API.
-        this.httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfiguration));
+        this.server = new Server();
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        httpConfig.setSendServerVersion(false);
+        httpConfig.setSendDateHeader(true);
+        this.httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
         this.httpConnector.setPort(port);
         server.addConnector(this.httpConnector);
     }

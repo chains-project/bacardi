@@ -40,10 +40,10 @@ The errors are triggered in the following specific lines:
 
 <error_lines>
 ```java
-import javax.annotation.Priority;
+@Priority(100)
 ```
 ```java
-@Priority(100)
+import javax.annotation.Priority;
 ```
 </error_lines>
 
@@ -55,11 +55,11 @@ The API of the dependency has changed. Here are the relevant changes:
 Additional error information:
 
 <error_information>
-[ERROR] /cdi-test/cdi-test-api/src/main/java/de/hilling/junit/cdi/annotations/GlobalTestImplementation.java:[6,24] package javax.annotation does not exist
-
 [ERROR] /cdi-test/cdi-test-api/src/main/java/de/hilling/junit/cdi/annotations/GlobalTestImplementation.java:[27,2] cannot find symbol
   symbol: class Priority
-<error_information>
+
+[ERROR] /cdi-test/cdi-test-api/src/main/java/de/hilling/junit/cdi/annotations/GlobalTestImplementation.java:[6,24] package javax.annotation does not exist
+</error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:
 

@@ -41,6 +41,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+/**
+ * Factory class to create MarcRecord from JsonPathCache
+ */
 public class MarcFactory {
 
   private static final Logger logger = Logger.getLogger(MarcFactory.class.getCanonicalName());
@@ -58,19 +61,10 @@ public class MarcFactory {
 
   public static BibliographicRecord create(JsonPathCache cache, MarcVersion version) {
     var marcRecord = new Marc21Record();
-    // Wrap the objects returned by schema.getPaths() into our local JsonBranch wrapper.
-    for (Object obj : schema.getPaths()) {
-      JsonBranch branch;
-      if (obj instanceof JsonBranch) {
-        branch = (JsonBranch) obj;
-      } else if (obj instanceof String) {
-        branch = new JsonBranch((String) obj);
-      } else {
-        continue;
-      }
-      if (branch.getParent() != null)
-        continue;
-      switch (branch.getLabel()) {
+    for (String branch : schema.getPaths()) {
+      // In the previous version, branches with a non-null parent were skipped.
+      // With the new API, we assume that schema.getPaths() returns top-level keys.
+      switch (branch) {
         case "leader":
           marcRecord.setLeader(new Leader(extractFirst(cache, branch)));
           break;
@@ -93,15 +87,15 @@ public class MarcFactory {
           marcRecord.setControl008(new Control008(extractFirst(cache, branch), marcRecord));
           break;
         default:
-          JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());
-          for (var fieldInsanceNr = 0; fieldInsanceNr < fieldInstances.size(); fieldInsanceNr++) {
-            var fieldInstance = (Map) fieldInstances.get(fieldInsanceNr);
+          JSONArray fieldInstances = (JSONArray) cache.getFragment(branch);
+          for (int fieldInstanceNr = 0; fieldInstanceNr < fieldInstances.size(); fieldInstanceNr++) {
+            var fieldInstance = (Map) fieldInstances.get(fieldInstanceNr);
             var field = MapToDatafield.parse(fieldInstance, version);
             if (field != null) {
               marcRecord.addDataField(field);
               field.setMarcRecord(marcRecord);
             } else {
-              marcRecord.addUnhandledTags(branch.getLabel());
+              marcRecord.addUnhandledTags(branch);
             }
           }
           break;
@@ -169,8 +163,12 @@ public class MarcFactory {
 
   public static BibliographicRecord createPicaFromMarc4j(Record marc4jRecord, PicaSchemaManager picaSchemaManager) {
     var marcRecord = new PicaRecord();
+    // marcRecord.setSchemaType(SchemaType.PICA);
+
     importMarc4jControlFields(marc4jRecord, marcRecord, null);
+
     importMarc4jDataFields(marc4jRecord, marcRecord, picaSchemaManager);
+
     return marcRecord;
   }
 
@@ -183,23 +181,17 @@ public class MarcFactory {
         data = data.replace(replecementInControlFields, " ");
       switch (controlField.getTag()) {
         case "001":
-          marcRecord.setControl001(new Control001(data));
-          break;
+          marcRecord.setControl001(new Control001(data)); break;
         case "003":
-          marcRecord.setControl003(new Control003(data));
-          break;
+          marcRecord.setControl003(new Control003(data)); break;
         case "005":
-          marcRecord.setControl005(new Control005(data, marcRecord));
-          break;
+          marcRecord.setControl005(new Control005(data, marcRecord)); break;
         case "006":
-          marcRecord.setControl006(new Control006(data, marcRecord));
-          break;
+          marcRecord.setControl006(new Control006(data, marcRecord)); break;
         case "007":
-          marcRecord.setControl007(new Control007(data, marcRecord));
-          break;
+          marcRecord.setControl007(new Control007(data, marcRecord)); break;
         case "008":
-          marcRecord.setControl008(new Control008(data, marcRecord));
-          break;
+          marcRecord.setControl008(new Control008(data, marcRecord)); break;
         default:
           break;
       }
@@ -229,6 +221,7 @@ public class MarcFactory {
     for (org.marc4j.marc.DataField dataField : marc4jRecord.getDataFields()) {
       var definition = schema.lookup(dataField.getTag());
       if (definition == null) {
+        // System.err.println("getTag: " + dataField.getTag() + " ----");
         marcRecord.addUnhandledTags(dataField.getTag());
       }
       var field = extractPicaDataField(dataField, definition, MarcVersion.MARC21);
@@ -311,8 +304,8 @@ public class MarcFactory {
     return field;
   }
 
-  private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
-    List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());
+  private static List<String> extractList(JsonPathCache cache, String branch) {
+    List<XmlFieldInstance> instances = cache.get(branch);
     List<String> values = new ArrayList<>();
     if (instances != null)
       for (XmlFieldInstance instance : instances)
@@ -320,7 +313,7 @@ public class MarcFactory {
     return values;
   }
 
-  private static String extractFirst(JsonPathCache cache, JsonBranch branch) {
+  private static String extractFirst(JsonPathCache cache, String branch) {
     List<String> list = extractList(cache, branch);
     if (!list.isEmpty())
       return list.get(0);
@@ -470,6 +463,7 @@ public class MarcFactory {
     Record marc4jRecord = new RecordImpl();
     String id = null;
     for (PicaLine line : lines) {
+      // String tag = schema.containsKey(line.getQualifiedTag()) ? line.getQualifiedTag() : line.getTag();
       DataFieldImpl df = new DataFieldImpl(line.getQualifiedTag(), ' ', ' ');
       for (PicaSubfield picaSubfield : line.getSubfields()) {
         df.addSubfield(new SubfieldImpl(picaSubfield.getCode().charAt(0), picaSubfield.getValue()));
@@ -481,26 +475,5 @@ public class MarcFactory {
     if (id != null)
       marc4jRecord.addVariableField(new ControlFieldImpl("001", id));
     return marc4jRecord;
-  }
-  
-  // Dummy replacement for the removed de.gwdg.metadataqa.api.json.JsonBranch class.
-  private static class JsonBranch {
-    private final String path;
-    
-    public JsonBranch(String path) {
-      this.path = path;
-    }
-    
-    public String getJsonPath() {
-      return this.path;
-    }
-    
-    public String getLabel() {
-      return this.path;
-    }
-    
-    public Object getParent() {
-      return null;
-    }
   }
 }

@@ -1,19 +1,14 @@
-28a29
-> import java.nio.file.Files;
-30c31,32
+30c30
 < import org.cactoos.collection.Filtered;
 ---
-> import java.util.List;
-> import java.util.Collections;
-34a37
 > import org.cactoos.iterable.Filtered;
-36d38
+36d35
 < import org.cactoos.scalar.CheckedScalar;
-38d39
+38d36
 < import org.cactoos.scalar.UncheckedScalar;
-40d40
+40d37
 < import org.cactoos.text.SplitText;
-201,213c201,205
+201,213c198,204
 <             return new CheckedScalar<>(
 <                 () -> Long.parseUnsignedLong(
 <                     new ListOf<>(
@@ -28,62 +23,50 @@
 <                 e -> new IOException(e)
 <             ).value();
 ---
->             List<String> lines = Files.readAllLines(this.path);
->             if (lines.size() < 3) {
->                 throw new IOException("File does not contain enough lines to extract ID");
+>             try {
+>                 String content = new TextOf(this.path).asString();
+>                 String[] lines = content.split("\n");
+>                 return Long.parseUnsignedLong(lines[2], 16);
+>             } catch (Exception e) {
+>                 throw new IOException(e);
 >             }
->             return Long.parseUnsignedLong(lines.get(2), 16);
-240,241c232
-<                             other.id(),
-<                             this.id()
----
->                             this.id(), other.id()
-248,260c239,255
+248,250c239,243
 <                 incoming -> new Filtered<>(
 <                     origin -> new UncheckedScalar<>(
 <                         new Or(
-<                             () -> incoming.equals(origin),
+---
+>                 incoming -> new ListOf<>(
+>                     new Filtered<>(
+>                         origin -> {
+>                             try {
+>                                 return new Or(
+252,255c245,246
 <                             () -> incoming.id() == origin.id()
 <                                 && incoming.bnf().equals(origin.bnf()),
 <                             () -> incoming.id() == origin.id()
 <                                 && incoming.amount() < 0L,
-<                             () -> incoming.prefix().equals(origin.prefix())
+---
+>                                     () -> incoming.id() == origin.id() && incoming.bnf().equals(origin.bnf()),
+>                                     () -> incoming.id() == origin.id() && incoming.amount() < 0L,
+257,258c248,252
 <                         )
 <                     ).value(),
-<                     ledger
-<                 ).isEmpty(),
 ---
->                 incoming -> {
->                     boolean found = false;
->                     for (Transaction origin : ledger) {
->                         try {
->                             if (incoming.equals(origin)
->                                 || (incoming.id() == origin.id() && incoming.bnf().equals(origin.bnf()))
->                                 || (incoming.id() == origin.id() && incoming.amount() < 0L)
->                                 || incoming.prefix().equals(origin.prefix())) {
->                                 found = true;
->                                 break;
+>                                 ).value();
+>                             } catch (Exception ex) {
+>                                 throw new RuntimeException(ex);
 >                             }
->                         } catch (Exception e) {
->                             throw new RuntimeException(e);
->                         }
->                     }
->                     return !found;
->                 },
-270a266,275
->             List<String> lines;
->             try {
->                 lines = Files.readAllLines(this.path);
->             } catch (IOException ex) {
->                 throw new RuntimeException(ex);
->             }
->             if (lines.size() <= 5) {
->                 return Collections.emptyList();
->             }
->             List<String> txLines = lines.subList(5, lines.size());
-272,282c277,278
+>                         },
+259a254
+>                     )
+270a266,267
+>             String content = new TextOf(this.path).asString();
+>             String[] lines = content.split("\\n");
+272c269
 <                 txt -> new RtTransaction(txt.asString()),
-<                 new Skipped<>(
+---
+>                 txt -> new RtTransaction(txt),
+274,280c271
 <                     new ListOf<>(
 <                         new SplitText(
 <                             new TextOf(this.path),
@@ -91,8 +74,5 @@
 <                         )
 <                     ),
 <                     // @checkstyle MagicNumberCheck (1 line)
-<                     5
-<                 )
 ---
->                 line -> new RtTransaction(line),
->                 txLines
+>                     new ListOf<>(lines),

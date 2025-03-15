@@ -16,13 +16,14 @@ import com.pholser.junit.quickcheck.random.SourceOfRandomness;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RegisterGeneratorsByConventionTest {
     private GeneratorRepository repo;
-    @org.mockito.Mock private SourceOfRandomness random;
-    @org.mockito.Mock private GenerationStatus generationStatus;
+    @Mock private SourceOfRandomness random;
+    @Mock private GenerationStatus generationStatus;
 
     @Before
     public void setupRepository() {
@@ -64,6 +65,7 @@ public class RegisterGeneratorsByConventionTest {
 
         assertThat(
             ex.getMessage(),
-            containsString("Cannot find generator for " + valueClass.getName()));
+            containsString(
+                "Cannot find generator for " + valueClass.getName()));
     }
 }

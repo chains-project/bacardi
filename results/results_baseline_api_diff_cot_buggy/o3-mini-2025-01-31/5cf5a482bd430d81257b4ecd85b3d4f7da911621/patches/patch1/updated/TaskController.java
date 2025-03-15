@@ -12,6 +12,8 @@ import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.mvc.View;
+import jakarta.mvc.binding.BindingResult;
+import jakarta.mvc.binding.ParamError;
 import jakarta.mvc.security.CsrfProtected;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -37,6 +39,9 @@ public class TaskController {
 
     @Inject
     private Models models;
+
+    @Inject
+    private BindingResult validationResult;
 
     @Inject
     TaskRepository taskRepository;
@@ -84,6 +89,18 @@ public class TaskController {
     public Response save(@Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "saving new task @{0}", form);
 
+        if (validationResult.isFailed()) {
+            AlertMessage alert = AlertMessage.danger("Validation voilations!");
+            validationResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
+            models.put("errors", alert);
+            models.put("task", form);
+            return Response.status(BAD_REQUEST).entity("add.xhtml").build();
+        }
+
         Task task = new Task();
         task.setName(form.getName());
         task.setDescription(form.getDescription());
@@ -116,7 +133,20 @@ public class TaskController {
     public Response update(@PathParam(value = "id") Long id, @Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "updating existed task@id:{0}, form data:{1}", new Object[]{id, form});
 
+        if (validationResult.isFailed()) {
+            AlertMessage alert = AlertMessage.danger("Validation voilations!");
+            validationResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
+            models.put("errors", alert);
+            models.put("task", form);
+            return Response.status(BAD_REQUEST).entity("edit.xhtml").build();
+        }
+
         Task task = taskRepository.findById(id);
+
         task.setName(form.getName());
         task.setDescription(form.getDescription());
 
@@ -133,6 +163,7 @@ public class TaskController {
         log.log(Level.INFO, "updating status of the existed task@id:{0}, status:{1}", new Object[]{id, status});
 
         Task task = taskRepository.findById(id);
+
         task.setStatus(Task.Status.valueOf(status));
 
         taskRepository.update(task);

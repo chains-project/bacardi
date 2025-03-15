@@ -1,53 +1,26 @@
-21,24c21
-< import com.hazelcast.config.MapConfig;
+22c22
 < import com.hazelcast.config.MaxSizeConfig;
-< import com.hazelcast.config.MemberAttributeConfig;
-< import com.hazelcast.config.MemcacheProtocolConfig;
 ---
 > import com.hazelcast.config.EvictionConfig;
-27c24,26
+27c27,28
 < import com.hazelcast.core.Cluster;
 ---
-> import com.hazelcast.config.MemcacheProtocolConfig;
 > import com.hazelcast.cluster.Cluster;
 > import com.hazelcast.cluster.Member;
-30d28
+30d30
 < import com.hazelcast.core.Member;
-43a42
-> import org.jivesoftware.openfire.plugin.util.cache.ClusteredCache;
-148d146
-<     private static HazelcastInstance hazelcast = null;
-149a148
->     private static HazelcastInstance hazelcast = null;
-193,195c192,194
-<                 final MemberAttributeConfig memberAttributeConfig = config.getMemberAttributeConfig();
-<                 memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
-<                 memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
----
->                 final com.hazelcast.config.MemberAttributeConfig memberAttributeConfig = config.getMemberAttributeConfig();
->                 memberAttributeConfig.setAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
->                 memberAttributeConfig.setAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
-284c283
-<         final MapConfig staticConfig = hazelcast.getConfig().getMapConfigOrNull(name);
----
->         final com.hazelcast.config.MapConfig staticConfig = hazelcast.getConfig().getMapConfigOrNull(name);
-286c285
-<             final MapConfig dynamicConfig = new MapConfig(name);
----
->             final com.hazelcast.config.MapConfig dynamicConfig = new com.hazelcast.config.MapConfig(name);
-288c287,289
+288c288,289
 <             dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));
 ---
->             dynamicConfig.setEvictionConfig(new EvictionConfig()
->                     .setSize(hazelcastMaxCacheSizeInMegaBytes)
->                     .setMaximumSizePolicy(EvictionConfig.MaxSizePolicy.USED_HEAP_SIZE));
+>             dynamicConfig.getEvictionConfig().setSize(hazelcastMaxCacheSizeInMegaBytes);
+>             dynamicConfig.getEvictionConfig().setMaxSizePolicy(EvictionConfig.MaxSizePolicy.USED_HEAP_SIZE);
 378d378
 < 
 656c656,657
 <         return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));
 ---
->         String nodeIdStr = (String) member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE);
->         return NodeID.getInstance(nodeIdStr.getBytes(StandardCharsets.UTF_8));
+>         String nodeId = (String) member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE);
+>         return NodeID.getInstance(nodeId.getBytes(StandardCharsets.UTF_8));
 701,703d701
 < 
 < 

@@ -1,13 +1,16 @@
-9c9,10
+7a8
+> import com.amihaiemil.eoyaml.YamlMapping;
+9c10,11
 < import com.artipie.asto.factory.Storages;
 ---
-> import com.artipie.asto.factory.StorageFactory;
-> import com.artipie.asto.factory.YamlStorageConfig;
-43,44c44,47
+> import com.artipie.asto.fs.FileStorageFactory;
+> import com.artipie.asto.factory.Config;
+40a43,44
+>             final YamlMapping mapping = Yaml.createYamlInput(sub.toString()).readYamlMapping();
+>             final Config storageConfig = Config.fromYaml(mapping);
+43,45c47
 <                     new Storages().newStorage(
 <                         sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
+<                     )
 ---
->                     StorageFactory.newStorage(
->                         new YamlStorageConfig(
->                             Yaml.createYamlInput(sub.toString()).readYamlMapping()
->                         )
+>                     new FileStorageFactory().newStorage(storageConfig)

@@ -57,6 +57,8 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
 
   private static final int MAX_RETRIES_FOR_SELECTION_RANDOM_PARTITION = 10;
 
+  private static final int PARTITIONS_REFRESH_INTERVAL_IN_SECONDS = 30;
+
   /**
    *  When sender send audit events to Kafka,  it chooses a random partition and if it fails, it
    *  will choose another GOOD partition, this retry will happen at most numOfPartitionsToTrySending
@@ -189,7 +191,6 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
       throw new RuntimeException("Failed to initialize TSerializer", e);
     }
   }
-
 
   public KafkaProducer<byte[], byte[]> getKafkaProducer() {
     return kafkaProducer;

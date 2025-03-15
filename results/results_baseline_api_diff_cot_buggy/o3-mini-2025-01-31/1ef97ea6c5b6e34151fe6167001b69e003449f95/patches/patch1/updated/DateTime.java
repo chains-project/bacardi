@@ -41,7 +41,9 @@ public class DateTime extends DateAndTime {
   }
 
   public Timestamp between(Date from, Date to) throws IllegalArgumentException {
-    return new Timestamp(super.between(new Timestamp(from.getTime()), new Timestamp(to.getTime())).getTime());
+    Timestamp tsFrom = new Timestamp(from.getTime());
+    Timestamp tsTo = new Timestamp(to.getTime());
+    return new Timestamp(super.between(tsFrom, tsTo).getTime());
   }
 
   @Override

@@ -40,7 +40,7 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
 /**
- * Rule that creates and drops an AWS subj.
+ * Rule that creates and drops an AWS bucket.
  *
  * @author Yegor Bugayenko (yegor256@gmail.com)
  * @version $Id: 49d563c1e0af9dae0fbd7d9a97be7c07e52e6612 $
@@ -97,7 +97,7 @@ final class BucketRule implements TestRule {
     }
 
     /**
-     * Create S3 subj.
+     * Create S3 bucket.
      * @throws Exception If fails
      */
     private void create() throws Exception {
@@ -118,7 +118,7 @@ final class BucketRule implements TestRule {
     }
 
     /**
-     * Drop S3 subj.
+     * Drop S3 bucket.
      * @throws Exception If fails
      */
     private void drop() throws Exception {

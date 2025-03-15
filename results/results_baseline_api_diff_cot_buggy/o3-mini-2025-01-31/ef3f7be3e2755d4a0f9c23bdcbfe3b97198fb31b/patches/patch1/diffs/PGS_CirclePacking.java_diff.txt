@@ -1,43 +1,35 @@
-26,28d25
+23,28c23,26
+< import org.tinfour.common.IIncrementalTin;
+< import org.tinfour.common.SimpleTriangle;
+< import org.tinfour.common.Vertex;
 < import org.tinspin.index.PointDistanceFunction;
 < import org.tinspin.index.PointEntryDist;
 < import org.tinspin.index.covertree.CoverTree;
-165d161
-<          * 
-203c199,200
+---
+> // Removed imports for the removed dependency API
+> // import org.tinspin.index.PointEntryDist;
+> // import org.tinspin.index.covertree.CoverTree;
+> // import org.tinspin.index.PointDistanceFunction;
+158c156
+<          *         the center point and .z represents radius.
+---
+>          *         the center point, and .z represents the radius.
+203c201
 <                 final CoverTree<PVector> tree = CoverTree.create(3, 2, circleDistanceMetric);
 ---
->                 // Replace spatial index with a simple list for linear search due to API changes
->                 final List<PVector> treeList = new ArrayList<>();
-213,214c210
-<                 // Model shape vertices as circles of radius 0, to constrain packed circles
-<                 // within shape edge
----
->                 // Model shape vertices as circles of radius 0, to constrain packed circles within shape edge
-216,217c212,216
-<                 Collections.shuffle(vertices); // shuffle vertices to reduce tree imbalance during insertion
+>                 final SimpleCircleIndex tree = new SimpleCircleIndex();
+217c215,218
 <                 vertices.forEach(p -> tree.insert(new double[] { p.x, p.y, 0 }, p));
 ---
->                 Collections.shuffle(vertices); // shuffle vertices to reduce imbalance during insertion
->                 vertices.forEach(p -> {
+>                 for (PVector p : vertices) {
 >                         p.z = 0;
->                         treeList.add(p);
->                 });
-220,221c219,222
-<                  * "To find the circle nearest to a center (x, y), do a proximity search at (x,
-<                  * y, R), where R is greater than or equal to the maximum radius of a circle."
----
->                  * For each candidate point, compute the maximum possible radius such that the circle
->                  * is tangent to the nearest circle (from treeList). This is computed as:
->                  *    radius = distance(candidate, existing circle center) - (existing circle radius)
->                  * We take the minimum such value over all existing circles.
-223c224
-<                 float largestR = 0; // the radius of the largest circle in the tree
----
->                 float largestR = 0; // the radius of the largest circle added so far
-226,239c227,237
+>                         tree.insert(p);
+>                 }
+226c227
 <                         final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
-< 
+---
+>                         final PVector nn = tree.queryNearest(p.x, p.y, largestR); // find nearest-neighbour circle
+228,235c229,231
 <                         /*
 <                          * nn.dist() does not return the radius (since it's a distance metric used to
 <                          * find nearest circle), so calculate maximum radius for candidate circle using
@@ -46,23 +38,15 @@
 <                         final float dx = p.x - nn.value().x;
 <                         final float dy = p.y - nn.value().y;
 <                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z);
-<                         if (radius > minRadius) {
-<                                 largestR = (radius >= largestR) ? radius : largestR;
-<                                 p.z = radius;
+---
+>                         final float dx = p.x - nn.x;
+>                         final float dy = p.y - nn.y;
+>                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.z);
+239c235
 <                                 tree.insert(new double[] { p.x, p.y, radius }, p); // insert circle into tree
 ---
->                         float candidateRadius = Float.MAX_VALUE;
->                         for (PVector q : treeList) {
->                                 float dx = p.x - q.x;
->                                 float dy = p.y - q.y;
->                                 float d = (float) Math.sqrt(dx * dx + dy * dy) - q.z;
->                                 candidateRadius = Math.min(candidateRadius, d);
->                         }
->                         if (candidateRadius > minRadius) {
->                                 largestR = Math.max(largestR, candidateRadius);
->                                 p.z = candidateRadius;
->                                 treeList.add(p);
-627,656d624
+>                                 tree.insert(p);
+627,656d622
 <          * Calculate the distance between two points in 3D space, where each point
 <          * represents a circle with (x, y, r) coordinates. This custom metric considers
 <          * both the Euclidean distance between the centers of the circles and the
@@ -93,3 +77,31 @@
 <         };
 < 
 <         /**
+662a629,655
+> 
+>         // Removed the old circleDistanceMetric and related dependency code.
+> 
+>         // SimpleCircleIndex performs a brute-force nearest neighbor search for circles.
+>         private static class SimpleCircleIndex {
+>                 private final List<PVector> points = new ArrayList<>();
+> 
+>                 public void insert(PVector circle) {
+>                         points.add(circle);
+>                 }
+> 
+>                 public PVector queryNearest(float x, float y, float queryRadius) {
+>                         PVector best = null;
+>                         float bestMetric = Float.POSITIVE_INFINITY;
+>                         for (PVector v : points) {
+>                                 float dx = x - v.x;
+>                                 float dy = y - v.y;
+>                                 float metric = (float) Math.sqrt(dx * dx + dy * dy) - v.z;
+>                                 if (metric < bestMetric) {
+>                                         bestMetric = metric;
+>                                         best = v;
+>                                 }
+>                         }
+>                         // In case there are no points inserted, which shouldn't happen because vertices are inserted first.
+>                         return best != null ? best : new PVector(x, y, 0);
+>                 }
+>         }

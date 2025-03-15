@@ -2,50 +2,51 @@
 < import com.google.api.services.translate.model.DetectionsResourceItems;
 < import com.google.api.services.translate.model.LanguagesResource;
 < import com.google.api.services.translate.model.TranslationsResource;
-43,45c40,41
+43c40
 <   private static final Function<List<DetectionsResourceItems>, Detection>
-<       DETECTION_FROM_PB_FUNCTION =
+---
+>   private static final Function<List<Map<String, Object>>, Detection>
+45c42
 <           new Function<List<DetectionsResourceItems>, Detection>() {
 ---
->   private static final Function<List<Object>, Detection> DETECTION_FROM_PB_FUNCTION =
->       new Function<List<Object>, Detection>() {
-47c43
+>           new Function<List<Map<String, Object>>, Detection>() {
+47c44
 <             public Detection apply(List<DetectionsResourceItems> detectionPb) {
 ---
->         public Detection apply(List<Object> detectionPb) {
-62c58
+>             public Detection apply(List<Map<String, Object>> detectionPb) {
+62c59
 <               new Callable<List<LanguagesResource>>() {
 ---
->               new Callable<List<Object>>() {
-64c60
+>               new Callable<List<Map<String, Object>>>() {
+64c61
 <                 public List<LanguagesResource> call() {
 ---
->                 public List<Object> call() {
-80c76
+>                 public List<Map<String, Object>> call() {
+80c77
 <       List<List<DetectionsResourceItems>> detectionsPb =
 ---
->       List<List<Object>> detectionsPb =
-82c78
+>       List<List<Map<String, Object>>> detectionsPb =
+82c79
 <               new Callable<List<List<DetectionsResourceItems>>>() {
 ---
->               new Callable<List<List<Object>>>() {
-84c80
+>               new Callable<List<List<Map<String, Object>>>>() {
+84c81
 <                 public List<List<DetectionsResourceItems>> call() {
 ---
->                 public List<List<Object>> call() {
-91c87
+>                 public List<List<Map<String, Object>>> call() {
+91c88
 <       Iterator<List<DetectionsResourceItems>> detectionIterator = detectionsPb.iterator();
 ---
->       Iterator<List<Object>> detectionIterator = detectionsPb.iterator();
-94c90
+>       Iterator<List<Map<String, Object>>> detectionIterator = detectionsPb.iterator();
+94c91
 <         List<DetectionsResourceItems> detectionPb = detectionIterator.next();
 ---
->         List<Object> detectionPb = detectionIterator.next();
-121c117
+>         List<Map<String, Object>> detectionPb = detectionIterator.next();
+121c118
 <               new Callable<List<TranslationsResource>>() {
 ---
->               new Callable<List<Object>>() {
-123c119
+>               new Callable<List<Map<String, Object>>>() {
+123c120
 <                 public List<TranslationsResource> call() {
 ---
->                 public List<Object> call() {
+>                 public List<Map<String, Object>> call() {
