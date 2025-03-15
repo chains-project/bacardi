@@ -19,9 +19,7 @@ import com.pinterest.singer.thrift.LogMessage;
 
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.Context;
-import ch.qos.logback.core.encoder.Encoder;
-import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
-import ch.qos.logback.core.Layout;
+import ch.qos.logback.core.encoder.EncoderBase;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
@@ -36,7 +34,6 @@ import org.apache.thrift.transport.TTransport;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
 
 /**
  * Utils to create logback appenders
@@ -51,7 +48,7 @@ public class AppenderUtils {
   /**
    * Encoder for LogMessage objects.
    */
-  public static class LogMessageEncoder extends LayoutWrappingEncoder<LogMessage> {
+  public static class LogMessageEncoder extends EncoderBase<LogMessage> {
 
     private TTransport framedTransport;
     private TProtocol protocol;
@@ -78,9 +75,9 @@ public class AppenderUtils {
       try {
         logMessage.write(protocol);
         framedTransport.flush();
-        return new byte[0]; // Return an empty byte array as the message is directly written to the output stream
+        return new byte[0]; // Return an empty byte array as encode() requires a return value
       } catch (TException | IOException e) {
-        throw new RuntimeException(e);
+        throw new RuntimeException(e); // Or handle the exception as appropriate
       }
     }
 
@@ -93,6 +90,7 @@ public class AppenderUtils {
     public byte[] footerBytes() {
       return null;
     }
+
 
     @Override
     public void close() throws IOException {
@@ -121,7 +119,6 @@ public class AppenderUtils {
     appender.setPrudent(false);
 
     LogMessageEncoder encoder = new LogMessageEncoder();
-    encoder.setCharset(Charset.defaultCharset());
     appender.setEncoder(encoder);
     appender.setFile(basePath + PATH_SEP + topic);
 

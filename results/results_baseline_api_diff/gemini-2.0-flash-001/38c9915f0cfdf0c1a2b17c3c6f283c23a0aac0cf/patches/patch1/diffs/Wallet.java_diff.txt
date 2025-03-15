@@ -1,14 +1,22 @@
-18c18
+10,11c10
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+---
+>  * copies of the Software, and to permit persons to do so, subject to the following conditions:
+18c17
 <  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
 ---
 >  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-30c30,33
+30,31c29,34
 < import org.cactoos.collection.Filtered;
+< import org.cactoos.iterable.IterableOf;
 ---
-> import java.util.ArrayList;
-> import java.util.Iterator;
-> import java.util.List;
-> import java.util.function.Predicate;
+> import java.util.stream.Collectors;
+> import java.util.stream.StreamSupport;
+> import org.cactoos.Func;
+> import org.cactoos.Scalar;
+> import org.cactoos.Text;
+> import org.cactoos.collection.IterableOf;
 36d38
 < import org.cactoos.scalar.CheckedScalar;
 38d39
@@ -19,62 +27,52 @@
 <             return new CheckedScalar<>(
 <                 () -> Long.parseUnsignedLong(
 ---
->             try {
->                 return Long.parseUnsignedLong(
-204c204
+>             return new org.cactoos.scalar.Checked<>(
+>                 (Scalar<Long>) () -> Long.parseUnsignedLong(
+204,208c204,205
 <                         new SplitText(
+<                             new TextOf(this.path),
+<                             "\n"
+<                         )
+<                     ).get(2).asString(),
 ---
->                         new org.cactoos.text.Split(
-211,213c211,214
-<                 ),
-<                 e -> new IOException(e)
-<             ).value();
----
->                 );
->             } catch (final Exception e) {
->                 throw new IOException(e);
->             }
-247,262c248,265
+>                         new TextOf(this.path).asString().split("\n")
+>                     ).get(2),
+247,250c244,249
 <             final Iterable<Transaction> candidates = new Filtered<>(
 <                 incoming -> new Filtered<>(
 <                     origin -> new UncheckedScalar<>(
 <                         new Or(
-<                             () -> incoming.equals(origin),
-<                             () -> incoming.id() == origin.id()
-<                                 && incoming.bnf().equals(origin.bnf()),
-<                             () -> incoming.id() == origin.id()
-<                                 && incoming.amount() < 0L,
-<                             () -> incoming.prefix().equals(origin.prefix())
-<                         )
+---
+>             final Iterable<Transaction> candidates = StreamSupport.stream(other.ledger().spliterator(), false)
+>                 .filter(incoming -> StreamSupport.stream(ledger.spliterator(), false)
+>                     .noneMatch(origin -> {
+>                         try {
+>                             return new org.cactoos.scalar.Unchecked<>(
+>                                 (Scalar<Boolean>) () -> new Or(
+256a256,261
+>                                 ).value()
+>                             ).value();
+>                         } catch (final Exception ex) {
+>                             throw new IllegalStateException(ex);
+>                         }
+>                     })
+258,262c263
 <                     ).value(),
 <                     ledger
 <                 ).isEmpty(),
 <                 other.ledger()
 <             );
 ---
->             final List<Transaction> filteredCandidates = new ArrayList<>();
->             for (final Transaction incoming : other.ledger()) {
->                 boolean found = false;
->                 for (final Transaction origin : ledger) {
->                     if (incoming.equals(origin)
->                         || (incoming.id() == origin.id()
->                         && incoming.bnf().equals(origin.bnf()))
->                         || (incoming.id() == origin.id()
->                         && incoming.amount() < 0L)
->                         || incoming.prefix().equals(origin.prefix())) {
->                         found = true;
->                         break;
->                     }
->                 }
->                 if (!found) {
->                     filteredCandidates.add(incoming);
->                 }
->             }
-265c268
+>                 .collect(Collectors.toList());
+265c266
 <                 new Joined<Transaction>(ledger, candidates)
 ---
->                 new Joined<Transaction>(ledger, new IterableOf<>(filteredCandidates))
-275c278
+>                 new Joined<Transaction>(ledger, (Iterable<Transaction>) candidates)
+275,278c276
 <                         new SplitText(
+<                             new TextOf(this.path),
+<                             "\\n"
+<                         )
 ---
->                         new org.cactoos.text.Split(
+>                         new TextOf(this.path).asString().split("\\n")

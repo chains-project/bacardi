@@ -7,8 +7,7 @@
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * copies of the Software, and to permit persons to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
@@ -27,11 +26,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.function.Predicate;
-import org.cactoos.iterable.IterableOf;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+import org.cactoos.Func;
+import org.cactoos.Scalar;
+import org.cactoos.Text;
+import org.cactoos.collection.IterableOf;
 import org.cactoos.iterable.Joined;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Skipped;
@@ -198,20 +198,16 @@ public interface Wallet {
 
         @Override
         public long id() throws IOException {
-            try {
-                return Long.parseUnsignedLong(
+            return new org.cactoos.scalar.Checked<>(
+                (Scalar<Long>) () -> Long.parseUnsignedLong(
                     new ListOf<>(
-                        new org.cactoos.text.Split(
-                            new TextOf(this.path),
-                            "\n"
-                        )
-                    ).get(2).asString(),
+                        new TextOf(this.path).asString().split("\n")
+                    ).get(2),
                     // @checkstyle MagicNumber (1 line)
                     16
-                );
-            } catch (final Exception e) {
-                throw new IOException(e);
-            }
+                ),
+                e -> new IOException(e)
+            ).value();
         }
 
         @Override
@@ -245,27 +241,29 @@ public interface Wallet {
                 );
             }
             final Iterable<Transaction> ledger = this.ledger();
-            final List<Transaction> filteredCandidates = new ArrayList<>();
-            for (final Transaction incoming : other.ledger()) {
-                boolean found = false;
-                for (final Transaction origin : ledger) {
-                    if (incoming.equals(origin)
-                        || (incoming.id() == origin.id()
-                        && incoming.bnf().equals(origin.bnf()))
-                        || (incoming.id() == origin.id()
-                        && incoming.amount() < 0L)
-                        || incoming.prefix().equals(origin.prefix())) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    filteredCandidates.add(incoming);
-                }
-            }
+            final Iterable<Transaction> candidates = StreamSupport.stream(other.ledger().spliterator(), false)
+                .filter(incoming -> StreamSupport.stream(ledger.spliterator(), false)
+                    .noneMatch(origin -> {
+                        try {
+                            return new org.cactoos.scalar.Unchecked<>(
+                                (Scalar<Boolean>) () -> new Or(
+                                    () -> incoming.equals(origin),
+                                    () -> incoming.id() == origin.id()
+                                        && incoming.bnf().equals(origin.bnf()),
+                                    () -> incoming.id() == origin.id()
+                                        && incoming.amount() < 0L,
+                                    () -> incoming.prefix().equals(origin.prefix())
+                                ).value()
+                            ).value();
+                        } catch (final Exception ex) {
+                            throw new IllegalStateException(ex);
+                        }
+                    })
+                )
+                .collect(Collectors.toList());
             return new Wallet.Fake(
                 this.id(),
-                new Joined<Transaction>(ledger, new IterableOf<>(filteredCandidates))
+                new Joined<Transaction>(ledger, (Iterable<Transaction>) candidates)
             );
         }
 
@@ -275,10 +273,7 @@ public interface Wallet {
                 txt -> new RtTransaction(txt.asString()),
                 new Skipped<>(
                     new ListOf<>(
-                        new org.cactoos.text.Split(
-                            new TextOf(this.path),
-                            "\\n"
-                        )
+                        new TextOf(this.path).asString().split("\\n")
                     ),
                     // @checkstyle MagicNumberCheck (1 line)
                     5

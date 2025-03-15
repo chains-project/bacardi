@@ -7,7 +7,7 @@
 29c30
 <     public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
 ---
->     public void onPlayerPreLogin(ServerSideConnectionEvent.Auth preLoginEvent) {
+>     public void onPlayerPreLogin(ServerSideConnectionEvent.Login preLoginEvent) {
 31c32,33
 <         GameProfile profile = preLoginEvent.getProfile();
 ---
@@ -16,4 +16,4 @@
 45c47
 <             String playerName = profile.getName().get();
 ---
->             String playerName = profile.getName().orElse(null);
+>             String playerName = player.getName();

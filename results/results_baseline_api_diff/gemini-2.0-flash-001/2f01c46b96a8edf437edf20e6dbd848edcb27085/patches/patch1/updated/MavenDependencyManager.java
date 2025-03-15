@@ -158,35 +158,20 @@ public class MavenDependencyManager implements DependencyManagerWrapper {
   @Override
   public Set<String> collectUsedClassesFromProcessors() {
     getLog().debug("# collectUsedClassesFromProcessors()");
-    Plugin plugin = project.getPlugin("org.bsc.maven:maven-processor-plugin");
-    if (plugin == null) {
-      return of();
-    }
-
-    Object configuration = plugin.getExecutionsAsMap().get("process").getConfiguration();
-
-    if (configuration == null) {
-      return of();
-    }
-
-    if (!(configuration instanceof Xpp3Dom)) {
-      return of();
-    }
-
-    Xpp3Dom config = (Xpp3Dom) configuration;
-    Xpp3Dom processors = config.getChild("processors");
-
-    if (processors == null) {
-      return of();
-    }
-
-    Xpp3Dom[] processorArray = processors.getChildren();
-
-    if (processorArray == null) {
-      return of();
-    }
-
-    return Arrays.stream(processorArray).map(Xpp3Dom::getValue).collect(Collectors.toSet());
+    return Optional.ofNullable(project.getPlugin("org.bsc.maven:maven-processor-plugin"))
+        .map(plugin -> plugin.getExecutionsAsMap().get("process"))
+        .map(exec -> exec.getConfiguration())
+        .map(config -> {
+          if (config instanceof Xpp3Dom) {
+            return (Xpp3Dom) config;
+          } else {
+            return null;
+          }
+        })
+        .map(config -> config.getChild("processors"))
+        .map(Xpp3Dom::getChildren)
+        .map(arr -> Arrays.stream(arr).map(Xpp3Dom::getValue).collect(Collectors.toSet()))
+        .orElse(of());
   }
 
   @Override

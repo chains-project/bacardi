@@ -125,13 +125,14 @@ public class WWCTranslateGUISourceLanguage implements InventoryProvider {
 				/* Add Glow Effect */
 				skipSourceMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 				ArrayList<String> lore = new ArrayList<>();
-				Enchantment ench = XEnchantment.matchXEnchantment("power").get().getEnchant();
 				if ((currTranslator.getInLangCode().equals("None"))) {
+					Enchantment ench = XEnchantment.matchXEnchantment("power").get().getEnchant();
 					if (ench != null) {
 						skipSourceMeta.addEnchant(ench, 1, false);
 					}
 					lore.add(ChatColor.GREEN + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwctGUISourceTranslationSelected"));
 				} else if (selectedSourceLanguage.equalsIgnoreCase("None")) {
+					Enchantment ench = XEnchantment.matchXEnchantment("power").get().getEnchant();
 					if (ench != null) {
 						skipSourceMeta.addEnchant(ench, 1, false);
 					}

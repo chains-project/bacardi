@@ -1,6 +1,8 @@
 36d35
 < import org.yaml.snakeyaml.inspector.TrustedTagInspector;
-66c65
+66c65,67
 <         loadingConfig.setTagInspector(new TrustedTagInspector());
 ---
->         // loadingConfig.setTagInspector(new TrustedTagInspector()); // Removed due to TrustedTagInspector removal
+>         loadingConfig.setAllowDuplicateKeys(false);
+>         loadingConfig.setAllowRecursiveKeys(false);
+>         loadingConfig.setMaxAliasesForCollections(100);

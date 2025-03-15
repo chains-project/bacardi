@@ -5,7 +5,6 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
-import jakarta.mvc.UriRef;
 import jakarta.mvc.binding.BindingResult;
 import jakarta.mvc.binding.MvcBinding;
 import jakarta.mvc.security.CsrfProtected;
@@ -14,8 +13,8 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import jakarta.mvc.binding.ValidationError;
 import java.util.stream.Collectors;
+import javax.validation.ConstraintViolation;
 
 /**
  *
@@ -51,10 +50,11 @@ public class CsrfController {
             @NotBlank String greeting) {
         if (bindingResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            bindingResult.getAllErrors()
+            bindingResult.getAllViolations()
                     .stream()
-                    .forEach((ValidationError t) -> {
-                        alert.addError(t.getParamName(), "", t.getMessage());
+                    .forEach((ConstraintViolation<?> t) -> {
+                        String paramName = t.getPropertyPath().toString();
+                        alert.addError(paramName, "", t.getMessage());
                     });
             models.put("errors", alert);
             log.info("mvc binding failed.");

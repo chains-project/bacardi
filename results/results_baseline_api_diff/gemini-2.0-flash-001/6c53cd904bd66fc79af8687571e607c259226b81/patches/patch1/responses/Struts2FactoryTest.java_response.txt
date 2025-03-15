@@ -16,6 +16,7 @@
 
 package com.google.inject.struts2;
 
+import org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -25,7 +26,6 @@ import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
 import java.util.Date;
 import junit.framework.TestCase;
-import org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter;
 
 /**
  * Test for Struts2Factory

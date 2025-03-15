@@ -17,6 +17,7 @@ import com.google.inject.Singleton;
 import java.nio.file.Path;
 import java.util.UUID;
 
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.slf4j.Logger;
 import org.spongepowered.api.Platform;
@@ -24,12 +25,12 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
-import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
-import org.spongepowered.api.event.server.StoppingServerEvent;
+import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
+import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
+import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 import org.spongepowered.api.network.channel.raw.RawDataChannel;
-import org.spongepowered.api.network.channel.raw.RawDataChannel.Listener;
 import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.plugin.PluginContainer;
 
 import static com.github.games647.changeskin.core.message.CheckPermMessage.CHECK_PERM_CHANNEL;
 import static com.github.games647.changeskin.core.message.SkinUpdateMessage.UPDATE_SKIN_CHANNEL;
@@ -42,6 +43,7 @@ public class ChangeSkinSponge implements PlatformPlugin<org.spongepowered.api.co
     private final Path dataFolder;
     private final Logger logger;
     private final Injector injector;
+    private final PluginContainer pluginContainer;
 
     private final ChangeSkinCore core = new ChangeSkinCore(this);
     private final SpongeSkinAPI api = new SpongeSkinAPI(this);
@@ -50,14 +52,15 @@ public class ChangeSkinSponge implements PlatformPlugin<org.spongepowered.api.co
 
     //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
     @Inject
-    ChangeSkinSponge(Logger logger, @ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
+    ChangeSkinSponge(Logger logger, @ConfigDir(sharedRoot = false) Path dataFolder, Injector injector, PluginContainer pluginContainer) {
         this.dataFolder = dataFolder;
         this.logger = logger;
         this.injector = injector.createChildInjector(binder -> binder.bind(ChangeSkinCore.class).toInstance(core));
+        this.pluginContainer = pluginContainer;
     }
 
     @Listener
-    public void onPreInit(StartingEngineEvent<org.spongepowered.api.Server> preInitEvent) {
+    public void onConstructPlugin(ConstructPluginEvent constructEvent) {
         //load config and database
         try {
             core.load(true);
@@ -68,32 +71,34 @@ public class ChangeSkinSponge implements PlatformPlugin<org.spongepowered.api.co
     }
 
     @Listener
-    public void onInit(RegisterCommandEvent initEvent) {
+    public void onInit(StartedEngineEvent<org.spongepowered.api.Server> initEvent) {
         if (!initialized) {
             return;
         }
 
-        initEvent.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
-        initEvent.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
-        initEvent.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
-        initEvent.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
-        initEvent.register(this, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
-
+        //command and event register
         Sponge.eventManager().registerListeners(this, injector.getInstance(LoginListener.class));
+
+        registerCommands();
 
         //incoming channel
         String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
         String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
 
-        RawDataChannel updateChannel = Sponge.channelRegistry().register(updateChannelName, RawDataChannel.class);
-        RawDataChannel permChannel = Sponge.channelRegistry().register(permissionChannelName, RawDataChannel.class);
+        Sponge.channelRegistry().register(updateChannelName, injector.getInstance(UpdateSkinListener.class));
+        Sponge.channelRegistry().register(permissionChannelName, injector.getInstance(CheckPermissionListener.class));
+    }
 
-        updateChannel.addListener(injector.getInstance(UpdateSkinListener.class));
-        permChannel.addListener(injector.getInstance(CheckPermissionListener.class));
+    private void registerCommands() {
+        Sponge.commandManager().register(pluginContainer, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+        Sponge.commandManager().register(pluginContainer, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+        Sponge.commandManager().register(pluginContainer, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+        Sponge.commandManager().register(pluginContainer, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+        Sponge.commandManager().register(pluginContainer, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
     }
 
     @Listener
-    public void onShutdown(StoppingServerEvent stoppingServerEvent) {
+    public void onShutdown(StoppingEngineEvent<org.spongepowered.api.Server> stoppingServerEvent) {
         core.close();
     }
 
@@ -138,7 +143,8 @@ public class ChangeSkinSponge implements PlatformPlugin<org.spongepowered.api.co
     public void sendMessage(org.spongepowered.api.command.CommandCause receiver, String key) {
         String message = core.getMessage(key);
         if (message != null && receiver != null) {
-            receiver.sendMessage(LegacyComponentSerializer.legacySection().deserialize(message));
+            Component component = LegacyComponentSerializer.legacySection().deserialize(message);
+            receiver.sendMessage(component);
         }
     }
 }

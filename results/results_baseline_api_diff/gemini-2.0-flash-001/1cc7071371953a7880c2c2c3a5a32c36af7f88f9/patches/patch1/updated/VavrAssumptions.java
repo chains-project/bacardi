@@ -21,19 +21,25 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import io.vavr.control.Validation;
+
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.TypeCache;
+import net.bytebuddy.TypeCache.SimpleKey;
+import net.bytebuddy.dynamic.scaffold.TypeValidation;
 import net.bytebuddy.implementation.Implementation;
 import net.bytebuddy.implementation.MethodDelegation;
+import net.bytebuddy.implementation.auxiliary.AuxiliaryType;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
 import net.bytebuddy.implementation.bind.annotation.This;
-import net.bytebuddy.matcher.ElementMatchers;
+
 import org.assertj.core.util.CheckReturnValue;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
+
+import net.bytebuddy.matcher.ElementMatchers;
 
 import static org.assertj.core.util.Arrays.array;
 import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrategy;
@@ -44,11 +50,12 @@ public class VavrAssumptions {
      * This NamingStrategy takes the original class's name and adds a suffix to distinguish it.
      * The default is ByteBuddy but for debugging purposes, it makes sense to add AssertJ as a name.
      */
-    private static final ByteBuddy BYTE_BUDDY = new ByteBuddy();
+    private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(TypeValidation.DISABLED)
+            .with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
 
     private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
 
-    private static final TypeCache<Class<?>> CACHE = new TypeCache.Simple<>();
+    private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
 
     private static final class AssumptionMethodInterceptor {
 
@@ -208,8 +215,10 @@ public class VavrAssumptions {
 
     @SuppressWarnings("unchecked")
     private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass) {
-        return (Class<? extends ASSERTION>) CACHE.computeIfAbsent(assertClass,
-                (key) -> generateAssumptionClass(assertClass));
+        SimpleKey cacheKey = new SimpleKey(assertClass);
+        return (Class<ASSERTION>) CACHE.findOrInsert(VavrAssumptions.class.getClassLoader(),
+                cacheKey,
+                () -> generateAssumptionClass(assertClass));
     }
 
     private static <ASSERTION> Class<? extends ASSERTION> generateAssumptionClass(Class<ASSERTION> assertionType) {

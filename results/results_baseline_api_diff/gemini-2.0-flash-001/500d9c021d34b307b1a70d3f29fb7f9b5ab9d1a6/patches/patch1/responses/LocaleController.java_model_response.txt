@@ -11,6 +11,9 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.mvc.MvcContext;
 
+import jakarta.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+
 /**
  *
  * @author hantsy
@@ -20,8 +23,8 @@ import jakarta.mvc.MvcContext;
 @RequestScoped
 public class LocaleController {
 
-    @Inject
-    MvcContext mvc;
+    @Context
+    HttpServletRequest request;
 
     @Inject
     Models models;
@@ -31,7 +34,7 @@ public class LocaleController {
 
     @GET
     public String get() {
-        Locale locale = mvc.getLocale();
+        Locale locale = request.getLocale();
         models.put("locale", locale);
         return "locale.xhtml";
     }

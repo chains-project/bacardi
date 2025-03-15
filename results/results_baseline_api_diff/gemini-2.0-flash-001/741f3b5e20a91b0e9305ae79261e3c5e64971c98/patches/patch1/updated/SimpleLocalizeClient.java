@@ -131,7 +131,7 @@ public class SimpleLocalizeClient
     return status;
   }
 
-  private void throwOnError(HttpResponse<?> httpResponse)
+  private void throwOnError(HttpResponse<?> httpResponse) throws IOException
   {
     if (httpResponse.statusCode() != 200)
     {
@@ -141,14 +141,7 @@ public class SimpleLocalizeClient
 
       Object responseBody = httpResponse.body();
       String stringBody = safeCastHttpBodyToString(responseBody);
-      String message = null;
-      try
-      {
-        message = JsonPath.using(parseContext).parse(stringBody).read(ERROR_MESSAGE_PATH);
-      } catch (Exception e)
-      {
-        //ignore
-      }
+      String message = JsonPath.using(parseContext).parse(stringBody).read(ERROR_MESSAGE_PATH);
       if (message == null)
       {
         message = "Unknown error, HTTP Status: " + httpResponse.statusCode();

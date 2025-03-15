@@ -7,11 +7,11 @@ import javax.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 //https://www.mvc-spec.org/learn/cookbook/multilang_en.html
 /**
- * Provides I18n messages for the UI per request. To get the correct locale, the method {@link HttpServletRequest#getLocale()}
+ * Provides I18n messages for the UI per request. To get the correct locale, the method {@link MvcContext#getLocale()}
  * is used. This method uses the built-in {@link javax.mvc.locale.LocaleResolver} of the used MVC Implementation.
  *
  * @author Tobias Erdle
- * @see HttpServletRequest#getLocale()
+ * @see MvcContext#getLocale()
  * @see javax.mvc.locale.LocaleResolver
  */
 @RequestScoped
@@ -31,7 +31,7 @@ public class Messages {
      * placeholder for unknown keys.
      */
     public final String get(final String key) {
-        final Locale locale = request.getLocale();
+        Locale locale = request.getLocale();
         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, locale);
 
         return bundle.containsKey(key) ? bundle.getString(key) : formatUnknownKey(key);

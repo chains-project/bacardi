@@ -8,13 +8,14 @@ import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.mvc.binding.BindingResult;
 import jakarta.mvc.binding.MvcBinding;
-import jakarta.mvc.security.CsrfProtected;
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import jakarta.mvc.binding.ParamError;
+import jakarta.mvc.security.CsrfProtected;
+import java.util.stream.Collectors;
+import jakarta.mvc.binding.ValidationError;
 
 /**
  *
@@ -52,7 +53,7 @@ public class CsrfController {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
             bindingResult.getAllErrors()
                     .stream()
-                    .forEach((ParamError t) -> {
+                    .forEach((ValidationError t) -> {
                         alert.addError(t.getParamName(), "", t.getMessage());
                     });
             models.put("errors", alert);

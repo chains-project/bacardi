@@ -4,18 +4,13 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import com.github.games647.changeskin.sponge.PomData;
 import com.github.games647.changeskin.sponge.task.SkinSelector;
 import com.google.inject.Inject;
-
+import net.kyori.adventure.text.Component;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
-
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.Component;
-
-import static org.spongepowered.api.command.Command.builder;
 
 public class SelectCommand implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
 
@@ -27,21 +22,21 @@ public class SelectCommand implements org.spongepowered.api.command.CommandExecu
     }
 
     @Override
-    public CommandResult execute(org.spongepowered.api.command.CommandExecutor.Context ctx) {
-        org.spongepowered.api.command.parameter.CommandContext args = ctx.getCommandContext();
-        org.spongepowered.api.command.CommandSource src = ctx.getCause().get(org.spongepowered.api.command.CommandSource.class).orElse(null);
+    public CommandResult execute(CommandContext context) {
+        org.spongepowered.api.command.CommandSource src = context.cause().root();
 
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
             return CommandResult.empty();
         }
 
-        String skinName = args.<String>getOne(Parameter.key("skinName", String.class)).get().toLowerCase().replace("skin-", "");
+        Parameter.Key<String> skinNameKey = Parameter.key("skinName", String.class);
+        String skinName = context.one(skinNameKey).orElse("").toLowerCase().replace("skin-", "");
 
         try {
             int targetId = Integer.parseInt(skinName);
             Player receiver = (Player) src;
-            Task.builder().plugin(plugin).execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+            Task.builder().async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
         } catch (NumberFormatException numberFormatException) {
             plugin.sendMessage(src, "invalid-skin-name");
         }
@@ -50,13 +45,10 @@ public class SelectCommand implements org.spongepowered.api.command.CommandExecu
     }
 
     @Override
-    public Command.Parameterized buildSpec() {
-        Parameter skinNameParam = Parameter.string().key("skinName").build();
-
-        return builder()
+    public Command.Builder buildSpec() {
+        return Command.builder()
                 .executor(this)
-                .addParameter(skinNameParam)
-                .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
-                .build();
+                .addParameter(Parameter.string().key("skinName").build())
+                .permission(PomData.ARTIFACT_ID + ".command.skinselect.base");
     }
 }

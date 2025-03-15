@@ -12,6 +12,8 @@ import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.mvc.View;
+import jakarta.mvc.binding.BindingResult;
+import jakarta.mvc.binding.ParamError;
 import jakarta.mvc.security.CsrfProtected;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -26,11 +28,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import org.eclipse.krazo.engine.Viewable;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validator;
-import java.util.Set;
-import java.util.HashMap;
-import java.util.Map;
 
 @Path("tasks")
 @Controller
@@ -44,7 +41,7 @@ public class TaskController {
     private Models models;
 
     @Inject
-    private Validator validator;
+    private BindingResult validationResult;
 
     @Inject
     TaskRepository taskRepository;
@@ -94,15 +91,13 @@ public class TaskController {
     public Response save(@Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "saving new task @{0}", form);
 
-        Set<ConstraintViolation<TaskForm>> violations = validator.validate(form);
-        if (!violations.isEmpty()) {
+        if (validationResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            Map<String, String> errors = new HashMap<>();
-            for (ConstraintViolation<TaskForm> violation : violations) {
-                String propertyPath = violation.getPropertyPath().toString();
-                String message = violation.getMessage();
-                alert.addError(propertyPath, "", message);
-            }
+            validationResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
             models.put("errors", alert);
             models.put("task", form);
             return Response.status(BAD_REQUEST).entity("add.xhtml").build();
@@ -140,15 +135,13 @@ public class TaskController {
     public Response update(@PathParam(value = "id") Long id, @Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "updating existed task@id:{0}, form data:{1}", new Object[]{id, form});
 
-        Set<ConstraintViolation<TaskForm>> violations = validator.validate(form);
-        if (!violations.isEmpty()) {
+        if (validationResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            Map<String, String> errors = new HashMap<>();
-            for (ConstraintViolation<TaskForm> violation : violations) {
-                String propertyPath = violation.getPropertyPath().toString();
-                String message = violation.getMessage();
-                 alert.addError(propertyPath, "", message);
-            }
+            validationResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
             models.put("errors", alert);
             models.put("task", form);
             return Response.status(BAD_REQUEST).entity("edit.xhtml").build();

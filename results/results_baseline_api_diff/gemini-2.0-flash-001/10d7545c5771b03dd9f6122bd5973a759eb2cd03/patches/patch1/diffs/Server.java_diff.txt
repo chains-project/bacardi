@@ -2,16 +2,9 @@
 > import io.dropwizard.core.setup.Environment;
 53d53
 < import io.dropwizard.setup.Environment;
-268,279d267
-<     private void runHealthChecks() {
-<         Logger.info("Running health checks...");
-<         final SortedMap<String, HealthCheck.Result> results = environment.healthChecks().runHealthChecks();
-<         for (String name : results.keySet()) {
-<             final HealthCheck.Result result = results.get(name);
-<             if (!result.isHealthy()) {
-<                 Logger.error("%s failed with: %s", name, result.getMessage());
-<                 throw new RuntimeException(result.getError());
-<             }
-<         }
-<     }
-< 
+162,163c162,163
+<                 .withProvider(MultiPartFeature.class)
+<                 .withProvider(JacksonJsonProvider.class)
+---
+>                 .register(MultiPartFeature.class)
+>                 .register(JacksonJsonProvider.class)

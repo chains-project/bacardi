@@ -1,22 +1,10 @@
-22a23
-> import org.yaml.snakeyaml.introspector.PropertyUtils;
-36a38,39
->   private PropertyUtils propertyUtils;
-> 
-44a48,49
->     propertyUtils = new PropertyUtils();
->     propertyUtils.setSkipMissingProperties(true);
-218,219c223,224
+218,219c218,219
 <   protected Set<Property> getProperties(Class<? extends Object> type)
 <           throws IntrospectionException {
 ---
 >   protected Set<Property> getProperties(Class<? extends Object> type) {
 >     try {
-232a238,240
+232a233,235
 >     } catch (IntrospectionException e) {
 >       throw new YAMLException(e);
 >     }
-237c245
-<       Set<Property> standard = super.getProperties(type);
----
->       Set<Property> standard = propertyUtils.getProperties(type);

@@ -1,6 +1,7 @@
 ```java
 package com.github.games647.changeskin.sponge.task;
 
+import com.flowpowered.math.vector.Vector3d;
 import com.github.games647.changeskin.core.model.UserPreference;
 import com.github.games647.changeskin.core.model.skin.SkinModel;
 import com.github.games647.changeskin.core.shared.task.SharedApplier;
@@ -9,22 +10,21 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import java.util.UUID;
 
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.source.CommandSource;
+import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.tab.TabListEntry;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.world.server.ServerLocation;
-import org.spongepowered.api.world.server.ServerWorld;
-import org.spongepowered.api.service.permission.Subject;
-
-import org.spongepowered.math.vector.Vector3d;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 public class SkinApplier extends SharedApplier {
 
     private final ChangeSkinSponge plugin;
-    private final Subject invoker;
+    private final CommandSource invoker;
     private final Player receiver;
 
-    public SkinApplier(ChangeSkinSponge plugin, Subject invoker, Player receiver, SkinModel targetSkin
+    public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
             , boolean keepSkin) {
         super(plugin.getCore(), targetSkin, keepSkin);
 
@@ -82,28 +82,29 @@ public class SkinApplier extends SharedApplier {
         sendUpdateSelf();
 
         //triggers an update for others player to see the new skin
-        receiver.simulateVanishing();
+        receiver.offer(Keys.VANISHED, true);
+        receiver.offer(Keys.VANISHED, false);
     }
 
     private void sendUpdateSelf() {
         receiver.getTabList().removeEntry(receiver.getUniqueId());
         receiver.getTabList().addEntry(TabListEntry.builder()
-                .displayName(receiver.displayName().get())
-                .latency(receiver.connection().latency())
+                .displayName(receiver.getDisplayNameData().displayName().get())
+                .latency(receiver.getConnection().getLatency())
                 .list(receiver.getTabList())
-                .gameMode(receiver.gameMode().get())
-                .profile(receiver.profile())
+                .gameMode(receiver.getGameModeData().type().get())
+                .profile(receiver.getProfile())
                 .build());
 
-        ServerLocation oldLocation = receiver.location();
-        Vector3d rotation = receiver.rotation();
-        ServerWorld receiverWorld = receiver.world();
-        Sponge.server().worldManager().worlds()
+        Location<World> oldLocation = receiver.getLocation();
+        Vector3d rotation = receiver.getRotation();
+        World receiverWorld = receiver.getWorld();
+        Sponge.getServer().getWorlds()
                 .stream()
                 .filter(world -> !world.equals(receiverWorld))
                 .findFirst()
                 .ifPresent(world -> {
-                    receiver.setLocation(world.spawnLocation());
+                    receiver.setLocation(world.getSpawnLocation());
                     receiver.setLocationAndRotation(oldLocation, rotation);
                 });
     }

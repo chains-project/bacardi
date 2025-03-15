@@ -17,13 +17,14 @@ import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.network.channel.raw.RawDataChannel;
 import org.spongepowered.api.network.channel.ChannelRegistrar;
+import org.spongepowered.api.network.channel.RawDataListener;
 import org.spongepowered.api.network.RemoteConnection;
 import org.spongepowered.api.network.channel.ChannelBuf;
 
 import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
 import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
 
-public class CheckPermissionListener  {
+public class CheckPermissionListener implements RawDataListener {
 
     private final ChangeSkinSponge plugin;
     private final RawDataChannel permissionsResultChannel;
@@ -33,12 +34,13 @@ public class CheckPermissionListener  {
         this.plugin = plugin;
 
         String combinedName = new NamespaceKey(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL).getCombinedName();
-        permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);
+        permissionsResultChannel = (RawDataChannel) channelRegistrar.getOrCreate(plugin, combinedName);
     }
 
+    @Override
     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
 
-        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.asByteArray());
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
         CheckPermMessage checkMessage = new CheckPermMessage();
         checkMessage.readFrom(dataInput);
 
@@ -81,8 +83,7 @@ public class CheckPermissionListener  {
         resultMessage.writeTo(dataOutput);
         byte[] bytes = dataOutput.toByteArray();
 
-        permissionsResultChannel.sendTo(receiver, (Consumer<ChannelBuf>) buf -> {
-            buf.writeByteArray(bytes);
-        });
+        Consumer<ChannelBuf> byteBufConsumer = buf -> buf.writeByteArray(bytes);
+        permissionsResultChannel.sendTo(receiver, byteBufConsumer);
     }
 }

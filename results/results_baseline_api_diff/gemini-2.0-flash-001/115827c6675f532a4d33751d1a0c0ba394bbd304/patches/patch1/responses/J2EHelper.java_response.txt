@@ -73,7 +73,7 @@ public final class J2EHelper {
 
         filter.setConfigOnly(config);
 
-        final FilterRegistration.Dynamic filterRegistration = environment
+        final jakarta.servlet.FilterRegistration.Dynamic filterRegistration = environment
                 .servlets().addFilter(filter.getClass().getName(), filter);
 
         filterRegistration.addMappingForUrlPatterns(

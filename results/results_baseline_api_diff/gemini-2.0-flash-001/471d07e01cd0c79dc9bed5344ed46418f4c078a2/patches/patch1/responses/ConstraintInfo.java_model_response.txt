@@ -16,12 +16,11 @@
  */
 package com.google.cloud.resourcemanager;
 
-import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
 import com.google.api.services.cloudresourcemanager.model.Constraint;
-import com.google.api.services.cloudresourcemanager.model.ListConstraint;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.Objects;
+import javax.annotation.Nullable;
 
 /**
  * A Google Cloud Resource Manager constraint metadata object.
@@ -33,13 +32,6 @@ import java.util.Objects;
 @Deprecated
 public class ConstraintInfo {
 
-  static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
-      new Function<Constraint, ConstraintInfo>() {
-        @Override
-        public ConstraintInfo apply(Constraint protobuf) {
-          return ConstraintInfo.fromProtobuf(protobuf);
-        }
-      };
   static final Function<ConstraintInfo, Constraint> TO_PROTOBUF_FUNCTION =
       new Function<ConstraintInfo, Constraint>() {
         @Override
@@ -47,8 +39,15 @@ public class ConstraintInfo {
           return constraintInfo.toProtobuf();
         }
       };
+  static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+      new Function<Constraint, ConstraintInfo>() {
+        @Override
+        public ConstraintInfo apply(Constraint protobuf) {
+          return ConstraintInfo.fromProtobuf(protobuf);
+        }
+      };
 
-  private BooleanConstraint booleanConstraint;
+  private Boolean booleanConstraint;
   private String constraintDefault;
   private String description;
   private String displayName;
@@ -112,21 +111,23 @@ public class ConstraintInfo {
           && Objects.equals(supportsUnder, that.supportsUnder);
     }
 
-    ListConstraint toProtobuf() {
-      ListConstraint listConstraint = new ListConstraint();
+    com.google.api.services.cloudresourcemanager.model.ListConstraint toProtobuf() {
+      com.google.api.services.cloudresourcemanager.model.ListConstraint listConstraint =
+          new com.google.api.services.cloudresourcemanager.model.ListConstraint();
       listConstraint.setSuggestedValue(suggestedValue);
       listConstraint.setSupportsUnder(supportsUnder);
       return listConstraint;
     }
 
-    static Constraints fromProtobuf(ListConstraint listConstraint) {
+    static Constraints fromProtobuf(
+        com.google.api.services.cloudresourcemanager.model.ListConstraint listConstraint) {
       return new Constraints(listConstraint.getSuggestedValue(), listConstraint.getSupportsUnder());
     }
   }
 
   /** Builder for {@code ConstraintInfo}. */
   static class Builder {
-    private BooleanConstraint booleanConstraint;
+    private Boolean booleanConstraint;
     private String constraintDefault;
     private String description;
     private String displayName;
@@ -148,7 +149,7 @@ public class ConstraintInfo {
       this.version = info.version;
     }
 
-    Builder setBooleanConstraint(BooleanConstraint booleanConstraint) {
+    Builder setBooleanConstraint(Boolean booleanConstraint) {
       this.booleanConstraint = booleanConstraint;
       return this;
     }
@@ -199,7 +200,7 @@ public class ConstraintInfo {
   }
 
   /** Returns the boolean constraint to check whether the constraint is enforced or not. */
-  public BooleanConstraint getBooleanConstraint() {
+  public Boolean getBooleanConstraint() {
     return booleanConstraint;
   }
 
@@ -269,32 +270,47 @@ public class ConstraintInfo {
 
   Constraint toProtobuf() {
     Constraint constraintProto = new Constraint();
-    constraintProto.setBooleanConstraint(booleanConstraint);
-    constraintProto.setConstraintDefault(constraintDefault);
+    constraintProto.setName(name);
+    constraintProto.setVersion(version);
     constraintProto.setDescription(description);
     constraintProto.setDisplayName(displayName);
     if (constraints != null) {
       constraintProto.setListConstraint(constraints.toProtobuf());
     }
-    constraintProto.setName(name);
-    constraintProto.setVersion(version);
+    constraintProto.setConstraintDefault(constraintDefault);
+    constraintProto.setBooleanConstraint(booleanConstraint);
     return constraintProto;
   }
 
   static ConstraintInfo fromProtobuf(Constraint constraintProtobuf) {
     Builder builder = newBuilder(constraintProtobuf.getName());
-    builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint());
-    builder.setConstraintDefault(constraintProtobuf.getConstraintDefault());
+    builder.setVersion(constraintProtobuf.getVersion());
     builder.setDescription(constraintProtobuf.getDescription());
     builder.setDisplayName(constraintProtobuf.getDisplayName());
     if (constraintProtobuf.getListConstraint() != null) {
       builder.setConstraints(Constraints.fromProtobuf(constraintProtobuf.getListConstraint()));
     }
-    if (constraintProtobuf.getName() != null && !constraintProtobuf.getName().equals("Unnamed")) {
-      builder.setName(constraintProtobuf.getName());
-    }
-    builder.setVersion(constraintProtobuf.getVersion());
+    builder.setConstraintDefault(constraintProtobuf.getConstraintDefault());
+    builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint());
     return builder.build();
+  }
+
+  /**
+   * Represents a boolean constraint.
+   *
+   * @deprecated BooleanConstraint has been removed in the new version of the dependency.
+   */
+  @Deprecated
+  public static class Boolean {
+    private final java.lang.Boolean enforced;
+
+    public Boolean(java.lang.Boolean enforced) {
+      this.enforced = enforced;
+    }
+
+    public java.lang.Boolean getEnforced() {
+      return enforced;
+    }
   }
 }
 ```

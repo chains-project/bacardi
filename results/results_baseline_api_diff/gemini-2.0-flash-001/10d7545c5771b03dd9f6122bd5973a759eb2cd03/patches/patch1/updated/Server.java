@@ -159,8 +159,8 @@ public abstract class Server<Config extends Configuration> extends Application<C
     private Client createHttpClient(Config config, Environment env) {
         return new JerseyClientBuilder(env)
                 .using(config.getJerseyClient())
-                .withProvider(MultiPartFeature.class)
-                .withProvider(JacksonJsonProvider.class)
+                .register(MultiPartFeature.class)
+                .register(JacksonJsonProvider.class)
                 .build(getName());
     }
 
@@ -263,6 +263,18 @@ public abstract class Server<Config extends Configuration> extends Application<C
                 .convertDurationsTo(TimeUnit.MILLISECONDS)
                 .build();
         jmxReporter.start();
+    }
+
+    private void runHealthChecks() {
+        Logger.info("Running health checks...");
+        final SortedMap<String, HealthCheck.Result> results = environment.healthChecks().runHealthChecks();
+        for (String name : results.keySet()) {
+            final HealthCheck.Result result = results.get(name);
+            if (!result.isHealthy()) {
+                Logger.error("%s failed with: %s", name, result.getMessage());
+                throw new RuntimeException(result.getError());
+            }
+        }
     }
 
     protected void registerFeatures() {

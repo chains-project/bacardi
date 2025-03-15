@@ -31,16 +31,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.cactoos.Scalar;
 import org.cactoos.Text;
-import org.cactoos.iterable.IterableOf;
-import org.cactoos.scalar.IoChecked;
+import org.cactoos.scalar.LengthOf;
+import org.cactoos.list.ListOf;
 import org.cactoos.scalar.Sticky;
 import org.cactoos.scalar.Unchecked;
 import org.cactoos.text.FormattedText;
 import org.cactoos.text.TextOf;
 import org.cactoos.text.Trimmed;
-import org.cactoos.text.UncheckedText;
+
 import org.cactoos.time.ZonedDateTimeOf;
 
 /**
@@ -85,67 +84,65 @@ final class RtTransaction implements Transaction {
     /**
      * String representation of transaction.
      */
-    private final IoChecked<String> transaction;
+    private final org.cactoos.Scalar<String> transaction;
 
     /**
      * Ctor.
      * @param trnsct String representation of transaction
      */
     RtTransaction(final String trnsct) {
-        this.transaction = new IoChecked<>(
-            new Sticky<>(
-                (Scalar<String>) () -> {
-                    if (
-                        new Trimmed(
-                            new TextOf(trnsct)
-                        ).asString().isEmpty()
-                    ) {
-                        throw new IOException(
-                            "Invalid transaction string: string is empty"
-                        );
-                    }
-                    final List<Text> pieces =
+        this.transaction = new Sticky<>(
+            () -> {
+                if (
+                    new Trimmed(
+                        new TextOf(trnsct)
+                    ).asString().isEmpty()
+                ) {
+                    throw new IOException(
+                        "Invalid transaction string: string is empty"
+                    );
+                }
+                final List<Text> pieces =
+                    new ListOf<>(
                         Arrays.stream(trnsct.split(";"))
                             .map(TextOf::new)
-                            .collect(Collectors.toList());
-                    // @checkstyle MagicNumberCheck (1 line)
-                    if (pieces.size() != 7) {
-                        throw new IOException(
-                            new FormattedText(
-                                // @checkstyle LineLength (1 line)
-                                "Invalid transaction string: expected 7 fields, but found %d",
-                                pieces.size()
-                            ).asString()
-                        );
-                    }
-                    return trnsct;
+                            .collect(Collectors.toList())
+                    );
+                // @checkstyle MagicNumberCheck (1 line)
+                if (new LengthOf(pieces).intValue() != 7) {
+                    throw new IOException(
+                        new FormattedText(
+                            // @checkstyle LineLength (1 line)
+                            "Invalid transaction string: expected 7 fields, but found %d",
+                            pieces.size()
+                        ).asString()
+                    );
                 }
-            )
+                return trnsct;
+            }
         );
     }
 
     @Override
     @SuppressWarnings("PMD.ShortMethodName")
     public int id() throws IOException {
-        final String ident = new UncheckedText(
-            new IoChecked<>(
-                (Scalar<Text>) () -> new IterableOf<>(
-                    Arrays.asList(this.transaction.value().split(";"))
-                        .stream()
-                        .map(TextOf::new)
-                        .collect(Collectors.toList())
-                ).iterator().next()
-            ).value()
-        ).asString();
+        final String ident = new Unchecked<>(
+            new org.cactoos.Scalar<String>() {
+                @Override
+                public String value() throws Exception {
+                    return new ListOf<>(Arrays.asList(transaction.value().split(";"))).get(0);
+                }
+            }
+        ).value();
         if (!RtTransaction.IDENT.matcher(ident).matches()) {
             throw new IOException(
-                new UncheckedText(
+                new Unchecked<>(
                     new FormattedText(
                         // @checkstyle LineLength (1 line)
                         "Invalid ID '%s' expecting 16-bit unsigned hex string with 4 symbols",
                         ident
                     )
-                ).asString()
+                ).value()
             );
         }
         // @checkstyle MagicNumber (1 line)
@@ -155,41 +152,37 @@ final class RtTransaction implements Transaction {
     @Override
     public ZonedDateTime time() throws IOException {
         return new ZonedDateTimeOf(
-            new UncheckedText(
-                new IoChecked<>(
-                    (Scalar<Text>) () -> new IterableOf<>(
-                        Arrays.asList(this.transaction.value().split(";"))
-                            .stream()
-                            .map(TextOf::new)
-                            .collect(Collectors.toList())
-                    ).iterator().next()
-                ).value()
-            ).asString(),
+            new Unchecked<>(
+                new org.cactoos.Scalar<String>() {
+                    @Override
+                    public String value() throws Exception {
+                        return new ListOf<>(Arrays.asList(transaction.value().split(";"))).get(1);
+                    }
+                }
+            ).value(),
             DateTimeFormatter.ISO_OFFSET_DATE_TIME
         ).value();
     }
 
     @Override
     public long amount() throws IOException {
-        final String amnt = new UncheckedText(
-            new IoChecked<>(
-                (Scalar<Text>) () -> new IterableOf<>(
-                    Arrays.asList(this.transaction.value().split(";"))
-                        .stream()
-                        .map(TextOf::new)
-                        .collect(Collectors.toList())
-                ).iterator().next()
-            ).value()
-        ).asString();
+        final String amnt = new Unchecked<>(
+            new org.cactoos.Scalar<String>() {
+                @Override
+                public String value() throws Exception {
+                    return new ListOf<>(Arrays.asList(transaction.value().split(";"))).get(2);
+                }
+            }
+        ).value();
         if (!RtTransaction.HEX.matcher(amnt).matches()) {
             throw new IOException(
-                new UncheckedText(
+                new Unchecked<>(
                     new FormattedText(
                         // @checkstyle LineLength (1 line)
                         "Invalid amount '%s' expecting 64-bit signed hex string with 16 symbols",
                         amnt
                     )
-                ).asString()
+                ).value()
             );
         }
         // @checkstyle MagicNumber (1 line)
@@ -198,16 +191,14 @@ final class RtTransaction implements Transaction {
 
     @Override
     public String prefix() throws IOException {
-        final String prefix = new UncheckedText(
-            new IoChecked<>(
-                (Scalar<Text>) () -> new IterableOf<>(
-                    Arrays.asList(this.transaction.value().split(";"))
-                        .stream()
-                        .map(TextOf::new)
-                        .collect(Collectors.toList())
-                ).iterator().skip(3).next()
-            ).value()
-        ).asString();
+        final String prefix = new Unchecked<>(
+            new org.cactoos.Scalar<String>() {
+                @Override
+                public String value() throws Exception {
+                    return new ListOf<>(Arrays.asList(transaction.value().split(";"))).get(3);
+                }
+            }
+        ).value();
         //@checkstyle MagicNumberCheck (1 line)
         if (prefix.length() < 8 || prefix.length() > 32) {
             throw new IOException("Invalid prefix size");
@@ -220,25 +211,23 @@ final class RtTransaction implements Transaction {
 
     @Override
     public String bnf() throws IOException {
-        final String bnf = new UncheckedText(
-            new IoChecked<>(
-                (Scalar<Text>) () -> new IterableOf<>(
-                    Arrays.asList(this.transaction.value().split(";"))
-                        .stream()
-                        .map(TextOf::new)
-                        .collect(Collectors.toList())
-                ).iterator().skip(4).next()
-            ).value()
-        ).asString();
+        final String bnf = new Unchecked<>(
+            new org.cactoos.Scalar<String>() {
+                @Override
+                public String value() throws Exception {
+                    return new ListOf<>(Arrays.asList(transaction.value().split(";"))).get(4);
+                }
+            }
+        ).value();
         if (!RtTransaction.HEX.matcher(bnf).matches()) {
             throw new IOException(
-                new UncheckedText(
+                new Unchecked<>(
                     new FormattedText(
                         // @checkstyle LineLength (1 line)
                         "Invalid bnf string '%s', expecting hex string with 16 symbols",
                         bnf
                     )
-                ).asString()
+                ).value()
             );
         }
         return bnf;
@@ -246,25 +235,23 @@ final class RtTransaction implements Transaction {
 
     @Override
     public String details() throws IOException {
-        final String dtls = new UncheckedText(
-            new IoChecked<>(
-                (Scalar<Text>) () -> new IterableOf<>(
-                    Arrays.asList(this.transaction.value().split(";"))
-                        .stream()
-                        .map(TextOf::new)
-                        .collect(Collectors.toList())
-                ).iterator().skip(5).next()
-            ).value()
-        ).asString();
+        final String dtls = new Unchecked<>(
+            new org.cactoos.Scalar<String>() {
+                @Override
+                public String value() throws Exception {
+                    return new ListOf<>(Arrays.asList(transaction.value().split(";"))).get(5);
+                }
+            }
+        ).value();
         if (!RtTransaction.DTLS.matcher(dtls).matches()) {
             throw new IOException(
-                new UncheckedText(
+                new Unchecked<>(
                     new FormattedText(
                         // @checkstyle LineLength (1 line)
                         "Invalid details string '%s', does not match pattern '%s'",
                         dtls, RtTransaction.DTLS
                     )
-                ).asString()
+                ).value()
             );
         }
         return dtls;
@@ -272,27 +259,25 @@ final class RtTransaction implements Transaction {
 
     @Override
     public String signature() throws IOException {
-        final String sign = new UncheckedText(
-            new IoChecked<>(
-                (Scalar<Text>) () -> new IterableOf<>(
-                    Arrays.asList(this.transaction.value().split(";"))
-                        .stream()
-                        .map(TextOf::new)
-                        .collect(Collectors.toList())
-                ).iterator().skip(6).next()
-            ).value()
-        ).asString();
+        final String sign = new Unchecked<>(
+            new org.cactoos.Scalar<String>() {
+                @Override
+                public String value() throws Exception {
+                    return new ListOf<>(Arrays.asList(transaction.value().split(";"))).get(6);
+                }
+            }
+        ).value();
         // @checkstyle MagicNumber (1 line)
         if (sign.length() != 684
             || !RtTransaction.SIGN.matcher(sign).matches()) {
             throw new IOException(
-                new UncheckedText(
+                new Unchecked<>(
                     new FormattedText(
                         // @checkstyle LineLength (1 line)
                         "Invalid signature '%s', expecting base64 string with 684 characters",
                         sign
                     )
-                ).asString()
+                ).value()
             );
         }
         return sign;
@@ -313,11 +298,19 @@ final class RtTransaction implements Transaction {
             return false;
         }
         final RtTransaction that = (RtTransaction) obj;
-        return this.transaction.equals(that.transaction);
+        try {
+            return this.transaction.value().equals(that.transaction.value());
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override
     public int hashCode() {
-        return this.transaction.hashCode();
+        try {
+            return this.transaction.value().hashCode();
+        } catch (Exception e) {
+            return 0;
+        }
     }
 }

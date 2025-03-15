@@ -8,13 +8,12 @@ import jakarta.mvc.Models;
 import jakarta.mvc.UriRef;
 import jakarta.mvc.binding.BindingResult;
 import jakarta.mvc.binding.MvcBinding;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.mvc.binding.ParamError;
+import javax.validation.constraints.NotBlank;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import java.util.stream.Collectors;
-import jakarta.mvc.binding.ValidationError;
 
 /**
  *
@@ -50,9 +49,9 @@ public class GreetingController {
             @NotBlank String greeting) {
         if (bindingResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            bindingResult.getErrors()
+            bindingResult.getAllErrors()
                     .stream()
-                    .forEach((ValidationError t) -> {
+                    .forEach((ParamError t) -> {
                         alert.addError(t.getParamName(), "", t.getMessage());
                     });
             models.put("errors", alert);

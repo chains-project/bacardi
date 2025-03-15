@@ -1,12 +1,7 @@
-10c10
-<  * copies of the Software, and to permit persons to whom the Software is
----
->  * copies of the Software, and to permit persons to whom the software is
-239,240c239,242
+239,240c239,241
 <             GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).status;
 <             return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
 ---
 >             GHCompare compare = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash);
->             GHCompare.Comparison comparison = compare.get();
->             String status = comparison.getStatus();
+>             String status = compare.getStatus().name();
 >             return "identical".equals(status) || "behind".equals(status);

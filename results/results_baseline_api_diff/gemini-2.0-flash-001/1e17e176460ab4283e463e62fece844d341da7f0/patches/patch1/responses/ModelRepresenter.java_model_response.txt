@@ -17,7 +17,6 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.error.YAMLException;
 import org.yaml.snakeyaml.introspector.Property;
-import org.yaml.snakeyaml.introspector.PropertyUtils;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.Tag;
@@ -37,8 +36,6 @@ import static java.lang.String.format;
  * @since 0.7
  */
 class ModelRepresenter extends Representer {
-  private PropertyUtils propertyUtils;
-
   public ModelRepresenter() {
     super(new DumperOptions());
     this.representers.put(Xpp3Dom.class, new RepresentXpp3Dom());
@@ -48,9 +45,6 @@ class ModelRepresenter extends Representer {
     this.multiRepresenters.put(Date.class, stringRepresenter);
     this.multiRepresenters.put(Enum.class, stringRepresenter);
     this.multiRepresenters.put(Calendar.class, stringRepresenter);
-    this.propertyUtils = new PropertyUtils();
-    this.propertyUtils.setSkipMissingProperties(true);
-    setPropertyUtils(this.propertyUtils);
   }
 
   protected NodeTuple representJavaBeanProperty(Object javaBean, Property property,
@@ -223,13 +217,30 @@ class ModelRepresenter extends Representer {
   /*
    * Change the default order. Important data goes first.
    */
-  protected Set<Property> getProperties(Class<? extends Object> type) throws IntrospectionException {
-    return sortTypeWithOrder(type, ORDER_MODEL);
+  protected Set<Property> getProperties(Class<? extends Object> type)
+          throws IntrospectionException {
+    if (type.isAssignableFrom(Model.class)) {
+      return sortTypeWithOrder(type, ORDER_MODEL);
+    } else if (type.isAssignableFrom(Developer.class)) {
+      return sortTypeWithOrder(type, ORDER_DEVELOPER);
+    } else if (type.isAssignableFrom(Contributor.class)) {
+      return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
+    }  else if (type.isAssignableFrom(Dependency.class)) {
+      return sortTypeWithOrder(type, ORDER_DEPENDENCY);
+    }  else if (type.isAssignableFrom(Plugin.class)) {
+      return sortTypeWithOrder(type, ORDER_PLUGIN);
+    } else {
+      try {
+        return super.getProperties(type);
+      } catch (java.beans.IntrospectionException e) {
+        throw new RuntimeException(e);
+      }
+    }
   }
 
   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
           throws IntrospectionException {
-      Set<Property> standard = propertyUtils.getProperties(type);
+      Set<Property> standard = getPropertyUtils().getProperties(type);
       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
       sorted.addAll(standard);
       return sorted;

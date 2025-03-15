@@ -15,9 +15,6 @@
  */
 package com.google.cloud.resourcemanager;
 
-import com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy;
-import com.google.api.services.cloudresourcemanager.v3.model.ListPolicy;
-import com.google.api.services.cloudresourcemanager.v3.model.Policy;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.List;
@@ -34,25 +31,32 @@ import java.util.Objects;
 @Deprecated
 public class OrgPolicyInfo {
 
-  static final Function<OrgPolicyInfo, Policy> TO_PROTOBUF_FUNCTION =
-      new Function<OrgPolicyInfo, Policy>() {
-        @Override
-        public Policy apply(OrgPolicyInfo orgPolicyInfo) {
-          return orgPolicyInfo.toProtobuf();
-        }
-      };
-  static final Function<Policy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
-      new Function<Policy, OrgPolicyInfo>() {
-        @Override
-        public OrgPolicyInfo apply(Policy protobuf) {
-          return OrgPolicyInfo.fromProtobuf(protobuf);
-        }
-      };
+  static final Function<OrgPolicyInfo, com.google.api.services.cloudresourcemanager.v3.model.Policy>
+      TO_PROTOBUF_FUNCTION =
+          new Function<OrgPolicyInfo, com.google.api.services.cloudresourcemanager.v3.model.Policy>() {
+            @Override
+            public com.google.api.services.cloudresourcemanager.v3.model.Policy apply(
+                OrgPolicyInfo orgPolicyInfo) {
+              return orgPolicyInfo.toProtobuf();
+            }
+          };
+  static final Function<
+          com.google.api.services.cloudresourcemanager.v3.model.Policy, OrgPolicyInfo>
+      FROM_PROTOBUF_FUNCTION =
+          new Function<
+              com.google.api.services.cloudresourcemanager.v3.model.Policy, OrgPolicyInfo>() {
+            @Override
+            public OrgPolicyInfo apply(
+                com.google.api.services.cloudresourcemanager.v3.model.Policy protobuf) {
+              return OrgPolicyInfo.fromProtobuf(protobuf);
+            }
+          };
 
   private BoolPolicy boolPolicy;
   private String constraint;
   private String etag;
   private Policies policies;
+  private RestoreDefault restoreDefault;
   private String updateTime;
   private Integer version;
 
@@ -91,13 +95,13 @@ public class OrgPolicyInfo {
       return Objects.hash(enforce);
     }
 
-    BooleanPolicy toProtobuf() {
-      BooleanPolicy booleanPolicy = new BooleanPolicy();
-      booleanPolicy.setEnforced(enforce);
-      return booleanPolicy;
+    com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy toProtobuf() {
+      return new com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy()
+          .setEnforced(enforce);
     }
 
-    static BoolPolicy fromProtobuf(BooleanPolicy booleanPolicy) {
+    static BoolPolicy fromProtobuf(
+        com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy booleanPolicy) {
       return new BoolPolicy(booleanPolicy.getEnforced());
     }
   }
@@ -197,17 +201,17 @@ public class OrgPolicyInfo {
           allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
     }
 
-    ListPolicy toProtobuf() {
-      ListPolicy listPolicy = new ListPolicy();
-      listPolicy.setAllValues(allValues);
-      listPolicy.setAllowedValues(allowedValues);
-      listPolicy.setDeniedValues(deniedValues);
-      listPolicy.setInheritFromParent(inheritFromParent);
-      listPolicy.setSuggestedValue(suggestedValue);
-      return listPolicy;
+    com.google.api.services.cloudresourcemanager.v3.model.ListPolicy toProtobuf() {
+      return new com.google.api.services.cloudresourcemanager.v3.model.ListPolicy()
+          .setAllValues(allValues)
+          .setAllowedValues(allowedValues)
+          .setDeniedValues(deniedValues)
+          .setInheritFromParent(inheritFromParent)
+          .setSuggestedValue(suggestedValue);
     }
 
-    static Policies fromProtobuf(ListPolicy listPolicy) {
+    static Policies fromProtobuf(
+        com.google.api.services.cloudresourcemanager.v3.model.ListPolicy listPolicy) {
       return new Policies(
           listPolicy.getAllValues(),
           listPolicy.getAllowedValues(),
@@ -223,6 +227,7 @@ public class OrgPolicyInfo {
     private String constraint;
     private String etag;
     private Policies policies;
+    private RestoreDefault restoreDefault;
     private String updateTime;
     private Integer version;
 
@@ -233,6 +238,7 @@ public class OrgPolicyInfo {
       this.constraint = info.constraint;
       this.etag = info.etag;
       this.policies = info.policies;
+      this.restoreDefault = info.restoreDefault;
       this.updateTime = info.updateTime;
       this.version = info.version;
     }
@@ -257,6 +263,11 @@ public class OrgPolicyInfo {
       return this;
     }
 
+    Builder setRestoreDefault(RestoreDefault restoreDefault) {
+      this.restoreDefault = restoreDefault;
+      return this;
+    }
+
     Builder setUpdateTime(String updateTime) {
       this.updateTime = updateTime;
       return this;
@@ -277,6 +288,7 @@ public class OrgPolicyInfo {
     this.constraint = builder.constraint;
     this.etag = builder.etag;
     this.policies = builder.policies;
+    this.restoreDefault = builder.restoreDefault;
     this.updateTime = builder.updateTime;
     this.version = builder.version;
   }
@@ -299,6 +311,11 @@ public class OrgPolicyInfo {
   /** Return the policies. */
   public Policies getPolicies() {
     return policies;
+  }
+
+  /** Restores the default behavior of the constraint. */
+  public RestoreDefault getRestoreDefault() {
+    return restoreDefault;
   }
 
   /** Returns the updated timestamp of policy. */
@@ -324,13 +341,15 @@ public class OrgPolicyInfo {
         && Objects.equals(constraint, policyInfo.constraint)
         && Objects.equals(etag, policyInfo.etag)
         && Objects.equals(policies, policyInfo.policies)
+        && Objects.equals(restoreDefault, policyInfo.restoreDefault)
         && Objects.equals(updateTime, policyInfo.updateTime)
         && Objects.equals(version, policyInfo.version);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(boolPolicy, constraint, etag, policies, updateTime, version);
+    return Objects.hash(
+        boolPolicy, constraint, etag, policies, restoreDefault, updateTime, version);
   }
 
   /** Returns a builder for the {@link OrgPolicyInfo} object. */
@@ -343,8 +362,9 @@ public class OrgPolicyInfo {
     return new Builder(this);
   }
 
-  Policy toProtobuf() {
-    Policy orgPolicyProto = new Policy();
+  com.google.api.services.cloudresourcemanager.v3.model.Policy toProtobuf() {
+    com.google.api.services.cloudresourcemanager.v3.model.Policy orgPolicyProto =
+        new com.google.api.services.cloudresourcemanager.v3.model.Policy();
     if (boolPolicy != null) {
       orgPolicyProto.setBooleanPolicy(boolPolicy.toProtobuf());
     }
@@ -352,23 +372,30 @@ public class OrgPolicyInfo {
     if (policies != null) {
       orgPolicyProto.setListPolicy(policies.toProtobuf());
     }
-    orgPolicyProto.setUpdateTime(updateTime);
-    orgPolicyProto.setVersion(version);
+
+    if (version != null) {
+      orgPolicyProto.setVersion(version);
+    }
     return orgPolicyProto;
   }
 
-  static OrgPolicyInfo fromProtobuf(Policy orgPolicyProtobuf) {
+  static OrgPolicyInfo fromProtobuf(
+      com.google.api.services.cloudresourcemanager.v3.model.Policy orgPolicyProtobuf) {
     Builder builder = newBuilder();
     if (orgPolicyProtobuf.getBooleanPolicy() != null) {
-      builder.setBoolPolicy(BoolPolicy.fromProtobuf(orgPolicyProtobuf.getBooleanPolicy()));
+      builder.setBoolPolicy(
+          BoolPolicy.fromProtobuf(orgPolicyProtobuf.getBooleanPolicy())); // Corrected line
     }
-    builder.setConstraint(orgPolicyProtobuf.getName());
+    builder.setEtag(orgPolicyProtobuf.getEtag());
     if (orgPolicyProtobuf.getListPolicy() != null) {
       builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getListPolicy()));
     }
-    builder.setEtag(orgPolicyProtobuf.getEtag());
-    builder.setUpdateTime(orgPolicyProtobuf.getUpdateTime());
-    builder.setVersion(orgPolicyProtobuf.getVersion());
+
+    if (orgPolicyProtobuf.getVersion() != null) {
+      builder.setVersion(orgPolicyProtobuf.getVersion());
+    }
     return builder.build();
   }
+
+  static class RestoreDefault {}
 }

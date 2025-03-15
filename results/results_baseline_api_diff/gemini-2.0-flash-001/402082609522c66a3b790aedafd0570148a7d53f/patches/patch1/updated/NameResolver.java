@@ -5,8 +5,8 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import java.util.UUID;
 
-import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.service.permission.Subject;
 
 public class NameResolver extends SharedNameResolver {
 

@@ -352,7 +352,9 @@ public final class AuthTest {
                     token -> CompletableFuture.completedFuture(
                         Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
                             .filter(user -> token.equals(token(user)))
-                            .map(user -> Optional.of(new AuthUser(user.name())))
+                            .map(user -> new AuthUser(user.name()))
+                            .map(AuthUser::new)
+                            .map(Optional::ofNullable)
                             .findFirst()
                             .orElse(Optional.empty())
                     ),

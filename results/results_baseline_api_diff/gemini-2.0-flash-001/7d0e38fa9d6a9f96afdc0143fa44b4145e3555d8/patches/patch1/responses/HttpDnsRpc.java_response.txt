@@ -349,7 +349,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.Changes.Get getChangeRequestCall(
       String zoneName, String changeRequestId, Map<Option, ?> options) throws IOException {
     return dns.changes()
-        .get(this.options.getProjectId(), zoneName, this.options.getProjectId(), changeRequestId)
+        .get(this.options.getProjectId(), zoneName, changeRequestId, this.options.getProjectId())
         .setFields(Option.FIELDS.getString(options));
   }
 

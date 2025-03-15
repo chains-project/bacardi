@@ -2,15 +2,32 @@
 <  * copies of the Software, and to permit persons to whom the Software is
 <  * furnished to do so, subject to the following conditions:
 ---
->  * copies of such, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-27c26,27
+>  * copies, and to permit persons to whom the Software is permitted to do so, subject to the following conditions:
+18c17
+<  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+---
+>  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+25a25
+> import java.util.Iterator;
+27c27
 < import org.cactoos.iterable.LengthOf;
 ---
 > import org.cactoos.scalar.LengthOf;
-> import org.cactoos.scalar.Unchecked;
-52,53c52,53
+52,53c52,65
 <         return new LengthOf(other.suffixes()).intValue()
 <             - new LengthOf(this.sfxs).intValue();
 ---
->         return new Unchecked<>(new LengthOf(other.suffixes())).value().intValue()
->             - new Unchecked<>(new LengthOf(this.sfxs)).value().intValue();
+>         final Iterable<Text> otherSuffixes = other.suffixes();
+>         final Iterator<Text> iterator = this.sfxs.iterator();
+>         int count = 0;
+>         while (iterator.hasNext()) {
+>             iterator.next();
+>             count = count + 1;
+>         }
+>         final Iterator<Text> otherIterator = otherSuffixes.iterator();
+>         int otherCount = 0;
+>         while (otherIterator.hasNext()) {
+>             otherIterator.next();
+>             otherCount = otherCount + 1;
+>         }
+>         return otherCount - count;

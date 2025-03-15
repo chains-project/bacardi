@@ -59,7 +59,7 @@ public class SnmpmanAgent extends BaseAgent {
     /**
      * The list of managed object groups.
      */
-    private final List<MOGroup> groups = new ArrayList<>();
+    private final List<ManagedObject<?>> groups = new ArrayList<>();
 
     /**
      * Initializes a new instance of an SNMP agent.
@@ -262,7 +262,7 @@ public class SnmpmanAgent extends BaseAgent {
                     MOGroup group = createGroup(root, variableBindings);
                     final Iterable<VariableBinding> subtree = generateSubtreeBindings(variableBindings, root);
                     DefaultMOContextScope scope = new DefaultMOContextScope(context, root, true, root.nextPeer(), false);
-                    ManagedObject mo = server.lookup(new DefaultMOQuery(scope, false));
+                    ManagedObject<?> mo = server.lookup(new DefaultMOQuery(scope, false));
                     if (mo != null) {
                         for (final VariableBinding variableBinding : subtree) {
                             group = new MOGroup(variableBinding.getOid(), variableBinding.getOid(), variableBinding.getVariable());
@@ -353,7 +353,7 @@ public class SnmpmanAgent extends BaseAgent {
         try {
             if (context == null || context.toString().equals("")) {
                 MOContextScope contextScope = new DefaultMOContextScope(new OctetString(), group.getScope());
-                ManagedObject other = server.lookup(new DefaultMOQuery(contextScope, false));
+                ManagedObject<?> other = server.lookup(new DefaultMOQuery(contextScope, false));
                 if (other != null) {
                     log.warn("group {} already existed", group);
                     return;
@@ -436,7 +436,7 @@ public class SnmpmanAgent extends BaseAgent {
     private void unregisterDefaultManagedObjects(final OctetString ctx) {
         final OID startOID = new OID(".1");
         final DefaultMOContextScope hackScope = new DefaultMOContextScope(ctx, startOID, true, startOID.nextPeer(), false);
-        ManagedObject query;
+        ManagedObject<?> query;
         while ((query = server.lookup(new DefaultMOQuery(hackScope, false))) != null) {
             server.unregister(query, ctx);
         }
@@ -451,7 +451,7 @@ public class SnmpmanAgent extends BaseAgent {
      * @param bindings the bindings as the base
      * @return the variable bindings for the specified device configuration
      */
-    
+    @SuppressWarnings("unchecked")
     private SortedMap<OID, Variable> getVariableBindings(final Device device, final Map<OID, Variable> bindings, final OctetString context) {
         log.trace("get variable bindings for agent \"{}\"", configuration.getName());
         final SortedMap<OID, Variable> result = new TreeMap<>();
@@ -485,7 +485,7 @@ public class SnmpmanAgent extends BaseAgent {
     
     protected void unregisterManagedObjects() {
         log.trace("unregistered managed objects for agent \"{}\"", agent);
-        for (final MOGroup mo : groups) {
+        for (final ManagedObject<?> mo : groups) {
             server.unregister(mo, null);
         }
     }

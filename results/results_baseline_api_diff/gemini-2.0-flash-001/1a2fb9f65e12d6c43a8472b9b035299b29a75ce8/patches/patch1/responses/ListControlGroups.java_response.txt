@@ -41,7 +41,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.metadata.BeanDescriptor;
 import jakarta.validation.metadata.ConstraintDescriptor;
-import jakarta.validation.metadata.PropertyDescriptor;
+import jakarta.validation.metadata.ElementDescriptor;
 
 import com.premiumminds.webapp.wicket.validators.HibernateValidatorProperty;
 import com.premiumminds.wicket.crudifier.IObjectRenderer;
@@ -131,14 +131,16 @@ public abstract class ListControlGroups<T> extends Panel {
 
 			boolean required = false;
 
-			PropertyDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+			ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
 			if(constraintDescriptor!=null){
 				Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
-				for(ConstraintDescriptor<?> constraint : constraintsSet){
-					if(constraint.getAnnotation() instanceof NotNull ||
-					   constraint.getAnnotation() instanceof NotEmpty ||
-					   constraint.getAnnotation() instanceof NotBlank)
-						required = true;
+				if (constraintsSet != null) {
+					for(ConstraintDescriptor<?> constraint : constraintsSet){
+						if(constraint.getAnnotation() instanceof NotNull ||
+						   constraint.getAnnotation() instanceof NotEmpty ||
+						   constraint.getAnnotation() instanceof NotBlank)
+							required = true;
+					}
 				}
 			}
 

@@ -447,12 +447,12 @@ public class LocalResourceManagerHelper {
     if (customErrorMessage != null) {
       return Error.INVALID_ARGUMENT.response(customErrorMessage);
     } else {
-      //project.setLifecycleState("ACTIVE"); // LifecycleState is not present in v3 Project
-      //project.setProjectNumber(Math.abs(PROJECT_NUMBER_GENERATOR.nextLong() % Long.MAX_VALUE)); // ProjectNumber is not present in v3 Project
-      project.setCreateTime(
-          DateTimeFormatter.ISO_DATE_TIME
-              .withZone(ZoneOffset.UTC)
-              .format(Instant.ofEpochMilli(System.currentTimeMillis())));
+      //project.setLifecycleState("ACTIVE");
+      //project.setProjectNumber(Math.abs(PROJECT_NUMBER_GENERATOR.nextLong() % Long.MAX_VALUE));
+      //project.setCreateTime(
+      //    DateTimeFormatter.ISO_DATE_TIME
+      //        .withZone(ZoneOffset.UTC)
+      //        .format(Instant.ofEpochMilli(System.currentTimeMillis())));
       if (projects.putIfAbsent(project.getProjectId(), project) != null) {
         return Error.ALREADY_EXISTS.response(
             "A project with the same project ID (" + project.getProjectId() + ") already exists.");
@@ -467,7 +467,7 @@ public class LocalResourceManagerHelper {
         // Pretend it's not done yet.
         String createdProjectStr =
             jsonFactory.toString(
-                new Operation().setDone(true).setName("operations/" + project.getProjectId()));
+                new Operation().setDone(false).setName("operations/" + project.getProjectId()));
         return new Response(HTTP_OK, createdProjectStr);
       } catch (IOException e) {
         return Error.INTERNAL_ERROR.response("Error serializing project " + project.getProjectId());
@@ -481,11 +481,11 @@ public class LocalResourceManagerHelper {
       return Error.PERMISSION_DENIED.response(
           "Error when deleting " + projectId + " because the project was not found.");
     }
-    //if (!project.getLifecycleState().equals("ACTIVE")) { // LifecycleState is not present in v3 Project
+    //if (!project.getLifecycleState().equals("ACTIVE")) {
     //  return Error.FAILED_PRECONDITION.response(
     //      "Error when deleting " + projectId + " because the lifecycle state was not ACTIVE.");
     //} else {
-    //  project.setLifecycleState("DELETE_REQUESTED"); // LifecycleState is not present in v3 Project
+    //  project.setLifecycleState("DELETE_REQUESTED");
       return new Response(HTTP_OK, "{}");
     //}
   }
@@ -583,8 +583,8 @@ public class LocalResourceManagerHelper {
           return false;
         }
       } else if (filterType.startsWith("labels.")) {
+        String labelKey = filterType.substring("labels.".length());
         if (project.getLabels() != null) {
-          String labelKey = filterType.substring("labels.".length());
           String labelValue = project.getLabels().get(labelKey);
           if (!satisfiesFilter(labelValue, filterEntry[1])) {
             return false;
@@ -615,7 +615,7 @@ public class LocalResourceManagerHelper {
         case "labels":
           project.setLabels(fullProject.getLabels());
           break;
-        //case "lifecycleState": // LifecycleState is not present in v3 Project
+        //case "lifecycleState":
         //  project.setLifecycleState(fullProject.getLifecycleState());
         //  break;
         case "name":
@@ -627,7 +627,7 @@ public class LocalResourceManagerHelper {
         case "projectId":
           project.setProjectId(fullProject.getProjectId());
           break;
-        //case "projectNumber": // ProjectNumber is not present in v3 Project
+        //case "projectNumber":
         //  project.setProjectNumber(fullProject.getProjectNumber());
         //  break;
       }
@@ -640,20 +640,19 @@ public class LocalResourceManagerHelper {
     if (originalProject == null) {
       return Error.PERMISSION_DENIED.response(
           "Error when replacing " + projectId + " because the project was not found.");
+    } //else if (!originalProject.getLifecycleState().equals("ACTIVE")) {
+      //return Error.FAILED_PRECONDITION.response(
+      //    "Error when replacing " + projectId + " because the lifecycle state was not ACTIVE.");
+    //}
+    else if (!Objects.equal(originalProject.getParent(), project.getParent())) {
+      return Error.INVALID_ARGUMENT.response(
+          "The server currently only supports setting the parent once "
+              + "and does not allow unsetting it.");
     }
-    //else if (!originalProject.getLifecycleState().equals("ACTIVE")) { // LifecycleState is not present in v3 Project
-    //  return Error.FAILED_PRECONDITION.response(
-    //      "Error when replacing " + projectId + " because the lifecycle state was not ACTIVE.");
-    //}
-    //else if (!Objects.equal(originalProject.getParent(), project.getParent())) { // Parent is not present in v1 Project
-    //  return Error.INVALID_ARGUMENT.response(
-    //      "The server currently only supports setting the parent once "
-    //          + "and does not allow unsetting it.");
-    //}
     project.setProjectId(projectId);
-    //project.setLifecycleState(originalProject.getLifecycleState()); // LifecycleState is not present in v3 Project
+    //project.setLifecycleState(originalProject.getLifecycleState());
     project.setCreateTime(originalProject.getCreateTime());
-    //project.setProjectNumber(originalProject.getProjectNumber()); // ProjectNumber is not present in v3 Project
+    //project.setProjectNumber(originalProject.getProjectNumber());
     // replace cannot fail because both this method and removeProject are synchronized
     projects.replace(projectId, project);
     try {
@@ -670,17 +669,17 @@ public class LocalResourceManagerHelper {
       response =
           Error.PERMISSION_DENIED.response(
               "Error when undeleting " + projectId + " because the project was not found.");
-    }
-    //else if (!project.getLifecycleState().equals("DELETE_REQUESTED")) { // LifecycleState is not present in v3 Project
-    //  response =
-    //      Error.FAILED_PRECONDITION.response(
-    //          "Error when undeleting "
-    //              + projectId
-    //              + " because the lifecycle state was not DELETE_REQUESTED.");
-    //} else {
-    //  project.setLifecycleState("ACTIVE"); // LifecycleState is not present in v3 Project
-      response = new Response(HTTP_OK, "{}");
+    } //else if (!project.getLifecycleState().equals("DELETE_REQUESTED")) {
+      //response =
+      //    Error.FAILED_PRECONDITION.response(
+      //        "Error when undeleting "
+      //            + projectId
+      //            + " because the lifecycle state was not DELETE_REQUESTED.");
     //}
+    else {
+      //project.setLifecycleState("ACTIVE");
+      response = new Response(HTTP_OK, "{}");
+    }
     return response;
   }
 
@@ -788,7 +787,7 @@ public class LocalResourceManagerHelper {
         "Lifecycle state must be ACTIVE, DELETE_REQUESTED, or DELETE_IN_PROGRESS");
     Project project = projects.get(checkNotNull(projectId));
     if (project != null) {
-      //project.setLifecycleState(lifecycleState); // LifecycleState is not present in v3 Project
+      //project.setLifecycleState(lifecycleState);
       return true;
     }
     return false;

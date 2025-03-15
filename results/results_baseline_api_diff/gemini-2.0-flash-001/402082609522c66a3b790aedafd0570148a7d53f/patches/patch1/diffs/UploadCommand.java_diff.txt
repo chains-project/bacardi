@@ -1,47 +1,47 @@
 10a11
 > import java.util.Optional;
-11a13
+11a13,14
 > import org.spongepowered.api.command.Command;
-13,16c15,17
+> import org.spongepowered.api.command.CommandExecutor;
+13,16c16,18
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
+> import org.spongepowered.api.command.exception.CommandException;
 > import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.parameter.Parameter;
-> import org.spongepowered.api.command.CommandExecutor;
-18,20c19,20
-< 
+19,20c21
 < import static org.spongepowered.api.command.args.GenericArguments.string;
 < import static org.spongepowered.api.text.Text.of;
 ---
-> import org.spongepowered.api.command.exception.CommandException;
-> import org.spongepowered.api.command.CommandSource;
-34,35c34,43
+> import net.kyori.adventure.text.TextComponent;
+34,35c35,45
 <     public CommandResult execute(CommandSource src, CommandContext args) {
 <         String url = args.<String>getOne("url").get();
 ---
->     public CommandResult execute(CommandContext context) throws CommandException {
->         Optional<String> urlOptional = context.one(Parameter.string().key("url").build());
->         if (!urlOptional.isPresent()) {
->             plugin.sendMessage(context.cause().get(CommandSource.class).orElse(null), "no-valid-url");
+>     public CommandResult execute(org.spongepowered.api.command.CommandSource src, CommandContext args) throws CommandException {
+>         Parameter.Value<String> urlParameter = args.one(Parameter.string("url")).get();
+>         Optional<String> optionalUrl = urlParameter.value();
+> 
+>         if (!optionalUrl.isPresent()) {
+>             plugin.sendMessage(src, "no-valid-url");
 >             return CommandResult.empty();
 >         }
 > 
->         String url = urlOptional.get();
->         CommandSource src = context.cause().get(CommandSource.class).orElse(null);
+>         String url = optionalUrl.get();
 > 
-53,54c61,62
+53,54c63,64
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
 ---
 >     public Command.Builder buildSpec() {
 >         return Command.builder()
-56,58c64,65
+56,58c66,67
 <                 .arguments(string(of("url")))
 <                 .permission(PomData.ARTIFACT_ID + ".command.skinupload.base")
 <                 .build();
 ---
->                 .addParameter(Parameter.string().key("url").build())
+>                 .addParameter(Parameter.string("url"))
 >                 .permission(PomData.ARTIFACT_ID + ".command.skinupload.base");

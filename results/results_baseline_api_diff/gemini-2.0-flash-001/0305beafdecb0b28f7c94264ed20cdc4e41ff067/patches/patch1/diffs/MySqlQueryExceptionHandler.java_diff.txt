@@ -4,4 +4,4 @@
 40c38
 <         return exception instanceof MySQLTimeoutException || super.isTimeoutException(exception);
 ---
->         return exception instanceof com.mysql.cj.jdbc.exceptions.MySQLTimeoutException || super.isTimeoutException(exception);
+>         return exception.getClass().getName().contains("MySQLTimeoutException") || super.isTimeoutException(exception);

@@ -1,7 +1,97 @@
-115c115,118
+18d17
+< import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
+20d18
+< import com.google.api.services.cloudresourcemanager.model.ListConstraint;
+23a22
+> import javax.annotation.Nullable;
+35,41d33
+<   static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+<       new Function<Constraint, ConstraintInfo>() {
+<         @Override
+<         public ConstraintInfo apply(Constraint protobuf) {
+<           return ConstraintInfo.fromProtobuf(protobuf);
+<         }
+<       };
+48a41,47
+>   static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+>       new Function<Constraint, ConstraintInfo>() {
+>         @Override
+>         public ConstraintInfo apply(Constraint protobuf) {
+>           return ConstraintInfo.fromProtobuf(protobuf);
+>         }
+>       };
+50c49
+<   private BooleanConstraint booleanConstraint;
+---
+>   private Boolean booleanConstraint;
+114,115c113,118
+<     ListConstraint toProtobuf() {
 <       return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
 ---
->       ListConstraint listConstraint = new ListConstraint();
+>     com.google.api.services.cloudresourcemanager.model.ListConstraint toProtobuf() {
+>       com.google.api.services.cloudresourcemanager.model.ListConstraint listConstraint =
+>           new com.google.api.services.cloudresourcemanager.model.ListConstraint();
 >       listConstraint.setSuggestedValue(suggestedValue);
 >       listConstraint.setSupportsUnder(supportsUnder);
 >       return listConstraint;
+118c121,122
+<     static Constraints fromProtobuf(ListConstraint listConstraint) {
+---
+>     static Constraints fromProtobuf(
+>         com.google.api.services.cloudresourcemanager.model.ListConstraint listConstraint) {
+125c129
+<     private BooleanConstraint booleanConstraint;
+---
+>     private Boolean booleanConstraint;
+147c151
+<     Builder setBooleanConstraint(BooleanConstraint booleanConstraint) {
+---
+>     Builder setBooleanConstraint(Boolean booleanConstraint) {
+198c202
+<   public BooleanConstraint getBooleanConstraint() {
+---
+>   public Boolean getBooleanConstraint() {
+268,269c272,273
+<     constraintProto.setBooleanConstraint(booleanConstraint);
+<     constraintProto.setConstraintDefault(constraintDefault);
+---
+>     constraintProto.setName(name);
+>     constraintProto.setVersion(version);
+275,276c279,280
+<     constraintProto.setName(name);
+<     constraintProto.setVersion(version);
+---
+>     constraintProto.setConstraintDefault(constraintDefault);
+>     constraintProto.setBooleanConstraint(booleanConstraint);
+282,283c286
+<     builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint());
+<     builder.setConstraintDefault(constraintProtobuf.getConstraintDefault());
+---
+>     builder.setVersion(constraintProtobuf.getVersion());
+289,292c292,293
+<     if (constraintProtobuf.getName() != null && !constraintProtobuf.getName().equals("Unnamed")) {
+<       builder.setName(constraintProtobuf.getName());
+<     }
+<     builder.setVersion(constraintProtobuf.getVersion());
+---
+>     builder.setConstraintDefault(constraintProtobuf.getConstraintDefault());
+>     builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint());
+294a296,313
+> 
+>   /**
+>    * Represents a boolean constraint.
+>    *
+>    * @deprecated BooleanConstraint has been removed in the new version of the dependency.
+>    */
+>   @Deprecated
+>   public static class Boolean {
+>     private final java.lang.Boolean enforced;
+> 
+>     public Boolean(java.lang.Boolean enforced) {
+>       this.enforced = enforced;
+>     }
+> 
+>     public java.lang.Boolean getEnforced() {
+>       return enforced;
+>     }
+>   }

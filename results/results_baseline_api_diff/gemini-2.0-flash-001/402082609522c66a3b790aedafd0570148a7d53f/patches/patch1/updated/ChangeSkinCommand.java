@@ -8,5 +8,5 @@ import org.spongepowered.api.command.parameter.CommandContext;
 @FunctionalInterface
 public interface ChangeSkinCommand {
 
-    CommandSpec buildSpec();
+    Command.Parameterized buildSpec();
 }
