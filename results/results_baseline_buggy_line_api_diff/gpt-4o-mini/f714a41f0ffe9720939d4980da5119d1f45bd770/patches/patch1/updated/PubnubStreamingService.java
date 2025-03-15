@@ -11,9 +11,9 @@ import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
+import com.pubnub.api.models.consumer.pubsub.PNUserResult;
 import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
 import com.pubnub.api.models.consumer.objects_api.membership.PNMembershipResult;
-import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -54,9 +54,9 @@ public class PubnubStreamingService {
                       pnStatusCategory.toString(),
                       pnStatus.getStatusCode());
                   if (pnStatusCategory == PNStatusCategory.PNConnectedCategory) {
-                    //              e.onComplete();
+                    e.onComplete();
                   } else if (pnStatus.isError()) {
-                    //              e.onError(pnStatus.getErrorData().getThrowable());
+                    e.onError(pnStatus.getErrorData().getThrowable());
                   }
                 }
 
@@ -86,6 +86,11 @@ public class PubnubStreamingService {
                 @Override
                 public void signal(PubNub pubnub, PNSignalResult pnSignalResult) {
                   LOG.debug("PubNub signal: {}", pnSignalResult.toString());
+                }
+
+                @Override
+                public void user(PubNub pubnub, PNUserResult pnUserResult) {
+                  LOG.debug("PubNub user: {}", pnUserResult.toString());
                 }
 
                 @Override

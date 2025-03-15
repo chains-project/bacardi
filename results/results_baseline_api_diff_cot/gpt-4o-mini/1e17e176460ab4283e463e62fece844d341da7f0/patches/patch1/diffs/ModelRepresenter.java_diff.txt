@@ -1,2 +1,8 @@
-37a38
->     super(); // Explicitly call the super constructor
+22a23
+> import org.yaml.snakeyaml.DumperOptions; // New import for the updated constructor
+37a39
+>     super(new DumperOptions()); // Updated constructor call
+237c239
+<       Set<Property> standard = super.getProperties(type);
+---
+>       Set<Property> standard = PropertyUtils.getProperties(type); // Updated to use PropertyUtils

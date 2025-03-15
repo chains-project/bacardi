@@ -135,7 +135,6 @@ public final class UpdateChecker {
      * @return a possibly empty set of versions, sorted descending
      */
     private SortedSet<VersionAndRepo> loadVersions(String groupId, String artifactId) throws Exception {
-        // TODO consider using official Aether APIs here (could make use of local cache)
         SortedSet<VersionAndRepo> r = new TreeSet<>();
         for (String repo : repos) {
             String mavenMetadataURL = repo + groupId.replace('.', '/') + '/' + artifactId + "/maven-metadata.xml";
@@ -168,9 +167,6 @@ public final class UpdateChecker {
         }
     }
 
-    /**
-     * Parses {@code /project/scm/url} and {@code /project/scm/tag} out of a POM, if mapped to a commit.
-     */
     private static @CheckForNull GitHubCommit loadGitHubCommit(VersionAndRepo vnr) throws Exception {
         String pom = vnr.fullURL("pom");
         Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(pom);
@@ -195,14 +191,6 @@ public final class UpdateChecker {
         return new GitHubCommit(groupId, artifactId, tag);
     }
 
-    /**
-     * Checks whether a commit is an ancestor of a given branch head.
-     * {@code curl -s -u … https://api.github.com/repos/<owner>/<repo>/compare/<branch>...<hash> | jq -r .status}
-     * will return {@code identical} or {@code behind} if so, else {@code diverged} or {@code ahead}.
-     * @param branch may be {@code master} or {@code forker:branch}
-     * @see <a href="https://developer.github.com/v3/repos/commits/#compare-two-commits">Compare two commits</a>
-     * @see <a href="https://stackoverflow.com/a/23970412/12916">Discussion</a>
-     */
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
             GHRepository repository = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo);

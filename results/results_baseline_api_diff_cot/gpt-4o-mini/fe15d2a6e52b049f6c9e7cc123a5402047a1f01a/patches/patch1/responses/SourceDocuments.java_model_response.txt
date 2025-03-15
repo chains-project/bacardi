@@ -539,7 +539,7 @@ public class SourceDocuments implements ToString2
      *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}DebitAmount"/&gt;
      *                               &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}CreditAmount"/&gt;
      *                             &lt;/choice&gt;
-     *                             &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Tax" minOccurs="0"/&gt;
+     *                             &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementTax" minOccurs="0"/&gt;
      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxExemptionReason" minOccurs="0"/&gt;
      *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SettlementAmount" minOccurs="0"/&gt;
      *                           &lt;/sequence&gt;
@@ -552,566 +552,898 @@ public class SourceDocuments implements ToString2
      *             &lt;/complexContent&gt;
      *           &lt;/complexType&gt;
      *         &lt;/element&gt;
-     *         &lt;element name="WorkingDocuments" minOccurs="0"&gt;
-     *           &lt;complexType&gt;
-     *             &lt;complexContent&gt;
-     *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-     *                 &lt;sequence&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}NumberOfEntries"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TotalDebit"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TotalCredit"/&gt;
-     *                   &lt;element name="WorkDocument" maxOccurs="unbounded" minOccurs="0"&gt;
-     *                     &lt;complexType&gt;
-     *                       &lt;complexContent&gt;
-     *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-     *                           &lt;sequence&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}DocumentNumber"/&gt;
-     *                             &lt;element name="DocumentStatus"&gt;
-     *                               &lt;complexType&gt;
-     *                                 &lt;complexContent&gt;
-     *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-     *                                     &lt;sequence&gt;
-     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}WorkStatus"/&gt;
-     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}WorkStatusDate"/&gt;
-     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Reason" minOccurs="0"/&gt;
-     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SourceID"/&gt;
-     *                                     &lt;/sequence&gt;
-     *                                   &lt;/restriction&gt;
-     *                                 &lt;/complexContent&gt;
-     *                               &lt;/complexType&gt;
-     *                             &lt;/element&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Hash"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}HashControl" minOccurs="0"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Period" minOccurs="0"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}WorkDate"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}WorkType"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SourceID"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}EACCode" minOccurs="0"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SystemEntryDate"/&gt;
-     *                             &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}CustomerID"/&gt;
-     *                             &lt;element name="Line" maxOccurs="unbounded"&gt;
-     *                               &lt;complexType&gt;
-     *                                 &lt;complexContent&gt;
-     *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-     *                                     &lt;sequence&gt;
-     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}LineNumber"/&gt;
-     *                                       &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}ProductCode"/&gt;
-     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}ProductDescription"/&gt;
-     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Quantity"/&gt;
-     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}UnitOfMeasure"/&gt;
-     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}UnitPrice"/&gt;
-     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Description"/&gt;
-     *                                       &lt;choice&gt;
-     *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}DebitAmount"/&gt;
-     *                                         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}CreditAmount"/&gt;
-     *                                       &lt;/choice&gt;
-     *                                       &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Tax" minOccurs="0"/&gt;
-     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxExemptionReason" minOccurs="0"/&gt;
-     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SettlementAmount" minOccurs="0"/&gt;
-     *                                     &lt;/sequence&gt;
-     *                                   &lt;/restriction&gt;
-     *                                 &lt;/complexContent&gt;
-     *                               &lt;/complexType&gt;
-     *                             &lt;/element&gt;
-     *                             &lt;element name="DocumentTotals"&gt;
-     *                               &lt;complexType&gt;
-     *                                 &lt;complexContent&gt;
-     *                                   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-     *                                     &lt;sequence&gt;
-     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxPayable"/&gt;
-     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}NetTotal"/&gt;
-     *                                       &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}GrossTotal"/&gt;
-     *                                       &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Currency" minOccurs="0"/&gt;
-     *                                     &lt;/sequence&gt;
-     *                                   &lt;/restriction&gt;
-     *                                 &lt;/complexContent&gt;
-     *                               &lt;/complexType&gt;
-     *                             &lt;/element&gt;
-     *                           &lt;/sequence&gt;
-     *                         &lt;/restriction&gt;
-     *                       &lt;/complexContent&gt;
-     *                     &lt;/complexType&gt;
-     *                   &lt;/element&gt;
-     *                 &lt;/sequence&gt;
-     *               &lt;/restriction&gt;
-     *             &lt;/complexContent&gt;
-     *           &lt;/complexType&gt;
-     *         &lt;/element&gt;
      *       &lt;/sequence&gt;
      *     &lt;/restriction&gt;
      *   &lt;/complexContent&gt;
      * &lt;/complexType&gt;
- * </pre>
- * 
- * 
- */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "numberOfMovementLines",
-    "totalQuantityIssued",
-    "stockMovement"
-})
-public static class MovementOfGoods implements ToString2
-{
-
-    @XmlElement(name = "NumberOfMovementLines", required = true)
-    @XmlSchemaType(name = "nonNegativeInteger")
-    protected BigInteger numberOfMovementLines;
-    @XmlElement(name = "TotalQuantityIssued", required = true)
-    protected BigDecimal totalQuantityIssued;
-    @XmlElement(name = "StockMovement")
-    protected List<SourceDocuments.MovementOfGoods.StockMovement> stockMovement;
-
-    /**
-     * Gets the value of the numberOfMovementLines property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigInteger }
-     *     
-     */
-    public BigInteger getNumberOfMovementLines() {
-        return numberOfMovementLines;
-    }
-
-    /**
-     * Sets the value of the numberOfMovementLines property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigInteger }
-     *     
-     */
-    public void setNumberOfMovementLines(BigInteger value) {
-        this.numberOfMovementLines = value;
-    }
-
-    /**
-     * Gets the value of the totalQuantityIssued property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public BigDecimal getTotalQuantityIssued() {
-        return totalQuantityIssued;
-    }
-
-    /**
-     * Sets the value of the totalQuantityIssued property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public void setTotalQuantityIssued(BigDecimal value) {
-        this.totalQuantityIssued = value;
-    }
-
-    /**
-     * Gets the value of the stockMovement property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the stockMovement property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getStockMovement().add(newItem);
      * </pre>
      * 
      * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link SourceDocuments.MovementOfGoods.StockMovement }
-     * 
-     * 
      */
-    public List<SourceDocuments.MovementOfGoods.StockMovement> getStockMovement() {
-        if (stockMovement == null) {
-            stockMovement = new ArrayList<SourceDocuments.MovementOfGoods.StockMovement>();
+    @XmlAccessorType(XmlAccessType.FIELD)
+    @XmlType(name = "", propOrder = {
+        "numberOfMovementLines",
+        "totalQuantityIssued",
+        "stockMovement"
+    })
+    public static class MovementOfGoods implements ToString2
+    {
+
+        @XmlElement(name = "NumberOfMovementLines", required = true)
+        @XmlSchemaType(name = "nonNegativeInteger")
+        protected BigInteger numberOfMovementLines;
+        @XmlElement(name = "TotalQuantityIssued", required = true)
+        protected BigDecimal totalQuantityIssued;
+        @XmlElement(name = "StockMovement")
+        protected List<SourceDocuments.MovementOfGoods.StockMovement> stockMovement;
+
+        /**
+         * Gets the value of the numberOfMovementLines property.
+         * 
+         * @return
+         *     possible object is
+         *     {@link BigInteger }
+         *     
+         */
+        public BigInteger getNumberOfMovementLines() {
+            return numberOfMovementLines;
         }
-        return this.stockMovement;
-    }
 
-    @Override
-    public String toString() {
-        final ToStringStrategy2 strategy = new ToStringStrategy2() {
-            @Override
-            public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
-                buffer.append(object.getClass().getSimpleName()).append(" [");
-                return buffer;
+        /**
+         * Sets the value of the numberOfMovementLines property.
+         * 
+         * @param value
+         *     allowed object is
+         *     {@link BigInteger }
+         *     
+         */
+        public void setNumberOfMovementLines(BigInteger value) {
+            this.numberOfMovementLines = value;
+        }
+
+        /**
+         * Gets the value of the totalQuantityIssued property.
+         * 
+         * @return
+         *     possible object is
+         *     {@link BigDecimal }
+         *     
+         */
+        public BigDecimal getTotalQuantityIssued() {
+            return totalQuantityIssued;
+        }
+
+        /**
+         * Sets the value of the totalQuantityIssued property.
+         * 
+         * @param value
+         *     allowed object is
+         *     {@link BigDecimal }
+         *     
+         */
+        public void setTotalQuantityIssued(BigDecimal value) {
+            this.totalQuantityIssued = value;
+        }
+
+        /**
+         * Gets the value of the stockMovement property.
+         * 
+         * <p>
+         * This accessor method returns a reference to the live list,
+         * not a snapshot. Therefore any modification you make to the
+         * returned list will be present inside the JAXB object.
+         * This is why there is not a <CODE>set</CODE> method for the stockMovement property.
+         * 
+         * <p>
+         * For example, to add a new item, do as follows:
+         * <pre>
+         *    getStockMovement().add(newItem);
+         * </pre>
+         * 
+         * 
+         * <p>
+         * Objects of the following type(s) are allowed in the list
+         * {@link SourceDocuments.MovementOfGoods.StockMovement }
+         * 
+         * 
+         */
+        public List<SourceDocuments.MovementOfGoods.StockMovement> getStockMovement() {
+            if (stockMovement == null) {
+                stockMovement = new ArrayList<SourceDocuments.MovementOfGoods.StockMovement>();
             }
+            return this.stockMovement;
+        }
 
-            @Override
-            public StringBuilder appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object fieldValue, boolean isSet) {
-                buffer.append(fieldName).append("=").append(fieldValue).append(", ");
-                return buffer;
-            }
-
-            @Override
-            public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
-                if (buffer.length() > 2) {
-                    buffer.setLength(buffer.length() - 2); // Remove last comma and space
+        @Override
+        public String toString() {
+            final ToStringStrategy2 strategy = new ToStringStrategy2() {
+                @Override
+                public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+                    buffer.append(object.getClass().getSimpleName()).append(" [");
+                    return buffer;
                 }
-                buffer.append("]");
-                return buffer;
-            }
-        };
-        final StringBuilder buffer = new StringBuilder();
-        append(null, buffer, strategy);
-        return buffer.toString();
-    }
 
-    @Override
-    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-        strategy.appendStart(locator, this, buffer);
-        appendFields(locator, buffer, strategy);
-        strategy.appendEnd(locator, this, buffer);
-        return buffer;
-    }
-
-    @Override
-    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-        {
-            BigInteger theNumberOfMovementLines;
-            theNumberOfMovementLines = this.getNumberOfMovementLines();
-            strategy.appendField(locator, this, "numberOfMovementLines", buffer, theNumberOfMovementLines, (this.numberOfMovementLines!= null));
-        }
-        {
-            BigDecimal theTotalQuantityIssued;
-            theTotalQuantityIssued = this.getTotalQuantityIssued();
-            strategy.appendField(locator, this, "totalQuantityIssued", buffer, theTotalQuantityIssued, (this.totalQuantityIssued!= null));
-        }
-        {
-            List<SourceDocuments.MovementOfGoods.StockMovement> theStockMovement;
-            theStockMovement = (((this.stockMovement!= null)&&(!this.stockMovement.isEmpty()))?this.getStockMovement():null);
-            strategy.appendField(locator, this, "stockMovement", buffer, theStockMovement, ((this.stockMovement!= null)&&(!this.stockMovement.isEmpty())));
-        }
-        return buffer;
-    }
-
-
-    /**
-     * <p>Java class for anonymous complex type.
-     * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
-     * 
-     * <pre>
-     * &lt;complexType&gt;
-     *   &lt;complexContent&gt;
-     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-     *       &lt;sequence&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}DocumentNumber"/&gt;
-     *         &lt;element name="DocumentStatus"&gt;
-     *           &lt;complexType&gt;
-     *             &lt;complexContent&gt;
-     *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-     *                 &lt;sequence&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementStatus"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementStatusDate"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Reason" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SourceID"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SourceBilling"/&gt;
-     *                 &lt;/sequence&gt;
-     *               &lt;/restriction&gt;
-     *             &lt;/complexContent&gt;
-     *           &lt;/complexType&gt;
-     *         &lt;/element&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Hash"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}HashControl" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Period" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementDate"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementType"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SystemEntryDate"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TransactionID" minOccurs="0"/&gt;
-     *         &lt;choice&gt;
-     *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}CustomerID"/&gt;
-     *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SupplierID"/&gt;
-     *         &lt;/choice&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SourceID"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}EACCode" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementComments" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}ShipTo" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}ShipFrom" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementEndTime" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementStartTime"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}ATDocCodeID" minOccurs="0"/&gt;
-     *         &lt;element name="Line" maxOccurs="unbounded"&gt;
-     *           &lt;complexType&gt;
-     *             &lt;complexContent&gt;
-     *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-     *                 &lt;sequence&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}LineNumber"/&gt;
-     *                   &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}ProductCode"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}ProductDescription"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Quantity"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}UnitOfMeasure"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}UnitPrice"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Description"/&gt;
-     *                   &lt;choice&gt;
-     *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}DebitAmount"/&gt;
-     *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}CreditAmount"/&gt;
-     *                   &lt;/choice&gt;
-     *                   &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementTax" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxExemptionReason" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SettlementAmount" minOccurs="0"/&gt;
-     *                 &lt;/sequence&gt;
-     *               &lt;/restriction&gt;
-     *             &lt;/complexContent&gt;
-     *           &lt;/complexType&gt;
-     *         &lt;/element&gt;
-     *         &lt;element name="DocumentTotals"&gt;
-     *           &lt;complexType&gt;
-     *             &lt;complexContent&gt;
-     *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-     *                 &lt;sequence&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxPayable"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}NetTotal"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}GrossTotal"/&gt;
-     *                   &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Currency" minOccurs="0"/&gt;
-     *                 &lt;/sequence&gt;
-     *               &lt;/restriction&gt;
-     *             &lt;/complexContent&gt;
-     *           &lt;/complexType&gt;
-     *         &lt;/element&gt;
-     *       &lt;/sequence&gt;
-     *     &lt;/restriction&gt;
-     *   &lt;/complexContent&gt;
-     * &lt;/complexType&gt;
- * </pre>
- * 
- * 
- */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "numberOfEntries",
-    "totalDebit",
-    "totalCredit",
-    "workDocument"
-})
-public static class WorkingDocuments implements ToString2
-{
-
-    @XmlElement(name = "NumberOfEntries", required = true)
-    @XmlSchemaType(name = "nonNegativeInteger")
-    protected BigInteger numberOfEntries;
-    @XmlElement(name = "TotalDebit", required = true)
-    protected BigDecimal totalDebit;
-    @XmlElement(name = "TotalCredit", required = true)
-    protected BigDecimal totalCredit;
-    @XmlElement(name = "WorkDocument")
-    protected List<SourceDocuments.WorkingDocuments.WorkDocument> workDocument;
-
-    /**
-     * Gets the value of the numberOfEntries property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigInteger }
-     *     
-     */
-    public BigInteger getNumberOfEntries() {
-        return numberOfEntries;
-    }
-
-    /**
-     * Sets the value of the numberOfEntries property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigInteger }
-     *     
-     */
-    public void setNumberOfEntries(BigInteger value) {
-        this.numberOfEntries = value;
-    }
-
-    /**
-     * Gets the value of the totalDebit property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public BigDecimal getTotalDebit() {
-        return totalDebit;
-    }
-
-    /**
-     * Sets the value of the totalDebit property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public void setTotalDebit(BigDecimal value) {
-        this.totalDebit = value;
-    }
-
-    /**
-     * Gets the value of the totalCredit property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public BigDecimal getTotalCredit() {
-        return totalCredit;
-    }
-
-    /**
-     * Sets the value of the totalCredit property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public void setTotalCredit(BigDecimal value) {
-        this.totalCredit = value;
-    }
-
-    /**
-     * Gets the value of the workDocument property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the workDocument property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getWorkDocument().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link SourceDocuments.WorkingDocuments.WorkDocument }
-     * 
-     * 
-     */
-    public List<SourceDocuments.WorkingDocuments.WorkDocument> getWorkDocument() {
-        if (workDocument == null) {
-            workDocument = new ArrayList<SourceDocuments.WorkingDocuments.WorkDocument>();
-        }
-        return this.workDocument;
-    }
-
-    @Override
-    public String toString() {
-        final ToStringStrategy2 strategy = new ToStringStrategy2() {
-            @Override
-            public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
-                buffer.append(object.getClass().getSimpleName()).append(" [");
-                return buffer;
-            }
-
-            @Override
-            public StringBuilder appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object fieldValue, boolean isSet) {
-                buffer.append(fieldName).append("=").append(fieldValue).append(", ");
-                return buffer;
-            }
-
-            @Override
-            public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
-                if (buffer.length() > 2) {
-                    buffer.setLength(buffer.length() - 2); // Remove last comma and space
+                @Override
+                public StringBuilder appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object fieldValue, boolean isSet) {
+                    buffer.append(fieldName).append("=").append(fieldValue).append(", ");
+                    return buffer;
                 }
-                buffer.append("]");
+
+                @Override
+                public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+                    if (buffer.length() > 2) {
+                        buffer.setLength(buffer.length() - 2); // Remove last comma and space
+                    }
+                    buffer.append("]");
+                    return buffer;
+                }
+            };
+            final StringBuilder buffer = new StringBuilder();
+            append(null, buffer, strategy);
+            return buffer.toString();
+        }
+
+        @Override
+        public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+            strategy.appendStart(locator, this, buffer);
+            appendFields(locator, buffer, strategy);
+            strategy.appendEnd(locator, this, buffer);
+            return buffer;
+        }
+
+        @Override
+        public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+            {
+                BigInteger theNumberOfMovementLines;
+                theNumberOfMovementLines = this.getNumberOfMovementLines();
+                strategy.appendField(locator, this, "numberOfMovementLines", buffer, theNumberOfMovementLines, (this.numberOfMovementLines!= null));
+            }
+            {
+                BigDecimal theTotalQuantityIssued;
+                theTotalQuantityIssued = this.getTotalQuantityIssued();
+                strategy.appendField(locator, this, "totalQuantityIssued", buffer, theTotalQuantityIssued, (this.totalQuantityIssued!= null));
+            }
+            {
+                List<SourceDocuments.MovementOfGoods.StockMovement> theStockMovement;
+                theStockMovement = (((this.stockMovement!= null)&&(!this.stockMovement.isEmpty()))?this.getStockMovement():null);
+                strategy.appendField(locator, this, "stockMovement", buffer, theStockMovement, ((this.stockMovement!= null)&&(!this.stockMovement.isEmpty())));
+            }
+            return buffer;
+        }
+
+
+        /**
+         * <p>Java class for anonymous complex type.
+         * 
+         * <p>The following schema fragment specifies the expected content contained within this class.
+         * 
+         * <pre>
+         * &lt;complexType&gt;
+         *   &lt;complexContent&gt;
+         *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+         *       &lt;sequence&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}DocumentNumber"/&gt;
+         *         &lt;element name="DocumentStatus"&gt;
+         *           &lt;complexType&gt;
+         *             &lt;complexContent&gt;
+         *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+         *                 &lt;sequence&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementStatus"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementStatusDate"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Reason" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SourceID"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SourceBilling"/&gt;
+         *                 &lt;/sequence&gt;
+         *               &lt;/restriction&gt;
+         *             &lt;/complexContent&gt;
+         *           &lt;/complexType&gt;
+         *         &lt;/element&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Hash"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}HashControl" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Period" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementDate"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementType"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SystemEntryDate"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TransactionID" minOccurs="0"/&gt;
+         *         &lt;choice&gt;
+         *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}CustomerID"/&gt;
+         *           &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SupplierID"/&gt;
+         *         &lt;/choice&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SourceID"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}EACCode" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementComments" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}ShipTo" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}ShipFrom" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementEndTime" minOccurs="0"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementStartTime"/&gt;
+         *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}ATDocCodeID" minOccurs="0"/&gt;
+         *         &lt;element name="Line" maxOccurs="unbounded"&gt;
+         *           &lt;complexType&gt;
+         *             &lt;complexContent&gt;
+         *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+         *                 &lt;sequence&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}LineNumber"/&gt;
+         *                   &lt;element name="OrderReferences" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}OrderReferences" maxOccurs="unbounded" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}ProductCode"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}ProductDescription"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Quantity"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}UnitOfMeasure"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}UnitPrice"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Description"/&gt;
+         *                   &lt;choice&gt;
+         *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}DebitAmount"/&gt;
+         *                     &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}CreditAmount"/&gt;
+         *                   &lt;/choice&gt;
+         *                   &lt;element name="Tax" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}MovementTax" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxExemptionReason" minOccurs="0"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SettlementAmount" minOccurs="0"/&gt;
+         *                 &lt;/sequence&gt;
+         *               &lt;/restriction&gt;
+         *             &lt;/complexContent&gt;
+         *           &lt;/complexType&gt;
+         *         &lt;/element&gt;
+         *         &lt;element name="DocumentTotals"&gt;
+         *           &lt;complexType&gt;
+         *             &lt;complexContent&gt;
+         *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+         *                 &lt;sequence&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}TaxPayable"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}NetTotal"/&gt;
+         *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}GrossTotal"/&gt;
+         *                   &lt;element name="Currency" type="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Currency" minOccurs="0"/&gt;
+         *                 &lt;/sequence&gt;
+         *               &lt;/restriction&gt;
+         *             &lt;/complexContent&gt;
+         *           &lt;/complexType&gt;
+         *         &lt;/element&gt;
+         *       &lt;/sequence&gt;
+         *     &lt;/restriction&gt;
+         *   &lt;/complexContent&gt;
+         * &lt;/complexType&gt;
+         * </pre>
+         * 
+         * 
+         */
+        @XmlAccessorType(XmlAccessType.FIELD)
+        @XmlType(name = "", propOrder = {
+            "numberOfMovementLines",
+            "totalQuantityIssued",
+            "stockMovement"
+        })
+        public static class StockMovement implements ToString2
+        {
+
+            @XmlElement(name = "DocumentNumber", required = true)
+            protected String documentNumber;
+            @XmlElement(name = "DocumentStatus", required = true)
+            protected SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus documentStatus;
+            @XmlElement(name = "Hash", required = true)
+            protected String hash;
+            @XmlElement(name = "HashControl")
+            protected String hashControl;
+            @XmlElement(name = "Period")
+            protected Integer period;
+            @XmlElement(name = "MovementDate", required = true)
+            @XmlSchemaType(name = "date")
+            protected XMLGregorianCalendar movementDate;
+            @XmlElement(name = "MovementType", required = true)
+            protected String movementType;
+            @XmlElement(name = "SystemEntryDate", required = true)
+            @XmlSchemaType(name = "dateTime")
+            protected XMLGregorianCalendar systemEntryDate;
+            @XmlElement(name = "TransactionID")
+            protected String transactionID;
+            @XmlElement(name = "CustomerID")
+            protected String customerID;
+            @XmlElement(name = "SupplierID")
+            protected String supplierID;
+            @XmlElement(name = "SourceID", required = true)
+            protected String sourceID;
+            @XmlElement(name = "EACCode")
+            protected String eacCode;
+            @XmlElement(name = "MovementComments")
+            protected String movementComments;
+            @XmlElement(name = "ShipTo")
+            protected ShippingPointStructure shipTo;
+            @XmlElement(name = "ShipFrom")
+            protected ShippingPointStructure shipFrom;
+            @XmlElement(name = "MovementEndTime")
+            @XmlSchemaType(name = "dateTime")
+            protected XMLGregorianCalendar movementEndTime;
+            @XmlElement(name = "MovementStartTime", required = true)
+            @XmlSchemaType(name = "dateTime")
+            protected XMLGregorianCalendar movementStartTime;
+            @XmlElement(name = "ATDocCodeID")
+            protected String atDocCodeID;
+            @XmlElement(name = "Line", required = true)
+            protected List<SourceDocuments.MovementOfGoods.StockMovement.Line> line;
+            @XmlElement(name = "DocumentTotals", required = true)
+            protected SourceDocuments.MovementOfGoods.StockMovement.DocumentTotals documentTotals;
+
+            /**
+             * Gets the value of the documentNumber property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link String }
+             *     
+             */
+            public String getDocumentNumber() {
+                return documentNumber;
+            }
+
+            /**
+             * Sets the value of the documentNumber property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link String }
+             *     
+             */
+            public void setDocumentNumber(String value) {
+                this.documentNumber = value;
+            }
+
+            /**
+             * Gets the value of the documentStatus property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus }
+             *     
+             */
+            public SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus getDocumentStatus() {
+                return documentStatus;
+            }
+
+            /**
+             * Sets the value of the documentStatus property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus }
+             *     
+             */
+            public void setDocumentStatus(SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus value) {
+                this.documentStatus = value;
+            }
+
+            /**
+             * Gets the value of the hash property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link String }
+             *     
+             */
+            public String getHash() {
+                return hash;
+            }
+
+            /**
+             * Sets the value of the hash property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link String }
+             *     
+             */
+            public void setHash(String value) {
+                this.hash = value;
+            }
+
+            /**
+             * Gets the value of the hashControl property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link String }
+             *     
+             */
+            public String getHashControl() {
+                return hashControl;
+            }
+
+            /**
+             * Sets the value of the hashControl property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link String }
+             *     
+             */
+            public void setHashControl(String value) {
+                this.hashControl = value;
+            }
+
+            /**
+             * Gets the value of the period property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link Integer }
+             *     
+             */
+            public Integer getPeriod() {
+                return period;
+            }
+
+            /**
+             * Sets the value of the period property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link Integer }
+             *     
+             */
+            public void setPeriod(Integer value) {
+                this.period = value;
+            }
+
+            /**
+             * Gets the value of the movementDate property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link XMLGregorianCalendar }
+             *     
+             */
+            public XMLGregorianCalendar getMovementDate() {
+                return movementDate;
+            }
+
+            /**
+             * Sets the value of the movementDate property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link XMLGregorianCalendar }
+             *     
+             */
+            public void setMovementDate(XMLGregorianCalendar value) {
+                this.movementDate = value;
+            }
+
+            /**
+             * Gets the value of the movementType property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link String }
+             *     
+             */
+            public String getMovementType() {
+                return movementType;
+            }
+
+            /**
+             * Sets the value of the movementType property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link String }
+             *     
+             */
+            public void setMovementType(String value) {
+                this.movementType = value;
+            }
+
+            /**
+             * Gets the value of the systemEntryDate property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link XMLGregorianCalendar }
+             *     
+             */
+            public XMLGregorianCalendar getSystemEntryDate() {
+                return systemEntryDate;
+            }
+
+            /**
+             * Sets the value of the systemEntryDate property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link XMLGregorianCalendar }
+             *     
+             */
+            public void setSystemEntryDate(XMLGregorianCalendar value) {
+                this.systemEntryDate = value;
+            }
+
+            /**
+             * Gets the value of the transactionID property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link String }
+             *     
+             */
+            public String getTransactionID() {
+                return transactionID;
+            }
+
+            /**
+             * Sets the value of the transactionID property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link String }
+             *     
+             */
+            public void setTransactionID(String value) {
+                this.transactionID = value;
+            }
+
+            /**
+             * Gets the value of the customerID property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link String }
+             *     
+             */
+            public String getCustomerID() {
+                return customerID;
+            }
+
+            /**
+             * Sets the value of the customerID property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link String }
+             *     
+             */
+            public void setCustomerID(String value) {
+                this.customerID = value;
+            }
+
+            /**
+             * Gets the value of the supplierID property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link String }
+             *     
+             */
+            public String getSupplierID() {
+                return supplierID;
+            }
+
+            /**
+             * Sets the value of the supplierID property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link String }
+             *     
+             */
+            public void setSupplierID(String value) {
+                this.supplierID = value;
+            }
+
+            /**
+             * Gets the value of the sourceID property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link String }
+             *     
+             */
+            public String getSourceID() {
+                return sourceID;
+            }
+
+            /**
+             * Sets the value of the sourceID property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link String }
+             *     
+             */
+            public void setSourceID(String value) {
+                this.sourceID = value;
+            }
+
+            /**
+             * Gets the value of the eacCode property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link String }
+             *     
+             */
+            public String getEACCode() {
+                return eacCode;
+            }
+
+            /**
+             * Sets the value of the eacCode property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link String }
+             *     
+             */
+            public void setEACCode(String value) {
+                this.eacCode = value;
+            }
+
+            /**
+             * Gets the value of the movementComments property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link String }
+             *     
+             */
+            public String getMovementComments() {
+                return movementComments;
+            }
+
+            /**
+             * Sets the value of the movementComments property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link String }
+             *     
+             */
+            public void setMovementComments(String value) {
+                this.movementComments = value;
+            }
+
+            /**
+             * Gets the value of the shipTo property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link ShippingPointStructure }
+             *     
+             */
+            public ShippingPointStructure getShipTo() {
+                return shipTo;
+            }
+
+            /**
+             * Sets the value of the shipTo property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link ShippingPointStructure }
+             *     
+             */
+            public void setShipTo(ShippingPointStructure value) {
+                this.shipTo = value;
+            }
+
+            /**
+             * Gets the value of the shipFrom property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link ShippingPointStructure }
+             *     
+             */
+            public ShippingPointStructure getShipFrom() {
+                return shipFrom;
+            }
+
+            /**
+             * Sets the value of the shipFrom property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link ShippingPointStructure }
+             *     
+             */
+            public void setShipFrom(ShippingPointStructure value) {
+                this.shipFrom = value;
+            }
+
+            /**
+             * Gets the value of the movementEndTime property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link XMLGregorianCalendar }
+             *     
+             */
+            public XMLGregorianCalendar getMovementEndTime() {
+                return movementEndTime;
+            }
+
+            /**
+             * Sets the value of the movementEndTime property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link XMLGregorianCalendar }
+             *     
+             */
+            public void setMovementEndTime(XMLGregorianCalendar value) {
+                this.movementEndTime = value;
+            }
+
+            /**
+             * Gets the value of the movementStartTime property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link XMLGregorianCalendar }
+             *     
+             */
+            public XMLGregorianCalendar getMovementStartTime() {
+                return movementStartTime;
+            }
+
+            /**
+             * Sets the value of the movementStartTime property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link XMLGregorianCalendar }
+             *     
+             */
+            public void setMovementStartTime(XMLGregorianCalendar value) {
+                this.movementStartTime = value;
+            }
+
+            /**
+             * Gets the value of the atDocCodeID property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link String }
+             *     
+             */
+            public String getATDocCodeID() {
+                return atDocCodeID;
+            }
+
+            /**
+             * Sets the value of the atDocCodeID property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link String }
+             *     
+             */
+            public void setATDocCodeID(String value) {
+                this.atDocCodeID = value;
+            }
+
+            /**
+             * Gets the value of the line property.
+             * 
+             * <p>
+             * This accessor method returns a reference to the live list,
+             * not a snapshot. Therefore any modification you make to the
+             * returned list will be present inside the JAXB object.
+             * This is why there is not a <CODE>set</CODE> method for the line property.
+             * 
+             * <p>
+             * For example, to add a new item, do as follows:
+             * <pre>
+             *    getLine().add(newItem);
+             * </pre>
+             * 
+             * 
+             * <p>
+             * Objects of the following type(s) are allowed in the list
+             * {@link SourceDocuments.MovementOfGoods.StockMovement.Line }
+             * 
+             * 
+             */
+            public List<SourceDocuments.MovementOfGoods.StockMovement.Line> getLine() {
+                if (line == null) {
+                    line = new ArrayList<SourceDocuments.MovementOfGoods.StockMovement.Line>();
+                }
+                return this.line;
+            }
+
+            /**
+             * Gets the value of the documentTotals property.
+             * 
+             * @return
+             *     possible object is
+             *     {@link SourceDocuments.MovementOfGoods.StockMovement.DocumentTotals }
+             *     
+             */
+            public SourceDocuments.MovementOfGoods.StockMovement.DocumentTotals getDocumentTotals() {
+                return documentTotals;
+            }
+
+            /**
+             * Sets the value of the documentTotals property.
+             * 
+             * @param value
+             *     allowed object is
+             *     {@link SourceDocuments.MovementOfGoods.StockMovement.DocumentTotals }
+             *     
+             */
+            public void setDocumentTotals(SourceDocuments.MovementOfGoods.StockMovement.DocumentTotals value) {
+                this.documentTotals = value;
+            }
+
+            @Override
+            public String toString() {
+                final ToStringStrategy2 strategy = new ToStringStrategy2() {
+                    @Override
+                    public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+                        buffer.append(object.getClass().getSimpleName()).append(" [");
+                        return buffer;
+                    }
+
+                    @Override
+                    public StringBuilder appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object fieldValue, boolean isSet) {
+                        buffer.append(fieldName).append("=").append(fieldValue).append(", ");
+                        return buffer;
+                    }
+
+                    @Override
+                    public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+                        if (buffer.length() > 2) {
+                            buffer.setLength(buffer.length() - 2); // Remove last comma and space
+                        }
+                        buffer.append("]");
+                        return buffer;
+                    }
+                };
+                final StringBuilder buffer = new StringBuilder();
+                append(null, buffer, strategy);
+                return buffer.toString();
+            }
+
+            @Override
+            public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                strategy.appendStart(locator, this, buffer);
+                appendFields(locator, buffer, strategy);
+                strategy.appendEnd(locator, this, buffer);
                 return buffer;
             }
-        };
-        final StringBuilder buffer = new StringBuilder();
-        append(null, buffer, strategy);
-        return buffer.toString();
-    }
 
-    @Override
-    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-        strategy.appendStart(locator, this, buffer);
-        appendFields(locator, buffer, strategy);
-        strategy.appendEnd(locator, this, buffer);
-        return buffer;
-    }
-
-    @Override
-    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
-        {
-            BigInteger theNumberOfEntries;
-            theNumberOfEntries = this.getNumberOfEntries();
-            strategy.appendField(locator, this, "numberOfEntries", buffer, theNumberOfEntries, (this.numberOfEntries!= null));
-        }
-        {
-            BigDecimal theTotalDebit;
-            theTotalDebit = this.getTotalDebit();
-            strategy.appendField(locator, this, "totalDebit", buffer, theTotalDebit, (this.totalDebit!= null));
-        }
-        {
-            BigDecimal theTotalCredit;
-            theTotalCredit = this.getTotalCredit();
-            strategy.appendField(locator, this, "totalCredit", buffer, theTotalCredit, (this.totalCredit!= null));
-        }
-        {
-            List<SourceDocuments.WorkingDocuments.WorkDocument> theWorkDocument;
-            theWorkDocument = (((this.workDocument!= null)&&(!this.workDocument.isEmpty()))?this.getWorkDocument():null);
-            strategy.appendField(locator, this, "workDocument", buffer, theWorkDocument, ((this.workDocument!= null)&&(!this.workDocument.isEmpty())));
-        }
-        return buffer;
-    }
-
-
-    /**
-     * <p>Java class for anonymous complex type.
-     * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
-     * 
-     * <pre>
-     * &lt;complexType&gt;
-     *   &lt;complexContent&gt;
-     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-     *       &lt;sequence&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}DocumentNumber"/&gt;
-     *         &lt;element name="DocumentStatus"&gt;
-     *           &lt;complexType&gt;
-     *             &lt;complexContent&gt;
-     *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-     *                 &lt;sequence&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}WorkStatus"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}WorkStatusDate"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Reason" minOccurs="0"/&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SourceID"/&gt;
-     *                 &lt;/sequence&gt;
-     *               &lt;/restriction&gt;
-     *             &lt;/complexContent&gt;
-     *           &lt;/complexType&gt;
-     *         &lt;/element&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Hash"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}HashControl" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}Period" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}WorkDate"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}WorkType"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SourceID"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}EACCode" minOccurs="0"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}SystemEntryDate"/&gt;
-     *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}CustomerID"/&gt;
-     *         &lt;element name="Line" maxOccurs="unbounded"&gt;
-     *           &lt;complexType&gt;
-     *             &lt;complexContent&gt;
-     *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
-     *                 &lt;sequence&gt;
-     *                   &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.02_01}LineNumber"/&gt;
-     *                   &lt;element name="OrderReferences" type="{urn:
+            @Override
+            public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+                {
+                    String theDocumentNumber;
+                    theDocumentNumber = this.getDocumentNumber();
+                    strategy.appendField(locator, this, "documentNumber", buffer, theDocumentNumber, (this.documentNumber!= null));
+                }
+                {
+                    SourceDocuments.MovementOfGoods.StockMovement.DocumentStatus theDocumentStatus;
+                    theDocumentStatus = this.getDocumentStatus();
+                    strategy.appendField(locator, this, "documentStatus", buffer, theDocumentStatus, (this.documentStatus!= null));
+                }
+                {
+                    String theHash;
+                    theHash = this.getHash();
+                    strategy.appendField(locator, this, "hash", buffer, theHash, (this.hash!= null));
+                }
+                {
+                    String theHashControl;
+                    theHashControl = this.getHashControl();
+                    strategy.appendField(locator, this, "hashControl", buffer, theHashControl, (this.hashControl!= null));
+                }
+                {
+                    Integer thePeriod;
+                    thePeriod = this.getPeriod();
+                    strategy.appendField(locator, this, "period", buffer, thePeriod, (this.period!= null));
+                }
+                {
+                    XMLGregorianCalendar theMovementDate;
+                    theMovementDate = this.getMovementDate();
+                    strategy.appendField(locator, this, "movementDate", buffer, theMovementDate, (this.movementDate!= null));
+                }
+                {
+                    String theMovementType;
+                    theMovementType = this.getMovementType();
+                    strategy.appendField(locator, this, "movementType", buffer, theMovementType, (this.movementType!= null));
+                }
+                {
+                    XMLGregorianCalendar theSystemEntryDate;
+                    theSystemEntryDate = this.getSystemEntryDate();
+                    strategy.appendField(locator, this,

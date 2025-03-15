@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * you may obtain a copy of the License at
  *
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -20,6 +20,9 @@ import static com.google.cloud.RetryHelper.runWithRetries;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
+import com.google.api.services.translate.model.DetectionsResource;
+import com.google.api.services.translate.model.LanguagesResource;
+import com.google.api.services.translate.model.TranslationsResource;
 import com.google.cloud.BaseService;
 import com.google.cloud.RetryHelper.RetryHelperException;
 import com.google.cloud.translate.spi.v2.TranslateRpc;
@@ -37,12 +40,12 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
 
   private final TranslateRpc translateRpc;
 
-  private static final Function<List<Object>, Detection> // Updated to use Object as a placeholder
+  private static final Function<List<DetectionsResource>, Detection>
       DETECTION_FROM_PB_FUNCTION =
-          new Function<List<Object>, Detection>() { // Updated to use Object as a placeholder
+          new Function<List<DetectionsResource>, Detection>() {
             @Override
-            public Detection apply(List<Object> detectionPb) { // Updated to use Object as a placeholder
-              return Detection.fromPb(detectionPb.get(0)); // Assuming Detection.fromPb can handle the new type
+            public Detection apply(List<DetectionsResource> detectionPb) {
+              return Detection.fromPb(detectionPb.get(0));
             }
           };
 
@@ -56,9 +59,9 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<Object>>() { // Updated to use Object as a placeholder
+              new Callable<List<LanguagesResource>>() {
                 @Override
-                public List<Object> call() { // Updated to use Object as a placeholder
+                public List<LanguagesResource> call() {
                   return translateRpc.listSupportedLanguages(optionMap(options));
                 }
               },
@@ -74,21 +77,21 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   @Override
   public List<Detection> detect(final List<String> texts) {
     try {
-      List<List<Object>> detectionsPb = // Updated to use Object as a placeholder
+      List<List<DetectionsResource>> detectionsPb =
           runWithRetries(
-              new Callable<List<List<Object>>>() { // Updated to use Object as a placeholder
+              new Callable<List<List<DetectionsResource>>>() {
                 @Override
-                public List<List<Object>> call() { // Updated to use Object as a placeholder
+                public List<List<DetectionsResource>> call() {
                   return translateRpc.detect(texts);
                 }
               },
               getOptions().getRetrySettings(),
               EXCEPTION_HANDLER,
               getOptions().getClock());
-      Iterator<List<Object>> detectionIterator = detectionsPb.iterator(); // Updated to use Object as a placeholder
+      Iterator<List<DetectionsResource>> detectionIterator = detectionsPb.iterator();
       Iterator<String> textIterator = texts.iterator();
       while (detectionIterator.hasNext() && textIterator.hasNext()) {
-        List<Object> detectionPb = detectionIterator.next(); // Updated to use Object as a placeholder
+        List<DetectionsResource> detectionPb = detectionIterator.next();
         String text = textIterator.next();
         checkState(
             detectionPb != null && !detectionPb.isEmpty(), "No detection found for text: %s", text);
@@ -115,9 +118,9 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
     try {
       return Lists.transform(
           runWithRetries(
-              new Callable<List<Object>>() { // Updated to use Object as a placeholder
+              new Callable<List<TranslationsResource>>() {
                 @Override
-                public List<Object> call() { // Updated to use Object as a placeholder
+                public List<TranslationsResource> call() {
                   return translateRpc.translate(texts, optionMap(options));
                 }
               },

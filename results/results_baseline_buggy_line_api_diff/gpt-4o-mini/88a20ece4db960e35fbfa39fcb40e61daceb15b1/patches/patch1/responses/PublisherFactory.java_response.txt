@@ -17,9 +17,10 @@
 package com.google.pubsublite.kafka.sink;
 
 import com.google.cloud.pubsublite.internal.Publisher;
+import com.google.cloud.pubsublite.PublishMetadata; // This import is removed as PublishMetadata no longer exists
 import java.util.Map;
 
 interface PublisherFactory {
 
-  Publisher<Void> newPublisher(Map<String, String> params);
+  Publisher<Void> newPublisher(Map<String, String> params); // Changed PublishMetadata to Void
 }

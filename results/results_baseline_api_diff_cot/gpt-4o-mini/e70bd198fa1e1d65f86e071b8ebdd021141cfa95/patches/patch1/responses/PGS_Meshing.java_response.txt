@@ -35,7 +35,10 @@ import org.tinfour.common.IQuadEdge;
 import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
 import org.tinfour.utils.TriangleCollector;
-import org.tinspin.index.kdtree.KDTree;
+import org.tinspin.index.BoxMap;
+import org.tinspin.index.BoxMultimap;
+import org.tinspin.index.util.PointMapWrapper;
+import org.tinspin.index.util.PointMultimapWrapper;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
 import micycle.pgs.PGS_Conversion.PShapeData;
 import micycle.pgs.color.Colors;
@@ -160,11 +163,8 @@ public class PGS_Meshing {
 			}
 		});
 
-		final org.tinspin.index.kdtree.KDTree<Vertex> tree = KDTree.create(2, (p1, p2) -> {
-			final double deltaX = p1[0] - p2[0];
-			final double deltaY = p1[1] - p2[1];
-			return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-		});
+		// Replacing the KDTree with PointMapWrapper
+		final PointMapWrapper<Vertex> tree = PointMapWrapper.create(new BoxMap());
 		vertices.forEach(v -> tree.insert(new double[] { v.x, v.y }, v));
 
 		final HashSet<IQuadEdge> nonGabrielEdges = new HashSet<>(); // base references to edges that should be removed

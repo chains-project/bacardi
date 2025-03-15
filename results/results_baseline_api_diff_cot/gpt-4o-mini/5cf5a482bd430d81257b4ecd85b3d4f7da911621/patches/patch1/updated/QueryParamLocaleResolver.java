@@ -9,7 +9,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import jakarta.mvc.locale.LocaleResolverContext; // Updated import
 import jakarta.mvc.locale.LocaleResolver; // Updated import
-import javax.ws.rs.core.UriInfo;
+import jakarta.ws.rs.core.UriInfo;
 
 /**
  * Resolver to get the {@link Locale} to use from the requests query param <i>lang</i>.
@@ -39,7 +39,9 @@ public class QueryParamLocaleResolver implements LocaleResolver {
     
     @Override
     public Locale resolveLocale(final LocaleResolverContext context) {
-        final String queryLang = context.getQueryParameters().getFirst("lang"); // Updated method call
+        final String queryLang = context.getUriInfo()
+                .getQueryParameters()
+                .getFirst("lang");
         log.log(Level.INFO, "QueryParamLocaleResolver::resolveLocale:lang:{0}", queryLang);
         return queryLang != null ? Locale.forLanguageTag(queryLang) : null;
     }

@@ -21,7 +21,7 @@ import org.jivesoftware.openfire.cluster.ClusterNodeInfo;
 import org.jivesoftware.openfire.cluster.NodeID;
 import org.jivesoftware.openfire.plugin.util.cache.ClusteredCacheFactory;
 
-import com.hazelcast.cluster.Member; // Updated import to the new Member interface
+import com.hazelcast.cluster.Member; // Updated import for new API
 import com.hazelcast.instance.EndpointQualifier; // New import for EndpointQualifier
 
 /**
@@ -40,7 +40,7 @@ public class HazelcastClusterNodeInfo implements ClusterNodeInfo {
     private final boolean seniorMember;
 
     public HazelcastClusterNodeInfo(final Member member, final long joinedTime) {
-        this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress(EndpointQualifier.WRITE).getHostString() + ")"; // Updated method call
+        this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress() + ")"; // Updated method call
         this.nodeID = ClusteredCacheFactory.getNodeID(member);
         this.joinedTime = joinedTime;
         this.seniorMember = ClusterManager.getSeniorClusterMember().equals(nodeID);

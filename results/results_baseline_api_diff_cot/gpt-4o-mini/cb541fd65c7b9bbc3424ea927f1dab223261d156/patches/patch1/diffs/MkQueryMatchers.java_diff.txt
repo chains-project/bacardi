@@ -1,12 +1,14 @@
-34c34
+34c34,36
 < import org.hamcrest.Matchers;
 ---
 > import org.hamcrest.Matchers; // This import will be removed
-85c85
+> import org.hamcrest.core.IsEqual; // New import for equality matcher
+> import org.hamcrest.core.IsCollectionContaining; // New import for collection containing matcher
+85c87
 <             Matchers.<URI>hasProperty("rawPath", path)
 ---
->             Matchers.hasProperty("rawPath", path) // Updated to use a different matcher
-97c97
+>             new IsEqual<>(path) // Updated to use IsEqual directly
+97c99
 <             Matchers.<URI>hasProperty("rawQuery", query)
 ---
->             Matchers.hasProperty("rawQuery", query) // Updated to use a different matcher
+>             new IsEqual<>(query) // Updated to use IsEqual directly

@@ -1,6 +1,5 @@
 package com.github.games647.changeskin.sponge.task;
 
-import com.flowpowered.math.vector.Vector3d;
 import com.github.games647.changeskin.core.model.UserPreference;
 import com.github.games647.changeskin.core.model.skin.SkinModel;
 import com.github.games647.changeskin.core.shared.task.SharedApplier;
@@ -58,14 +57,12 @@ public class SkinApplier extends SharedApplier {
         plugin.getApi().applySkin(receiver, targetSkin);
 
         sendUpdate();
-        // Assuming invoker is no longer needed
-        // plugin.sendMessage(invoker, "skin-changed");
+        plugin.sendMessage(receiver, "skin-changed");
     }
 
     @Override
     protected void sendMessage(String key) {
-        // Assuming invoker is no longer needed
-        // plugin.sendMessage(invoker, key);
+        plugin.sendMessage(receiver, key);
     }
 
     @Override

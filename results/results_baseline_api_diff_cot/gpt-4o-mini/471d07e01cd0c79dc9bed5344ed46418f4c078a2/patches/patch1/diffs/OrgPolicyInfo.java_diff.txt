@@ -1,86 +1,74 @@
-18,21c18,21
+6c6
+<  * You may obtain a copy of the License at
+---
+>  * you may obtain a copy of the License at
+18,21c18,20
 < import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
 < import com.google.api.services.cloudresourcemanager.model.ListPolicy;
 < import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
 < import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
 ---
-> import com.google.api.services.cloudresourcemanager.v3.model.Policy; // Updated import
-> import com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy; // Updated import
-> import com.google.api.services.cloudresourcemanager.v3.model.ListPolicy; // Updated import
-> import com.google.api.services.cloudresourcemanager.v3.model.RestoreDefault; // Updated import
-38,39c38,39
+> import com.google.api.services.cloudresourcemanager.v3.model.Policy;
+> import com.google.api.services.cloudresourcemanager.v3.model.ListConstraint;
+> import com.google.api.services.cloudresourcemanager.v3.model.RestoreDefault;
+38,39c37,38
 <   static final Function<OrgPolicy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
 <       new Function<OrgPolicy, OrgPolicyInfo>() {
 ---
 >   static final Function<Policy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
 >       new Function<Policy, OrgPolicyInfo>() {
-41c41
+41c40
 <         public OrgPolicyInfo apply(OrgPolicy protobuf) {
 ---
 >         public OrgPolicyInfo apply(Policy protobuf) {
-45,46c45,46
+45,46c44,45
 <   static final Function<OrgPolicyInfo, OrgPolicy> TO_PROTOBUF_FUNCTION =
 <       new Function<OrgPolicyInfo, OrgPolicy>() {
 ---
 >   static final Function<OrgPolicyInfo, Policy> TO_PROTOBUF_FUNCTION =
 >       new Function<OrgPolicyInfo, Policy>() {
-48c48
+48c47
 <         public OrgPolicy apply(OrgPolicyInfo orgPolicyInfo) {
 ---
 >         public Policy apply(OrgPolicyInfo orgPolicyInfo) {
-97c97
+96,101c95,96
+<     BooleanPolicy toProtobuf() {
 <       return new BooleanPolicy().setEnforced(enforce);
----
->       return new BooleanPolicy().setEnforced(enforce); // Updated method call
-125,126c125
-<     private final List<java.lang.String> deniedValues;
-<     private final Boolean inheritFromParent;
----
->     private final List<String> deniedValues; // Updated type
-133,134c132
-<         Boolean inheritFromParent,
-<         String suggestedValue) {
----
->         String suggestedValue) { // Removed inheritFromParent
-138d135
-<       this.inheritFromParent = inheritFromParent;
-157,161d153
-<     /** Returns the inheritance behavior for this Policy */
-<     Boolean getInheritFromParent() {
-<       return inheritFromParent;
 <     }
 < 
-173d164
-<           .add("inheritFromParent", getInheritFromParent())
-190d180
-<           && Objects.equals(inheritFromParent, policies.inheritFromParent)
-196,197c186
-<       return Objects.hash(
-<           allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
+<     static BoolPolicy fromProtobuf(BooleanPolicy booleanPolicy) {
+<       return new BoolPolicy(booleanPolicy.getEnforced());
 ---
->       return Objects.hash(allValues, allowedValues, deniedValues, suggestedValue);
-205,206c194
+>     static BoolPolicy fromProtobuf(Boolean enforce) {
+>       return new BoolPolicy(enforce);
+125c120
+<     private final List<java.lang.String> deniedValues;
+---
+>     private final List<String> deniedValues;
+200,209c195
+<     ListPolicy toProtobuf() {
+<       return new ListPolicy()
+<           .setAllValues(allValues)
+<           .setAllowedValues(allowedValues)
+<           .setDeniedValues(deniedValues)
 <           .setInheritFromParent(inheritFromParent)
 <           .setSuggestedValue(suggestedValue);
+<     }
+< 
+<     static Policies fromProtobuf(ListPolicy listPolicy) {
 ---
->           .setSuggestedValue(suggestedValue); // Removed inheritFromParent
-214d201
-<           listPolicy.getInheritFromParent(),
-360,361c347,348
+>     static Policies fromProtobuf(ListConstraint listPolicy) {
+360,361c346,347
 <   OrgPolicy toProtobuf() {
 <     OrgPolicy orgPolicyProto = new OrgPolicy();
 ---
 >   Policy toProtobuf() {
->     Policy orgPolicyProto = new Policy(); // Updated class
-372c359
-<     orgPolicyProto.setVersion(version);
+>     Policy orgPolicyProto = new Policy();
+363c349
+<       orgPolicyProto.setBooleanPolicy(boolPolicy.toProtobuf());
 ---
->     orgPolicyProto.setVersion(version); // Updated method call
-376c363
+>       orgPolicyProto.setBooleanPolicy(boolPolicy.getEnforce());
+376c362
 <   static OrgPolicyInfo fromProtobuf(OrgPolicy orgPolicyProtobuf) {
 ---
->   static OrgPolicyInfo fromProtobuf(Policy orgPolicyProtobuf) { // Updated class
-388c375
-<     builder.setVersion(orgPolicyProtobuf.getVersion());
----
->     builder.setVersion(orgPolicyProtobuf.getVersion()); // Updated method call
+>   static OrgPolicyInfo fromProtobuf(Policy orgPolicyProtobuf) {

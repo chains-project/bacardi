@@ -1,12 +1,13 @@
 26,27d25
 < import org.tinspin.index.PointDistanceFunction;
 < import org.tinspin.index.PointEntryDist;
-226c224,225
+226c224,226
 <                         final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
 ---
 >                         // Updated to use a new method for nearest neighbor search
+>                         // Assuming a new method exists in the CoverTree class
 >                         final PVector nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
-233,235c232,234
+233,235c233,235
 <                         final float dx = p.x - nn.value().x;
 <                         final float dy = p.y - nn.value().y;
 <                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z);
@@ -14,7 +15,7 @@
 >                         final float dx = p.x - nn.x;
 >                         final float dy = p.y - nn.y;
 >                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.z);
-645c644
+645c645
 <         private static final PointDistanceFunction circleDistanceMetric = (p1, p2) -> {
 ---
 >         private static final org.tinspin.index.PointDistanceFunction circleDistanceMetric = (p1, p2) -> {

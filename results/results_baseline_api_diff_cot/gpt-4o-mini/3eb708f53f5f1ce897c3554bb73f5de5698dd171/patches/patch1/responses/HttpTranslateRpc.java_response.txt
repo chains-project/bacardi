@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * you may obtain a copy of the License at
  *
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -25,7 +25,6 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.translate.v3.Translate;
 import com.google.api.services.translate.v3.model.DetectLanguageResponse;
 import com.google.api.services.translate.v3.model.Language;
-import com.google.api.services.translate.v3.model.TranslateTextRequest;
 import com.google.api.services.translate.v3.model.TranslateTextResponse;
 import com.google.cloud.http.HttpTransportOptions;
 import com.google.cloud.translate.TranslateException;
@@ -48,8 +47,8 @@ public class HttpTranslateRpc implements TranslateRpc {
     HttpRequestInitializer initializer = transportOptions.getHttpRequestInitializer(options);
     this.options = options;
     translate =
-        new Translate.Builder(transport, new JacksonFactory(), initializer)
-            .setApplicationName(options.getApplicationName())
+        Translate.newBuilder(transport, new JacksonFactory(), initializer)
+            .setApiKey(options.getApiKey())
             .build();
   }
 
@@ -58,7 +57,7 @@ public class HttpTranslateRpc implements TranslateRpc {
   }
 
   private GenericUrl buildTargetUrl(String path) {
-    GenericUrl genericUrl = new GenericUrl(translate.getBaseUrl() + "v3/" + path);
+    GenericUrl genericUrl = new GenericUrl(translate.getBaseUrl() + "v2/" + path);
     if (options.getApiKey() != null) {
       genericUrl.put("key", options.getApiKey());
     }
@@ -69,7 +68,10 @@ public class HttpTranslateRpc implements TranslateRpc {
   public List<List<DetectLanguageResponse>> detect(List<String> texts) {
     try {
       List<List<DetectLanguageResponse>> detections =
-          translate.projects().locations().detectLanguage("projects/" + options.getProjectId(), new DetectLanguageRequest().setContent(texts)).execute().getResponses();
+          translate.projects().detectLanguage("projects/" + options.getProjectId())
+              .setContents(texts)
+              .execute()
+              .getResponses();
       return detections != null ? detections : ImmutableList.<List<DetectLanguageResponse>>of();
     } catch (IOException ex) {
       throw translate(ex);
@@ -81,7 +83,9 @@ public class HttpTranslateRpc implements TranslateRpc {
     try {
       List<Language> languages =
           translate.projects().locations().getSupportedLanguages("projects/" + options.getProjectId())
-              .setKey(options.getApiKey())
+              .setTarget(
+                  firstNonNull(
+                      Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()))
               .execute()
               .getLanguages();
       return languages != null ? languages : ImmutableList.<Language>of();
@@ -95,14 +99,11 @@ public class HttpTranslateRpc implements TranslateRpc {
     try {
       String targetLanguage =
           firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
-      TranslateTextRequest request = new TranslateTextRequest()
-          .setContents(texts)
-          .setTargetLanguage(targetLanguage)
-          .setSourceLanguage(Option.SOURCE_LANGUAGE.getString(optionMap))
-          .setModel(Option.MODEL.getString(optionMap))
-          .setFormat(Option.FORMAT.getString(optionMap));
-      TranslateTextResponse response = translate.projects().locations().translateText("projects/" + options.getProjectId(), request).execute();
-      return response.getTranslations();
+      List<TranslateTextResponse> translations =
+          translate.projects().locations().translateText("projects/" + options.getProjectId(), texts, targetLanguage)
+              .execute()
+              .getTranslations();
+      return translations != null ? translations : ImmutableList.<TranslateTextResponse>of();
     } catch (IOException ex) {
       throw translate(ex);
     }

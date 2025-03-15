@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * you may obtain a copy of the License at
  *
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -15,10 +15,9 @@
  */
 package com.google.cloud.resourcemanager;
 
-import com.google.api.services.cloudresourcemanager.v3.model.Policy; // Updated import
-import com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy; // Updated import
-import com.google.api.services.cloudresourcemanager.v3.model.ListPolicy; // Updated import
-import com.google.api.services.cloudresourcemanager.v3.model.RestoreDefault; // Updated import
+import com.google.api.services.cloudresourcemanager.v3.model.Policy;
+import com.google.api.services.cloudresourcemanager.v3.model.ListConstraint;
+import com.google.api.services.cloudresourcemanager.v3.model.RestoreDefault;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.List;
@@ -93,12 +92,8 @@ public class OrgPolicyInfo {
       return Objects.hash(enforce);
     }
 
-    BooleanPolicy toProtobuf() {
-      return new BooleanPolicy().setEnforced(enforce); // Updated method call
-    }
-
-    static BoolPolicy fromProtobuf(BooleanPolicy booleanPolicy) {
-      return new BoolPolicy(booleanPolicy.getEnforced());
+    static BoolPolicy fromProtobuf(Boolean enforce) {
+      return new BoolPolicy(enforce);
     }
   }
 
@@ -122,17 +117,20 @@ public class OrgPolicyInfo {
 
     private final String allValues;
     private final List<String> allowedValues;
-    private final List<String> deniedValues; // Updated type
+    private final List<String> deniedValues;
+    private final Boolean inheritFromParent;
     private final String suggestedValue;
 
     Policies(
         String allValues,
         List<String> allowedValues,
         List<String> deniedValues,
-        String suggestedValue) { // Removed inheritFromParent
+        Boolean inheritFromParent,
+        String suggestedValue) {
       this.allValues = allValues;
       this.allowedValues = allowedValues;
       this.deniedValues = deniedValues;
+      this.inheritFromParent = inheritFromParent;
       this.suggestedValue = suggestedValue;
     }
 
@@ -151,6 +149,11 @@ public class OrgPolicyInfo {
       return deniedValues;
     }
 
+    /** Returns the inheritance behavior for this Policy */
+    Boolean getInheritFromParent() {
+      return inheritFromParent;
+    }
+
     /** Returns the suggested value of this policy. */
     String getSuggestedValue() {
       return suggestedValue;
@@ -162,6 +165,7 @@ public class OrgPolicyInfo {
           .add("allValues", getAllValues())
           .add("allowedValues", getAllowedValues())
           .add("deniedValues", getDeniedValues())
+          .add("inheritFromParent", getInheritFromParent())
           .add("suggestedValue", getSuggestedValue())
           .toString();
     }
@@ -178,27 +182,22 @@ public class OrgPolicyInfo {
       return Objects.equals(allValues, policies.allValues)
           && Objects.equals(allowedValues, policies.allowedValues)
           && Objects.equals(deniedValues, policies.deniedValues)
+          && Objects.equals(inheritFromParent, policies.inheritFromParent)
           && Objects.equals(suggestedValue, policies.suggestedValue);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(allValues, allowedValues, deniedValues, suggestedValue);
+      return Objects.hash(
+          allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
     }
 
-    ListPolicy toProtobuf() {
-      return new ListPolicy()
-          .setAllValues(allValues)
-          .setAllowedValues(allowedValues)
-          .setDeniedValues(deniedValues)
-          .setSuggestedValue(suggestedValue); // Removed inheritFromParent
-    }
-
-    static Policies fromProtobuf(ListPolicy listPolicy) {
+    static Policies fromProtobuf(ListConstraint listPolicy) {
       return new Policies(
           listPolicy.getAllValues(),
           listPolicy.getAllowedValues(),
           listPolicy.getDeniedValues(),
+          listPolicy.getInheritFromParent(),
           listPolicy.getSuggestedValue());
     }
   }
@@ -345,9 +344,9 @@ public class OrgPolicyInfo {
   }
 
   Policy toProtobuf() {
-    Policy orgPolicyProto = new Policy(); // Updated class
+    Policy orgPolicyProto = new Policy();
     if (boolPolicy != null) {
-      orgPolicyProto.setBooleanPolicy(boolPolicy.toProtobuf());
+      orgPolicyProto.setBooleanPolicy(boolPolicy.getEnforce());
     }
     orgPolicyProto.setConstraint(constraint);
     if (policies != null) {
@@ -356,11 +355,11 @@ public class OrgPolicyInfo {
     orgPolicyProto.setRestoreDefault(restoreDefault);
     orgPolicyProto.setEtag(etag);
     orgPolicyProto.setUpdateTime(updateTime);
-    orgPolicyProto.setVersion(version); // Updated method call
+    orgPolicyProto.setVersion(version);
     return orgPolicyProto;
   }
 
-  static OrgPolicyInfo fromProtobuf(Policy orgPolicyProtobuf) { // Updated class
+  static OrgPolicyInfo fromProtobuf(Policy orgPolicyProtobuf) {
     Builder builder = newBuilder();
     if (orgPolicyProtobuf.getBooleanPolicy() != null) {
       builder.setBoolPolicy(BoolPolicy.fromProtobuf(orgPolicyProtobuf.getBooleanPolicy()));
@@ -372,7 +371,7 @@ public class OrgPolicyInfo {
     builder.setRestoreDefault(orgPolicyProtobuf.getRestoreDefault());
     builder.setEtag(orgPolicyProtobuf.getEtag());
     builder.setUpdateTime(orgPolicyProtobuf.getUpdateTime());
-    builder.setVersion(orgPolicyProtobuf.getVersion()); // Updated method call
+    builder.setVersion(orgPolicyProtobuf.getVersion());
     return builder.build();
   }
 }

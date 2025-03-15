@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * you may obtain a copy of the License at
+ * You may obtain a copy of the License at
  *
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -18,10 +18,10 @@ package com.google.pubsublite.kafka.sink;
 import com.google.cloud.pubsublite.internal.Publisher;
 import java.util.Map;
 
-// Updated to use a new type since PublishMetadata has been removed
-import com.google.cloud.pubsublite.PublishResponse; // Assuming PublishResponse is the new type to use
-
 interface PublisherFactory {
 
-  Publisher<PublishResponse> newPublisher(Map<String, String> params);
+  // Since PublishMetadata has been removed, we need to replace it with the appropriate type.
+  // Assuming the new API has a different class for publish metadata, we will use a placeholder type.
+  // Replace 'NewPublishMetadata' with the actual class name from the updated API.
+  Publisher<NewPublishMetadata> newPublisher(Map<String, String> params);
 }

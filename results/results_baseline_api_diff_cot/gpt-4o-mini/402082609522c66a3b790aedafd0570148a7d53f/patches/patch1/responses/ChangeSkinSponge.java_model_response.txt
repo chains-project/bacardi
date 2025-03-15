@@ -26,7 +26,7 @@ import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
 import org.spongepowered.api.event.lifecycle.RegisterRegistryEvent;
-import org.spongepowered.api.network.channel.ChannelBinding;
+import org.spongepowered.api.network.RawDataChannel;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
@@ -56,7 +56,7 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
     }
 
     @Listener
-    public void onInit(RegisterRegistryEvent event) {
+    public void onPreInit(RegisterRegistryEvent preInitEvent) {
         //load config and database
         try {
             core.load(true);
@@ -67,28 +67,35 @@ public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
     }
 
     @Listener
-    public void onRegisterCommands(RegisterCommandEvent event) {
+    public void onInit(RegisterCommandEvent initEvent) {
         if (!initialized)
             return;
 
         //command and event register
-        event.register(injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
-        event.register(injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
-        event.register(injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
-        event.register(injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
-        event.register(injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
+        var cmdManager = Sponge.getCommandManager();
+
+        // Register commands using the new API
+        cmdManager.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+        cmdManager.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+        cmdManager.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+        cmdManager.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+        cmdManager.register(this, injector.getInstance(InvalidateCommand.class)
+                .buildSpec(), "skininvalidate", "skin-invalidate");
 
         Sponge.getEventManager().registerListeners(this, injector.getInstance(LoginListener.class));
 
         //incoming channel
-        ChannelBinding.RawDataChannel updateChannel = Sponge.getChannelRegistrar().getOrCreateRaw(this, new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName());
-        ChannelBinding.RawDataChannel permChannel = Sponge.getChannelRegistrar().getOrCreateRaw(this, new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName());
+        var channelReg = Sponge.getChannelRegistrar();
+        String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
+        String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
+        RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
+        RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
         updateChannel.addListener(Type.SERVER, injector.getInstance(UpdateSkinListener.class));
         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
     }
 
     @Listener
-    public void onShutdown(RegisterRegistryEvent event) {
+    public void onShutdown(RegisterRegistryEvent stoppingServerEvent) {
         core.close();
     }
 

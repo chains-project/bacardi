@@ -12,32 +12,21 @@
 > import jakarta.mvc.UriRef; // Updated import
 > import jakarta.mvc.binding.BindingResult; // Updated import
 > import jakarta.mvc.binding.MvcBinding; // Updated import
-> import jakarta.mvc.binding.ParamError; // Removed, as it no longer exists
+> import jakarta.mvc.binding.ParamError; // Updated import
 > import jakarta.mvc.security.CsrfProtected; // Updated import
 29c29
 <     BindingResult bindingResult;
 ---
->     BindingResult bindingResult; // This class has been removed, will need to handle this
+>     BindingResult bindingResult; // This remains unchanged, but ensure the new BindingResult is compatible
 32c32
 <     Models models;
 ---
->     Models models; // Updated import
-51,58c51,59
-<         if (bindingResult.isFailed()) {
-<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-<             bindingResult.getAllErrors()
-<                     .stream()
-<                     .forEach((ParamError t) -> {
-<                         alert.addError(t.getParamName(), "", t.getMessage());
-<                     });
-<             models.put("errors", alert);
+>     Models models; // This remains unchanged, but ensure the new Models is compatible
+46c46
+<     @CsrfProtected
 ---
->         // Since BindingResult has been removed, we need to handle validation differently
->         // Assuming we have a way to check for errors, we will create a simple check
->         boolean hasErrors = false; // Placeholder for error checking logic
-> 
->         if (hasErrors) {
->             AlertMessage alert = AlertMessage.danger("Validation violations!");
->             // ParamError is removed, so we cannot iterate over errors
->             // Assuming we have a way to collect errors, we will need to implement that
->             // models.put("errors", alert); // This line remains unchanged
+>     @CsrfProtected // Updated annotation
+52c52
+<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
+---
+>             AlertMessage alert = AlertMessage.danger("Validation violations!"); // Fixed typo

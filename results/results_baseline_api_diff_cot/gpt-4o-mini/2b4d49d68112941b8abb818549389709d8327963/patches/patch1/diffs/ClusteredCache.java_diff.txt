@@ -2,25 +2,17 @@
 < import com.hazelcast.core.IMap;
 < import com.hazelcast.core.MapEvent;
 ---
-> import com.hazelcast.map.IMap;
+> import com.hazelcast.map.IMap; // Updated import
 23c22,23
 < import com.hazelcast.monitor.LocalMapStats;
 ---
-> import com.hazelcast.map.LocalMapStats;
-> import com.hazelcast.map.MapEvent;
-107c107
-<             public void entryUpdated(EntryEvent event) {
+> import com.hazelcast.map.LocalMapStats; // Updated import
+> import com.hazelcast.map.MapEvent; // Updated import
+192c192
+<         final LocalMapStats stats = map.getLocalMapStats();
 ---
->             public void entryUpdated(EntryEvent<K, V> event) {
-116c116
-<             public void entryRemoved(EntryEvent event) {
+>         final LocalMapStats stats = map.getLocalMapStats(); // Updated to use new LocalMapStats
+257c257
+<         final LocalMapStats stats = map.getLocalMapStats();
 ---
->             public void entryRemoved(EntryEvent<K, V> event) {
-125c125
-<             public void entryEvicted(EntryEvent event) {
----
->             public void entryEvicted(EntryEvent<K, V> event) {
-134c134
-<             public void entryAdded(EntryEvent event) {
----
->             public void entryAdded(EntryEvent<K, V> event) {
+>         final LocalMapStats stats = map.getLocalMapStats(); // Updated to use new LocalMapStats

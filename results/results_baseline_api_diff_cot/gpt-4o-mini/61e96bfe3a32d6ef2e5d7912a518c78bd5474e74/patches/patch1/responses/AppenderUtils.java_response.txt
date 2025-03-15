@@ -82,12 +82,12 @@ public class AppenderUtils {
 
     @Override
     public byte[] footerBytes() {
-      return new byte[0]; // Provide an empty footer as a placeholder
+      return new byte[0]; // Provide an empty footer as required by the new Encoder interface
     }
 
     @Override
     public byte[] headerBytes() {
-      return new byte[0]; // Provide an empty header as a placeholder
+      return new byte[0]; // Provide an empty header as required by the new Encoder interface
     }
   }
 

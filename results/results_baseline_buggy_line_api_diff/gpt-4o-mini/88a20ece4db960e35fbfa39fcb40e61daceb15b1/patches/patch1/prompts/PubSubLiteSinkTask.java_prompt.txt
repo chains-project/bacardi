@@ -157,22 +157,22 @@ public class PubSubLiteSinkTask extends SinkTask {
 the error is triggered in the following specific lines in the previous code:
 
 ```java
-import com.google.cloud.pubsublite.PublishMetadata;
+private @Nullable Publisher<PublishMetadata> publisher;
 ```
 ```java
-private @Nullable Publisher<PublishMetadata> publisher;
+import com.google.cloud.pubsublite.PublishMetadata;
 ```
 
 
 
  with the following error information:
-[ERROR] /java-pubsub-group-kafka-connector/src/main/java/com/google/pubsublite/kafka/sink/PubSubLiteSinkTask.java:[22,35] cannot find symbol
-  symbol:   class PublishMetadata
-  location: package com.google.cloud.pubsublite
-
 [ERROR] /java-pubsub-group-kafka-connector/src/main/java/com/google/pubsublite/kafka/sink/PubSubLiteSinkTask.java:[43,31] cannot find symbol
   symbol:   class PublishMetadata
   location: class com.google.pubsublite.kafka.sink.PubSubLiteSinkTask
+
+[ERROR] /java-pubsub-group-kafka-connector/src/main/java/com/google/pubsublite/kafka/sink/PubSubLiteSinkTask.java:[22,35] cannot find symbol
+  symbol:   class PublishMetadata
+  location: package com.google.cloud.pubsublite
 
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:

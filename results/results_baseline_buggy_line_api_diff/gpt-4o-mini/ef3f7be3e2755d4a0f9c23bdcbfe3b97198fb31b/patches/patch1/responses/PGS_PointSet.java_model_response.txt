@@ -60,8 +60,8 @@ public final class PGS_PointSet {
 	 * (poisson) point set.
 	 * 
 	 * @param points            list of points to filter
-	 * @param distanceTolerance  a point that is within this distance of a previously
-	 *                           included point is not included in the output
+	 * @param distanceTolerance a point that is within this distance of a previously
+	 *                          included point is not included in the output
 	 * @return
 	 */
 	public static List<PVector> prunePointsWithinDistance(List<PVector> points, double distanceTolerance) {
@@ -69,12 +69,16 @@ public final class PGS_PointSet {
 		final List<PVector> newPoints = new ArrayList<>();
 		for (PVector p : points) {
 			final double[] coords = new double[] { p.x, p.y };
-			if (tree.size() == 0 || (tree.query1NN(coords) != null && tree.query1NN(coords).dist() > distanceTolerance)) {
+			if (tree.size() == 0 || queryNearestNeighbor(tree, coords).dist() > distanceTolerance) {
 				tree.insert(coords, p);
 				newPoints.add(p);
 			}
 		}
 		return newPoints;
+	}
+
+	private static KDTreeResult<PVector> queryNearestNeighbor(KDTree<PVector> tree, double[] coords) {
+		return tree.query1NN(coords);
 	}
 
 	/**

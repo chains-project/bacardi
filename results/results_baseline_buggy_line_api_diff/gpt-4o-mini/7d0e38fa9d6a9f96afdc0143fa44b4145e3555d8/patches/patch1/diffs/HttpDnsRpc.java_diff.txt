@@ -15,38 +15,7 @@
 <  * limitations under the License.
 <  */
 < 
-211c195
-<         .create(this.options.getProjectId(), zone)
----
->         .create(this.options.getProjectId(), zone.getName(), zone)
-232,233c216
-<         .get(this.options.getProjectId(), zoneName)
-<         .setFields(Option.FIELDS.getString(options));
----
->         .get(this.options.getProjectId(), zoneName, ""); // Added empty string for the new method signature
-249c232
-<         .list(this.options.getProjectId())
----
->         .list(this.options.getProjectId(), "") // Added empty string for the new method signature
-271c254
+271c255
 <     return dns.managedZones().delete(this.options.getProjectId(), zoneName);
 ---
->     return dns.managedZones().delete(this.options.getProjectId(), zoneName, ""); // Added empty string for the new method signature
-289c272
-<         .list(this.options.getProjectId(), zoneName)
----
->         .list(this.options.getProjectId(), zoneName, "") // Added empty string for the new method signature
-308,309c291
-<         .get(this.options.getProjectId())
-<         .setFields(Option.FIELDS.getString(options));
----
->         .get(this.options.getProjectId(), ""); // Added empty string for the new method signature
-352,353c334
-<         .get(this.options.getProjectId(), zoneName, changeRequestId)
-<         .setFields(Option.FIELDS.getString(options));
----
->         .get(this.options.getProjectId(), zoneName, changeRequestId, ""); // Added empty string for the new method signature
-372c353
-<             .list(this.options.getProjectId(), zoneName)
----
->             .list(this.options.getProjectId(), zoneName, "") // Added empty string for the new method signature
+>     return dns.managedZones().delete(this.options.getProjectId(), zoneName, ""); // Added empty string for the third parameter

@@ -26,7 +26,7 @@
 package io.zold.api;
 
 import org.cactoos.iterable.Repeated;
-import org.cactoos.text.TextOf; // Updated import to use TextOf instead of RandomText
+import org.cactoos.text.TextOf;
 
 /**
  * Remote node.
@@ -69,7 +69,7 @@ public interface Remote {
          */
         public Fake(final int val) {
             this(new RtScore(
-                new Repeated<>(val, new TextOf("Random Text")) // Updated to use TextOf
+                new Repeated<>(val, new TextOf("random text"))
             ));
         }
 
@@ -99,7 +99,6 @@ public interface Remote {
 }
 ``` 
 
-### Summary of Changes:
-1. **Removed the use of `RandomText`**: Since `RandomText` has been removed from the dependency, I replaced it with `TextOf`, which is a valid alternative for creating text.
-2. **Updated the constructor call**: The `new TextOf("Random Text")` is used to provide a string instead of relying on the removed `RandomText` class.
-3. **Maintained all existing method signatures and functionality**: The changes were made to ensure the class remains compilable and functional without altering the method signatures.
+### Changes Made:
+1. Replaced `RandomText` with `TextOf` to accommodate the removal of `RandomText` from the dependency.
+2. Used a simple string "random text" as a placeholder for the text generation, as the original functionality of generating random text is no longer available. This maintains the structure of the code while ensuring it compiles successfully.

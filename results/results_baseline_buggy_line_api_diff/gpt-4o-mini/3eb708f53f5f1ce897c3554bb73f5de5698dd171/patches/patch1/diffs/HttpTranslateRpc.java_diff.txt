@@ -25,70 +25,69 @@
 > import com.google.api.services.translate.v3.model.DetectLanguageResponse;
 > import com.google.api.services.translate.v3.model.Language;
 > import com.google.api.services.translate.v3.model.TranslateTextResponse;
-50,51c34
-<         new Translate.Builder(transport, new JacksonFactory(), initializer)
+51d34
 <             .setRootUrl(options.getHost())
+61c44
+<     GenericUrl genericUrl = new GenericUrl(translate.getBaseUrl() + "v2/" + path);
 ---
->         new com.google.api.services.translate.v3.Translate.Builder(transport, new JacksonFactory(), initializer)
+>     GenericUrl genericUrl = new GenericUrl(translate.getBaseUrl() + "v3/" + path);
 69c52
 <   public List<List<DetectionsResourceItems>> detect(List<String> texts) {
 ---
 >   public List<List<DetectLanguageResponse>> detect(List<String> texts) {
-71,73c54,56
+71,73c54,59
 <       List<List<DetectionsResourceItems>> detections =
 <           translate.detections().list(texts).setKey(options.getApiKey()).execute().getDetections();
 <       return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
 ---
 >       List<List<DetectLanguageResponse>> detections =
->           translate.projects().locations().detectLanguage("projects/" + options.getProjectId(), texts).execute().getDetections();
+>           translate.projects().detectLanguage("projects/" + options.getProjectId())
+>               .setKey(options.getApiKey())
+>               .execute()
+>               .getLanguages();
 >       return detections != null ? detections : ImmutableList.<List<DetectLanguageResponse>>of();
-80c63
+80c66
 <   public List<LanguagesResource> listSupportedLanguages(Map<Option, ?> optionMap) {
 ---
 >   public List<Language> listSupportedLanguages(Map<Option, ?> optionMap) {
-82c65
+82,85c68,69
 <       List<LanguagesResource> languages =
----
->       List<Language> languages =
-84,89c67,69
+<           translate
 <               .languages()
 <               .list()
-<               .setKey(options.getApiKey())
+---
+>       List<Language> languages =
+>           translate.projects().locations().getSupportedLanguages("projects/" + options.getProjectId())
+87,89d70
 <               .setTarget(
 <                   firstNonNull(
 <                       Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()))
----
->               .projects()
->               .locations()
->               .getSupportedLanguages("projects/" + options.getProjectId())
-92c72
+92c73
 <       return languages != null ? languages : ImmutableList.<LanguagesResource>of();
 ---
 >       return languages != null ? languages : ImmutableList.<Language>of();
-99c79
+99c80
 <   public List<TranslationsResource> translate(List<String> texts, Map<Option, ?> optionMap) {
 ---
 >   public List<TranslateTextResponse> translate(List<String> texts, Map<Option, ?> optionMap) {
-104c84
+104,107c85,86
 <       List<TranslationsResource> translations =
----
->       List<TranslateTextResponse> translations =
-106,107c86,88
+<           translate
 <               .translations()
 <               .list(texts, targetLanguage)
 ---
->               .projects()
->               .locations()
->               .translateText("projects/" + options.getProjectId(), texts, targetLanguage)
-109d89
-<               .setKey(options.getApiKey())
-115,116c95,96
+>       List<TranslateTextResponse> translations =
+>           translate.projects().locations().translateText("projects/" + options.getProjectId(), texts, targetLanguage)
+110,111d88
+<               .setModel(Option.MODEL.getString(optionMap))
+<               .setFormat(Option.FORMAT.getString(optionMap))
+115,116c92,93
 <           translations != null ? translations : ImmutableList.<TranslationsResource>of(),
 <           new Function<TranslationsResource, TranslationsResource>() {
 ---
 >           translations != null ? translations : ImmutableList.<TranslateTextResponse>of(),
 >           new Function<TranslateTextResponse, TranslateTextResponse>() {
-118,122c98,99
+118,122c95,96
 <             public TranslationsResource apply(TranslationsResource translationsResource) {
 <               if (translationsResource.getDetectedSourceLanguage() == null) {
 <                 translationsResource.setDetectedSourceLanguage(sourceLanguage);

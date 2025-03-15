@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * you may obtain a copy of the License at
+ * You may obtain a copy of the License at
  *
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -16,8 +16,8 @@
 
 package com.google.cloud.resourcemanager;
 
-import com.google.api.services.cloudresourcemanager.v3.model.Binding; // Updated import
-import com.google.api.services.cloudresourcemanager.v3.model.Policy; // Updated import
+import com.google.api.services.cloudresourcemanager.v3.model.Binding;
+import com.google.api.services.cloudresourcemanager.v3.model.Policy;
 import com.google.cloud.Identity;
 import com.google.cloud.Policy.Marshaller;
 import com.google.cloud.Role;
@@ -34,7 +34,7 @@ import java.util.Set;
 /** @deprecated v3 GAPIC client of ResourceManager is now available */
 @Deprecated
 final class PolicyMarshaller
-    extends Marshaller<Policy> { // Updated type reference
+    extends Marshaller<Policy> {
 
   static final PolicyMarshaller INSTANCE = new PolicyMarshaller();
 
@@ -52,7 +52,7 @@ final class PolicyMarshaller
   }
 
   @Override
-  protected Policy fromPb(com.google.api.services.cloudresourcemanager.v3.model.Policy policyPb) { // Updated type reference
+  protected Policy fromPb(com.google.api.services.cloudresourcemanager.v3.model.Policy policyPb) {
     Map<Role, Set<Identity>> bindings = new HashMap<>();
     if (policyPb.getBindings() != null) {
       for (Binding bindingPb : policyPb.getBindings()) {
@@ -73,12 +73,12 @@ final class PolicyMarshaller
   }
 
   @Override
-  protected com.google.api.services.cloudresourcemanager.v3.model.Policy toPb(Policy policy) { // Updated type reference
-    com.google.api.services.cloudresourcemanager.v3.model.Policy policyPb = // Updated type reference
-        new com.google.api.services.cloudresourcemanager.v3.model.Policy(); // Updated type reference
+  protected com.google.api.services.cloudresourcemanager.v3.model.Policy toPb(Policy policy) {
+    com.google.api.services.cloudresourcemanager.v3.model.Policy policyPb =
+        new com.google.api.services.cloudresourcemanager.v3.model.Policy();
     List<Binding> bindingPbList = new LinkedList<>();
     for (Map.Entry<Role, Set<Identity>> binding : policy.getBindings().entrySet()) {
-      Binding bindingPb = new Binding(); // Updated type reference
+      Binding bindingPb = new Binding();
       bindingPb.setRole(binding.getKey().getValue());
       bindingPb.setMembers(
           Lists.transform(

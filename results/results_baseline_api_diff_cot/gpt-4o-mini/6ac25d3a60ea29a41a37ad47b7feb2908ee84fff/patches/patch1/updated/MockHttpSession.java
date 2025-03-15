@@ -66,12 +66,13 @@ public class MockHttpSession implements HttpSession {
   //   return null;
   // }
 
-  // Removed deprecated methods
+  // Removed the deprecated method as it is no longer available
   // @Override
   // public Object getValue(final String s) {
   //   return null;
   // }
 
+  // Removed the deprecated method as it is no longer available
   // @Override
   // public String[] getValueNames() {
   //   return new String[0];
@@ -86,7 +87,7 @@ public class MockHttpSession implements HttpSession {
     return false;
   }
 
-  // Removed deprecated method
+  // Removed the deprecated method as it is no longer available
   // @Override
   // public void putValue(final String s, final Object o) {
   // }
@@ -96,7 +97,7 @@ public class MockHttpSession implements HttpSession {
     attributes.remove(s);
   }
 
-  // Removed deprecated method
+  // Removed the deprecated method as it is no longer available
   // @Override
   // public void removeValue(final String s) {
   // }

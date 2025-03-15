@@ -2,13 +2,8 @@
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
-import redis.clients.jedis.commands.ClusterPipeline; // Updated import
-import redis.clients.jedis.commands.MultiKeyCommandsPipeline; // Updated import
-import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline; // Updated import
-import redis.clients.jedis.commands.ScriptingCommandsPipeline; // Updated import
-import redis.clients.jedis.commands.BasicRedisPipeline; // Updated import
-import redis.clients.jedis.commands.BinaryRedisPipeline; // Updated import
-import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline; // Updated import
+import redis.clients.jedis.commands.ClusterPipeline;
+
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
@@ -17,14 +12,7 @@ import java.util.Map;
  * An interface which aligned to Jedis Pipeline interface
  */
 public interface RedisGraphPipeline extends
-        MultiKeyBinaryRedisPipeline,
-        MultiKeyCommandsPipeline, 
-        ClusterPipeline, // Updated to use the new ClusterPipeline
-        BinaryScriptingCommandsPipeline, 
-        ScriptingCommandsPipeline,
-        BasicRedisPipeline, 
-        BinaryRedisPipeline, 
-        Closeable {
+        ClusterPipeline, Closeable {
 
     /**
      * Execute a Cypher query.

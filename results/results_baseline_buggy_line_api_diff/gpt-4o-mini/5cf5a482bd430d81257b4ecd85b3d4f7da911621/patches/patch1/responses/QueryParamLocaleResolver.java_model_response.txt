@@ -8,8 +8,8 @@ import java.util.logging.Logger;
 import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import jakarta.mvc.locale.LocaleResolver;
 import jakarta.mvc.locale.LocaleResolverContext;
+import jakarta.mvc.locale.LocaleResolver;
 import javax.ws.rs.core.UriInfo;
 
 /**
@@ -40,8 +40,8 @@ public class QueryParamLocaleResolver implements LocaleResolver {
     
     @Override
     public Locale resolveLocale(final LocaleResolverContext context) {
-        final String queryLang = context.getQueryParameters()
-                .getFirst("lang");
+        final UriInfo uriInfo = context.getUriInfo();
+        final String queryLang = uriInfo.getQueryParameters().getFirst("lang");
         log.log(Level.INFO, "QueryParamLocaleResolver::resolveLocale:lang:{0}", queryLang);
         return queryLang != null ? Locale.forLanguageTag(queryLang) : null;
     }

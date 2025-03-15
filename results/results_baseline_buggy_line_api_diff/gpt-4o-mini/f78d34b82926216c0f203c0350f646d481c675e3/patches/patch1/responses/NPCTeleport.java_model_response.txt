@@ -105,6 +105,11 @@ public class NPCTeleport
 
                     n.setPitch(50);
 
+                    float head = ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f;
+
+                    if (head < 0)
+                        head *= 2;
+
                     NPC.setLocation(n, target);
                     connection.sendPacket(new PacketPlayOutEntityTeleport(target));
                     connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) head));
@@ -154,7 +159,7 @@ public class NPCTeleport
         final double radius = reachMode ? config.getDouble("npc.reachRange"): config.getDoubleList("npc.range")
             .get(new Random().nextInt(config.getDoubleList("npc.range").size()));
 
-        tokyo.peya.lib.WaveCreator ypp = new tokyo.peya.lib.WaveCreator(10.0, 100.0, 10.0); // Updated class reference
+        tokyo.peya.lib.WaveCreator ypp = new tokyo.peya.lib.WaveCreator(10.0, 100.0, 10.0); // Updated class
 
         final int[] count = {0};
         BukkitRunnable r = new BukkitRunnable()
@@ -172,14 +177,14 @@ public class NPCTeleport
                     double rangeTmp = radius;
 
                     if (config.getBoolean("npc.wave"))
-                        rangeTmp = new tokyo.peya.lib.WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin")) // Updated class reference
+                        rangeTmp = new tokyo.peya.lib.WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin")) // Updated class
                             .get(0.01, true);
 
                     final Location center = player.getLocation();
                     final Location n = new Location(
                         center.getWorld(),
                         auraBotXPos(time[0], rangeTmp + speed) + center.getX(),
-                        center.getY() + new tokyo.peya.lib.WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20), // Updated class reference
+                        center.getY() + new tokyo.peya.lib.WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20), // Updated class
                         auraBotZPos(time[0], rangeTmp + speed) + center.getZ(),
                         (float) ypp.getStatic(),
                         (float) ypp.get(4.5, false)
@@ -213,7 +218,7 @@ public class NPCTeleport
                     meta.setNpcLocation(n.toVector());
                 }
                 time[0] += config.getDouble("npc.time") + (config.getBoolean("npc.speed.wave")
-                    ? new tokyo.peya.lib.WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true) // Updated class reference
+                    ? new tokyo.peya.lib.WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true) // Updated class
                     : 0.0);
             }
         };

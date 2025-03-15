@@ -39,6 +39,24 @@ public class GeoStoreDigestPasswordEncoder extends AbstractGeoStorePasswordEncod
     }
 
     @Override
+    protected PasswordEncoder createStringEncoder() {
+        // Removed the setPasswordEncryptor call as the class has been removed
+        return new PasswordEncoder() {
+            StrongPasswordEncryptor encryptor = new StrongPasswordEncryptor();
+
+            @Override
+            public String encode(String rawPassword) {
+                return encryptor.encryptPassword(rawPassword);
+            }
+
+            @Override
+            public boolean matches(String rawPassword, String encodedPassword) {
+                return encryptor.checkPassword(rawPassword, encodedPassword);
+            }
+        };
+    }
+
+    @Override
     protected CharArrayPasswordEncoder createCharEncoder() {
         return new CharArrayPasswordEncoder() {
             StandardByteDigester digester = new StandardByteDigester();
@@ -53,6 +71,7 @@ public class GeoStoreDigestPasswordEncoder extends AbstractGeoStorePasswordEncod
             public String encodePassword(char[] rawPass, Object salt) {
                 return new String(Base64.encodeBase64(digester.digest(toBytes(rawPass))));
             }
+
             @Override
             public boolean isPasswordValid(String encPass, char[] rawPass, Object salt) {
                 return digester.matches(toBytes(rawPass), Base64.decodeBase64(encPass.getBytes())); 

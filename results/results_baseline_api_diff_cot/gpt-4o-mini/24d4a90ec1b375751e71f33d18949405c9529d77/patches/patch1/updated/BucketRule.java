@@ -30,7 +30,6 @@
 package com.jcabi.s3;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.jcabi.aspects.Tv;
 import com.jcabi.log.Logger;
 import com.jcabi.s3.cached.CdRegion;
 import com.jcabi.s3.retry.ReRegion;

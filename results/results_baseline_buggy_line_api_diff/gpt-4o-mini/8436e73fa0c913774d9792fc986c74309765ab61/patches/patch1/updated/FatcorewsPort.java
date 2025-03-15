@@ -5,7 +5,6 @@ import jakarta.jws.WebParam;
 import jakarta.jws.WebResult;
 import jakarta.jws.WebService;
 import jakarta.jws.soap.SOAPBinding;
-import jakarta.jws.soap.SOAPBinding.ParameterStyle;
 import jakarta.xml.bind.annotation.XmlSeeAlso;
 
 
@@ -16,7 +15,7 @@ import jakarta.xml.bind.annotation.XmlSeeAlso;
  * 
  */
 @WebService(name = "fatcorewsPort", targetNamespace = "http://factemi.at.min_financas.pt/documents")
-@SOAPBinding(parameterStyle = ParameterStyle.BARE)
+@SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
 @XmlSeeAlso({
     ObjectFactory.class
 })

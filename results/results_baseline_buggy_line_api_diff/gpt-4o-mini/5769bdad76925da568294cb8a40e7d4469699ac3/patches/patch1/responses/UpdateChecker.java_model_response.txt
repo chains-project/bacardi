@@ -136,7 +136,6 @@ public final class UpdateChecker {
      * @return a possibly empty set of versions, sorted descending
      */
     private SortedSet<VersionAndRepo> loadVersions(String groupId, String artifactId) throws Exception {
-        // TODO consider using official Aether APIs here (could make use of local cache)
         SortedSet<VersionAndRepo> r = new TreeSet<>();
         for (String repo : repos) {
             String mavenMetadataURL = repo + groupId.replace('.', '/') + '/' + artifactId + "/maven-metadata.xml";

@@ -13,7 +13,7 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
-import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.scheduler.Task;
 
 import static org.spongepowered.api.command.parameter.Parameter.string;
@@ -32,7 +32,7 @@ public class UploadCommand implements CommandExecutor {
 
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) {
-        String url = args.<String>getOne("url").get();
+        String url = args.getOne("url").get();
         if (url.startsWith("http://") || url.startsWith("https://")) {
             List<Account> accounts = plugin.getCore().getUploadAccounts();
             if (accounts.isEmpty()) {
@@ -49,10 +49,10 @@ public class UploadCommand implements CommandExecutor {
         return CommandResult.success();
     }
 
-    public Command buildSpec() {
-        return Command.builder()
+    public CommandSpec buildSpec() {
+        return CommandSpec.builder()
                 .executor(this)
-                .arguments(string(of("url")))
+                .arguments(string())
                 .permission(PomData.ARTIFACT_ID + ".command.skinupload.base")
                 .build();
     }

@@ -22,86 +22,148 @@
 <  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 <  * SOFTWARE.
 <  */
-33d9
-< import org.cactoos.iterable.LengthOf;
-35,37c11
+35d11
 < import org.cactoos.scalar.IoCheckedScalar;
-< import org.cactoos.scalar.ItemAt;
+37,38c13
 < import org.cactoos.scalar.StickyScalar;
+< import org.cactoos.scalar.UncheckedScalar;
 ---
-> import org.cactoos.scalar.LengthOf;
-40d13
-< import org.cactoos.text.SplitText;
-43d15
+> import org.cactoos.scalar.Unchecked;
+43d17
 < import org.cactoos.text.UncheckedText;
-88c60
+88c62
 <     private final IoCheckedScalar<String> transaction;
 ---
->     private final UncheckedScalar<String> transaction;
-95,96c67
+>     private final String transaction;
+95,96c69
 <         this.transaction = new IoCheckedScalar<>(
 <             new StickyScalar<>(
 ---
->         this.transaction = new UncheckedScalar<>(
-109c80
-<                             new SplitText(trnsct, ";")
----
->                         new TextOf(trnsct).asString().split(";")
-123d93
+>         this.transaction = new Unchecked<>(
+123,124c96
 <             )
-131d100
+<         );
+---
+>         ).value();
+130,131c102
+<         final String ident = new UncheckedText(
 <             new IoCheckedScalar<>(
-133c102
+---
+>         final String ident = new Unchecked<>(
+133c104
 <                     0, new SplitText(this.transaction.value(), ";")
 ---
->                 0, new TextOf(this.transaction.value()).asString().split(";")
-135d103
+>                 0, new SplitText(this.transaction, ";")
+135,136c106
 <             ).value()
-156d123
+<         ).asString();
+---
+>         ).value();
+139c109
+<                 new UncheckedText(
+---
+>                 new Unchecked<>(
+155,156c125
+<             new UncheckedText(
 <                 new IoCheckedScalar<>(
-158c125
+---
+>             new Unchecked<>(
+158c127
 <                         1, new SplitText(this.transaction.value(), ";")
 ---
->                     1, new TextOf(this.transaction.value()).asString().split(";")
-160d126
+>                     1, new SplitText(this.transaction, ";")
+160,161c129
 <                 ).value()
-169d134
+<             ).asString(),
+---
+>             ).value(),
+168,169c136
+<         final String amnt = new UncheckedText(
 <             new IoCheckedScalar<>(
-171c136
+---
+>         final String amnt = new Unchecked<>(
+171c138
 <                     2, new SplitText(this.transaction.value(), ";")
 ---
->                 2, new TextOf(this.transaction.value()).asString().split(";")
-173d137
+>                 2, new SplitText(this.transaction, ";")
+173,174c140
 <             ).value()
-193d156
+<         ).asString();
+---
+>         ).value();
+177c143
+<                 new UncheckedText(
+---
+>                 new Unchecked<>(
+192,193c158
+<         final String prefix = new UncheckedText(
 <             new IoCheckedScalar<>(
-196c159
+---
+>         final String prefix = new Unchecked<>(
+196c161
 <                     3, new SplitText(this.transaction.value(), ";")
 ---
->                 3, new TextOf(this.transaction.value()).asString().split(";")
-198d160
+>                 3, new SplitText(this.transaction, ";")
+198,199c163
 <             ).value()
-213d174
+<         ).asString();
+---
+>         ).value();
+212,213c176
+<         final String bnf = new UncheckedText(
 <             new IoCheckedScalar<>(
-216c177
+---
+>         final String bnf = new Unchecked<>(
+216c179
 <                     4, new SplitText(this.transaction.value(), ";")
 ---
->                 4, new TextOf(this.transaction.value()).asString().split(";")
-218d178
+>                 4, new SplitText(this.transaction, ";")
+218,219c181
 <             ).value()
-237d196
+<         ).asString();
+---
+>         ).value();
+222c184
+<                 new UncheckedText(
+---
+>                 new Unchecked<>(
+236,237c198
+<         final String dtls = new UncheckedText(
 <             new IoCheckedScalar<>(
-240c199
+---
+>         final String dtls = new Unchecked<>(
+240c201
 <                     5, new SplitText(this.transaction.value(), ";")
 ---
->                 5, new TextOf(this.transaction.value()).asString().split(";")
-242d200
+>                 5, new SplitText(this.transaction, ";")
+242,243c203
 <             ).value()
-261d218
+<         ).asString();
+---
+>         ).value();
+246c206
+<                 new UncheckedText(
+---
+>                 new Unchecked<>(
+260,261c220
+<         final String sign = new UncheckedText(
 <             new IoCheckedScalar<>(
-264c221
+---
+>         final String sign = new Unchecked<>(
+264c223
 <                     6, new SplitText(this.transaction.value(), ";")
 ---
->                 6, new TextOf(this.transaction.value()).asString().split(";")
-266d222
+>                 6, new SplitText(this.transaction, ";")
+266,267c225
 <             ).value()
+<         ).asString();
+---
+>         ).value();
+272c230
+<                 new UncheckedText(
+---
+>                 new Unchecked<>(
+286c244
+<         return new UncheckedScalar<>(this.transaction).value();
+---
+>         return this.transaction;

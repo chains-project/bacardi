@@ -27,7 +27,7 @@ public class LoginListener extends SharedListener {
     }
 
     @Listener
-    public void onPlayerPreLogin(ClientConnectionEvent.Pre preLoginEvent) { // Updated to use ClientConnectionEvent.Pre
+    public void onPlayerPreLogin(ClientConnectionEvent.Login preLoginEvent) { // Updated to use ClientConnectionEvent.Login
         SkinStorage storage = core.getStorage();
         GameProfile profile = preLoginEvent.getProfile();
         UUID playerUUID = profile.getUniqueId();
@@ -43,7 +43,7 @@ public class LoginListener extends SharedListener {
             plugin.getApi().applyProperties(profile, targetSkin);
             save(preferences);
         } else {
-            String playerName = profile.getName().orElse("Unknown"); // Updated to handle optional name
+            String playerName = profile.getName().orElse("Unknown"); // Updated to handle Optional
             if (!core.getConfig().getBoolean("restoreSkins") || !refetchSkin(playerName, preferences)) {
                 setDefaultSkin(preferences, profile);
             }
@@ -75,8 +75,4 @@ public class LoginListener extends SharedListener {
                 }).submit(plugin);
     }
 }
-``` 
-
-### Summary of Changes:
-1. Changed the event listener method from `ClientConnectionEvent.Auth` to `ClientConnectionEvent.Pre` to accommodate the removal of the `Auth` class in the new API.
-2. Updated the way to retrieve the player's name from `profile.getName().get()` to `profile.getName().orElse("Unknown")` to handle the optional name correctly, ensuring it doesn't throw an exception if the name is absent.
+```

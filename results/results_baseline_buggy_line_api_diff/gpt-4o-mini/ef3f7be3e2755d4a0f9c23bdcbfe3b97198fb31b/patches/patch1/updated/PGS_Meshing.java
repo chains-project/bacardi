@@ -64,7 +64,7 @@ public class PGS_Meshing {
 	private PGS_Meshing() {
 	}
 
-	// ... (rest of the code remains unchanged)
+	// ... (rest of the class remains unchanged)
 
 	public static PShape gabrielFaces(final IIncrementalTin triangulation, final boolean preservePerimeter) {
 		final HashSet<IQuadEdge> edges = new HashSet<>();
@@ -104,6 +104,5 @@ public class PGS_Meshing {
 		return PGS.polygonizeEdges(meshEdges);
 	}
 
-	// ... (rest of the code remains unchanged)
-
+	// ... (rest of the class remains unchanged)
 }

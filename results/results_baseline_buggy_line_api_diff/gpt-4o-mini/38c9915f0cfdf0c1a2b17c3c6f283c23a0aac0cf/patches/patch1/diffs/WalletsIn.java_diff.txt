@@ -22,28 +22,31 @@
 <  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 <  * SOFTWARE.
 <  */
-37,38c14
-< import org.cactoos.scalar.IoCheckedScalar;
+38d14
 < import org.cactoos.scalar.SolidScalar;
+41c17
+< import org.cactoos.text.UncheckedText;
 ---
-> import org.cactoos.scalar.IoChecked;
-40d15
-< import org.cactoos.text.JoinedText;
-53c28
+> import org.cactoos.text.TextOf;
+53c29
 <     private final IoCheckedScalar<Path> path;
 ---
 >     private final Scalar<Path> path;
-103,105c78
+103,105c79
 <         this.path = new IoCheckedScalar<>(
 <             new SolidScalar<>(pth)
 <         );
 ---
 >         this.path = pth;
-119,123c92
+119,122c93,94
 <             new JoinedText(
 <                 ".",
 <                 Long.toHexString(this.random.nextLong()),
 <                 this.ext
-<             ).asString()
 ---
->             String.format("%s.%s", Long.toHexString(this.random.nextLong()), this.ext)
+>             new TextOf(
+>                 String.format("%s.%s", Long.toHexString(this.random.nextLong()), this.ext)
+127d98
+<                 new UncheckedText(
+131d101
+<                     )

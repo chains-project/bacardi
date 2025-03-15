@@ -32,7 +32,6 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer; // Added import
 import java.nio.file.FileSystems;
 
 /**
@@ -49,14 +48,13 @@ public final class SimpleThriftLogger<T extends TBase> implements Closeable {
     private long byteOffset;
 
     public ByteOffsetTFramedTransport(TTransport transport) {
-      super(transport);
+      super(transport); // This constructor is now valid in the new API
       byteOffset = 0;
     }
 
     @Override
     public void write(byte[] buf, int off, int len) throws TTransportException {
-      ByteBuffer byteBuffer = ByteBuffer.wrap(buf, off, len); // Create ByteBuffer
-      super.write(byteBuffer); // Use the new write method
+      super.write(buf, off, len);
       byteOffset += len;
     }
 

@@ -1,2 +1,8 @@
-166d165
+3a4
+> import com.fasterxml.jackson.core.type.TypeReference; // Added import for TypeReference
+88c89
+<     ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
+---
+>     ExportResponse exportResponse = objectMapper.readValue(body, new TypeReference<ExportResponse>() {}); // Updated to use TypeReference
+166d166
 < 

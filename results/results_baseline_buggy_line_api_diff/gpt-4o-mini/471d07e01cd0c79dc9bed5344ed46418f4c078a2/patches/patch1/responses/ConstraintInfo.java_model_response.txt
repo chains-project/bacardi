@@ -16,8 +16,7 @@
  */
 package com.google.cloud.resourcemanager;
 
-import com.google.api.services.cloudresourcemanager.v3.model.BooleanConstraint;
-import com.google.api.services.cloudresourcemanager.v3.model.Constraint;
+import com.google.api.services.cloudresourcemanager.v3.model.Policy;
 import com.google.api.services.cloudresourcemanager.v3.model.ListPolicy;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
@@ -33,36 +32,89 @@ import java.util.Objects;
 @Deprecated
 public class ConstraintInfo {
 
-  static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
-      new Function<Constraint, ConstraintInfo>() {
-        @Override
-        public ConstraintInfo apply(Constraint protobuf) {
+  static final Function<Policy, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
+      new Function<Policy, ConstraintInfo>() {
+        public ConstraintInfo apply(Policy protobuf) {
           return ConstraintInfo.fromProtobuf(protobuf);
         }
       };
-  static final Function<ConstraintInfo, Constraint> TO_PROTOBUF_FUNCTION =
-      new Function<ConstraintInfo, Constraint>() {
-        @Override
-        public Constraint apply(ConstraintInfo constraintInfo) {
+  static final Function<ConstraintInfo, Policy> TO_PROTOBUF_FUNCTION =
+      new Function<ConstraintInfo, Policy>() {
+        public Policy apply(ConstraintInfo constraintInfo) {
           return constraintInfo.toProtobuf();
         }
       };
 
-  private BooleanConstraint booleanConstraint;
   private String constraintDefault;
   private String description;
   private String displayName;
-  private ListPolicy listPolicy;
+  private Constraints constraints;
   private String name;
   private Integer version;
 
+  /**
+   * A Constraint that allows or disallows a list of string values, which are configured by an
+   * Organization's policy administrator with a Policy.
+   */
+  static class Constraints {
+
+    private final String suggestedValue;
+    private final Boolean supportsUnder;
+
+    Constraints(String suggestedValue, Boolean supportsUnder) {
+      this.suggestedValue = suggestedValue;
+      this.supportsUnder = supportsUnder;
+    }
+
+    String getSuggestedValue() {
+      return suggestedValue;
+    }
+
+    Boolean getSupportsUnder() {
+      return supportsUnder;
+    }
+
+    @Override
+    public String toString() {
+      return MoreObjects.toStringHelper(this)
+          .add("suggestedValue", getSuggestedValue())
+          .add("supportsUnder", getSupportsUnder())
+          .toString();
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(suggestedValue, supportsUnder);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      Constraints that = (Constraints) o;
+      return Objects.equals(suggestedValue, that.suggestedValue)
+          && Objects.equals(supportsUnder, that.supportsUnder);
+    }
+
+    ListPolicy toProtobuf() {
+      return new ListPolicy().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
+    }
+
+    static Constraints fromProtobuf(ListPolicy listPolicy) {
+      return new Constraints(listPolicy.getSuggestedValue(), listPolicy.getSupportsUnder());
+    }
+  }
+
   /** Builder for {@code ConstraintInfo}. */
   static class Builder {
-    private BooleanConstraint booleanConstraint;
     private String constraintDefault;
     private String description;
     private String displayName;
-    private ListPolicy listPolicy;
+    private Constraints constraints;
     private String name;
     private Integer version;
 
@@ -71,18 +123,12 @@ public class ConstraintInfo {
     }
 
     Builder(ConstraintInfo info) {
-      this.booleanConstraint = info.booleanConstraint;
       this.constraintDefault = info.constraintDefault;
       this.description = info.description;
       this.displayName = info.displayName;
-      this.listPolicy = info.listPolicy;
+      this.constraints = info.constraints;
       this.name = info.name;
       this.version = info.version;
-    }
-
-    Builder setBooleanConstraint(BooleanConstraint booleanConstraint) {
-      this.booleanConstraint = booleanConstraint;
-      return this;
     }
 
     Builder setConstraintDefault(String constraintDefault) {
@@ -100,8 +146,8 @@ public class ConstraintInfo {
       return this;
     }
 
-    Builder setListPolicy(ListPolicy listPolicy) {
-      this.listPolicy = listPolicy;
+    Builder setConstraints(Constraints constraints) {
+      this.constraints = constraints;
       return this;
     }
 
@@ -121,18 +167,12 @@ public class ConstraintInfo {
   }
 
   ConstraintInfo(Builder builder) {
-    this.booleanConstraint = builder.booleanConstraint;
     this.constraintDefault = builder.constraintDefault;
     this.description = builder.description;
     this.displayName = builder.displayName;
-    this.listPolicy = builder.listPolicy;
+    this.constraints = builder.constraints;
     this.name = builder.name;
     this.version = builder.version;
-  }
-
-  /** Returns the boolean constraint to check whether the constraint is enforced or not. */
-  public BooleanConstraint getBooleanConstraint() {
-    return booleanConstraint;
   }
 
   /** Returns the default behavior of the constraint. */
@@ -150,9 +190,9 @@ public class ConstraintInfo {
     return displayName;
   }
 
-  /** Returns the listPolicy. */
-  public ListPolicy getListPolicy() {
-    return listPolicy;
+  /** Returns the listConstraintInfo. */
+  public Constraints getConstraints() {
+    return constraints;
   }
 
   /** Returns the globally unique name of the constraint. */
@@ -174,19 +214,17 @@ public class ConstraintInfo {
       return false;
     }
     ConstraintInfo that = (ConstraintInfo) o;
-    return Objects.equals(booleanConstraint, that.booleanConstraint)
-        && Objects.equals(constraintDefault, that.constraintDefault)
+    return Objects.equals(constraintDefault, that.constraintDefault)
         && Objects.equals(description, that.description)
         && Objects.equals(displayName, that.displayName)
-        && Objects.equals(listPolicy, that.listPolicy)
+        && Objects.equals(constraints, that.constraints)
         && Objects.equals(name, that.name)
         && Objects.equals(version, that.version);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(
-        booleanConstraint, constraintDefault, description, displayName, listPolicy, name, version);
+    return Objects.hash(constraintDefault, description, displayName, constraints, name, version);
   }
 
   /** Returns a builder for the {@link ConstraintInfo} object. */
@@ -199,33 +237,28 @@ public class ConstraintInfo {
     return new Builder(this);
   }
 
-  Constraint toProtobuf() {
-    Constraint constraintProto = new Constraint();
-    constraintProto.setBooleanConstraint(booleanConstraint);
-    constraintProto.setConstraintDefault(constraintDefault);
-    constraintProto.setDescription(description);
-    constraintProto.setDisplayName(displayName);
-    if (listPolicy != null) {
-      constraintProto.setListPolicy(listPolicy);
+  Policy toProtobuf() {
+    Policy policyProto = new Policy();
+    policyProto.setConstraintDefault(constraintDefault);
+    policyProto.setDescription(description);
+    policyProto.setDisplayName(displayName);
+    if (constraints != null) {
+      policyProto.setListPolicy(constraints.toProtobuf());
     }
-    constraintProto.setName(name);
-    constraintProto.setVersion(version);
-    return constraintProto;
+    policyProto.setName(name);
+    policyProto.setVersion(version);
+    return policyProto;
   }
 
-  static ConstraintInfo fromProtobuf(Constraint constraintProtobuf) {
-    Builder builder = newBuilder(constraintProtobuf.getName());
-    builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint());
-    builder.setConstraintDefault(constraintProtobuf.getConstraintDefault());
-    builder.setDescription(constraintProtobuf.getDescription());
-    builder.setDisplayName(constraintProtobuf.getDisplayName());
-    if (constraintProtobuf.getListPolicy() != null) {
-      builder.setListPolicy(constraintProtobuf.getListPolicy());
+  static ConstraintInfo fromProtobuf(Policy policyProtobuf) {
+    Builder builder = newBuilder(policyProtobuf.getName());
+    builder.setConstraintDefault(policyProtobuf.getConstraintDefault());
+    builder.setDescription(policyProtobuf.getDescription());
+    builder.setDisplayName(policyProtobuf.getDisplayName());
+    if (policyProtobuf.getListPolicy() != null) {
+      builder.setConstraints(Constraints.fromProtobuf(policyProtobuf.getListPolicy()));
     }
-    if (constraintProtobuf.getName() != null && !constraintProtobuf.getName().equals("Unnamed")) {
-      builder.setName(constraintProtobuf.getName());
-    }
-    builder.setVersion(constraintProtobuf.getVersion());
+    builder.setVersion(policyProtobuf.getVersion());
     return builder.build();
   }
 }

@@ -5,7 +5,20 @@
 ---
 > import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.Command;
-38,39c37,38
+16c15
+< public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
+---
+> public class InvalidateCommand implements CommandExecutor {
+29c28
+<             return CommandResult.empty();
+---
+>             return CommandResult.success(); // Updated to return success instead of empty
+33c32
+<         Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
+---
+>         Task.builder().execute(new SkinInvalidator(plugin, receiver)).submit(plugin); // Removed async() as it was removed in the new API
+37,39c36,37
+<     @Override
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
 ---

@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.spongepowered.api.command.CommandSource; // This import will be removed
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.command.CommandSource; // This import will be removed
 import org.spongepowered.api.command.source.CommandSource; // New import for the updated API
 
 public class SkinUploader extends SharedUploader {

@@ -14,16 +14,7 @@
 > import jakarta.mvc.binding.MvcBinding; // Updated import
 > import jakarta.mvc.binding.ParamError; // Updated import
 > import jakarta.mvc.security.CsrfProtected; // Updated import
-52c52,54
+52c52
 <             AlertMessage alert = AlertMessage.danger("Validation voilations!");
 ---
->             AlertMessage alert = AlertMessage.danger("Validation violations!");
->             // Updated to handle the absence of ParamError
->             // Assuming a new way to handle errors is implemented
-54,56c56,57
-<                     .stream()
-<                     .forEach((ParamError t) -> {
-<                         alert.addError(t.getParamName(), "", t.getMessage());
----
->                     .forEach((error) -> {
->                         alert.addError(error.getParamName(), "", error.getMessage());
+>             AlertMessage alert = AlertMessage.danger("Validation violations!"); // Fixed typo

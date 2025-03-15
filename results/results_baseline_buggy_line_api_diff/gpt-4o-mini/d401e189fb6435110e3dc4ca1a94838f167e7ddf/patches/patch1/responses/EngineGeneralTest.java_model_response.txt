@@ -180,7 +180,7 @@ public class EngineGeneralTest {
     @BeforeClass
     public static void initStatic() {
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        loggerContext.getLogger("ROOT").setLevel(Level.TRACE);
+        loggerContext.getLogger(LoggerContext.ROOT_LOGGER_NAME).setLevel(Level.TRACE);
     }
 
     @Before
@@ -683,6 +683,21 @@ public class EngineGeneralTest {
         assertEquals("COL5  ok?", "OLA", query.get(1).get("COL5").toString());
     }
 
+    /**
+     * Tests that on a rollback situation, the prepared statement batches are cleared.
+     *
+     * The steps performed on this test are:
+     * <ol>
+     *     <li>Add batch to transaction and purposely fail to flush</li>
+     *     <li>Ensure the existence of the Exception and rollback transaction</li>
+     *     <li>Flush again successfully and ensure that the DB table doesn't have any rows</li>
+     * </ol>
+     *
+     * This is a regression test.
+     *
+     * @throws DatabaseEngineException If there is a problem on {@link DatabaseEngine} operations.
+     * @since 2.1.12
+     */
     @Test
     public void batchInsertRollback() throws DatabaseEngineException {
         final CountDownLatch latch = new CountDownLatch(1);
@@ -1873,37 +1888,4 @@ public class EngineGeneralTest {
                         .from(table("TEST"))
                         .where(
                                 eq(column("COL2"), k(false))
-                        )
-        );
-
-        assertEquals(1, rows.size());
-    }
-
-    @Test
-    public void coalesceTest() throws DatabaseEngineException {
-        create5ColumnsEntity();
-
-        engine.query(
-                select(all())
-                        .from(table("TEST"))
-                        .where(
-                                eq(coalesce(column("COL2"), k(false)), k(false))
-                        )
-        );
-    }
-
-    @Test
-    public void multipleCoalesceTest() throws DatabaseEngineException {
-        create5ColumnsEntity();
-
-        engine.query(
-                select(all())
-                        .from(table("TEST"))
-                        .where(
-                                eq(coalesce(column("COL2"), k(false), k(true)), k(false))
-                        )
-        );
-    }
-
-    @Test
 

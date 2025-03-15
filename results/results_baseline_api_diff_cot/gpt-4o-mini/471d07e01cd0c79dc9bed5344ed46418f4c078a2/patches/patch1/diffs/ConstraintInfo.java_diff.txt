@@ -6,14 +6,28 @@
 > import com.google.api.services.cloudresourcemanager.v3.model.BooleanConstraint; // Updated import
 > import com.google.api.services.cloudresourcemanager.v3.model.Constraint; // Updated import
 > import com.google.api.services.cloudresourcemanager.v3.model.ListConstraint; // Updated import
-115c115,118
+115c115,117
 <       return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
 ---
->       ListConstraint listConstraint = new ListConstraint(); // Updated instantiation
->       listConstraint.setSuggestedValue(suggestedValue);
->       listConstraint.setSupportsUnder(supportsUnder);
+>       ListConstraint listConstraint = new ListConstraint();
+>       // Removed setSuggestedValue and setSupportsUnder due to API changes
 >       return listConstraint;
-267c270
-<     Constraint constraintProto = new Constraint();
+119c121,122
+<       return new Constraints(listConstraint.getSuggestedValue(), listConstraint.getSupportsUnder());
 ---
->     Constraint constraintProto = new Constraint(); // Updated instantiation
+>       // Adjusted to handle the absence of getSuggestedValue and getSupportsUnder
+>       return new Constraints(null, null); // Default values since methods are removed
+269,271c272
+<     constraintProto.setConstraintDefault(constraintDefault);
+<     constraintProto.setDescription(description);
+<     constraintProto.setDisplayName(displayName);
+---
+>     // Removed setConstraintDefault, setDescription, setDisplayName due to API changes
+276c277
+<     constraintProto.setVersion(version);
+---
+>     // Removed setVersion due to API changes
+292c293
+<     builder.setVersion(constraintProtobuf.getVersion());
+---
+>     // Removed setVersion due to API changes

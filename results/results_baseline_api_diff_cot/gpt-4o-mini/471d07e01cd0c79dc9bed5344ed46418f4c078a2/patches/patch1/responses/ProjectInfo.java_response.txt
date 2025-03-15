@@ -51,6 +51,7 @@ public class ProjectInfo implements Serializable {
   private final Map<String, String> labels;
   private final Long projectNumber;
   private final State state;
+  private final Long createTimeMillis;
   private final ResourceId parent;
 
   /** The project lifecycle states. */
@@ -394,7 +395,9 @@ public class ProjectInfo implements Serializable {
     projectPb.setName(name);
     projectPb.setProjectId(projectId);
     projectPb.setLabels(labels);
-    projectPb.setProjectNumber(projectNumber);
+    if (projectNumber != null) {
+      projectPb.setProjectNumber(projectNumber);
+    }
     if (state != null) {
       projectPb.setLifecycleState(state.toString());
     }

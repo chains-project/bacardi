@@ -93,46 +93,46 @@ public class SetCommand implements CommandExecutor, ChangeSkinCommand {
 the error is triggered in the following specific lines in the previous code:
 
 ```java
-import org.spongepowered.api.command.args.GenericArguments;
-```
-```java
-import org.spongepowered.api.command.spec.CommandExecutor;
+import org.spongepowered.api.command.spec.CommandSpec;
 ```
 ```java
 import org.spongepowered.api.command.CommandSource;
 ```
 ```java
-import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.command.spec.CommandExecutor;
 ```
 ```java
 import org.spongepowered.api.command.args.CommandContext;
+```
+```java
+import org.spongepowered.api.command.args.GenericArguments;
 ```
 
 
 
  with the following error information:
-[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/SetCommand.java:[15,42] package org.spongepowered.api.command.args does not exist
-
-[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/SetCommand.java:[16,42] package org.spongepowered.api.command.spec does not exist
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/SetCommand.java:[17,42] package org.spongepowered.api.command.spec does not exist
 
 [ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/SetCommand.java:[13,37] cannot find symbol
   symbol:   class CommandSource
   location: package org.spongepowered.api.command
 
-[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/SetCommand.java:[17,42] package org.spongepowered.api.command.spec does not exist
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/SetCommand.java:[16,42] package org.spongepowered.api.command.spec does not exist
 
 [ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/SetCommand.java:[14,42] package org.spongepowered.api.command.args does not exist
 
+[ERROR] /ChangeSkin/sponge/src/main/java/com/github/games647/changeskin/sponge/command/SetCommand.java:[15,42] package org.spongepowered.api.command.args does not exist
+
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
-     Class org.spongepowered.api.command.args.GenericArguments has been removed in the new version of the dependency.
-     Class org.spongepowered.api.command.spec.CommandExecutor has been removed in the new version of the dependency.
-     Class org.spongepowered.api.command.CommandExecutor has been added in the new version of the dependency.
-     Class org.spongepowered.api.command.CommandSource has been removed in the new version of the dependency.
      Class org.spongepowered.api.command.spec.CommandSpec has been removed in the new version of the dependency.
-     Class org.spongepowered.api.command.args.CommandContext has been removed in the new version of the dependency.
-     Constructor org.spongepowered.api.command.args.CommandContext() has been removed in the new version of the dependency.
+     Class org.spongepowered.api.command.CommandSource has been removed in the new version of the dependency.
+     Class org.spongepowered.api.command.CommandExecutor has been added in the new version of the dependency.
+     Class org.spongepowered.api.command.spec.CommandExecutor has been removed in the new version of the dependency.
      Interface org.spongepowered.api.command.parameter.CommandContext has been added in the new version of the dependency.
+     Constructor org.spongepowered.api.command.args.CommandContext() has been removed in the new version of the dependency.
+     Class org.spongepowered.api.command.args.CommandContext has been removed in the new version of the dependency.
+     Class org.spongepowered.api.command.args.GenericArguments has been removed in the new version of the dependency.
 
 
 

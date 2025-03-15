@@ -21,7 +21,6 @@ public class Translation implements Serializable {
   private static final long serialVersionUID = 2556017420486245581L;
   static final Function<Translation, Translation> FROM_PB_FUNCTION =
       new Function<Translation, Translation>() {
-        @Override
         public Translation apply(Translation translationPb) {
           return Translation.fromPb(translationPb);
         }
@@ -91,7 +90,7 @@ public class Translation implements Serializable {
   static Translation fromPb(Translation translationPb) {
     return new Translation(
         translationPb.getTranslatedText(),
-        translationPb.getDetectedSourceLanguage(),
+        null, // source language is not available in the new version
         translationPb.getModel());
   }
 }

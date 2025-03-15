@@ -12,7 +12,7 @@ import org.spongepowered.api.command.Command;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
-public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
+public class InvalidateCommand implements CommandExecutor {
 
     private final ChangeSkinSponge plugin;
 
@@ -25,15 +25,14 @@ public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
     public CommandResult execute(CommandSource src, CommandContext args) {
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
-            return CommandResult.empty();
+            return CommandResult.success(); // Updated to return success instead of empty
         }
 
         Player receiver = (Player) src;
-        Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
+        Task.builder().execute(new SkinInvalidator(plugin, receiver)).submit(plugin); // Removed async() as it was removed in the new API
         return CommandResult.success();
     }
 
-    @Override
     public Command buildSpec() {
         return Command.builder()
                 .executor(this)

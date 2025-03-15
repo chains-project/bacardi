@@ -1,4 +1,4 @@
-38,43c38,43
+38,43c38,44
 < import javax.validation.constraints.NotBlank;
 < import javax.validation.constraints.NotEmpty;
 < import javax.validation.constraints.NotNull;
@@ -6,9 +6,14 @@
 < import javax.validation.metadata.ConstraintDescriptor;
 < import javax.validation.metadata.ElementDescriptor;
 ---
+> import jakarta.validation.Validator as JakartaValidator;
 > import jakarta.validation.constraints.NotBlank;
 > import jakarta.validation.constraints.NotEmpty;
 > import jakarta.validation.constraints.NotNull;
 > import jakarta.validation.metadata.BeanDescriptor;
 > import jakarta.validation.metadata.ConstraintDescriptor;
 > import jakarta.validation.metadata.ElementDescriptor;
+121c122
+<                 Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
+---
+>                 JakartaValidator validator = HibernateValidatorProperty.validatorFactory.getValidator();

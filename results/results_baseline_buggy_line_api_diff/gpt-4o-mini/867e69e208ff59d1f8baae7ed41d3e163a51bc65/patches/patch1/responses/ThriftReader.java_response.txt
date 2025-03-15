@@ -78,7 +78,7 @@ public class ThriftReader<T extends TBase> implements Closeable {
     this.byteOffsetInputStream = new ByteOffsetInputStream(
         new RandomAccessFile(path, "r"), readBufferSize);
     this.framedTransport = new TFramedTransport(new TIOStreamTransport(this
-        .byteOffsetInputStream), maxMessageSize);
+        .byteOffsetInputStream));
     this.baseFactory = Preconditions.checkNotNull(baseFactory);
     this.protocol = protocolFactory.get(this.framedTransport);
   }

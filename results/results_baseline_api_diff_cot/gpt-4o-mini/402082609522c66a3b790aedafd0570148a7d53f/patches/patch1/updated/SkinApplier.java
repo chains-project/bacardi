@@ -18,12 +18,15 @@ import org.spongepowered.api.world.World;
 public class SkinApplier extends SharedApplier {
 
     private final ChangeSkinSponge plugin;
+    private final Player invoker; // Changed from CommandSource to Player
     private final Player receiver;
 
-    public SkinApplier(ChangeSkinSponge plugin, Player receiver, SkinModel targetSkin, boolean keepSkin) {
+    public SkinApplier(ChangeSkinSponge plugin, Player invoker, Player receiver, SkinModel targetSkin
+            , boolean keepSkin) {
         super(plugin.getCore(), targetSkin, keepSkin);
 
         this.plugin = plugin;
+        this.invoker = invoker;
         this.receiver = receiver;
     }
 
@@ -34,10 +37,8 @@ public class SkinApplier extends SharedApplier {
         }
 
         //uuid was successful resolved, we could now make a cooldown check
-        if (receiver.isOnline()) {
-            UUID uniqueId = receiver.getUniqueId();
-            core.getCooldownService().trackPlayer(uniqueId);
-        }
+        UUID uniqueId = invoker.getUniqueId();
+        core.getCooldownService().trackPlayer(uniqueId);
 
         if (core.getStorage() != null) {
             UserPreference preferences = core.getStorage().getPreferences(receiver.getUniqueId());
@@ -57,12 +58,12 @@ public class SkinApplier extends SharedApplier {
         plugin.getApi().applySkin(receiver, targetSkin);
 
         sendUpdate();
-        plugin.sendMessage(receiver, "skin-changed");
+        plugin.sendMessage(invoker, "skin-changed");
     }
 
     @Override
     protected void sendMessage(String key) {
-        plugin.sendMessage(receiver, key);
+        plugin.sendMessage(invoker, key);
     }
 
     @Override

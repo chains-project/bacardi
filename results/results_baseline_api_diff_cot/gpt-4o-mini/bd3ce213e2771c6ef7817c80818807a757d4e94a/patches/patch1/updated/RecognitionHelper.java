@@ -3,7 +3,6 @@ package de.uniwue.helper;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer; // Added import for Writer
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -240,8 +239,7 @@ public class RecognitionHelper {
 				dataList.add(pageList);
 			}
 			ObjectWriter writer = mapper.writer();
-			Writer jsonWriter = new FileWriter(segmentListFile); // Create a Writer for the file
-			writer.writeValue(jsonWriter, dataList); // Use the Writer to write the value
+			writer.writeValue(segmentListFile.toPath().toFile(), dataList); // Updated to use Path
 
             processHandler = new ProcessHandler();
             processHandler.setFetchProcessConsole(true);

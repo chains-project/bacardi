@@ -366,9 +366,8 @@ public class ReportBuilder
 			return;
 		}
 		
-		// Updated to use float instead of int
-		float lineWidth = (float) border.getLineWidth();
-		textField.getLineBox().getPen().setLineWidth(lineWidth);
+		// Updated to use setLineWidth(int) instead of setLineWidth(float)
+		textField.getLineBox().getPen().setLineWidth(border.getLineWidth());
 		textField.getLineBox().getPen().setLineColor(border.getLineColor());
 		textField.getLineBox().getPen().setLineStyle(border.getLineStyle().getLineStyleEnum());
 	}

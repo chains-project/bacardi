@@ -8,10 +8,11 @@ import net.jadler.RequestManager;
 import net.jadler.stubbing.server.StubHttpServer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.util.thread.ThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.Validate;
+
 
 /**
  * Default stub http server implementation using Jetty as an http server.
@@ -26,17 +27,16 @@ public class JettyStubHttpServer implements StubHttpServer {
         this(0);
     }
     
+
     public JettyStubHttpServer(final int port) {
-        this.server = new Server();
-        HttpConfiguration httpConfig = new HttpConfiguration();
-        httpConfig.setSendServerVersion(false);
-        httpConfig.setSendDateHeader(true);
-        
-        this.httpConnector = new ServerConnector(server, httpConfig);
+        this.server = new Server(); // Updated to use the new constructor with ThreadPool
+        this.server.setHandler(new JadlerHandler(new RequestManager())); // Assuming a default RequestManager for initialization
+        this.httpConnector = new ServerConnector(server); // Updated to use ServerConnector
         this.httpConnector.setPort(port);
         server.addConnector(this.httpConnector);
     }
     
+
     /**
      * {@inheritDoc}
      */
@@ -47,6 +47,7 @@ public class JettyStubHttpServer implements StubHttpServer {
         server.setHandler(new JadlerHandler(ruleProvider));
     }
     
+
     /**
      * {@inheritDoc}
      */
@@ -56,6 +57,7 @@ public class JettyStubHttpServer implements StubHttpServer {
         server.start();
         logger.debug("jetty started");
     }
+
 
     /**
      * {@inheritDoc}
@@ -67,11 +69,12 @@ public class JettyStubHttpServer implements StubHttpServer {
         logger.debug("jetty stopped");
     }
     
+
     /**
      * {@inheritDoc}
      */
     @Override
     public int getPort() {
-        return httpConnector.getLocalPort();
+        return httpConnector.getLocalPort(); // Updated to use the new method
     }
 }

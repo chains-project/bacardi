@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.validation.Validator;
+import jakarta.validation.Validator as JakartaValidator;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -118,7 +119,7 @@ public abstract class ListControlGroups<T> extends Panel {
 
 		Set<String> properties = getPropertiesByOrder(modelClass);
 
-		Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
+		JakartaValidator validator = HibernateValidatorProperty.validatorFactory.getValidator();
 		BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
 		for(String property : properties){
 			PropertyDescriptor descriptor;

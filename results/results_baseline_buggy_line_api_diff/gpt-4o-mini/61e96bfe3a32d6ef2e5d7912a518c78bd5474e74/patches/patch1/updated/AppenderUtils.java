@@ -39,7 +39,6 @@ public class AppenderUtils {
     private TProtocol protocol;
     private OutputStream os;
 
-    @Override
     public void init(OutputStream os) {
       this.os = os;
       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
@@ -50,7 +49,6 @@ public class AppenderUtils {
       protocol = new TBinaryProtocol(framedTransport);
     }
 
-    @Override
     public void doEncode(LogMessage logMessage) throws IOException {
       try {
         logMessage.write(protocol);
@@ -60,7 +58,6 @@ public class AppenderUtils {
       }
     }
 
-    @Override
     public void close() throws IOException {
       framedTransport.close();
     }

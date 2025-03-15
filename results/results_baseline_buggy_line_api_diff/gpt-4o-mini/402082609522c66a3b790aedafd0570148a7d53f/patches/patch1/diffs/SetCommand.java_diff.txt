@@ -1,23 +1,17 @@
-13,16c13,15
+13d12
 < import org.spongepowered.api.command.CommandSource;
-< import org.spongepowered.api.command.args.CommandContext;
-< import org.spongepowered.api.command.args.GenericArguments;
+16,17c15
 < import org.spongepowered.api.command.spec.CommandExecutor;
+< import org.spongepowered.api.command.spec.CommandSpec;
 ---
-> import org.spongepowered.api.command.source.CommandSource;
-> import org.spongepowered.api.command.context.CommandContext;
-> import org.spongepowered.api.command.parameter.GenericArguments;
-21,22c20,21
-< import static org.spongepowered.api.command.args.GenericArguments.flags;
-< import static org.spongepowered.api.command.args.GenericArguments.string;
----
-> import static org.spongepowered.api.command.parameter.GenericArguments.flags;
-> import static org.spongepowered.api.command.parameter.GenericArguments.string;
-25c24
+> import org.spongepowered.api.command.CommandSource;
+25c23
 < public class SetCommand implements CommandExecutor, ChangeSkinCommand {
 ---
-> public class SetCommand implements ChangeSkinCommand {
-36d34
-<     @Override
+> public class SetCommand implements CommandExecutor {
+50c48
+<         String targetSkin = args.<String>getOne("skin").get();
+---
+>         String targetSkin = args.<String>getOne("skin").orElse("");
 75d72
 <     @Override

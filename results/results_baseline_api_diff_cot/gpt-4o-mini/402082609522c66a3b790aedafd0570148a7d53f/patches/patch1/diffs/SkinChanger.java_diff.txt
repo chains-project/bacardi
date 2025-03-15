@@ -1,8 +1,12 @@
-8c8
+8c8,10
 < import org.spongepowered.api.text.serializer.TextSerializers;
 ---
-> import org.spongepowered.api.text.Texts; // Updated import for text serialization
-22c22
+> import org.spongepowered.api.text.Text; // Updated import for new text handling
+> import org.spongepowered.api.text.format.TextColor; // New import for text color handling
+> import org.spongepowered.api.text.format.TextStyles; // New import for text styles
+22c24,26
 <         invoker.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage));
 ---
->         invoker.sendMessage(Texts.of(localeMessage)); // Updated to use the new Texts class
+>         // Assuming the new API requires creating a Text object directly
+>         Text message = Text.of(TextColor.WHITE, localeMessage); // Create a Text object with the message
+>         invoker.sendMessage(message);

@@ -46,7 +46,7 @@ public class InfoCommand implements Command {
         return CommandResult.success();
     }
 
-    public Command buildSpec() {
+    public CommandSpec buildSpec() {
         return Command.builder()
                 .executor(this)
                 .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")

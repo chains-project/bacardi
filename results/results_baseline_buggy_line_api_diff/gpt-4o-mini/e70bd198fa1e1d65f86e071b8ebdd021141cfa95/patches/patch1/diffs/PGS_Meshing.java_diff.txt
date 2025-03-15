@@ -1,9 +1,10 @@
-38,39c38
+38d37
 < import org.tinspin.index.PointIndex;
-< import org.tinspin.index.kdtree.KDTree;
+40c39
+< import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
 ---
-> import org.tinspin.index.phtree.PHTreeMMP;
-70,114c69
+> import org.tinspin.index.IndexConfig;
+70,122c69
 <         /**
 <          * Generates a shape consisting of polygonal faces of an <i>Urquhart graph</i>.
 <          * An Urquhart graph is obtained by removing the longest edge from each triangle
@@ -49,9 +50,7 @@
 <                                 }
 <                         }
 <                 });
----
->         // ... (rest of the code remains unchanged)
-116,146d70
+< 
 <                 edges.removeAll(uniqueLongestEdges);
 < 
 <                 final Collection<PEdge> meshEdges = new ArrayList<>(edges.size());
@@ -59,7 +58,9 @@
 < 
 <                 return PGS.polygonizeEdges(meshEdges);
 <         }
-< 
+---
+>         // ... (rest of the code remains unchanged)
+124,146d70
 <         /**
 <          * Generates a shape consisting of polygonal faces of a <i>Gabriel graph</i>. A
 <          * Gabriel graph is obtained by removing each edge E from a triangulation if a
@@ -83,19 +84,15 @@
 <          * @since 1.1.0
 <          * @see #urquhartFaces(IIncrementalTin, boolean)
 <          */
-164,168c88
+164c88
 <                 final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {
-<                         final double deltaX = p1[0] - p2[0];
-<                         final double deltaY = p1[1] - p2[1];
-<                         return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-<                 });
 ---
->                 final PHTreeMMP<Vertex> tree = PHTreeMMP.create(2);
-174c94
+>                 final org.tinspin.index.covertree.CoverTree tree = org.tinspin.index.covertree.CoverTree.create(2, 0.0, (p1, p2) -> {
+174c98
 <                         final Vertex near = tree.query1NN(midpoint).value();
 ---
 >                         Vertex near = tree.query1NN(midpoint).value();
-189,909c109
+189,909c113
 <         /**
 <          * Generates a shape consisting of polygonal faces of a <i>Relative neighborhood
 <          * graph</i> (RNG).

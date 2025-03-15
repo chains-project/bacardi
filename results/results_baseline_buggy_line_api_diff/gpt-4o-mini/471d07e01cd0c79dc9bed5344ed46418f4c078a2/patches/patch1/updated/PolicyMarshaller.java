@@ -1,8 +1,8 @@
 package com.google.cloud.resourcemanager;
 
 import com.google.api.services.cloudresourcemanager.v3.model.Binding;
-import com.google.api.services.cloudresourcemanager.v3.model.Policy;
 import com.google.cloud.Identity;
+import com.google.cloud.Policy;
 import com.google.cloud.Policy.Marshaller;
 import com.google.cloud.Role;
 import com.google.common.base.Function;
@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/** @deprecated v3 GAPIC client of ResourceManager is now available */
 @Deprecated
 final class PolicyMarshaller
     extends Marshaller<com.google.api.services.cloudresourcemanager.v3.model.Policy> {

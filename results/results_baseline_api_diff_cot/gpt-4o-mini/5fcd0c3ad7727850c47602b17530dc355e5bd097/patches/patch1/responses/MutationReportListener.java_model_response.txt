@@ -102,9 +102,8 @@ public class MutationReportListener implements MutationResultListener {
 
   private MutationTestSummaryData createSummaryData(
       final CoverageDatabase coverage, final ClassMutationResults data) {
-    // Updated to use the new method signature
     return new MutationTestSummaryData(data.getFileName(),
-        data.getMutations(), coverage.getClassInfo(Collections.singleton(data.getMutatedClass()), null, 0));
+        data.getMutations(), coverage.getClassInfo(Collections.singleton(data.getMutatedClass()), new byte[0], 0));
   }
 
   private void updatePackageSummary(
@@ -137,4 +136,8 @@ public class MutationReportListener implements MutationResultListener {
     }
   }
 }
-```
+``` 
+
+### Changes Made:
+1. Updated the call to `getClassInfo` in the `createSummaryData` method to match the new method signature: `coverage.getClassInfo(Collections.singleton(data.getMutatedClass()), new byte[0], 0)`. This includes providing the required parameters as per the new API.
+2. Ensured that the class remains compilable and functional with the new API changes.

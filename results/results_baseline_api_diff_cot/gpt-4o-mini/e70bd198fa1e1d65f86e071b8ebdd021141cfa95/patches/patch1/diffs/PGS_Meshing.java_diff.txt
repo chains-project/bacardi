@@ -1,6 +1,17 @@
-38d37
+38,39c38,41
 < import org.tinspin.index.PointIndex;
-164c163
-<                 final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {
+< import org.tinspin.index.kdtree.KDTree;
 ---
->                 final org.tinspin.index.kdtree.KDTree<Vertex> tree = KDTree.create(2, (p1, p2) -> {
+> import org.tinspin.index.BoxMap;
+> import org.tinspin.index.BoxMultimap;
+> import org.tinspin.index.util.PointMapWrapper;
+> import org.tinspin.index.util.PointMultimapWrapper;
+164,168c166,167
+<                 final PointIndex<Vertex> tree = KDTree.create(2, (p1, p2) -> {
+<                         final double deltaX = p1[0] - p2[0];
+<                         final double deltaY = p1[1] - p2[1];
+<                         return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+<                 });
+---
+>                 // Replacing the KDTree with PointMapWrapper
+>                 final PointMapWrapper<Vertex> tree = PointMapWrapper.create(new BoxMap());

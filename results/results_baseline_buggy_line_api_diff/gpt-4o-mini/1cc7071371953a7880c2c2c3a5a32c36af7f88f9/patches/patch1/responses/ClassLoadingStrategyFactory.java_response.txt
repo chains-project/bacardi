@@ -26,17 +26,10 @@ class ClassLoadingStrategyFactory {
         () -> MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class)
     ).getOrElse((Method) null);
 
-    static ClassLoadingStrategy<ClassLoader> classLoadingStrategy(Class<?> assertClass) {
-        boolean isReflectionAvailable = false;
-        try {
-            isReflectionAvailable = ClassInjector.UsingReflection.isAvailable();
-        } catch (NoClassDefFoundError e) {
-            // ClassInjector is not available, handle gracefully
-        }
-
-        if (isReflectionAvailable) {
+    static ClassLoadingStrategy classLoadingStrategy(Class<?> assertClass) {
+        if (ClassInjector.UsingReflection.isAvailable()) {
             return ClassLoadingStrategy.Default.INJECTION;
-        } else if (ClassInjector.UsingLookup.isAvailable() && PRIVATE_LOOKUP_IN != null) {
+        } else if (PRIVATE_LOOKUP_IN != null) {
             try {
                 return ClassLoadingStrategy.UsingLookup.of(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));
             } catch (Exception e) {

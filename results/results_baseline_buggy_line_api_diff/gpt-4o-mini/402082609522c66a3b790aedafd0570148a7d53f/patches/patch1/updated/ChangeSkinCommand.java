@@ -5,5 +5,7 @@ import org.spongepowered.api.command.spec.CommandSpecBuilder;
 @FunctionalInterface
 public interface ChangeSkinCommand {
 
-    CommandSpecBuilder buildSpec();
+    default CommandSpecBuilder buildSpec() {
+        return CommandSpecBuilder.builder();
+    }
 }
