@@ -149,22 +149,22 @@ public class ThriftReader<T extends TBase> implements Closeable {
 ```
 
  with the following error information:
-[ERROR] /singer/singer/src/main/java/com/pinterest/singer/reader/ThriftReader.java:[64,17] cannot find symbol
-  symbol:   class TFramedTransport
-  location: class com.pinterest.singer.reader.ThriftReader<T>
-
 [ERROR] /singer/singer/src/main/java/com/pinterest/singer/reader/ThriftReader.java:[23,35] cannot find symbol
   symbol:   class TFramedTransport
   location: package org.apache.thrift.transport
 
+[ERROR] /singer/singer/src/main/java/com/pinterest/singer/reader/ThriftReader.java:[64,17] cannot find symbol
+  symbol:   class TFramedTransport
+  location: class com.pinterest.singer.reader.ThriftReader<T>
+
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
-     Constructor org.apache.thrift.transport.TFramedTransport(org.apache.thrift.transport.TTransport,int) has been removed in the new version of the dependency.
-     Type reference org.apache.thrift.transport.layered.TFramedTransport(org.apache.thrift.transport.TTransport,int) has been added in the new version of the dependency.
      Constructor org.apache.thrift.transport.TFramedTransport(org.apache.thrift.transport.TTransport) has been removed in the new version of the dependency.
+     Constructor org.apache.thrift.transport.TFramedTransport(org.apache.thrift.transport.TTransport,int) has been removed in the new version of the dependency.
+     Class org.apache.thrift.transport.TFramedTransport has been removed in the new version of the dependency.
+     Type reference org.apache.thrift.transport.layered.TFramedTransport(org.apache.thrift.transport.TTransport,int) has been added in the new version of the dependency.
      Interface org.apache.thrift.transport.layered.TFramedTransport has been added in the new version of the dependency.
      Type reference org.apache.thrift.transport.layered.TFramedTransport(org.apache.thrift.transport.TTransport) has been added in the new version of the dependency.
-     Class org.apache.thrift.transport.TFramedTransport has been removed in the new version of the dependency.
 
 
 

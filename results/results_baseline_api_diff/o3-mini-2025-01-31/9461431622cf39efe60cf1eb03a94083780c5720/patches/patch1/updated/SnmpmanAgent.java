@@ -10,24 +10,57 @@ import com.oneandone.snmpman.configuration.modifier.VariableModifier;
 import com.oneandone.snmpman.snmp.MOGroup;
 import lombok.extern.slf4j.Slf4j;
 import org.snmp4j.TransportMapping;
-import org.snmp4j.agent.*;
+import org.snmp4j.agent.BaseAgent;
+import org.snmp4j.agent.CommandProcessor;
 import org.snmp4j.agent.io.ImportMode;
 import org.snmp4j.agent.mo.ext.StaticMOGroup;
-import org.snmp4j.agent.mo.snmp.*;
+import org.snmp4j.agent.mo.snmp.DefaultMOContextScope;
+import org.snmp4j.agent.mo.snmp.DefaultMOQuery;
+import org.snmp4j.agent.mp.MPv3;
 import org.snmp4j.agent.security.MutableVACM;
 import org.snmp4j.mp.MPv3;
 import org.snmp4j.security.SecurityLevel;
 import org.snmp4j.security.SecurityModel;
 import org.snmp4j.security.USM;
-import org.snmp4j.smi.*;
+import org.snmp4j.smi.Counter32;
+import org.snmp4j.smi.Counter64;
+import org.snmp4j.smi.Gauge32;
+import org.snmp4j.smi.Integer32;
+import org.snmp4j.smi.IpAddress;
+import org.snmp4j.smi.OID;
+import org.snmp4j.smi.OctetString;
+import org.snmp4j.smi.TimeTicks;
+import org.snmp4j.smi.Variable;
+import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.TransportMappings;
 import org.snmp4j.util.ThreadPool;
+import org.snmp4j.agent.mo.snmp.SnmpCommunityMIB;
+import org.snmp4j.agent.mo.snmp.SnmpTargetMIB;
+import org.snmp4j.agent.mo.snmp.SnmpNotificationMIB;
+import org.snmp4j.agent.mo.snmp.VacmMIB;
+import org.snmp4j.agent.DuplicateRegistrationException;
+import org.snmp4j.agent.MOScope;
+import org.snmp4j.agent.io.RowStatus;
+import org.snmp4j.agent.mo.snmp.StorageType;
+import org.snmp4j.agent.mo.snmp.VacmMIB;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -59,7 +92,7 @@ public class SnmpmanAgent extends BaseAgent {
     /**
      * The list of managed object groups.
      */
-    private final List<Object> groups = new ArrayList<>();
+    private final List<MOGroup> groups = new ArrayList<>();
 
     /**
      * Initializes a new instance of an SNMP agent.
@@ -270,7 +303,7 @@ public class SnmpmanAgent extends BaseAgent {
                             scope = new DefaultMOContextScope(context, variableBinding.getOid(), true, variableBinding.getOid().nextPeer(), false);
                             mo = server.lookup(new DefaultMOQuery(scope, false));
                             if (mo != null) {
-                                log.warn("could not register single OID at {} because ManagedObject {} is already registered.", variableBinding.getOid(), mo);
+                                log.warn("could not register single OID at {} because entry {} is already registered.", variableBinding.getOid(), mo);
                             } else {
                                 groups.add(group);
                                 registerGroupAndContext(group, context);
@@ -335,9 +368,9 @@ public class SnmpmanAgent extends BaseAgent {
     }
 
     /**
-     * Registers a {@link ManagedObject} to the server with an empty {@link OctetString} community context.
+     * Registers a {@link MOGroup} to the server with an empty {@link OctetString} community context.
      *
-     * @param group {@link ManagedObject} to register.
+     * @param group {@link MOGroup} to register.
      */
     private void registerDefaultGroups(final MOGroup group) {
         groups.add(group);
@@ -345,15 +378,15 @@ public class SnmpmanAgent extends BaseAgent {
     }
 
     /**
-     * Registers a {@link ManagedObject} to the server with a {@link OctetString} community context.
+     * Registers a {@link MOGroup} to the server with a {@link OctetString} community context.
      *
-     * @param group   {@link ManagedObject} to register.
+     * @param group   {@link MOGroup} to register.
      * @param context community context.
      */
     private void registerGroupAndContext(final MOGroup group, final OctetString context) {
         try {
             if (context == null || context.toString().equals("")) {
-                MOContextScope contextScope = new DefaultMOContextScope(new OctetString(), group.getScope());
+                DefaultMOContextScope contextScope = new DefaultMOContextScope(new OctetString(), group.getScope());
                 Object other = server.lookup(new DefaultMOQuery(contextScope, false));
                 if (other != null) {
                     log.warn("group {} already existed", group);
@@ -376,19 +409,18 @@ public class SnmpmanAgent extends BaseAgent {
     }
 
     /**
-     * Sets the private registry value of {@link DefaultMOServer} via reflection.
+     * Sets the private registry value of {@code DefaultMOServer} via reflection.
      * FIXME
      * If there is any possibility to avoid this, then replace!
      *
-     * @param group {@link ManagedObject} to register.
+     * @param group {@link MOGroup} to register.
      */
     private void registerHard(final MOGroup group) {
         try {
             final Field registry = server.getClass().getDeclaredField("registry");
             registry.setAccessible(true);
-            final SortedMap<?, ?> rawRegistry = (SortedMap<?, ?>) server.getRegistry();
             @SuppressWarnings("unchecked")
-            final SortedMap<Object, Object> reg = (SortedMap<Object, Object>) rawRegistry;
+            final SortedMap<MOScope, Object> reg = (SortedMap<MOScope, Object>) server.getRegistry();
             DefaultMOContextScope contextScope = new DefaultMOContextScope(new OctetString(""), group.getScope());
             reg.put(contextScope, group);
             registry.set(server, reg);
@@ -488,7 +520,7 @@ public class SnmpmanAgent extends BaseAgent {
     @Override
     protected void unregisterManagedObjects() {
         log.trace("unregistered managed objects for agent \"{}\"", agent);
-        for (final Object mo : groups) {
+        for (final MOGroup mo : groups) {
             server.unregister(mo, null);
         }
     }

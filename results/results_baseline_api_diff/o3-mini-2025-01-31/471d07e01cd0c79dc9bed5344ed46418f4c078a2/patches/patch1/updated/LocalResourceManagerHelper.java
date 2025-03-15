@@ -125,6 +125,7 @@ public class LocalResourceManagerHelper {
   private final HttpServer server;
   private final ConcurrentSkipListMap<String, Project> projects = new ConcurrentSkipListMap<>();
   private final Map<String, Policy> policies = new HashMap<>();
+  private final Map<String, String> lifecycleStates = new HashMap<>();
   private final int port;
 
   private static class Response {
@@ -191,7 +192,6 @@ public class LocalResourceManagerHelper {
   private class RequestHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) {
-      // see https://cloud.google.com/resource-manager/reference/rest/
       Response response;
       String path = BASE_CONTEXT.relativize(exchange.getRequestURI()).getPath();
       String requestMethod = exchange.getRequestMethod();
@@ -262,7 +262,6 @@ public class LocalResourceManagerHelper {
   private class OperationRequestHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) {
-      // see https://cloud.google.com/resource-manager/reference/rest/
       String projectId;
       try {
         projectId = new URI(OPERATION_CONTEXT).relativize(exchange.getRequestURI()).getPath();
@@ -282,7 +281,7 @@ public class LocalResourceManagerHelper {
             response =
                 new Response(
                     HTTP_OK,
-                    jsonFactory.toString(new Operation().setDone(true).setName("operations/" + project.getProjectId()).setResponse(project)));
+                    jsonFactory.toString(new Operation().setDone(true).setName("operations/" + project.getProjectId())));
           } catch (IOException e) {
             response =
                 Error.INTERNAL_ERROR.response(
@@ -356,7 +355,6 @@ public class LocalResourceManagerHelper {
         String[] argEntry = arg.split("=");
         switch (argEntry[0]) {
           case "fields":
-            // List fields are in the form "projects(field1, field2, ...),nextPageToken"
             Matcher matcher = LIST_FIELDS_PATTERN.matcher(argEntry[1]);
             if (matcher.matches()) {
               options.put("projectFields", matcher.group(2).split(","));
@@ -446,8 +444,6 @@ public class LocalResourceManagerHelper {
     if (customErrorMessage != null) {
       return Error.INVALID_ARGUMENT.response(customErrorMessage);
     } else {
-      project.setLifecycleState("ACTIVE");
-      // Removed setProjectNumber due to updated dependency removal
       project.setCreateTime(
           DateTimeFormatter.ISO_DATE_TIME
               .withZone(ZoneOffset.UTC)
@@ -456,6 +452,7 @@ public class LocalResourceManagerHelper {
         return Error.ALREADY_EXISTS.response(
             "A project with the same project ID (" + project.getProjectId() + ") already exists.");
       }
+      lifecycleStates.put(project.getProjectId(), "ACTIVE");
       Policy emptyPolicy =
           new Policy()
               .setBindings(Collections.<Binding>emptyList())
@@ -463,10 +460,8 @@ public class LocalResourceManagerHelper {
               .setVersion(0);
       policies.put(project.getProjectId(), emptyPolicy);
       try {
-        // Pretend it's not done yet.
         String createdProjectStr =
-            jsonFactory.toString(
-                new Operation().setDone(false).setName("operations/" + project.getProjectId()));
+            jsonFactory.toString(new Operation().setDone(false).setName("operations/" + project.getProjectId()));
         return new Response(HTTP_OK, createdProjectStr);
       } catch (IOException e) {
         return Error.INTERNAL_ERROR.response("Error serializing project " + project.getProjectId());
@@ -477,14 +472,13 @@ public class LocalResourceManagerHelper {
   synchronized Response delete(String projectId) {
     Project project = projects.get(projectId);
     if (project == null) {
-      return Error.PERMISSION_DENIED.response(
-          "Error when deleting " + projectId + " because the project was not found.");
+      return Error.PERMISSION_DENIED.response("Error when deleting " + projectId + " because the project was not found.");
     }
-    if (!project.getLifecycleState().equals("ACTIVE")) {
-      return Error.FAILED_PRECONDITION.response(
-          "Error when deleting " + projectId + " because the lifecycle state was not ACTIVE.");
+    String currentState = lifecycleStates.get(projectId);
+    if (!"ACTIVE".equals(currentState)) {
+      return Error.FAILED_PRECONDITION.response("Error when deleting " + projectId + " because the lifecycle state was not ACTIVE.");
     } else {
-      project.setLifecycleState("DELETE_REQUESTED");
+      lifecycleStates.put(projectId, "DELETE_REQUESTED");
       return new Response(HTTP_OK, "{}");
     }
   }
@@ -495,8 +489,7 @@ public class LocalResourceManagerHelper {
       try {
         return new Response(HTTP_OK, jsonFactory.toString(extractFields(project, fields)));
       } catch (IOException e) {
-        return Error.INTERNAL_ERROR.response(
-            "Error when serializing project " + project.getProjectId());
+        return Error.INTERNAL_ERROR.response("Error when serializing project " + project.getProjectId());
       }
     } else {
       return Error.PERMISSION_DENIED.response("Project " + projectId + " not found.");
@@ -529,15 +522,13 @@ public class LocalResourceManagerHelper {
         try {
           projectsSerialized.add(jsonFactory.toString(extractFields(p, projectFields)));
         } catch (IOException e) {
-          return Error.INTERNAL_ERROR.response(
-              "Error when serializing project " + p.getProjectId());
+          return Error.INTERNAL_ERROR.response("Error when serializing project " + p.getProjectId());
         }
       }
     }
     String[] listFields = (String[]) options.get("listFields");
     StringBuilder responseBody = new StringBuilder();
     responseBody.append('{');
-    // If fields parameter is set but no project field is selected we must return no projects.
     if (!(projectFields != null && projectFields.length == 0)) {
       responseBody.append("\"projects\": [");
       Joiner.on(",").appendTo(responseBody, projectsSerialized);
@@ -614,9 +605,6 @@ public class LocalResourceManagerHelper {
         case "labels":
           project.setLabels(fullProject.getLabels());
           break;
-        case "lifecycleState":
-          project.setLifecycleState(fullProject.getLifecycleState());
-          break;
         case "name":
           project.setName(fullProject.getName());
           break;
@@ -634,20 +622,14 @@ public class LocalResourceManagerHelper {
   synchronized Response replace(String projectId, Project project) {
     Project originalProject = projects.get(projectId);
     if (originalProject == null) {
-      return Error.PERMISSION_DENIED.response(
-          "Error when replacing " + projectId + " because the project was not found.");
-    } else if (!originalProject.getLifecycleState().equals("ACTIVE")) {
-      return Error.FAILED_PRECONDITION.response(
-          "Error when replacing " + projectId + " because the lifecycle state was not ACTIVE.");
+      return Error.PERMISSION_DENIED.response("Error when replacing " + projectId + " because the project was not found.");
+    } else if (!"ACTIVE".equals(lifecycleStates.get(projectId))) {
+      return Error.FAILED_PRECONDITION.response("Error when replacing " + projectId + " because the lifecycle state was not ACTIVE.");
     } else if (!Objects.equal(originalProject.getParent(), project.getParent())) {
-      return Error.INVALID_ARGUMENT.response(
-          "The server currently only supports setting the parent once "
-              + "and does not allow unsetting it.");
+      return Error.INVALID_ARGUMENT.response("The server currently only supports setting the parent once and does not allow unsetting it.");
     }
     project.setProjectId(projectId);
-    project.setLifecycleState(originalProject.getLifecycleState());
     project.setCreateTime(originalProject.getCreateTime());
-    // Removed setProjectNumber call due to dependency update.
     projects.replace(projectId, project);
     try {
       return new Response(HTTP_OK, jsonFactory.toString(project));
@@ -661,16 +643,13 @@ public class LocalResourceManagerHelper {
     Response response;
     if (project == null) {
       response =
-          Error.PERMISSION_DENIED.response(
-              "Error when undeleting " + projectId + " because the project was not found.");
-    } else if (!project.getLifecycleState().equals("DELETE_REQUESTED")) {
+          Error.PERMISSION_DENIED.response("Error when undeleting " + projectId + " because the project was not found.");
+    } else if (!"DELETE_REQUESTED".equals(lifecycleStates.get(projectId))) {
       response =
           Error.FAILED_PRECONDITION.response(
-              "Error when undeleting "
-                  + projectId
-                  + " because the lifecycle state was not DELETE_REQUESTED.");
+              "Error when undeleting " + projectId + " because the lifecycle state was not DELETE_REQUESTED.");
     } else {
-      project.setLifecycleState("ACTIVE");
+      lifecycleStates.put(projectId, "ACTIVE");
       response = new Response(HTTP_OK, "{}");
     }
     return response;
@@ -684,8 +663,7 @@ public class LocalResourceManagerHelper {
     try {
       return new Response(HTTP_OK, jsonFactory.toString(policy));
     } catch (IOException e) {
-      return Error.INTERNAL_ERROR.response(
-          "Error when serializing the IAM policy for " + projectId);
+      return Error.INTERNAL_ERROR.response("Error when serializing the IAM policy for " + projectId);
     }
   }
 
@@ -710,8 +688,7 @@ public class LocalResourceManagerHelper {
     try {
       return new Response(HTTP_OK, jsonFactory.toString(policy));
     } catch (IOException e) {
-      return Error.INTERNAL_ERROR.response(
-          "Error when serializing the policy for project " + projectId);
+      return Error.INTERNAL_ERROR.response("Error when serializing the policy for project " + projectId);
     }
   }
 
@@ -780,7 +757,7 @@ public class LocalResourceManagerHelper {
         "Lifecycle state must be ACTIVE, DELETE_REQUESTED, or DELETE_IN_PROGRESS");
     Project project = projects.get(checkNotNull(projectId));
     if (project != null) {
-      project.setLifecycleState(lifecycleState);
+      lifecycleStates.put(projectId, lifecycleState);
       return true;
     }
     return false;
@@ -795,9 +772,8 @@ public class LocalResourceManagerHelper {
    * @return true if the project was successfully deleted, false if the project didn't exist
    */
   public synchronized boolean removeProject(String projectId) {
-    // Because this method is synchronized, any code that relies on non-atomic read/write operations
-    // should not fail if that code is also synchronized.
     policies.remove(checkNotNull(projectId));
+    lifecycleStates.remove(projectId);
     return projects.remove(projectId) != null;
   }
 }

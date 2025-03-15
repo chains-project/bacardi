@@ -11,7 +11,9 @@ import java.util.Optional;
 import java.util.UUID;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.command.CommandExecutor;
+import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.entity.living.player.Player;
@@ -27,19 +29,22 @@ public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
     private SkinFormatter formatter;
 
     @Override
-    public int execute(CommandContext context) throws CommandException {
-        Optional<Player> playerOpt = context.cause().first(Player.class);
-        if (!playerOpt.isPresent()) {
-            plugin.sendMessage(context.cause().audience(), "no-console");
-            return 0;
+    public CommandResult execute(CommandContext context) throws CommandException {
+        CommandCause cause = context.cause();
+        Optional<Player> optionalPlayer = cause.first(Player.class);
+        if (!optionalPlayer.isPresent()) {
+            plugin.sendMessage(cause, "no-console");
+            return CommandResult.builder().successCount(0).build();
         }
-        Player player = playerOpt.get();
-        UUID uniqueId = player.getUniqueId();
-        Sponge.getScheduler().executor(plugin).execute(() -> {
+
+        Player player = optionalPlayer.get();
+        UUID uniqueId = player.uniqueId();
+        Sponge.server().scheduler().executor(plugin).submit(() -> {
             UserPreference preferences = plugin.getCore().getStorage().getPreferences(uniqueId);
-            Sponge.getScheduler().executor(plugin).execute(() -> sendSkinDetails(uniqueId, preferences));
+            Sponge.server().scheduler().executor(plugin).submit(() -> sendSkinDetails(uniqueId, preferences));
         });
-        return 1;
+
+        return CommandResult.builder().successCount(1).build();
     }
 
     public Command buildSpec() {
@@ -50,7 +55,9 @@ public class InfoCommand implements CommandExecutor, ChangeSkinCommand {
     }
 
     private void sendSkinDetails(UUID uuid, UserPreference preference) {
-        Optional<Player> optPlayer = Sponge.getServer().player(uuid);
+        Optional<Player> optPlayer = Sponge.server().onlinePlayers().stream()
+                .filter(player -> player.uniqueId().equals(uuid))
+                .findFirst();
         if (optPlayer.isPresent()) {
             Player player = optPlayer.get();
             Optional<SkinModel> optSkin = preference.getTargetSkin();

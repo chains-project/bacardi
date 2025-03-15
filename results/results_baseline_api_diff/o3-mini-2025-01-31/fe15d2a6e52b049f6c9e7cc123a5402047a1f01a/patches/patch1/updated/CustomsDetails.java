@@ -18,7 +18,6 @@ import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
-
 /**
  * <p>Java class for CustomsDetails complex type.
  * 
@@ -44,8 +43,7 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
     "cnCode",
     "unNumber"
 })
-public class CustomsDetails implements ToString2
-{
+public class CustomsDetails implements ToString2 {
 
     @XmlElement(name = "CNCode")
     protected List<String> cnCode;

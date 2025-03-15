@@ -1,6 +1,6 @@
 27a28
 > import com.google.api.services.cloudresourcemanager.v3.model.Project;
-146,151c147,148
+146,151c147,149
 <     com.google.api.services.cloudresourcemanager.model.ResourceId toPb() {
 <       com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb =
 <           new com.google.api.services.cloudresourcemanager.model.ResourceId();
@@ -8,48 +8,53 @@
 <       resourceIdPb.setType(type.toLowerCase());
 <       return resourceIdPb;
 ---
+>     // Updated: Convert ResourceId to a String in the format "type/id".
 >     String toPb() {
 >       return type.toLowerCase() + "/" + id;
-154,156c151,157
+154,156c152,162
 <     static ResourceId fromPb(
 <         com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb) {
 <       return new ResourceId(resourceIdPb.getId(), resourceIdPb.getType());
 ---
+>     // Updated: Parse a String of format "type/id" to create a ResourceId.
 >     static ResourceId fromPb(String parentPb) {
+>       if (parentPb == null) {
+>         throw new IllegalArgumentException("parentPb cannot be null");
+>       }
 >       String[] parts = parentPb.split("/", 2);
 >       if (parts.length == 2) {
 >         return new ResourceId(parts[1], parts[0]);
 >       } else {
 >         return new ResourceId(parentPb, "");
 >       }
-392,394c393,394
+392,394c398,401
 <   com.google.api.services.cloudresourcemanager.model.Project toPb() {
 <     com.google.api.services.cloudresourcemanager.model.Project projectPb =
 <         new com.google.api.services.cloudresourcemanager.model.Project();
 ---
+>   // Updated: Convert to the new v3 Project model.
 >   com.google.api.services.cloudresourcemanager.v3.model.Project toPb() {
->     Project projectPb = new Project();
-398d397
+>     com.google.api.services.cloudresourcemanager.v3.model.Project projectPb =
+>         new com.google.api.services.cloudresourcemanager.v3.model.Project();
+398,401d404
 <     projectPb.setProjectNumber(projectNumber);
-400c399
+<     if (state != null) {
 <       projectPb.setLifecycleState(state.toString());
----
->       projectPb.setState(state.toString());
-404,405c403
+<     }
+404,405c407
 <           DateTimeFormatter.ISO_DATE_TIME
 <               .withZone(ZoneOffset.UTC)
 ---
 >           DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneOffset.UTC)
-414,416c412,413
+414,416c416,418
 <   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.model.Project projectPb) {
 <     Builder builder =
 <         newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
 ---
+>   // Updated: Accept the new v3 Project model.
 >   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) {
->     Builder builder = newBuilder(projectPb.getProjectId());
-423,424c420,421
+>     Builder builder = newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
+423,425d424
 <     if (projectPb.getLifecycleState() != null) {
 <       builder.setState(State.valueOf(projectPb.getLifecycleState()));
----
->     if (projectPb.getState() != null) {
->       builder.setState(State.valueOf(projectPb.getState()));
+<     }

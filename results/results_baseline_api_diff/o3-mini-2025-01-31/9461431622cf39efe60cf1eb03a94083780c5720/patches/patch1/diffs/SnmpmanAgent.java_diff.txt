@@ -1,26 +1,110 @@
-62c62
+13c13,14
+< import org.snmp4j.agent.*;
+---
+> import org.snmp4j.agent.BaseAgent;
+> import org.snmp4j.agent.CommandProcessor;
+16c17,19
+< import org.snmp4j.agent.mo.snmp.*;
+---
+> import org.snmp4j.agent.mo.snmp.DefaultMOContextScope;
+> import org.snmp4j.agent.mo.snmp.DefaultMOQuery;
+> import org.snmp4j.agent.mp.MPv3;
+22c25,34
+< import org.snmp4j.smi.*;
+---
+> import org.snmp4j.smi.Counter32;
+> import org.snmp4j.smi.Counter64;
+> import org.snmp4j.smi.Gauge32;
+> import org.snmp4j.smi.Integer32;
+> import org.snmp4j.smi.IpAddress;
+> import org.snmp4j.smi.OID;
+> import org.snmp4j.smi.OctetString;
+> import org.snmp4j.smi.TimeTicks;
+> import org.snmp4j.smi.Variable;
+> import org.snmp4j.smi.VariableBinding;
+25,26c37,53
+< 
+< import java.io.*;
+---
+> import org.snmp4j.agent.mo.snmp.SnmpCommunityMIB;
+> import org.snmp4j.agent.mo.snmp.SnmpTargetMIB;
+> import org.snmp4j.agent.mo.snmp.SnmpNotificationMIB;
+> import org.snmp4j.agent.mo.snmp.VacmMIB;
+> import org.snmp4j.agent.DuplicateRegistrationException;
+> import org.snmp4j.agent.MOScope;
+> import org.snmp4j.agent.io.RowStatus;
+> import org.snmp4j.agent.mo.snmp.StorageType;
+> import org.snmp4j.agent.mo.snmp.VacmMIB;
+> 
+> import java.io.BufferedReader;
+> import java.io.File;
+> import java.io.FileInputStream;
+> import java.io.FileNotFoundException;
+> import java.io.IOException;
+> import java.io.InputStreamReader;
+> import java.io.UnsupportedEncodingException;
+30c57,63
+< import java.util.*;
+---
+> import java.util.ArrayList;
+> import java.util.Collections;
+> import java.util.HashMap;
+> import java.util.List;
+> import java.util.Map;
+> import java.util.SortedMap;
+> import java.util.TreeMap;
+62c95
 <     private final List<ManagedObject> groups = new ArrayList<>();
 ---
->     private final List<Object> groups = new ArrayList<>();
-266c266
+>     private final List<MOGroup> groups = new ArrayList<>();
+266c299
 <                     ManagedObject mo = server.lookup(new DefaultMOQuery(scope, false));
 ---
 >                     Object mo = server.lookup(new DefaultMOQuery(scope, false));
-357c357
+273c306
+<                                 log.warn("could not register single OID at {} because ManagedObject {} is already registered.", variableBinding.getOid(), mo);
+---
+>                                 log.warn("could not register single OID at {} because entry {} is already registered.", variableBinding.getOid(), mo);
+338c371
+<      * Registers a {@link ManagedObject} to the server with an empty {@link OctetString} community context.
+---
+>      * Registers a {@link MOGroup} to the server with an empty {@link OctetString} community context.
+340c373
+<      * @param group {@link ManagedObject} to register.
+---
+>      * @param group {@link MOGroup} to register.
+348c381
+<      * Registers a {@link ManagedObject} to the server with a {@link OctetString} community context.
+---
+>      * Registers a {@link MOGroup} to the server with a {@link OctetString} community context.
+350c383
+<      * @param group   {@link ManagedObject} to register.
+---
+>      * @param group   {@link MOGroup} to register.
+356,357c389,390
+<                 MOContextScope contextScope = new DefaultMOContextScope(new OctetString(), group.getScope());
 <                 ManagedObject other = server.lookup(new DefaultMOQuery(contextScope, false));
 ---
+>                 DefaultMOContextScope contextScope = new DefaultMOContextScope(new OctetString(), group.getScope());
 >                 Object other = server.lookup(new DefaultMOQuery(contextScope, false));
-389c389,391
+379c412
+<      * Sets the private registry value of {@link DefaultMOServer} via reflection.
+---
+>      * Sets the private registry value of {@code DefaultMOServer} via reflection.
+383c416
+<      * @param group {@link ManagedObject} to register.
+---
+>      * @param group {@link MOGroup} to register.
+389c422,423
 <             final SortedMap<MOScope, ManagedObject> reg = server.getRegistry();
 ---
->             final SortedMap<?, ?> rawRegistry = (SortedMap<?, ?>) server.getRegistry();
 >             @SuppressWarnings("unchecked")
->             final SortedMap<Object, Object> reg = (SortedMap<Object, Object>) rawRegistry;
-440c442
+>             final SortedMap<MOScope, Object> reg = (SortedMap<MOScope, Object>) server.getRegistry();
+440c474
 <         ManagedObject query;
 ---
 >         Object query;
-489c491
+489c523
 <         for (final ManagedObject mo : groups) {
 ---
->         for (final Object mo : groups) {
+>         for (final MOGroup mo : groups) {

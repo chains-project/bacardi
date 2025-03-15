@@ -6,9 +6,9 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
-import jakarta.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  *

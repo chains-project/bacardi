@@ -281,6 +281,7 @@ public class DSN {
         });
     }
 
+
     //@Test
     //Extract the number of line of codes of tests
     public void testSloc() throws Exception {
@@ -329,17 +330,12 @@ public class DSN {
     private static class UnitTestsVisitor extends VoidVisitorAdapter<Void> {
 
       private final List<Integer> l;
-
-      private final PrettyPrinterConfiguration noComments = createNoCommentsConfiguration();
-
-      private static PrettyPrinterConfiguration createNoCommentsConfiguration() {
-          PrettyPrinterConfiguration config = new PrettyPrinterConfiguration();
-          config.setPrintComments(false);
-          return config;
-      }
+      private final PrettyPrinterConfiguration noComments;
 
         UnitTestsVisitor(List<Integer> numbers) {
             this.l = numbers;
+            noComments = new PrettyPrinterConfiguration();
+            noComments.setPrintComments(false);
         }
 
         @Override

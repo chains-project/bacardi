@@ -1,3 +1,5 @@
+package com.example.web;
+
 import java.util.ResourceBundle;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -6,9 +8,11 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * Provides I18n messages for the UI per request. To get the correct locale, the method {@link HttpServletRequest#getLocale()}
- * is used. This retrieves the locale of the current HTTP request.
+ * is used. This method uses the built-in {@link javax.mvc.locale.LocaleResolver} of the used MVC Implementation.
  *
  * @author Tobias Erdle
+ * @see HttpServletRequest#getLocale()
+ * @see javax.mvc.locale.LocaleResolver
  */
 @RequestScoped
 @Named("msg")

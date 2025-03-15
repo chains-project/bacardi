@@ -6,6 +6,6 @@
 42c43,45
 <         this.hostname = member.getStringAttribute(HOST_NAME_ATTRIBUTE) + " (" + member.getSocketAddress().getHostString() + ")";
 ---
->         String attribute = (String) member.getAttribute(HOST_NAME_ATTRIBUTE);
+>         String hostNameAttr = String.valueOf(member.getAttribute(HOST_NAME_ATTRIBUTE));
 >         InetSocketAddress inetSocketAddress = (InetSocketAddress) member.getSocketAddress();
->         this.hostname = attribute + " (" + inetSocketAddress.getHostString() + ")";
+>         this.hostname = hostNameAttr + " (" + inetSocketAddress.getHostString() + ")";

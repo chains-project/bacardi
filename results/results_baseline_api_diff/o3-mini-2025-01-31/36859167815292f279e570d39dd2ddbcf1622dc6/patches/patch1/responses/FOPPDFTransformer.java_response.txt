@@ -1,21 +1,3 @@
-/*
- * Copyright (C) 2017 Premium Minds.
- *
- * This file is part of billy GIN.
- *
- * billy GIN is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
- * later version.
- *
- * billy GIN is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with billy GIN. If not, see <http://www.gnu.org/licenses/>.
- */
 package com.premiumminds.billy.gin.services.impl.pdf;
 
 import com.google.zxing.BarcodeFormat;
@@ -82,22 +64,19 @@ public abstract class FOPPDFTransformer {
     private String generateXML(ParamsTree<String, String> tree) {
         StringBuilder strBuilder = new StringBuilder();
         strBuilder.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
-
         this.writeXML(strBuilder, tree.getRoot());
-
         return strBuilder.toString();
     }
 
     private void writeXML(StringBuilder strBuilder, Node<String, String> node) {
         strBuilder.append("<").append(node.getKey());
-        if (null == node.getValue() && !node.hasChildren()) {
+        if (node.getValue() == null && !node.hasChildren()) {
             strBuilder.append("/>");
         } else {
             strBuilder.append("> ");
-            if (null != node.getValue()) {
+            if (node.getValue() != null) {
                 strBuilder.append(StringEscapeUtils.escapeXml(node.getValue()));
             }
-
             for (Node<String, String> child : node.getChildren()) {
                 this.writeXML(strBuilder, child);
             }
@@ -111,11 +90,10 @@ public abstract class FOPPDFTransformer {
         // creation of transform source
         StreamSource transformSource = new StreamSource(templateStream);
 
-        // create an instance of fop factory with a base directory
-        FopFactory fopFactory = FopFactory.newInstance(new File("."));
+        // create an instance of fop factory using the new API
+        FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
         // a user agent is needed for transformation
         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
-        // to store output
 
         Optional<Node<String, String>> qrCodeString = documentParams
             .getRoot()
@@ -126,7 +104,7 @@ public abstract class FOPPDFTransformer {
 
         Path qr = null;
         try {
-            if(qrCodeString.isPresent() && !qrCodeString.get().getValue().isEmpty()){
+            if (qrCodeString.isPresent() && !qrCodeString.get().getValue().isEmpty()) {
                 qr = createQR(qrCodeString.get().getValue());
                 documentParams.getRoot().addChild(QR_CODE_PATH, qr.toString());
             }
@@ -143,7 +121,6 @@ public abstract class FOPPDFTransformer {
             Result res = new SAXResult(fop.getDefaultHandler());
 
             // Start XSLT transformation and FOP processing
-            // everything will happen here..
             xslfoTransformer.transform(source, res);
         } catch (FOPException e) {
             throw new ExportServiceException("Error using FOP to open the template", e);
@@ -158,7 +135,6 @@ public abstract class FOPPDFTransformer {
 
     public File toFile(URI fileURI, InputStream templateStream, ParamsTree<String, String> documentParams)
             throws ExportServiceException {
-        // if you want to save PDF file use the following code
         File pdffile = new File(fileURI);
         try (OutputStream out = new java.io.BufferedOutputStream(new FileOutputStream(pdffile))) {
             this.transformToStream(templateStream, documentParams, out);
@@ -174,9 +150,7 @@ public abstract class FOPPDFTransformer {
         return this.transformerFactory.newTransformer(streamSource);
     }
 
-    private Path createQR(String data)
-        throws WriterException, IOException
-    {
+    private Path createQR(String data) throws WriterException, IOException {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
         EnumMap<EncodeHintType, String> hints = new EnumMap<>(EncodeHintType.class);
         hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M.name());
@@ -188,16 +162,12 @@ public abstract class FOPPDFTransformer {
             350, 350, hints);
 
         final Path file = Files.createTempFile(UUID.randomUUID().toString().replace("-", ""), ".png");
-        MatrixToImageWriter.writeToPath(
-            bitMatrix,
-            "png",
-            file);
-
+        MatrixToImageWriter.writeToPath(bitMatrix, "png", file);
         return file;
     }
 
     private void deleteTempFileIfExists(Path path) {
-        if(path != null) {
+        if (path != null) {
             try {
                 Files.deleteIfExists(path);
             } catch (IOException e) {
@@ -205,5 +175,4 @@ public abstract class FOPPDFTransformer {
             }
         }
     }
-
 }

@@ -147,17 +147,17 @@ public class Currency implements ToString2
         {
             String theCurrencyCode;
             theCurrencyCode = this.getCurrencyCode();
-            strategy.appendField(locator, this, "currencyCode", buffer, theCurrencyCode, (this.currencyCode!= null));
+            strategy.appendField(locator, this, "currencyCode", buffer, theCurrencyCode, (this.currencyCode != null));
         }
         {
             BigDecimal theCurrencyAmount;
             theCurrencyAmount = this.getCurrencyAmount();
-            strategy.appendField(locator, this, "currencyAmount", buffer, theCurrencyAmount, (this.currencyAmount!= null));
+            strategy.appendField(locator, this, "currencyAmount", buffer, theCurrencyAmount, (this.currencyAmount != null));
         }
         {
             BigDecimal theExchangeRate;
             theExchangeRate = this.getExchangeRate();
-            strategy.appendField(locator, this, "exchangeRate", buffer, theExchangeRate, (this.exchangeRate!= null));
+            strategy.appendField(locator, this, "exchangeRate", buffer, theExchangeRate, (this.exchangeRate != null));
         }
         return buffer;
     }

@@ -1,116 +1,133 @@
-25,28d24
+1,16d0
+< /*
+<  * Copyright 2016 Google LLC
+<  *
+<  * Licensed under the Apache License, Version 2.0 (the "License");
+<  * you may not use this file except in compliance with the License.
+<  * You may obtain a copy of the License at
+<  *
+<  *       http://www.apache.org/licenses/LICENSE-2.0
+<  *
+<  * Unless required by applicable law or agreed to in writing, software
+<  * distributed under the License is distributed on an "AS IS" BASIS,
+<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<  * See the License for the specific language governing permissions and
+<  * limitations under the License.
+<  */
+< 
+25,28d8
 < import com.google.api.services.translate.Translate;
 < import com.google.api.services.translate.model.DetectionsResourceItems;
 < import com.google.api.services.translate.model.LanguagesResource;
 < import com.google.api.services.translate.model.TranslationsResource;
-32d27
+32d11
 < import com.google.common.base.Function;
-34a30
-> import com.google.common.base.Function;
-35a32
+35a15
 > import java.util.ArrayList;
-37a35,43
+37a18,26
 > import com.google.api.services.translate.v3.Translate;
 > import com.google.api.services.translate.v3.model.DetectLanguageRequest;
 > import com.google.api.services.translate.v3.model.DetectLanguageResponse;
 > import com.google.api.services.translate.v3.model.DetectedLanguage;
 > import com.google.api.services.translate.v3.model.GetSupportedLanguagesResponse;
-> import com.google.api.services.translate.v3.model.Language;
+> import com.google.api.services.translate.v3.model.SupportedLanguage;
 > import com.google.api.services.translate.v3.model.TranslateTextRequest;
 > import com.google.api.services.translate.v3.model.TranslateTextResponse;
 > import com.google.api.services.translate.v3.model.Translation;
-41d46
-<   private final TranslateOptions options;
-42a48
->   private final TranslateOptions options;
-61c67
+61c50
 <     GenericUrl genericUrl = new GenericUrl(translate.getBaseUrl() + "v2/" + path);
 ---
->     GenericUrl genericUrl = new GenericUrl(translate.getRootUrl() + "v3/" + path);
-71,73c77,97
+>     GenericUrl genericUrl = new GenericUrl(translate.getBaseUrl() + "v3/" + path);
+69a59,60
+>     List<List<DetectionsResourceItems>> outerList = new ArrayList<>();
+>     String parent = "projects/" + options.getProjectId() + "/locations/global";
+71,73c62,80
 <       List<List<DetectionsResourceItems>> detections =
 <           translate.detections().list(texts).setKey(options.getApiKey()).execute().getDetections();
 <       return detections != null ? detections : ImmutableList.<List<DetectionsResourceItems>>of();
 ---
->       String parent = "projects/" + options.getProjectId() + "/locations/global";
->       List<List<DetectionsResourceItems>> allDetections = new ArrayList<>();
 >       for (String text : texts) {
->         DetectLanguageRequest request = new DetectLanguageRequest();
->         request.setContent(text);
+>         DetectLanguageRequest reqBody = new DetectLanguageRequest();
+>         reqBody.setContent(text);
 >         DetectLanguageResponse response =
->             translate.projects().locations().detectLanguage(parent, request)
+>             translate.projects().locations().detectLanguage(parent, reqBody)
 >                 .setKey(options.getApiKey())
 >                 .execute();
->         List<DetectionsResourceItems> detectionList = new ArrayList<>();
+>         List<DetectionsResourceItems> innerList = new ArrayList<>();
 >         if (response.getLanguages() != null) {
->           for (DetectedLanguage dl : response.getLanguages()) {
+>           for (DetectedLanguage detected : response.getLanguages()) {
 >             DetectionsResourceItems item = new DetectionsResourceItems();
->             item.setLanguage(dl.getLanguageCode());
->             item.setConfidence(dl.getConfidence() != null ? dl.getConfidence().floatValue() : 0.0f);
->             detectionList.add(item);
+>             item.setLanguage(detected.getLanguageCode());
+>             item.setConfidence(detected.getConfidence());
+>             innerList.add(item);
 >           }
 >         }
->         allDetections.add(detectionList);
+>         outerList.add(innerList);
 >       }
->       return allDetections != null ? allDetections : ImmutableList.<List<DetectionsResourceItems>>of();
-82,85c106,110
+>       return outerList;
+80a88,89
+>     String targetLanguage = firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
+>     String parent = "projects/" + options.getProjectId() + "/locations/global";
+82,85c91,92
 <       List<LanguagesResource> languages =
 <           translate
 <               .languages()
 <               .list()
 ---
->       String targetLanguage =
->           firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
->       String parent = "projects/" + options.getProjectId() + "/locations/global";
 >       GetSupportedLanguagesResponse response =
 >           translate.projects().locations().getSupportedLanguages(parent)
-87,91c112,122
+87,92c94,105
 <               .setTarget(
 <                   firstNonNull(
 <                       Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage()))
 <               .execute()
 <               .getLanguages();
+<       return languages != null ? languages : ImmutableList.<LanguagesResource>of();
 ---
->               .setTargetLanguageCode(targetLanguage)
+>               .setTargetLanguage(targetLanguage)
 >               .execute();
->       List<LanguagesResource> languages = new ArrayList<>();
+>       List<LanguagesResource> languagesList = new ArrayList<>();
 >       if (response.getLanguages() != null) {
->         for (Language lang : response.getLanguages()) {
+>         for (SupportedLanguage lang : response.getLanguages()) {
 >           LanguagesResource lr = new LanguagesResource();
 >           lr.setLanguage(lang.getLanguageCode());
 >           lr.setName(lang.getDisplayName());
->           languages.add(lr);
+>           languagesList.add(lr);
 >         }
 >       }
-101c132
+>       return languagesList;
+100,102c113
+<     try {
 <       String targetLanguage =
+<           firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
 ---
->       final String targetLanguage =
-104,108c135,151
+>     String targetLanguage = firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
+104,108c115,132
 <       List<TranslationsResource> translations =
 <           translate
 <               .translations()
 <               .list(texts, targetLanguage)
 <               .setSource(sourceLanguage)
 ---
->       final String model = Option.MODEL.getString(optionMap);
->       final String format = Option.FORMAT.getString(optionMap);
->       String parent = "projects/" + options.getProjectId() + "/locations/global";
->       TranslateTextRequest request = new TranslateTextRequest();
->       request.setContents(texts);
->       request.setTargetLanguageCode(targetLanguage);
->       if (sourceLanguage != null) {
->         request.setSourceLanguageCode(sourceLanguage);
->       }
->       if (format != null) {
->         request.setMimeType(format);
->       }
->       if (model != null) {
->         request.setModel(model);
->       }
+>     String parent = "projects/" + options.getProjectId() + "/locations/global";
+>     TranslateTextRequest requestBody = new TranslateTextRequest();
+>     requestBody.setContents(texts);
+>     requestBody.setTargetLanguageCode(targetLanguage);
+>     if (sourceLanguage != null) {
+>       requestBody.setSourceLanguageCode(sourceLanguage);
+>     }
+>     String model = Option.MODEL.getString(optionMap);
+>     if (model != null) {
+>       requestBody.setModel(model);
+>     }
+>     String format = Option.FORMAT.getString(optionMap);
+>     if (format != null) {
+>       requestBody.setMimeType(format);
+>     }
+>     try {
 >       TranslateTextResponse response =
->           translate.projects().locations().translateText(parent, request)
-110,120c153,162
+>           translate.projects().locations().translateText(parent, requestBody)
+110,120c134,144
 <               .setModel(Option.MODEL.getString(optionMap))
 <               .setFormat(Option.FORMAT.getString(optionMap))
 <               .execute()
@@ -129,25 +146,25 @@
 >         for (Translation t : response.getTranslations()) {
 >           TranslationsResource tr = new TranslationsResource();
 >           tr.setTranslatedText(t.getTranslatedText());
->           if (t.getDetectedLanguageCode() == null) {
+>           String detected = t.getDetectedLanguageCode();
+>           if (detected == null) {
 >             tr.setDetectedSourceLanguage(sourceLanguage);
 >           } else {
->             tr.setDetectedSourceLanguage(t.getDetectedLanguageCode());
-122c164
+>             tr.setDetectedSourceLanguage(detected);
+122c146
 <               return translationsResource;
 ---
 >           translations.add(tr);
-124c166,167
+124c148,149
 <           });
 ---
 >       }
->       return translations != null ? translations : ImmutableList.<TranslationsResource>of();
-128a172,243
+>       return translations;
+128a154,216
 > 
 >   public static class DetectionsResourceItems {
 >     private String language;
->     private float confidence;
->     private String detectedSourceLanguage;
+>     private Float confidence;
 > 
 >     public String getLanguage() {
 >       return language;
@@ -157,20 +174,12 @@
 >       this.language = language;
 >     }
 > 
->     public float getConfidence() {
+>     public Float getConfidence() {
 >       return confidence;
 >     }
 > 
->     public void setConfidence(float confidence) {
+>     public void setConfidence(Float confidence) {
 >       this.confidence = confidence;
->     }
-> 
->     public String getDetectedSourceLanguage() {
->       return detectedSourceLanguage;
->     }
-> 
->     public void setDetectedSourceLanguage(String detectedSourceLanguage) {
->       this.detectedSourceLanguage = detectedSourceLanguage;
 >     }
 >   }
 > 

@@ -10,6 +10,7 @@ import com.github.games647.changeskin.sponge.command.InvalidateCommand;
 import com.github.games647.changeskin.sponge.command.SelectCommand;
 import com.github.games647.changeskin.sponge.command.SetCommand;
 import com.github.games647.changeskin.sponge.command.UploadCommand;
+import com.github.games647.changeskin.sponge.LoginListener;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
@@ -17,44 +18,42 @@ import java.nio.file.Path;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.audience.Audience;
+import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
-import org.spongepowered.api.event.lifecycle.RegisterChannelEvent;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
-import org.spongepowered.api.event.lifecycle.StopGameEvent;
-import org.spongepowered.api.ResourceKey;
-import org.spongepowered.api.config.ConfigDir;
-import org.spongepowered.api.service.permission.Subject;
+import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.spongepowered.api.service.permission.Subject;
+import org.spongepowered.plugin.Plugin;
 import org.spongepowered.plugin.PluginContainer;
-
-import static com.github.games647.changeskin.core.message.CheckPermMessage.CHECK_PERM_CHANNEL;
-import static com.github.games647.changeskin.core.message.SkinUpdateMessage.UPDATE_SKIN_CHANNEL;
-import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
+import com.github.games647.changeskin.sponge.PomData;
 
 @Singleton
+@Plugin(id = PomData.ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+        url = PomData.URL, description = PomData.DESCRIPTION)
 public class ChangeSkinSponge implements PlatformPlugin<Audience> {
 
     private final Path dataFolder;
     private final Logger logger;
     private final Injector injector;
+
     private final ChangeSkinCore core = new ChangeSkinCore(this);
     private final SpongeSkinAPI api = new SpongeSkinAPI(this);
+
     private boolean initialized;
-    private final PluginContainer pluginContainer;
 
     @Inject
     ChangeSkinSponge(Logger logger, @ConfigDir(sharedRoot = false) Path dataFolder, Injector injector) {
         this.dataFolder = dataFolder;
         this.logger = logger;
         this.injector = injector.createChildInjector(binder -> binder.bind(ChangeSkinCore.class).toInstance(core));
-        this.pluginContainer = new DummyPluginContainer();
     }
 
     @Listener
-    public void onPreInit(ConstructPluginEvent event) {
+    public void onPreInit(ConstructPluginEvent.Pre preInitEvent) {
         try {
             core.load(true);
             initialized = true;
@@ -68,25 +67,19 @@ public class ChangeSkinSponge implements PlatformPlugin<Audience> {
         if (!initialized) {
             return;
         }
-        event.register(pluginContainer, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
-        event.register(pluginContainer, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
-        event.register(pluginContainer, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
-        event.register(pluginContainer, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
-        event.register(pluginContainer, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
+        event.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+        event.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
+        event.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
+        event.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
+        event.register(this, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
 
-        Sponge.getEventManager().registerListeners(pluginContainer, injector.getInstance(LoginListener.class));
+        PluginContainer container = Sponge.pluginManager().plugin(PomData.ARTIFACT_ID)
+                .orElseThrow(() -> new IllegalStateException("Plugin container not found"));
+        Sponge.eventManager().registerListeners(container, injector.getInstance(LoginListener.class));
     }
 
     @Listener
-    public void onChannelRegister(RegisterChannelEvent event) {
-        ResourceKey updateKey = ResourceKey.of(ARTIFACT_ID, UPDATE_SKIN_CHANNEL);
-        ResourceKey permKey = ResourceKey.of(ARTIFACT_ID, CHECK_PERM_CHANNEL);
-        event.register(updateKey, UpdateSkinListener.class);
-        event.register(permKey, CheckPermissionListener.class);
-    }
-
-    @Listener
-    public void onShutdown(StopGameEvent event) {
+    public void onShutdown(StoppingEngineEvent stoppingEngineEvent) {
         core.close();
     }
 
@@ -131,41 +124,7 @@ public class ChangeSkinSponge implements PlatformPlugin<Audience> {
     public void sendMessage(Audience receiver, String key) {
         String message = core.getMessage(key);
         if (message != null && receiver != null) {
-            LegacyComponentSerializer serializer = LegacyComponentSerializer.legacySection();
-            receiver.sendMessage(serializer.deserialize(message));
-        }
-    }
-
-    private static class DummyPluginContainer implements PluginContainer {
-
-        @Override
-        public String id() {
-            return ARTIFACT_ID;
-        }
-
-        @Override
-        public String name() {
-            return PomData.NAME;
-        }
-
-        @Override
-        public String version() {
-            return PomData.VERSION;
-        }
-
-        @Override
-        public Object instance() {
-            return null;
-        }
-
-        @Override
-        public Logger logger() {
-            return org.slf4j.LoggerFactory.getLogger(PomData.NAME);
-        }
-
-        @Override
-        public String toString() {
-            return name() + " (" + id() + ")";
+            receiver.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(message));
         }
     }
 }

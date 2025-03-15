@@ -17,6 +17,29 @@ import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
+/**
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductType"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductCode"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductGroup" minOccurs="0"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductDescription"/&gt;
+ *         &lt;element ref="{urn:OECD:StandardAuditFile-Tax:PT_1.03_01}ProductNumberCode"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "productType",
@@ -40,42 +63,122 @@ public class Product implements ToString2
     @XmlElement(name = "ProductNumberCode", required = true)
     protected String productNumberCode;
 
+    /**
+     * Gets the value of the productType property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
     public String getProductType() {
         return productType;
     }
 
+    /**
+     * Sets the value of the productType property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setProductType(String value) {
         this.productType = value;
     }
 
+    /**
+     * Gets the value of the productCode property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
     public String getProductCode() {
         return productCode;
     }
 
+    /**
+     * Sets the value of the productCode property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setProductCode(String value) {
         this.productCode = value;
     }
 
+    /**
+     * Gets the value of the productGroup property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
     public String getProductGroup() {
         return productGroup;
     }
 
+    /**
+     * Sets the value of the productGroup property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setProductGroup(String value) {
         this.productGroup = value;
     }
 
+    /**
+     * Gets the value of the productDescription property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
     public String getProductDescription() {
         return productDescription;
     }
 
+    /**
+     * Sets the value of the productDescription property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setProductDescription(String value) {
         this.productDescription = value;
     }
 
+    /**
+     * Gets the value of the productNumberCode property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
     public String getProductNumberCode() {
         return productNumberCode;
     }
 
+    /**
+     * Sets the value of the productNumberCode property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setProductNumberCode(String value) {
         this.productNumberCode = value;
     }

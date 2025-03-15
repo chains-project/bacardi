@@ -8,11 +8,13 @@ import com.github.games647.changeskin.sponge.task.SkinUploader;
 import com.google.inject.Inject;
 import java.util.List;
 import org.spongepowered.api.command.Command;
-import org.spongepowered.api.command.CommandCause;
-import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandExecutor;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.command.CommandCause;
+import net.kyori.adventure.audience.Audience;
 
 public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
 
@@ -25,26 +27,25 @@ public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
         this.core = core;
     }
 
-    @Override
-    public CommandResult execute(CommandContext context) {
-        String url = context.requireOne("url");
+    public CommandResult execute(CommandContext args) throws CommandException {
+        CommandCause cause = args.cause();
+        Audience audience = cause.audience();
+        String url = args.requireOne("url");
         if (url.startsWith("http://") || url.startsWith("https://")) {
             List<Account> accounts = plugin.getCore().getUploadAccounts();
-            CommandCause cause = context.cause();
             if (accounts.isEmpty()) {
-                plugin.sendMessage(cause, "no-accounts");
+                plugin.sendMessage(audience, "no-accounts");
             } else {
                 Account uploadAccount = accounts.get(0);
-                Runnable skinUploader = new SkinUploader(plugin, cause, uploadAccount, url);
-                plugin.getScheduler().executor(plugin).submit(skinUploader);
+                Runnable skinUploader = new SkinUploader(plugin, audience, uploadAccount, url);
+                plugin.getGame().scheduler().executor(plugin).submit(skinUploader);
             }
         } else {
-            plugin.sendMessage(context.cause(), "no-valid-url");
+            plugin.sendMessage(audience, "no-valid-url");
         }
         return CommandResult.success();
     }
 
-    @Override
     public Command buildSpec() {
         return Command.builder()
                 .executor(this)

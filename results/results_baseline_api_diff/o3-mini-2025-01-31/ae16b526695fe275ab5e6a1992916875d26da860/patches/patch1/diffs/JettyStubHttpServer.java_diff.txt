@@ -1,28 +1,64 @@
-9a10,13
+1,4d0
+< /*
+<  * Copyright (c) 2012 - 2016 Jadler contributors
+<  * This program is made available under the terms of the MIT License.
+<  */
+9a6,9
 > import org.eclipse.jetty.server.ServerConnector;
-> import org.eclipse.jetty.server.HttpConnectionFactory;
 > import org.eclipse.jetty.server.HttpConfiguration;
+> import org.eclipse.jetty.server.HttpConnectionFactory;
 > import org.eclipse.jetty.util.thread.QueuedThreadPool;
-13,15d16
+13,14d12
 < import org.eclipse.jetty.server.Connector;
 < import org.eclipse.jetty.server.nio.SelectChannelConnector;
+16,19d13
 < 
-24c25
+< /**
+<  * Default stub http server implementation using Jetty as an http server.
+<  */
+24c18
 <     private final Connector httpConnector;
 ---
 >     private final ServerConnector httpConnector;
-32,34c33,38
+30d23
+< 
+32,34c25
 <         this.server = new Server();
 <         this.server.setSendServerVersion(false);
 <         this.server.setSendDateHeader(true);
 ---
->         QueuedThreadPool threadPool = new QueuedThreadPool();
->         this.server = new Server(threadPool);
->         
+>         this.server = new Server(new QueuedThreadPool());
+36c27,31
+<         this.httpConnector = new SelectChannelConnector();
+---
 >         HttpConfiguration httpConfig = new HttpConfiguration();
 >         httpConfig.setSendServerVersion(false);
 >         httpConfig.setSendDateHeader(true);
-36c40
-<         this.httpConnector = new SelectChannelConnector();
+>         
+>         this.httpConnector = new ServerConnector(this.server, new HttpConnectionFactory(httpConfig));
+38c33
+<         server.addConnector(this.httpConnector);
 ---
->         this.httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+>         this.server.addConnector(this.httpConnector);
+41,44d35
+< 
+<     /**
+<      * {@inheritDoc}
+<      */
+48d38
+< 
+52,55d41
+< 
+<     /**
+<      * {@inheritDoc}
+<      */
+63,66d48
+< 
+<     /**
+<      * {@inheritDoc}
+<      */
+74,77d55
+< 
+<     /**
+<      * {@inheritDoc}
+<      */

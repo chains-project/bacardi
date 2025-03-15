@@ -8,40 +8,45 @@
 <   public static class LogMessageEncoder extends EncoderBase<LogMessage> {
 ---
 >   public static class LogMessageEncoder implements Encoder<LogMessage> {
-57d57
-<     @Override
-60c60
-<       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
+53,55c54
+<     private TTransport framedTransport;
+<     private TProtocol protocol;
+<     private OutputStream os;
 ---
->       // Use the TFastFramedTransport to be compatible with singer_thrift
-63,64c63
+>     private OutputStream outputStream;
+58,65c57,58
+<     public void init(OutputStream os) {
+<       this.os = os;
+<       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
+<       // log.
+<       final int bufferCapacity = 10;
 <       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
 <           bufferCapacity);
+<       protocol = new TBinaryProtocol(framedTransport);
 ---
->       framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity);
-68d66
-<     @Override
-78d75
-<     @Override
-81a79,99
+>     public void init(OutputStream os) throws IOException {
+>       this.outputStream = os;
+69c62,66
+<     public void doEncode(LogMessage logMessage) throws IOException {
+---
+>     public byte[] encode(LogMessage logMessage) throws IOException {
+>       ByteArrayOutputStream baos = new ByteArrayOutputStream();
+>       final int bufferCapacity = 10;
+>       TTransport framedTransport = new TFastFramedTransport(new TIOStreamTransport(baos), bufferCapacity);
+>       TProtocol protocol = new TBinaryProtocol(framedTransport);
+75a73,83
+>       return baos.toByteArray();
+>     }
 > 
+>     @Override
 >     public byte[] headerBytes() {
 >       return new byte[0];
 >     }
 > 
->     public byte[] encode(LogMessage logMessage) throws IOException {
->       ByteArrayOutputStream baos = new ByteArrayOutputStream();
->       TTransport transport = new TFastFramedTransport(new TIOStreamTransport(baos), 10);
->       TProtocol protocol = new TBinaryProtocol(transport);
->       try {
->         logMessage.write(protocol);
->         transport.flush();
->       } catch (TException e) {
->         throw new IOException(e);
->       }
->       return baos.toByteArray();
->     }
-> 
+>     @Override
 >     public byte[] footerBytes() {
 >       return new byte[0];
->     }
+80c88
+<       framedTransport.close();
+---
+>       // No underlying resources to close.

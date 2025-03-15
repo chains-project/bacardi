@@ -3,12 +3,7 @@ package de.uniwue.helper;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileVisitOption;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -243,8 +238,8 @@ public class RecognitionHelper {
                 // Add affected line segment images with their absolute path to the json file
                 dataList.add(pageList);
             }
-            try (Writer fileWriter = Files.newBufferedWriter(segmentListFile.toPath(), StandardCharsets.UTF_8)) {
-                mapper.writeValue(fileWriter, dataList);
+            try (FileWriter fw = new FileWriter(segmentListFile)) {
+                mapper.writeValue(fw, dataList);
             }
 
             processHandler = new ProcessHandler();

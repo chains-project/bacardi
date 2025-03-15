@@ -16,7 +16,7 @@
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
@@ -27,14 +27,12 @@ package io.zold.api;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import org.cactoos.iterable.Filtered;
-import org.cactoos.iterable.IterableOf;
 import org.cactoos.iterable.Joined;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Skipped;
+import org.cactoos.iterable.IterableOf;
 import org.cactoos.list.ListOf;
 import org.cactoos.scalar.Or;
 import org.cactoos.text.FormattedText;
@@ -134,7 +132,7 @@ public interface Wallet {
          * Constructor.
          * @param id The wallet id.
          * @param pubkey The public RSA key of the wallet owner.
-         * @param network The network the wallet belongs to.
+         * @param network The network the walet belongs to.
          * @checkstyle UnusedFormalParameter (2 lines)
          */
         public Fake(final long id, final String pubkey, final String network) {
@@ -198,12 +196,13 @@ public interface Wallet {
 
         @Override
         public long id() throws IOException {
-            List<String> lines = Files.readAllLines(this.path);
-            if (lines.size() < 3) {
-                throw new IOException("Invalid wallet file format, less than 3 lines");
+            try {
+                String content = new TextOf(this.path).asString();
+                String[] lines = content.split("\n");
+                return Long.parseUnsignedLong(lines[2].trim(), 16);
+            } catch (Exception e) {
+                throw new IOException(e);
             }
-            String line = lines.get(2);
-            return Long.parseUnsignedLong(line, 16);
         }
 
         @Override
@@ -214,7 +213,7 @@ public interface Wallet {
             }
         }
 
-        // @todo #16:30min Following transactions should be ignored according 
+        // @todo #16:30min Following transactions should be ignored according
         //  to the whitepaper:
         //  a) If the transaction is negative and its signature is not valid,
         //  it is ignored;
@@ -230,8 +229,8 @@ public interface Wallet {
                     new UncheckedText(
                         new FormattedText(
                             "Wallet ID mismatch, ours is %d, theirs is %d",
-                            this.id(),
-                            other.id()
+                            other.id(),
+                            this.id()
                         )
                     ).asString()
                 );
@@ -239,17 +238,23 @@ public interface Wallet {
             final Iterable<Transaction> ledger = this.ledger();
             final Iterable<Transaction> candidates = new Filtered<>(
                 other.ledger(),
-                incoming -> {
-                    for (Transaction origin : ledger) {
-                        if (incoming.equals(origin) ||
-                            (incoming.id() == origin.id() && incoming.bnf().equals(origin.bnf())) ||
-                            (incoming.id() == origin.id() && incoming.amount() < 0L) ||
-                            incoming.prefix().equals(origin.prefix())) {
-                            return false;
+                incoming -> new ListOf<>(
+                    new Filtered<>(
+                        ledger,
+                        origin -> {
+                            try {
+                                return new Or(
+                                    () -> incoming.equals(origin),
+                                    () -> incoming.id() == origin.id() && incoming.bnf().equals(origin.bnf()),
+                                    () -> incoming.id() == origin.id() && incoming.amount() < 0L,
+                                    () -> incoming.prefix().equals(origin.prefix())
+                                ).value();
+                            } catch (Exception ex) {
+                                throw new RuntimeException(ex);
+                            }
                         }
-                    }
-                    return true;
-                }
+                    )
+                ).isEmpty()
             );
             return new Wallet.Fake(
                 this.id(),
@@ -259,19 +264,15 @@ public interface Wallet {
 
         @Override
         public Iterable<Transaction> ledger() {
-            try {
-                List<String> lines = Files.readAllLines(this.path);
-                if (lines.size() <= 5) {
-                    return new ListOf<>();
-                }
-                List<String> txLines = lines.subList(5, lines.size());
-                return new Mapped<>(
-                    line -> new RtTransaction(line),
-                    txLines
-                );
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+            String content = new TextOf(this.path).asString();
+            String[] lines = content.split("\\n");
+            return new Mapped<>(
+                line -> new RtTransaction(line),
+                new Skipped<>(
+                    new ListOf<>(lines),
+                    5
+                )
+            );
         }
 
         // @todo #54:30min Implement key method. This should return the

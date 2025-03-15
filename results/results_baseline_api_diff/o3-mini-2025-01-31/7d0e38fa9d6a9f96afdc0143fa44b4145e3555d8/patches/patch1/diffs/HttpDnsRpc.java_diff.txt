@@ -1,64 +1,42 @@
-150c150,151
-<         applyChangeRequestCall(zoneName, change, options).queue(batch, toJsonCallback(callback));
----
->         applyChangeRequestCall(zoneName, change, options)
->             .queue(batch, toJsonCallback(callback));
-203d203
-<       // todo this can cause misleading report of a failure, intended to be fixed within #924
 211c211
 <         .create(this.options.getProjectId(), zone)
 ---
 >         .create(this.options.getProjectId(), zone.getName(), zone)
-217d216
-<     // just fields option
-232c231
+232c232
 <         .get(this.options.getProjectId(), zoneName)
 ---
->         .get(this.options.getProjectId(), zoneName, "")
-238d236
-<     // fields, page token, page size
-247a246,249
->     String dnsName = Option.DNS_NAME.getString(options);
->     if (dnsName == null) {
->       dnsName = "";
->     }
-249c251
+>         .get(this.options.getProjectId(), zoneName, null)
+249c249
 <         .list(this.options.getProjectId())
 ---
->         .list(this.options.getProjectId(), dnsName)
-252d253
-<         .setDnsName(Option.DNS_NAME.getString(options))
-271c272
+>         .list(this.options.getProjectId(), null)
+271c271
 <     return dns.managedZones().delete(this.options.getProjectId(), zoneName);
 ---
->     return dns.managedZones().delete(this.options.getProjectId(), zoneName, "");
-287d287
+>     return dns.managedZones().delete(this.options.getProjectId(), zoneName, null);
+287d286
 <     // options are fields, page token, dns name, type
-289c289
+289c288
 <         .list(this.options.getProjectId(), zoneName)
 ---
->         .list(this.options.getProjectId(), zoneName, "")
-308c308
+>         .list(this.options.getProjectId(), zoneName, null)
+308c307
 <         .get(this.options.getProjectId())
 ---
->         .get(this.options.getProjectId(), "")
-325c325
+>         .get(this.options.getProjectId(), null)
+325c324
 <         .create(this.options.getProjectId(), zoneName, changeRequest)
 ---
->         .create(this.options.getProjectId(), zoneName, "", changeRequest)
-340d339
-<           // the change id was not found, but the zone exists
-343d341
-<         // the zone does not exist, so throw an exception
-352c350
+>         .create(this.options.getProjectId(), zoneName, null, changeRequest)
+352c351
 <         .get(this.options.getProjectId(), zoneName, changeRequestId)
 ---
->         .get(this.options.getProjectId(), zoneName, "", changeRequestId)
-369d366
+>         .get(this.options.getProjectId(), zoneName, changeRequestId, null)
+369d367
 <     // options are fields, page token, page size, sort order
-372c369
+372c370
 <             .list(this.options.getProjectId(), zoneName)
 ---
->             .list(this.options.getProjectId(), zoneName, "")
-377d373
+>             .list(this.options.getProjectId(), zoneName, null)
+377d374
 <       // todo check and change if more sorting options are implemented, issue #604

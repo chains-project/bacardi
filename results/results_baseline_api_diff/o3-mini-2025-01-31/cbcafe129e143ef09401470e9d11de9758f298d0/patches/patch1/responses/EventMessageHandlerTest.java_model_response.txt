@@ -1,7 +1,6 @@
 ```java
 package uk.gov.pay.adminusers.queue.event;
 
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -109,14 +108,24 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        org.slf4j.Logger testLogger = LoggerFactory.getLogger(EventMessageHandler.class);
+        org.slf4j.Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
         try {
-            Method setLevelMethod = testLogger.getClass().getMethod("setLevel", Level.class);
-            setLevelMethod.invoke(testLogger, Level.INFO);
-            Method addAppenderMethod = testLogger.getClass().getMethod("addAppender", Appender.class);
-            addAppenderMethod.invoke(testLogger, mockLogAppender);
+            Class<?> levelClass = Class.forName("ch.qos.logback.classic.Level");
+            Object infoLevel = Enum.valueOf((Class<Enum>) levelClass, "INFO");
+            Method setLevelMethod = logger.getClass().getMethod("setLevel", levelClass);
+            setLevelMethod.invoke(logger, infoLevel);
+        } catch (ClassNotFoundException | NoSuchMethodException e) {
+            // Logging level configuration not supported, ignore.
         } catch (Exception e) {
-            // Reflection failed, skip logger configuration
+            throw new RuntimeException(e);
+        }
+        try {
+            Method addAppenderMethod = logger.getClass().getMethod("addAppender", Appender.class);
+            addAppenderMethod.invoke(logger, mockLogAppender);
+        } catch (NoSuchMethodException e) {
+            // Adding appender is not supported by this logger implementation, ignore.
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

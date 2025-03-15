@@ -44,12 +44,12 @@ import com.wire.xenon.factories.StorageFactory;
 import com.wire.xenon.state.FileState;
 import com.wire.xenon.state.JdbiState;
 import com.wire.xenon.tools.Logger;
-import io.dropwizard.Application;
+import io.dropwizard.core.Application;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.servlets.tasks.Task;
-import io.dropwizard.setup.Bootstrap;
+import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
@@ -94,7 +94,7 @@ public abstract class Server<Config extends Configuration> extends Application<C
      * @param env    Environment object
      * @throws Exception allowed to throw exception
      */
-    @SuppressWarnings("RedundantThrows") // this method can be overridden
+    @SuppressWarnings("RedundantThrows")
     protected void initialize(Config config, Environment env) throws Exception {
 
     }
@@ -108,7 +108,7 @@ public abstract class Server<Config extends Configuration> extends Application<C
      * @param env    Environment object
      * @throws Exception allowed to throw exception
      */
-    @SuppressWarnings("RedundantThrows") // this method can be overridden
+    @SuppressWarnings("RedundantThrows")
     protected void onRun(Config config, Environment env) throws Exception {
 
     }
@@ -158,7 +158,6 @@ public abstract class Server<Config extends Configuration> extends Application<C
 
     private Client createHttpClient(Config config, Environment env) {
         return new JerseyClientBuilder(env)
-                .using(config.getJerseyClient())
                 .withProvider(MultiPartFeature.class)
                 .withProvider(JacksonJsonProvider.class)
                 .build(getName());
@@ -209,9 +208,9 @@ public abstract class Server<Config extends Configuration> extends Application<C
 
     private void addResources() {
         /* --- Wire Common --- */
-        addResource(new VersionResource()); // add version endpoint
-        addResource(new StatusResource()); // empty status for k8s
-        addResource(new RequestMdcFactoryFilter()); // MDC data
+        addResource(new VersionResource());
+        addResource(new StatusResource());
+        addResource(new RequestMdcFactoryFilter());
         /* //- Wire Common --- */
 
         botResource();

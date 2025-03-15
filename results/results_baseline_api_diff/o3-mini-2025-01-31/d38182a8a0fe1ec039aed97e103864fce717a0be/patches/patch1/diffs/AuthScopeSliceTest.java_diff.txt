@@ -1,6 +1,13 @@
-56,57c56,57
+13a14
+> import java.security.Principal;
+56,57c57,63
 <                     public Optional<Authentication.User> user() {
 <                         return Optional.of(new Authentication.User("alice"));
 ---
->                     public Optional<String> user() {
->                         return Optional.of("alice");
+>                     public Optional<Principal> user() {
+>                         return Optional.of(new Principal() {
+>                             @Override
+>                             public String getName() {
+>                                 return "alice";
+>                             }
+>                         });

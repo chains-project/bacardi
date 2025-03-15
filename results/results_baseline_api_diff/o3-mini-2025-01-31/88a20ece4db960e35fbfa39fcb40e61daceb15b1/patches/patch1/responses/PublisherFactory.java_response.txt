@@ -22,5 +22,7 @@ interface PublisherFactory {
 
   Publisher<PublishMetadata> newPublisher(Map<String, String> params);
 
-  class PublishMetadata { }
+  class PublishMetadata {
+    // This stub replaces the removed dependency type.
+  }
 }

@@ -7,7 +7,7 @@ import com.example.web.AlertMessage.Type;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import jakarta.mvc.Controller;
@@ -54,7 +54,8 @@ public class TaskController {
         List<Task> doingtasks = taskRepository.findByStatus(Task.Status.DOING);
         List<Task> donetasks = taskRepository.findByStatus(Task.Status.DONE);
 
-        log.log(Level.INFO, "got all tasks: todotasks@{0}, doingtasks@{1}, donetasks@{2}", new Object[]{todotasks.size(), doingtasks.size(), donetasks.size()});
+        log.log(Level.INFO, "got all tasks: todotasks@{0}, doingtasks@{1}, donetasks@{2}",
+                new Object[]{todotasks.size(), doingtasks.size(), donetasks.size()});
 
         models.put("todotasks", todotasks);
         models.put("doingtasks", doingtasks);

@@ -23,24 +23,18 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Information about a translation. Objects of this class contain the translated text and the source
- * language's code. The source language's code can be optionally specified by the user or
- * automatically detected by the Google Translation service.
- *
- * @see <a href="https://cloud.google.com/translate/v2/translating-text-with-rest">Translating
- *     Text</a>
- */
 public class Translation implements Serializable {
 
   private static final long serialVersionUID = 2556017420486245581L;
-  static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =
-      new Function<TranslationsResource, Translation>() {
-        @Override
-        public Translation apply(TranslationsResource translationPb) {
-          return Translation.fromPb(translationPb);
-        }
-      };
+  static final Function<com.google.api.services.translate.v3.model.Translation, Translation>
+      FROM_PB_FUNCTION =
+          new Function<com.google.api.services.translate.v3.model.Translation, Translation>() {
+            @Override
+            public Translation apply(
+                com.google.api.services.translate.v3.model.Translation translationPb) {
+              return Translation.fromPb(translationPb);
+            }
+          };
 
   private final String translatedText;
   private final String sourceLanguage;
@@ -103,37 +97,12 @@ public class Translation implements Serializable {
         && Objects.equals(sourceLanguage, other.sourceLanguage);
   }
 
-  static Translation fromPb(TranslationsResource translationPb) {
+  static Translation fromPb(
+      com.google.api.services.translate.v3.model.Translation translationPb) {
     return new Translation(
         translationPb.getTranslatedText(),
-        translationPb.getDetectedSourceLanguage(),
+        null,
         translationPb.getModel());
-  }
-
-  /**
-   * Dummy wrapper to adapt to the new dependency. In the new version of the API, the
-   * com.google.api.services.translate.model.TranslationsResource class has been removed.
-   * This adapter wraps a {@code com.google.api.services.translate.v3.model.Translation} instance.
-   */
-  public static class TranslationsResource {
-    private final com.google.api.services.translate.v3.model.Translation v3Translation;
-
-    public TranslationsResource(com.google.api.services.translate.v3.model.Translation v3Translation) {
-      this.v3Translation = v3Translation;
-    }
-
-    public String getTranslatedText() {
-      return v3Translation.getTranslatedText();
-    }
-
-    public String getDetectedSourceLanguage() {
-      // The new API does not support detected source language; return null.
-      return null;
-    }
-
-    public String getModel() {
-      return v3Translation.getModel();
-    }
   }
 }
 ```

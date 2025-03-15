@@ -1,8 +1,8 @@
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.Location;
 import org.flywaydb.core.api.configuration.ClassicConfiguration;
-import org.flywaydb.core.api.configuration.Location;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -106,14 +106,12 @@ public class NisAppConfig {
 	public Flyway flyway() throws IOException {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
-
-		ClassicConfiguration flywayConfig = new ClassicConfiguration();
-		DriverManagerDataSource ds = (DriverManagerDataSource) this.dataSource();
-		flywayConfig.setDataSource(ds.getUrl(), ds.getUsername(), ds.getPassword());
-		flywayConfig.setClassLoader(NisAppConfig.class.getClassLoader());
-		flywayConfig.setLocations(new Location[] { new Location(prop.getProperty("flyway.locations")) });
-		flywayConfig.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		return new Flyway(flywayConfig);
+		ClassicConfiguration config = new ClassicConfiguration();
+		config.setDataSource(this.dataSource());
+		config.setClassLoader(NisAppConfig.class.getClassLoader());
+		config.setLocations(new Location(prop.getProperty("flyway.locations")));
+		config.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		return new Flyway(config);
 	}
 
 	@Bean

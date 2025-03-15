@@ -13,7 +13,6 @@ import org.apache.maven.model.Developer;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
-import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.error.YAMLException;
 import org.yaml.snakeyaml.introspector.Property;
 import org.yaml.snakeyaml.nodes.Node;
@@ -36,7 +35,6 @@ import static java.lang.String.format;
  */
 class ModelRepresenter extends Representer {
   public ModelRepresenter() {
-    super(new DumperOptions());
     this.representers.put(Xpp3Dom.class, new RepresentXpp3Dom());
     Represent stringRepresenter = this.representers.get(String.class);
     this.representers.put(Boolean.class, stringRepresenter);
@@ -168,8 +166,9 @@ class ModelRepresenter extends Representer {
   }
 
   // Model elements order {
+  //TODO move to polyglot-common, or to org.apache.maven:maven-model
   private static List<String> ORDER_MODEL = new ArrayList<String>(Arrays.asList(
-      "modelEncoding",
+		  "modelEncoding",
           "modelVersion",
           "parent",
           "groupId",
@@ -196,18 +195,20 @@ class ModelRepresenter extends Representer {
           "dependencyManagement",
           "dependencies",
           "distributionManagement",
+          //"repositories",
+          //"pluginRepositories",
           "build",
           "profiles",
           "reporting"
           ));
   private static List<String> ORDER_DEVELOPER = new ArrayList<String>(Arrays.asList(
-      "name", "id", "email"));
+		  "name", "id", "email"));
   private static List<String> ORDER_CONTRIBUTOR = new ArrayList<String>(Arrays.asList(
-      "name", "id", "email"));
+		  "name", "id", "email"));
   private static List<String> ORDER_DEPENDENCY = new ArrayList<String>(Arrays.asList(
-      "groupId", "artifactId", "version", "type", "classifier", "scope"));
+		  "groupId", "artifactId", "version", "type", "classifier", "scope"));
   private static List<String> ORDER_PLUGIN = new ArrayList<String>(Arrays.asList(
-      "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
+		  "groupId", "artifactId", "version", "inherited", "extensions", "configuration"));
   //}
 
   /*
@@ -231,14 +232,10 @@ class ModelRepresenter extends Representer {
   }
 
   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
-    try {
       Set<Property> standard = super.getProperties(type);
       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
       sorted.addAll(standard);
       return sorted;
-    } catch (IntrospectionException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   private class ModelPropertyComparator implements Comparator<Property> {
@@ -266,7 +263,7 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0;
+      return 0; // compare further
     }
   }
 }

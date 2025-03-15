@@ -1,101 +1,145 @@
-18,20c18
+18,20d17
 < import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
 < import com.google.api.services.cloudresourcemanager.model.Constraint;
 < import com.google.api.services.cloudresourcemanager.model.ListConstraint;
----
-> import com.google.api.services.cloudresourcemanager.v3.model.Constraint;
-50,51d47
-<   private BooleanConstraint booleanConstraint;
-<   private String constraintDefault;
-56d51
-<   private Integer version;
-113,120d107
-< 
-<     ListConstraint toProtobuf() {
-<       return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
-<     }
-< 
-<     static Constraints fromProtobuf(ListConstraint listConstraint) {
-<       return new Constraints(listConstraint.getSuggestedValue(), listConstraint.getSupportsUnder());
-<     }
-125,126d111
-<     private BooleanConstraint booleanConstraint;
-<     private String constraintDefault;
-131d115
-<     private Integer version;
-138,139d121
-<       this.booleanConstraint = info.booleanConstraint;
-<       this.constraintDefault = info.constraintDefault;
-144,154d125
-<       this.version = info.version;
-<     }
-< 
-<     Builder setBooleanConstraint(BooleanConstraint booleanConstraint) {
-<       this.booleanConstraint = booleanConstraint;
-<       return this;
-<     }
-< 
-<     Builder setConstraintDefault(String constraintDefault) {
-<       this.constraintDefault = constraintDefault;
-<       return this;
-177,181d147
-<     Builder setVersion(Integer version) {
-<       this.version = version;
-<       return this;
-<     }
-< 
-188,189d153
-<     this.booleanConstraint = builder.booleanConstraint;
-<     this.constraintDefault = builder.constraintDefault;
-194,204d157
-<     this.version = builder.version;
-<   }
-< 
-<   /** Returns the boolean constraint to check whether the constraint is enforced or not. */
-<   public BooleanConstraint getBooleanConstraint() {
-<     return booleanConstraint;
-<   }
-< 
-<   /** Returns the default behavior of the constraint. */
-<   public String getConstraintDefault() {
-<     return constraintDefault;
-227,231d179
-<   /** Returns the version of the Constraint. Default version is 0. */
-<   public Integer getVersion() {
-<     return version;
-<   }
-< 
-241,243c189
-<     return Objects.equals(booleanConstraint, that.booleanConstraint)
-<         && Objects.equals(constraintDefault, that.constraintDefault)
-<         && Objects.equals(description, that.description)
----
->     return Objects.equals(description, that.description)
-246,247c192
-<         && Objects.equals(name, that.name)
-<         && Objects.equals(version, that.version);
----
->         && Objects.equals(name, that.name);
-252,253c197
-<     return Objects.hash(
-<         booleanConstraint, constraintDefault, description, displayName, constraints, name, version);
----
->     return Objects.hash(description, displayName, constraints, name);
-268,269d211
-<     constraintProto.setBooleanConstraint(booleanConstraint);
-<     constraintProto.setConstraintDefault(constraintDefault);
-272,274d213
-<     if (constraints != null) {
-<       constraintProto.setListConstraint(constraints.toProtobuf());
-<     }
-276d214
-<     constraintProto.setVersion(version);
-282,283d219
-<     builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint());
-<     builder.setConstraintDefault(constraintProtobuf.getConstraintDefault());
-286,288d221
-<     if (constraintProtobuf.getListConstraint() != null) {
-<       builder.setConstraints(Constraints.fromProtobuf(constraintProtobuf.getListConstraint()));
-<     }
-292d224
-<     builder.setVersion(constraintProtobuf.getVersion());
+294a292,431
+> 
+>   public static class Constraint {
+>     private BooleanConstraint booleanConstraint;
+>     private String constraintDefault;
+>     private String description;
+>     private String displayName;
+>     private ListConstraint listConstraint;
+>     private String name;
+>     private Integer version;
+> 
+>     public Constraint() {}
+> 
+>     public BooleanConstraint getBooleanConstraint() {
+>       return booleanConstraint;
+>     }
+> 
+>     public Constraint setBooleanConstraint(BooleanConstraint booleanConstraint) {
+>       this.booleanConstraint = booleanConstraint;
+>       return this;
+>     }
+> 
+>     public String getConstraintDefault() {
+>       return constraintDefault;
+>     }
+> 
+>     public Constraint setConstraintDefault(String constraintDefault) {
+>       this.constraintDefault = constraintDefault;
+>       return this;
+>     }
+> 
+>     public String getDescription() {
+>       return description;
+>     }
+> 
+>     public Constraint setDescription(String description) {
+>       this.description = description;
+>       return this;
+>     }
+> 
+>     public String getDisplayName() {
+>       return displayName;
+>     }
+> 
+>     public Constraint setDisplayName(String displayName) {
+>       this.displayName = displayName;
+>       return this;
+>     }
+> 
+>     public ListConstraint getListConstraint() {
+>       return listConstraint;
+>     }
+> 
+>     public Constraint setListConstraint(ListConstraint listConstraint) {
+>       this.listConstraint = listConstraint;
+>       return this;
+>     }
+> 
+>     public String getName() {
+>       return name;
+>     }
+> 
+>     public Constraint setName(String name) {
+>       this.name = name;
+>       return this;
+>     }
+> 
+>     public Integer getVersion() {
+>       return version;
+>     }
+> 
+>     public Constraint setVersion(Integer version) {
+>       this.version = version;
+>       return this;
+>     }
+>   }
+> 
+>   public static class BooleanConstraint {
+>     @Override
+>     public boolean equals(Object o) {
+>       if (this == o) return true;
+>       if (o == null || getClass() != o.getClass()) return false;
+>       return true;
+>     }
+> 
+>     @Override
+>     public int hashCode() {
+>       return 1;
+>     }
+>   }
+> 
+>   public static class ListConstraint {
+>     private String suggestedValue;
+>     private Boolean supportsUnder;
+> 
+>     public ListConstraint() {}
+> 
+>     public String getSuggestedValue() {
+>       return suggestedValue;
+>     }
+> 
+>     public ListConstraint setSuggestedValue(String suggestedValue) {
+>       this.suggestedValue = suggestedValue;
+>       return this;
+>     }
+> 
+>     public Boolean getSupportsUnder() {
+>       return supportsUnder;
+>     }
+> 
+>     public ListConstraint setSupportsUnder(Boolean supportsUnder) {
+>       this.supportsUnder = supportsUnder;
+>       return this;
+>     }
+> 
+>     @Override
+>     public String toString() {
+>       return MoreObjects.toStringHelper(this)
+>           .add("suggestedValue", getSuggestedValue())
+>           .add("supportsUnder", getSupportsUnder())
+>           .toString();
+>     }
+> 
+>     @Override
+>     public int hashCode() {
+>       return Objects.hash(suggestedValue, supportsUnder);
+>     }
+> 
+>     @Override
+>     public boolean equals(Object o) {
+>       if (this == o) {
+>         return true;
+>       }
+>       if (o == null || getClass() != o.getClass()) {
+>         return false;
+>       }
+>       ListConstraint that = (ListConstraint) o;
+>       return Objects.equals(suggestedValue, that.suggestedValue)
+>           && Objects.equals(supportsUnder, that.supportsUnder);
+>     }
+>   }

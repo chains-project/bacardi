@@ -3,8 +3,7 @@ package com.github.games647.changeskin.sponge.task;
 import com.github.games647.changeskin.core.model.auth.Account;
 import com.github.games647.changeskin.core.shared.task.SharedSkinChanger;
 import com.github.games647.changeskin.sponge.ChangeSkinSponge;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.text.Component;
+import org.spongepowered.api.audience.Audience;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class SkinChanger extends SharedSkinChanger {
@@ -18,7 +17,6 @@ public class SkinChanger extends SharedSkinChanger {
 
     @Override
     protected void sendMessageInvoker(String localeMessage) {
-        Component message = LegacyComponentSerializer.legacyAmpersand().deserialize(localeMessage);
-        invoker.sendMessage(message);
+        invoker.sendMessage(LegacyComponentSerializer.legacySection().deserialize(localeMessage));
     }
 }

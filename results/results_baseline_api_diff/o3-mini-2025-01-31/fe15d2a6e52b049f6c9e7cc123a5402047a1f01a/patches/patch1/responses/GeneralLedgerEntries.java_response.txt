@@ -23,7 +23,6 @@ import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 
-
 /**
  * <p>Java class for anonymous complex type.
  * 
@@ -222,7 +221,7 @@ public class GeneralLedgerEntries implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
+        final ToStringStrategy2 strategy = new SimpleToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
@@ -418,7 +417,7 @@ public class GeneralLedgerEntries implements ToString2
 
         @Override
         public String toString() {
-            final ToStringStrategy2 strategy = new JAXBToStringStrategy();
+            final ToStringStrategy2 strategy = new SimpleToStringStrategy();
             final StringBuilder buffer = new StringBuilder();
             append(null, buffer, strategy);
             return buffer.toString();
@@ -808,7 +807,7 @@ public class GeneralLedgerEntries implements ToString2
 
             @Override
             public String toString() {
-                final ToStringStrategy2 strategy = new JAXBToStringStrategy();
+                final ToStringStrategy2 strategy = new SimpleToStringStrategy();
                 final StringBuilder buffer = new StringBuilder();
                 append(null, buffer, strategy);
                 return buffer.toString();
@@ -1109,7 +1108,7 @@ public class GeneralLedgerEntries implements ToString2
 
                 @Override
                 public String toString() {
-                    final ToStringStrategy2 strategy = new JAXBToStringStrategy();
+                    final ToStringStrategy2 strategy = new SimpleToStringStrategy();
                     final StringBuilder buffer = new StringBuilder();
                     append(null, buffer, strategy);
                     return buffer.toString();
@@ -1167,6 +1166,31 @@ public class GeneralLedgerEntries implements ToString2
 
         }
 
+    }
+
+    private static class SimpleToStringStrategy implements ToStringStrategy2 {
+
+        public void appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+            buffer.append(object.getClass().getSimpleName()).append(" [");
+        }
+
+        public void appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean notNull) {
+            buffer.append(fieldName).append("=");
+            if (value != null) {
+                buffer.append(value.toString());
+            } else {
+                buffer.append("null");
+            }
+            buffer.append(", ");
+        }
+
+        public void appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+            int len = buffer.length();
+            if (len >= 2 && buffer.substring(len - 2, len).equals(", ")) {
+                buffer.delete(len - 2, len);
+            }
+            buffer.append("]");
+        }
     }
 
 }

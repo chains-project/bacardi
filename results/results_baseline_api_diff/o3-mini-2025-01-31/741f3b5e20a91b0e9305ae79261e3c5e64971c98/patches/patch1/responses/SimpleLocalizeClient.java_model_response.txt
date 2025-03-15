@@ -17,6 +17,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -86,7 +87,7 @@ public class SimpleLocalizeClient
     HttpResponse<String> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
     throwOnError(httpResponse);
     String body = httpResponse.body();
-    ExportResponse exportResponse = objectMapper.readerFor(ExportResponse.class).readValue(body);
+    ExportResponse exportResponse = objectMapper.readValue(body.getBytes(StandardCharsets.UTF_8), ExportResponse.class);
     return exportResponse.getFiles();
   }
 

@@ -289,42 +289,42 @@ public class GeneralLedger implements ToString2
         {
             String theAccountID;
             theAccountID = this.getAccountID();
-            strategy.appendField(locator, this, "accountID", buffer, theAccountID, (this.accountID != null));
+            strategy.appendField(locator, this, "accountID", buffer, theAccountID, (this.accountID!= null));
         }
         {
             String theAccountDescription;
             theAccountDescription = this.getAccountDescription();
-            strategy.appendField(locator, this, "accountDescription", buffer, theAccountDescription, (this.accountDescription != null));
+            strategy.appendField(locator, this, "accountDescription", buffer, theAccountDescription, (this.accountDescription!= null));
         }
         {
             BigDecimal theOpeningDebitBalance;
             theOpeningDebitBalance = this.getOpeningDebitBalance();
-            strategy.appendField(locator, this, "openingDebitBalance", buffer, theOpeningDebitBalance, (this.openingDebitBalance != null));
+            strategy.appendField(locator, this, "openingDebitBalance", buffer, theOpeningDebitBalance, (this.openingDebitBalance!= null));
         }
         {
             BigDecimal theOpeningCreditBalance;
             theOpeningCreditBalance = this.getOpeningCreditBalance();
-            strategy.appendField(locator, this, "openingCreditBalance", buffer, theOpeningCreditBalance, (this.openingCreditBalance != null));
+            strategy.appendField(locator, this, "openingCreditBalance", buffer, theOpeningCreditBalance, (this.openingCreditBalance!= null));
         }
         {
             BigDecimal theClosingDebitBalance;
             theClosingDebitBalance = this.getClosingDebitBalance();
-            strategy.appendField(locator, this, "closingDebitBalance", buffer, theClosingDebitBalance, (this.closingDebitBalance != null));
+            strategy.appendField(locator, this, "closingDebitBalance", buffer, theClosingDebitBalance, (this.closingDebitBalance!= null));
         }
         {
             BigDecimal theClosingCreditBalance;
             theClosingCreditBalance = this.getClosingCreditBalance();
-            strategy.appendField(locator, this, "closingCreditBalance", buffer, theClosingCreditBalance, (this.closingCreditBalance != null));
+            strategy.appendField(locator, this, "closingCreditBalance", buffer, theClosingCreditBalance, (this.closingCreditBalance!= null));
         }
         {
             String theGroupingCategory;
             theGroupingCategory = this.getGroupingCategory();
-            strategy.appendField(locator, this, "groupingCategory", buffer, theGroupingCategory, (this.groupingCategory != null));
+            strategy.appendField(locator, this, "groupingCategory", buffer, theGroupingCategory, (this.groupingCategory!= null));
         }
         {
             String theGroupingCode;
             theGroupingCode = this.getGroupingCode();
-            strategy.appendField(locator, this, "groupingCode", buffer, theGroupingCode, (this.groupingCode != null));
+            strategy.appendField(locator, this, "groupingCode", buffer, theGroupingCode, (this.groupingCode!= null));
         }
         return buffer;
     }

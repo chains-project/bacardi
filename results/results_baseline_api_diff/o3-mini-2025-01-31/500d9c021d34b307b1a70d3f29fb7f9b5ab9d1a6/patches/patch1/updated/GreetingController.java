@@ -14,10 +14,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
-/**
- *
- * @author hantsy
- */
 @Path("greeting")
 @Controller
 @RequestScoped
@@ -47,5 +43,4 @@ public class GreetingController {
         flashMessage.notify(AlertMessage.Type.success, "Message:" + greeting);
         return "redirect:greeting";
     }
-
 }

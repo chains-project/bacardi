@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Created by Lukas Zaoralek on 14.11.17. */
 public class PubnubStreamingService {
   private static final Logger LOG = LoggerFactory.getLogger(PubnubStreamingService.class);
 
@@ -33,7 +34,7 @@ public class PubnubStreamingService {
   public PubnubStreamingService(String publicKey) {
     mapper = new ObjectMapper();
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    PNConfiguration pnConfiguration = new PNConfiguration(new UserId(publicKey));
+    PNConfiguration pnConfiguration = new PNConfiguration(new UserId("xchange-stream-service"));
     pnConfiguration.setSubscribeKey(publicKey);
     pubnub = new PubNub(pnConfiguration);
     pnStatusCategory = PNStatusCategory.PNDisconnectedCategory;
@@ -45,9 +46,12 @@ public class PubnubStreamingService {
           pubnub.addListener(
               new SubscribeCallback() {
                 @Override
-                public void status(PubNub pubNub, PNStatus pnStatus) {
+                public void status(PubNub pubnub, PNStatus pnStatus) {
                   pnStatusCategory = pnStatus.getCategory();
-                  LOG.debug("PubNub status: {} {}", pnStatusCategory.toString(), pnStatus.getStatusCode());
+                  LOG.debug(
+                      "PubNub status: {} {}",
+                      pnStatusCategory.toString(),
+                      pnStatus.getStatusCode());
                   if (pnStatusCategory == PNStatusCategory.PNConnectedCategory) {
                     // e.onComplete();
                   } else if (pnStatus.isError()) {
@@ -56,35 +60,26 @@ public class PubnubStreamingService {
                 }
 
                 @Override
-                public void message(PubNub pubNub, Object pnMessageEvent) {
-                  try {
-                    // Assume the event is a Map containing "channel" and "message" keys.
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> messageMap = (Map<String, Object>) pnMessageEvent;
-                    String channelName = (String) messageMap.get("channel");
-                    ObservableEmitter<JsonNode> subscription = subscriptions.get(channelName);
-                    LOG.debug("PubNub Message: {}", pnMessageEvent.toString());
-                    if (subscription != null) {
-                      JsonNode jsonMessage = mapper.readTree(messageMap.get("message").toString());
-                      subscription.onNext(jsonMessage);
-                    } else {
-                      LOG.debug("No subscriber for channel {}.", channelName);
-                    }
-                  } catch (IOException ex) {
-                    ex.printStackTrace();
-                  } catch (Exception ex) {
-                    ex.printStackTrace();
-                  }
+                public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
+                  LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
                 }
 
                 @Override
                 public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
-                  LOG.debug("PubNub file: {}", pnFileEventResult.toString());
-                }
-
-                @Override
-                public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
-                  LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
+                  String channelName = pnFileEventResult.getChannel();
+                  ObservableEmitter<JsonNode> subscription = subscriptions.get(channelName);
+                  LOG.debug("PubNub File Event: {}", pnFileEventResult.toString());
+                  if (subscription != null) {
+                    JsonNode jsonMessage = null;
+                    try {
+                      jsonMessage = mapper.readTree(pnFileEventResult.getMessage().toString());
+                    } catch (IOException ex) {
+                      ex.printStackTrace();
+                    }
+                    subscription.onNext(jsonMessage);
+                  } else {
+                    LOG.debug("No subscriber for channel {}.", channelName);
+                  }
                 }
               });
           e.onComplete();

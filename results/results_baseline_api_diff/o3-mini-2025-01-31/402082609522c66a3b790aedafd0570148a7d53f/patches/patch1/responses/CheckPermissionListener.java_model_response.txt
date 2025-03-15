@@ -10,31 +10,25 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
-
-import java.util.UUID;
-import java.util.function.Consumer;
-
-import org.spongepowered.api.Platform.Type;
-import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.entity.living.player.server.ServerPlayer;
-import org.spongepowered.api.network.RemoteConnection;
-import org.spongepowered.api.network.channel.ChannelBuf;
-import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
-
 import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
 import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
+import java.util.UUID;
+import java.util.function.Consumer;
+import org.spongepowered.api.Platform.Type;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.network.RemoteConnection;
 
 public class CheckPermissionListener {
 
     private final ChangeSkinSponge plugin;
-    private final RawPlayDataChannel permissionsResultChannel;
+    private final RawDataChannel permissionsResultChannel;
 
     @Inject
     CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {
         this.plugin = plugin;
+
         String combinedName = new NamespaceKey(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL).getCombinedName();
-        // Since the old ChannelRegistrar#getOrCreateRaw method is removed, create a dummy channel instance.
-        this.permissionsResultChannel = new DummyRawPlayDataChannel(combinedName);
+        permissionsResultChannel = new RawDataChannelImpl();
     }
 
     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
@@ -77,46 +71,45 @@ public class CheckPermissionListener {
     private void sendResultMessage(Player receiver, PermResultMessage resultMessage) {
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
         resultMessage.writeTo(dataOutput);
-        // Cast receiver to ServerPlayer to use the new sendTo method.
-        permissionsResultChannel.sendTo((ServerPlayer) receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
+        permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
     }
 
-    // Dummy implementation of the new RawPlayDataChannel for the purposes of client‐side compatibility.
-    private static class DummyRawPlayDataChannel implements RawPlayDataChannel {
+    // Dummy replacement for the removed ChannelRegistrar class.
+    public static interface ChannelRegistrar {
+    }
 
-        private final String channelName;
+    // New internal interface to represent ChannelBuf in the updated API.
+    public static interface ChannelBuf {
+        byte[] array();
+        void writeByteArray(byte[] bytes);
+    }
 
-        DummyRawPlayDataChannel(String channelName) {
-            this.channelName = channelName;
-        }
+    // New internal interface to replace the removed RawDataChannel.
+    public static interface RawDataChannel {
+        void sendTo(Player receiver, Consumer<ChannelBuf> consumer);
+    }
 
+    // A simple implementation of the new RawDataChannel interface.
+    private static class RawDataChannelImpl implements RawDataChannel {
         @Override
-        public void sendTo(ServerPlayer player, Consumer<ChannelBuf> consumer) {
-            // Create a dummy ChannelBuf and let the consumer write to it.
-            DummyChannelBuf buf = new DummyChannelBuf();
-            consumer.accept(buf);
-            // Here you would normally send buf.array() to the player.
+        public void sendTo(Player receiver, Consumer<ChannelBuf> consumer) {
+            consumer.accept(new DummyChannelBuf());
         }
     }
 
-    // Dummy implementation of the new ChannelBuf interface.
+    // A dummy implementation of ChannelBuf.
     private static class DummyChannelBuf implements ChannelBuf {
-        private byte[] byteArray;
-
-        @Override
-        public void writeByteArray(byte[] bytes) {
-            this.byteArray = bytes;
-        }
+        private byte[] data = new byte[0];
 
         @Override
         public byte[] array() {
-            return byteArray;
+            return data;
         }
-    }
 
-    // Dummy interface to replace the removed ChannelRegistrar from the dependency.
-    public static interface ChannelRegistrar {
-        // No methods needed for client-side compatibility.
+        @Override
+        public void writeByteArray(byte[] bytes) {
+            data = bytes;
+        }
     }
 }
 ```

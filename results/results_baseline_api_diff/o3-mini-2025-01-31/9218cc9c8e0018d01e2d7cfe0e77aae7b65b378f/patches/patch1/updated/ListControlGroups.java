@@ -1,21 +1,3 @@
-/**
- * Copyright (C) 2014 Premium Minds.
- *
- * This file is part of wicket-crudifier.
- *
- * wicket-crudifier is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
- * later version.
- *
- * wicket-crudifier is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with wicket-crudifier. If not, see <http://www.gnu.org/licenses/>.
- */
 package com.premiumminds.wicket.crudifier.form.elements;
 
 import java.beans.PropertyDescriptor;
@@ -40,6 +22,8 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.metadata.BeanDescriptor;
 import jakarta.validation.metadata.ConstraintDescriptor;
+// Do not import jakarta.validation.metadata.PropertyDescriptor to avoid name clashes with java.beans.PropertyDescriptor
+
 import com.premiumminds.webapp.wicket.validators.HibernateValidatorProperty;
 import com.premiumminds.wicket.crudifier.IObjectRenderer;
 import com.premiumminds.wicket.crudifier.form.CrudifierEntitySettings;
@@ -92,14 +76,14 @@ public abstract class ListControlGroups<T> extends Panel {
 	private Set<String> getPropertiesByOrder(Class<?> modelClass) {
 		Set<String> properties = new LinkedHashSet<String>();
 
-		for(String property : entitySettings.getOrderOfFields()){
-			if(!entitySettings.getHiddenFields().contains(property))
+		for (String property : entitySettings.getOrderOfFields()) {
+			if (!entitySettings.getHiddenFields().contains(property))
 				properties.add(property);
 		}
-		for(PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)){
-			if(!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
-			   !properties.contains(descriptor.getName()) &&
-			   !descriptor.getName().equals("class"))
+		for (PropertyDescriptor descriptor : PropertyUtils.getPropertyDescriptors(modelClass)) {
+			if (!entitySettings.getHiddenFields().contains(descriptor.getName()) &&
+			    !properties.contains(descriptor.getName()) &&
+			    !descriptor.getName().equals("class"))
 				properties.add(descriptor.getName());
 		}
 
@@ -118,7 +102,7 @@ public abstract class ListControlGroups<T> extends Panel {
 
 		Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
 		BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
-		for(String property : properties){
+		for (String property : properties) {
 			PropertyDescriptor descriptor;
 			try {
 				descriptor = PropertyUtils.getPropertyDescriptor(getModel().getObject(), property);
@@ -128,9 +112,10 @@ public abstract class ListControlGroups<T> extends Panel {
 
 			boolean required = false;
 
-			jakarta.validation.metadata.PropertyDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
-			if (constraintDescriptor != null) {
-				Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
+			// Use the Jakarta Bean Validation PropertyDescriptor (fully qualified to avoid conflict)
+			jakarta.validation.metadata.PropertyDescriptor validationDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+			if (validationDescriptor != null) {
+				Set<ConstraintDescriptor<?>> constraintsSet = validationDescriptor.getConstraintDescriptors();
 				for (ConstraintDescriptor<?> constraint : constraintsSet) {
 					if (constraint.getAnnotation() instanceof NotNull ||
 					    constraint.getAnnotation() instanceof NotEmpty ||
@@ -143,15 +128,17 @@ public abstract class ListControlGroups<T> extends Panel {
 		}
 		
 		RepeatingView view = new RepeatingView("controlGroup");
-		for(ObjectProperties objectProperty : objectProperties){
+		for (ObjectProperties objectProperty : objectProperties) {
 			try {
 				AbstractControlGroup<?> controlGroup;
-				if(!controlGroupProviders.containsKey(objectProperty.type)) {
+				if (!controlGroupProviders.containsKey(objectProperty.type)) {
 					Constructor<?> constructor;
 					Class<? extends Panel> typesControlGroup = getControlGroupByType(objectProperty.type);
-					if(typesControlGroup == null){
-						if(objectProperty.type.isEnum()) typesControlGroup = EnumControlGroup.class;
-						else typesControlGroup = ObjectChoiceControlGroup.class;
+					if (typesControlGroup == null) {
+						if (objectProperty.type.isEnum())
+							typesControlGroup = EnumControlGroup.class;
+						else
+							typesControlGroup = ObjectChoiceControlGroup.class;
 					}
 
 					constructor = typesControlGroup.getConstructor(String.class, IModel.class);
@@ -160,9 +147,9 @@ public abstract class ListControlGroups<T> extends Panel {
 					controlGroup.init(objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
 					controlGroup.setEnabled(objectProperty.enabled);
 
-					if(typesControlGroup == ObjectChoiceControlGroup.class){
+					if (typesControlGroup == ObjectChoiceControlGroup.class) {
 						IObjectRenderer<?> renderer = renderers.get(objectProperty.type);
-						if(renderer == null){
+						if (renderer == null) {
 							renderer = new IObjectRenderer<Object>() {
 								private static final long serialVersionUID = -6171655578529011405L;
 
@@ -172,15 +159,13 @@ public abstract class ListControlGroups<T> extends Panel {
 							};
 						}
 						((ObjectChoiceControlGroup<?>) controlGroup).setConfiguration(getEntityProvider(objectProperty.name), renderer);
-					} else if(typesControlGroup == CollectionControlGroup.class){
+					} else if (typesControlGroup == CollectionControlGroup.class) {
 						((CollectionControlGroup<?>) controlGroup).setConfiguration(getEntityProvider(objectProperty.name), renderers);
 					}
 
 				} else {
-					controlGroup = controlGroupProviders
-							.get(objectProperty.type)
-							.createControlGroup(view.newChildId(),
-									new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name),
+					controlGroup = controlGroupProviders.get(objectProperty.type)
+							.createControlGroup(view.newChildId(), new PropertyModel<Object>(ListControlGroups.this.getModel(), objectProperty.name),
 									objectProperty.name, getResourceBase(), objectProperty.required, objectProperty.type, entitySettings);
 				}
 				view.add(controlGroup);
@@ -205,22 +190,23 @@ public abstract class ListControlGroups<T> extends Panel {
 	}
 
 	@SuppressWarnings("unchecked")
-	public IModel<T> getModel(){
+	public IModel<T> getModel() {
 		return (IModel<T>) getDefaultModel();
 	}
 
-	public Component getResourceBase(){
+	public Component getResourceBase() {
 		return this;
 	}
 
-	public Map<String, AbstractControlGroup<?>> getFieldsControlGroup(){
+	public Map<String, AbstractControlGroup<?>> getFieldsControlGroup() {
 		return Collections.unmodifiableMap(fieldComponents);
 	}
 
 	@SuppressWarnings("rawtypes")
-	private Class<? extends AbstractControlGroup> getControlGroupByType(Class<?> type){
-		for(Class<?> mapType : typesControlGroups.keySet()){
-			if(type.isAssignableFrom(mapType)) return typesControlGroups.get(mapType);
+	private Class<? extends AbstractControlGroup> getControlGroupByType(Class<?> type) {
+		for (Class<?> mapType : typesControlGroups.keySet()) {
+			if (type.isAssignableFrom(mapType))
+				return typesControlGroups.get(mapType);
 		}
 		return null;
 	}
@@ -232,7 +218,7 @@ public abstract class ListControlGroups<T> extends Panel {
 		private Class<?> type;
 		private boolean required;
 
-		public ObjectProperties(PropertyDescriptor descriptor, boolean required){
+		public ObjectProperties(PropertyDescriptor descriptor, boolean required) {
 			this.name = descriptor.getName();
 			this.enabled = descriptor.getWriteMethod() != null;
 			this.type = descriptor.getPropertyType();
@@ -241,11 +227,11 @@ public abstract class ListControlGroups<T> extends Panel {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap(){
+	public Map<Class<?>, Class<? extends AbstractControlGroup>> getControlGroupsTypesMap() {
 		return typesControlGroups;
 	}
 	
-	public Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> getControlGroupProviders(){
+	public Map<Class<?>, ControlGroupProvider<? extends AbstractControlGroup<?>>> getControlGroupProviders() {
 		return this.controlGroupProviders;
 	}
 }

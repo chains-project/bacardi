@@ -8,9 +8,9 @@ import com.fluxtion.runtime.annotations.builder.ExcludeNode;
 import com.fluxtion.runtime.node.NamedNode;
 import lombok.Data;
 import org.junit.Test;
-import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.constructor.Constructor;
 
 import java.util.ArrayList;
@@ -76,7 +76,7 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
                 "  id: C";
         sep(c -> {
             LoaderOptions loaderOptions = new LoaderOptions();
-            Constructor constructor = new Constructor(loaderOptions);
+            Constructor constructor = new Constructor(InstanceHolder.class, loaderOptions);
             constructor.addTypeDescription(new TypeDescription(DoubleSum.class, "!doubleSum"));
             constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
             Yaml yaml = new Yaml(constructor);
@@ -113,7 +113,7 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
                 "  id: C";
         sep(c -> {
             LoaderOptions loaderOptions = new LoaderOptions();
-            Constructor constructor = new Constructor(loaderOptions);
+            Constructor constructor = new Constructor(InstanceHolder.class, loaderOptions);
             constructor.addTypeDescription(new TypeDescription(DoubleSum.class, "!doubleSum"));
             constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
             Yaml yaml = new Yaml(constructor);
@@ -154,6 +154,7 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
     }
 
     public static class StringHandler implements DoubleSupplier, NamedNode {
+
         private String id;
         transient int value;
 
@@ -216,6 +217,7 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
 
     @Data
     public static class DoubleSum implements NamedNode {
+
         private List<DoubleSupplier> doubleSuppliers = new ArrayList<>();
         double sum;
 

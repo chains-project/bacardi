@@ -9,7 +9,7 @@ import liquibase.sql.UnparsedSql;
 import liquibase.sqlgenerator.SqlGeneratorChain;
 import liquibase.sqlgenerator.core.CreateIndexGenerator;
 import liquibase.statement.core.CreateIndexStatement;
-import liquibase.repackaged.org.apache.commons.lang3.StringUtils;
+import liquibase.util.StringUtil;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -23,7 +23,7 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
   @Override
   public Sql[] generateSql(CreateIndexStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
     if (statement instanceof CreateIndexStatementMSSQL) {
-      return generateMSSQLSql((CreateIndexStatementMSSQL)statement, database, sqlGeneratorChain);
+      return generateMSSQLSql((CreateIndexStatementMSSQL) statement, database, sqlGeneratorChain);
     }
 
     return super.generateSql(statement, database, sqlGeneratorChain);
@@ -37,15 +37,15 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
     if (statement.isUnique() != null && statement.isUnique()) {
       builder.append("UNIQUE ");
     }
-    
+
     if (statement.isClustered() != null) {
-        if (statement.isClustered()) {
-            builder.append("CLUSTERED ");
-        } else {
-            builder.append("NONCLUSTERED ");
-        }
+      if (statement.isClustered()) {
+        builder.append("CLUSTERED ");
+      } else {
+        builder.append("NONCLUSTERED ");
+      }
     }
-    
+
     builder.append("INDEX ");
 
     if (statement.getIndexName() != null) {
@@ -59,7 +59,7 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
       AddColumnConfig column = iterator.next();
       builder.append(database.escapeColumnName(statement.getTableCatalogName(), statement.getTableSchemaName(), statement.getTableName(), column.getName()));
       if (column.getDescending() != null && column.getDescending()) {
-          builder.append(" DESC");
+        builder.append(" DESC");
       }
       if (iterator.hasNext()) {
         builder.append(", ");
@@ -74,7 +74,7 @@ public class CreateIndexGeneratorMSSQL extends CreateIndexGenerator {
       builder.append(" WITH (FILLFACTOR = ").append(statement.getFillFactor()).append(")");
     }
     // This block simplified, since we know we have MSSQLDatabase
-    if (StringUtils.trimToNull(statement.getTablespace()) != null) {
+    if (StringUtil.trimToNull(statement.getTablespace()) != null) {
       builder.append(" ON ").append(statement.getTablespace());
     }
 

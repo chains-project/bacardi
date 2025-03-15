@@ -9,10 +9,16 @@ import org.pitest.elements.models.PackageSummaryMap;
 import org.pitest.elements.utils.JsonParser;
 import org.pitest.util.FileUtil;
 import org.pitest.util.ResultOutputStrategy;
+import org.pitest.classinfo.ClassInfoVisitor;
+import org.pitest.classinfo.ClassName;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Writer;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -101,13 +107,18 @@ public class MutationReportListener implements MutationResultListener {
 
   private MutationTestSummaryData createSummaryData(
       final CoverageDatabase coverage, final ClassMutationResults data) {
+    byte[] classBytes = loadClassBytes(data.getMutatedClass());
+    long lastModified = getLastModified(data.getMutatedClass());
+    ClassInfoVisitor visitor = new ClassInfoVisitor();
+    Object classInfo = visitor.getClassInfo(data.getMutatedClass(), classBytes, lastModified);
     return new MutationTestSummaryData(data.getFileName(),
-        data.getMutations(), null);
+        data.getMutations(), classInfo);
   }
 
   private void updatePackageSummary(
       final ClassMutationResults mutationMetaData) {
     final String packageName = mutationMetaData.getPackageName();
+
     this.packageSummaryData.update(packageName,
         createSummaryData(this.coverage, mutationMetaData));
   }
@@ -131,6 +142,39 @@ public class MutationReportListener implements MutationResultListener {
       createJs(json);
     } catch (IOException e) {
       e.printStackTrace();
+    }
+  }
+  
+  private byte[] loadClassBytes(final ClassName className) {
+    String resourceName = className.asJavaName().replace('.', '/') + ".class";
+    InputStream is = this.getClass().getClassLoader().getResourceAsStream(resourceName);
+    if (is == null) {
+      throw new RuntimeException("Cannot find class resource: " + resourceName);
+    }
+    try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+         InputStream input = is) {
+      byte[] buffer = new byte[4096];
+      int read;
+      while ((read = input.read(buffer)) != -1) {
+        baos.write(buffer, 0, read);
+      }
+      return baos.toByteArray();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+  
+  private long getLastModified(final ClassName className) {
+    try {
+      String resourceName = className.asJavaName().replace('.', '/') + ".class";
+      URL url = this.getClass().getClassLoader().getResource(resourceName);
+      if (url == null) {
+        throw new RuntimeException("Cannot find class resource: " + resourceName);
+      }
+      URLConnection connection = url.openConnection();
+      return connection.getLastModified();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 }
