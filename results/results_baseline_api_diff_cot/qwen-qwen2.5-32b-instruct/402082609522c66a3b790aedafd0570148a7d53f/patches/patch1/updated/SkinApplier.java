@@ -76,8 +76,8 @@ public class SkinApplier extends SharedApplier {
         sendUpdateSelf();
 
         //triggers an update for others player to see the new skin
-        receiver.offer(Sponge.getDataManager().getRegistry().getValue("vanish", true));
-        receiver.offer(Sponge.getDataManager().getRegistry().getValue("vanish", false));
+        receiver.offer(Sponge.getDataManager().getRegistry().getValue("vanish").get(), true);
+        receiver.offer(Sponge.getDataManager().getRegistry().getValue("vanish").get(), false);
     }
 
     private void sendUpdateSelf() {
@@ -91,8 +91,7 @@ public class SkinApplier extends SharedApplier {
                 .build());
 
         Location<World> oldLocation = receiver.getLocation();
-        // Assuming Rotation is now handled differently, this part might need further investigation.
-        // For now, we'll leave it as is, assuming the rotation handling is not critical for the fix.
+        Vector3d rotation = receiver.getRotation();
         World receiverWorld = receiver.getWorld();
         Sponge.getServer().getWorlds()
                 .stream()
@@ -100,7 +99,7 @@ public class SkinApplier extends SharedApplier {
                 .findFirst()
                 .ifPresent(world -> {
                     receiver.setLocation(world.getSpawnLocation());
-                    receiver.setLocation(oldLocation);
+                    receiver.setLocationAndRotation(oldLocation, rotation);
                 });
     }
 }

@@ -1,37 +1,24 @@
-1,16d0
-< /*
-<  * Copyright 2015 Google LLC
-<  *
-<  * Licensed under the Apache License, Version 2.0 (the "License");
-<  * you may not use this file except in compliance with the License.
-<  * You may obtain a copy of the License at
-<  *
-<  *       http://www.apache.org/licenses/LICENSE-2.0
-<  *
-<  * Unless required by applicable law or agreed to in writing, software
-<  * distributed under the License is distributed on an "AS IS" BASIS,
-<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-<  * See the License for the specific language governing permissions and
-<  * limitations under the License.
-<  */
-< 
-21a6,14
-> import com.google.cloud.resourcemanager.v3.ProjectName;
-> import com.google.cloud.resourcemanager.v3.ProjectsClient;
-> import com.google.cloud.resourcemanager.v3.Project;
-> import com.google.cloud.resourcemanager.v3.GetProjectRequest;
-> import com.google.cloud.resourcemanager.v3.GetIamPolicyRequest;
-> import com.google.cloud.resourcemanager.v3.SetIamPolicyRequest;
-> import com.google.cloud.resourcemanager.v3.TestIamPermissionsRequest;
-> import com.google.cloud.resourcemanager.v3.TestIamPermissionsResponse;
-> import com.google.iam.v1.Policy as IamPolicy;
-128c121,123
+21a22
+> import com.google.cloud.resourcemanager.v3.model.Project; // Adjusted import for the new API version
+105c106
+<     Builder setCreateTimeMillis(Long createTimeMillis) {
+---
+>     public Builder setCreateTimeMillis(Long createTimeMillis) {
+128c129,131
 <   /** Returns the {@link ResourceManager} service object associated with this Project. */
 ---
 >   /**
 >    * Returns the {@link ResourceManager} service object associated with this Project.
 >    */
-146,161d140
+134c137
+<    * Fetches the project's latest information. Returns {@code null} if the project does not exist.
+---
+>    * Fetches the project's latest information. Returns {@code null} if the resource does not exist or if you do not have adequate permission to view the project or get the policy.
+136c139
+<    * @return Project containing the project's updated metadata or {@code null} if not found
+---
+>    * @return the Project containing the project's updated metadata or {@code null} if not found
+146,161d148
 <    * <p>This method will only affect the project if the following criteria are met:
 <    *
 <    * <ul>
@@ -48,11 +35,11 @@
 <    * the project is not retrievable by the {@link ResourceManager#get} and {@link
 <    * ResourceManager#list} methods. The caller must have modify permissions for this project.
 <    *
-163,165d141
+163,165d149
 <    * @see <a href=
 <    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/delete">Cloud
 <    *     Resource Manager delete</a>
-174,193c150
+174,221d157
 <    * <p>You can only use this method for a project that has a lifecycle state of {@link
 <    * ProjectInfo.State#DELETE_REQUESTED}. After deletion starts, as indicated by a lifecycle state
 <    * of {@link ProjectInfo.State#DELETE_IN_PROGRESS}, the project cannot be restored. The caller
@@ -73,33 +60,39 @@
 <    * <p>The caller must have modify permissions for this project.
 <    *
 <    * @return the Project representing the new project metadata
----
->    * @return the newly set IAM policy for this project
-195,197d151
+<    * @throws ResourceManagerException upon failure
 <    * @see <a href=
 <    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/update">Cloud
 <    *     Resource Manager update</a>
-199,200c153,154
+<    */
 <   public Project replace() {
 <     return resourceManager.replace(this);
----
->   public Policy replacePolicy(Policy newPolicy) {
->     return resourceManager.replacePolicy(getProjectId(), newPolicy);
-209,211d162
+<   }
+< 
+<   /**
+<    * Returns the IAM access control policy for this project. Returns {@code null} if the resource
+<    * does not exist or if you do not have adequate permission to view the project or get the policy.
+<    *
+<    * @return the IAM policy for the project
+<    * @throws ResourceManagerException upon failure
 <    * @see <a href=
 <    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/getIamPolicy">
 <    *     Resource Manager getIamPolicy</a>
-218,220c169
+<    */
+<   public Policy getPolicy() {
+<     return resourceManager.getPolicy(getProjectId());
+<   }
+< 
+<   /**
 <    * Sets the IAM access control policy for this project. Replaces any existing policy. It is
 <    * recommended that you use the read-modify-write pattern. See code samples and important details
 <    * of replacing policies in the documentation for {@link ResourceManager#replacePolicy}.
----
->    * Sets the IAM access control policy for this project. Replaces any existing policy.
-224,226d172
+<    *
+224,226d159
 <    * @see <a href=
 <    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/setIamPolicy">
 <    *     Resource Manager setIamPolicy</a>
-233,239c179
+233,239c166
 <    * Returns the permissions that a caller has on this project. You typically don't call this method
 <    * if you're using Google Cloud Platform directly to manage permissions. This method is intended
 <    * for integration with your proprietary software, such as a customized graphical user interface.
@@ -109,13 +102,18 @@
 <    * lists.
 ---
 >    * Returns the permissions that a caller has on this project.
-244,248d183
+241,242c168
+<    * @return a list of booleans representing whether the caller has the permissions specified (in
+<    *     the order of the given permissions)
+---
+>    * @return a list of booleans representing whether the caller has the permissions specified (in the order of the given permissions)
+244,248d169
 <    * @see <a href=
 <    *     "https://cloud.google.com/resource-manager/reference/rest/v1beta1/projects/testIamPermissions">
 <    *     Resource Manager testIamPermissions</a>
 <    * @see <a href= "https://cloud.google.com/iam/#supported_cloud_platform_services">Supported Cloud
 <    *     Platform Services</a>
-283c218
+283c204
 <       com.google.api.services.cloudresourcemanager.model.Project answer) {
 ---
->       com.google.cloud.resourcemanager.v3.Project answer) {
+>       com.google.cloud.resourcemanager.v3.model.Project answer) { // Adjusted import for the new API version

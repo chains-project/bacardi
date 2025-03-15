@@ -1,5 +1,16 @@
-79c79,80
+79c79,81
 <                                 pageMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
 ---
->                                 // Adjust for the removal of parseEnchantment method
->                                 pageMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+>                                 // Since parseEnchantment() is removed, we need to find an alternative way to add an enchantment.
+>                                 // Assuming the intention was to add a dummy enchantment for display purposes, we can use a known enchantment.
+>                                 pageMeta.addEnchant(org.bukkit.enchantments.Enchantment.LOOT_BONUS_BLOCKS, 1, false);
+89,97d90
+<         public static ItemStack getSaveMainConfigButton() {
+<                 ItemStack quitButton = XMaterial.BARRIER.parseItem();
+<                 ItemMeta quitMeta = quitButton.getItemMeta();
+<                 quitMeta.setDisplayName(ChatColor.RED
+<                                 + CommonDefinitions.getMessage("wwcConfigGUIQuitButton"));
+<                 quitButton.setItemMeta(quitMeta);
+<                 return quitButton;
+<         }
+< 

@@ -1,12 +1,12 @@
-67c67
-<       if (skipString(property, "type", propertyValue, "jar")) return null;
----
->       if (skipBoolean(property, "type", propertyValue, "jar")) return null;
-94d93
+16a17
+> import org.yaml.snakeyaml.introspector.BeanAccess;
+17a19
+> import org.yaml.snakeyaml.introspector.PropertyUtils;
+94d95
 < 
-107a107
+107a109
 > 
-122,131d121
+122,131d123
 <           boolean isList = singularName != null;
 <           if (isList) { // check for eventual list construction
 <             for (int j = 0, grandChildCount = child.getChildCount(); j < grandChildCount; j++) {
@@ -17,9 +17,9 @@
 <           if (isList) {
 <             childValue = toList(child, singularName);
 <           } else {
-134d123
+134d125
 <         }
-144,165d132
+144,165d134
 < 
 <     private List<Object> toList(Xpp3Dom node, String childName) {
 <       List<Object> list = new ArrayList<>();
@@ -42,7 +42,7 @@
 < 
 <       return list;
 <     }
-214,219c181,182
+214,219c183
 <   /*
 <    * Change the default order. Important data goes first.
 <    */
@@ -51,12 +51,16 @@
 <           throws IntrospectionException {
 ---
 >   protected Set<Property> getProperties(Class<? extends Object> type) {
->     try {
-232a196,198
->     } catch (IntrospectionException e) {
->       throw new RuntimeException(e);
->     }
-238c204
+231c195
+<       return super.getProperties(type);
+---
+>       return PropertyUtils.getProperties(type, BeanAccess.FIELD);
+235,238c199,201
+<   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+<           throws IntrospectionException {
+<       Set<Property> standard = super.getProperties(type);
 <       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
 ---
+>   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
+>     Set<Property> standard = PropertyUtils.getProperties(type, BeanAccess.FIELD);
 >     Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));

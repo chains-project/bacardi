@@ -28,76 +28,67 @@
 <  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 <  * OF THE POSSIBILITY OF SUCH DAMAGE.
 <  */
-48d18
+48c19,21
 < import org.hamcrest.Matchers;
-54c24
+---
+> import org.hamcrest.core.IsEqual;
+> import org.hamcrest.core.IsNot;
+> import org.hamcrest.core.StringContains;
+54c27
 <  * HTTP response and manipulate with it afterwords, for example:
 ---
 >  * HTTP response and manipulate with it afterwards, for example:
-92c62,64
+60,61c33,34
+<  *   .assertBody(Matchers.containsString("hello, world!"))
+<  *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
+---
+>  *   .assertBody(new StringContains("hello, world!"))
+>  *   .assertHeader("Content-Type", new IsEqual<>(Collections.singletonList("text/plain")))
+65c38
+<  * <p>Method {@link #jump(URI)} creates a new instance of class
+---
+>  * <p>The method {@link #jump(URI)} creates a new instance of class
+92c65,67
 <             String.format("HTTP response is not valid: %s", this),
 ---
 >             String.format(
 >                 "HTTP response is not valid: %s", this
 >             ),
-103c75
+103c78
 <      * @return The same object
 ---
 >      * @return This object
-114,115c86
+114,115c89,90
 <             this,
 <             new RestResponse.StatusMatch(message, status)
 ---
->             this.status(), new StatusMatch(message, status)
-175c146
+>             this.status(),
+>             new IsEqual<>(status)
+165c140,141
+<             ), this.binary(),
+---
+>             ),
+>             this.binary(),
+175c151
 <      * <p>The iterator for the matcher will always be a real object an never
 ---
 >      * <p>The iterator for the matcher will always be a real object and never
-210c181
+210c186
 <         return this.assertHeader(name, Matchers.hasItems(value));
 ---
->         return this.assertHeader(name, new HeaderMatch(value));
-246c217
+>         return this.assertHeader(name, new IsEqual<>(Collections.singletonList(value)));
+246c222
 <             Matchers.not(Matchers.emptyIterableOf(String.class))
 ---
->             new HeaderMatch()
-284c255
+>             new IsNot<>(new IsEqual<>(Collections.emptyList()))
+263c239,240
+<             headers.containsKey(HttpHeaders.SET_COOKIE)
+---
+>             headers.containsKey(HttpHeaders.SET_COOKIE),
+>             new IsEqual<>(true)
+284c261
 <             Matchers.notNullValue()
 ---
->             new NotNullMatch()
-332a304,338
->     /**
->      * Header match.
->      */
->     private static final class HeaderMatch extends CustomMatcher<Iterable<String>> {
-> 
->         /**
->          * Ctor.
->          */
->         HeaderMatch() {
->             super("Header match");
->         }
-> 
->         @Override
->         public boolean matches(final Object item) {
->             return !((Iterable<String>) item).iterator().hasNext();
->         }
->     }
-> 
->     /**
->      * Not null match.
->      */
->     private static final class NotNullMatch extends CustomMatcher<Object> {
-> 
->         /**
->          * Ctor.
->          */
->         NotNullMatch() {
->             super("Not null match");
->         }
-> 
->         @Override
->         public boolean matches(final Object item) {
->             return item != null;
->         }
->     }
+>             new IsEqual<>(null)
+332d308
+< 

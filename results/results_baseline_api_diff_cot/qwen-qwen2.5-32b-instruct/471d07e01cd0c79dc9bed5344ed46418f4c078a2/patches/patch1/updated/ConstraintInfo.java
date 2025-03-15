@@ -1,8 +1,8 @@
 package com.google.cloud.resourcemanager;
 
 import com.google.api.services.cloudresourcemanager.v3.model.BooleanConstraint;
-import com.google.api.services.cloudresourcemanager.v3.model.ListConstraint;
 import com.google.api.services.cloudresourcemanager.v3.model.Constraint;
+import com.google.api.services.cloudresourcemanager.v3.model.ListConstraint;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.Objects;
@@ -236,15 +236,15 @@ public class ConstraintInfo {
   @Override
   public int hashCode() {
     return Objects.hash(
-        (booleanConstraint, constraintDefault, description, displayName, constraints, name, version);
+        booleanConstraint, constraintDefault, description, displayName, constraints, name, version);
   }
 
-  /** Returns a builder for the {@link ConstraintInfo} object. */
+  /** Returns a builder for {@code ConstraintInfo}. */
   public static Builder newBuilder(String name) {
     return new Builder(name);
   }
 
-  /** Returns a builder for the {@link ConstraintInfo} object. */
+  /** Returns a builder for {@code ConstraintInfo}. */
   public Builder toBuilder() {
     return new Builder(this);
   }
@@ -258,24 +258,24 @@ public class ConstraintInfo {
     if (constraints != null) {
       constraintProto.setListConstraint(constraints.toProtobuf());
     }
-    constraintProto.setName(name);
-    constraintProto.setVersion(version);
+    constraintProto.setName = name;
+    constraintProto.version = version;
     return constraintProto;
   }
 
   static ConstraintInfo fromProtobuf(Constraint constraintProtobuf) {
-    Builder builder = newBuilder(constraintProtobuf.getName());
+    Builder builder = newBuilder(constraintProtobuf.name);
     builder.setBooleanConstraint(constraintProtobuf.getBooleanConstraint());
     builder.setConstraintDefault(constraintProtobuf.getConstraintDefault());
-    builder.setDescription(constraintProtobuf.getDescription());
+    builder.setDescription(constraintProtobuf.getDescription);
     builder.setDisplayName(constraintProtobuf.getDisplayName());
     if (constraintProtobuf.getListConstraint() != null) {
       builder.setConstraints(Constraints.fromProtobuf(constraintProtobuf.getListConstraint()));
     }
-    if (constraintProtobuf.getName() != null && !constraintProtobuf.name().equals("Unnamed")) {
-      builder.setName(constraintProtobuf.name());
+    if (constraintProtobuf.name != null && !constraintProtobuf.name.equals("Unnamed")) {
+      builder.setName = constraintProtobuf.name;
     }
-    builder.setVersion(constraintProtobuf.getVersion());
+    builder.version = constraintProtobuf.version;
     return builder.build();
   }
 }

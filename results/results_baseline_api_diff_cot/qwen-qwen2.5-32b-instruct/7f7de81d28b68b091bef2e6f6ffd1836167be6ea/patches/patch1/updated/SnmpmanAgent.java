@@ -88,7 +88,7 @@ public class SnmpmanAgent extends BaseAgent {
         Collections.sort(potentialRoots);
 
         final List<OID> roots = new ArrayList<>(potentialRoots.size());
-        potentialRoots.stream().filter(potentialRoot -> potentialRoot.size() > 0).forEach(potentialRoot -> {
+        potentialRoots.forEach(potentialRoot -> {
             OID trimmedPotentialRoot = new OID(potentialRoot.getValue(), 0, potentialRoot.size() - 1);
             while (trimmedPotentialRoot.size() > 0 && Collections.binarySearch(potentialRoots, trimmedPotentialRoot) < 0) {
                 trimmedPotentialRoot.trim(1);
@@ -110,6 +110,9 @@ public class SnmpmanAgent extends BaseAgent {
                         return new OctetString();
                     }
                     return new OctetString(value.substring(1, value.length() - 1));
+                } else {
+                    return new OctetString(value);
+                }
             case "OID":
                 return new OID(value);
             case "Gauge32":
@@ -120,7 +123,7 @@ public class SnmpmanAgent extends BaseAgent {
                 if (openBracket == 0 || closeBracket < 0) {
                     throw new IllegalArgumentException("could not parse time tick value in " + value);
                 }
-                return new TimeTicks(Long.parseLong(value.substring(openBracket, closeBracket));
+                return new TimeTicks(Long.parseLong(value.substring(openBracket, closeBracket)));
             case "Counter32":
                 return new Counter32(Long.parseLong(value.replaceAll("[^-?0-9]+", "")));
             case "Counter64":
@@ -175,6 +178,7 @@ public class SnmpmanAgent extends BaseAgent {
                  final BufferedReader reader = new BufferedReader(new InputStreamReader(fileInputStream, DEFAULT_CHARSET))) {
 
                 Map<OID, Variable> bindings = readVariableBindings(reader);
+
                 final SortedMap<OID, Variable> variableBindings = this.getVariableBindings(configuration.getDevice(), bindings, new OctetString(String.valueOf(vlan));
 
                 final List<OID> roots = SnmpmanAgent.getRoots(variableBindings);
@@ -182,12 +186,12 @@ public class SnmpmanAgent extends BaseAgent {
                     MOGroup group = createGroup(root, variableBindings);
                     final Iterable<VariableBinding> subtree = generateSubtreeBindings(variableBindings, root);
                     DefaultMOContextScope scope = new DefaultMOContextScope(new OctetString(String.valueOf(vlan), root, true, root.nextPeer(), false);
-                    ManagedObject mo = server.lookup(new DefaultMOQuery(scope, false);
+                    ManagedObject mo = server.lookup(new DefaultMOQuery(scope, false));
                     if (mo != null) {
                         for (final VariableBinding variableBinding : subtree) {
                             group = new MOGroup(variableBinding.getOid(), variableBinding.getOid(), variableBinding.getVariable());
                             scope = new DefaultMOContextScope(new OctetString(String.valueOf(vlan), variableBinding.getOid(), true, variableBinding.getOid().nextPeer(), false);
-                            mo = server.lookup(new DefaultMOQuery(scope, false);
+                            mo = server.lookup(new DefaultMOQuery(scope, false));
                             if (mo != null) {
                                 log.warn("could not register single OID at {} because ManagedObject {} is already registered.", variableBinding.getOid(), mo);
                             } else {
@@ -197,7 +201,7 @@ public class SnmpmanAgent extends BaseAgent {
                         }
                     } else {
                         groups.add(group);
-                        registerGroupAndContext(group, new OctetString(String.valueOf(vlan);
+                        registerGroupAndContext(group, new OctetString(String.valueOf(vlan));
                     }
                 }
             } catch (final FileNotFoundException e) {
@@ -213,7 +217,9 @@ public class SnmpmanAgent extends BaseAgent {
         final SortedMap<OID, Variable> subtree = new TreeMap<>();
         variableBindings.entrySet().stream().filter(binding -> binding.getKey().size() >= root.size()).filter(
                 binding -> binding.getKey().leftMostCompare(root.size(), root) == 0).forEach(
-                        binding -> subtree.put(binding.getKey(), binding.getValue());
+                        binding -> subtree.put(binding.getKey(), binding.getValue())
+        );
+
         return new MOGroup(root, subtree);
     }
 
@@ -238,7 +244,7 @@ public class SnmpmanAgent extends BaseAgent {
     private ArrayList<VariableBinding> generateSubtreeBindings(final SortedMap<OID, Variable> variableBindings, final OID root) {
         return variableBindings.entrySet().stream().filter(binding -> binding.getKey().size() >= root.size()).
                 filter(binding -> binding.getKey().leftMostCompare(root.size(), root) == 0).
-                map(binding -> new VariableBinding(binding.getKey(), binding.getValue())).collect(Collectors.toCollection(ArrayList::new);
+                map(binding -> new VariableBinding(binding.getKey(), binding.getValue())).collect(Collectors.toCollection(ArrayList::new));
     }
 
     private void registerDefaultGroups(final MOGroup group) {
@@ -276,7 +282,7 @@ public class SnmpmanAgent extends BaseAgent {
             final Field registry = server.getClass().getDeclaredField("registry");
             registry.setAccessible(true);
             final SortedMap<MOScope, ManagedObject> reg = server.getRegistry();
-            DefaultMOContextScope contextScope = new DefaultMOContextScope(new OctetString(""), group.getScope());
+            DefaultMOContextScope contextScope = new DefaultMOContextScope(new OctetString(), group.getScope());
             reg.put(contextScope, group);
             registry.set(server, reg);
         } catch (NoSuchFieldException | IllegalAccessException e) {
@@ -290,7 +296,7 @@ public class SnmpmanAgent extends BaseAgent {
         while ((line = reader.readLine()) != null) {
             final Matcher matcher = VARIABLE_BINDING_PATTERN.matcher(line);
             if (matcher.matches()) {
-                final OID oid = new OID(matcher.group(1).replace("iso", ".1");
+                final OID oid = new OID(matcher.group(1).replace("iso", ".1"));
 
                 try {
                     final Variable variable;
@@ -373,61 +379,37 @@ public class SnmpmanAgent extends BaseAgent {
 
     @Override
     protected void addViews(final VacmMIB vacmMIB) {
-        log.trace("adding views in the vacm MIB {} for agent \"{}\"", vacmMib.toString(), configuration.getName());
-        vacmMib.addGroup(SecurityModel.SECURITY_MODEL_SNMPv1, new OctetString(configuration.getCommunity()), new OctetString("v1v2group"), StorageType.nonVolatile);
-        vacmMib.addGroup(SecurityModel.SECURITY_MODEL_SNMPv2c, new OctetString(configuration.getCommunity()), new OctetString("v1v2group"), StorageType.nonVolatile);
-        vacmMib.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("SHADES"), new OctetString("v3group"), StorageType.nonVolatile);
-        vacmMib.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("TEST"), new OctetString("v3test"), StorageType.nonVolatile);
-        vacmMib.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("SHA"), new OctetString("v3restricted"), StorageType.nonVolatile);
-        vacmMib.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("v3notify"), new OctetString("v3restricted"), StorageType.nonVolatile);
+        log.trace("adding views in the vacm MIB {} for agent \"{}\"", vacmMIB.toString(), configuration.getName());
+        vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_SNMPv1, new OctetString(configuration.getCommunity()), new OctetString("v1v2group"), StorageType.nonVolatile);
+        vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_SNMPv2c, new OctetString(configuration.getCommunity()), new OctetString("v1v2group"), StorageType.nonVolatile);
+        vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("SHADES"), new OctetString("v3group"), StorageType.nonVolatile);
+        vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("TEST"), new OctetString("v3test"), StorageType.nonVolatile);
+        vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("SHA"), new OctetString("v3restricted"), StorageType.nonVolatile);
+        vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("v3notify"), new OctetString("v3restricted"), StorageType.nonVolatile);
 
         for (final Long vlan : configuration.getDevice().getVlans()) {
-            vacmMib.addGroup(SecurityModel.SECURITY_MODEL_SNMPv1, new OctetString(configuration.getCommunity() + "@" + vlan), new OctetString("v1v2group"), StorageType.nonVolatile);
-            vacmMib.addGroup(SecurityModel.SECURITY_MODEL_SNMPv2c, new OctetString(configuration.getCommunity() + "@" + vlan), new OctetString("v1v2group"), StorageType.nonVolatile);
-            vacmMib.addAccess(new OctetString("v1v2group"), new OctetString(String.valueOf(vlan), SecurityModel.SECURITY_MODEL_ANY, SecurityLevel.NOAUTH_NOPRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
+            vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_SNMPv1, new OctetString(configuration.getCommunity() + "@" + vlan), new OctetString("v1v2group"), StorageType.nonVolatile);
+            vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_SNMPv2c, new OctetString(configuration.getCommunity() + "@" + vlan), new OctetString("v1v2group"), StorageType.nonVolatile);
+            vacmMIB.addAccess(new OctetString("v1v2group"), new OctetString(String.valueOf(vlan)), SecurityModel.SECURITY_MODEL_ANY, SecurityLevel.NOAUTH_NOPRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
         }
 
-        vacmMib.addAccess(new OctetString("v1v2group"), new OctetString(), SecurityModel.SECURITY_MODEL_ANY, SecurityLevel.NOAUTH_NOPRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
-        vacmMib.addAccess(new OctetString("v3group"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.AUTH_PRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
-        vacmMib.addAccess(new OctetString("v3restricted"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.NOAUTH_NOPRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("restrictedReadView"), new OctetString("restrictedWriteView"), new OctetString("restrictedNotifyView"), StorageType.nonVolatile);
-        vacmMib.addAccess(new OctetString("v3test"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.AUTH_PRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("testReadView"), new OctetString("testWriteView"), new OctetString("testNotifyView"), StorageType.nonVolatile);
+        vacmMIB.addAccess(new OctetString("v1v2group"), new OctetString(), SecurityModel.SECURITY_MODEL_ANY, SecurityLevel.NOAUTH_NOPRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
+        vacmMIB.addAccess(new OctetString("v3group"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.AUTH_PRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
+        vacmMIB.addAccess(new OctetString("v3restricted"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.NOAUTH_NOPRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("restrictedReadView"), new OctetString("restrictedWriteView"), new OctetString("restrictedNotifyView"), StorageType.nonVolatile);
+        vacmMIB.addAccess(new OctetString("v3test"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.AUTH_PRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("testReadView"), new OctetString("testWriteView"), new OctetString("testNotifyView"), StorageType.nonVolatile);
 
-        vacmMib.addViewTreeFamily(new OctetString("fullReadView"), new OID("1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
-        vacmMib.addViewTreeFamily(new OctetString("fullWriteView"), new OID("1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
-        vacmMib.addViewTreeFamily(new OctetString("fullNotifyView"), new OID("1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
+        vacmMIB.addViewTreeFamily(new OctetString("fullReadView"), new OID("1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
+        vacmMIB.addViewTreeFamily(new OctetString("fullWriteView"), new OID("1"), new OctetString(), VacmMib.vacmViewIncluded, StorageType.nonVolatile);
+        vacmMIB.addViewTreeFamily(new OctetString("fullNotifyView"), new OID("1"), new OctetString(), VacmMib.vacmViewIncluded, StorageType.nonVolatile);
 
-        vacmMib.addViewTreeFamily(new OctetString("restrictedReadView"), new OID("1.3.6.1.2"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
-        vacmMib.addViewTreeFamily(new OctetString("restrictedWriteView"), new OID("1.3.6.1.2.1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
-        vacmMib.addViewTreeFamily(new OctetString("restrictedNotifyView"), new OID("1.3.6.1.2"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
-        vacmMib.addViewTreeFamily(new OctetString("restrictedNotifyView"), new OID("1.3.6.1.6.3.1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
+        vacmMIB.addViewTreeFamily(new OctetString("restrictedReadView"), new OID("1.3.6.1.2"), new OctetString(), VacmMib.vacmViewIncluded, StorageType.nonVolatile);
+        vacmMIB.addViewTreeFamily(new OctetString("restrictedWriteView"), new OID("1.3.6.1.2.1"), new OctetString(), VacmMib.vacmViewIncluded, StorageType.nonVolatile);
+        vacmMIB.addViewTreeFamily(new OctetString("restrictedNotifyView"), new OID("1.3.6.1.2"), new OctetString(), VacmMib.vacmViewIncluded, StorageType.nonVolatile);
+        vacmMIB.addViewTreeFamily(new OctetString("restrictedNotifyView"), new OID("1.3.6.1.6.3.1"), new OctetString(), VacmMib.vacmViewIncluded, StorageType.nonVolatile);
 
-        vacmMib.addViewTreeFamily(new OctetString("testReadView"), new OID("1.3.6.1.2"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
-        vacmMib.addViewTreeFamily(new OctetString("testReadView"), new OID("1.3.6.1.2.1.1"), new OctetString(), VacmMIB.vacmViewExcluded, StorageType.nonVolatile);
-        vacmMib.addViewTreeFamily(new OctetString("testWriteView"), new OID("1.3.6.1.2.1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
-        vacmMib.addViewTreeFamily(new OctetString("testNotifyView"), new OID("1.3.6.1.2"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
-    }
-
-    private void configureSnmpCommunity(final SnmpCommunityMIB snmpCommunityMIB, final Long context) {
-        String communityString;
-        OctetString contextName;
-        if (context != null) {
-            communityString = configuration.getCommunity() + "@" + context;
-            contextName = new OctetString(String.valueOf(context);
-        } else {
-            communityString = configuration.getCommunity();
-            contextName = new OctetString();
-        }
-        final Variable[] com2sec = new Variable[]{
-                new OctetString(communityString),       // community name
-                new OctetString(communityString),       // security name
-                getAgent().getContextEngineID(),        // local engine ID
-                contextName,                            // default context name
-                new OctetString(),                      // transport tag
-                new Integer32(StorageType.readOnly),    // storage type
-                new Integer32(RowStatus.active)         // row status
-        };
-        final SnmpCommunityMIB.SnmpCommunityEntryRow row = snmpCommunityMib.getSnmpCommunityEntry().createRow(
-                new OctetString(communityString + "2" + communityString).toSubIndex(true), com2sec);
-        snmpCommunityMib.getSnmpCommunityEntry().addRow(row);
+        vacmMIB.addViewTreeFamily(new OctetString("testReadView"), new OID("1.3.6.1.2"), new OctetString(), VacmMib.vacmViewIncluded, StorageType.nonVolatile);
+        vacmMIB.addViewTreeFamily(new OctetString("testReadView"), new OID("1.3.6.1.2.1.1"), new OctetString(), VacmMib.vacmViewExcluded, StorageType.nonVolatile);
+        vacmMIB.addViewTreeFamily(new OctetString("testWriteView"), new OID("1.3.6.1.2.1"), new OctetString(), VacmMib.vacmViewIncluded, StorageType.nonVolatile);
+        vacmMIB.addViewTreeFamily(new OctetString("testNotifyView"), new OID("1.3.6.1.2"), new OctetString(), VacmMib.vacmViewIncluded, StorageType.nonVolatile);
     }
 }

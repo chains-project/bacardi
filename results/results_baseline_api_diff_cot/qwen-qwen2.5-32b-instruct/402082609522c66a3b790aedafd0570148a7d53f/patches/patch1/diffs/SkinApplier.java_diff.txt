@@ -24,14 +24,5 @@
 <         receiver.offer(Keys.VANISH, true);
 <         receiver.offer(Keys.VANISH, false);
 ---
->         receiver.offer(Sponge.getDataManager().getRegistry().getValue("vanish", true));
->         receiver.offer(Sponge.getDataManager().getRegistry().getValue("vanish", false));
-99c94,95
-<         Vector3d rotation = receiver.getRotation();
----
->         // Assuming Rotation is now handled differently, this part might need further investigation.
->         // For now, we'll leave it as is, assuming the rotation handling is not critical for the fix.
-107c103
-<                     receiver.setLocationAndRotation(oldLocation, rotation);
----
->                     receiver.setLocation(oldLocation);
+>         receiver.offer(Sponge.getDataManager().getRegistry().getValue("vanish").get(), true);
+>         receiver.offer(Sponge.getDataManager().getRegistry().getValue("vanish").get(), false);

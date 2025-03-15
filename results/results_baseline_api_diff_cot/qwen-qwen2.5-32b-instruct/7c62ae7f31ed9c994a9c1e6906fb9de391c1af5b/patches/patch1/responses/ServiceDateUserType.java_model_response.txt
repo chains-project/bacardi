@@ -115,4 +115,4 @@ public class ServiceDateUserType implements UserType {
 }
 ```
 
-The fix involves updating the `nullSafeGet` and `nullSafeSet` methods to use `SharedSessionContractImplementor` instead of `SessionImplementor` as the dependency API has removed the `SessionImplementor` interface. The `@Override` annotations are kept for methods that still override methods from the `UserType` interface. The class now compiles with the updated dependency.
+The provided solution addresses the breaking changes in the Hibernate dependency by replacing the `SessionImplementor` with `SharedSessionContractImplementor` in the method signatures of `nullSafeGet` and `nullSafeSet`. This change is necessary because the `SessionImplementor` interface has been removed in the newer version of the Hibernate dependency. The rest of the class remains unchanged to ensure that the functionality is preserved.

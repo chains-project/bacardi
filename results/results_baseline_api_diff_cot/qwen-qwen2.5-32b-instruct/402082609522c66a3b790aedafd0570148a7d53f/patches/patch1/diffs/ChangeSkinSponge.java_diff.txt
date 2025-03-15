@@ -1,31 +1,48 @@
-27,28c27
+27,32c27,32
 < import org.spongepowered.api.event.game.state.GameInitializationEvent;
 < import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
----
-> import org.spongepowered.api.event.game.state.GameStartingServerEvent;
-30c29
+< import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 < import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+< import org.spongepowered.api.network.ChannelRegistrar;
+< import org.spongepowered.api.plugin.Plugin;
 ---
-> import org.spongepowered.api.network.ChannelBinding;
-32a32
+> import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+> import org.spongepowered.api.event.lifecycle.ServerStoppingEvent;
+> import org.spongepowered.api.network.channel.ChannelBinding;
+> import org.spongepowered.api.network.channel.packet.PacketChannel;
+> import org.spongepowered.api.plugin.PluginContainer;
 > import org.spongepowered.api.text.Text;
-43a44
+40,41d39
+< @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+<         url = PomData.URL, description = PomData.DESCRIPTION)
+43a42
 > {
-62c63
+53d51
+<     //We will place more than one config there (i.e. H2/SQLite database) -> sharedRoot = false
+62c60
 <     public void onPreInit(GamePreInitializationEvent preInitEvent) {
 ---
->     public void onPreInit(GameStartingServerEvent preInitEvent) {
-73c74
+>     public void onPreInit(RegisterCommandEvent event) {
+73c71
 <     public void onInit(GameInitializationEvent initEvent) {
 ---
->     public void onInit(GameStartingServerEvent initEvent) {
-91,94c92,95
-<         String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName();
-<         String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName();
+>     public void onInit(RegisterCommandEvent event) {
+84,85c82
+<         cmdManager.register(this, injector.getInstance(InvalidateCommand.class)
+<                 .buildSpec(), "skininvalidate", "skin-invalidate");
+---
+>         cmdManager.register(this, injector.getInstance(InvalidateCommand.class).buildSpec(), "skininvalidate", "skin-invalidate");
+90c87
+<         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
+---
+>         ChannelBinding channelReg = Sponge.getChannelRegistrar();
+93,94c90,91
 <         RawDataChannel updateChannel = channelReg.getOrCreateRaw(this, updateChannelName);
 <         RawDataChannel permChannel = channelReg.getOrCreateRaw(this, permissionChannelName);
 ---
->         String updateChannelName = new NamespaceKey(ARTIFACT_ID, UPDATE_SKIN_CHANNEL).getCombinedName());
->         String permissionChannelName = new NamespaceKey(ARTIFACT_ID, CHECK_PERM_CHANNEL).getCombinedName());
->         ChannelBinding.RawDataChannel updateChannel = channelReg.getOrCreateRaw(updateChannelName);
->         ChannelBinding.RawDataChannel permChannel = channelReg.getOrCreateRaw(permissionChannelName);
+>         PacketChannel updateChannel = channelReg.getOrCreateRaw(updateChannelName);
+>         PacketChannel permChannel = channelReg.getOrCreateRaw(permissionChannelName);
+100c97
+<     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
+---
+>     public void onShutdown(ServerStoppingEvent event) {

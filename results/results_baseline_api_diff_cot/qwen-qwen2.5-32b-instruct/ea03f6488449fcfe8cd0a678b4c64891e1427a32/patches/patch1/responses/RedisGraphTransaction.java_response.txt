@@ -1,12 +1,8 @@
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
-import redis.clients.jedis.commands.MultiKeyCommands;
-import redis.clients.jedis.commands.ScriptingCommands;
-import redis.clients.jedis.exceptions.JedisDataException;
-import redis.clients.jedis.params.ScriptParams;
-import redis.clients.jedis.util.SafeEncoder;
-
+import redis.clients.jedis.ClusterPipeline;
+import redis.clients.jedis.Transaction;
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
@@ -15,8 +11,6 @@ import java.util.Map;
  * An interface which aligned to Jedis transactional interface
  */
 public interface RedisGraphTransaction extends
-        MultiKeyCommands,
-        ScriptingCommands,
         Closeable {
 
     /**
@@ -37,6 +31,42 @@ public interface RedisGraphTransaction extends
 
     /**
      * Execute a Cypher query with timeout.
+     * @param graphId a graph to perform the query on.
+     * @param query Cypher query.
+     * @param timeout
+     * @return  a response which builds the result set with the query answer.
+     */
+    Response<ResultSet> query(String graphId, String query, long timeout);
+
+    /**
+     * Executes a cypher read-only query with timeout.
+     * @param graphId a graph to perform the query on.
+     * @param query Cypher query.
+     * @param timeout
+     * @return  a response which builds the result set with the query answer.
+     */
+    Response<ResultSet> readOnlyQuery(String graphId, String query, long timeout);
+
+    /**
+     * Executes a cypher query with parameters.
+     * @param graphId a graph to perform the query on.
+     * @param query Cypher query.
+     * @param params parameters map.
+     * @return  a response which builds the result set with the query answer.
+     */
+    Response<ResultSet> query(String graphId, String query, Map<String, Object> params);
+
+    /**
+     * Executes a cypher read-only query with parameters.
+     * @param graphId a graph to perform the query on.
+     * @param query Cypher query.
+     * @param params parameters map.
+     * @return  a response which builds the result set with the query answer.
+     */
+    Response<ResultSet> readOnlyQuery(String graphId, String query, Map<String, Object> params);
+
+    /**
+     * Executes a cypher query with parameters and timeout.
      * @param graphId a graph to perform the query on.
      * @param query Cypher query.
      * @param params parameters map.
@@ -80,7 +110,7 @@ public interface RedisGraphTransaction extends
      * @param kwargs - procedure output arguments
      * @return a response which builds result set with the procedure data
      */
-    Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args, Map<String, List<String>> kwargs);
+    Response<ResultSet> callProcedure(String graphId, String procedure, List<String> args  , Map<String, List<String>> kwargs);
 
     /**
      * Deletes the entire graph
@@ -96,7 +126,8 @@ public interface RedisGraphTransaction extends
     List<Object> exec();
 
     /**
-     * Flushes all previously queued commands in a transaction and restores the connection state to normal
+     * If object is in transaction mode,
+     * flushes all previously queued commands in a transaction and restores the connection state to normal
      */
     void clear();
 

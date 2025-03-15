@@ -9,8 +9,8 @@ import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import jakarta.mvc.locale.LocaleResolver;
-import jakarta.mvc.event.AfterControllerEvent;
-import jakarta.ws.rs.core.UriInfo;
+import jakarta.mvc.locale.LocaleResolverContext;
+import javax.ws.rs.core.UriInfo;
 
 /**
  * Resolver to get the {@link Locale} to use from the requests query param <i>lang</i>.
@@ -39,13 +39,14 @@ public class QueryParamLocaleResolver implements LocaleResolver {
     Logger log;
     
     @Override
-    public Locale resolveLocale(final AfterControllerEvent event) {
-        final UriInfo uriInfo = event.getUriInfo();
-        final String queryLang = uriInfo.getQueryParameters().getFirst("lang");
+    public Locale resolveLocale(final LocaleResolverContext context) {
+        final String queryLang = context.getUriInfo()
+                .getQueryParameters()
+                .getFirst("lang");
         log.log(Level.INFO, "QueryParamLocaleResolver::resolveLocale:lang:{0}", queryLang);
         return queryLang != null ? Locale.forLanguageTag(queryLang) : null;
     }
 }
 ```
 
-In this solution, the `LocaleResolver` interface and `LocaleResolverContext` class have been replaced with `AfterControllerEvent` from the `jakarta.mvc.event` package, which provides the `getUriInfo()` method to retrieve the `UriInfo` object. The `resolveLocale` method now takes an `AfterControllerEvent` as a parameter to access the `UriInfo` and extract the query parameter. The import statements have been updated to reflect the new package names (`jakarta.mvc.locale` and `jakarta.mvc.event`). This approach ensures that the class remains functional and compiles correctly with the updated dependency.
+In the provided solution, the package and class names have been updated to reflect the changes in the dependency. Specifically, the `javax.mvc.locale.LocaleResolver` and `javax.mvc.locale.LocaleResolverContext` have been replaced with `jakarta.mvc.locale.LocaleResolver` and `jakarta.mvc.locale.LocaleResolverContext` respectively, to align with the new API. The rest of the class remains unchanged to ensure that the functionality is preserved.

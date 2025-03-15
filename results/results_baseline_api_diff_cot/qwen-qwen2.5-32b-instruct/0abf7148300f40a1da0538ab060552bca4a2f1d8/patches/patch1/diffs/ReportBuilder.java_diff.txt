@@ -1,19 +1,13 @@
 34d33
 < import net.sf.jasperreports.engine.JRLineBox;
-59d57
+47a47,48
+> import net.sf.jasperreports.engine.base.JRBasePen;
+> import net.sf.jasperreports.engine.JRPen;
+55a57
+> import xdev.tableexport.export.ExportException;
+59d60
 < 
-75d72
-<         
-81d77
-<         
-91d86
-<         
-101d95
-<         
-121d114
-<         
-155,213d147
-<         
+156,213d156
 <         /**
 <          * 
 <          * @return
@@ -72,35 +66,23 @@
 <         }
 <         
 <         
-238d171
-<         
-255d187
-<         
-295d226
-<                                         
-330,333d260
+330,333d272
 <                         if(this.config.isBlankWhenNullValue())
 <                         {
 <                                 textField.setBlankWhenNull(true);
 <                         }
-350d276
-<                 txtField.setItalic(Boolean.valueOf(f.isItalic()));
-353d278
-<                 
-360d284
-<         
-369c293,294
+369,371c308,311
 <                 textField.getLineBox().getPen().setLineWidth(border.getLineWidth());
+<                 textField.getLineBox().getPen().setLineColor(border.getLineColor());
+<                 textField.getLineBox().getPen().setLineStyle(border.getLineStyle().getLineStyleEnum());
 ---
->                 // Convert int to float for setLineWidth
->                 textField.getLineBox().getPen().setLineWidth((float) border.getLineWidth());
-379d303
-<                 
-386d309
-<         
-394d316
-<         
-398c320
+>                 JRPen pen = textField.getLineBox().getPen();
+>                 pen.setLineWidth((float) border.getLineWidth());
+>                 pen.setLineColor(border.getLineColor());
+>                 pen.setLineStyle(border.getLineStyle().getLineStyleEnum());
+397,398c337,338
+<          * Assemble and compile a {@link JasperReport} based on the information of
 <          * the {@link TemplateConfig} object.
 ---
->          * the {@link TemplateConfig}.
+>          * Assemble and compile a {@link JasperReport} based on the information of the
+>          * {@link TemplateConfig}.

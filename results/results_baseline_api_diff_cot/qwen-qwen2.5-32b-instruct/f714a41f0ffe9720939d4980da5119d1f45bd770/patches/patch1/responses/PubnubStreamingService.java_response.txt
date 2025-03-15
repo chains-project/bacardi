@@ -12,10 +12,7 @@ import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 import com.pubnub.api.models.consumer.pubsub.PNSignalResult;
 import com.pubnub.api.models.consumer.pubsub.message_actions.PNMessageActionResult;
-import com.pubnub.api.models.consumer.pubsub.objects.PNMembershipResult;
-import com.pubnub.api.models.consumer.pubsub.objects.PNSpaceResult;
-import com.pubnub.api.models.consumer.pubsub.objects.PNUserResult;
-import com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult;
+import com.pubnub.api.models.objects_api.membership.PNMembershipResult;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -91,29 +88,14 @@ public class PubnubStreamingService {
                 }
 
                 @Override
-                public void user(PubNub pubnub, PNUserResult pnUserResult) {
-                  LOG.debug("PubNub user: {}", pnUserResult.toString());
-                }
-
-                @Override
-                public void space(PubNub pubnub, PNSpaceResult pnSpaceResult) {
-                  LOG.debug("PubNub space: {}", pnSpaceResult.toString());
-                }
-
-                @Override
-                public void membership(PubNub pubnub, PNMembershipResult pnMembershipResult) {
-                  LOG.debug("PubNub membership: {}", pnMembershipResult.toString());
+                public void file(PubNub pubnub, com.pubnub.api.models.consumer.pubsub.files.PNFileEventResult pnFileEventResult) {
+                  LOG.debug("PubNub file: {}", pnFileEventResult.toString());
                 }
 
                 @Override
                 public void messageAction(
                     PubNub pubnub, PNMessageActionResult pnMessageActionResult) {
                   LOG.debug("PubNub messageAction: {}", pnMessageActionResult.toString());
-                }
-
-                @Override
-                public void file(PubNub pubnub, PNFileEventResult pnFileEventResult) {
-                  LOG.debug("PubNub file: {}", pnFileEventResult.toString());
                 }
               });
           e.onComplete();
@@ -123,13 +105,13 @@ public class PubnubStreamingService {
   public Observable<JsonNode> subscribeChannel(String channelName) {
     LOG.info("Subscribing to channel {}.", channelName);
     return Observable.<JsonNode>create(
-        e -> {
-          if (!subscriptions.containsKey(channelName)) {
-            subscriptions.put(channelName, e);
-            pubnub.subscribe().channels(Collections.singletonList(channelName)).execute();
-            LOG.debug("Subscribe channel: {}", channelName);
-          }
-        })
+            e -> {
+              if (!subscriptions.containsKey(channelName)) {
+                subscriptions.put(channelName, e);
+                pubnub.subscribe().channels(Collections.singletonList(channelName)).execute();
+                LOG.debug("Subscribe channel: {}", channelName);
+              }
+            })
         .doOnDispose(
             () -> {
               LOG.debug("Unsubscribe channel: {}", channelName);

@@ -1,19 +1,35 @@
-18d17
+18,19c18,20
 < import ch.qos.logback.classic.Level;
-71d69
+< import ch.qos.logback.classic.Logger;
+---
+> import ch.qos.logback.classic.LoggerContext;
+> import ch.qos.logback.classic.joran.JoranConfigurator;
+> import ch.qos.logback.classic.spi.ILoggingEvent;
+65d65
+< import org.junit.runner.RunWith;
+71d70
 < import java.sql.Connection;
-89d86
+89d87
 < import static com.feedzai.commons.sql.abstraction.ddl.DbColumnType.CLOB;
-125,126c122
+125,126c123
 < import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.notBetween;
 < import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.notIn;
 ---
 > import static com.feedzai.commons.sql.abstraction.dml.dialect.SqlBuilder.notBetween
+154d150
+< import static org.junit.Assert.fail;
 165c161
 < 
 ---
 > {
-204,4335c200
+181c177,180
+<         ((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.TRACE);
+---
+>         LoggerContext loggerContext = new LoggerContext();
+>         JoranConfigurator configurator = new JoranConfigurator();
+>         configurator.setContext(loggerContext);
+>         loggerContext.getLogger(Logger.ROOT_LOGGER_NAME).setLevel(Level.TRACE);
+204,4335c203
 <     @Test
 <     public void createEntityTest() throws DatabaseEngineException {
 < 

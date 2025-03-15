@@ -75,7 +75,7 @@ public final class J2EHelper {
         filter.setConfigOnly(config);
 
         final FilterRegistration.Dynamic filterRegistration = environment
-                .servlets().addFilter(filter.getClass().getName(), (javax.servlet.Filter) filter);
+                .servlets().addFilter(filter.getClass().getName(), filter);
 
         filterRegistration.addMappingForUrlPatterns(
                 EnumSet.of(DispatcherType.REQUEST), true, mapping);
@@ -83,4 +83,4 @@ public final class J2EHelper {
 }
 ```
 
-In this solution, the `javax.servlet` imports have been replaced with `jakarta.servlet` imports to align with the new dependency API. The `registerFilter` method has been updated to cast `AbstractConfigFilter` to `javax.servlet.Filter` to ensure compatibility with the `addFilter` method in the `Environment` class. This approach ensures that the class remains compilable and functional with the updated dependency.
+In this solution, the `javax.servlet` package references have been replaced with `jakarta.servlet` to align with the new dependency API. The `DispatcherType` and `FilterRegistration` classes have been updated to their `jakarta.servlet` counterparts. This ensures that the client code is compatible with the new dependency version while maintaining the original functionality.

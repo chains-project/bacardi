@@ -73,11 +73,11 @@ public final class MavenCompilerUtils {
             NodeList annotationProcessorPaths = configElement.getElementsByTagName("annotationProcessorPaths");
             return stream(range(0, annotationProcessorPaths.getLength()))
                     .mapToObj(annotationProcessorPaths::item)
-                    .flatMap(aggregate -> stream(((Element) aggregate).getElementsByTagName("path")))
+                    .flatMap(path -> ((Element) path).getElementsByTagName("path").stream())
                     .map(processor -> system.createArtifact(
-                            extractChildValue(processor, "groupId"),
-                            extractChildValue(processor, "artifactId"),
-                            extractChildValue(processor, "version"),
+                            extractChildValue((Element) processor, "groupId"),
+                            extractChildValue((Element) processor, "artifactId"),
+                            extractChildValue((Element) processor, "version"),
                             PACKAGING))
                     // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
                     // therefore there is little use in logging incomplete paths that are filtered out.

@@ -29,7 +29,7 @@ import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TIOStreamTransport;
 import org.apache.thrift.transport.TTransport;
-import org.apache.thrift.transport.layered.TFastFramedTransport; // Added import for the new TFastFramedTransport
+import org.apache.thrift.transport.layered.TFastFramedTransport; // Adjusted import
 
 import java.io.File;
 import java.io.IOException;
@@ -60,7 +60,7 @@ public class AppenderUtils {
       // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
       // log.
       final int bufferCapacity = 10;
-      framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity); // Adjusted to use the new TFastFramedTransport
+      framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity); // Adjusted constructor
       protocol = new TBinaryProtocol(framedTransport);
     }
 

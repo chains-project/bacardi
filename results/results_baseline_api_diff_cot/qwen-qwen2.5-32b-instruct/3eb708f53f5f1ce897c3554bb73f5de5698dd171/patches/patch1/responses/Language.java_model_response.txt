@@ -17,7 +17,8 @@
 
 package com.google.cloud.translate;
 
-import com.google.cloud.translate.v3.LanguagesResource; // Adjusted import for the new API
+import com.google.cloud.translate.v3.LocationName;
+import com.google.cloud.translate.v3.TranslateProto;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
@@ -34,10 +35,10 @@ import java.util.Objects;
 public class Language implements Serializable {
 
   private static final long serialVersionUID = 5205240279371907020L;
-  static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
-      new Function<LanguagesResource, Language>() {
+  static final Function<TranslateProto.Languages, Language> FROM_PB_FUNCTION =
+      new Function<TranslateProto.Languages, Language>() {
         @Override
-        public Language apply(LanguagesResource languagePb) {
+        public Language apply(TranslateProto.Languages languagePb) {
           return Language.fromPb(languagePb);
         }
       };
@@ -82,11 +83,10 @@ public class Language implements Serializable {
     return Objects.equals(code, other.code) && Objects.equals(name, other.name);
   }
 
-  static Language fromPb(LanguagesResource languagePb) {
-    // Adjusted to use the new API's method to get the language code and name
-    return new Language(languagePb.getLanguageCode(), languagePb.getLanguageName());
+  static Language fromPb(TranslateProto.Languages languagePb) {
+    return new Language(languagePb.getCode(), languagePb.getName());
   }
 }
 ```
 
-In this solution, the import statement for `LanguagesResource` has been updated to reflect the new package structure (`com.google.cloud.translate.v3.LanguagesResource`). The `fromPb` method has been adjusted to use the new methods `getLanguageCode` and `getLanguageName` to retrieve the language information, assuming these methods are available in the new API version. If these methods are not available, the specific methods that are available in the new API should be used instead.
+In the provided solution, the `LanguagesResource` class and its methods have been replaced with `TranslateProto.Languages` from the new API version. The `FROM_PB_FUNCTION` and `fromPb` method have been updated to use the new class and its methods. The import statements have been adjusted to reflect the new package structure. This ensures that the class is compatible with the new API version and should compile without errors.

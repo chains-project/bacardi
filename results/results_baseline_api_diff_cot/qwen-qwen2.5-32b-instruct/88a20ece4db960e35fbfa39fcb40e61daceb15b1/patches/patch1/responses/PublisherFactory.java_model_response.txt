@@ -16,14 +16,13 @@
  */
 package com.google.pubsublite.kafka.sink;
 
-import com.google.cloud.pubsublite.MessageMetadata;
-import com.google.cloud.pubsublite.internal.Publisher;
+import com.google.cloud.pubsublite.Publisher;
 import java.util.Map;
 
 interface PublisherFactory {
 
-  Publisher<MessageMetadata> newPublisher(Map<String, String> params);
+  Publisher newPublisher(Map<String, String> params);
 }
 ```
 
-In the solution provided, `PublishMetadata` has been replaced with `MessageMetadata` as the class `PublishMetadata` has been removed in the new version of the dependency. This change ensures that the client code is compatible with the updated dependency while maintaining the structure and functionality of the original code.
+In the solution provided, the `PublishMetadata` class has been removed from the `Publisher` type parameter as it is no longer available in the new version of the dependency. This change ensures that the client code is compatible with the updated API and should compile without errors.

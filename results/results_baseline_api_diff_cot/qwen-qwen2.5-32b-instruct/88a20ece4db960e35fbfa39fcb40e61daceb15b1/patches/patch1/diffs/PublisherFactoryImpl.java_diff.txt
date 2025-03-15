@@ -14,36 +14,19 @@
 <  * See the License for the specific language governing permissions and
 <  * limitations under the License.
 <  */
-18d2
-< import com.google.cloud.pubsublite.CloudZone;
-20d3
+20d4
 < import com.google.cloud.pubsublite.PublishMetadata;
-25c8
+25c9
 < import com.google.cloud.pubsublite.internal.wire.PubsubContext.Framework;
 ---
 > import com.google.cloud.pubsublite.internal.wire.PublisherBuilder;
-33c16
+33c17
 <   private static final Framework FRAMEWORK = Framework.of("KAFKA_CONNECT");
 ---
 >   private static final PubsubContext FRAMEWORK = PubsubContext.of("KAFKA_CONNECT");
-36c19
+36c20
 <   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
 ---
 >   public Publisher newPublisher(Map<String, String> params) {
-40,46c23,26
-<         TopicPath.newBuilder()
-<             .setProject(
-<                 ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
-<                     .project())
-<             .setLocation(CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
-<             .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
-<             .build();
----
->         TopicPath.of(
->             ProjectPath.of("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value()),
->             CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()),
->             TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()));
-53c33
+53d36
 <                 .setContext(PubsubContext.of(FRAMEWORK))
----
->                 .setContext(FRAMEWORK)

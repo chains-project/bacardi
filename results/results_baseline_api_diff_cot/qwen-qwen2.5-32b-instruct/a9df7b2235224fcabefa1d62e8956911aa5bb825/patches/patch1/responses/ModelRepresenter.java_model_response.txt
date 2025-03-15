@@ -21,7 +21,6 @@ import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Represent;
 import org.yaml.snakeyaml.representer.Representer;
-import org.yaml.snakeyaml.introspector.BeanAccess;
 import org.yaml.snakeyaml.introspector.PropertyUtils;
 
 import java.beans.IntrospectionException;
@@ -48,7 +47,7 @@ class ModelRepresenter extends Representer {
   }
 
   protected NodeTuple representJavaBeanProperty(Object javaBean, Property property,
-                                                Object propertyValue, Tag customTag) {
+                                                 Object propertyValue, Tag customTag) {
     if (property != null && property.getName().equals("pomFile")) {
       // "pomFile" is not a part of POM http://maven.apache.org/xsd/maven-4.0.0.xsd
       return null;
@@ -193,12 +192,12 @@ class ModelRepresenter extends Representer {
     } else if (type.isAssignableFrom(Plugin.class)) {
       return sortTypeWithOrder(type, ORDER_PLUGIN);
     } else {
-      return PropertyUtils.getProperties(type, BeanAccess.FIELD);
+      return PropertyUtils.getProperties(type);
     }
   }
 
   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
-    Set<Property> standard = PropertyUtils.getProperties(type, BeanAccess.FIELD);
+    Set<Property> standard = PropertyUtils.getProperties(type);
     Set<Property> sorted = new TreeSet<>(new ModelPropertyComparator(order));
     sorted.addAll(standard);
     return sorted;
@@ -229,10 +228,10 @@ class ModelRepresenter extends Representer {
       } else if (o2.getName().equals(name)) {
         return 1;
       }
-      return 0;// compare further
+      return 0; // compare further
     }
   }
 }
 ```
 
-The provided solution addresses the API changes by updating the `getProperties` method to use `PropertyUtils.getProperties(type, BeanAccess.FIELD)` and removing the `throws IntrospectionException` clause, as the new API no longer throws this exception. Additionally, the `sortTypeWithOrder` method is updated to use `PropertyUtils.getProperties(type, BeanAccess.FIELD)` to ensure compatibility with the new API. The `ModelPropertyComparator` class remains unchanged as it does not directly interact with the changed API methods.
+The provided solution addresses the API changes by updating the `getProperties` method to use `PropertyUtils.getProperties(type)` instead of overriding the removed method from the `Representer` class. Additionally, the `sortTypeWithOrder` method now uses `PropertyUtils.getProperties(type)` to retrieve the properties, ensuring compatibility with the new API. The `ModelPropertyComparator` class remains unchanged as it does not directly interact with the removed or changed methods.

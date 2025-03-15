@@ -1,9 +1,10 @@
 17a18
 > import org.codehaus.plexus.logging.console.ConsoleLogger;
-37c38,41
+32a34,35
+>     private Logger logger;
+> 
+37c40,41
 <         getContainer().getLoggerManager().setThreshold( Logger.LEVEL_DEBUG );
 ---
->         // getLoggerManager().setThreshold( Logger.LEVEL_DEBUG );
->         // Replace the removed method with a direct logger instance
->         Logger logger = new ConsoleLogger();
->         logger.setLevel( Logger.LEVEL_DEBUG );
+>         // Replace the getLoggerManager() call with a new logger instance
+>         logger = new ConsoleLogger( Logger.LEVEL_DEBUG );

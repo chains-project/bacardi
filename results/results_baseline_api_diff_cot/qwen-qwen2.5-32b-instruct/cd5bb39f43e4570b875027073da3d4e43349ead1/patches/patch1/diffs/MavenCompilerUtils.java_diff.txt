@@ -13,7 +13,15 @@
 >             NodeList annotationProcessorPaths = configElement.getElementsByTagName("annotationProcessorPaths");
 >             return stream(range(0, annotationProcessorPaths.getLength()))
 >                     .mapToObj(annotationProcessorPaths::item)
->                     .flatMap(aggregate -> stream(((Element) aggregate).getElementsByTagName("path")))
+>                     .flatMap(path -> ((Element) path).getElementsByTagName("path").stream())
+74,76c78,80
+<                             extractChildValue(processor, "groupId"),
+<                             extractChildValue(processor, "artifactId"),
+<                             extractChildValue(processor, "version"),
+---
+>                             extractChildValue((Element) processor, "groupId"),
+>                             extractChildValue((Element) processor, "artifactId"),
+>                             extractChildValue((Element) processor, "version"),
 99,101c103,108
 <     private static String extractChildValue(Xpp3Dom node, String name) {
 <         final Xpp3Dom child = node.getChild(name);

@@ -131,7 +131,7 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
         assertThat(aggregator.sum, is(3.0));
         assertThat(handlerC.value, is(0));
         onEvent("C");
-        assertThat(aggregator.sum, is(3.0));
+        assertThat(aggregator.sum, is(3.0);
         assertThat(handlerC.value, is(1));
 
         getField("instanceHolder");

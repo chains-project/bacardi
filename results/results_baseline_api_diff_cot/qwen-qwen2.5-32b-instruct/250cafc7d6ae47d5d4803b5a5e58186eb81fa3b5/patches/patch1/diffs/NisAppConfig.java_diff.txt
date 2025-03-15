@@ -1,27 +1,38 @@
-108,112c108,112
+3a4
+> import org.flywaydb.core.api.configuration.ClassicConfiguration;
+54a56
+> {
+108,113c110,114
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
 <                 flyway.setLocations(prop.getProperty("flyway.locations"));
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+<                 return flyway;
 ---
->                 final org.flywaydb.core.Flyway flyway = new Flyway(new org.flywaydb.core.api.configuration.ClassicConfiguration());
->                 flyway.getConfiguration().setDataSource(this.dataSource());
->                 flyway.getConfiguration().setLocations(prop.getProperty("flyway.locations").split(","));
->                 flyway.getConfiguration().setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
->                 flyway.getConfiguration().setClassLoader(NisAppConfig.class.getClassLoader());
-117d116
+>                 final ClassicConfiguration flywayConfig = new ClassicConfiguration();
+>                 flywayConfig.setDataSource(this.dataSource());
+>                 flywayConfig.setLocations(prop.getProperty("flyway.locations").split(","));
+>                 flywayConfig.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+>                 return new Flyway(flywayConfig);
+117d117
 <         @DependsOn("flyway")
-129,130c128,129
+129,130c129,130
 <                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
 <                                 this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
 ---
 >                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
 >                                 this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
-197a197,198
->         // region mappers
+197a198,199
+>         // region harvester
 > 
-235c236
+235c237
 <                 return new SynchronizedNamespaceCache(new DefaultNamespaceCache(mosaicRedefinitionForkHeight));
 ---
->                 return new SynchronizedNamespaceCache(new DefaultNamespaceCache(mosaicReditaionForkHeight));
+>                 return new SynchronizedNamespaceCache(new DefaultNamespaceCache(mosaicReditDefinitionForkHeight));
+334,335c336,337
+<                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
+<                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
+---
+>                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
+>                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTINGING, () -> AlwaysVestedBalances::new);

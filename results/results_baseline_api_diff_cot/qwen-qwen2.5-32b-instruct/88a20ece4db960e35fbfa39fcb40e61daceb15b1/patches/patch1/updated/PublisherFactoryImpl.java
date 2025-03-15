@@ -1,5 +1,6 @@
 package com.google.pubsublite.kafka.sink;
 
+import com.google.cloud.pubsublite.CloudZone;
 import com.google.cloud.pubsublite.ProjectPath;
 import com.google.cloud.pubsublite.TopicName;
 import com.google.cloud.pubsublite.TopicPath;
@@ -20,17 +21,19 @@ class PublisherFactoryImpl implements PublisherFactory {
     Map<String, ConfigValue> config = ConfigDefs.config().validateAll(params);
     RoutingPublisherBuilder.Builder builder = RoutingPublisherBuilder.newBuilder();
     TopicPath topic =
-        TopicPath.of(
-            ProjectPath.of("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value()),
-            CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()),
-            TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()));
+        TopicPath.newBuilder()
+            .setProject(
+                ProjectPath.parse("projects/" + config.get(ConfigDefs.PROJECT_FLAG).value())
+                    .project())
+            .setLocation(CloudZone.parse(config.get(ConfigDefs.LOCATION_FLAG).value().toString()))
+            .setName(TopicName.of(config.get(ConfigDefs.TOPIC_NAME_FLAG).value().toString()))
+            .build();
     builder.setTopic(topic);
     builder.setPublisherFactory(
         partition ->
             SinglePartitionPublisherBuilder.newBuilder()
                 .setTopic(topic)
                 .setPartition(partition)
-                .setContext(FRAMEWORK)
                 .build());
     return builder.build();
   }

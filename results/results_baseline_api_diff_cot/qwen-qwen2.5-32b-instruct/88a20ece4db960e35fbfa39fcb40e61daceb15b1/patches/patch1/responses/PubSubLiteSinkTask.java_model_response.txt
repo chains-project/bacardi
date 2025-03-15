@@ -28,6 +28,7 @@ import com.google.protobuf.util.Timestamps;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.AppInfoParser;
@@ -148,4 +149,4 @@ public class PubSubLiteSinkTask extends SinkTask {
 }
 ```
 
-In the provided solution, the `PublishMetadata` class has been removed from the dependency, and the `publisher` field type has been changed from `Publisher<PublishMetadata>` to `Publisher<Message>` to align with the new API. This change ensures that the class remains compilable and functional with the updated dependency.
+The provided solution removes the dependency on the `PublishMetadata` class, which has been removed in the new version of the dependency. The `Publisher` type has been updated to use `Message` instead of `PublishMetadata`. This change ensures that the class is compatible with the new version of the dependency and should compile without errors.

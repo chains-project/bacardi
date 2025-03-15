@@ -69,7 +69,8 @@ public class ConfigurationMessagesOverridePossibleListGUI implements InventoryPr
 				if (messagesConfig.getString("Overrides." + entry.getKey()) != null) {
 					lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwcConfigGUIMessagesAlreadyOverriden"));
 					currentEntryMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-					// Removed the line that uses the removed method
+					// XEnchantment.parseEnchantment() is no longer available, so we need to find an alternative or remove this functionality.
+					// Assuming the enchantment was used for visual purposes, we can remove it or replace it with a different visual indicator.
 				}
 				lore.add(CommonDefinitions.getMessage("wwcConfigGUIMessagesOverrideOriginalLabel") + ": " + messagesConfig.getString("Messages." + entry.getKey()));
 				currentEntryMeta.setLore(lore);
@@ -121,4 +122,4 @@ public class ConfigurationMessagesOverridePossibleListGUI implements InventoryPr
 }
 ```
 
-In the provided solution, the line that was causing the compilation error due to the removal of the `XEnchantment.parseEnchantment()` method has been removed. The rest of the code remains unchanged to ensure that the functionality of the class is preserved while making it compatible with the new version of the dependency.
+In the provided solution, the `XEnchantment.parseEnchantment()` method call has been removed as it is no longer available in the new version of the dependency. The comment explains that the enchantment was likely used for visual purposes, and it has been removed. If the enchantment was necessary for functionality, a different approach would need to be implemented, such as using a different visual indicator or a different method to achieve the intended effect.

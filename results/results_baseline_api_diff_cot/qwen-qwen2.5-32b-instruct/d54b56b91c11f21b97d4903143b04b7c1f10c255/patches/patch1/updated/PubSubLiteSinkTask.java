@@ -1,18 +1,3 @@
-/*
- * Copyright 2020 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.google.pubsublite.kafka.sink;
 
 import static com.google.pubsublite.kafka.sink.Schemas.encodeToBytes;
@@ -96,8 +81,7 @@ public class PubSubLiteSinkTask extends SinkTask {
             Constants.KAFKA_PARTITION_HEADER,
             ByteString.copyFromUtf8(record.kafkaPartition().toString()));
         attributes.put(
-            Constants.KAFKA_OFFSET_HEADER,
-            ByteString.copyFromUtf8(Long.toString(record.kafkaOffset())));
+            Constants.KAFKA_OFFSET_HEADER, ByteString.copyFromUtf8(Long.toString(record.kafkaOffset())));
       }
       if (record.timestamp() != null) {
         attributes.put(

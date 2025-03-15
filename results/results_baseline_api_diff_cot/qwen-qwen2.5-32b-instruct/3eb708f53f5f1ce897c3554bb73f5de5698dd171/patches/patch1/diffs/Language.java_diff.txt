@@ -1,9 +1,21 @@
-19c19
+19c19,20
 < import com.google.api.services.translate.model.LanguagesResource;
 ---
-> import com.google.cloud.translate.v3.LanguagesResource; // Adjusted import for the new API
-85c85,86
+> import com.google.cloud.translate.v3.LocationName;
+> import com.google.cloud.translate.v3.TranslateProto;
+36,37c37,38
+<   static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
+<       new Function<LanguagesResource, Language>() {
+---
+>   static final Function<TranslateProto.Languages, Language> FROM_PB_FUNCTION =
+>       new Function<TranslateProto.Languages, Language>() {
+39c40
+<         public Language apply(LanguagesResource languagePb) {
+---
+>         public Language apply(TranslateProto.Languages languagePb) {
+84,85c85,86
+<   static Language fromPb(LanguagesResource languagePb) {
 <     return new Language(languagePb.getLanguage(), languagePb.getName());
 ---
->     // Adjusted to use the new API's method to get the language code and name
->     return new Language(languagePb.getLanguageCode(), languagePb.getLanguageName());
+>   static Language fromPb(TranslateProto.Languages languagePb) {
+>     return new Language(languagePb.getCode(), languagePb.getName());

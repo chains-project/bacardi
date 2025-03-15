@@ -98,63 +98,6 @@ public final class Ssh extends AbstractSshShell {
     /**
      * Constructor.
      * @param adr IP address
-     * @param user Login
-     * @param priv Private SSH key
-     * @throws UnknownHostException If fails
-     * @since 1.4
-     */
-    public Ssh(final String adr, final String user, final String priv)
-        throws UnknownHostException {
-        this(adr, Ssh.PORT, user, priv, null);
-    }
-
-    /**
-     * Constructor.
-     * @param adr IP address
-     * @param user Login
-     * @param priv Private SSH key
-     * @throws UnknownHostException when host is unknown.
-     * @since 1.4
-     */
-    public Ssh(final InetAddress adr, final String user, final String priv)
-        throws UnknownHostException {
-        this(adr.getCanonicalHostName(), Ssh.PORT, user, priv, null);
-    }
-
-    /**
-     * Constructor.
-     * @param adr IP address
-     * @param prt Port of server
-     * @param user Login
-     * @param priv Private SSH key
-     * @throws IOException If fails
-     * @since 1.4
-     */
-    public Ssh(final String adr, final int prt,
-        final String user, final URL priv) throws IOException {
-        this(adr, prt, user, new UncheckedText(new TextOf(priv)).asString());
-    }
-
-    /**
-     * Constructor.
-     * @param adr IP address
-     * @param prt Port of server
-     * @param user Login
-     * @param priv Private SSH key
-     * @throws IOException If fails
-     * @since 1.4
-     */
-    public Ssh(final InetAddress adr, final int prt,
-        final String user, final URL priv) throws IOException {
-        this(
-            adr.getCanonicalHostName(), prt, user,
-            new UncheckedText(new TextOf(priv)).asString()
-        );
-    }
-
-    /**
-     * Constructor.
-     * @param adr IP address
      * @param prt Port of server
      * @param user Login
      * @param priv Private SSH key
@@ -174,7 +117,6 @@ public final class Ssh extends AbstractSshShell {
      * @param priv Private SSH key
      * @param passphrs Pass phrase for encrypted priv. key
      * @throws UnknownHostException when host is unknown.
-     * @since 1.4
      */
     public Ssh(final String adr, final int prt,
         final String user, final String priv,
@@ -232,7 +174,8 @@ public final class Ssh extends AbstractSshShell {
             Logger.debug(
                 this,
                 "Opening SSH session to %s@%s:%s (%d bytes in RSA key)...",
-                this.getLogin(), this.getAddr(), this.getPort(), file.length()
+                this.getLogin(), this.getAddr(), this.getPort(),
+                file.length()
             );
             return this.session(jsch);
         } catch (final JSchException ex) {

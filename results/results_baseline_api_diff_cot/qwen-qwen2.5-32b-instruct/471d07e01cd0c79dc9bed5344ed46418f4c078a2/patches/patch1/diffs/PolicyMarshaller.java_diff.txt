@@ -19,26 +19,35 @@
 < import com.google.api.services.cloudresourcemanager.model.Binding;
 ---
 > import com.google.api.services.cloudresourcemanager.v3.model.Binding;
-> import com.google.api.services.cloudresourcemanager.v3.model.Policy;
-21d5
-< import com.google.cloud.Policy;
-37c21
+> import com.google.api.services.cloudresourcemanager.v3.model.Policy as V3Policy;
+37c22
 <     extends Marshaller<com.google.api.services.cloudresourcemanager.model.Policy> {
 ---
 >     extends Marshaller<com.google.api.services.cloudresourcemanager.v3.model.Policy> {
-55c39
+43,53d27
+<   private static class Builder extends Policy.Builder {
+< 
+<     private Builder(Map<Role, Set<Identity>> bindings, String etag, Integer version) {
+<       setBindings(bindings);
+<       setEtag(etag);
+<       if (version != null) {
+<         setVersion(version);
+<       }
+<     }
+<   }
+< 
+55c29
 <   protected Policy fromPb(com.google.api.services.cloudresourcemanager.model.Policy policyPb) {
 ---
->   protected Policy fromPb(com.google.api.services.cloudresourcemanager.v3.model.Policy policyPb) {
-76,78c60,62
+>   protected Policy fromPb(V3Policy policyPb) {
+63c37
+<                     bindingPb.getMembers(),
+---
+>                     new ArrayList<>(bindingPb.getMembers()),
+76,78c50,51
 <   protected com.google.api.services.cloudresourcemanager.model.Policy toPb(Policy policy) {
 <     com.google.api.services.cloudresourcemanager.model.Policy policyPb =
 <         new com.google.api.services.cloudresourcemanager.model.Policy();
 ---
->   protected com.google.api.services.cloudresourcemanager.v3.model.Policy toPb(Policy policy) {
->     com.google.api.services.cloudresourcemanager.v3.model.Policy policyPb =
->         new com.google.api.services.cloudresourcemanager.v3.model.Policy();
-91c75
-<               }));
----
->               });
+>   protected V3Policy toPb(Policy policy) {
+>     V3Policy policyPb = new V3Policy();

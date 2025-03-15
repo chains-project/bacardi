@@ -3,6 +3,7 @@ package com.expl0itz.worldwidechat.inventory.wwctranslategui;
 import java.util.ArrayList;
 
 import org.bukkit.ChatColor;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -69,10 +70,10 @@ public class WWCTranslateGUISourceLanguage implements InventoryProvider {
 				ArrayList<String> lore = new ArrayList<>();
 				currentLangMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 				if (selectedSourceLanguage.equals(main.getSupportedTranslatorLanguages().get(i).getLangCode())) {
-					// Removed parseEnchantment() call
+					currentLangMeta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, false);
 					lore.add(ChatColor.GREEN + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwctGUISourceTranslationSelected"));
 				} else if (currTranslator.getInLangCode().equals(main.getSupportedTranslatorLanguages().get(i).getLangCode())) {
-					// Removed parseEnchantment() call
+					currentLangMeta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, false);
 					lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwctGUISourceOrTargetTranslationAlreadyActive"));
 				}
 				currentLangMeta.setDisplayName(main.getSupportedTranslatorLanguages().get(i).getLangName());
@@ -113,27 +114,20 @@ public class WWCTranslateGUISourceLanguage implements InventoryProvider {
 						+ CommonDefinitions.getMessage("wwctGUIAutoDetectButton"));
 				
 				/* Add Glow Effect */
+				skipSourceMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 				ArrayList<String> lore = new ArrayList<>();
 				if ((currTranslator.getInLangCode().equals("None"))) {
-					// Removed parseEnchantment() call
+					skipSourceMeta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, false);
 					lore.add(ChatColor.GREEN + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwctGUISourceTranslationSelected"));
 				} else if (selectedSourceLanguage.equalsIgnoreCase("None")) {
-					// Removed parseEnchantment() call
+					skipSourceMeta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, false);
 					lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwctGUISourceOrTargetTranslationAlreadyActive"));
 				}
 				skipSourceButton.setItemMeta(skipSourceMeta);
 				contents.set(5, 4, ClickableItem.of(skipSourceButton, e -> WWCTranslateGUITargetLanguage
-						.getTargetLanguageInventory("None", targetPlayerUUID).open(player)));
+						.getTargetLanguageInventory("None", targetPlayerUUID).open(player));
 			}
 
-			/* Bottom Right Option: Next Page */
-			if (!pagination.isLast()) {
-				contents.set(5, 6, ClickableItem.of(WWCInventoryManager.getCommonButton("Next"), e -> {
-					getSourceLanguageInventory(selectedSourceLanguage, targetPlayerUUID).open(player,
-							pagination.next().getPage());
-				}));
-			}
-			
 			/* Last Option: Page Number */
 			contents.set(5, 8, ClickableItem.of(WWCInventoryManager.getCommonButton("Page Number", new String[] {pagination.getPage() + 1 + ""}), e -> {}));
 		} catch (Exception e) {

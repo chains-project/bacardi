@@ -23,7 +23,7 @@ import org.hamcrest.CoreMatchers;
  * REST response.
  *
  * <p>This response decorator is able to make basic assertions on
- * HTTP response and manipulate with it afterwards, for example:
+ * HTTP response and manipulate with it afterwords, for example:
  *
  * <pre> String name = new JdkRequest("http://my.example.com")
  *   .fetch()
@@ -33,9 +33,6 @@ import org.hamcrest.CoreMatchers;
  *   .assertHeader("Content-Type", CoreMatchers.hasItems("text/plain"))
  *   .jump(URI.create("/users"))
  *   .fetch();</pre>
- *
- * <p>The method {@link #jump(URI)} creates a new instance of class
- * {@link Request} with all cookies transferred from the current one.
  *
  * <p>The class is immutable and thread-safe.
  *
@@ -61,7 +58,9 @@ public final class RestResponse extends AbstractResponse {
      */
     public RestResponse assertThat(final Matcher<Response> matcher) {
         MatcherAssert.assertThat(
-            String.format("HTTP response is not valid: %s", this),
+            String.format(
+                "HTTP response is not valid: %s", this
+            ),
             this,
             matcher
         );
@@ -133,7 +132,8 @@ public final class RestResponse extends AbstractResponse {
             String.format(
                 "HTTP response binary content is not valid:%n%s",
                 this
-            ), this.binary(),
+            ),
+            this.binary(),
             matcher
         );
         return this;
@@ -143,7 +143,7 @@ public final class RestResponse extends AbstractResponse {
      * Verifies HTTP header against provided matcher, and throws
      * {@link AssertionError} in case of mismatch.
      *
-     * <p>The iterator for the matcher will always be a real object and never
+     * <p>The iterator for the matcher will always be a real object an never
      * {@code NULL}, even if such a header is absent in the response. If the
      * header is absent the iterable will be empty.
      *
@@ -304,4 +304,4 @@ public final class RestResponse extends AbstractResponse {
 }
 ```
 
-In the provided solution, the `Matchers` class from the `org.hamcrest` package has been replaced with `CoreMatchers` from the same package, as the `Matchers` class has been removed in the new version of the dependency. The `CoreMatchers` class provides the same functionality as the `Matchers` class and is used to replace the removed methods and static fields. The rest of the code remains unchanged to ensure that the functionality of the class is preserved.
+In the provided solution, the `Matchers` class from `org.hamcrest` has been replaced with `CoreMatchers` from the same package, as the `Matchers` class has been removed in the new version of the dependency. The `CoreMatchers` class provides the same functionality and is used to replace the removed `Matchers` class in the client code. This ensures that the client code remains functional and compiles with the updated dependency.

@@ -1,12 +1,20 @@
-83c83,87
+34a35,38
+> import org.yaml.snakeyaml.introspector.BeanAccess;
+> import org.yaml.snakeyaml.introspector.Property;
+> import org.yaml.snakeyaml.nodes.NodeTuple;
+> import org.yaml.snakeyaml.nodes.Tag;
+83c87,94
 <       Constructor constructor = new Constructor(Config.class);
 ---
 >       Constructor constructor = new Constructor();
+>       constructor.setAllowDuplicateKeys(false);
+>       constructor.setAllowRecursiveKeys(false);
+>       constructor.setBeanAccess(BeanAccess.FIELD);
 >       constructor.addTypeDescription(new TypeDescription(Config.class)
 >             .withPropertyType("nodes", YamlNode.class));
 >       constructor.addTypeDescription(new TypeDescription(YamlNode.class)
 >             .withPropertyType("tags", String.class));
-85,91d88
+85,91d95
 <       TypeDescription nodeDesc = new TypeDescription(YamlNode.class);
 <       nodeDesc.putListPropertyType("tags", String.class);
 <       constructor.addTypeDescription(nodeDesc);
@@ -14,3 +22,7 @@
 <       TypeDescription configDesc = new TypeDescription(Config.class);
 <       configDesc.putListPropertyType("nodes", YamlNode.class);
 <       constructor.addTypeDescription(configDesc);
+97c101
+<          config = (Config) yaml.load(in);
+---
+>          config = yaml.loadAs(in, Config.class);

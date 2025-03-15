@@ -1,38 +1,68 @@
-16a17
-> import org.yaml.snakeyaml.LoaderOptions;
-43,44c44
-<     super(Model.class);
-< 
+16c16,21
+< import org.yaml.snakeyaml.nodes.*;
 ---
->     super(new LoaderOptions());
-90,101d89
-<     desc = new TypeDescription(PluginManagement.class);
-<     desc.putListPropertyType("plugins", Plugin.class);
+> import org.yaml.snakeyaml.nodes.Node;
+> import org.yaml.snakeyaml.nodes.NodeTuple;
+> import org.yaml.snakeyaml.nodes.ScalarNode;
+> import org.yaml.snakeyaml.nodes.Tag;
+> import org.yaml.snakeyaml.nodes.MappingNode;
+> import org.yaml.snakeyaml.LoaderOptions;
+43c48
+<     super(Model.class);
+---
+>     super(Model.class, new LoaderOptions());
+79d83
+<     desc.putListPropertyType("filters", String.class);
+86d89
+<     desc.putListPropertyType("filters", String.class);
+126,129d128
+<     desc = new TypeDescription(MailingList.class);
+<     desc.putListPropertyType("otherArchives", String.class);
 <     addTypeDescription(desc);
 < 
-<     desc = new TypeDescription(Plugin.class);
-<     desc.putListPropertyType("executions", PluginExecution.class);
-<     addTypeDescription(desc);
-< 
-<     desc = new TypeDescription(PluginExecution.class);
-<     desc.putListPropertyType("goals", String.class);
-<     addTypeDescription(desc);
-< 
-132,135c120,123
-<     addTypeDescription(new TypeDescription(Scm.class));
+133,135c132,134
 <     addTypeDescription(new TypeDescription(IssueManagement.class));
 <     addTypeDescription(new TypeDescription(Parent.class));
 <     addTypeDescription(new TypeDescription(Organization.class));
 ---
->     addTypeDescription(new TypeDescription(Scm.class);
 >     addTypeDescription(new TypeDescription(IssueManagement.class);
 >     addTypeDescription(new TypeDescription(Parent.class);
 >     addTypeDescription(new TypeDescription(Organization.class);
-168c156
+148,286d146
+<   private class ConstructXpp3Dom implements Construct {
+<     private static final String ATTRIBUTE_PREFIX = "attr/";
+< 
+<     private Xpp3Dom toDom(Xpp3Dom parent, Map<Object, Object> map) {
+< 
+<       for (Map.Entry<Object, Object> entry : map.entrySet()) {
+<         String key = entry.getKey().toString();
+<         Object entryValue = entry.getValue();
+<         Xpp3Dom child = new Xpp3Dom(key);
+< 
+<         if (key.startsWith(ATTRIBUTE_PREFIX)) {
+<           toAttribute(parent, key.replace(ATTRIBUTE_PREFIX, ""), entryValue);
+<           continue;
+<         }
+< 
+<         // lists need the insertion of intermediate XML DOM nodes which hold the actual values
+<         if (entryValue instanceof List && !((List) entryValue).isEmpty()) {
+<           toDom(child, key, (List) entryValue);
+<         } else if (entryValue instanceof Map) {
+<           //noinspection unchecked
 <           child = toDom(child, (Map) entryValue);
----
->           toDom(child, (Map) entryValue);
-182,200d169
+<         } else { // if not a list or map then copy the string value
+<           child.setValue(entryValue.toString());
+<         }
+<         parent.addChild(child);
+<       }
+<       return parent;
+<     }
+< 
+<     private void toDom(Xpp3Dom parent, String parentKey, List list) {
+<       Object firstItem = list.get(0);
+< 
+<       String childKey;
+< 
 <       // deal with YAML explicit pairs which are mapped to Object[] by SnakeYAML
 <       if (firstItem.getClass().isArray()) {
 <         for (Object item : list) {
@@ -52,16 +82,89 @@
 <               "documentation on how to use explicit pairs for specifying child node names", parentKey));
 <         }
 < 
-220d188
+<         if ("reportPlugins".equals(parentKey)) {
+<           childKey = "plugin";
+<         } else {
+<           childKey = parentKey.substring(0, parentKey.length() - 1);
+<           if (childKey.endsWith("ie")) {
+<             childKey = childKey.substring(0, childKey.length() - 2) + "y";
+<           }
+<         }
+< 
+<         for (Object item : list) {
+<           Xpp3Dom itemNode = new Xpp3Dom(childKey);
+<           if (item instanceof Map)
+<             //noinspection unchecked
+<             toDom(itemNode, (Map) item);
+<           else
+<             itemNode.setValue(item.toString());
+<           parent.addChild(itemNode);
+<         }
+<       }
 <     }
-252,255c220,224
+< 
+<     private void toAttribute(Xpp3Dom parent, String key, Object value) {
+<       if (value instanceof List || value instanceof Map) {
+<         throw new YAMLException("Attribute's value has to be a plain string. Node: " + parent);
+<       }
+< 
+<       parent.setAttribute(key, value.toString());
+<     }
+< 
+<     public Object construct(Node node) {
+<       Map<Object, Object> mapping = constructMapping((MappingNode) node);
+<       Xpp3Dom parent = new Xpp3Dom("configuration");
+<       return toDom(parent, mapping);
+<     }
+< 
+<     public void construct2ndStep(Node node, Object object) {
+<       throw new YAMLException("Unexpected recursive mapping structure. Node: " + node);
+<     }
+<   }
+< 
+<   class MavenObjectConstruct extends Constructor.ConstructMapping {
+<     @Override
+<     protected Object constructJavaBean2ndStep(MappingNode node, Object object) {
+<       Class<?> type = node.getType();
+< 
+<       List<Class> specialCases = Arrays.<Class>asList(Dependency.class, Model.class, Plugin.class, ReportPlugin.class);
+<       List<Class> configurationContainers = Arrays.<Class>asList(Plugin.class, PluginExecution.class,
+<           ReportPlugin.class, ReportSet.class);
+< 
+<       if (configurationContainers.contains(type)) {
+<         for (NodeTuple valueNode : node.getValue()) {
 <           Node keyNode = valueNode.getKeyNode();
 <           Node childValueNode = valueNode.getValueNode();
 <           if (keyNode instanceof ScalarNode && "configuration".equals(((ScalarNode) keyNode).getValue())) {
 <             childValueNode.setTag(XPP3DOM_TAG);
----
->           ScalarNode keyNode = (ScalarNode) valueNode.getKeyNode();
->           String key = keyNode.getValue();
->           if ("configuration".equals(key)) {
->             Node valueNodeValue = valueNode.getValueNode();
->             valueNodeValue.setTag(XPP3DOM_TAG);
+<           }
+<         }
+<       }
+< 
+<       if (specialCases.contains(type)) {
+<         String coordinate = removeId(node);
+<         if (coordinate == null) {
+<           return super.constructJavaBean2ndStep(node, object);
+<         }
+<         if (type.equals(Dependency.class)) {
+<           Dependency dep = (Dependency) super.constructJavaBean2ndStep(node, object);
+<           return ConstructDependency.createDependency(coordinate, dep);
+<         } else if (type.equals(Model.class)) {
+<           Coordinate coord = Coordinate.createCoordinate(coordinate);
+<           Model model = (Model) super.constructJavaBean2ndStep(node, object);
+<           return coord.mergeModel(model);
+<         } else if (type.equals(Plugin.class)) {
+<           Coordinate coord = Coordinate.createCoordinate(coordinate);
+<           Plugin plugin = (Plugin) super.constructJavaBean2ndStep(node, object);
+<           return coord.mergePlugin(plugin);
+<         } else if (type.equals(ReportPlugin.class)) {
+<           Coordinate coord = Coordinate.createCoordinate(coordinate);
+<           ReportPlugin plugin = (ReportPlugin) super.constructJavaBean2ndStep(node, object);
+<           return coord.mergeReportPlugin(plugin);
+<         }
+<       }
+<       // create JavaBean
+<       return super.constructJavaBean2ndStep(node, object);
+<     }
+<   }
+< 

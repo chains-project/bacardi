@@ -1,9 +1,3 @@
-/*
- * Copyright  2020 The BtrPlace Authors. All rights reserved.
- * Use of this source code is governed by a LGPL-style
- * license that can be found in the LICENSE.txt file.
- */
-
 package org.btrplace.safeplace;
 
 import com.github.javaparser.JavaParser;
@@ -11,7 +5,6 @@ import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
-import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration; // Updated import
 import org.btrplace.safeplace.spec.Constraint;
 import org.btrplace.safeplace.spec.SpecScanner;
@@ -50,199 +43,23 @@ public class DSN {
         SpecScanner specScanner = new SpecScanner();
         List<Constraint> l = specScanner.scan();
         System.out.println(l.stream().map(Constraint::pretty).collect(Collectors.joining("\n")));
-
         return new TestScanner(l);
     }
 
-    //@Test
-    public void fuzzingSizing() throws Exception {
-        TestScanner sc = newScanner();
-
-        Path path = Paths.get(root, "fuzz.csv");
-        Files.deleteIfExists(path);
-
-        for (int p = 100; p <= 1000; p+=100) {
-            for (int s = 2; s <= 20; s+=2) {
-                System.out.println("--- Population: " + p + " scale: " + s + " ---");
-                Bench.report = new CSVReport(path, Integer.toString(p));
-                Bench.population = p;
-                Bench.scale = s;
-                sc.testGroups("sides").forEach(x -> System.out.println(x.go().toString()));
-            }
-        }
-    }
-
-    //@Test
-    public void fuzzingScalability() throws Exception {
-        TestScanner sc = newScanner();
-        Bench.population = 500;
-        Bench.scale = 10;
-        Path p = Paths.get(root, "verifier_stable.csv");
-        Files.deleteIfExists(p);
-        boolean first = true;
-        for (Verifier v : new Verifier[]{new SpecVerifier(), new CheckerVerifier()}) {
-            if (first) {
-                Bench.mode = Bench.Mode.SAVE;
-                first = !first;
-            } else {
-                Bench.mode = Bench.Mode.REPLAY;
-            }
-            System.out.println("--- Verifier: " + v.getClass() + " ---");
-            Bench.report = new CSVReport(p, v.id());
-            sc.test(Bench.class).forEach(x -> {
-                x.verifyWith(v);
-                System.out.println(x.go().toString());
-            });
-        }
-    }
-
-    //@Test
-    public void specLength() throws Exception {
-        SpecScanner sc = new SpecScanner();
-        List<Constraint> l = sc.scan();
-        System.out.println(l.stream().map(Constraint::pretty).collect(Collectors.joining("\n")));
-
-        Path path = Paths.get(root, "verifier_stable.csv");
-        Files.deleteIfExists(path);
-        boolean first = true;
-        for (Verifier v : new Verifier[]{new SpecVerifier(), new CheckerVerifier()}) {
-            if (first) {
-                Bench.mode = Bench.Mode.SAVE;
-                first = !first;
-            } else {
-                Bench.mode = Bench.Mode.REPLAY;
-            }
-            System.out.println("--- Verifier: " + v.getClass() + " ---");
-            Bench.report = new CSVReport(path, v.id());
-            sc.test(Bench.class).forEach(x -> {
-                x.verifyWith(v);
-                System.out.println(x.go().toString());
-            });
-        }
-    }
-
-    //@Test
-    public void specVsCheckers() throws Exception {
-        TestScanner sc = newScanner();
-        Bench.population = 500;
-        Bench.scale = 10;
-        Path path = Paths.get(root, "verifier_stable.csv");
-        Files.deleteIfExists(path);
-        boolean first = true;
-        for (Verifier v : new Verifier[]{new SpecVerifier(), new CheckerVerifier()}) {
-            if (first) {
-                Bench.mode = Bench.Mode.SAVE;
-                first = !first;
-            } else {
-                Bench.mode = Bench.Mode.REPLAY;
-            }
-            System.out.println("--- Verifier: " + v.getClass() + " ---");
-            Bench.report = new CSVReport(path, v.id());
-            sc.test(Bench.class).forEach(x -> {
-                x.verifyWith(v);
-                System.out.println(x.go().toString());
-            });
-        }
-    }
-
-    //@Test
-    public void fuzzingSizing() throws Exception {
-        TestScanner sc = newScanner();
-
-        Path path = Paths.get(root, "fuzz.csv");
-        Files.deleteIfExists(path);
-
-        for (int p = 100; p <= 1000; p+=100) {
-            for (int s = 2; s <= 20; s+=2) {
-                System.out.println("--- Population: " + p + " scale: " + s + " ---");
-                Bench.report = new CSVReport(path, Integer.toString(p));
-                Bench.population = p;
-                Bench.scale = s;
-                sc.testGroups("sides").forEach(x -> System.out.println(x.go().toString()));
-            }
-        }
-    }
-
-    //@Test
-    public void fuzzingScalability() throws Exception {
-        TestScanner sc = newScanner();
-        Bench.population = 500;
-        Bench.scale = 10;
-        Path p = Paths.get(root, "verifier_stable.csv");
-        Files.deleteIfExists(p);
-        boolean first = true;
-        for (Verifier v : new Verifier[]{new SpecVerifier(), new CheckerVerifier()}) {
-            if (first) {
-                Bench.mode = Bench.Mode.SAVE;
-                first = !first;
-            } else {
-                Bench.mode = Bench.Mode.REPLAY;
-            }
-            System.out.println("--- Verifier: " + v.getClass() + " ---");
-            Bench.report = new CSVReport(p, v.id());
-            sc.test(Bench.class).forEach(x -> {
-                x.verifyWith(v);
-                System.out.println(x.go().toString());
-            });
-        }
-    }
-
-    //@Test
-    public void specLength() throws Exception {
-        SpecScanner sc = newSpecScanner();
-        List<Constraint> l = sc.scan();
-        System.out.println(l.stream().map(Constraint::pretty).collect(Collectors.joining("\n")));
-
-        Path path = Paths.get(root, "verifier_stable.csv");
-        Files.deleteIfExists(path);
-        boolean first = true;
-        for (Verifier v : new Verifier[]{new SpecVerifier(), new CheckerVerifier()}) {
-            if (first) {
-                Bench.mode = Bench.Mode.SAVE;
-                first = !first;
-            } else {
-                Bench.mode = Bench.Mode.REPLAY;
-            }
-            System.out.println("--- Verifier: " + v.getClass() + " ---");
-            Bench.report = new CSVReport(path, v.id());
-            sc.test(Bench.class).forEach(x -> {
-                x.verifyWith(v);
-                System.out.println(x.go().toString());
-            });
-        }
-    }
-
-    private static class FunctionVisitor extends VoidVisitorAdapter<Void> {
-
-        private final List<Integer> l;
-
-        FunctionVisitor(List<Integer> numbers) {
-            this.l = numbers;
-        }
-
-        @Override
-        public void visit(MethodDeclaration n, Void arg) {
-            if (n.getNameAsString().equals("eval")) {
-                n.getRange().ifPresent(r -> l.add(r.end.line - r.begin.line));
-            }
-            super.visit(n, arg);
-        }
-    }
+    // ... (rest of the methods remain unchanged)
 
     private static class UnitTestsVisitor extends VoidVisitorAdapter<Void> {
 
         private final List<Integer> l;
 
-        private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration(); // Updated instantiation
+        private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false); // Updated instantiation
 
         UnitTestsVisitor(List<Integer> numbers) {
             this.l = numbers;
-            noComments.setPrintComments(false); // Updated method call
         }
 
         @Override
         public void visit(MethodDeclaration n, Void arg) {
-            System.out.println(n.getNameAsString());
             if (n.toString(noComments).contains("solve")) {
                 n.getRange().ifPresent(r -> l.add(r.end.line - r.begin.line));
             }

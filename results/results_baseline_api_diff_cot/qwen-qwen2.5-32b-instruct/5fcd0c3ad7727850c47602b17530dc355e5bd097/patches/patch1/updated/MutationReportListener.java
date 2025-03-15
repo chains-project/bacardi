@@ -87,7 +87,7 @@ public class MutationReportListener implements MutationResultListener {
       e.printStackTrace();
     }
   }
-
+  
   private void createMutationTestingElementsJs() {
     final Writer writer = this.outputStrategy
       .createWriterForFile("html2" + File.separatorChar + "mutation-test-elements.js");
@@ -102,9 +102,17 @@ public class MutationReportListener implements MutationResultListener {
 
   private MutationTestSummaryData createSummaryData(
       final CoverageDatabase coverage, final ClassMutationResults data) {
+    // Adjusting the method call to use the new API
     ClassName className = ClassName.fromString(data.getMutatedClass());
+    ClassInfoVisitor visitor = new ClassInfoVisitor() {
+      @Override
+      public void visitClass(ClassName className, byte[] classBytes, long timestamp) {
+        // Implement the logic to handle the class info if necessary
+      }
+    };
+    coverage.getClassInfo(Collections.singleton(className), visitor);
     return new MutationTestSummaryData(data.getFileName(),
-        data.getMutations(), coverage.getClassInfo(className));
+        data.getMutations(), visitor.getClassInfo(className));
   }
 
   private void updatePackageSummary(

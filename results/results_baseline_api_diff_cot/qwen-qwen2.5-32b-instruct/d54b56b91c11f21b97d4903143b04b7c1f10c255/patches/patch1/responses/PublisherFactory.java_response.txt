@@ -15,10 +15,11 @@
  */
 package com.google.pubsublite.kafka.sink;
 
-import com.google.cloud.pubsublite.Publisher;
+import com.google.cloud.pubsublite.MessageMetadata;
+import com.google.cloud.pubsublite.internal.Publisher;
 import java.util.Map;
 
 interface PublisherFactory {
 
-  Publisher newPublisher(Map<String, String> params);
+  Publisher<MessageMetadata> newPublisher(Map<String, String> params);
 }

@@ -1,6 +1,7 @@
 package org.nem.specific.deploy.appconfig;
 
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
 import org.hibernate.SessionFactory;
 import org.nem.core.model.*;
 import org.nem.core.model.primitive.*;
@@ -105,11 +106,13 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final org.flywaydb.core.Flyway flyway = new Flyway(new org.flywaydb.core.api.configuration.Configuration());
-		flyway.getConfiguration().setDataSource(this.dataSource());
-		flyway.getConfiguration().setClassLoader(NisAppConfig.class.getClassLoader());
-		flyway.getConfiguration().setLocations(prop.getProperty("flyway.locations").split(","));
-		flyway.getConfiguration().setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		ClassicConfiguration flywayConfig = new ClassicConfiguration();
+		flywayConfig.setDataSource(this.dataSource());
+		flywayConfig.setLocations(prop.getProperty("flyway.locations"));
+		flywayConfig.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		flywayConfig.setClassLoader(NisAppConfig.class.getClassLoader());
+
+		Flyway flyway = new Flyway(flywayConfig);
 		return flyway;
 	}
 
@@ -125,8 +128,8 @@ public class NisAppConfig {
 
 	@Bean
 	public BlockChainServices blockChainServices() {
-		return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
-				this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
+		return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
+				this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
 	}
 
 	@Bean
@@ -140,6 +143,162 @@ public class NisAppConfig {
 		return new BlockChainContextFactory(this.nisCache(), this.blockChainLastBlockLayer, this.blockDao, this.blockChainServices(),
 				this.unconfirmedTransactions());
 	}
+
+	// region mappers
+
+	@Bean
+	public MapperFactory mapperFactory() {
+		return new DefaultMapperFactory(this.mosaicIdCache());
+	}
+
+	@Bean
+	public NisMapperFactory nisMapperFactory() {
+		return new NisMapperFactory(this.mapperFactory());
+	}
+
+	@Bean
+	public NisModelToDbModelMapper nisModelToDbModelMapper() {
+		return new NisModelToDbModelMapper(this.mapperFactory().createModelToDbModelMapper(new AccountDaoLookupAdapter(this.accountDao)));
+	}
+
+	@Bean
+	public NisDbModelToModelMapper nisDbModelToModelMapper() {
+		return this.nisMapperFactory().createDbModelToModelNisMapper(this.accountCache());
+	}
+
+	// endregion
+
+	// region observers + validators
+
+	@Bean
+	public BlockTransactionObserverFactory blockTransactionObserverFactory() {
+		final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
+		return new BlockTransactionObserverFactory(this.observerOptions(), estimatedBlocksPerYear);
+	}
+
+	@Bean
+	public BlockValidatorFactory blockValidatorFactory() {
+		return new BlockValidatorFactory(this.timeProvider(), this.nisConfiguration().getForkConfiguration());
+	}
+
+	@Bean
+	public TransactionValidatorFactory transactionValidatorFactory() {
+		return new TransactionValidatorFactory(this.timeProvider(), this.nisConfiguration().getNetworkInfo(),
+				this.nisConfiguration().getForkConfiguration(), this.nisConfiguration().ignoreFees());
+	}
+
+	@Bean
+	public SingleTransactionValidator transactionValidator() {
+		// this is only consumed by the TransactionController and used in transaction/prepare,
+		// which should propagate incomplete transactions
+		return this.transactionValidatorFactory().createIncompleteSingleBuilder(this.nisCache()).build();
+	}
+
+	// endregion
+
+	// region mappers
+
+	@Bean
+	public MapperFactory mapperFactory() {
+		return new DefaultMapperFactory(this.mosaicIdCache());
+	}
+
+	@Bean
+	public NisMapperFactory nisMapperFactory() {
+		return new NisMapperFactory(this.mapperFactory());
+	}
+
+	@Bean
+	public NisModelToDbModelMapper nisModelToDbModelMapper() {
+		return new NisModelToDbModelMapper(this.mapperFactory().createModelToDbModelMapper(new AccountDaoLookupAdapter(this.accountDao)));
+	}
+
+	@Bean
+	public NisDbModelToModelMapper nisDbModelToModelMapper() {
+		return this.nisMapperFactory().createDbModelToModelNisMapper(this.accountCache());
+	}
+
+	// endregion
+
+	// region observers + validators
+
+	@Bean
+	public BlockTransactionObserverFactory blockTransactionObserverFactory() {
+		final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
+		return new BlockTransactionObserverFactory(this.observerOptions(), estimatedBlocksPerYear);
+	}
+
+	@Bean
+	public BlockValidatorFactory blockValidatorFactory() {
+		return new BlockValidatorFactory(this.timeProvider(), this.nisConfiguration().getForkConfiguration());
+	}
+
+	@Bean
+	public TransactionValidatorFactory transactionValidatorFactory() {
+		return new TransactionValidatorFactory(this.timeProvider(), this.nisConfiguration().getNetworkInfo(),
+				this.nisConfiguration().getForkConfiguration(), this.nisConfiguration().ignoreFees());
+	}
+
+	@Bean
+	public SingleTransactionValidator transactionValidator() {
+		// this is only consumed by the TransactionController and used in transaction/prepare,
+		// which should propagate incomplete transactions
+		return this.transactionValidatorFactory().createIncompleteSingleBuilder(this.nisCache()).build();
+	}
+
+	// endregion
+
+	// region mappers
+
+	@Bean
+	public MapperFactory mapperFactory() {
+		return new DefaultMapperFactory(this.mosaicIdCache());
+	}
+
+	@Bean
+	public NisMapperFactory nisMapperFactory() {
+		return new NisMapperFactory(this.mapperFactory());
+	}
+
+	@Bean
+	public NisModelToDbModelMapper nisModelToDbModelMapper() {
+		return new NisModelToDbModelMapper(this.mapperFactory().createModelToDbModelMapper(new AccountDaoLookupAdapter(this.accountDao)));
+	}
+
+	@Bean
+	public NisDbModelToModelMapper nisDbModelToModelMapper() {
+		return this.nisMapperFactory().createDbModelToModelNisMapper(this.accountCache());
+	}
+
+	// endregion
+
+	// region observers + validators
+
+	@Bean
+	public BlockTransactionObserverFactory blockTransactionObserverFactory() {
+		final int estimatedBlocksPerYear = this.nisConfiguration().getBlockChainConfiguration().getEstimatedBlocksPerYear();
+		return new BlockTransactionObserverFactory(this.observerOptions(), estimatedBlocksPerYear);
+	}
+
+	@Bean
+	public BlockValidatorFactory blockValidatorFactory() {
+		return new BlockValidatorFactory(this.timeProvider(), this.nisConfiguration().getForkConfiguration());
+	}
+
+	@Bean
+	public TransactionValidatorFactory transactionValidatorFactory() {
+		return new TransactionValidatorFactory(this.timeProvider(), this.nisConfiguration().getNetworkInfo(),
+				this.nisConfiguration().getForkConfiguration(), this.nisConfiguration().ignoreFees());
+	}
+
+	@Bean
+	public SingleTransactionValidator transactionValidator() {
+		// this is only consumed by the TransactionController and used in transaction/prepare,
+		// which should propagate incomplete transactions
+		return this.transactionValidatorFactory().createIncompleteSingleBuilder(this.nisCache()).build();
+	}
+
+	// endregion
 
 	// region mappers
 
@@ -377,7 +536,7 @@ public class NisAppConfig {
 	}
 
 	@Bean
-	public TrustProvider trustProvider() {
+	public TrustProvider trusstProvider() {
 		final int LOW_COMMUNICATION_NODE_WEIGHT = 30;
 		final int TRUST_CACHE_TIME = 15 * 60;
 		return new CachedTrustProvider(new LowComTrustProvider(new EigenTrustPlusPlus(), LOW_COMMUNICATION_NODE_WEIGHT), TRUST_CACHE_TIME,

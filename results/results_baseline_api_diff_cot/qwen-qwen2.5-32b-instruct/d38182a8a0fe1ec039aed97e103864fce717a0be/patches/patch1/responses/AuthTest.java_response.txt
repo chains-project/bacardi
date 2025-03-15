@@ -34,6 +34,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 /**
@@ -62,7 +63,11 @@ public final class AuthTest {
     @MethodSource("setups")
     void shouldReturnUnauthorizedWhenNoAuth(final Method method, final RequestLine line) {
         MatcherAssert.assertThat(
-            method.slice("whatever").response(line.toString(), Headers.EMPTY, Content.EMPTY),
+            method.slice("whatever").response(
+                line.toString(),
+                Headers.EMPTY,
+                Content.EMPTY
+            ),
             new IsUnauthorizedResponse()
         );
     }
@@ -73,7 +78,7 @@ public final class AuthTest {
         MatcherAssert.assertThat(
             method.slice("whatever").response(
                 line.toString(),
-                method.headers(TestAuthentication.BOB),
+                method.headers(new TestAuthentication.User("chuck", "letmein")),
                 Content.EMPTY
             ),
             new IsUnauthorizedResponse()
@@ -201,11 +206,66 @@ public final class AuthTest {
         );
     }
 
-    /**
-     * Authentication method.
-     *
-     * @since 0.8
-     */
+    private static Stream<Arguments> setups(final Method method) {
+        return Stream.of(
+            Arguments.of(
+                method,
+                new RequestLine(RqMethod.GET, "/v2/"),
+                "registry:base:*"
+            ),
+            Arguments.of(
+                method,
+                new RequestLine(RqMethod.HEAD, "/v2/my-alpine/manifests/1"),
+                "repository:my-alpine:pull"
+            ),
+            Arguments.of(
+                method,
+                new RequestLine(RqMethod.GET, "/v2/my-alpine/manifests/2"),
+                "repository:my-alpine:pull"
+            ),
+            Arguments.of(
+                method,
+                new RequestLine(RqMethod.PUT, "/v2/my-alpine/manifests/latest"),
+                "repository:my-alpine:push"
+            ),
+            Arguments.of(
+                method,
+                new RequestLine(RqMethod.PUT, "/v2/my-alpine/manifests/latest"),
+                "repository:my-alpine:overwrite"
+            ),
+            Arguments.of(
+                method,
+                new RequestLine(RqMethod.GET, "/v2/my-alpine/tags/list"),
+                "repository:my-alpine:pull"
+            ),
+            Arguments.of(
+                method,
+                new RequestLine(RqMethod.HEAD, "/v2/my-alpine/blobs/sha256:123"),
+                "repository:my-alpine:pull"
+            ),
+            Arguments.of(
+                method,
+                new RequestLine(RqMethod.GET, "/v2/my-alpine/blobs/sha256:012233"),
+                "repository:my-alpine:pull"
+            ),
+            Arguments.of(
+                method,
+                new RequestLine(RqMethod.POST, "/v2/my-alpine/blobs/uploads/"),
+                "repository:my-alpine:push"
+            ),
+            Arguments.of(
+                method,
+                new RequestLine(RqMethod.PATCH, "/v2/my-alpine/blobs/uploads/123"),
+                "repository:my-alpine:push"
+            ),
+            Arguments.of(
+                method,
+                new RequestLine(RqMethod.GET, "/v2/_catalog"),
+                "registry:catalog:*"
+            )
+        );
+    }
+
     private interface Method {
 
         Slice slice(String action);
@@ -214,16 +274,8 @@ public final class AuthTest {
 
     }
 
-    /**
-     * Basic authentication method.
-     *
-     * @since 0.8
-     */
     private static final class Basic implements Method {
 
-        /**
-         * Docker repo.
-         */
         private final Docker docker;
 
         private Basic(final Docker docker) {
@@ -254,11 +306,6 @@ public final class AuthTest {
         }
     }
 
-    /**
-     * Bearer authentication method.
-     *
-     * @since 0.8
-     */
     private static final class Bearer implements Method {
 
         @Override

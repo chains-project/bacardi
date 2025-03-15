@@ -1,0 +1,138 @@
+package com.premiumminds.billy.portugal.services.export.saftpt.v1_04_01.schema;
+
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
+import org.jvnet.jaxb2_commons.lang.ToString2;
+import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
+import org.jvnet.jaxb2_commons.locator.ObjectLocator;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "", propOrder = {
+    "header",
+    "masterFiles",
+    "generalLedgerEntries",
+    "sourceDocuments"
+})
+@XmlRootElement(name = "AuditFile")
+public class AuditFile implements ToString2 {
+
+    @XmlElement(name = "Header", required = true)
+    protected Header header;
+    @XmlElement(name = "MasterFiles", required = true)
+    protected AuditFile.MasterFiles masterFiles;
+    @XmlElement(name = "GeneralLedgerEntries")
+    protected GeneralLedgerEntries generalLedgerEntries;
+    @XmlElement(name = "SourceDocuments")
+    protected SourceDocuments sourceDocuments;
+
+    // ... (rest of the class remains unchanged)
+
+    @Override
+    public String toString() {
+        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
+        final StringBuilder buffer = new StringBuilder();
+        append(null, buffer, strategy);
+        return buffer.toString();
+    }
+
+    @Override
+    public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+        strategy.appendStart(locator, this, buffer);
+        appendFields(locator, buffer, strategy);
+        strategy.appendEnd(locator, this, buffer);
+        return buffer;
+    }
+
+    @Override
+    public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+        {
+            Header theHeader;
+            theHeader = this.getHeader();
+            strategy.appendField(locator, this, "header", buffer, theHeader, (this.header != null));
+        }
+        {
+            AuditFile.MasterFiles theMasterFiles;
+            theMasterFiles = this.getMasterFiles();
+            strategy.appendField(locator, this, "masterFiles", buffer, theMasterFiles, (this.masterFiles != null));
+        }
+        {
+            GeneralLedgerEntries theGeneralLedgerEntries;
+            theGeneralLedgerEntries = this.getGeneralLedgerEntries();
+            strategy.appendField(locator, this, "generalLedgerEntries", buffer, theGeneralLedgerEntries, (this.generalLedgerEntries != null));
+        }
+        {
+            SourceDocuments theSourceDocuments;
+            theSourceDocuments = this.getSourceDocuments();
+            strategy.appendField(locator, this, "sourceDocuments", buffer, theSourceDocuments, (this.sourceDocuments != null));
+        }
+        return buffer;
+    }
+
+    public static class MasterFiles implements ToString2 {
+
+        @XmlElement(name = "GeneralLedgerAccounts")
+        protected GeneralLedgerAccounts generalLedgerAccounts;
+        @XmlElement(name = "Customer")
+        protected List<Customer> customer;
+        @XmlElement(name = "Supplier")
+        protected List<Supplier> supplier;
+        @XmlElement(name = "Product")
+        protected List<Product> product;
+        @XmlElement(name = "TaxTable")
+        protected TaxTable taxTable;
+
+        // ... (rest of the inner class remains unchanged)
+
+        @Override
+        public String toString() {
+            final ToStringStrategy2 strategy = new JAXBToStringStrategy();
+            final StringBuilder buffer = new StringBuilder();
+            append(null, buffer, strategy);
+            return buffer.toString();
+        }
+
+        @Override
+        public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+            strategy.appendStart(locator, this, buffer);
+            appendFields(locator, buffer, strategy);
+            strategy.appendEnd(locator, this, buffer);
+            return buffer;
+        }
+
+        @Override
+        public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+            {
+                GeneralLedgerAccounts theGeneralLedgerAccounts;
+                theGeneralLedgerAccounts = this.getGeneralLedgerAccounts();
+                strategy.appendField(locator, this, "generalLedgerAccounts", buffer, theGeneralLedgerAccounts, (this.generalLedgerAccounts != null));
+            }
+            {
+                List<Customer> theCustomer;
+                theCustomer = (((this.customer != null) && (!this.customer.isEmpty())) ? this.getCustomer() : null);
+                strategy.appendField(locator, this, "customer", buffer, theCustomer, ((this.customer != null) && (!this.customer.isEmpty())));
+            }
+            {
+                List<Supplier> theSupplier;
+                theSupplier = (((this.supplier != null) && (!this.supplier.isEmpty())) ? this.getSupplier() : null);
+                strategy.appendField(locator, this, "supplier", buffer, theSupplier, ((this.supplier != null) && (!this.supplier.isEmpty()));
+            }
+            {
+                List<Product> theProduct;
+                theProduct = (((this.product != null) && (!this.product.isEmpty())) ? this.getProduct() : null);
+                strategy.appendField(locator, this, "product", buffer, theProduct, ((this.product != null) && (!this.product.isEmpty()));
+            }
+            {
+                TaxTable theTaxTable;
+                theTaxTable = this.getTaxTable();
+                strategy.appendField(locator, this, "taxTable", buffer, theTaxTable, (this.taxTable != null));
+            }
+            return buffer;
+        }
+    }
+}

@@ -1,14 +1,10 @@
-66c66
-<                         if ((player.getUniqueId().toString().equals(targetPlayerUUID) && player.hasPermission("worldwidechat.wwctco")) || (!player.getUniqueId().toString().equals(targetPlayerUUID)) && player.hasPermission("worldwidechat.wwctco.otherplayers")) {
----
->                         if ((player.getUniqueId().toString().equals(targetPlayerUUID) && player.hasPermission("worldwidechat.wwctco")) || (!player.getUniqueId().toString().equals(targetPlayerUUID)) && player.hasPermission("worldwidechat.wwctci.otherplayers")) {
 71c71,72
 <                                         outgoingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
 ---
->                                         // XEnchantment.parseEnchantment() is no longer available, so we use a different approach
->                                         outgoingChatMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+>                                         // Use the new method to get the enchantment
+>                                         outgoingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchantment(), 1, false);
 93c94,95
 <                                 incomingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
 ---
->                                 // XEnchantment.parseEnchantment() is no longer available, so we use a different approach
->                                 incomingChatMeta.addEnchant(XEnchantment.PROTECTION_ENVIRONMENTAL, 1, false);
+>                                 // Use the new method to get the enchantment
+>                                 incomingChatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchantment(), 1, false);

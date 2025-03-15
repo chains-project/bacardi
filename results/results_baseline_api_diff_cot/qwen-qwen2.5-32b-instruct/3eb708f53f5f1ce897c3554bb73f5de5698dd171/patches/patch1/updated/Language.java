@@ -16,7 +16,8 @@
 
 package com.google.cloud.translate;
 
-import com.google.cloud.translate.v3.LanguagesResource; // Adjusted import for the new API
+import com.google.cloud.translate.v3.LocationName;
+import com.google.cloud.translate.v3.TranslateProto;
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
@@ -33,10 +34,10 @@ import java.util.Objects;
 public class Language implements Serializable {
 
   private static final long serialVersionUID = 5205240279371907020L;
-  static final Function<LanguagesResource, Language> FROM_PB_FUNCTION =
-      new Function<LanguagesResource, Language>() {
+  static final Function<TranslateProto.Languages, Language> FROM_PB_FUNCTION =
+      new Function<TranslateProto.Languages, Language>() {
         @Override
-        public Language apply(LanguagesResource languagePb) {
+        public Language apply(TranslateProto.Languages languagePb) {
           return Language.fromPb(languagePb);
         }
       };
@@ -81,8 +82,7 @@ public class Language implements Serializable {
     return Objects.equals(code, other.code) && Objects.equals(name, other.name);
   }
 
-  static Language fromPb(LanguagesResource languagePb) {
-    // Adjusted to use the new API's method to get the language code and name
-    return new Language(languagePb.getLanguageCode(), languagePb.getLanguageName());
+  static Language fromPb(TranslateProto.Languages languagePb) {
+    return new Language(languagePb.getCode(), languagePb.getName());
   }
 }

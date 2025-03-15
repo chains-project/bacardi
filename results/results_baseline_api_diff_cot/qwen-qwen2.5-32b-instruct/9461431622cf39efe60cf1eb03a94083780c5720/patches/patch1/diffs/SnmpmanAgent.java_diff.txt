@@ -68,6 +68,10 @@
 <      * @param bindings the variable bindings
 <      * @return the roots of the specified variable bindings
 <      */
+150c91
+<         potentialRoots.stream().filter(potentialRoot -> potentialRoot.size() > 0).forEach(potentialRoot -> {
+---
+>         potentialRoots.forEach(potentialRoot -> {
 164,171d104
 <     /**
 <      * Returns a {@link Variable} instance for the specified parameters.
@@ -79,52 +83,55 @@
 <      */
 174d106
 <             // TODO add "BITS" support
-181,183d112
-<                 } else {
-<                     return new OctetString(value);
-<                 }
-198d126
+198d129
 <                 // Parse unsigned long
-211,215d138
+211,215d141
 <     /**
 <      * Starts this agent instance.
 <      *
 <      * @throws IOException signals that this agent could not be initialized by the {@link #init()} method
 <      */
-222d144
+222d147
 <         // configure community index contexts
-256d177
+224c149
+<             this.getServer().addContext(new OctetString(String.valueOf(vlan)));
+---
+>             this.getServer().addContext(new OctetString(String.valueOf(vlan));
+244c169
+<         unregisterDefaultManagedObjects(new OctetString());
+---
+>         registerDefaultManagedObjects(new OctetString());
+247c172
+<             unregisterDefaultManagedObjects(new OctetString(String.valueOf(vlan)));
+---
+>             registerDefaultManagedObjects(new OctetString(String.valueOf(vlan));
+257,259c182
+<                 final SortedMap<OID, Variable> variableBindings = this.getVariableBindings(configuration.getDevice(), bindings, new OctetString(String.valueOf(vlan)));
 < 
-259,260d179
 <                 final OctetString context = new OctetString(String.valueOf(vlan));
-< 
-265c184
+---
+>                 final SortedMap<OID, Variable> variableBindings = this.getVariableBindings(configuration.getDevice(), bindings, new OctetString(String.valueOf(vlan));
+265c188
 <                     DefaultMOContextScope scope = new DefaultMOContextScope(context, root, true, root.nextPeer(), false);
 ---
->                     DefaultMOContextScope scope = new DefaultMOContextScope(new OctetString(String.valueOf(vlan)), root, true, root.nextPeer(), false);
-270c189
+>                     DefaultMOContextScope scope = new DefaultMOContextScope(new OctetString(String.valueOf(vlan), root, true, root.nextPeer(), false);
+270c193
 <                             scope = new DefaultMOContextScope(context, variableBinding.getOid(), true, variableBinding.getOid().nextPeer(), false);
 ---
->                             scope = new DefaultMOContextScope(new OctetString(String.valueOf(vlan)), variableBinding.getOid(), true, variableBinding.getOid().nextPeer(), false);
-276c195
+>                             scope = new DefaultMOContextScope(new OctetString(String.valueOf(vlan), variableBinding.getOid(), true, variableBinding.getOid().nextPeer(), false);
+276c199
 <                                 registerGroupAndContext(group, context);
 ---
 >                                 registerGroupAndContext(group, new OctetString(String.valueOf(vlan));
-281c200
+281c204
 <                         registerGroupAndContext(group, context);
 ---
 >                         registerGroupAndContext(group, new OctetString(String.valueOf(vlan));
-297,299c216
-<                         binding -> subtree.put(binding.getKey(), binding.getValue())
-<         );
-< 
----
->                         binding -> subtree.put(binding.getKey(), binding.getValue()));
-303,305d219
+303,305d225
 <     /**
 <      * Creates the {@link StaticMOGroup} with all information necessary to register it to the server.
 <      */
-324,330d237
+324,330d243
 <     /**
 <      * Creates a list of {@link VariableBinding} out of a mapping of {@link OID} and {@link Variable}.
 <      *
@@ -132,32 +139,32 @@
 <      * @param root             root SNMP OID.
 <      * @return list of {@link VariableBinding}.
 <      */
-337,341d243
+337,341d249
 <     /**
 <      * Registers a {@link ManagedObject} to the server with an empty {@link OctetString} community context.
 <      *
 <      * @param group {@link ManagedObject} to register.
 <      */
-344c246
+344c252
 <         registerGroupAndContext(group, new OctetString(""));
 ---
 >         registerGroupAndContext(group, new OctetString("");
-347,352d248
+347,352d254
 <     /**
 <      * Registers a {@link ManagedObject} to the server with a {@link OctetString} community context.
 <      *
 <      * @param group   {@link ManagedObject} to register.
 <      * @param context community context.
 <      */
-357c253
+357c259
 <                 ManagedObject other = server.lookup(new DefaultMOQuery(contextScope, false));
 ---
 >                 ManagedObject other = server.lookup(new DefaultMOQuery(contextScope, false);
-364c260
+364c266
 <                 other = server.lookup(new DefaultMOQuery(contextScope, false));
 ---
 >                 other = server.lookup(new DefaultMOQuery(contextScope, false);
-378,384d273
+378,384d279
 <     /**
 <      * Sets the private registry value of {@link DefaultMOServer} via reflection.
 <      * FIXME
@@ -165,20 +172,20 @@
 <      *
 <      * @param group {@link ManagedObject} to register.
 <      */
-398,403d286
+398,403d292
 <     /**
 <      * Reads all variable bindings using {@link #VARIABLE_BINDING_PATTERN}.
 <      *
 <      * @param reader the reader to read the bindings from.
 <      * @return the map of oid to variable binding.
 <      */
-432,436d314
+432,436d320
 <     /**
 <      * Unregisters all default managed objects in the specified context {@code ctx}.
 <      *
 <      * @param ctx the context from which all default managed objects should be unregistred
 <      */
-446,455d323
+446,455d329
 <     /**
 <      * Returns the variable bindings for a device configuration and a list of bindings.
 <      * <p>
@@ -189,30 +196,9 @@
 <      * @return the variable bindings for the specified device configuration
 <      */
 <     @SuppressWarnings("unchecked")
-481d348
-< 
-508,541c375,381
-<         log.trace("adding views in the vacm MIB {} for agent \"{}\"", vacmMIB.toString(), configuration.getName());
-<         vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_SNMPv1, new OctetString(configuration.getCommunity()), new OctetString("v1v2group"), StorageType.nonVolatile);
-<         vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_SNMPv2c, new OctetString(configuration.getCommunity()), new OctetString("v1v2group"), StorageType.nonVolatile);
-<         vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("SHADES"), new OctetString("v3group"), StorageType.nonVolatile);
-<         vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("TEST"), new OctetString("v3test"), StorageType.nonVolatile);
-<         vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("SHA"), new OctetString("v3restricted"), StorageType.nonVolatile);
-<         vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("v3notify"), new OctetString("v3restricted"), StorageType.nonVolatile);
-< 
+516d389
 <         // configure community index contexts
-<         for (final Long vlan : configuration.getDevice().getVlans()) {
-<             vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_SNMPv1, new OctetString(configuration.getCommunity() + "@" + vlan), new OctetString("v1v2group"), StorageType.nonVolatile);
-<             vacmMIB.addGroup(SecurityModel.SECURITY_MODEL_SNMPv2c, new OctetString(configuration.getCommunity() + "@" + vlan), new OctetString("v1v2group"), StorageType.nonVolatile);
-<             vacmMIB.addAccess(new OctetString("v1v2group"), new OctetString(String.valueOf(vlan)), SecurityModel.SECURITY_MODEL_ANY, SecurityLevel.NOAUTH_NOPRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
-<         }
-< 
-<         vacmMIB.addAccess(new OctetString("v1v2group"), new OctetString(), SecurityModel.SECURITY_MODEL_ANY, SecurityLevel.NOAUTH_NOPRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
-<         vacmMIB.addAccess(new OctetString("v3group"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.AUTH_PRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
-<         vacmMIB.addAccess(new OctetString("v3restricted"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.NOAUTH_NOPRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("restrictedReadView"), new OctetString("restrictedWriteView"), new OctetString("restrictedNotifyView"), StorageType.nonVolatile);
-<         vacmMIB.addAccess(new OctetString("v3test"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.AUTH_PRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("testReadView"), new OctetString("testWriteView"), new OctetString("testNotifyView"), StorageType.nonVolatile);
-< 
-<         vacmMIB.addViewTreeFamily(new OctetString("fullReadView"), new OID("1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
+529,541c402,403
 <         vacmMIB.addViewTreeFamily(new OctetString("fullWriteView"), new OID("1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
 <         vacmMIB.addViewTreeFamily(new OctetString("fullNotifyView"), new OID("1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
 < 
@@ -227,53 +213,54 @@
 <         vacmMIB.addViewTreeFamily(new OctetString("testNotifyView"), new OID("1.3.6.1.2"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
 <     }
 ---
->         log.trace("adding views in the vacm MIB {} for agent \"{}\"", vacmMib.toString(), configuration.getName());
->         vacmMib.addGroup(SecurityModel.SECURITY_MODEL_SNMPv1, new OctetString(configuration.getCommunity()), new OctetString("v1v2group"), StorageType.nonVolatile);
->         vacmMib.addGroup(SecurityModel.SECURITY_MODEL_SNMPv2c, new OctetString(configuration.getCommunity()), new OctetString("v1v2group"), StorageType.nonVolatile);
->         vacmMib.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("SHADES"), new OctetString("v3group"), StorageType.nonVolatile);
->         vacmMib.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("TEST"), new OctetString("v3test"), StorageType.nonVolatile);
->         vacmMib.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("SHA"), new OctetString("v3restricted"), StorageType.nonVolatile);
->         vacmMib.addGroup(SecurityModel.SECURITY_MODEL_USM, new OctetString("v3notify"), new OctetString("v3restricted"), StorageType.nonVolatile);
-543,545d382
+>         vacmMIB.addViewTreeFamily(new OctetString("fullWriteView"), new OID("1"), new OctetString(), VacmMib.vacmViewIncluded, StorageType.nonVolatile);
+>         vacmMIB.addViewTreeFamily(new OctetString("fullNotifyView"), new OID("1"), new OctetString(), VacmMib.vacmViewIncluded, StorageType.nonVolatile);
+543,580c405,413
 <     @Override
 <     protected void addCommunities(final SnmpCommunityMIB snmpCommunityMIB) {
 <         log.trace("adding communities {} for agent \"{}\"", snmpCommunityMIB.toString(), configuration.getName());
-548,550c385,407
+<         // configure community index contexts
+<         for (final Long vlan : configuration.getDevice().getVlans()) {
 <             configureSnmpCommunity(snmpCommunityMIB, vlan);
 <         }
 <         configureSnmpCommunity(snmpCommunityMIB, null);
----
->             vacmMib.addGroup(SecurityModel.SECURITY_MODEL_SNMPv1, new OctetString(configuration.getCommunity() + "@" + vlan), new OctetString("v1v2group"), StorageType.nonVolatile);
->             vacmMib.addGroup(SecurityModel.SECURITY_MODEL_SNMPv2c, new OctetString(configuration.getCommunity() + "@" + vlan), new OctetString("v1v2group"), StorageType.nonVolatile);
->             vacmMib.addAccess(new OctetString("v1v2group"), new OctetString(String.valueOf(vlan)), SecurityModel.SECURITY_MODEL_ANY, SecurityLevel.NOAUTH_NOPR, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
->         }
-> 
->         vacmMib.addAccess(new OctetString("v1v2group"), new OctetString(), SecurityModel.SECURITY_MODEL_ANY, SecurityLevel.NOAUTH_NOPR, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
->         vacmMib.addAccess(new OctetString("v3group"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.AUTH_PRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("fullReadView"), new OctetString("fullWriteView"), new OctetString("fullNotifyView"), StorageType.nonVolatile);
->         vacmMib.addAccess(new OctetString("v3restricted"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.NOAUTH_NOPR, MutableVACM.VACM_MATCH_EXACT, new OctetString("restrictedReadView"), new OctetString("restrictedWriteView"), new OctetString("restrictedNotifyView"), StorageType.nonVolatile);
->         vacmMib.addAccess(new OctetString("v3test"), new OctetString(), SecurityModel.SECURITY_MODEL_USM, SecurityLevel.AUTH_PRIV, MutableVACM.VACM_MATCH_EXACT, new OctetString("testReadView"), new OctetString("testWriteView"), new OctetString("testNotifyView"), StorageType.nonVolatile);
-> 
->         vacmMib.addViewTreeFamily(new OctetString("fullReadView"), new OID("1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
->         vacmMib.addViewTreeFamily(new OctetString("fullWriteView"), new OID("1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
->         vacmMib.addViewTreeFamily(new OctetString("fullNotifyView"), new OID("1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
-> 
->         vacmMib.addViewTreeFamily(new OctetString("restrictedReadView"), new OID("1.3.6.1.2"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
->         vacmMib.addViewTreeFamily(new OctetString("restrictedWriteView"), new OID("1.3.6.1.2.1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
->         vacmMib.addViewTreeFamily(new OctetString("restrictedNotifyView"), new OID("1.3.6.1.2"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
->         vacmMib.addViewTreeFamily(new OctetString("restrictedNotifyView"), new OID("1.3.6.1.6.3.1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
-> 
->         vacmMib.addViewTreeFamily(new OctetString("testReadView"), new OID("1.3.6.1.2"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
->         vacmMib.addViewTreeFamily(new OctetString("testReadView"), new OID("1.3.6.1.2.1.1"), new OctetString(), VacmMIB.vacmViewExcluded, StorageType.nonVolatile);
->         vacmMib.addViewTreeFamily(new OctetString("testWriteView"), new OID("1.3.6.1.2.1"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
->         vacmMib.addViewTreeFamily(new OctetString("testNotifyView"), new OID("1.3.6.1.2"), new OctetString(), VacmMIB.vacmViewIncluded, StorageType.nonVolatile);
-553,558d409
+<     }
+< 
 <     /**
 <      * Configures an SNMP community for a given SNMP community context.
 <      *
 <      * @param snmpCommunityMIB SNMP community.
 <      * @param context          SNMP community context.
 <      */
-579c430
+<     private void configureSnmpCommunity(final SnmpCommunityMIB snmpCommunityMIB, final Long context) {
+<         String communityString;
+<         OctetString contextName;
+<         if (context != null) {
+<             communityString = configuration.getCommunity() + "@" + context;
+<             contextName = new OctetString(String.valueOf(context));
+<         } else {
+<             communityString = configuration.getCommunity();
+<             contextName = new OctetString();
+<         }
+<         final Variable[] com2sec = new Variable[]{
+<                 new OctetString(communityString),       // community name
+<                 new OctetString(communityString),       // security name
+<                 getAgent().getContextEngineID(),        // local engine ID
+<                 contextName,                            // default context name
+<                 new OctetString(),                      // transport tag
+<                 new Integer32(StorageType.readOnly),    // storage type
+<                 new Integer32(RowStatus.active)         // row status
+<         };
+<         final SnmpCommunityMIB.SnmpCommunityEntryRow row = snmpCommunityMIB.getSnmpCommunityEntry().createRow(
 <                 new OctetString(communityString + "2" + communityString).toSubIndex(true), com2sec);
+<         snmpCommunityMIB.getSnmpCommunityEntry().addRow(row);
 ---
->                 (new OctetString(communityString + "2" + communityString).toSubIndex(true), com2sec);
+>         vacmMIB.addViewTreeFamily(new OctetString("restrictedReadView"), new OID("1.3.6.1.2"), new OctetString(), VacmMib.vacmViewIncluded, StorageType.nonVolatile);
+>         vacmMIB.addViewTreeFamily(new OctetString("restrictedWriteView"), new OID("1.3.6.1.2.1"), new OctetString(), VacmMib.vacmViewIncluded, StorageType.nonVolatile);
+>         vacmMIB.addViewTreeFamily(new OctetString("restrictedNotifyView"), new OID("1.3.6.1.2"), new OctetString(), VacmMib.vacmViewIncluded, StorageType.nonVolatile);
+>         vacmMIB.addViewTreeFamily(new OctetString("restrictedNotifyView"), new OID("1.3.6.1.6.3.1"), new OctetString(), VacmMib.vacmViewIncluded, StorageType.nonVolatile);
+> 
+>         vacmMIB.addViewTreeFamily(new OctetString("testReadView"), new OID("1.3.6.1.2"), new OctetString(), VacmMib.vacmViewIncluded, StorageType.nonVolatile);
+>         vacmMIB.addViewTreeFamily(new OctetString("testReadView"), new OID("1.3.6.1.2.1.1"), new OctetString(), VacmMib.vacmViewExcluded, StorageType.nonVolatile);
+>         vacmMIB.addViewTreeFamily(new OctetString("testWriteView"), new OID("1.3.6.1.2.1"), new OctetString(), VacmMib.vacmViewIncluded, StorageType.nonVolatile);
+>         vacmMIB.addViewTreeFamily(new OctetString("testNotifyView"), new OID("1.3.6.1.2"), new OctetString(), VacmMib.vacmViewIncluded, StorageType.nonVolatile);

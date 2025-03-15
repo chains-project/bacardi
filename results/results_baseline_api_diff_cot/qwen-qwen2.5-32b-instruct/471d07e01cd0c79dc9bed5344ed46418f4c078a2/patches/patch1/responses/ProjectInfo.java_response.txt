@@ -9,14 +9,12 @@ import com.google.cloud.StringEnumType;
 import com.google.cloud.StringEnumValue;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.google.api.services.cloudresourcemanager.v3.model.Project;
-import com.google.api.services.cloudresourcemanager.v3.model.ResourceId;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import org.threeten.bp.Instant;
-import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
 /**
@@ -29,6 +27,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 @Deprecated
 public class ProjectInfo implements Serializable {
 
+{
   public static final DateTimeFormatter DATE_TIME_FORMATTER =
       DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneOffset.UTC);
   private static final long serialVersionUID = 9148970963697734236L;
@@ -52,10 +51,11 @@ public class ProjectInfo implements Serializable {
           }
         };
 
-    private static final StringEnumType<State> type = new StringEnumType<>(State.class, CONSTRUCTOR);
+    private static final StringEnumType<State> type = new StringEnumType(State.class, CONSTRUCTOR);
 
     /** Only used/useful for distinguishing unset values. */
-    public static final State LIFECYCLE_STATE_UNSPECIFIED = type.createAndRegister("LIFECYCLE_STATE_UNSPECIFIED");
+    public static final State LIFECYCLE_STATE_UNSPECIFIED =
+        type.createAndRegister("LIFECYCLE_STATE_UNSPECIFIED");
 
     /** The normal and active state. */
     public static final State ACTIVE = type.createAndRegister("ACTIVE");
@@ -96,6 +96,7 @@ public class ProjectInfo implements Serializable {
 
   public static class ResourceId implements Serializable {
 
+  {
     private static final long serialVersionUID = -325199985993344726L;
 
     private final String id;
@@ -145,6 +146,7 @@ public class ProjectInfo implements Serializable {
   /** Builder for {@code ProjectInfo}. */
   public abstract static class Builder {
 
+  {
     /**
      * Set the user-assigned name of the project.
      *
@@ -157,9 +159,9 @@ public class ProjectInfo implements Serializable {
     /**
      * Set the unique, user-assigned ID of the project.
      *
-     * <p>The ID must be 6 to 30 lowercase letters, digits, or hyphens. It must start with a letter.
-     * Trailing hyphens are prohibited. This field cannot be changed after the server creates the
-     * project.
+     * <p>The ID must be 6 to 30 lowercase letters, digits, or hyphens. It must start with a
+     * letter. Trailing hyphens are prohibited. This field cannot be changed after the server creates
+     * the project.
      */
     public abstract Builder setProjectId(String projectId);
 
@@ -198,8 +200,9 @@ public class ProjectInfo implements Serializable {
     public abstract ProjectInfo build();
   }
 
-  static class BuilderImpl extends Builder {
+  static class BuilderImpl extends Builder
 
+  {
     private String name;
     private String projectId;
     private Map<String, String> labels = new HashMap<>();
@@ -377,7 +380,7 @@ public class ProjectInfo implements Serializable {
   com.google.api.services.cloudresourcemanager.v3.model.Project toPb() {
     com.google.api.services.cloudresourcemanager.v3.model.Project projectPb =
         new com.google.api.services.cloudresourcemanager.v3.model.Project();
-    projectPb.setName = name;
+    projectPb.name = name;
     projectPb.projectId = projectId;
     projectPb.labels = labels;
     projectPb.projectNumber = projectNumber;
@@ -385,8 +388,7 @@ public class ProjectInfo implements Serializable {
       projectPb.lifecycleState = state.toString();
     }
     if (createTimeMillis != null) {
-      projectPb.createTime = DATE_TIME_FORMATTER.format(Instant.ofEpochMilli(createTimeMillis));
-          .atZone(ZoneOffset.UTC).toLocalDateTime());
+      projectPb.createTime = DATE_TIME_FORMATTER.format(ZonedDateTime.ofInstant(Instant.ofEpochMilli(createTimeMillis), ZoneOffset.UTC));
     }
     if (parent != null) {
       projectPb.parent = parent.toPb();
@@ -404,9 +406,7 @@ public class ProjectInfo implements Serializable {
       builder.setLabels(projectPb.labels);
     }
     if (projectPb.lifecycleState != null) {
-      builder.setState(State.valueOf(projectPb.lifecycleState));
-          .orElse(null));
-      );
+      builder.setState(State.valueOf(projectPb.lifecycleState);
     }
     if (projectPb.createTime != null) {
       builder.setCreateTimeMillis(

@@ -141,7 +141,7 @@ public final class UpdateChecker {
      */
     private static boolean isAncestor(GitHubCommit ghc, String branch) throws Exception {
         try {
-            GitHubComparison comparison = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).compare(ghc.hash, branch);
+            GitHubComparison comparison = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).compare(branch, ghc.hash);
             return comparison.getStatus() == GitHubComparison.Status.BEHIND || comparison.getStatus() == GitHubComparison.Status.IDENTICAL;
         } catch (FileNotFoundException x) {
             // For example, that branch does not exist in this repository.
@@ -189,10 +189,9 @@ public final class UpdateChecker {
 1. The error indicates that the `status` field in `GHCompare` is no longer accessible, and the `GHRepository` class has been removed.
 2. The `GHCompare` class has been replaced with `GitHubComparison` in the new version of the dependency, and the `status` field is now a method `getStatus()`.
 3. The `isAncestor` method needs to be updated to use `GitHubComparison` and its `getStatus()` method.
-4. The `GHRepository` class is no longer available, so any references to it need to be removed or replaced with the appropriate class from the new API.
-5. The `GitHubComparison` class is used to compare two commits and provides the status of the comparison.
-6. The `isAncestor` method is updated to use `GitHubComparison` and check the status of the comparison to determine if the commit is an ancestor of the branch.
-7. The `GitHubComparison` class is imported to replace the removed `GHRepository` class.
-8. The `isAncestor` method is updated to use the `GitHubComparison` class and its `getStatus()` method to check if the commit is an ancestor of the branch.
+4. The `GHRepository` class is no longer available, so the code that references it needs to be updated to use `GitHubComparison` instead.
+5. The `GitHubComparison` class is used to compare two commits and determine their relationship, which is the functionality needed in the `isAncestor` method.
+6. The `GitHubComparison.Status` enum is used to check if the commit is behind or identical to the branch, which is equivalent to the old `GHCompare.Status` check.
+7. The `GitHubComparison` class is imported to replace the old `GHCompare` class.
+8. The `isAncestor` method is updated to use `GitHubComparison` and its `getStatus()` method to check if the commit is an ancestor of the branch.
 </repair_strategy>
-```

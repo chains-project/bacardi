@@ -1,6 +1,12 @@
 3a4
 > import org.flywaydb.core.api.configuration.ClassicConfiguration;
-108,113c109,115
+54a56
+> {
+103c105
+<         @Bean(initMethod = "migrate")
+---
+>         @Bean
+108,113c110,115
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
@@ -12,17 +18,24 @@
 >                 flywayConfig.setDataSource(this.dataSource());
 >                 flywayConfig.setLocations(prop.getProperty("flyway.locations").split(","));
 >                 flywayConfig.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
->                 flywayConfig.setClassLoader(NisAppConfig.class.getClassLoader());
 > 
 >                 return new Flyway(flywayConfig);
-117d118
-<         @DependsOn("flyway")
-129,130c130,131
+129,130c131,132
 <                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.blockValidatorFactory(),
 <                                 this.transactionValidatorFactory(), this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
 ---
 >                 return new BlockChainServices(this.blockDao, this.blockTransactionObserverFactory(), this.transactionValidatorFactory(),
 >                                 this.nisMapperFactory(), this.nisConfiguration().getForkConfiguration());
-197a199,200
->         // region harvester
+169c171
+<         // region observers + validators
+---
+>         // region mappers
+197a200,201
+>         // region mappers
 > 
+334,335c338,339
+<                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTING, () -> TimeBasedVestingWeightedBalances::new);
+<                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTING, () -> AlwaysVestedBalances::new);
+---
+>                                 this.put(BlockChainFeature.WB_TIME_BASED_VESTINGING, () -> TimeBasedVestingWeightedBalances::new);
+>                                 this.put(BlockChainFeature.WB_IMMEDIATE_VESTINGING, () -> AlwaysVestedBalances::new);

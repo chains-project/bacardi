@@ -1,38 +1,6 @@
-3c3
-< import develop.p2p.lib.*;
----
-> import tokyo.peya.lib.WaveCreator; // Adjusted import for the new WaveCreator class
-62,156d61
-<         final double range = reachMode ? config.getDouble("npc.reachPanicRange"): config.getDouble("npc.panicRange");
-<         final double[] clt = {0.0};
-<         final int[] now = {0};
-< 
-<         PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
-< 
-<         int sec = config.getInt("npc.seconds");
-< 
-<         new BukkitRunnable()
-<         {
-<             @Override
-<             public void run()
-<             {
-<                 now[0]++;
-< 
-<                 connection.sendPacket(new PacketPlayOutAnimation(((CraftPlayer) player).getHandle(), 1));
-< 
-<                 HashMap<String, Object> map = new HashMap<>();
-<                 map.put("hit", now[0]);
-<                 map.put("max", count);
-< 
-<                 sender.sendMessage(get("message.auraCheck.panic.lynx", map));
-<                 if (now[0] >= count)
-<                     this.cancel();
-<             }
-<         }.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, (long) (10 * ((1.5 / count) * sec)));
-< 
-< 
-<         new BukkitRunnable()
-<         {
+2a3
+> import tokyo.peya.lib.WaveCreator; // Import the new WaveCreator class
+92,119d92
 <             public void run()
 <             {
 <                 for (double i = 0; i < Math.PI * 2; i++)
@@ -61,9 +29,7 @@
 <                     float finalHead = head;
 <                     new BukkitRunnable()
 <                     {
-<                         @Override
-<                         public void run()
-<                         {
+123,173d95
 <                             Bukkit.getOnlinePlayers().parallelStream().filter(p -> p.hasPermission("psac.viewnpc"))
 <                                 .forEachOrdered(p ->
 <                                 {
@@ -98,34 +64,52 @@
 <      */
 <     private static void auraBotTeleport(Player player, EntityPlayer target, ItemStack[] arm, boolean reachMode)
 <     {
-158,159c63
+<         final double[] time = {0.0};
 <         final double radius = reachMode ? config.getDouble("npc.reachRange"): config.getDoubleList("npc.range")
 <             .get(new Random().nextInt(config.getDoubleList("npc.range").size()));
----
->         final double radius = reachMode ? config.getDouble("npc.reachPanicRange"): config.getDouble("npc.panicRange");
-161c65
+< 
 <         WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0);
----
->         WaveCreator ypp = new WaveCreator(10.0, 100.0, 10.0); // Adjusted to use the new WaveCreator class
-163c67
+< 
 <         final int[] count = {0};
+<         BukkitRunnable r = new BukkitRunnable()
+<         {
+<             public void run()
+<             {
+<                 double speed = 0.0;
+< 
+<                 if (player.hasMetadata("speed"))
+<                     for (MetadataValue value : player.getMetadata("speed"))
+<                         if (value.getOwningPlugin().getName().equals(PeyangSuperbAntiCheat.getPlugin().getName()))
+<                             speed = value.asDouble() * 2.0;
+176c98
+<                     double rangeTmp = radius;
 ---
->         final int[] now = {0};
-180c84
+>                     double rangeTmp = range;
+179,180c101
+<                         rangeTmp = new WaveCreator(radius - 0.1, radius, config.getDouble("npc.waveMin"))
 <                             .get(0.01, true);
 ---
->                             .get(0.01, true); // Adjusted to use the new WaveCreator class
-186c90
+>                         rangeTmp = new WaveCreator(radius - 0.1, radius, 0 - config.getDouble("npc.waveRange")).get(0.01, true);
+185,187c106,108
+<                         auraBotXPos(time[0], rangeTmp + speed) + center.getX(),
 <                         center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20),
+<                         auraBotZPos(time[0], rangeTmp + speed) + center.getZ(),
 ---
->                         center.getY() + new WaveCreator(1.0, 2.0, 0.0).get(0.01, count[0] < 20), // Adjusted to use the new WaveCreator class
-188,189c92,93
-<                         (float) ypp.getStatic(),
-<                         (float) ypp.get(4.5, false)
+>                         auraBotXPos(time[0], rangeTmp) + center.getX(),
+>                         center.getY() + new WaveCreator(1.0, 2.0, 0 - config.getDouble("npc.waveRange")).get(0.01, count[0] < 20),
+>                         auraBotZPos(time[0], rangeTmp) + center.getZ(),
+223,234c144
+<         };
+<         r.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, 1);
+< 
+<         new BukkitRunnable()
+<         {
+<             @Override
+<             public void run()
+<             {
+<                 r.cancel();
+<                 this.cancel();
+<             }
+<         }.runTaskLater(PeyangSuperbAntiCheat.getPlugin(), 20 * (config.getLong("npc.seconds")));
 ---
->                         (float) ypp.get(0.01, false), // Adjusted to use the new WaveCreator class
->                         (float) ypp.get(4.5, false) // Adjusted to use the new WaveCreator class
-220c124
-<                     ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
----
->                     ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true) // Adjusted to use the new WaveCreator class
+>         }.runTaskTimer(PeyangSuperbAntiCheat.getPlugin(), 0, 1);

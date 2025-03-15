@@ -11,7 +11,7 @@ import com.example.domain.TaskNotFoundException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
-import jakarta.mvc.Models; // Updated import for the new Models class
+import jakarta.mvc.Models; // Updated import for the new Models interface
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
@@ -23,11 +23,12 @@ import javax.ws.rs.ext.Provider;
 @Provider
 public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFoundException> {
 
-    @Inject Logger log;
+    @Inject
+    Logger log;
     //private static Logger log = Logger.getLogger(PostNotFoundExceptionMapper.class.getName());
 
     @Inject
-    Models models;
+    Models models; // Updated Models import
 
     @Override
     public Response toResponse(TaskNotFoundException exception) {
@@ -39,4 +40,4 @@ public class PostNotFoundExceptionMapper implements ExceptionMapper<TaskNotFound
 }
 ```
 
-In this fix, the import statement for `Models` has been updated to use the new package `jakarta.mvc` to reflect the changes in the dependency. This should resolve the compilation error related to the missing `Models` class. The rest of the class remains unchanged to ensure that the functionality is preserved.
+The fix involves updating the import statement for `Models` from `javax.mvc.Models` to `jakarta.mvc.Models` to reflect the changes in the dependency's API. This change ensures that the client code is compatible with the new version of the dependency and resolves the compilation error.

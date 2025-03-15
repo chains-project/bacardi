@@ -31,14 +31,14 @@ public class DuplicateFilesTest
 
     private static final File destination = getTestFile( "target/output/duplicateFiles" );
 
+    private Logger logger;
+
     public void setUp()
         throws Exception
     {
         super.setUp();
-        // getLoggerManager().setThreshold( Logger.LEVEL_DEBUG );
-        // Replace the removed method with a direct logger instance
-        Logger logger = new ConsoleLogger();
-        logger.setLevel( Logger.LEVEL_DEBUG );
+        // Replace the getLoggerManager() call with a new logger instance
+        logger = new ConsoleLogger( Logger.LEVEL_DEBUG );
     }
 
     public void testZipArchiver()

@@ -15,23 +15,19 @@
 <  * limitations under the License.
 <  */
 < 
-27a12,13
-> import com.google.api.services.cloudresourcemanager.v3.model.Project;
-> import com.google.api.services.cloudresourcemanager.v3.model.ResourceId;
-69c55
-<     private static final StringEnumType<State> type = new StringEnumType(State.class, CONSTRUCTOR);
+33c17
+< import org.threeten.bp.ZoneOffset;
 ---
->     private static final StringEnumType<State> type = new StringEnumType<>(State.class, CONSTRUCTOR);
-72,73c58
-<     public static final State LIFECYCLE_STATE_UNSPECIFIED =
-<         type.createAndRegister("LIFECYCLE_STATE_UNSPECIFIED");
----
->     public static final State LIFECYCLE_STATE_UNSPECIFIED = type.createAndRegister("LIFECYCLE_STATE_UNSPECIFIED");
-138c123
+> import org.threeten.bp.ZonedDateTime;
+45a30
+> {
+113a99
+>   {
+138c124
 <       return obj instanceof ResourceId && Objects.equals(toPb(), ((ResourceId) obj).toPb());
 ---
 >       return obj instanceof ResourceId && Objects.equals(toPb(), ((ResourceIdId) obj).toPb());
-146,150c131,135
+146,150c132,136
 <     com.google.api.services.cloudresourcemanager.model.ResourceId toPb() {
 <       com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb =
 <           new com.google.api.services.cloudresourcemanager.model.ResourceId();
@@ -43,17 +39,33 @@
 >           new com.google.api.services.cloudresourcemanager.v3.model.ResourceId();
 >       resourceIdPb.setId = id;
 >       resourceIdPb.type = type.toLowerCase();
-155,156c140,141
+155,156c141,142
 <         com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb) {
 <       return new ResourceId(resourceIdPb.getId(), resourceIdPb.getType());
 ---
 >         (com.google.api.services.cloudresourcemanager.v3.model.ResourceId resourceIdPb) {
 >       return new ResourceId(resourceIdPb.id, resourceIdPb.type);
-272c257
+162a149
+>   {
+175,177c162,164
+<      * <p>The ID must be 6 to 30 lowercase letters, digits, or hyphens. It must start with a letter.
+<      * Trailing hyphens are prohibited. This field cannot be changed after the server creates the
+<      * project.
+---
+>      * <p>The ID must be 6 to 30 lowercase letters, digits, or hyphens. It must start with a
+>      * letter. Trailing hyphens are prohibited. This field cannot be changed after the server creates
+>      * the project.
+216c203
+<   static class BuilderImpl extends Builder {
+---
+>   static class BuilderImpl extends Builder
+217a205
+>   {
+272c260
 <       this.labels = Maps.newHashMap(checkNotNull(labels));
 ---
 >       this.labels = Maps.newHashMap(checkNotNull(labels);
-392,398c377,383
+392,398c380,386
 <   com.google.api.services.cloudresourcemanager.model.Project toPb() {
 <     com.google.api.services.cloudresourcemanager.model.Project projectPb =
 <         new com.google.api.services.cloudresourcemanager.model.Project();
@@ -65,52 +77,49 @@
 >   com.google.api.services.cloudresourcemanager.v3.model.Project toPb() {
 >     com.google.api.services.cloudresourcemanager.v3.model.Project projectPb =
 >         new com.google.api.services.cloudresourcemanager.v3.model.Project();
->     projectPb.setName = name;
+>     projectPb.name = name;
 >     projectPb.projectId = projectId;
 >     projectPb.labels = labels;
 >     projectPb.projectNumber = projectNumber;
-400c385
+400c388
 <       projectPb.setLifecycleState(state.toString());
 ---
 >       projectPb.lifecycleState = state.toString();
-403,406c388,389
+403,406c391
 <       projectPb.setCreateTime(
 <           DateTimeFormatter.ISO_DATE_TIME
 <               .withZone(ZoneOffset.UTC)
 <               .format(Instant.ofEpochMilli(createTimeMillis)));
 ---
->       projectPb.createTime = DATE_TIME_FORMATTER.format(Instant.ofEpochMilli(createTimeMillis));
->           .atZone(ZoneOffset.UTC).toLocalDateTime());
-409c392
+>       projectPb.createTime = DATE_TIME_FORMATTER.format(ZonedDateTime.ofInstant(Instant.ofEpochMilli(createTimeMillis), ZoneOffset.UTC));
+409c394
 <       projectPb.setParent(parent.toPb());
 ---
 >       projectPb.parent = parent.toPb();
-414c397
+414c399
 <   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.model.Project projectPb) {
 ---
 >   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) {
-416,424c399,409
+416,418c401,403
 <         newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
 <     if (projectPb.getName() != null && !projectPb.getName().equals("Unnamed")) {
 <       builder.setName(projectPb.getName());
-<     }
-<     if (projectPb.getLabels() != null) {
-<       builder.setLabels(projectPb.getLabels());
-<     }
-<     if (projectPb.getLifecycleState() != null) {
-<       builder.setState(State.valueOf(projectPb.getLifecycleState()));
 ---
 >         newBuilder(projectPb.projectId).setProjectNumber(projectPb.projectNumber);
 >     if (projectPb.name != null && !projectPb.name.equals("Unnamed")) {
 >       builder.setName(projectPb.name);
->     }
+420,421c405,406
+<     if (projectPb.getLabels() != null) {
+<       builder.setLabels(projectPb.getLabels());
+---
 >     if (projectPb.labels != null) {
 >       builder.setLabels(projectPb.labels);
->     }
+423,424c408,409
+<     if (projectPb.getLifecycleState() != null) {
+<       builder.setState(State.valueOf(projectPb.getLifecycleState()));
+---
 >     if (projectPb.lifecycleState != null) {
->       builder.setState(State.valueOf(projectPb.lifecycleState));
->           .orElse(null));
->       );
+>       builder.setState(State.valueOf(projectPb.lifecycleState);
 426c411
 <     if (projectPb.getCreateTime() != null) {
 ---

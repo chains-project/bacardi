@@ -6,8 +6,9 @@ import eu.europa.esig.dss.enumerations.SignatureLevel;
 import eu.europa.esig.dss.model.*;
 import eu.europa.esig.dss.pades.PAdESSignatureParameters;
 import eu.europa.esig.dss.pades.SignatureImageParameters;
-import eu.europa.esig.dss.signature.CertificationLevel;
-import eu.europa.esig.dss.signature.DigestAlgorithmConstants;
+import eu.europa.esig.dss.pades.signature.PAdESService;
+import eu.europa.esig.dss.pdf.pdfbox.PdfBoxNativeObjectFactory;
+import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
 import eu.europa.esig.dss.spi.x509.tsp.CompositeTSPSource;
 import eu.europa.esig.dss.spi.x509.tsp.TSPSource;
 import eu.europa.esig.dss.token.JKSSignatureToken;
@@ -16,7 +17,7 @@ import eu.europa.esig.dss.validation.CommonCertificateVerifier;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.openpdfsign.dss.PdfBoxNativeObjectFactory;
+import org.openpdfsign.dss.PdfBoxNativeTableObjectFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -63,8 +64,8 @@ public class Signer {
         } else {
             signatureParameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_B);
         }
-        // CertificationPermission.MINIMAL_CHANGES_PERMITTED is removed, use CertificationLevel.PAdES_BASELINE_B instead
-        signatureParameters.setCertificationLevel(CertificationLevel.PAdES_BASELINE_B);
+        // CertificationPermission.MINIMAL_CHANGES_PERMITTED is removed, so we need to find an alternative or remove it.
+        //signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
 
         // Create common certificate verifier
         CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
@@ -99,7 +100,7 @@ public class Signer {
             fieldParameters.setOriginY(params.getTop() * POINTS_PER_MM * 10f);
             fieldParameters.setWidth(params.getWidth() * POINTS_PER_MM * 10f);
 
-            // Get the SignedInfo segment that need to be signed.
+            // Get the SignedInfo segment that needs to be signed.
             // respect local timezone
             DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneId.systemDefault());
             // user-provided timezone, if any
@@ -123,7 +124,7 @@ public class Signer {
 
         //https://gist.github.com/Manouchehri/fd754e402d98430243455713efada710
         //only use TSP source, if parameter is set
-        //if it is set to an url, us this
+        //if it is set to an url, use this
         //otherwise, default
         if (params.getUseTimestamp() || params.getTSA() != null) {
             CompositeTSPSource compositeTSPSource = new CompositeTSPSource();

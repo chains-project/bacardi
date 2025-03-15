@@ -219,7 +219,7 @@ public class RecognitionHelper {
         	final int skewstepsIndex = cmdArgsWork.indexOf("--skewsteps");
         	if(skewstepsIndex > -1) {
         		skewparams.add(cmdArgsWork.remove(skewstepsIndex));
-        		skewparams.add(cmdArgsWork.remove(skewstepsIndex);
+        		skewparams.add(cmdArgsWork.remove(skewstepsIndex));
         	}
 
 			// Create temp json file with all segment images (to not overload parameter list)
@@ -240,7 +240,7 @@ public class RecognitionHelper {
 				dataList.add(pageList);
 			}
 			ObjectWriter writer = mapper.writer();
-			mapper.writeValue(segmentListFile, dataList);
+			writer.writeValue(segmentListFile, dataList);
 
             processHandler = new ProcessHandler();
             processHandler.setFetchProcessConsole(true);
@@ -265,12 +265,12 @@ public class RecognitionHelper {
 
         List<String> command = new ArrayList<>();
         // Ugly hack but helpers will be rewritten for the next release anyways. Don't use as basis for future code!
-        if(cmdArgsWork.contains("--data.output_glyphs")) {
+        if(cmdArgsWork.contains("--data.output_glyphs")){
             cmdArgsWork.remove("--data.output_glyphs");
             command.add("--data.output_glyphs");
             command.add("True");
         }
-        if(cmdArgsWork.contains("--data.output_confidences")) {
+        if(cmdArgsWork.contains("--data.output_confidences")){
             cmdArgsWork.remove("--data.output_confidences");
             command.add("--data.output_confidences");
             command.add("True");
@@ -280,8 +280,7 @@ public class RecognitionHelper {
         // Create temp json file with all segment images (to not overload parameter list)
 		// Temp file in a temp folder named "calamari-<random numbers>.json"
         File segmentListFile = File.createTempFile("calamari-",".files");
-        segmentListFile.deleteOnExit();
-
+        segmentListFile.deleteOnExit(); // Delete if OCR4all terminates
         List<String> content = new ArrayList<>();
         for (String pageId : pageIds) {
             // Add affected images with their absolute path to the file
@@ -492,4 +491,10 @@ public class RecognitionHelper {
 }
 ```
 
-The fix involves updating the `ObjectMapper` and `ObjectWriter` method calls to use the new API methods. Specifically, the `writeValue` method calls were updated to use the `ObjectMapper.writeValue` method for writing to a `File` instead of using `ObjectWriter.writeValue` to a `FileWriter`. This change is necessary because the `ObjectWriter.writeValue` method for `FileWriter` was removed in the new version of the dependency. Additionally, the `writeValue` method for `File` was added, which is used in the updated code. The rest of the code remains unchanged to ensure that the fix is minimal and only addresses the API changes.
+The error message indicates that the class `StreamWriteException` from the `com.fasterxml.jackson.core.exc` package cannot be accessed. This is likely due to a change in the Jackson library's package structure or the removal of the class. However, the error is not directly related to the code provided in the class `RecognitionHelper`. The error might be caused by a different part of the codebase or a dependency issue.
+
+The API changes provided indicate that the `ObjectMapper.writeValue` method with `File` and `Object` parameters has been added, and the `ObjectWriter.writeValue` method with `File` and `Object` parameters has also been added. The code in the `execute` method uses `ObjectWriter.writeValue` with a `File` and `Object` parameter, which is still valid according to the API changes. Therefore, the error is not directly related to the usage of `ObjectMapper` or `ObjectWriter` in the provided code.
+
+Given the error message, it seems the issue is more likely related to a missing dependency or a classpath issue rather than a code change. However, if the error is indeed related to the code, it would be necessary to ensure that the correct version of the Jackson library is included in the project's classpath and that the `StreamWriteException` class is available.
+
+If the error persists, it would be necessary to check the project's build configuration and ensure that the correct version of the Jackson library is included and that there are no conflicting versions of the library in the classpath.

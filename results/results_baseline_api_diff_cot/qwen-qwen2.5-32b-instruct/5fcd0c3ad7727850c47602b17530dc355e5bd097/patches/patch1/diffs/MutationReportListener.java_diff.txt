@@ -3,9 +3,17 @@
 > import org.pitest.classinfo.ClassInfoVisitor;
 6d7
 < import org.pitest.mutationtest.SourceLocator;
-103a105
+103a105,113
+>     // Adjusting the method call to use the new API
 >     ClassName className = ClassName.fromString(data.getMutatedClass());
-105c107
+>     ClassInfoVisitor visitor = new ClassInfoVisitor() {
+>       @Override
+>       public void visitClass(ClassName className, byte[] classBytes, long timestamp) {
+>         // Implement the logic to handle the class info if necessary
+>       }
+>     };
+>     coverage.getClassInfo(Collections.singleton(className), visitor);
+105c115
 <         data.getMutations(), coverage.getClassInfo(Collections.singleton(data.getMutatedClass())));
 ---
->         data.getMutations(), coverage.getClassInfo(className));
+>         data.getMutations(), visitor.getClassInfo(className));

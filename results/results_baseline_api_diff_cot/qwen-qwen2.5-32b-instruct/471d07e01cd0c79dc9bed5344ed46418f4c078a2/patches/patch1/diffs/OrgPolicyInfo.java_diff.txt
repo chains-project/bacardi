@@ -20,80 +20,138 @@
 < import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
 < import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
 ---
-> import com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy;
-> import com.google.api.services.cloudresourcemanager.v3.model.Policy;
-> import com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy;
-37a22
-> {
-57d41
+> import com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy as BooleanPolicyV3;
+> import com.google.api.services.cloudresourcemanager.v3.model.ListPolicy as ListPolicyV3;
+> import com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy as OrgPolicyV3;
+38,39c22,23
+<   static final Function<OrgPolicy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
+<       new Function<OrgPolicy, OrgPolicyInfo>() {
+---
+>   static final Function<OrgPolicyV3, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
+>       new Function<OrgPolicyV3, OrgPolicyInfo>() {
+41c25
+<         public OrgPolicyInfo apply(OrgPolicy protobuf) {
+---
+>         public OrgPolicyInfo apply(OrgPolicyV3 protobuf) {
+45,46c29,30
+<   static final Function<OrgPolicyInfo, OrgPolicy> TO_PROTOBUF_FUNCTION =
+<       new Function<OrgPolicyInfo, OrgPolicy>() {
+---
+>   static final Function<OrgPolicyInfo, OrgPolicyV3> TO_PROTOBUF_FUNCTION =
+>       new Function<OrgPolicyInfo, OrgPolicyV3>() {
+48c32
+<         public OrgPolicy apply(OrgPolicyInfo orgPolicyInfo) {
+---
+>         public OrgPolicyV3 apply(OrgPolicyInfo orgPolicyInfo) {
+57d40
 <   private RestoreDefault restoreDefault;
-63a48
->   {
-122a108
->   {
-125c111
+96,97c79,80
+<     BooleanPolicy toProtobuf() {
+<       return new BooleanPolicy().setEnforced(enforce);
+---
+>     BooleanPolicyV3 toProtobuf() {
+>       return new BooleanPolicyV3().setEnforced(enforce);
+100c83
+<     static BoolPolicy fromProtobuf(BooleanPolicy booleanPolicy) {
+---
+>     static BoolPolicy fromProtobuf(BooleanPolicyV3 booleanPolicy) {
+110,119c93
+<    * allowedValues and deniedValues fields. This is achieved by using the under: and optional is:
+<    * prefixes. The under: prefix denotes resource subtree values. The is: prefix is used to denote
+<    * specific values, and is required only if the value contains a ":". Values prefixed with "is:"
+<    * are treated the same as values with no prefix. Ancestry subtrees must be in one of the
+<    * following formats: - "projects/", e.g. "projects/tokyo-rain-123" - "folders/", e.g.
+<    * "folders/1234" - "organizations/", e.g. "organizations/1234" The supportsUnder field of the
+<    * associated Constraint defines whether ancestry prefixes can be used. You can set allowedValues
+<    * and deniedValues in the same Policy if allValues is ALL_VALUES_UNSPECIFIED. ALLOW or DENY are
+<    * used to allow or deny all values. If allValues is set to either ALLOW or DENY, allowedValues
+<    * and deniedValues must be unset.
+---
+>    * allowedValues and deniedValues fields.
+125,126c99
 <     private final List<java.lang.String> deniedValues;
+<     private final Boolean inheritFromParent;
 ---
 >     private final List<String> deniedValues;
-130c116
-<         String allValues,
----
->         (String allValues,
-197c183
+133d105
+<         Boolean inheritFromParent,
+138d109
+<       this.inheritFromParent = inheritFromParent;
+157,161d127
+<     /** Returns the inheritance behavior for this Policy */
+<     Boolean getInheritFromParent() {
+<       return inheritFromParent;
+<     }
+< 
+173d138
+<           .add("inheritFromParent", getInheritFromParent())
+190d154
+<           && Objects.equals(inheritFromParent, policies.inheritFromParent)
+196,197c160
+<       return Objects.hash(
 <           allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
 ---
->           (allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
-200,201c186,187
+>       return Objects.hash(allValues, allowedValues, deniedValues, suggestedValue);
+200,201c163,164
 <     ListPolicy toProtobuf() {
 <       return new ListPolicy()
 ---
->     Policy toProtobuf() {
->       return new Policy()
-209c195
+>     ListPolicyV3 toProtobuf() {
+>       return new ListPolicyV3()
+205d167
+<           .setInheritFromParent(inheritFromParent)
+209c171
 <     static Policies fromProtobuf(ListPolicy listPolicy) {
 ---
->     static Policies fromProtobuf(Policy listPolicy) {
-211c197
+>     static Policies fromProtobuf(ListPolicyV3 listPolicy) {
+211c173
 <           listPolicy.getAllValues(),
 ---
 >           (listPolicy.getAllValues(),
-225d210
+214d175
+<           listPolicy.getInheritFromParent(),
+225d185
 <     private RestoreDefault restoreDefault;
-236d220
+236d195
 <       this.restoreDefault = info.restoreDefault;
-261,265d244
+261,265d219
 <     Builder setRestoreDefault(RestoreDefault restoreDefault) {
 <       this.restoreDefault = restoreDefault;
 <       return this;
 <     }
 < 
-286d264
+286d239
 <     this.restoreDefault = builder.restoreDefault;
-311,315d288
+311,315d263
 <   /** Restores the default behavior of the constraint. */
 <   public RestoreDefault getRestoreDefault() {
 <     return restoreDefault;
 <   }
 < 
-339d311
+339d286
 <         && Objects.equals(restoreDefault, policyInfo.restoreDefault)
-346,347c318,319
+346,347c293
 <     return Objects.hash(
 <         boolPolicy, constraint, etag, policies, restoreDefault, updateTime, version);
 ---
->     return Objects.hash
->         (boolPolicy, constraint, etag, policies, updateTime, version);
-367c339
-<       orgPolicyProto.setListPolicy(policies.toProtobuf());
+>     return Objects.hash(boolPolicy, constraint, etag, policies, updateTime, version);
+360,361c306,307
+<   OrgPolicy toProtobuf() {
+<     OrgPolicy orgPolicyProto = new OrgPolicy();
 ---
->       orgPolicyProto.setPolicy(policies.toProtobuf());
-369d340
+>   OrgPolicyV3 toProtobuf() {
+>     OrgPolicyV3 orgPolicyProto = new OrgPolicyV3();
+365d310
+<     orgPolicyProto.setConstraint(constraint);
+369,370d313
 <     orgPolicyProto.setRestoreDefault(restoreDefault);
-382,383c353,354
-<     if (orgPolicyProtobuf.getListPolicy() != null) {
-<       builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getListPolicy()));
+<     orgPolicyProto.setEtag(etag);
+376c319
+<   static OrgPolicyInfo fromProtobuf(OrgPolicy orgPolicyProtobuf) {
 ---
->     if (orgPolicyProtobuf.getPolicy() != null) {
->       builder.setListPolicy(Policies.fromProtobuf(orgPolicyProtobuf.getPolicy());
-385d355
+>   static OrgPolicyInfo fromProtobuf(OrgPolicyV3 orgPolicyProtobuf) {
+381d323
+<     builder.setConstraint(orgPolicyProtobuf.getConstraint());
+385,386d326
 <     builder.setRestoreDefault(orgPolicyProtobuf.getRestoreDefault());
+<     builder.setEtag(orgPolicyProtobuf.getEtag());

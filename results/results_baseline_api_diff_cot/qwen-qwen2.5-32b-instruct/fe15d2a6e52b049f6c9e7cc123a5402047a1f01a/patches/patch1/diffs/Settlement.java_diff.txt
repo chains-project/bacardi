@@ -1,0 +1,53 @@
+18d17
+< import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
+20d18
+< import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
+23d20
+< 
+164c161,172
+<         final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+---
+>         final org.jvnet.jaxb2_commons.lang.ToStringStrategy2 strategy = new org.jvnet.jaxb2_commons.lang.ToStringStrategy2() {
+>             @Override
+>             public StringBuilder append(ObjectLocator locator, StringBuilder buffer, Object object) {
+>                 buffer.append(object.toString());
+>                 return buffer;
+>             }
+> 
+>             @Override
+>             public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, Object object) {
+>                 return buffer;
+>             }
+>         };
+166c174
+<         append(null, buffer, strategy);
+---
+>         append(null, buffer, this);
+171,174c179,180
+<     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+<         strategy.appendStart(locator, this, buffer);
+<         appendFields(locator, buffer, strategy);
+<         strategy.appendEnd(locator, this, buffer);
+---
+>     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, Object object) {
+>         buffer.append(object.toString());
+179c185
+<     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
+---
+>     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, Object object) {
+183c189
+<             strategy.appendField(locator, this, "settlementDiscount", buffer, theSettlementDiscount, (this.settlementDiscount!= null));
+---
+>             buffer.append("settlementDiscount=").append(theSettlementDiscount);
+188c194
+<             strategy.appendField(locator, this, "settlementAmount", buffer, theSettlementAmount, (this.settlementAmount!= null));
+---
+>             buffer.append(", settlementAmount=").append(theSettlementAmount);
+193c199
+<             strategy.appendField(locator, this, "settlementDate", buffer, theSettlementDate, (this.settlementDate!= null));
+---
+>             buffer.append(", settlementDate=").append(theSettlementDate);
+198c204
+<             strategy.appendField(locator, this, "paymentTerms", buffer, thePaymentTerms, (this.paymentTerms!= null));
+---
+>             buffer.append(", paymentTerms=").append(thePaymentTerms);

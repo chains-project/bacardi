@@ -29,7 +29,12 @@ import java.util.Arrays;
 import java.util.Base64;
 import org.jasypt.encryption.pbe.StandardPBEByteEncryptor;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
-import org.jasypt.spring.security3.PBEStringEncryptor;
+import org.jasypt.spring.security2.PBEPasswordEncoder; // Adjusted import
+
+import it.geosolutions.geostore.core.security.password.CharArrayPasswordEncoder;
+import it.geosolutions.geostore.core.security.password.KeyStoreProvider;
+import it.geosolutions.geostore.core.security.password.KeyStoreProviderImpl;
+import it.geosolutions.geostore.core.security.password.PasswordEncodingType;
 
 /**
  * Password Encoder using symmetric encryption
@@ -86,7 +91,7 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 	}
 
 	@Override
-	protected PBEStringEncryptor createStringEncoder() {
+	protected PasswordEncoder createStringEncoder() {
 		byte[] password = lookupPasswordFromKeyStore();
 
 		char[] chars = toChars(password);
@@ -99,7 +104,10 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 			}
 			stringEncrypter.setAlgorithm(getAlgorithm());
 
-			return stringEncrypter;
+			PBEPasswordEncoder encoder = new PBEPasswordEncoder(); // Adjusted class name
+			encoder.setPbeStringEncryptor(stringEncrypter);
+
+			return encoder;
 		} finally {
 			scramble(password);
 			scramble(chars);
@@ -172,7 +180,7 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 	public String decode(String encPass) throws UnsupportedOperationException {
 		if (stringEncrypter == null) {
 			// not initialized
-			createStringEncoder();
+			getStringEncoder();
 		}
 
 		return stringEncrypter.decrypt(removePrefix(encPass));
@@ -183,7 +191,7 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 			throws UnsupportedOperationException {
 		if (byteEncrypter == null) {
 			// not initialized
-			createCharEncoder();
+			getCharEncoder();
 		}
 
 		byte[] decoded = Base64.getDecoder().decode(removePrefix(encPass).getBytes());

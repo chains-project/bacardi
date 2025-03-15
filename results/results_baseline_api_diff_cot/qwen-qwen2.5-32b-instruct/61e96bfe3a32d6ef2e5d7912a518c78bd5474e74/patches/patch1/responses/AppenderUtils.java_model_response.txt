@@ -1,4 +1,19 @@
 ```java
+/**
+ * Copyright 2019 Pinterest, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.pinterest.singer.client.logback;
 
 import com.pinterest.singer.thrift.LogMessage;
@@ -55,6 +70,11 @@ public class AppenderUtils {
     @Override
     public void doEncode(LogMessage logMessage) throws IOException {
       try {
+        if (framedTransport == null) {
+          final int bufferCapacity = 10;
+          framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity);
+          protocol = new TBinaryProtocol(framedTransport);
+        }
         logMessage.write(protocol);
         framedTransport.flush();
       } catch (TException e) {
@@ -70,16 +90,6 @@ public class AppenderUtils {
     @Override
     public byte[] footerBytes() {
       return new byte[0];
-    }
-
-    public void init(OutputStream os) {
-      this.os = os;
-      // Use the TFlushingFastFramedTransport to be compatible with singer_thrift
-      // log.
-      final int bufferCapacity = 10;
-      framedTransport = new TFastFramedTransport(new TIOStreamTransport(os),
-          bufferCapacity);
-      protocol = new TBinaryProtocol(framedTransport);
     }
   }
 
@@ -98,13 +108,12 @@ public class AppenderUtils {
       long rotateThresholdKBytes,
       Context context,
       int maxRetentionHours) {
-    RollingFileAppender<LogMessage> appender = new RollingFileAppender<LogMessage>();
+    RollingFileAppender<LogMessage> appender = new RollingFileAppender<>();
     appender.setContext(context);
     appender.setAppend(true);
     appender.setPrudent(false);
 
     LogMessageEncoder encoder = new LogMessageEncoder();
-    encoder.init(null); // Initialize with null, as the actual initialization should be handled elsewhere
     appender.setEncoder(encoder);
     appender.setFile(basePath + PATH_SEP + topic);
 
@@ -133,4 +142,4 @@ public class AppenderUtils {
 }
 ```
 
-In this solution, the `EncoderBase` class has been replaced with the `Encoder` interface, and the `LogMessageEncoder` class now implements the `Encoder` interface. The `headerBytes` and `footerBytes` methods have been added to comply with the `Encoder` interface. The `init` method is now a regular method, as `EncoderBase`'s `init` method is no longer available. The `createFileRollingThriftAppender` method has been adjusted to initialize the `LogMessageEncoder` with `null` for the `OutputStream`, as the actual initialization should be handled elsewhere in the application.
+In this solution, the `EncoderBase` class has been replaced with the `Encoder` interface, and the `LogMessageEncoder` class has been updated to implement the necessary methods from the `Encoder` interface. The `headerBytes` and `footerBytes` methods are added to comply with the new API requirements. The `doEncode` method is adjusted to initialize the `framedTransport` and `protocol` only once, ensuring that the encoder can be reused. The `start` and `stop` methods are implemented as no-ops, as they are required by the `Encoder` interface but not used in this specific context.

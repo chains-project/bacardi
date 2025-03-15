@@ -23,14 +23,13 @@
 <  * THE SOFTWARE.
 <  */
 < 
-39,40c15
-< import org.apache.maven.artifact.versioning.ComparableVersion;
+40c16
 < import org.kohsuke.github.GHCompare;
 ---
 > import org.kohsuke.github.GHRepository;
-41a17
-> import org.kohsuke.github.GHPullRequest;
-63,99d38
+41a18
+> import org.kohsuke.github.GitHubComparison;
+63,99d39
 <     @FunctionalInterface
 <     public interface Log {
 <         void info(String message);
@@ -68,44 +67,102 @@
 <         }
 <     }
 < 
-151,155d89
+123,161d62
+<     private @CheckForNull VersionAndRepo doFind(String groupId, String artifactId, String currentVersion, String branch) throws Exception {
+<         ComparableVersion currentV = new ComparableVersion(currentVersion);
+<         log.info("Searching for updates to " + groupId + ":" + artifactId + ":" + currentV + " within " + branch);
+<         SortedSet<VersionAndRepo> candidates = loadVersions(groupId, artifactId);
+<         if (candidates.isEmpty()) {
+<             log.info("Found no candidates");
+<             return null;
+<         }
+<         log.info("Found " + candidates.size() + " candidates from " + candidates.first() + " down to " + candidates.last());
+<         for (VersionAndRepo candidate : candidates) {
+<             if (candidate.version.compareTo(currentV) <= 0) {
+<                 log.info("Stopping search at " + candidate + " since it is no newer than " + currentV);
+<                 return null;
+<             }
+<             log.info("Considering " + candidate);
+<             GitHubCommit ghc = loadGitHubCommit(candidate);
+<             if (ghc != null) {
+<                 log.info("Mapped to: " + ghc);
+<                 if (isAncestor(ghc, branch)) {
+<                     log.info("Seems to be within " + branch + ", so accepting");
+<                     return candidate;
+<                 } else {
+<                     log.info("Does not seem to be within " + branch);
+<                 }
+<             } else {
+<                 log.info("Does not seem to be an incremental release, so accepting");
+<                 // TODO may still be useful to select MRP versions targeted to an origin branch.
+<                 // (For example, select the latest backport from a stable branch rather than trunk.)
 <                 // The problem is that we cannot then guarantee that the POM has been flattened
 <                 // (this is only guaranteed for repositories which *may* produce incrementals),
 <                 // and loadGitHubCommit will not work for nonflattened POMs from reactor submodules:
 <                 // it would have to be made more complicated to resolve the parent POM(s),
 <                 // or we would need to switch the implementation to use Maven/Aether resolution APIs.
-203,229d136
-<      * Parses {@code /project/scm/url} and {@code /project/scm/tag} out of a POM, if mapped to a commit.
-<      */
-<     private static @CheckForNull GitHubCommit loadGitHubCommit(VersionAndRepo vnr) throws Exception {
-<         String pom = vnr.fullURL("pom");
-<         Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(pom);
-<         NodeList scmEs = doc.getElementsByTagName("scm");
-<         if (scmEs.getLength() != 1) {
-<             return null;
+<                 return candidate;
+<             }
 <         }
-<         Element scmE = (Element) scmEs.item(0);
-<         Element urlE = theElement(scmE, "url", pom);
-<         String url = urlE.getTextContent();
-<         Matcher m = Pattern.compile("https?://github[.]com/([^/]+)/([^/]+?)([.]git)?(/.*)?").matcher(url);
-<         if (!m.matches()) {
-<             throw new Exception("Unexpected /project/scm/url " + url + " in " + pom + "; expecting https://github.com/owner/repo format");
-<         }
-<         Element tagE = theElement(scmE, "tag", pom);
-<         String tag = tagE.getTextContent();
-<         String groupId = m.group(1);
-<         String artifactId = m.group(2).replace("${project.artifactId}", vnr.artifactId);
-<         if (!tag.matches("[a-f0-9]{40}")) {
-<             return null;
-<         }
-<         return new GitHubCommit(groupId, artifactId, tag);
+<         return null;
 <     }
 < 
-<     /**
-239,240c146,148
+188,201d88
+<     private static final class GitHubCommit {
+<         final String owner;
+<         final String repo;
+<         final String hash;
+<         GitHubCommit(String owner, String repo, String hash) {
+<             this.owner = owner;
+<             this.repo = repo;
+<             this.hash = hash;
+<         }
+<         @Override public String toString() {
+<             return "https://github.com/" + owner + '/' + repo + "/commit/" + hash;
+<         }
+<     }
+< 
+231,232d117
+<      * {@code curl -s -u … https://api.github.com/repos/<owner>/<repo>/compare/<branch>...<hash> | jq -r .status}
+<      * will return {@code identical} or {@code behind} if so, else {@code diverged} or {@code ahead}.
+239,240c124,126
 <             GHCompare.Status status = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo).getCompare(branch, ghc.hash).status;
 <             return status == GHCompare.Status.identical || status == GHCompare.Status.behind;
 ---
 >             GHRepository repo = GitHub.connect().getRepository(ghc.owner + '/' + ghc.repo);
->             GHPullRequest pr = repo.getPullRequest(ghc.hash);
->             return pr.getBase().getRef().equals(branch);
+>             GitHubComparison comparison = repo.createCompare(ghc.hash, branch);
+>             return comparison.getStatus() == GitHubComparison.Status.BEHIND || comparison.getStatus() == GitHubComparison.Status.EQUAL;
+279a166,198
+>     private @CheckForNull VersionAndRepo doFind(String groupId, String artifactId, String currentVersion, String branch) throws Exception {
+>         ComparableVersion currentV = new ComparableVersion(currentVersion);
+>         log.info("Searching for updates to " + groupId + ":" + artifactId + ":" + currentV + " within " + branch);
+>         SortedSet<VersionAndRepo> candidates = loadVersions(groupId, artifactId);
+>         if (candidates.isEmpty()) {
+>             log.info("Found no candidates");
+>             return null;
+>         }
+>         log.info("Found " + candidates.size() + " candidates from " + candidates.first() + " down to " + candidates.last());
+>         for (VersionAndRepo candidate : candidates) {
+>             if (candidate.version.compareTo(currentV) <= 0) {
+>                 log.info("Stopping search at " + candidate + " since it is no newer than " + currentV);
+>                 return null;
+>             }
+>             log.info("Considering " + candidate);
+>             GitHubCommit ghc = loadGitHubCommit(candidate);
+>             if (ghc != null) {
+>                 log.info("Mapped to: " + ghc);
+>                 if (isAncestor(ghc, branch)) {
+>                     log.info("Seems to be within " + branch + ", so accepting");
+>                     return candidate;
+>                 } else {
+>                     log.info("Does not seem to be within " + branch);
+>                 }
+>             } else {
+>                 log.info("Does not seem to be an incremental release, so accepting");
+>                 // TODO may still be useful to select MRP versions targeted to an origin branch.
+>                 // (For example, select the latest backport from a stable branch rather than trunk.)
+>                 return candidate;
+>             }
+>         }
+>         return null;
+>     }

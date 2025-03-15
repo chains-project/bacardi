@@ -2,17 +2,19 @@
 < import com.artipie.http.rq.RequestLine;
 < import com.artipie.http.rq.RqMethod;
 < import com.artipie.http.rs.RsStatus;
-40d36
-< import org.junit.jupiter.params.provider.Arguments;
-52c48
+52c49
 < @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 ---
 > @SuppressWarnings("PMD.UnusedPrivateMethod")
-80c76
-<                 method.headers(new TestAuthentication.User("chuck", "letmein")),
+69c66,70
+<             method.slice("whatever").response(line.toString(), Headers.EMPTY, Content.EMPTY),
 ---
->                 method.headers(TestAuthentication.BOB),
-194,214d189
+>             method.slice("whatever").response(
+>                 line.toString(),
+>                 Headers.EMPTY,
+>                 Content.EMPTY
+>             ),
+194,211c195,206
 <         return Stream.of(new Basic(), new Bearer()).flatMap(AuthTest::setups);
 <     }
 < 
@@ -31,60 +33,24 @@
 <             config.digest().string()
 <         ).getBytes();
 <         return Flowable.just(ByteBuffer.wrap(data));
-<     }
-< 
-<     private static Stream<Arguments> setups(final Method method) {
-217c192
-<                 method,
 ---
+>         return Stream.of(
+>             Arguments.of(
 >                 new Basic(),
-222,279c197,199
-<                 method,
-<                 new RequestLine(RqMethod.HEAD, "/v2/my-alpine/manifests/1"),
-<                 "repository:my-alpine:pull"
-<             ),
-<             Arguments.of(
-<                 method,
-<                 new RequestLine(RqMethod.GET, "/v2/my-alpine/manifests/2"),
-<                 "repository:my-alpine:pull"
-<             ),
-<             Arguments.of(
-<                 method,
-<                 new RequestLine(RqMethod.PUT, "/v2/my-alpine/manifests/latest"),
-<                 "repository:my-alpine:push"
-<             ),
-<             Arguments.of(
-<                 method,
-<                 new RequestLine(RqMethod.PUT, "/v2/my-alpine/manifests/latest"),
-<                 "repository:my-alpine:overwrite"
-<             ),
-<             Arguments.of(
-<                 method,
-<                 new RequestLine(RqMethod.GET, "/v2/my-alpine/tags/list"),
-<                 "repository:my-alpine:pull"
-<             ),
-<             Arguments.of(
-<                 method,
-<                 new RequestLine(RqMethod.HEAD, "/v2/my-alpine/blobs/sha256:123"),
-<                 "repository:my-alpine:pull"
-<             ),
-<             Arguments.of(
-<                 method,
+>                 new RequestLine(RqMethod.GET, "/v2/"),
+>                 "registry:base:*"
+>             ),
+>             Arguments.of(
+>                 new Bearer(),
+>                 new RequestLine(RqMethod.GET, "/v2/"),
+>                 "registry:base:*"
+>             )
+>         );
+253c248
 <                 new RequestLine(RqMethod.GET, "/v2/my-alpine/blobs/sha256:012345"),
-<                 "repository:my-alpine:pull"
-<             ),
-<             Arguments.of(
-<                 method,
-<                 new RequestLine(RqMethod.POST, "/v2/my-alpine/blobs/uploads/"),
-<                 "repository:my-alpine:push"
-<             ),
-<             Arguments.of(
-<                 method,
-<                 new RequestLine(RqMethod.PATCH, "/v2/my-alpine/blobs/uploads/123"),
-<                 "repository:my-alpine:push"
-<             ),
-<             Arguments.of(
-<                 method,
+---
+>                 new RequestLine(RqMethod.GET, "/v2/my-alpine/blobs/sha256:012233"),
+268,277d262
 <                 new RequestLine(RqMethod.PUT, "/v2/my-alpine/blobs/uploads/12345"),
 <                 "repository:my-alpine:push"
 <             ),
@@ -95,15 +61,31 @@
 <             ),
 <             Arguments.of(
 <                 method,
-<                 new RequestLine(RqMethod.GET, "/v2/_catalog"),
-<                 "registry:catalog:*"
----
->                 new Bearer(),
->                 new RequestLine(RqMethod.GET, "/v2/"),
->                 "registry:base:*"
-351c271
+284,288d268
+<     /**
+<      * Authentication method.
+<      *
+<      * @since 0.8
+<      */
+297,301d276
+<     /**
+<      * Basic authentication method.
+<      *
+<      * @since 0.8
+<      */
+304,306d278
+<         /**
+<          * Docker repo.
+<          */
+337,341d308
+<     /**
+<      * Bearer authentication method.
+<      *
+<      * @since 0.8
+<      */
+351c318
 <                         Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
 ---
 >                         TestAuthentication.USERS.stream()
-353d272
+353d319
 <                             .map(user -> new Authentication.User(user.name()))

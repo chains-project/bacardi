@@ -16,6 +16,9 @@ import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
+import org.hamcrest.core.IsEqual;
+import org.hamcrest.core.IsNot;
+import org.hamcrest.core.StringContains;
 
 /**
  * REST response.
@@ -27,12 +30,12 @@ import org.hamcrest.MatcherAssert;
  *   .fetch()
  *   .as(RestResponse.class)
  *   .assertStatus(200)
- *   .assertBody(Matchers.containsString("hello, world!"))
- *   .assertHeader("Content-Type", Matchers.hasItem("text/plain"))
+ *   .assertBody(new StringContains("hello, world!"))
+ *   .assertHeader("Content-Type", new IsEqual<>(Collections.singletonList("text/plain")))
  *   .jump(URI.create("/users"))
  *   .fetch();</pre>
  *
- * <p>Method {@link #jump(URI)} creates a new instance of class
+ * <p>The method {@link #jump(URI)} creates a new instance of class
  * {@link Request} with all cookies transferred from the current one.
  *
  * <p>The class is immutable and thread-safe.
@@ -83,7 +86,8 @@ public final class RestResponse extends AbstractResponse {
                 "HTTP response status is not equal to %d:%n%s",
                 status, this
             ),
-            this.status(), new StatusMatch(message, status)
+            this.status(),
+            new IsEqual<>(status)
         );
         return this;
     }
@@ -133,7 +137,8 @@ public final class RestResponse extends AbstractResponse {
             String.format(
                 "HTTP response binary content is not valid:%n%s",
                 this
-            ), this.binary(),
+            ),
+            this.binary(),
             matcher
         );
         return this;
@@ -178,7 +183,7 @@ public final class RestResponse extends AbstractResponse {
      * @since 0.9
      */
     public RestResponse assertHeader(final String name, final String value) {
-        return this.assertHeader(name, new HeaderMatch(value));
+        return this.assertHeader(name, new IsEqual<>(Collections.singletonList(value)));
     }
 
     /**
@@ -214,7 +219,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            new HeaderMatch()
+            new IsNot<>(new IsEqual<>(Collections.emptyList()))
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))
@@ -231,7 +236,8 @@ public final class RestResponse extends AbstractResponse {
         final Map<String, List<String>> headers = this.headers();
         MatcherAssert.assertThat(
             "cookies should be set in HTTP header",
-            headers.containsKey(HttpHeaders.SET_COOKIE)
+            headers.containsKey(HttpHeaders.SET_COOKIE),
+            new IsEqual<>(true)
         );
         final List<String> cookies = headers.get(HttpHeaders.SET_COOKIE);
         final Iterator<String> iterator = cookies.iterator();
@@ -252,7 +258,7 @@ public final class RestResponse extends AbstractResponse {
                 cookies
             ),
             cookie,
-            new NotNullMatch()
+            new IsEqual<>(null)
         );
         assert cookie != null;
         return cookie;
@@ -298,42 +304,6 @@ public final class RestResponse extends AbstractResponse {
         @Override
         public boolean matches(final Object resp) {
             return Response.class.cast(resp).status() == this.status;
-        }
-    }
-
-    /**
-     * Header match.
-     */
-    private static final class HeaderMatch extends CustomMatcher<Iterable<String>> {
-
-        /**
-         * Ctor.
-         */
-        HeaderMatch() {
-            super("Header match");
-        }
-
-        @Override
-        public boolean matches(final Object item) {
-            return !((Iterable<String>) item).iterator().hasNext();
-        }
-    }
-
-    /**
-     * Not null match.
-     */
-    private static final class NotNullMatch extends CustomMatcher<Object> {
-
-        /**
-         * Ctor.
-         */
-        NotNullMatch() {
-            super("Not null match");
-        }
-
-        @Override
-        public boolean matches(final Object item) {
-            return item != null;
         }
     }
 }

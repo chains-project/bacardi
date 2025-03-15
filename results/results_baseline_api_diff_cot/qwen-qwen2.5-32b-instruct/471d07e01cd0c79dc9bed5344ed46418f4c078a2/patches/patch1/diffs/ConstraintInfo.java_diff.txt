@@ -20,21 +20,43 @@
 < import com.google.api.services.cloudresourcemanager.model.ListConstraint;
 ---
 > import com.google.api.services.cloudresourcemanager.v3.model.BooleanConstraint;
-> import com.google.api.services.cloudresourcemanager.v3.model.ListConstraint;
 > import com.google.api.services.cloudresourcemanager.v3.model.Constraint;
+> import com.google.api.services.cloudresourcemanager.v3.model.ListConstraint;
 34a20
 > {
 115c101
 <       return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
 ---
 >       return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder));
-253c239
-<         booleanConstraint, constraintDefault, description, displayName, constraints, name, version);
+256c242
+<   /** Returns a builder for the {@link ConstraintInfo} object. */
 ---
->         (booleanConstraint, constraintDefault, description, displayName, constraints, name, version);
+>   /** Returns a builder for {@code ConstraintInfo}. */
+261c247
+<   /** Returns a builder for the {@link ConstraintInfo} object. */
+---
+>   /** Returns a builder for {@code ConstraintInfo}. */
+275,276c261,262
+<     constraintProto.setName(name);
+<     constraintProto.setVersion(version);
+---
+>     constraintProto.setName = name;
+>     constraintProto.version = version;
+281c267
+<     Builder builder = newBuilder(constraintProtobuf.getName());
+---
+>     Builder builder = newBuilder(constraintProtobuf.name);
+284c270
+<     builder.setDescription(constraintProtobuf.getDescription());
+---
+>     builder.setDescription(constraintProtobuf.getDescription);
 289,290c275,276
 <     if (constraintProtobuf.getName() != null && !constraintProtobuf.getName().equals("Unnamed")) {
 <       builder.setName(constraintProtobuf.getName());
 ---
->     if (constraintProtobuf.getName() != null && !constraintProtobuf.name().equals("Unnamed")) {
->       builder.setName(constraintProtobuf.name());
+>     if (constraintProtobuf.name != null && !constraintProtobuf.name.equals("Unnamed")) {
+>       builder.setName = constraintProtobuf.name;
+292c278
+<     builder.setVersion(constraintProtobuf.getVersion());
+---
+>     builder.version = constraintProtobuf.version;

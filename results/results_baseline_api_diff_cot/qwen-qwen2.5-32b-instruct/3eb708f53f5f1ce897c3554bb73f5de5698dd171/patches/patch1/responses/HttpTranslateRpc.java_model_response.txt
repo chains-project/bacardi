@@ -10,11 +10,6 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.cloud.http.HttpTransportOptions;
 import com.google.cloud.translate.TranslateException;
 import com.google.cloud.translate.TranslateOptions;
-import com.google.cloud.translate.v3.Translate;
-import com.google.cloud.translate.v3.TranslateClient;
-import com.google.cloud.translate.v3.TranslateTextRequest;
-import com.google.cloud.translate.v3.TranslateTextResponse;
-import com.google.cloud.translate.v3.Translation;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -24,16 +19,15 @@ import java.util.Map;
 
 public class HttpTranslateRpc implements TranslateRpc {
 
-{
   private final TranslateOptions options;
-  private final TranslateClient translate;
+  private final com.google.cloud.translate.v3.Translate translate;
 
   public HttpTranslateRpc(TranslateOptions options) {
     HttpTransportOptions transportOptions = (HttpTransportOptions) options.getTransportOptions();
     HttpTransport transport = transportOptions.getHttpTransportFactory().create();
     HttpRequestInitializer initializer = transportOptions.getHttpRequestInitializer(options);
     this.options = options;
-    translate = TranslateClient.create();
+    this.translate = new com.google.cloud.translate.v3.Translate(transport, new JacksonFactory(), initializer);
   }
 
   private static TranslateException translate(IOException exception) {
@@ -49,9 +43,9 @@ public class HttpTranslateRpc implements TranslateRpc {
   }
 
   @Override
-  public List<List<Map<String, Double>> detect(List<String> texts) {
+  public List<List<Map<String, Double>>> detect(List<String> texts) {
     try {
-      List<List<Map<String, Double>> detections = translate.detectLanguage(texts).toArray(new String[0]));
+      List<List<Map<String, Double>>> detections = translate.detect(texts).getDetections();
       return detections != null ? detections : ImmutableList.of();
     } catch (IOException ex) {
       throw translate(ex);
@@ -61,7 +55,7 @@ public class HttpTranslateRpc implements TranslateRpc {
   @Override
   public List<Map<String, String>> listSupportedLanguages(Map<Option, ?> optionMap) {
     try {
-      List<Map<String, String>> languages = translate.listSupportedLanguages();
+      List<Map<String, String>> languages = translate.listSupportedLanguages().getLanguages();
       return languages != null ? languages : ImmutableList.of();
     } catch (IOException ex) {
       throw translate(ex);
@@ -69,11 +63,22 @@ public class HttpTranslateRpc implements TranslateRpc {
   }
 
   @Override
-  public List<Translation> translate(List<String> texts, Map<Option, ?> optionMap) {
+  public List<Map<String, String>> translate(List<String> texts, Map<Option, ?> optionMap) {
     try {
       String targetLanguage = firstNonNull(Option.TARGET_LANGUAGE.getString(optionMap), options.getTargetLanguage());
-      List<Translation> translations = translate.translateText(texts.toArray(new String[0]), targetLanguage);
-      return translations != null ? translations : ImmutableList.of();
+      List<Map<String, String>> translations = translate.translate(texts, targetLanguage).getTranslations();
+      return Lists.transform(
+          translations != null ? translations : ImmutableList.of(),
+          new Function<Map<String, String>, Map<String, String>>() {
+            @Override
+            public Map<String, String> apply(Map<String, String> translationsResource) {
+              // Since setDetectedSourceLanguage and getDetectedSourceLanguage are removed, we need to handle this differently.
+              // Assuming the source language is known or can be inferred, we can set it directly.
+              String sourceLanguage = Option.SOURCE_LANGUAGE.getString(optionMap);
+              translationsResource.put("sourceLanguage", sourceLanguage);
+              return translationsResource;
+            }
+          });
     } catch (IOException ex) {
       throw translate(ex);
     }
@@ -81,4 +86,12 @@ public class HttpTranslateRpc implements TranslateRpc {
 }
 ```
 
-Note: The above solution assumes that the new API version has methods like `detectLanguage`, `listSupportedLanguages`, and `translateText` that return the appropriate data structures. The actual implementation details of these methods and their return types should be adjusted according to the actual API documentation of the new version. The `TranslateClient.create()` method is a placeholder for the actual client creation method in the new API. The `TranslateTextRequest` and `TranslateTextResponse` classes are placeholders for the actual request and response classes in the new API. Adjust these according to the new API's documentation.
+In this solution, I've made the following changes to address the API changes:
+
+1. Updated the `translate` field to use the new `com.google.cloud.translate.v3.Translate` class.
+2. Adjusted the `detect` method to return a `List<List<Map<String, Double>>>` instead of `List<List<DetectionsResourceItems>>`, assuming the new API returns a similar structure.
+3. Adjusted the `listSupportedLanguages` method to return a `List<Map<String, String>>` instead of `List<LanguagesResource>`, assuming the new API returns a similar structure.
+4. Adjusted the `translate` method to return a `List<Map<String, String>>` instead of `List<TranslationsResource>`, and removed the usage of `setDetectedSourceLanguage` and `getDetectedSourceLanguage` as they no longer exist in the new API.
+5. Updated the imports to reflect the new API structure, assuming the new API is under the `com.google.cloud.translate.v3` package.
+
+Please note that the actual structure of the new API's return types and methods should be verified and adjusted accordingly. The above solution assumes a similar structure to the old API for demonstration purposes.
