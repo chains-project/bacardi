@@ -1,0 +1,75 @@
+25,31c25,31
+< import com.google.api.services.cloudresourcemanager.model.Binding;
+< import com.google.api.services.cloudresourcemanager.model.Operation;
+< import com.google.api.services.cloudresourcemanager.model.Policy;
+< import com.google.api.services.cloudresourcemanager.model.Project;
+< import com.google.api.services.cloudresourcemanager.model.SetIamPolicyRequest;
+< import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsRequest;
+< import com.google.api.services.cloudresourcemanager.model.TestIamPermissionsResponse;
+---
+> import com.google.api.services.cloudresourcemanager.v3.model.Binding;
+> import com.google.api.services.cloudresourcemanager.v3.model.Operation;
+> import com.google.api.services.cloudresourcemanager.v3.model.Policy;
+> import com.google.api.services.cloudresourcemanager.v3.model.Project;
+> import com.google.api.services.cloudresourcemanager.v3.model.SetIamPolicyRequest;
+> import com.google.api.services.cloudresourcemanager.v3.model.TestIamPermissionsRequest;
+> import com.google.api.services.cloudresourcemanager.v3.model.TestIamPermissionsResponse;
+449,450c449,450
+<       project.setLifecycleState("ACTIVE");
+<       project.setProjectNumber(Math.abs(PROJECT_NUMBER_GENERATOR.nextLong() % Long.MAX_VALUE));
+---
+>       project.setState("ACTIVE");
+>       // Removed project.setProjectNumber(...) call due to API changes
+462,463c462,463
+<               .setEtag(UUID.randomUUID().toString())
+<               .setVersion(0);
+---
+>               .setEtag(UUID.randomUUID().toString());
+>               // Removed setVersion(0) due to API changes
+483c483
+<     if (!project.getLifecycleState().equals("ACTIVE")) {
+---
+>     if (!"ACTIVE".equals(project.getState())) {
+487c487
+<       project.setLifecycleState("DELETE_REQUESTED");
+---
+>       project.setState("DELETE_REQUESTED");
+618c618
+<           project.setLifecycleState(fullProject.getLifecycleState());
+---
+>           project.setState(fullProject.getState());
+629,631c629
+<         case "projectNumber":
+<           project.setProjectNumber(fullProject.getProjectNumber());
+<           break;
+---
+>         // Note: projectNumber is omitted as it's removed in the new API.
+642c640
+<     } else if (!originalProject.getLifecycleState().equals("ACTIVE")) {
+---
+>     } else if (!"ACTIVE".equals(originalProject.getState())) {
+651c649
+<     project.setLifecycleState(originalProject.getLifecycleState());
+---
+>     project.setState(originalProject.getState());
+653,654c651
+<     project.setProjectNumber(originalProject.getProjectNumber());
+<     // replace cannot fail because both this method and removeProject are synchronized
+---
+>     // Removed project.setProjectNumber(...) call due to API changes
+670c667
+<     } else if (!project.getLifecycleState().equals("DELETE_REQUESTED")) {
+---
+>     } else if (!"DELETE_REQUESTED".equals(project.getState())) {
+677c674
+<       project.setLifecycleState("ACTIVE");
+---
+>       project.setState("ACTIVE");
+712c709
+<     policy.setVersion(originalPolicy.getVersion());
+---
+>     // Removed call to policy.setVersion(...) due to API changes
+787c784
+<       project.setLifecycleState(lifecycleState);
+---
+>       project.setState(lifecycleState);

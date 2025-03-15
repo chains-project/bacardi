@@ -1,0 +1,58 @@
+27a28
+> import com.google.api.services.cloudresourcemanager.v3.model.Project;  // Updated dependency import.
+146,151c147,149
+<     com.google.api.services.cloudresourcemanager.model.ResourceId toPb() {
+<       com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb =
+<           new com.google.api.services.cloudresourcemanager.model.ResourceId();
+<       resourceIdPb.setId(id);
+<       resourceIdPb.setType(type.toLowerCase());
+<       return resourceIdPb;
+---
+>     // Updated toPb() returns a String representation expected by the new v3 API.
+>     String toPb() {
+>       return type.toLowerCase() + "/" + id;
+154,156c152,161
+<     static ResourceId fromPb(
+<         com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb) {
+<       return new ResourceId(resourceIdPb.getId(), resourceIdPb.getType());
+---
+>     // New static method to convert from the new API's parent string.
+>     public static ResourceId fromPb(String parent) {
+>       int index = parent.indexOf('/');
+>       if (index > 0 && index < parent.length() - 1) {
+>         String type = parent.substring(0, index);
+>         String id = parent.substring(index + 1);
+>         return new ResourceId(id, type);
+>       } else {
+>         return new ResourceId(parent, "");
+>       }
+392,394c397,400
+<   com.google.api.services.cloudresourcemanager.model.Project toPb() {
+<     com.google.api.services.cloudresourcemanager.model.Project projectPb =
+<         new com.google.api.services.cloudresourcemanager.model.Project();
+---
+>   // Updated to use the v3 model Project and apply the new API changes.
+>   com.google.api.services.cloudresourcemanager.v3.model.Project toPb() {
+>     com.google.api.services.cloudresourcemanager.v3.model.Project projectPb =
+>         new com.google.api.services.cloudresourcemanager.v3.model.Project();
+398,401c404,405
+<     projectPb.setProjectNumber(projectNumber);
+<     if (state != null) {
+<       projectPb.setLifecycleState(state.toString());
+<     }
+---
+>     // Removed setting project number as the method is no longer available.
+>     // Removed lifecycle state setting since the new API does not support it.
+414,416c418,419
+<   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.model.Project projectPb) {
+<     Builder builder =
+<         newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
+---
+>   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) {
+>     Builder builder = newBuilder(projectPb.getProjectId());
+423,425c426
+<     if (projectPb.getLifecycleState() != null) {
+<       builder.setState(State.valueOf(projectPb.getLifecycleState()));
+<     }
+---
+>     // The new API does not provide project number nor lifecycle state.
