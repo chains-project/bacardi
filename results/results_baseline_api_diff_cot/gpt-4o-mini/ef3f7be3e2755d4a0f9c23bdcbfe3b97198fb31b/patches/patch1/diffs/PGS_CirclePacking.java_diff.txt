@@ -1,26 +1,21 @@
-26,27d25
+26,28c26,29
 < import org.tinspin.index.PointDistanceFunction;
 < import org.tinspin.index.PointEntryDist;
-140,141c138,139
-<          * {@code points} defines the maximum number of circles the packing can have; in
-<          * practice, the packing will contain somewhat fewer circles.
+< import org.tinspin.index.covertree.CoverTree;
 ---
->          * {@code points} defines the maximum number of circles the packing can
->          * have; in practice, the packing will contain somewhat fewer circles.
-226c224,225
+> import org.tinspin.index.PointEntry; // Updated import
+> import org.tinspin.index.PointIndex; // Updated import
+> import org.tinspin.index.PointIndexWrapper; // Updated import
+> import org.tinspin.index.covertree.CoverTree; // Removed as per API changes
+203c204
+<                 final CoverTree<PVector> tree = CoverTree.create(3, 2, circleDistanceMetric);
+---
+>                 final PointIndex<PVector> tree = PointIndex.create(3, 2, circleDistanceMetric); // Updated to use PointIndex
+226c227
 <                         final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
 ---
->                         // Updated to use a new nearest neighbor search method
->                         final PVector nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
-233,235c232,234
-<                         final float dx = p.x - nn.value().x;
-<                         final float dy = p.y - nn.value().y;
-<                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z);
----
->                         final float dx = p.x - nn.x;
->                         final float dy = p.y - nn.y;
->                         final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.z);
-645c644
+>                         final PointEntry<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // Updated to use PointEntry
+645c646
 <         private static final PointDistanceFunction circleDistanceMetric = (p1, p2) -> {
 ---
 >         private static final org.tinspin.index.PointDistanceFunction circleDistanceMetric = (p1, p2) -> {

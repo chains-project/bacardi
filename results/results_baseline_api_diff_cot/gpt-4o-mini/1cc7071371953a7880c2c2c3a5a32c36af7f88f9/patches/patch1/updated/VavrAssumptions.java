@@ -21,12 +21,11 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import io.vavr.control.Validation;
-import org.assertj.core.internal.bytebuddy.ByteBuddy;
-import org.assertj.core.internal.bytebuddy.dynamic.scaffold.MethodGraph;
+import org.assertj.core.internal.bytebuddy.agent.builder.AgentBuilder;
+import org.assertj.core.internal.bytebuddy.dynamic.scaffold.InstrumentedType;
 import org.assertj.core.internal.bytebuddy.implementation.MethodDelegation;
 import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.RuntimeType;
 import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall;
-import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This;
 import org.assertj.core.util.CheckReturnValue;
 
 import java.lang.reflect.Constructor;
@@ -39,11 +38,12 @@ import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrat
 
 public class VavrAssumptions {
 
-    private static final ByteBuddy BYTE_BUDDY = new ByteBuddy()
-            .with(new MethodGraph.Compiler())
-            .with(new MethodGraph.Compiler());
+    private static final AgentBuilder BYTE_BUDDY = new AgentBuilder.Default()
+            .with(new InstrumentedType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
 
     private static final MethodDelegation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
+
+    private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
 
     private static final class AssumptionMethodInterceptor {
 
@@ -136,11 +136,18 @@ public class VavrAssumptions {
 
     @SuppressWarnings("unchecked")
     private static <ASSERTION> Class<? extends ASSERTION> createAssumptionClass(Class<ASSERTION> assertClass) {
-        return (Class<ASSERTION>) BYTE_BUDDY.subclass(assertClass)
+        SimpleKey cacheKey = new SimpleKey(assertClass);
+        return (Class<ASSERTION>) CACHE.findOrInsert(VavrAssumptions.class.getClassLoader(),
+                cacheKey,
+                () -> generateAssumptionClass(assertClass));
+    }
+
+    private static <ASSERTION> Class<? extends ASSERTION> generateAssumptionClass(Class<ASSERTION> assertionType) {
+        return BYTE_BUDDY.subclass(assertionType)
                 .method(any())
                 .intercept(ASSUMPTION)
                 .make()
-                .load(VavrAssumptions.class.getClassLoader(), classLoadingStrategy(assertClass))
+                .load(VavrAssumptions.class.getClassLoader(), classLoadingStrategy(assertionType))
                 .getLoaded();
     }
 

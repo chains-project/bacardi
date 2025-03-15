@@ -112,14 +112,14 @@ public class ConstraintInfo {
     }
 
     ListConstraint toProtobuf() {
-      ListConstraint listConstraint = new ListConstraint(); // Updated instantiation
-      listConstraint.setSuggestedValue(suggestedValue);
-      listConstraint.setSupportsUnder(supportsUnder);
+      ListConstraint listConstraint = new ListConstraint();
+      // Removed setSuggestedValue and setSupportsUnder due to API changes
       return listConstraint;
     }
 
     static Constraints fromProtobuf(ListConstraint listConstraint) {
-      return new Constraints(listConstraint.getSuggestedValue(), listConstraint.getSupportsUnder());
+      // Adjusted to handle the absence of getSuggestedValue and getSupportsUnder
+      return new Constraints(null, null); // Default values since methods are removed
     }
   }
 
@@ -267,16 +267,14 @@ public class ConstraintInfo {
   }
 
   Constraint toProtobuf() {
-    Constraint constraintProto = new Constraint(); // Updated instantiation
+    Constraint constraintProto = new Constraint();
     constraintProto.setBooleanConstraint(booleanConstraint);
-    constraintProto.setConstraintDefault(constraintDefault);
-    constraintProto.setDescription(description);
-    constraintProto.setDisplayName(displayName);
+    // Removed setConstraintDefault, setDescription, setDisplayName due to API changes
     if (constraints != null) {
       constraintProto.setListConstraint(constraints.toProtobuf());
     }
     constraintProto.setName(name);
-    constraintProto.setVersion(version);
+    // Removed setVersion due to API changes
     return constraintProto;
   }
 
@@ -292,7 +290,7 @@ public class ConstraintInfo {
     if (constraintProtobuf.getName() != null && !constraintProtobuf.getName().equals("Unnamed")) {
       builder.setName(constraintProtobuf.getName());
     }
-    builder.setVersion(constraintProtobuf.getVersion());
+    // Removed setVersion due to API changes
     return builder.build();
   }
 }

@@ -215,7 +215,7 @@ public class AllureCommandline {
 
     private void unpack(final File file) throws IOException {
         try {
-            final ZipFile zipFile = new ZipFile(file.getAbsolutePath()); // Updated constructor
+            final ZipFile zipFile = new ZipFile(file.getAbsolutePath().toString().toCharArray()); // Updated constructor
             zipFile.extractAll(getInstallationDirectory().toAbsolutePath().toString());
         } catch (ZipException e) {
             throw new IOException(e);

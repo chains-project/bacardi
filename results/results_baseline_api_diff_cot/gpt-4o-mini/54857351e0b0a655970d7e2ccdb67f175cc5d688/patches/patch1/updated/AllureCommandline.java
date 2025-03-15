@@ -119,7 +119,7 @@ public class AllureCommandline {
     private void checkAllureExists() throws FileNotFoundException {
         if (allureNotExists()) {
             throw new FileNotFoundException("There is no valid allure installation."
-                    + " Make sure you're using allure version not less then 2.x.");
+                    + " Make sure you're using allure version not less than 2.x.");
         }
     }
 
@@ -215,7 +215,7 @@ public class AllureCommandline {
 
     private void unpack(final File file) throws IOException {
         try {
-            final ZipFile zipFile = new ZipFile(file.getAbsolutePath()); // Updated constructor
+            final ZipFile zipFile = new ZipFile(file.getAbsolutePath().toString().getBytes()); // Updated constructor
             zipFile.extractAll(getInstallationDirectory().toAbsolutePath().toString());
         } catch (ZipException e) {
             throw new IOException(e);

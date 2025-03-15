@@ -2,10 +2,7 @@
 < import org.apache.thrift.transport.TFramedTransport;
 ---
 > import org.apache.thrift.transport.layered.TFramedTransport; // Updated import
-33a34
-> import java.nio.ByteBuffer; // Added import
-56c57,58
-<       super.write(buf, off, len);
+50c50
+<       super(transport);
 ---
->       ByteBuffer byteBuffer = ByteBuffer.wrap(buf, off, len); // Create ByteBuffer
->       super.write(byteBuffer); // Use the new write method
+>       super(transport); // This constructor is now valid in the new API

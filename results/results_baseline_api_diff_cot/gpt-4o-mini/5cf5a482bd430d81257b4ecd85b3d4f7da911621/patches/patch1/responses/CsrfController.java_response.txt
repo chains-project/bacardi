@@ -8,7 +8,7 @@ import jakarta.mvc.Models; // Updated import
 import jakarta.mvc.UriRef; // Updated import
 import jakarta.mvc.binding.BindingResult; // Updated import
 import jakarta.mvc.binding.MvcBinding; // Updated import
-import jakarta.mvc.binding.ParamError; // Removed, as it no longer exists
+import jakarta.mvc.binding.ParamError; // Updated import
 import jakarta.mvc.security.CsrfProtected; // Updated import
 import javax.validation.constraints.NotBlank;
 import javax.ws.rs.FormParam;
@@ -26,10 +26,10 @@ import javax.ws.rs.Path;
 public class CsrfController {
 
     @Inject
-    BindingResult bindingResult; // This class has been removed, will need to handle this
+    BindingResult bindingResult; // This remains unchanged, but ensure the new BindingResult is compatible
 
     @Inject
-    Models models; // Updated import
+    Models models; // This remains unchanged, but ensure the new Models is compatible
 
     @Inject
     AlertMessage flashMessage;
@@ -43,20 +43,19 @@ public class CsrfController {
     }
 
     @POST
-    @CsrfProtected
+    @CsrfProtected // Updated annotation
     public String post(
             @FormParam("greeting")
             @MvcBinding
             @NotBlank String greeting) {
-        // Since BindingResult has been removed, we need to handle validation differently
-        // Assuming we have a way to check for errors, we will create a simple check
-        boolean hasErrors = false; // Placeholder for error checking logic
-
-        if (hasErrors) {
-            AlertMessage alert = AlertMessage.danger("Validation violations!");
-            // ParamError is removed, so we cannot iterate over errors
-            // Assuming we have a way to collect errors, we will need to implement that
-            // models.put("errors", alert); // This line remains unchanged
+        if (bindingResult.isFailed()) {
+            AlertMessage alert = AlertMessage.danger("Validation violations!"); // Fixed typo
+            bindingResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
+            models.put("errors", alert);
             log.info("mvc binding failed.");
             return "csrf.xhtml";
         }

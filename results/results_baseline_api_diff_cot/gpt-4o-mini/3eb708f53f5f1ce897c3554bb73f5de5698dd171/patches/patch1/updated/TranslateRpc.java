@@ -16,6 +16,7 @@
 
 package com.google.cloud.translate.spi.v2;
 
+import com.google.cloud.ServiceRpc;
 import java.util.List;
 import java.util.Map;
 
@@ -70,5 +71,5 @@ public interface TranslateRpc extends ServiceRpc {
    * @return a list of resources containing translation information, in the same order of the
    *     provided texts
    */
-  List<String> translate(List<String> texts, Map<Option, ?> optionMap);
+  List<Map<String, String>> translate(List<String> texts, Map<Option, ?> optionMap);
 }

@@ -19,6 +19,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.serializer.TextSerializers;
+import org.spongepowered.api.Sponge;
 
 public class InfoCommand implements Command {
 
@@ -32,26 +33,27 @@ public class InfoCommand implements Command {
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
-            return CommandResult.success();
+            return CommandResult.empty();
         }
 
         UUID uniqueId = ((Player) src).getUniqueId();
         Task.builder().execute(() -> {
             UserPreference preferences = plugin.getCore().getStorage().getPreferences(uniqueId);
             Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).submit(plugin);
-        }).async().submit(plugin);
+        }).submit(plugin);
 
         return CommandResult.success();
     }
 
-    public Command.Builder builder() {
-        return Command.builder()
+    public CommandSpec buildSpec() {
+        return CommandSpec.builder()
                 .executor(this)
-                .permission(PomData.ARTIFACT_ID + ".command.skininfo.base");
+                .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
+                .build();
     }
 
     private void sendSkinDetails(UUID uuid, UserPreference preference) {
-        Optional<Player> optPlayer = plugin.getServer().getPlayer(uuid);
+        Optional<Player> optPlayer = Sponge.server().getPlayer(uuid);
         if (optPlayer.isPresent()) {
             Player player = optPlayer.get();
 

@@ -107,8 +107,8 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        var logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(EventMessageHandler.class);
-        logger.setLevel(Level.INFO);
+        var logger = LoggerFactory.getLogger(EventMessageHandler.class);
+        logger.info("Logger initialized");
         logger.addAppender(mockLogAppender);
     }
 

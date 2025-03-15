@@ -241,7 +241,25 @@ public class SupplierAddressStructure implements ToString2
     @Override
     public String toString() {
         final ToStringStrategy2 strategy = new ToStringStrategy2() {
-            // Implement the necessary methods for the strategy here
+            @Override
+            public StringBuilder appendStart(ObjectLocator locator, Object object, StringBuilder buffer) {
+                // Custom implementation for starting the string representation
+                return buffer.append(object.getClass().getSimpleName()).append(" [");
+            }
+
+            @Override
+            public StringBuilder appendEnd(ObjectLocator locator, Object object, StringBuilder buffer) {
+                // Custom implementation for ending the string representation
+                return buffer.append("]");
+            }
+
+            @Override
+            public StringBuilder appendField(ObjectLocator locator, Object object, String fieldName, StringBuilder buffer, Object value, boolean isSet) {
+                if (isSet) {
+                    buffer.append(fieldName).append("=").append(value).append(", ");
+                }
+                return buffer;
+            }
         };
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
@@ -261,37 +279,37 @@ public class SupplierAddressStructure implements ToString2
         {
             String theBuildingNumber;
             theBuildingNumber = this.getBuildingNumber();
-            strategy.appendField(locator, this, "buildingNumber", buffer, theBuildingNumber, (this.buildingNumber!= null));
+            strategy.appendField(locator, this, "buildingNumber", buffer, theBuildingNumber, (this.buildingNumber != null));
         }
         {
             String theStreetName;
             theStreetName = this.getStreetName();
-            strategy.appendField(locator, this, "streetName", buffer, theStreetName, (this.streetName!= null));
+            strategy.appendField(locator, this, "streetName", buffer, theStreetName, (this.streetName != null));
         }
         {
             String theAddressDetail;
             theAddressDetail = this.getAddressDetail();
-            strategy.appendField(locator, this, "addressDetail", buffer, theAddressDetail, (this.addressDetail!= null));
+            strategy.appendField(locator, this, "addressDetail", buffer, theAddressDetail, (this.addressDetail != null));
         }
         {
             String theCity;
             theCity = this.getCity();
-            strategy.appendField(locator, this, "city", buffer, theCity, (this.city!= null));
+            strategy.appendField(locator, this, "city", buffer, theCity, (this.city != null));
         }
         {
             String thePostalCode;
             thePostalCode = this.getPostalCode();
-            strategy.appendField(locator, this, "postalCode", buffer, thePostalCode, (this.postalCode!= null));
+            strategy.appendField(locator, this, "postalCode", buffer, thePostalCode, (this.postalCode != null));
         }
         {
             String theRegion;
             theRegion = this.getRegion();
-            strategy.appendField(locator, this, "region", buffer, theRegion, (this.region!= null));
+            strategy.appendField(locator, this, "region", buffer, theRegion, (this.region != null));
         }
         {
             String theCountry;
             theCountry = this.getCountry();
-            strategy.appendField(locator, this, "country", buffer, theCountry, (this.country!= null));
+            strategy.appendField(locator, this, "country", buffer, theCountry, (this.country != null));
         }
         return buffer;
     }

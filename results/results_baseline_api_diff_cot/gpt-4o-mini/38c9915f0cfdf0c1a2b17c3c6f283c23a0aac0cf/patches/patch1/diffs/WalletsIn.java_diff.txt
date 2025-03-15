@@ -4,6 +4,10 @@
 ---
 >  * The above copyright notice and this permission notice shall be included in
 >  * all copies or substantial portions of the Software.
+38c38
+< import org.cactoos.scalar.SolidScalar;
+---
+> import org.cactoos.scalar.UncheckedScalar;
 53c53
 <     private final IoCheckedScalar<Path> path;
 ---
@@ -13,7 +17,7 @@
 <             new SolidScalar<>(pth)
 <         );
 ---
->         this.path = pth; // Removed IoCheckedScalar as it is no longer available
+>         this.path = pth;
 119,123c117
 <             new JoinedText(
 <                 ".",
@@ -21,4 +25,4 @@
 <                 this.ext
 <             ).asString()
 ---
->             String.join(".", Long.toHexString(this.random.nextLong()), this.ext) // Replaced JoinedText with String.join
+>             String.format("%s.%s", Long.toHexString(this.random.nextLong()), this.ext)

@@ -33,8 +33,8 @@ import org.tinfour.common.IQuadEdge;
 import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
 import org.tinfour.utils.TriangleCollector;
-import org.tinspin.index.util.MinMaxHeap;
-import org.tinspin.index.util.MinHeap;
+import org.tinspin.index.PointIndex; // This import is removed as PointIndex is no longer available
+import org.tinspin.index.kdtree.KDTree;
 import it.unimi.dsi.util.XoRoShiRo128PlusRandomGenerator;
 import micycle.pgs.color.Colors;
 import micycle.pgs.commons.AreaMerge;
@@ -158,7 +158,6 @@ public class PGS_Meshing {
 			}
 		});
 
-		// Updated to use the new KDTree.create(int, PointDistanceFunction) method
 		final org.tinspin.index.kdtree.KDTree tree = org.tinspin.index.kdtree.KDTree.create(2, (p1, p2) -> {
 			final double deltaX = p1[0] - p2[0];
 			final double deltaY = p1[1] - p2[1];

@@ -101,9 +101,8 @@ public class MutationReportListener implements MutationResultListener {
 
   private MutationTestSummaryData createSummaryData(
       final CoverageDatabase coverage, final ClassMutationResults data) {
-    // Updated to use the new method signature
     return new MutationTestSummaryData(data.getFileName(),
-        data.getMutations(), coverage.getClassInfo(Collections.singleton(data.getMutatedClass()), null, 0));
+        data.getMutations(), coverage.getClassInfo(Collections.singleton(data.getMutatedClass()), new byte[0], 0));
   }
 
   private void updatePackageSummary(

@@ -37,8 +37,8 @@ public final class ConfigurationLoader
   private Configuration load(Path configurationFilePath)
   {
     File file = new File(URLDecoder.decode(String.valueOf(configurationFilePath.toFile()), StandardCharsets.UTF_8));
-    LoaderOptions loaderOptions = new LoaderOptions();
-    Constructor yamlTargetClass = new Constructor(Configuration.class, loaderOptions);
+    LoaderOptions loaderOptions = new LoaderOptions(); // Create LoaderOptions instance
+    Constructor yamlTargetClass = new Constructor(Configuration.class, loaderOptions); // Use the new constructor
     Yaml yaml = new Yaml(yamlTargetClass);
 
     log.info("Loading configuration file from: {}", configurationFilePath);

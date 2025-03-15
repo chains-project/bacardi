@@ -182,7 +182,7 @@ public class Decorations
     public static void magic(Player player, int seconds)
     {
         final int[] count = {0};
-        WaveCreator wave = new WaveCreator(0.8, 1.8, 0.1); // Updated to use the new class
+        WaveCreator wave = new WaveCreator(0.8, 1.8, 0.1); // Updated to use the new WaveCreator
 
         BukkitRunnable runnable = new BukkitRunnable()
         {

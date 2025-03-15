@@ -1,26 +1,18 @@
 12,13d11
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.data.key.Keys;
-23d20
+23c21
 <     private final CommandSource invoker;
-26,27c23
-<     public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
-<             , boolean keepSkin) {
 ---
->     public SkinApplier(ChangeSkinSponge plugin, Player receiver, SkinModel targetSkin, boolean keepSkin) {
-31d26
-<         this.invoker = invoker;
-42,43c37,38
+>     private final Player invoker; // Changed from CommandSource to Player
+26c24
+<     public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
+---
+>     public SkinApplier(ChangeSkinSponge plugin, Player invoker, Player receiver, SkinModel targetSkin
+42,43c40
 <         if (invoker instanceof Player) {
 <             UUID uniqueId = ((Player) invoker).getUniqueId();
 ---
->         if (receiver.isOnline()) {
->             UUID uniqueId = receiver.getUniqueId();
-65c60
-<         plugin.sendMessage(invoker, "skin-changed");
----
->         plugin.sendMessage(receiver, "skin-changed");
-70c65
-<         plugin.sendMessage(invoker, key);
----
->         plugin.sendMessage(receiver, key);
+>         UUID uniqueId = invoker.getUniqueId();
+45d41
+<         }

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * you may obtain a copy of the License at
+ * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -98,6 +98,6 @@ public final class MavenCompilerUtils {
      */
     private static String extractChildValue(XmlDom node, String name) {
         final XmlDom child = node.getChild(name);
-        return child == null ? "" : child.getValue();
+        return child == null ? "" : child.getText();
     }
 }

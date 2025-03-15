@@ -1,18 +1,25 @@
+14c14
+< import org.spongepowered.api.command.CommandSource;
+---
+> import org.spongepowered.api.command.source.CommandSource; // Updated import
 16,17c16
 < import org.spongepowered.api.network.ChannelBuf;
 < import org.spongepowered.api.network.RawDataListener;
 ---
-> import org.spongepowered.api.network.channel.ChannelBuf;
+> import org.spongepowered.api.network.channel.ChannelBuf; // Updated import
 19a19
-> import org.spongepowered.api.scheduler.TaskExecutorService;
+> import org.spongepowered.api.scheduler.TaskExecutorService; // New import
 21c21
 < public class UpdateSkinListener implements RawDataListener {
 ---
-> public class UpdateSkinListener {
-26d25
+> public class UpdateSkinListener { // Removed RawDataListener interface
+26,27c26
 <     @Override
+<     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
+---
+>     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) { // Removed @Override annotation
 36c35,36
 <             Task.builder().execute(skinUpdater).submit(plugin);
 ---
->             TaskExecutorService executorService = Sponge.getScheduler().getTaskExecutor();
->             executorService.submit(skinUpdater);
+>             TaskExecutorService executorService = Sponge.getScheduler().getTaskExecutor(); // Get the TaskExecutorService
+>             executorService.submit(skinUpdater); // Submit the task using the new method

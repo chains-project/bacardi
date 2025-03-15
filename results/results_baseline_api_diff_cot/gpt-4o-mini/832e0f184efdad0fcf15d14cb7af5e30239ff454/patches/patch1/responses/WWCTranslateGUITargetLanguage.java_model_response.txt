@@ -80,10 +80,7 @@ public class WWCTranslateGUITargetLanguage implements InventoryProvider {
 				currentLangMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 				if (currTranslator.getOutLangCode().equals(main.getSupportedTranslatorLanguages().get(i).getLangCode())) {
 					// Updated to use the new method to get the enchantment
-					XEnchantment powerEnchantment = XEnchantment.matchXEnchantment("power").orElse(null);
-					if (powerEnchantment != null) {
-						currentLangMeta.addEnchant(powerEnchantment.getEnchant(), 1, false);
-					}
+					currentLangMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
 					lore.add(ChatColor.YELLOW + "" + ChatColor.ITALIC + CommonDefinitions.getMessage("wwctGUISourceOrTargetTranslationAlreadyActive"));
 				}
 				currentLangMeta.setDisplayName(main.getSupportedTranslatorLanguages().get(i).getLangName());

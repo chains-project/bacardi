@@ -59,7 +59,7 @@ public class AppenderUtils {
       this.os = os;
       // Use the TFastFramedTransport to be compatible with singer_thrift log.
       final int bufferCapacity = 10;
-      framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity); // Updated constructor
+      framedTransport = new TFastFramedTransport(new TIOStreamTransport(os), bufferCapacity, bufferCapacity); // Updated constructor
       protocol = new TBinaryProtocol(framedTransport);
     }
 

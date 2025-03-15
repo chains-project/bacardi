@@ -34,7 +34,6 @@ import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.nodes.Tag;
-import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -62,7 +61,7 @@ public class AbstractTest {
 
     public <T extends MockBaseEntity> T createMockEntity(Class<T> clazz, String path) {
         final LoaderOptions loadingConfig = new LoaderOptions();
-        // Removed TrustedTagInspector as it is no longer available in the new API
+        // Removed TrustedTagInspector as it has been removed from the API
 
         final Representer representer = new Representer(new DumperOptions());
         final Tag zoneIdTag = new Tag("!ZoneId");

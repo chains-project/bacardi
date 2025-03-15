@@ -23,7 +23,10 @@ import org.locationtech.jts.util.GeometricShapeFactory;
 import org.tinfour.common.IIncrementalTin;
 import org.tinfour.common.SimpleTriangle;
 import org.tinfour.common.Vertex;
-import org.tinspin.index.covertree.CoverTree;
+import org.tinspin.index.PointEntry; // Updated import
+import org.tinspin.index.PointIndex; // Updated import
+import org.tinspin.index.PointIndexWrapper; // Updated import
+import org.tinspin.index.covertree.CoverTree; // Removed as per API changes
 
 import micycle.pgs.commons.FrontChainPacker;
 import micycle.pgs.commons.LargestEmptyCircles;
@@ -135,8 +138,8 @@ public final class PGS_CirclePacking {
 	 * attempts (or circle attempts), and not the number of circles in the final
 	 * packing output, since a point is rejected if it lies in an existing circle or
 	 * whose nearest circle is less than minRadius distance away. In other words,
-	 * {@code points} defines the maximum number of circles the packing can
-	 * have; in practice, the packing will contain somewhat fewer circles.
+	 * {@code points} defines the maximum number of circles the packing can have; in
+	 * practice, the packing will contain somewhat fewer circles.
 	 * <p>
 	 * Circles in this packing do not overlap and are contained entirely within the
 	 * shape. However, not every circle is necessarily tangent to other circles (in
@@ -198,7 +201,7 @@ public final class PGS_CirclePacking {
 	public static List<PVector> stochasticPack(final PShape shape, final int points, final double minRadius, boolean triangulatePoints,
 			long seed) {
 
-		final CoverTree<PVector> tree = CoverTree.create(3, 2, circleDistanceMetric);
+		final PointIndex<PVector> tree = PointIndex.create(3, 2, circleDistanceMetric); // Updated to use PointIndex
 		final List<PVector> out = new ArrayList<>();
 
 		List<PVector> steinerPoints = PGS_Processing.generateRandomPoints(shape, points, seed);
@@ -221,17 +224,16 @@ public final class PGS_CirclePacking {
 		float largestR = 0; // the radius of the largest circle in the tree
 
 		for (PVector p : steinerPoints) {
-			// Updated to use a new nearest neighbor search method
-			final PVector nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+			final PointEntry<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // Updated to use PointEntry
 
 			/*
 			 * nn.dist() does not return the radius (since it's a distance metric used to
 			 * find nearest circle), so calculate maximum radius for candidate circle using
 			 * 2d euclidean distance between center points minus radius of nearest circle.
 			 */
-			final float dx = p.x - nn.x;
-			final float dy = p.y - nn.y;
-			final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.z);
+			final float dx = p.x - nn.value().x;
+			final float dy = p.y - nn.value().y;
+			final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.value().z);
 			if (radius > minRadius) {
 				largestR = (radius >= largestR) ? radius : largestR;
 				p.z = radius;

@@ -85,16 +85,6 @@ public class DSN {
         Path p = Paths.get(root, "testing-speed-notrans.csv");
         Files.deleteIfExists(p);
 
-     /*   for (int i = 10; i <= 30; i+=2) {
-            Bench.transitions = false;
-            Bench.population = 100;
-            Bench.scale = i;
-            System.out.println("--- scaling factor " + i + "; transitions= " + Bench.transitions +" ---");
-            Bench.report = new CSVReport(p,"");
-            System.out.println(sc.test(Bench.class).stream().mapToInt(TestCampaign::go).sum());
-        }*/
-
-
         //GOGO
         p = Paths.get(root, "testing-speed-notrans.csv");
         Files.deleteIfExists(p);
@@ -332,7 +322,7 @@ public class DSN {
 
       private final List<Integer> l;
 
-      private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration(); // Updated to use the new configuration class
+      private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false); // Updated to use the new configuration class
 
         UnitTestsVisitor(List<Integer> numbers) {
             this.l = numbers;

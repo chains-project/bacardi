@@ -61,8 +61,7 @@ public class Signer {
         } else {
             signatureParameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_B);
         }
-        // Removed CertificationPermission as it has been removed from the API
-        // signatureParameters.setPermission(CertificationPermission.MINIMAL_CHANGES_PERMITTED);
+        // Removed CertificationPermission as it is no longer available in the new API
 
         // Create common certificate verifier
         CommonCertificateVerifier commonCertificateVerifier = new CommonCertificateVerifier();
@@ -96,7 +95,6 @@ public class Signer {
             fieldParameters.setOriginY(params.getTop() * POINTS_PER_MM * 10f);
             fieldParameters.setWidth(params.getWidth() * POINTS_PER_MM * 10f);
 
-            // Get the SignedInfo segment that need to be signed.
             // respect local timezone
             DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneId.systemDefault());
             // user-provided timezone, if any

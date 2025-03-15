@@ -1,59 +1,14 @@
-30c30
+27d26
+< import com.hazelcast.core.Cluster;
+30c29,30
 < import com.hazelcast.core.Member;
 ---
-> import com.hazelcast.cluster.Member; // Updated import
+> import com.hazelcast.cluster.Cluster;
+> import com.hazelcast.cluster.Member;
 149c149
 <     private static Cluster cluster = null;
 ---
->     private static com.hazelcast.cluster.Cluster cluster; // Updated type
-331c331
-<             final Member oldest = cluster.getMembers().iterator().next();
----
->             final com.hazelcast.cluster.Member oldest = cluster.getMembers().iterator().next(); // Updated type
-370,372c370,372
-<         final Set<Member> members = new HashSet<>();
-<         final Member current = cluster.getLocalMember();
-<         for (final Member member : cluster.getMembers()) {
----
->         final Set<com.hazelcast.cluster.Member> members = new HashSet<>(); // Updated type
->         final com.hazelcast.cluster.Member current = cluster.getLocalMember(); // Updated type
->         for (final com.hazelcast.cluster.Member member : cluster.getMembers()) { // Updated type
-399c399
-<         final Member member = getMember(nodeID);
----
->         final com.hazelcast.cluster.Member member = getMember(nodeID); // Updated type
-423,425c423,425
-<         final Set<Member> members = new HashSet<>();
-<         final Member current = cluster.getLocalMember();
-<         for (final Member member : cluster.getMembers()) {
----
->         final Set<com.hazelcast.cluster.Member> members = new HashSet<>(); // Updated type
->         final com.hazelcast.cluster.Member current = cluster.getLocalMember(); // Updated type
->         for (final com.hazelcast.cluster.Member member : cluster.getMembers()) { // Updated type
-436c436
-<                 final Map<Member, ? extends Future<T>> futures = hazelcast.getExecutorService(HAZELCAST_EXECUTOR_SERVICE_NAME.getValue()).submitToMembers(new CallableTask<>(task), members);
----
->                 final Map<com.hazelcast.cluster.Member, ? extends Future<T>> futures = hazelcast.getExecutorService(HAZELCAST_EXECUTOR_SERVICE_NAME.getValue()).submitToMembers(new CallableTask<>(task), members); // Updated type
-464c464
-<         final Member member = getMember(nodeID);
----
->         final com.hazelcast.cluster.Member member = getMember(nodeID); // Updated type
-494c494
-<         final Member member = getMember(nodeID);
----
->         final com.hazelcast.cluster.Member member = getMember(nodeID); // Updated type
-501c501
-<     private Member getMember(final byte[] nodeID) {
----
->     private com.hazelcast.cluster.Member getMember(final byte[] nodeID) { // Updated return type
-503c503
-<         for (final Member member : cluster.getMembers()) {
----
->         for (final com.hazelcast.cluster.Member member : cluster.getMembers()) { // Updated type
-655c655
-<     public static NodeID getNodeID(final Member member) {
----
->     public static NodeID getNodeID(final com.hazelcast.cluster.Member member) { // Updated parameter type
+>     private static com.hazelcast.cluster.Cluster cluster = null; // Updated to use the new Cluster interface
 701,703d700
 < 
 < 

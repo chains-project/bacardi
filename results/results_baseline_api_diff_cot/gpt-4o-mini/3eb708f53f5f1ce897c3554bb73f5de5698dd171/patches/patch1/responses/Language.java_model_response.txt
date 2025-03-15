@@ -17,7 +17,7 @@
 
 package com.google.cloud.translate;
 
-import com.google.api.services.translate.v3.model.Language; // Updated import
+import com.google.api.services.translate.v3.model.Language as V3Language; // Updated import for new API
 import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.io.Serializable;
@@ -31,21 +31,21 @@ import java.util.Objects;
  *     Discovering Supported Languages</a>
  * @see <a href="https://cloud.google.com/translate/docs/languages">Supported Languages</a>
  */
-public class LanguageInfo implements Serializable { // Renamed class to avoid conflict with new API class
+public class Language implements Serializable {
 
   private static final long serialVersionUID = 5205240279371907020L;
-  static final Function<Language, LanguageInfo> FROM_PB_FUNCTION = // Updated to use new Language class
-      new Function<Language, LanguageInfo>() {
+  static final Function<V3Language, Language> FROM_PB_FUNCTION = // Updated to use new Language class
+      new Function<V3Language, Language>() {
         @Override
-        public LanguageInfo apply(Language languagePb) {
-          return LanguageInfo.fromPb(languagePb);
+        public Language apply(V3Language languagePb) {
+          return Language.fromPb(languagePb);
         }
       };
 
   private final String code;
   private final String name;
 
-  private LanguageInfo(String code, String name) { // Updated constructor to match new class name
+  private Language(String code, String name) {
     this.code = code;
     this.name = name;
   }
@@ -75,15 +75,15 @@ public class LanguageInfo implements Serializable { // Renamed class to avoid co
     if (obj == this) {
       return true;
     }
-    if (obj == null || !obj.getClass().equals(LanguageInfo.class)) { // Updated to match new class name
+    if (obj == null || !obj.getClass().equals(Language.class)) {
       return false;
     }
-    LanguageInfo other = (LanguageInfo) obj; // Updated to match new class name
+    Language other = (Language) obj;
     return Objects.equals(code, other.code) && Objects.equals(name, other.name);
   }
 
-  static LanguageInfo fromPb(Language languagePb) { // Updated to use new Language class
-    return new LanguageInfo(languagePb.getLanguageCode(), languagePb.getDisplayName()); // Updated method calls
+  static Language fromPb(V3Language languagePb) { // Updated to use new Language class
+    return new Language(languagePb.getLanguageCode(), languagePb.getDisplayName()); // Updated method calls
   }
 }
 ```

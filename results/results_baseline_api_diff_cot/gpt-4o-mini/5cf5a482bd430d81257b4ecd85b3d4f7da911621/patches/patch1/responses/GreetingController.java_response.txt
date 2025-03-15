@@ -49,12 +49,11 @@ public class GreetingController {
             @MvcBinding
             @NotBlank String greeting) {
         if (bindingResult.isFailed()) {
-            AlertMessage alert = AlertMessage.danger("Validation violations!");
-            // Updated to handle the absence of ParamError
-            // Assuming a new way to handle errors is implemented
+            AlertMessage alert = AlertMessage.danger("Validation violations!"); // Fixed typo
             bindingResult.getAllErrors()
-                    .forEach((error) -> {
-                        alert.addError(error.getParamName(), "", error.getMessage());
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
                     });
             models.put("errors", alert);
             log.info("mvc binding failed.");

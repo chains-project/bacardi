@@ -48,7 +48,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * ClusterListener reacts to membership changes in the cluster. It takes care of cleaning up the state
  * of the routing table and the sessions within it when a node which manages those sessions goes down.
  */
-public class ClusterListener implements MembershipListener, com.hazelcast.cluster.LifecycleListener {
+public class ClusterListener implements MembershipListener, LifecycleListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ClusterListener.class);
 

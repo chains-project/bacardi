@@ -20,7 +20,5 @@ import java.util.Map;
 
 interface PublisherFactory {
 
-  // Since PublishMetadata has been removed, we need to replace it with the new equivalent type.
-  // Assuming the new type is PublishResult (this is a hypothetical replacement, adjust as necessary).
-  Publisher<PublishResult> newPublisher(Map<String, String> params);
+  Publisher<Void> newPublisher(Map<String, String> params);
 }

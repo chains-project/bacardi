@@ -25,7 +25,7 @@
 package io.zold.api;
 
 import org.cactoos.iterable.Repeated;
-import org.cactoos.text.TextOf; // Updated import to use TextOf instead of RandomText
+import org.cactoos.text.TextOf;
 
 /**
  * Remote node.
@@ -68,7 +68,7 @@ public interface Remote {
          */
         public Fake(final int val) {
             this(new RtScore(
-                new Repeated<>(val, new TextOf("Random Text")) // Updated to use TextOf
+                new Repeated<>(val, new TextOf("random text"))
             ));
         }
 

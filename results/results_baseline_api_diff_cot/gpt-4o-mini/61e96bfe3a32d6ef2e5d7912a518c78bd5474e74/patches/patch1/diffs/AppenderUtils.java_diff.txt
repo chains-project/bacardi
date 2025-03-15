@@ -6,14 +6,14 @@
 <   public static class LogMessageEncoder extends EncoderBase<LogMessage> {
 ---
 >   public static class LogMessageEncoder implements Encoder<LogMessage> {
-80a81,90
->     }
+81a82,91
 > 
 >     @Override
 >     public byte[] footerBytes() {
->       return new byte[0]; // Provide an empty footer as a placeholder
+>       return new byte[0]; // Provide an empty footer as required by the new Encoder interface
 >     }
 > 
 >     @Override
 >     public byte[] headerBytes() {
->       return new byte[0]; // Provide an empty header as a placeholder
+>       return new byte[0]; // Provide an empty header as required by the new Encoder interface
+>     }

@@ -241,7 +241,7 @@ public class SupplierAddressStructure implements ToString2
     @Override
     public String toString() {
         final ToStringStrategy2 strategy = new ToStringStrategy2() {
-            // Implement the necessary methods for the strategy here
+            // Implement the required methods for the strategy here
         };
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);

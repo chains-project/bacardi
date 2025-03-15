@@ -27,7 +27,7 @@ public class NameResolver extends SharedNameResolver {
 
     @Override
     public void sendMessageInvoker(String id) {
-        plugin.sendMessage(invoker, id); // This may need to be updated based on how messages are sent to the new invoker type
+        plugin.sendMessage(invoker, id); // This may need to be updated based on how messages are sent now
     }
 
     @Override
@@ -38,7 +38,7 @@ public class NameResolver extends SharedNameResolver {
 
     @Override
     protected void scheduleDownloader(UUID uuid) {
-        //run this in the same thread
+        //run this is the same thread
         new SkinDownloader(plugin, invoker, receiver, uuid, keepSkin).run();
     }
 }

@@ -32,15 +32,12 @@ import java.util.regex.Pattern;
 import org.cactoos.Text;
 import org.cactoos.iterable.LengthOf;
 import org.cactoos.list.ListOf;
-import org.cactoos.scalar.IoCheckedScalar; // This import is removed
 import org.cactoos.scalar.ItemAt;
-import org.cactoos.scalar.StickyScalar; // This import is removed
-import org.cactoos.scalar.UncheckedScalar; // This import is removed
+import org.cactoos.scalar.UncheckedScalar;
 import org.cactoos.text.FormattedText;
-import org.cactoos.text.SplitText; // This import is removed
+import org.cactoos.text.SplitText;
 import org.cactoos.text.TextOf;
-import org.cactoos.text.TrimmedText; // This import is removed
-import org.cactoos.text.UncheckedText;
+import org.cactoos.text.TrimmedText;
 import org.cactoos.time.ZonedDateTimeOf;
 
 /**
@@ -85,37 +82,39 @@ final class RtTransaction implements Transaction {
     /**
      * String representation of transaction.
      */
-    private final String transaction;
+    private final UncheckedScalar<String> transaction;
 
     /**
      * Ctor.
      * @param trnsct String representation of transaction
      */
     RtTransaction(final String trnsct) {
-        this.transaction = trnsct;
-        if (
-            new TrimmedText(
-                new TextOf(trnsct)
-            ).asString().isEmpty()
-        ) {
-            throw new IOException(
-                "Invalid transaction string: string is empty"
-            );
-        }
-        final List<Text> pieces =
-            new ListOf<>(
-                new SplitText(trnsct, ";")
-            );
-        // @checkstyle MagicNumberCheck (1 line)
-        if (new LengthOf(pieces).intValue() != 7) {
-            throw new IOException(
-                new FormattedText(
-                    // @checkstyle LineLength (1 line)
-                    "Invalid transaction string: expected 7 fields, but found %d",
-                    pieces.size()
-                ).asString()
-            );
-        }
+        this.transaction = new UncheckedScalar<>(
+            () -> {
+                if (
+                    new TextOf(trnsct).asString().trim().isEmpty()
+                ) {
+                    throw new IOException(
+                        "Invalid transaction string: string is empty"
+                    );
+                }
+                final List<Text> pieces =
+                    new ListOf<>(
+                        new SplitText(trnsct, ";")
+                    );
+                // @checkstyle MagicNumberCheck (1 line)
+                if (new LengthOf(pieces).intValue() != 7) {
+                    throw new IOException(
+                        new FormattedText(
+                            // @checkstyle LineLength (1 line)
+                            "Invalid transaction string: expected 7 fields, but found %d",
+                            pieces.size()
+                        ).asString()
+                    );
+                }
+                return trnsct;
+            }
+        );
     }
 
     @Override
@@ -123,7 +122,7 @@ final class RtTransaction implements Transaction {
     public int id() throws IOException {
         final String ident = new UncheckedText(
             new ItemAt<>(
-                0, new SplitText(this.transaction, ";")
+                0, new SplitText(this.transaction.value(), ";")
             ).value()
         ).asString();
         if (!RtTransaction.IDENT.matcher(ident).matches()) {
@@ -146,7 +145,7 @@ final class RtTransaction implements Transaction {
         return new ZonedDateTimeOf(
             new UncheckedText(
                 new ItemAt<>(
-                    1, new SplitText(this.transaction, ";")
+                    1, new SplitText(this.transaction.value(), ";")
                 ).value()
             ).asString(),
             DateTimeFormatter.ISO_OFFSET_DATE_TIME
@@ -157,7 +156,7 @@ final class RtTransaction implements Transaction {
     public long amount() throws IOException {
         final String amnt = new UncheckedText(
             new ItemAt<>(
-                2, new SplitText(this.transaction, ";")
+                2, new SplitText(this.transaction.value(), ";")
             ).value()
         ).asString();
         if (!RtTransaction.HEX.matcher(amnt).matches()) {
@@ -179,8 +178,7 @@ final class RtTransaction implements Transaction {
     public String prefix() throws IOException {
         final String prefix = new UncheckedText(
             new ItemAt<>(
-                //@checkstyle MagicNumberCheck (1 line)
-                3, new SplitText(this.transaction, ";")
+                3, new SplitText(this.transaction.value(), ";")
             ).value()
         ).asString();
         //@checkstyle MagicNumberCheck (1 line)
@@ -197,8 +195,7 @@ final class RtTransaction implements Transaction {
     public String bnf() throws IOException {
         final String bnf = new UncheckedText(
             new ItemAt<>(
-                //@checkstyle MagicNumberCheck (1 line)
-                4, new SplitText(this.transaction, ";")
+                4, new SplitText(this.transaction.value(), ";")
             ).value()
         ).asString();
         if (!RtTransaction.HEX.matcher(bnf).matches()) {
@@ -219,8 +216,7 @@ final class RtTransaction implements Transaction {
     public String details() throws IOException {
         final String dtls = new UncheckedText(
             new ItemAt<>(
-                //@checkstyle MagicNumberCheck (1 line)
-                5, new SplitText(this.transaction, ";")
+                5, new SplitText(this.transaction.value(), ";")
             ).value()
         ).asString();
         if (!RtTransaction.DTLS.matcher(dtls).matches()) {
@@ -241,8 +237,7 @@ final class RtTransaction implements Transaction {
     public String signature() throws IOException {
         final String sign = new UncheckedText(
             new ItemAt<>(
-                //@checkstyle MagicNumberCheck (1 line)
-                6, new SplitText(this.transaction, ";")
+                6, new SplitText(this.transaction.value(), ";")
             ).value()
         ).asString();
         // @checkstyle MagicNumber (1 line)
@@ -263,7 +258,7 @@ final class RtTransaction implements Transaction {
 
     @Override
     public String toString() {
-        return this.transaction;
+        return this.transaction.value();
     }
 
     @Override

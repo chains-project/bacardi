@@ -2,9 +2,9 @@
 < import org.bouncycastle.crypto.tls.AlertDescription;
 < import org.bouncycastle.crypto.tls.TlsFatalAlert;
 ---
-> import org.bouncycastle.crypto.tls.AlertDescription; // This import is no longer needed
-> import org.bouncycastle.crypto.tls.TlsFatalAlert; // This import is no longer needed
+> import org.bouncycastle.crypto.tls.AlertDescription; // This import is no longer valid and will be removed
+> import org.bouncycastle.crypto.tls.TlsFatalAlert; // This import is no longer valid and will be removed
 31c31
 <       throw new TlsFatalAlert(AlertDescription.bad_record_mac);
 ---
->       throw new IOException("Bad record MAC"); // Updated to use IOException instead of TlsFatalAlert
+>       throw new IOException("Bad record MAC"); // Replaced TlsFatalAlert with IOException

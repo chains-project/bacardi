@@ -1,17 +1,20 @@
 3a4
-> import org.flywaydb.core.api.configuration.Configuration;
-108,113c109,115
+> import org.flywaydb.core.api.configuration.ClassicConfiguration; // Added import for ClassicConfiguration
+108,112c109,119
 <                 final org.flywaydb.core.Flyway flyway = new Flyway();
 <                 flyway.setDataSource(this.dataSource());
 <                 flyway.setClassLoader(NisAppConfig.class.getClassLoader());
 <                 flyway.setLocations(prop.getProperty("flyway.locations"));
 <                 flyway.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-<                 return flyway;
 ---
->                 Configuration configuration = new org.flywaydb.core.api.configuration.ClassicConfiguration();
->                 configuration.setDataSource(this.dataSource());
+>                 ClassicConfiguration configuration = new ClassicConfiguration(); // Create a ClassicConfiguration instance
+>                 configuration.setDataSource(
+>                         prop.getProperty("jdbc.url"),
+>                         prop.getProperty("jdbc.username"),
+>                         prop.getProperty("jdbc.password")
+>                 );
 >                 configuration.setClassLoader(NisAppConfig.class.getClassLoader());
->                 configuration.setLocations(prop.getProperty("flyway.locations").split(","));
+>                 configuration.setLocations(prop.getProperty("flyway.locations").split(",")); // Split locations into an array
 >                 configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 > 
->                 return new Flyway(configuration);
+>                 final Flyway flyway = new Flyway(configuration); // Pass the configuration to the Flyway constructor

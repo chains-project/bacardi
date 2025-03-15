@@ -45,13 +45,13 @@ import lombok.EqualsAndHashCode;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers; // This import is retained for compatibility with the new API
+import org.hamcrest.Matchers;
 
 /**
  * REST response.
  *
  * <p>This response decorator is able to make basic assertions on
- * HTTP response and manipulate with it afterwards, for example:
+ * HTTP response and manipulate with it afterwords, for example:
  *
  * <pre> String name = new JdkRequest("http://my.example.com")
  *   .fetch()
@@ -152,7 +152,7 @@ public final class RestResponse extends AbstractResponse {
     }
 
     /**
-     * Verifies HTTP response body content against provided matcher,
+     * Verifies HTTP response binary content against provided matcher,
      * and throws {@link AssertionError} in case of mismatch.
      * @param matcher The matcher to use
      * @return This object
@@ -172,7 +172,7 @@ public final class RestResponse extends AbstractResponse {
      * Verifies HTTP header against provided matcher, and throws
      * {@link AssertionError} in case of mismatch.
      *
-     * <p>The iterator for the matcher will always be a real object and never
+     * <p>The iterator for the matcher will always be a real object an never
      * {@code NULL}, even if such a header is absent in the response. If the
      * header is absent the iterable will be empty.
      *

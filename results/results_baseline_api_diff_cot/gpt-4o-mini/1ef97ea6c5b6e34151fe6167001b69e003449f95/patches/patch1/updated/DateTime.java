@@ -20,38 +20,38 @@ public class DateTime extends DateAndTime {
     return new Timestamp(super.past(atMost, minimum, unit).getTime());
   }
 
-  @Override
+  // Removed @Override since the method no longer overrides a method in the updated dependency version
   public Timestamp future(int atMost, TimeUnit unit) {
     return new Timestamp(super.future(atMost, unit).getTime());
   }
 
-  @Override
+  // Removed @Override since the method no longer overrides a method in the updated dependency version
   public Timestamp future(int atMost, int minimum, TimeUnit unit) {
     return new Timestamp(super.future(atMost, minimum, unit).getTime());
   }
 
-  @Override
+  // Removed @Override since the method no longer overrides a method in the updated dependency version
   public Timestamp future(int atMost, TimeUnit unit, Date referenceDate) {
     return new Timestamp(super.future(atMost, unit, referenceDate).getTime());
   }
 
-  @Override
+  // Removed @Override since the method no longer overrides a method in the updated dependency version
   public Timestamp past(int atMost, TimeUnit unit, Date referenceDate) {
     return new Timestamp(super.past(atMost, unit, referenceDate).getTime());
   }
 
+  // Updated method to use Timestamp instead of Date
   @Override
-  public Timestamp between(Date from, Date to) throws IllegalArgumentException {
-    // Updated to use the new method signature
-    return new Timestamp(super.between(new Timestamp(from.getTime()), new Timestamp(to.getTime())).getTime());
+  public Timestamp between(Timestamp from, Timestamp to) throws IllegalArgumentException {
+    return new Timestamp(super.between(from, to).getTime());
   }
 
-  @Override
+  // Removed @Override since the method no longer overrides a method in the updated dependency version
   public Timestamp birthday() {
     return new Timestamp(super.birthday().getTime());
   }
 
-  @Override
+  // Removed @Override since the method no longer overrides a method in the updated dependency version
   public Timestamp birthday(int minAge, int maxAge) {
     return new Timestamp(super.birthday(minAge, maxAge).getTime());
   }

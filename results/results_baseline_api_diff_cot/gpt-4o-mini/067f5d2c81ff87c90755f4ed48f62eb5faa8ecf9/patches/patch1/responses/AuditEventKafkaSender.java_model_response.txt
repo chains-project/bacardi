@@ -33,6 +33,7 @@ import org.apache.kafka.common.PartitionInfo;
 import org.apache.thrift.TException;
 import org.apache.thrift.TSerializer;
 import org.apache.thrift.protocol.TProtocolFactory; // Added import for TProtocolFactory
+import org.apache.thrift.transport.TTransportException; // Added import for TTransportException
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,7 +106,7 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
     this.name = name;
     this.stopGracePeriodInSeconds = config.getStopGracePeriodInSeconds();
     this.badPartitions.add(-1);
-    this.serializer = new TSerializer(new TProtocolFactory()); // Updated to use the new constructor
+    this.serializer = new TSerializer(); // Initialize serializer here
   }
 
   public KafkaProducer<byte[], byte[]> getKafkaProducer() {

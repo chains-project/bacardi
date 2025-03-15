@@ -19,7 +19,6 @@ import com.hazelcast.cluster.Cluster;
 import com.hazelcast.cluster.EntryListener;
 import com.hazelcast.cluster.LifecycleEvent;
 import com.hazelcast.cluster.LifecycleEvent.LifecycleState;
-import com.hazelcast.cluster.LifecycleListener;
 import com.hazelcast.cluster.Member;
 import com.hazelcast.cluster.MemberAttributeEvent;
 import com.hazelcast.cluster.MembershipEvent;

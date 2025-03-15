@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * you may obtain a copy of the License at
+ * You may obtain a copy of the License at
  *
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -21,6 +21,7 @@ import com.google.cloud.pubsublite.TopicName;
 import com.google.cloud.pubsublite.TopicPath;
 import com.google.cloud.pubsublite.internal.Publisher;
 import com.google.cloud.pubsublite.internal.wire.PubsubContext;
+import com.google.cloud.pubsublite.internal.wire.PubsubContext.Framework;
 import com.google.cloud.pubsublite.internal.wire.RoutingPublisherBuilder;
 import com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisherBuilder;
 import java.util.Map;
@@ -28,7 +29,7 @@ import org.apache.kafka.common.config.ConfigValue;
 
 class PublisherFactoryImpl implements PublisherFactory {
 
-  private static final PubsubContext.Framework FRAMEWORK = PubsubContext.Framework.of("KAFKA_CONNECT");
+  private static final Framework FRAMEWORK = Framework.of("KAFKA_CONNECT");
 
   @Override
   public Publisher<Void> newPublisher(Map<String, String> params) {
@@ -48,7 +49,7 @@ class PublisherFactoryImpl implements PublisherFactory {
             SinglePartitionPublisherBuilder.newBuilder()
                 .setTopic(topic)
                 .setPartition(partition)
-                .build());
+                .build()); // Removed setContext as it is no longer available
     return builder.build();
   }
 }

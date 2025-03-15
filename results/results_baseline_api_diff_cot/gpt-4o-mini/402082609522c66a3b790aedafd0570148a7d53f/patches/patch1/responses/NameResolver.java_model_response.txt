@@ -28,7 +28,7 @@ public class NameResolver extends SharedNameResolver {
 
     @Override
     public void sendMessageInvoker(String id) {
-        plugin.sendMessage(invoker, id); // This may need to be updated based on how messages are sent to the new invoker type
+        plugin.sendMessage(invoker, id); // This may need to be updated based on how messages are sent now
     }
 
     @Override
@@ -39,14 +39,16 @@ public class NameResolver extends SharedNameResolver {
 
     @Override
     protected void scheduleDownloader(UUID uuid) {
-        //run this in the same thread
+        //run this is the same thread
         new SkinDownloader(plugin, invoker, receiver, uuid, keepSkin).run();
     }
 }
 ``` 
 
 ### Explanation of Changes:
-1. **Removed CommandSource**: The `CommandSource` class has been removed from the API, so I replaced its type with `Object` for the `invoker` variable.
-2. **Updated Constructor**: The constructor now accepts an `Object` instead of `CommandSource`.
-3. **Method Adjustments**: The `sendMessageInvoker` method remains unchanged, but it may need further adjustments based on how messages are sent to the new invoker type, which is now an `Object`. This part may require additional context on how to handle the new type in the `plugin.sendMessage` method.
-4. **Maintained Functionality**: The overall structure and functionality of the class are preserved while addressing the compilation errors due to the API changes.
+1. **Removed CommandSource**: The `CommandSource` class has been removed from the API, so I replaced the type of `invoker` with `Object`. This is a placeholder until the new API provides a suitable replacement for `CommandSource`.
+2. **Updated Constructor**: The constructor now accepts an `Object` for `invoker` instead of `CommandSource`.
+3. **Maintained Functionality**: The rest of the code remains unchanged to ensure that the functionality is preserved as much as possible. 
+
+### Note:
+The `sendMessageInvoker` method may need further adjustments based on how messages are sent in the new API, as the method signature and behavior of `plugin.sendMessage` may also have changed.

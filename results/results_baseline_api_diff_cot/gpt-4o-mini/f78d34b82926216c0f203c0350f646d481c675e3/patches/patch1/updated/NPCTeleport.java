@@ -109,7 +109,6 @@ public class NPCTeleport
                     connection.sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f));
 
                     NPC.setArmor(player, target, arm);
-                    float finalHead = ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f;
                     new BukkitRunnable()
                     {
                         @Override
@@ -121,7 +120,7 @@ public class NPCTeleport
                                     ((CraftPlayer) p).getHandle().playerConnection
                                         .sendPacket(new PacketPlayOutEntityTeleport(target));
                                     ((CraftPlayer) p).getHandle().playerConnection
-                                        .sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) finalHead));
+                                        .sendPacket(new PacketPlayOutEntityHeadRotation(target, (byte) ((CraftPlayer) player).getHandle().getHeadRotation() * 0.5f));
                                     NPC.setArmor(p, target, arm);
                                 });
                             this.cancel();
@@ -212,7 +211,7 @@ public class NPCTeleport
                     meta.setNpcLocation(n.toVector());
                 }
                 time[0] += config.getDouble("npc.time") + (config.getBoolean("npc.speed.wave")
-                    ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true) // Updated method call
+                    ? new WaveCreator(0.0, config.getDouble("npc.speed.waveRange"), 0 - config.getDouble("npc.speed.waveRange")).get(0.001, true)
                     : 0.0);
             }
         };

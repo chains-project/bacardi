@@ -22,13 +22,13 @@ import static java.net.HttpURLConnection.HTTP_OK;
 
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.cloudresourcemanager.v3.model.Binding;
-import com.google.api.services.cloudresourcemanager.v3.model.Operation;
-import com.google.api.services.cloudresourcemanager.v3.model.Policy;
-import com.google.api.services.cloudresourcemanager.v3.model.Project;
-import com.google.api.services.cloudresourcemanager.v3.model.SetIamPolicyRequest;
-import com.google.api.services.cloudresourcemanager.v3.model.TestIamPermissionsRequest;
-import com.google.api.services.cloudresourcemanager.v3.model.TestIamPermissionsResponse;
+import com.google.api.services.cloudresourcemanager.v3.model.Binding; // Updated import
+import com.google.api.services.cloudresourcemanager.v3.model.Operation; // Updated import
+import com.google.api.services.cloudresourcemanager.v3.model.Policy; // Updated import
+import com.google.api.services.cloudresourcemanager.v3.model.Project; // Updated import
+import com.google.api.services.cloudresourcemanager.v3.model.SetIamPolicyRequest; // Updated import
+import com.google.api.services.cloudresourcemanager.v3.model.TestIamPermissionsRequest; // Updated import
+import com.google.api.services.cloudresourcemanager.v3.model.TestIamPermissionsResponse; // Updated import
 import com.google.cloud.NoCredentials;
 import com.google.cloud.resourcemanager.ResourceManagerOptions;
 import com.google.common.base.Joiner;
@@ -447,6 +447,7 @@ public class LocalResourceManagerHelper {
       return Error.INVALID_ARGUMENT.response(customErrorMessage);
     } else {
       project.setLifecycleState("ACTIVE");
+      project.setProjectNumber(Math.abs(PROJECT_NUMBER_GENERATOR.nextLong() % Long.MAX_VALUE));
       project.setCreateTime(
           DateTimeFormatter.ISO_DATE_TIME
               .withZone(ZoneOffset.UTC)
@@ -626,7 +627,7 @@ public class LocalResourceManagerHelper {
           project.setProjectId(fullProject.getProjectId());
           break;
         case "projectNumber":
-          // Removed as per API changes
+          project.setProjectNumber(fullProject.getProjectNumber());
           break;
       }
     }
@@ -649,6 +650,7 @@ public class LocalResourceManagerHelper {
     project.setProjectId(projectId);
     project.setLifecycleState(originalProject.getLifecycleState());
     project.setCreateTime(originalProject.getCreateTime());
+    project.setProjectNumber(originalProject.getProjectNumber());
     // replace cannot fail because both this method and removeProject are synchronized
     projects.replace(projectId, project);
     try {

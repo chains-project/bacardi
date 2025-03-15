@@ -9,7 +9,7 @@
 34c34
 < public class Translation implements Serializable {
 ---
-> public class TranslationInfo implements Serializable { // Renamed class to avoid conflict with new API class
+> public class TranslationInfo implements Serializable { // Renamed class to avoid conflict with new Translation class
 37,38c37,38
 <   static final Function<TranslationsResource, Translation> FROM_PB_FUNCTION =
 <       new Function<TranslationsResource, Translation>() {
@@ -29,14 +29,14 @@
 98c98
 <     if (obj == null || !obj.getClass().equals(Translation.class)) {
 ---
->     if (obj == null || !obj.getClass().equals(TranslationInfo.class)) { // Updated class check
+>     if (obj == null || !obj.getClass().equals(TranslationInfo.class)) {
 101c101
 <     Translation other = (Translation) obj;
 ---
->     TranslationInfo other = (TranslationInfo) obj; // Updated class type
+>     TranslationInfo other = (TranslationInfo) obj;
 106,107c106,107
 <   static Translation fromPb(TranslationsResource translationPb) {
 <     return new Translation(
 ---
->   static TranslationInfo fromPb(Translation translationPb) { // Updated parameter type
+>   static TranslationInfo fromPb(Translation translationPb) { // Updated method to accept new Translation type
 >     return new TranslationInfo(
