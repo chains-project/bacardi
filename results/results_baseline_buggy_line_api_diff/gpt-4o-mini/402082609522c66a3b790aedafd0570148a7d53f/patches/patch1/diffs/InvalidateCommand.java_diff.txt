@@ -1,23 +1,16 @@
-10,12c10,12
+7a8
+> import org.spongepowered.api.command.Command;
+10,12c11
 < import org.spongepowered.api.command.args.CommandContext;
 < import org.spongepowered.api.command.spec.CommandExecutor;
 < import org.spongepowered.api.command.spec.CommandSpec;
 ---
 > import org.spongepowered.api.command.parameter.CommandContext;
-> import org.spongepowered.api.command.CommandExecutor;
-> import org.spongepowered.api.command.Command;
-13a14
-> import org.spongepowered.api.scheduler.Scheduler;
-16c17
-< public class InvalidateCommand implements CommandExecutor, ChangeSkinCommand {
----
-> public class InvalidateCommand implements CommandExecutor {
-33c34,35
+33c32
 <         Task.builder().async().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
 ---
->         Scheduler scheduler = plugin.getScheduler();
 >         Task.builder().execute(new SkinInvalidator(plugin, receiver)).submit(plugin);
-37,39c39,40
+37,39c36,37
 <     @Override
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()

@@ -64,7 +64,7 @@ public class MarcFactory {
 
   public static BibliographicRecord create(JsonPathCache cache, MarcVersion version) {
     var marcRecord = new Marc21Record();
-    for (var branch : schema.getPaths()) { // Changed to use var instead of JsonBranch
+    for (var branch : schema.getPaths()) { // Updated to use var instead of JsonBranch
       if (branch.getParent() != null)
         continue;
       switch (branch.getLabel()) {

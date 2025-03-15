@@ -18,7 +18,7 @@ public class MSSQLDatabase extends liquibase.database.core.MSSQLDatabase {
         super.dropDatabaseObjects(schemaToDrop);
         String catalogName = this.getLiquibaseCatalogName();
         String schemaName = this.getLiquibaseSchemaName();
-        ExecutorService.getInstance().getExecutor(catalogName, this).execute(new DropStoredProcedureStatement(catalogName, schemaName));
+        ExecutorService.getExecutor(catalogName, this).execute(new DropStoredProcedureStatement(catalogName, schemaName));
     }
 }
 ```

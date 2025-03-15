@@ -1,19 +1,21 @@
-21d20
+5a6
+>  * you may not use this file except in compliance with the License.
+21d21
 < import org.codehaus.plexus.util.xml.Xpp3Dom;
-70,71c69,70
+70,71c70,71
 <         if (config instanceof Xpp3Dom) {
 <             return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
 ---
 >         if (config instanceof org.codehaus.plexus.util.xml.Xpp3Dom) {
 >             return stream(((org.codehaus.plexus.util.xml.Xpp3Dom) config).getChildren("annotationProcessorPaths"))
-78,79d76
+78,79d77
 <                     // A path specification is automatically ignored in maven-compiler-plugin if version is absent,
 <                     // therefore there is little use in logging incomplete paths that are filtered out.
-85,87d81
+85,87d82
 <         // It is expected that this will never occur due to all Configuration instances of all plugins being provided as
 <         // XML document. If this happens to occur on very old plugin versions, we can safely add the type support and
 <         // simply return an empty set.
-99,100c93,94
+99,100c94,95
 <     private static String extractChildValue(Xpp3Dom node, String name) {
 <         final Xpp3Dom child = node.getChild(name);
 ---

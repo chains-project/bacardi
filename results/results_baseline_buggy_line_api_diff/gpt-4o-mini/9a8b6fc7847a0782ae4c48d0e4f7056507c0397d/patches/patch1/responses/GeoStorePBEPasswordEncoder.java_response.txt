@@ -30,8 +30,7 @@ import java.util.Base64;
 import org.acegisecurity.providers.encoding.PasswordEncoder;
 import org.jasypt.encryption.pbe.StandardPBEByteEncryptor;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
-import org.jasypt.springsecurity3.password.PasswordEncoderFactory;
-import org.jasypt.springsecurity3.password.StandardPasswordEncoder;
+import org.jasypt.springsecurity3.password.PasswordEncryptor; // Updated import
 
 /**
  * Password Encoder using symmetric encryption
@@ -101,7 +100,7 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 			}
 			stringEncrypter.setAlgorithm(getAlgorithm());
 
-			StandardPasswordEncoder encoder = new StandardPasswordEncoder();
+			PasswordEncryptor encoder = new PasswordEncryptor(); // Updated instantiation
 			encoder.setPbeStringEncryptor(stringEncrypter);
 
 			return encoder;

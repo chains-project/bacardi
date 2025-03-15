@@ -165,9 +165,11 @@ public abstract class Server<Config extends Configuration> extends Application<C
     }
 
     private void addResources() {
-        addResource(new VersionResource()); 
-        addResource(new StatusResource()); 
-        addResource(new RequestMdcFactoryFilter()); 
+        /* --- Wire Common --- */
+        addResource(new VersionResource()); // add version endpoint
+        addResource(new StatusResource()); // empty status for k8s
+        addResource(new RequestMdcFactoryFilter()); // MDC data
+        /* //- Wire Common --- */
 
         botResource();
         messageResource();
@@ -196,7 +198,9 @@ public abstract class Server<Config extends Configuration> extends Application<C
     }
 
     private void initTelemetry() {
+        /* --- Wire Common --- */
         environment.jersey().register(new RequestMdcFactoryFilter());
+        /* //- Wire Common --- */
 
         final CryptoFactory cryptoFactory = getCryptoFactory();
         final StorageFactory storageFactory = getStorageFactory();

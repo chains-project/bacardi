@@ -111,10 +111,10 @@ public final class MavenCompilerUtils {
 the error is triggered in the following specific lines in the previous code:
 
 ```java
-private static String extractChildValue(Xpp3Dom node, String name) {
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 ```
 ```java
-import org.codehaus.plexus.util.xml.Xpp3Dom;
+private static String extractChildValue(Xpp3Dom node, String name) {
 ```
 ```java
 private static String extractChildValue(Xpp3Dom node, String name) {
@@ -126,15 +126,7 @@ private static String extractChildValue(Xpp3Dom node, String name) {
 
 
  with the following error information:
-[ERROR] /pgpverify-maven-plugin/src/main/java/org/simplify4u/plugins/utils/MavenCompilerUtils.java:[99,45] cannot find symbol
-  symbol:   class Xpp3Dom
-  location: class org.simplify4u.plugins.utils.MavenCompilerUtils
-
 [ERROR] /pgpverify-maven-plugin/src/main/java/org/simplify4u/plugins/utils/MavenCompilerUtils.java:[21,36] package org.codehaus.plexus.util.xml does not exist
-
-[ERROR] /pgpverify-maven-plugin/src/main/java/org/simplify4u/plugins/utils/MavenCompilerUtils.java:[99,45] cannot find symbol
-  symbol:   class Xpp3Dom
-  location: class org.simplify4u.plugins.utils.MavenCompilerUtils
 
 [ERROR] /pgpverify-maven-plugin/src/main/java/org/simplify4u/plugins/utils/MavenCompilerUtils.java:[99,45] cannot find symbol
   symbol:   class Xpp3Dom
@@ -142,12 +134,12 @@ private static String extractChildValue(Xpp3Dom node, String name) {
 
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
-     Method org.codehaus.plexus.util.xml.Xpp3Dom.getValue() has been removed in the new version of the dependency.
-     Constructor org.codehaus.plexus.util.xml.Xpp3Dom(org.codehaus.plexus.util.xml.Xpp3Dom) has been removed in the new version of the dependency.
      Class org.codehaus.plexus.util.xml.Xpp3Dom has been removed in the new version of the dependency.
-     Constructor org.codehaus.plexus.util.xml.Xpp3Dom(java.lang.String) has been removed in the new version of the dependency.
+     Constructor org.codehaus.plexus.util.xml.Xpp3Dom(org.codehaus.plexus.util.xml.Xpp3Dom) has been removed in the new version of the dependency.
      Constructor org.codehaus.plexus.util.xml.Xpp3Dom(java.lang.String,java.lang.Object) has been removed in the new version of the dependency.
+     Constructor org.codehaus.plexus.util.xml.Xpp3Dom(java.lang.String) has been removed in the new version of the dependency.
      Constructor org.codehaus.plexus.util.xml.Xpp3Dom(org.codehaus.plexus.util.xml.Xpp3Dom,java.lang.String) has been removed in the new version of the dependency.
+     Method org.codehaus.plexus.util.xml.Xpp3Dom.getValue() has been removed in the new version of the dependency.
      Method org.codehaus.plexus.util.xml.Xpp3Dom.getChild(int) has been removed in the new version of the dependency.
      Method org.codehaus.plexus.util.xml.Xpp3Dom.getChild(java.lang.String) has been removed in the new version of the dependency.
 

@@ -41,9 +41,6 @@ public class TaskController {
     private Models models;
 
     @Inject
-    private BindingResult validationResult;
-
-    @Inject
     TaskRepository taskRepository;
 
     @Inject
@@ -90,6 +87,7 @@ public class TaskController {
     public Response save(@Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "saving new task @{0}", form);
 
+        BindingResult validationResult = null; // Create a local variable to handle validation
         if (validationResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
             validationResult.getAllErrors()
@@ -134,6 +132,7 @@ public class TaskController {
     public Response update(@PathParam(value = "id") Long id, @Valid @BeanParam TaskForm form) {
         log.log(Level.INFO, "updating existed task@id:{0}, form data:{1}", new Object[]{id, form});
 
+        BindingResult validationResult = null; // Create a local variable to handle validation
         if (validationResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
             validationResult.getAllErrors()

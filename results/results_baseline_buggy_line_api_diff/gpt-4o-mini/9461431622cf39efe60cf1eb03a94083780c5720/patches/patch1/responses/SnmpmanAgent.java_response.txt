@@ -354,7 +354,7 @@ public class SnmpmanAgent extends BaseAgent {
         try {
             if (context == null || context.toString().equals("")) {
                 MOContextScope contextScope = new DefaultMOContextScope(new OctetString(), group.getScope());
-                ManagedObject other = server.lookup(new DefaultMOQuery(contextScope, false));
+                Object other = server.lookup(new DefaultMOQuery(contextScope, false));
                 if (other != null) {
                     log.warn("group {} already existed", group);
                     return;
@@ -386,7 +386,7 @@ public class SnmpmanAgent extends BaseAgent {
         try {
             final Field registry = server.getClass().getDeclaredField("registry");
             registry.setAccessible(true);
-            final SortedMap<MOScope, org.snmp4j.agent.ManagedObject<?>> reg = server.getRegistry();
+            final SortedMap<MOScope, Object> reg = (SortedMap<MOScope, Object>) server.getRegistry();
             DefaultMOContextScope contextScope = new DefaultMOContextScope(new OctetString(""), group.getScope());
             reg.put(contextScope, group);
             registry.set(server, reg);
@@ -437,7 +437,7 @@ public class SnmpmanAgent extends BaseAgent {
     private void unregisterDefaultManagedObjects(final OctetString ctx) {
         final OID startOID = new OID(".1");
         final DefaultMOContextScope hackScope = new DefaultMOContextScope(ctx, startOID, true, startOID.nextPeer(), false);
-        ManagedObject query;
+        Object query;
         while ((query = server.lookup(new DefaultMOQuery(hackScope, false))) != null) {
             server.unregister(query, ctx);
         }

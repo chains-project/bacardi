@@ -31,8 +31,7 @@ package com.jcabi.http.mock;
 
 import java.net.URI;
 import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
-import org.hamcrest.core.IsEqual;
+import org.hamcrest.Matchers; // This import will be removed
 
 /**
  * Convenient set of matchers for {@link MkQuery}.
@@ -83,7 +82,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasPath(final Matcher<String> path) {
         return new MkQueryUriMatcher(
-            new IsEqual<>(path)
+            new PropertyMatcher<>("rawPath", path) // Updated to use a custom PropertyMatcher
         );
     }
 
@@ -95,7 +94,7 @@ public final class MkQueryMatchers {
      */
     public static Matcher<MkQuery> hasQuery(final Matcher<String> query) {
         return new MkQueryUriMatcher(
-            new IsEqual<>(query)
+            new PropertyMatcher<>("rawQuery", query) // Updated to use a custom PropertyMatcher
         );
     }
 

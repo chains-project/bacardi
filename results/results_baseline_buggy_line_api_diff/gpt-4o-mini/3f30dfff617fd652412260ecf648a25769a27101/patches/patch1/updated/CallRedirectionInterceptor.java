@@ -1,13 +1,16 @@
 package de.hilling.junit.cdi.scope;
 
 import de.hilling.junit.cdi.util.ReflectionsUtils;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
+
+import jakarta.annotation.Priority;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.interceptor.AroundInvoke;
 import jakarta.interceptor.Interceptor;
 import jakarta.interceptor.InvocationContext;
-import jakarta.annotation.Priority;
+
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

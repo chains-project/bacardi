@@ -33,9 +33,9 @@ public class YamlModelReader extends ModelReaderSupport {
   private final Yaml yaml;
 
   public YamlModelReader() {
+    ModelConstructor constructor = new ModelConstructor();
     DumperOptions dumperOptions = new DumperOptions();
     Representer representer = new Representer(dumperOptions);
-    ModelConstructor constructor = new ModelConstructor();
     yaml = new Yaml(constructor, representer, dumperOptions, new ModelResolver());
   }
 

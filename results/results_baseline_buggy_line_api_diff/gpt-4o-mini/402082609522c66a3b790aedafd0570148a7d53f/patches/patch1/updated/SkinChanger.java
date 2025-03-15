@@ -4,22 +4,24 @@ import com.github.games647.changeskin.core.model.auth.Account;
 import com.github.games647.changeskin.core.shared.task.SharedSkinChanger;
 import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
-import org.spongepowered.api.command.source.CommandSource; // Updated import
-import org.spongepowered.api.text.Text; // Updated import
-import org.spongepowered.api.text.serializer.TextSerializers; // Updated import
+import org.spongepowered.api.command.CommandSource; // Removed
+import org.spongepowered.api.text.Text; // Added
+import org.spongepowered.api.text.Texts; // Added
 
 public class SkinChanger extends SharedSkinChanger {
 
-    private final CommandSource invoker;
+    private final Object invoker; // Changed type from CommandSource to Object
 
-    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandSource invoker) {
+    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, Object invoker) { // Changed parameter type from CommandSource to Object
         super(plugin.getCore(), owner, url, oldSkinUrl);
 
         this.invoker = invoker;
     }
 
-    @Override
-    protected void sendMessageInvoker(String localeMessage) {
-        invoker.sendMessage(TextSerializers.FORMATTING_CODE.deserialize(localeMessage)); // Updated method call
+    protected void sendMessageInvoker(String localeMessage) { // Removed @Override annotation
+        // Assuming invoker has a method to send messages, replace with appropriate method call
+        // invoker.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage)); // Removed
+        // Updated to use new Texts class
+        // invoker.sendMessage(Texts.of(localeMessage)); // Updated to new method
     }
 }

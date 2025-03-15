@@ -43,7 +43,7 @@ public class LoginListener extends SharedListener {
             plugin.getApi().applyProperties(profile, targetSkin);
             save(preferences);
         } else {
-            String playerName = profile.getName().get();
+            String playerName = profile.getName().orElse("Unknown");
             if (!core.getConfig().getBoolean("restoreSkins") || !refetchSkin(playerName, preferences)) {
                 setDefaultSkin(preferences, profile);
             }

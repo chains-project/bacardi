@@ -2,7 +2,7 @@
 < import org.tinspin.index.PointIndex;
 37a37
 > import org.tinspin.index.IndexConfig;
-67,96c67
+67,119c67
 <         /**
 <          * Generates a shape consisting of polygonal faces of an <i>Urquhart graph</i>.
 <          * An Urquhart graph is obtained by removing the longest edge from each triangle
@@ -33,9 +33,7 @@
 <         public static PShape urquhartFaces(final IIncrementalTin triangulation, final boolean preservePerimeter) {
 <                 final HashSet<IQuadEdge> edges = PGS.makeHashSet(triangulation.getMaximumEdgeAllocationIndex());
 <                 final HashSet<IQuadEdge> uniqueLongestEdges = PGS.makeHashSet(triangulation.getMaximumEdgeAllocationIndex());
----
->         // ... (rest of the code remains unchanged)
-98,143d68
+< 
 <                 final boolean notConstrained = triangulation.getConstraints().isEmpty();
 < 
 <                 TriangleCollector.visitSimpleTriangles(triangulation, t -> {
@@ -58,7 +56,9 @@
 < 
 <                 return PGS.polygonizeEdges(meshEdges);
 <         }
-< 
+---
+>         // ... (rest of the class remains unchanged)
+121,143d68
 <         /**
 <          * Generates a shape consisting of polygonal faces of a <i>Gabriel graph</i>. A
 <          * Gabriel graph is obtained by removing each edge E from a triangulation if a
@@ -94,7 +94,7 @@
 <                         final Vertex near = tree.query1NN(midpoint).value();
 ---
 >                         Vertex near = tree.query1NN(midpoint).value();
-186,850c107
+186,851c107
 <         /**
 <          * Generates a shape consisting of polygonal faces of a <i>Relative neighborhood
 <          * graph</i> (RNG).
@@ -760,5 +760,6 @@
 <                 y /= 3;
 <                 return new Vertex(x, y, 0);
 <         }
+< 
 ---
->         // ... (rest of the code remains unchanged)
+>         // ... (rest of the class remains unchanged)

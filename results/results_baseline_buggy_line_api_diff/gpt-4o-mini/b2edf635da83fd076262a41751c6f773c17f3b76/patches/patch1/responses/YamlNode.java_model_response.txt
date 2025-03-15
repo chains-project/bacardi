@@ -67,7 +67,7 @@ public class YamlNode {
          InputStream in = null;
          try {
             in = byteSource.openStream();
-            return (YamlNode) new Yaml(new Constructor(YamlNode.class)).loadAs(in, YamlNode.class);
+            return (YamlNode) new Yaml().load(in);
          } catch (IOException ioe) {
             throw Throwables.propagate(ioe);
          } finally {

@@ -230,7 +230,8 @@ public final class PGS_CirclePacking {
 		float largestR = 0; // the radius of the largest circle in the tree
 
 		for (PVector p : steinerPoints) {
-			final PVector nn = tree.query1NN(new double[] { p.x, p.y, largestR }); // find nearest-neighbour circle
+			// find nearest-neighbour circle
+			PVector nn = tree.query1NN(new double[] { p.x, p.y, largestR }); 
 
 			/*
 			 * nn.dist() does not return the radius (since it's a distance metric used to

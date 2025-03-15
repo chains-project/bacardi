@@ -390,7 +390,7 @@ public class ProjectInfo implements Serializable {
               .format(Instant.ofEpochMilli(createTimeMillis)));
     }
     if (parent != null) {
-      projectPb.setParent(parent.toPb());
+      projectPb.setParent(parent.getId());
     }
     return projectPb;
   }

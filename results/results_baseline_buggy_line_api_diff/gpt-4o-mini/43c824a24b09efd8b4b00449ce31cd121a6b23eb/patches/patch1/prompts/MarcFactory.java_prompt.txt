@@ -493,21 +493,25 @@ public class MarcFactory {
 the error is triggered in the following specific lines in the previous code:
 
 ```java
+private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
+```
+```java
 import de.gwdg.metadataqa.api.json.JsonBranch;
 ```
 ```java
+private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
+```
+```java
 private static String extractFirst(JsonPathCache cache, JsonBranch branch) {
-```
-```java
-private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
-```
-```java
-private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
 ```
 
 
 
  with the following error information:
+[ERROR] /qa-catalogue/src/main/java/de/gwdg/metadataqa/marc/MarcFactory.java:[313,64] cannot find symbol
+  symbol:   class JsonBranch
+  location: class de.gwdg.metadataqa.marc.MarcFactory
+
 [ERROR] /qa-catalogue/src/main/java/de/gwdg/metadataqa/marc/MarcFactory.java:[3,35] cannot find symbol
   symbol:   class JsonBranch
   location: package de.gwdg.metadataqa.api.json
@@ -516,23 +520,15 @@ private static List<String> extractList(JsonPathCache cache, JsonBranch branch) 
   symbol:   class JsonBranch
   location: class de.gwdg.metadataqa.marc.MarcFactory
 
-[ERROR] /qa-catalogue/src/main/java/de/gwdg/metadataqa/marc/MarcFactory.java:[313,64] cannot find symbol
-  symbol:   class JsonBranch
-  location: class de.gwdg.metadataqa.marc.MarcFactory
-
-[ERROR] /qa-catalogue/src/main/java/de/gwdg/metadataqa/marc/MarcFactory.java:[313,64] cannot find symbol
-  symbol:   class JsonBranch
-  location: class de.gwdg.metadataqa.marc.MarcFactory
-
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
-     Constructor de.gwdg.metadataqa.api.json.JsonBranch(java.lang.String) has been removed in the new version of the dependency.
-     Constructor de.gwdg.metadataqa.api.json.JsonBranch(java.lang.String,java.lang.String,java.lang.String) has been removed in the new version of the dependency.
      Constructor de.gwdg.metadataqa.api.json.JsonBranch(java.lang.String,de.gwdg.metadataqa.api.json.JsonBranch,java.lang.String) has been removed in the new version of the dependency.
-     Class de.gwdg.metadataqa.api.json.JsonBranch has been removed in the new version of the dependency.
+     Constructor de.gwdg.metadataqa.api.json.JsonBranch(java.lang.String) has been removed in the new version of the dependency.
      Constructor de.gwdg.metadataqa.api.json.JsonBranch(java.lang.String,java.lang.String) has been removed in the new version of the dependency.
-     Method de.gwdg.metadataqa.api.uniqueness.UniquenessField.getJsonPath() has been removed in the new version of the dependency.
+     Class de.gwdg.metadataqa.api.json.JsonBranch has been removed in the new version of the dependency.
+     Constructor de.gwdg.metadataqa.api.json.JsonBranch(java.lang.String,java.lang.String,java.lang.String) has been removed in the new version of the dependency.
      Method de.gwdg.metadataqa.api.json.JsonBranch.getJsonPath() has been removed in the new version of the dependency.
+     Method de.gwdg.metadataqa.api.uniqueness.UniquenessField.getJsonPath() has been removed in the new version of the dependency.
 
 
 

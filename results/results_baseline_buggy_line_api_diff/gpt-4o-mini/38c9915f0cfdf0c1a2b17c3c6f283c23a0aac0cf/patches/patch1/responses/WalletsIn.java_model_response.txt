@@ -12,9 +12,10 @@ import org.cactoos.func.IoCheckedFunc;
 import org.cactoos.io.Directory;
 import org.cactoos.iterable.Filtered;
 import org.cactoos.iterable.Mapped;
-import org.cactoos.scalar.IoChecked;
+import org.cactoos.scalar.IoCheckedScalar;
 import org.cactoos.text.FormattedText;
-import org.cactoos.text.UncheckedText;
+import org.cactoos.text.JoinedText;
+import org.cactoos.text.TextOf;
 
 /**
  * Wallets in path.
@@ -90,15 +91,15 @@ public final class WalletsIn implements Wallets {
     @Override
     public Wallet create() throws IOException {
         final Path wpth = this.path.value().resolve(
-            String.format("%s.%s", Long.toHexString(this.random.nextLong()), this.ext)
+            new TextOf(
+                String.format("%s.%s", Long.toHexString(this.random.nextLong()), this.ext)
+            ).asString()
         );
         if (wpth.toFile().exists()) {
             throw new IOException(
-                new UncheckedText(
-                    new FormattedText(
-                        "Wallet in path %s already exists",
-                        wpth.toUri().getPath()
-                    )
+                new FormattedText(
+                    "Wallet in path %s already exists",
+                    wpth.toUri().getPath()
                 ).asString()
             );
         }

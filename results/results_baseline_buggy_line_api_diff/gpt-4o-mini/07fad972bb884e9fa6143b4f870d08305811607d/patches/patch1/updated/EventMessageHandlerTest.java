@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.queue.event;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.core.Appender;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.GsonBuilder;
 import org.hamcrest.core.Is;
@@ -13,7 +14,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import uk.gov.pay.adminusers.client.ledger.model.LedgerTransaction;
 import uk.gov.pay.adminusers.client.ledger.service.LedgerService;
 import uk.gov.pay.adminusers.model.MerchantDetails;
@@ -107,7 +107,7 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
+        var logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(EventMessageHandler.class);
         logger.setLevel(Level.INFO);
         logger.addAppender(mockLogAppender);
     }

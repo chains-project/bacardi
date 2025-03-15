@@ -1,27 +1,27 @@
-12,13d11
+3d2
+< import com.flowpowered.math.vector.Vector3d;
+12,13d10
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.data.key.Keys;
-23d20
+23d19
 <     private final CommandSource invoker;
-26c23
+26c22
 <     public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin
 ---
 >     public SkinApplier(ChangeSkinSponge plugin, Player receiver, SkinModel targetSkin
-31d27
+31d26
 <         this.invoker = invoker;
-42,43c38,39
+42,43c37,38
 <         if (invoker instanceof Player) {
 <             UUID uniqueId = ((Player) invoker).getUniqueId();
 ---
 >         if (receiver.isOnline()) {
 >             UUID uniqueId = receiver.getUniqueId();
-65c61,62
+65c60
 <         plugin.sendMessage(invoker, "skin-changed");
 ---
->         // Assuming invoker is no longer needed
->         // plugin.sendMessage(invoker, "skin-changed");
-70c67,68
+>         plugin.sendMessage(receiver, "skin-changed");
+70c65
 <         plugin.sendMessage(invoker, key);
 ---
->         // Assuming invoker is no longer needed
->         // plugin.sendMessage(invoker, key);
+>         plugin.sendMessage(receiver, key);

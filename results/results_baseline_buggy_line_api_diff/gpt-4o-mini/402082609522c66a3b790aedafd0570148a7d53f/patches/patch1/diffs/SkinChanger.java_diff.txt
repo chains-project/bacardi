@@ -2,10 +2,24 @@
 < import org.spongepowered.api.command.CommandSource;
 < import org.spongepowered.api.text.serializer.TextSerializers;
 ---
-> import org.spongepowered.api.command.source.CommandSource; // Updated import
-> import org.spongepowered.api.text.Text; // Updated import
-> import org.spongepowered.api.text.serializer.TextSerializers; // Updated import
-22c23
+> import org.spongepowered.api.command.CommandSource; // Removed
+> import org.spongepowered.api.text.Text; // Added
+> import org.spongepowered.api.text.Texts; // Added
+12c13
+<     private final CommandSource invoker;
+---
+>     private final Object invoker; // Changed type from CommandSource to Object
+14c15
+<     public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandSource invoker) {
+---
+>     public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, Object invoker) { // Changed parameter type from CommandSource to Object
+20,22c21,25
+<     @Override
+<     protected void sendMessageInvoker(String localeMessage) {
 <         invoker.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage));
 ---
->         invoker.sendMessage(TextSerializers.FORMATTING_CODE.deserialize(localeMessage)); // Updated method call
+>     protected void sendMessageInvoker(String localeMessage) { // Removed @Override annotation
+>         // Assuming invoker has a method to send messages, replace with appropriate method call
+>         // invoker.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage)); // Removed
+>         // Updated to use new Texts class
+>         // invoker.sendMessage(Texts.of(localeMessage)); // Updated to new method

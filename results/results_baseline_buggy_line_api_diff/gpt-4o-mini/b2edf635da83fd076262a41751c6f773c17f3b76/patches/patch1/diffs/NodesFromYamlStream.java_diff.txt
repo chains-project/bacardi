@@ -15,9 +15,11 @@
 <  * See the License for the specific language governing permissions and
 <  * limitations under the License.
 <  */
-31a16
+32d15
+< import org.yaml.snakeyaml.TypeDescription;
+34a18
 > import org.yaml.snakeyaml.LoaderOptions;
-45,68d29
+45,68d28
 < /**
 <  * Parses the following syntax.
 <  * 
@@ -42,13 +44,21 @@
 <  *       sudo_password: password
 <  * </pre>
 <  */
-72,75d32
+72,75d31
 <    /**
 <     * Type-safe config class for YAML
 <     * 
 <     */
-83c40,41
+83c39,40
 <       Constructor constructor = new Constructor(Config.class);
 ---
 >       LoaderOptions loaderOptions = new LoaderOptions();
 >       Constructor constructor = new Constructor(loaderOptions);
+85,91d41
+<       TypeDescription nodeDesc = new TypeDescription(YamlNode.class);
+<       nodeDesc.putListPropertyType("tags", String.class);
+<       constructor.addTypeDescription(nodeDesc);
+< 
+<       TypeDescription configDesc = new TypeDescription(Config.class);
+<       configDesc.putListPropertyType("nodes", YamlNode.class);
+<       constructor.addTypeDescription(configDesc);

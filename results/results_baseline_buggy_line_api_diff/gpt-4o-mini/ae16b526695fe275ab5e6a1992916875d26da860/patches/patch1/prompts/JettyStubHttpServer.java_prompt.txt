@@ -89,6 +89,27 @@ public class JettyStubHttpServer implements StubHttpServer {
 the error is triggered in the following specific lines in the previous code:
 
 ```java
+this.server.setSendDateHeader(true);
+```
+```java
+this.httpConnector = new SelectChannelConnector();
+```
+```java
+this.httpConnector = new SelectChannelConnector();
+```
+```java
+this.httpConnector = new SelectChannelConnector();
+```
+```java
+this.httpConnector.setPort(port);
+```
+```java
+this.server.setSendServerVersion(false);
+```
+```java
+this.server.setSendDateHeader(true);
+```
+```java
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 ```
 ```java
@@ -101,79 +122,46 @@ this.httpConnector.setPort(port);
 return httpConnector.getLocalPort();
 ```
 ```java
-this.server.setSendDateHeader(true);
-```
-```java
-this.httpConnector = new SelectChannelConnector();
-```
-```java
-this.server.setSendDateHeader(true);
-```
-```java
 return httpConnector.getLocalPort();
-```
-```java
-this.server.setSendServerVersion(false);
-```
-```java
-this.httpConnector = new SelectChannelConnector();
-```
-```java
-this.httpConnector.setPort(port);
-```
-```java
-this.httpConnector = new SelectChannelConnector();
 ```
 
 
 
  with the following error information:
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[34,19] error: cannot find symbol
+
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[36,33] error: cannot find symbol
+
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[37,26] error: cannot find symbol
+
+[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[33,19] error: cannot find symbol
+
 [ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[14,35] error: cannot find symbol
 
-[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[33,19] error: cannot find symbol
-
-[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[37,26] error: cannot find symbol
-
 [ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[80,28] error: cannot find symbol
-
-[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[34,19] error: cannot find symbol
-
-[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[36,33] error: cannot find symbol
-
-[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[34,19] error: cannot find symbol
-
-[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[80,28] error: cannot find symbol
-
-[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[33,19] error: cannot find symbol
-
-[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[36,33] error: cannot find symbol
-
-[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[37,26] error: cannot find symbol
-
-[ERROR] /jadler/jadler-jetty/src/main/java/net/jadler/stubbing/server/jetty/JettyStubHttpServer.java:[36,33] error: cannot find symbol
 
 
 The error is caused by a change in the API of the dependency. The new library version includes the following changes:
-     Type reference org.eclipse.jetty.server.Server(org.eclipse.jetty.util.thread.ThreadPool) has been added in the new version of the dependency.
      Method org.eclipse.jetty.server.Server has been removed in the new version of the dependency.
-     Method org.eclipse.jetty.server.Connector.setPort(int) has been removed in the new version of the dependency.
-     Method org.eclipse.jetty.server.AbstractConnector.setPort(int) has been removed in the new version of the dependency.
-     Method org.eclipse.jetty.server.AbstractNetworkConnector.setPort(int) has been added in the new version of the dependency.
-     Class org.eclipse.jetty.server.Connector has been removed in the new version of the dependency.
+     Type reference org.eclipse.jetty.server.Server(org.eclipse.jetty.util.thread.ThreadPool) has been added in the new version of the dependency.
      Class org.eclipse.jetty.server.nio.SelectChannelConnector has been removed in the new version of the dependency.
      Constructor org.eclipse.jetty.server.nio.SelectChannelConnector() has been removed in the new version of the dependency.
-     Method org.eclipse.jetty.server.HttpConfiguration.setSendDateHeader(boolean) has been added in the new version of the dependency.
+     Class org.eclipse.jetty.server.Connector has been removed in the new version of the dependency.
+     Method org.eclipse.jetty.server.AbstractNetworkConnector.setPort(int) has been added in the new version of the dependency.
+     Method org.eclipse.jetty.server.AbstractConnector.setPort(int) has been removed in the new version of the dependency.
+     Method org.eclipse.jetty.server.Connector.setPort(int) has been removed in the new version of the dependency.
      Method org.eclipse.jetty.server.Server.setSendDateHeader(boolean) has been removed in the new version of the dependency.
-     Method org.eclipse.jetty.server.nio.BlockingChannelConnector.getLocalPort() has been removed in the new version of the dependency.
-     Method org.eclipse.jetty.server.Connector.getLocalPort() has been removed in the new version of the dependency.
-     Method org.eclipse.jetty.server.nio.SelectChannelConnector.getLocalPort() has been removed in the new version of the dependency.
-     Method org.eclipse.jetty.server.AbstractNetworkConnector.getLocalPort() has been added in the new version of the dependency.
-     Method org.eclipse.jetty.server.bio.SocketConnector.getLocalPort() has been removed in the new version of the dependency.
-     Method org.eclipse.jetty.server.LocalConnector.getLocalPort() has been removed in the new version of the dependency.
-     Method org.eclipse.jetty.server.NetworkConnector.getLocalPort() has been added in the new version of the dependency.
-     Method org.eclipse.jetty.server.ServerConnector.getLocalPort() has been added in the new version of the dependency.
-     Method org.eclipse.jetty.server.HttpConfiguration.setSendServerVersion(boolean) has been added in the new version of the dependency.
+     Method org.eclipse.jetty.server.HttpConfiguration.setSendDateHeader(boolean) has been added in the new version of the dependency.
      Method org.eclipse.jetty.server.Server.setSendServerVersion(boolean) has been removed in the new version of the dependency.
+     Method org.eclipse.jetty.server.HttpConfiguration.setSendServerVersion(boolean) has been added in the new version of the dependency.
+     Method org.eclipse.jetty.server.ServerConnector.getLocalPort() has been added in the new version of the dependency.
+     Method org.eclipse.jetty.server.nio.BlockingChannelConnector.getLocalPort() has been removed in the new version of the dependency.
+     Method org.eclipse.jetty.server.AbstractNetworkConnector.getLocalPort() has been added in the new version of the dependency.
+     Method org.eclipse.jetty.server.LocalConnector.getLocalPort() has been removed in the new version of the dependency.
+     Method org.eclipse.jetty.server.bio.SocketConnector.getLocalPort() has been removed in the new version of the dependency.
+     Method org.eclipse.jetty.server.Connector.getLocalPort() has been removed in the new version of the dependency.
+     Method org.eclipse.jetty.server.NetworkConnector.getLocalPort() has been added in the new version of the dependency.
+     Method org.eclipse.jetty.server.nio.SelectChannelConnector.getLocalPort() has been removed in the new version of the dependency.
 
 
 

@@ -3,4 +3,9 @@
 70c71
 <                         if (tree.size() == 0 || tree.query1NN(coords).dist() > distanceTolerance) {
 ---
->                         if (tree.size() == 0 || (tree.query1NN(coords) != null && tree.query1NN(coords).dist() > distanceTolerance)) {
+>                         if (tree.size() == 0 || queryNearestNeighbor(tree, coords).dist() > distanceTolerance) {
+77a79,82
+>         private static KDTreeResult<PVector> queryNearestNeighbor(KDTree<PVector> tree, double[] coords) {
+>                 return tree.query1NN(coords);
+>         }
+> 

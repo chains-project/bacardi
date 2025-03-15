@@ -53,6 +53,8 @@ import sorald.util.ConfigLoader;
 
 public final class SonarLintEngine extends AbstractSonarLintEngine {
 
+    // The order of these initialisations is important as each field is dependent upon the previous
+    // one.
     private static final String SONAR_JAVA_PLUGIN_JAR_NAME = "sonar-java-plugin.jar";
     private static final Path sonarJavaPlugin = getOrDownloadSonarJavaPlugin().getPath();
     private static final StandaloneGlobalConfiguration globalConfig = buildGlobalConfig();
@@ -62,8 +64,10 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     private static final AnalysisEngineConfiguration analysisGlobalConfig =
             buildAnalysisEngineConfiguration();
 
+    // The only instance of this singleton class
     private static SonarLintEngine theOnlyInstance;
 
+    // We need to reinitialise it before starting analysis of any source files on any rules.
     private AnalysisEngine analysisEngine;
 
     private SonarLintEngine() {
@@ -90,10 +94,11 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                     StandardCopyOption.REPLACE_EXISTING);
             return new SonarJavaJarHolder(new File(sonarJavaPluginFileName).toPath(), true);
         } catch (IOException e) {
-            throw new RuntimeException("Could not download Sonar Java plugin", e);
+            throw new RuntimeException("Could not download Sonar Java plugin", e); // NOSONAR:S112
         }
     }
 
+    /** Store the path to SonarJava plugin and if it is downloaded or fetched from cache. */
     public static class SonarJavaJarHolder {
         private final Path path;
         private final boolean downloaded;
@@ -127,11 +132,13 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                         Optional.ofNullable(globalConfig.getNodeJsVersion()));
 
         PluginsLoadResult loadedResult = new PluginsLoader().load(config);
+        // Default loaded result stops the loader. The following code prevents that.
 
         Map<String, PluginRequirementsCheckResult> pluginCheckResultByKeys =
                 loadedResult.getPluginCheckResultByKeys();
         Collection<PluginInfo> allPlugins = getAllPlugins(pluginCheckResultByKeys);
 
+        // We do not want this loader to close.
         PluginInstancesLoader instancesLoader = new PluginInstancesLoader();
         Map<String, Plugin> pluginInstancesByKeys =
                 instancesLoader.instantiatePluginClasses(allPlugins);
@@ -161,6 +168,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
                 .build();
     }
 
+    /** Get or creates the one and only instance of this class. */
     public static SonarLintEngine getInstance() {
         if (theOnlyInstance == null) {
             theOnlyInstance = new SonarLintEngine();
@@ -170,6 +178,10 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
         return theOnlyInstance;
     }
 
+    /**
+     * Recreates the analysis engine as it is stopped after each analysis executed by {@link
+     * SonarStaticAnalyzer}.
+     */
     public void recreateAnalysisEngine() {
         this.analysisEngine = new AnalysisEngine(analysisGlobalConfig, loadedPlugins, logOutput);
     }
@@ -220,6 +232,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
         }
     }
 
+    /** Returns all rule keys available at the provided version of Sonar Java. */
     public static Map<String, SonarLintRuleDefinition> getAllRulesDefinitionsByKey() {
         return allRulesDefinitionsByKey;
     }
@@ -254,9 +267,13 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
     }
 
     public List<PluginDetails> getPluginDetails() {
-        throw new RuntimeException("Not implemented");
+        throw new RuntimeException("Not implemented"); // NOSONAR:S112
     }
 
+    /**
+     * Overriding this class to ensure that plugin instance loader never closes throughout the
+     * lifecycle of JVM.
+     */
     public static class LoadedPluginsThatDoesNotCloseLoader extends LoadedPlugins {
 
         public LoadedPluginsThatDoesNotCloseLoader(
@@ -267,6 +284,7 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
 
         @Override
         public void unload() {
+            // Prevent closing of `pluginInstancesLoader`
         }
     }
 }

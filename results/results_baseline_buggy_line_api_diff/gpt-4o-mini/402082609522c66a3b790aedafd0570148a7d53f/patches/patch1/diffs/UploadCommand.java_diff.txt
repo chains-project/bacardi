@@ -2,10 +2,6 @@
 < import org.spongepowered.api.command.args.CommandContext;
 ---
 > import org.spongepowered.api.command.parameter.CommandContext;
-16c16
-< import org.spongepowered.api.command.spec.CommandSpec;
----
-> import org.spongepowered.api.command.Command;
 19c19
 < import static org.spongepowered.api.command.args.GenericArguments.string;
 ---
@@ -14,14 +10,17 @@
 < public class UploadCommand implements CommandExecutor, ChangeSkinCommand {
 ---
 > public class UploadCommand implements CommandExecutor {
+35c35
+<         String url = args.<String>getOne("url").get();
+---
+>         String url = args.getOne("url").get();
 43c43
 <                 Task.builder().async().execute(skinUploader).submit(plugin);
 ---
 >                 Task.builder().execute(skinUploader).submit(plugin);
-52,54c52,53
+52d51
 <     @Override
-<     public CommandSpec buildSpec() {
-<         return CommandSpec.builder()
+56c55
+<                 .arguments(string(of("url")))
 ---
->     public Command buildSpec() {
->         return Command.builder()
+>                 .arguments(string())

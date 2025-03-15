@@ -1,6 +1,10 @@
-11a12
-> import org.pitest.classinfo.ClassName; // Added import for ClassName
-105c106
+11a12,13
+> import org.pitest.classinfo.ClassName;
+> import org.pitest.classinfo.ClassInfoVisitor;
+103a106,107
+>     ClassName mutatedClass = data.getMutatedClass();
+>     byte[] classBytes = coverage.getClassInfo(Collections.singleton(mutatedClass)).getBytes();
+105c109
 <         data.getMutations(), coverage.getClassInfo(Collections.singleton(data.getMutatedClass())));
 ---
->         data.getMutations(), coverage.getClassInfo(Collections.singleton(ClassName.fromString(data.getMutatedClass().getName())))); // Updated to use ClassName
+>         data.getMutations(), classBytes);

@@ -192,7 +192,7 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.ManagedZones.Create createZoneCall(ManagedZone zone, Map<Option, ?> options)
       throws IOException {
     return dns.managedZones()
-        .create(this.options.getProjectId(), zone.getName(), zone)
+        .create(this.options.getProjectId(), zone)
         .setFields(Option.FIELDS.getString(options));
   }
 
@@ -213,7 +213,8 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.ManagedZones.Get getZoneCall(String zoneName, Map<Option, ?> options)
       throws IOException {
     return dns.managedZones()
-        .get(this.options.getProjectId(), zoneName, ""); // Added empty string for the new method signature
+        .get(this.options.getProjectId(), zoneName)
+        .setFields(Option.FIELDS.getString(options));
   }
 
   @Override
@@ -229,7 +230,7 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.ManagedZones.List listZonesCall(Map<DnsRpc.Option, ?> options) throws IOException {
     return dns.managedZones()
-        .list(this.options.getProjectId(), "") // Added empty string for the new method signature
+        .list(this.options.getProjectId())
         .setFields(Option.FIELDS.getString(options))
         .setMaxResults(Option.PAGE_SIZE.getInt(options))
         .setDnsName(Option.DNS_NAME.getString(options))
@@ -251,7 +252,7 @@ public class HttpDnsRpc implements DnsRpc {
   }
 
   private Dns.ManagedZones.Delete deleteZoneCall(String zoneName) throws IOException {
-    return dns.managedZones().delete(this.options.getProjectId(), zoneName, ""); // Added empty string for the new method signature
+    return dns.managedZones().delete(this.options.getProjectId(), zoneName, ""); // Added empty string for the third parameter
   }
 
   @Override
@@ -269,7 +270,7 @@ public class HttpDnsRpc implements DnsRpc {
       throws IOException {
     // options are fields, page token, dns name, type
     return dns.resourceRecordSets()
-        .list(this.options.getProjectId(), zoneName, "") // Added empty string for the new method signature
+        .list(this.options.getProjectId(), zoneName)
         .setFields(Option.FIELDS.getString(options))
         .setPageToken(Option.PAGE_TOKEN.getString(options))
         .setMaxResults(Option.PAGE_SIZE.getInt(options))
@@ -288,7 +289,8 @@ public class HttpDnsRpc implements DnsRpc {
 
   private Dns.Projects.Get getProjectCall(Map<Option, ?> options) throws IOException {
     return dns.projects()
-        .get(this.options.getProjectId(), ""); // Added empty string for the new method signature
+        .get(this.options.getProjectId())
+        .setFields(Option.FIELDS.getString(options));
   }
 
   @Override
@@ -331,7 +333,8 @@ public class HttpDnsRpc implements DnsRpc {
   private Dns.Changes.Get getChangeRequestCall(
       String zoneName, String changeRequestId, Map<Option, ?> options) throws IOException {
     return dns.changes()
-        .get(this.options.getProjectId(), zoneName, changeRequestId, ""); // Added empty string for the new method signature
+        .get(this.options.getProjectId(), zoneName, changeRequestId)
+        .setFields(Option.FIELDS.getString(options));
   }
 
   @Override
@@ -350,7 +353,7 @@ public class HttpDnsRpc implements DnsRpc {
     // options are fields, page token, page size, sort order
     Dns.Changes.List request =
         dns.changes()
-            .list(this.options.getProjectId(), zoneName, "") // Added empty string for the new method signature
+            .list(this.options.getProjectId(), zoneName)
             .setFields(Option.FIELDS.getString(options))
             .setMaxResults(Option.PAGE_SIZE.getInt(options))
             .setPageToken(Option.PAGE_TOKEN.getString(options));

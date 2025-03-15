@@ -1,3 +1,9 @@
+/*
+ * Copyright  2020 The BtrPlace Authors. All rights reserved.
+ * Use of this source code is governed by a LGPL-style
+ * license that can be found in the LICENSE.txt file.
+ */
+
 package org.btrplace.safeplace;
 
 import com.github.javaparser.JavaParser;
@@ -345,8 +351,6 @@ public class DSN {
     private static class SafeplaceTestsVisitor extends VoidVisitorAdapter<Void> {
 
       private final List<Integer> l;
-
-      private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
 
         SafeplaceTestsVisitor(List<Integer> numbers) {
             this.l = numbers;

@@ -1,4 +1,16 @@
+357c357
+<                 ManagedObject other = server.lookup(new DefaultMOQuery(contextScope, false));
+---
+>                 Object other = server.lookup(new DefaultMOQuery(contextScope, false));
 389c389
 <             final SortedMap<MOScope, ManagedObject> reg = server.getRegistry();
 ---
->             final SortedMap<MOScope, MOGroup> reg = (SortedMap<MOScope, MOGroup>) server.getRegistry();
+>             final SortedMap<MOScope, Object> reg = (SortedMap<MOScope, Object>) server.getClass().getMethod("getRegistry").invoke(server);
+393c393
+<         } catch (NoSuchFieldException | IllegalAccessException e) {
+---
+>         } catch (NoSuchFieldException | IllegalAccessException | ReflectiveOperationException e) {
+440c440
+<         ManagedObject query;
+---
+>         Object query;

@@ -45,6 +45,7 @@ public final class TaxBeneficiaries extends IterableEnvelope<Remote> {
         super(() -> new Sorted<>(
             Comparator.comparing(Remote::score),
             new Filtered<>(
+                // @checkstyle MagicNumberCheck (1 line)
                 n -> new LengthOf(n.score().suffixes()).intValue() >= 16,
                 nodes
             )

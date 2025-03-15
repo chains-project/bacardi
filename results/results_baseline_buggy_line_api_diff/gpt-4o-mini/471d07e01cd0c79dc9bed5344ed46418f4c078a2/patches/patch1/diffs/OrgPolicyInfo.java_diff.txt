@@ -1,86 +1,249 @@
-18,21c18,21
+18,23c18,21
 < import com.google.api.services.cloudresourcemanager.model.BooleanPolicy;
 < import com.google.api.services.cloudresourcemanager.model.ListPolicy;
 < import com.google.api.services.cloudresourcemanager.model.OrgPolicy;
 < import com.google.api.services.cloudresourcemanager.model.RestoreDefault;
+< import com.google.common.base.Function;
+< import com.google.common.base.MoreObjects;
 ---
-> import com.google.api.services.cloudresourcemanager.v3.model.Policy;
 > import com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy;
 > import com.google.api.services.cloudresourcemanager.v3.model.ListPolicy;
-> import com.google.api.services.cloudresourcemanager.v3.model.RestoreDefault;
-38,39c38,39
+> import com.google.api.services.cloudresourcemanager.v3.model.Policy;
+> import com.google.api.services.cloudresourcemanager.v3.model.OrgPolicy;
+38,52d35
 <   static final Function<OrgPolicy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
 <       new Function<OrgPolicy, OrgPolicyInfo>() {
----
->   static final Function<Policy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
->       new Function<Policy, OrgPolicyInfo>() {
-41c41
+<         @Override
 <         public OrgPolicyInfo apply(OrgPolicy protobuf) {
----
->         public OrgPolicyInfo apply(Policy protobuf) {
-45,46c45,46
+<           return OrgPolicyInfo.fromProtobuf(protobuf);
+<         }
+<       };
 <   static final Function<OrgPolicyInfo, OrgPolicy> TO_PROTOBUF_FUNCTION =
 <       new Function<OrgPolicyInfo, OrgPolicy>() {
----
->   static final Function<OrgPolicyInfo, Policy> TO_PROTOBUF_FUNCTION =
->       new Function<OrgPolicyInfo, Policy>() {
-48c48
+<         @Override
 <         public OrgPolicy apply(OrgPolicyInfo orgPolicyInfo) {
----
->         public Policy apply(OrgPolicyInfo orgPolicyInfo) {
-57d56
+<           return orgPolicyInfo.toProtobuf();
+<         }
+<       };
+< 
+55d37
+<   private String etag;
+57d38
 <   private RestoreDefault restoreDefault;
-125c124
+74,95d54
+<     @Override
+<     public String toString() {
+<       return MoreObjects.toStringHelper(this).add("enforce", getEnforce()).toString();
+<     }
+< 
+<     @Override
+<     public boolean equals(Object o) {
+<       if (this == o) {
+<         return true;
+<       }
+<       if (o == null || getClass() != o.getClass()) {
+<         return false;
+<       }
+<       BoolPolicy that = (BoolPolicy) o;
+<       return Objects.equals(enforce, that.enforce);
+<     }
+< 
+<     @Override
+<     public int hashCode() {
+<       return Objects.hash(enforce);
+<     }
+< 
+107,119d65
+<    *
+<    * <p>ListPolicy can define specific values and subtrees of Cloud Resource Manager resource
+<    * hierarchy (Organizations, Folders, Projects) that are allowed or denied by setting the
+<    * allowedValues and deniedValues fields. This is achieved by using the under: and optional is:
+<    * prefixes. The under: prefix denotes resource subtree values. The is: prefix is used to denote
+<    * specific values, and is required only if the value contains a ":". Values prefixed with "is:"
+<    * are treated the same as values with no prefix. Ancestry subtrees must be in one of the
+<    * following formats: - "projects/", e.g. "projects/tokyo-rain-123" - "folders/", e.g.
+<    * "folders/1234" - "organizations/", e.g. "organizations/1234" The supportsUnder field of the
+<    * associated Constraint defines whether ancestry prefixes can be used. You can set allowedValues
+<    * and deniedValues in the same Policy if allValues is ALL_VALUES_UNSPECIFIED. ALLOW or DENY are
+<    * used to allow or deny all values. If allValues is set to either ALLOW or DENY, allowedValues
+<    * and deniedValues must be unset.
+123d68
+<     private final String allValues;
+125,135c70,72
 <     private final List<java.lang.String> deniedValues;
+<     private final Boolean inheritFromParent;
+<     private final String suggestedValue;
+< 
+<     Policies(
+<         String allValues,
+<         List<String> allowedValues,
+<         List<String> deniedValues,
+<         Boolean inheritFromParent,
+<         String suggestedValue) {
+<       this.allValues = allValues;
 ---
 >     private final List<String> deniedValues;
-202d200
+> 
+>     Policies(List<String> allowedValues, List<String> deniedValues) {
+138,197d74
+<       this.inheritFromParent = inheritFromParent;
+<       this.suggestedValue = suggestedValue;
+<     }
+< 
+<     /** Returns all the Values state of this policy. */
+<     String getAllValues() {
+<       return allValues;
+<     }
+< 
+<     /** Returns the list of allowed values of this resource */
+<     List<String> getAllowedValues() {
+<       return allowedValues;
+<     }
+< 
+<     /** Returns the list of denied values of this resource. */
+<     List<String> getDeniedValues() {
+<       return deniedValues;
+<     }
+< 
+<     /** Returns the inheritance behavior for this Policy */
+<     Boolean getInheritFromParent() {
+<       return inheritFromParent;
+<     }
+< 
+<     /** Returns the suggested value of this policy. */
+<     String getSuggestedValue() {
+<       return suggestedValue;
+<     }
+< 
+<     @Override
+<     public String toString() {
+<       return MoreObjects.toStringHelper(this)
+<           .add("allValues", getAllValues())
+<           .add("allowedValues", getAllowedValues())
+<           .add("deniedValues", getDeniedValues())
+<           .add("inheritFromParent", getInheritFromParent())
+<           .add("suggestedValue", getSuggestedValue())
+<           .toString();
+<     }
+< 
+<     @Override
+<     public boolean equals(Object o) {
+<       if (this == o) {
+<         return true;
+<       }
+<       if (o == null || getClass() != o.getClass()) {
+<         return false;
+<       }
+<       Policies policies = (Policies) o;
+<       return Objects.equals(allValues, policies.allValues)
+<           && Objects.equals(allowedValues, policies.allowedValues)
+<           && Objects.equals(deniedValues, policies.deniedValues)
+<           && Objects.equals(inheritFromParent, policies.inheritFromParent)
+<           && Objects.equals(suggestedValue, policies.suggestedValue);
+<     }
+< 
+<     @Override
+<     public int hashCode() {
+<       return Objects.hash(
+<           allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
+202d78
 <           .setAllValues(allValues)
-205d202
+204,206c80
+<           .setDeniedValues(deniedValues)
 <           .setInheritFromParent(inheritFromParent)
-211c208
+<           .setSuggestedValue(suggestedValue);
+---
+>           .setDeniedValues(deniedValues);
+211d84
 <           listPolicy.getAllValues(),
----
->           null,
-214c211
+213,215c86
+<           listPolicy.getDeniedValues(),
 <           listPolicy.getInheritFromParent(),
+<           listPolicy.getSuggestedValue());
 ---
->           null,
-225d221
+>           listPolicy.getDeniedValues());
+223d93
+<     private String etag;
+225d94
 <     private RestoreDefault restoreDefault;
-236d231
+234d102
+<       this.etag = info.etag;
+236d103
 <       this.restoreDefault = info.restoreDefault;
-261,265d255
+251,255d117
+<     Builder setEtag(String etag) {
+<       this.etag = etag;
+<       return this;
+<     }
+< 
+261,265d122
 <     Builder setRestoreDefault(RestoreDefault restoreDefault) {
 <       this.restoreDefault = restoreDefault;
 <       return this;
 <     }
 < 
-286d275
+284d140
+<     this.etag = builder.etag;
+286d141
 <     this.restoreDefault = builder.restoreDefault;
-311,315d299
+291d145
+<   /** Returns the boolean constraint to check whether the constraint is enforced or not. */
+296d149
+<   /** Returns the name of the Constraint. */
+301,306d153
+<   /** Returns the etag value of policy. */
+<   public String getEtag() {
+<     return etag;
+<   }
+< 
+<   /** Return the policies. */
+311,316d157
 <   /** Restores the default behavior of the constraint. */
 <   public RestoreDefault getRestoreDefault() {
 <     return restoreDefault;
 <   }
 < 
-339d322
+<   /** Returns the updated timestamp of policy. */
+321d161
+<   /** Returns the version of the Policy, Default version is 0. */
+326,359d165
+<   @Override
+<   public boolean equals(Object o) {
+<     if (this == o) {
+<       return true;
+<     }
+<     if (o == null || getClass() != o.getClass()) {
+<       return false;
+<     }
+<     OrgPolicyInfo policyInfo = (OrgPolicyInfo) o;
+<     return Objects.equals(boolPolicy, policyInfo.boolPolicy)
+<         && Objects.equals(constraint, policyInfo.constraint)
+<         && Objects.equals(etag, policyInfo.etag)
+<         && Objects.equals(policies, policyInfo.policies)
 <         && Objects.equals(restoreDefault, policyInfo.restoreDefault)
-347c330
+<         && Objects.equals(updateTime, policyInfo.updateTime)
+<         && Objects.equals(version, policyInfo.version);
+<   }
+< 
+<   @Override
+<   public int hashCode() {
+<     return Objects.hash(
 <         boolPolicy, constraint, etag, policies, restoreDefault, updateTime, version);
----
->         boolPolicy, constraint, etag, policies, updateTime, version);
-360,361c343,344
-<   OrgPolicy toProtobuf() {
-<     OrgPolicy orgPolicyProto = new OrgPolicy();
----
->   Policy toProtobuf() {
->     Policy orgPolicyProto = new Policy();
-369d351
+<   }
+< 
+<   /** Returns a builder for the {@link OrgPolicyInfo} object. */
+<   public static Builder newBuilder() {
+<     return new Builder();
+<   }
+< 
+<   /** Returns a builder for the {@link OrgPolicyInfo} object. */
+<   public Builder toBuilder() {
+<     return new Builder(this);
+<   }
+< 
+369,370d174
 <     orgPolicyProto.setRestoreDefault(restoreDefault);
-376c358
-<   static OrgPolicyInfo fromProtobuf(OrgPolicy orgPolicyProtobuf) {
----
->   static OrgPolicyInfo fromProtobuf(Policy orgPolicyProtobuf) {
-385d366
+<     orgPolicyProto.setEtag(etag);
+385,386d188
 <     builder.setRestoreDefault(orgPolicyProtobuf.getRestoreDefault());
+<     builder.setEtag(orgPolicyProtobuf.getEtag());

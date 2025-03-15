@@ -16,9 +16,15 @@
 <  */
 20d4
 < import com.google.cloud.pubsublite.PublishMetadata;
-36c20
+25d8
+< import com.google.cloud.pubsublite.internal.wire.PubsubContext.Framework;
+33c16
+<   private static final Framework FRAMEWORK = Framework.of("KAFKA_CONNECT");
+---
+>   private static final PubsubContext FRAMEWORK = PubsubContext.of("KAFKA_CONNECT");
+36c19
 <   public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {
 ---
 >   public Publisher<Object> newPublisher(Map<String, String> params) {
-53d36
+53d35
 <                 .setContext(PubsubContext.of(FRAMEWORK))
