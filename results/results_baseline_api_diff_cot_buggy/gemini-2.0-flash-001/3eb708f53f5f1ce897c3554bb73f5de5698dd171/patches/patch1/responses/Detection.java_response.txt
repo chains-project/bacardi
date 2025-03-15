@@ -85,7 +85,6 @@ public class Detection implements Serializable {
   }
 
   static Detection fromPb(DetectedLanguage detectionPb) {
-    Float confidence = detectionPb.getConfidence() == null ? null : detectionPb.getConfidence().floatValue();
-    return new Detection(detectionPb.getLanguage(), confidence);
+    return new Detection(detectionPb.getLanguageCode(), detectionPb.getConfidence().floatValue());
   }
 }

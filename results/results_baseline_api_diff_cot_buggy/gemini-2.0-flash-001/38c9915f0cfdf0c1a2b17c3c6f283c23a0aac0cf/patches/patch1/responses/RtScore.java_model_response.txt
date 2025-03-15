@@ -3,32 +3,31 @@ a. Code and API changes:
 - Code: `import org.cactoos.iterable.LengthOf;` and `new LengthOf(other.suffixes()).intValue()` and `new LengthOf(this.sfxs).intValue()`
 - API Changes: `Class org.cactoos.iterable.LengthOf has been removed in the new version of the dependency.` and `Type reference org.cactoos.scalar.LengthOf(java.lang.Iterable) has been added in the new version of the dependency.`
 
-b. Problem:
-The class `org.cactoos.iterable.LengthOf` has been removed. We need to use `org.cactoos.scalar.LengthOf` instead.
+b. Specific API changes causing the issue:
+The class `org.cactoos.iterable.LengthOf` has been removed. The new version provides `org.cactoos.scalar.LengthOf` which takes an Iterable as input.
 
-c. Affected lines:
+c. Affected lines of code:
 - `import org.cactoos.iterable.LengthOf;`
 - `return new LengthOf(other.suffixes()).intValue()`
-- `return new LengthOf(this.sfxs).intValue();`
+- `new LengthOf(this.sfxs).intValue()`
 
 d. Proposed fixes:
-1. Replace `import org.cactoos.iterable.LengthOf;` with `import org.cactoos.scalar.LengthOf;`
-2. Replace `new LengthOf(other.suffixes()).intValue()` with `new org.cactoos.scalar.LengthOf(other.suffixes()).intValue()`
-3. Replace `new LengthOf(this.sfxs).intValue()` with `new org.cactoos.scalar.LengthOf(this.sfxs).intValue()`
+1. Replace `org.cactoos.iterable.LengthOf` with `org.cactoos.scalar.LengthOf`. This requires changing the import statement and the constructor call.
+2. Since `org.cactoos.scalar.LengthOf` is a scalar, we need to call `value()` instead of `intValue()`.
+3. Add import `org.cactoos.scalar.LengthOf;`
 
-e. Side effects:
-The code should compile and run as before, but now using the new API.
+e. Potential side effects:
+The change should not have any side effects as we are only replacing a deprecated class with its replacement.
 
-f. Constraint adherence:
-1. The function signature of `compareTo` is not changed.
-2. Variables are not created.
-3. The `@Override` annotation is kept as the method still overrides a method in the interface.
-4. The correct package `org.cactoos.scalar` is used.
-5. No existing code is removed unless it directly causes a compilation error.
-6. All code is included in the final output.
+f. Adherence to constraints:
+1. The function signature of the method `compareTo` is not changed.
+2. We are creating new import statement.
+3. We are removing the old import statement.
+4. We are not removing any existing code unless it directly causes a compilation or functionality error.
+5. We are including all code in our final output.
 
 g. Summary:
-The best solution is to replace the import statement and use the new `org.cactoos.scalar.LengthOf` class in the `compareTo` method. This fixes the compilation error and adheres to all constraints.
+The best solution is to replace `org.cactoos.iterable.LengthOf` with `org.cactoos.scalar.LengthOf` and call `value()` instead of `intValue()`. This fixes the compilation error and adheres to all the constraints.
 </fix_planning>
 
 ```java
@@ -41,7 +40,8 @@ The best solution is to replace the import statement and use the new `org.cactoo
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom it is furnished to do so, subject to the following conditions:
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
@@ -51,8 +51,8 @@ The best solution is to replace the import statement and use the new `org.cactoo
  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package io.zold.api;
 
@@ -82,8 +82,12 @@ public final class RtScore implements Score {
 
     @Override
     public int compareTo(final Score other) {
-        return new LengthOf(other.suffixes()).intValue()
-            - new LengthOf(this.sfxs).intValue();
+        try {
+            return new LengthOf(other.suffixes()).value().intValue()
+                - new LengthOf(this.sfxs).value().intValue();
+        } catch (final Exception ex) {
+            throw new IllegalStateException(ex);
+        }
     }
 
     @Override

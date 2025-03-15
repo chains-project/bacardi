@@ -45,37 +45,41 @@ public class Messages {
 - API Change: `Class javax.mvc.MvcContext has been removed in the new version of the dependency.`
 
 b. Specific API changes causing the issue:
-- The removal of `javax.mvc.MvcContext`
+The removal of `javax.mvc.MvcContext` causes a compilation error because the `Messages` class depends on it.
 
 c. Affected lines of code:
 - `import javax.mvc.MvcContext;`
 - `private MvcContext mvcContext;`
-- `* Provides I18n messages for the UI per request. To get the correct locale, the method {@link MvcContext#getLocale()}`
-- `@see MvcContext#getLocale()`
 - `final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());`
+- `@see MvcContext#getLocale()`
+- The Javadoc comment referencing `MvcContext`
 
 d. Proposed potential fixes for each affected line:
-- `import javax.mvc.MvcContext;`: Remove this import statement.
-- `private MvcContext mvcContext;`:  Since `MvcContext` is removed, we need to find an alternative way to get the locale.  A possible solution is to inject `javax.servlet.http.HttpServletRequest` and use `request.getLocale()`.
-- `* Provides I18n messages for the UI per request. To get the correct locale, the method {@link MvcContext#getLocale()}`: Modify the javadoc to reflect the new way of getting the locale.
-- `@see MvcContext#getLocale()`: Modify the javadoc to reflect the new way of getting the locale.
-- `final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());`: Replace `mvcContext.getLocale()` with `request.getLocale()`.
+1. Remove `import javax.mvc.MvcContext;`: This removes the unused import.
+2. Remove `private MvcContext mvcContext;`: This removes the field that uses the missing class. This will break the `get` method.
+3. Modify `final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());`: This line needs to be adapted to get the locale from a different source, since `MvcContext` is no longer available. We can try injecting `jakarta.servlet.http.HttpServletRequest` and use `request.getLocale()`.
+4. Modify `@see MvcContext#getLocale()` and the Javadoc comment referencing `MvcContext`: Update the Javadoc to reflect the new way of obtaining the locale.
 
 e. Consider any potential side effects of the proposed changes:
-- Injecting `HttpServletRequest` might introduce a dependency on the servlet API.
-- The application might have relied on specific behavior of the `MvcContext.getLocale()` method, which might not be exactly the same as `HttpServletRequest.getLocale()`.
+- Removing the `MvcContext` dependency will require a different way to obtain the locale. Using `HttpServletRequest` is a common alternative in web applications.
+- The Javadoc needs to be updated to reflect the changes.
 
 f. Explicitly check if the proposed changes adhere to all the given constraints:
-- Do not change the function signature of any method: The signature of `get(String key)` remains unchanged.
-- You may create variables if it simplifies the code: We are creating a variable `request`.
-- Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version: No `@Override` annotation is present.
-- If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version: We are adding `javax.servlet.http.HttpServletRequest`.
-- Do not remove any existing code unless it directly causes a compilation or functionality error: We are removing the import statement for `javax.mvc.MvcContext` and the field `mvcContext`.
-- Include all code, even unchanged portions, in your final output.
-- Do not use placeholder comments like "// ... (rest of the code remains unchanged)".
+- The function signature of `get` is preserved.
+- Variables can be created.
+- `@Override` is not used.
+- Missing imports are addressed.
+- No existing code is removed unless it causes a compilation error.
+- All code is included in the final output.
 
 g. Final summary of the chosen fix and why it's the best solution:
-The best solution is to remove the dependency on `MvcContext` and use `HttpServletRequest` to obtain the locale. This involves injecting `HttpServletRequest` and calling `request.getLocale()`. This approach addresses the compilation error caused by the removal of `MvcContext` while still allowing the application to retrieve the locale for I18n.
+The best solution is to remove the `MvcContext` dependency and use `HttpServletRequest` to obtain the locale. This involves:
+1. Removing the import statement for `javax.mvc.MvcContext`.
+2. Replacing the `MvcContext` field with an `HttpServletRequest` field.
+3. Injecting the `HttpServletRequest`.
+4. Using `request.getLocale()` to get the locale in the `get` method.
+5. Updating the Javadoc to reflect the changes.
+This approach addresses the compilation error while maintaining the functionality of the code.
 </fix_planning>
 
 ```java
@@ -87,11 +91,10 @@ import javax.servlet.http.HttpServletRequest;
 //https://www.mvc-spec.org/learn/cookbook/multilang_en.html
 /**
  * Provides I18n messages for the UI per request. To get the correct locale, the method {@link HttpServletRequest#getLocale()}
- * is used. This method uses the built-in {@link javax.mvc.locale.LocaleResolver} of the used MVC Implementation.
+ * is used. This method uses the built-in {@link java.util.Locale} resolution of the servlet container.
  *
  * @author Tobias Erdle
  * @see HttpServletRequest#getLocale()
- * @see javax.mvc.locale.LocaleResolver
  */
 @RequestScoped
 @Named("msg")

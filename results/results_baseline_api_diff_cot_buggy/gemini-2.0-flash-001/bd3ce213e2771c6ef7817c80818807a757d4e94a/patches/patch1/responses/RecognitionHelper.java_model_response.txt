@@ -1,33 +1,47 @@
 <fix_planning>
-a. Relevant code:
-```java
-ObjectWriter writer = mapper.writer();
-writer.writeValue(segmentListFile, dataList);
-```
-Relevant API changes:
-`Method com.fasterxml.jackson.databind.ObjectWriter.writeValue(java.io.Writer,java.lang.Object) has been removed in the new version of the dependency.`
-`Method com.fasterxml.jackson.databind.ObjectMapper.writeValue(java.io.Writer,java.lang.Object) has been removed in the new version of the dependency.`
-`Method com.fasterxml.jackson.databind.ObjectWriter.writeValue(java.io.File,java.lang.Object) has been added in the new version of the dependency.`
-`Method com.fasterxml.jackson.databind.ObjectMapper.writeValue(java.io.File,java.lang.Object) has been added in the new version of the dependency.`
+a. Relevant code and API changes:
+The error occurs at line 242: `writer.writeValue(segmentListFile, dataList);`
+The API changes indicate that `com.fasterxml.jackson.databind.ObjectWriter.writeValue(java.io.File,java.lang.Object)` has been removed.
+However, it also indicates that `com.fasterxml.jackson.databind.ObjectWriter.writeValue(java.io.OutputStream,java.lang.Object)` and `com.fasterxml.jackson.databind.ObjectWriter.writeValue(java.io.Writer,java.lang.Object)` have been added.
+Also, `com.fasterxml.jackson.databind.ObjectMapper.writeValue(java.io.OutputStream,java.lang.Object)` and `com.fasterxml.jackson.databind.ObjectMapper.writeValue(java.io.Writer,java.lang.Object)` have been added.
 
-b. The `writeValue(File, Object)` method is available in the new version, but `writeValue(Writer, Object)` is not. The code uses `writer.writeValue(segmentListFile, dataList)`, where `segmentListFile` is a `File` object.
+b. Specific API changes causing the issue:
+The removal of `ObjectWriter.writeValue(java.io.File,java.lang.Object)` is the direct cause of the compilation error.
 
-c. Affected line:
-```java
-writer.writeValue(segmentListFile, dataList);
-```
+c. Affected lines of code:
+Line 242: `writer.writeValue(segmentListFile, dataList);`
 
-d. Potential fixes:
-The method `writeValue(File, Object)` is available, so no change is needed.
+d. Proposed potential fixes:
+1. Use `ObjectMapper.writeValue(OutputStream, Object)`:
+   - Create a `FileOutputStream` from `segmentListFile`.
+   - Call `mapper.writeValue(outputStream, dataList)`.
+   - Close the `outputStream` in a `finally` block to ensure it's closed.
+2. Use `ObjectMapper.writeValue(Writer, Object)`:
+   - Create a `FileWriter` from `segmentListFile`.
+   - Call `mapper.writeValue(writer, dataList)`.
+   - Close the `writer` in a `finally` block to ensure it's closed.
+3. Use `ObjectWriter.writeValue(OutputStream, Object)`:
+   - Create a `FileOutputStream` from `segmentListFile`.
+   - Call `writer.writeValue(outputStream, dataList)`.
+   - Close the `outputStream` in a `finally` block to ensure it's closed.
+4. Use `ObjectWriter.writeValue(Writer, Object)`:
+   - Create a `FileWriter` from `segmentListFile`.
+   - Call `writer.writeValue(writer, dataList)`.
+   - Close the `writer` in a `finally` block to ensure it's closed.
+5. Check if `ObjectWriter.writeValue(File, Object)` is actually available. The API changes indicate that it has been removed and added. It might be a versioning issue. If it is available, then there is another issue.
 
 e. Potential side effects:
-None.
+- Using `OutputStream` or `Writer` requires handling `IOExceptions` and ensuring the stream/writer is closed properly.
+- The choice between `ObjectMapper` and `ObjectWriter` depends on whether we want to reuse the `ObjectWriter` instance or use the `ObjectMapper` directly. Since the `ObjectWriter` is only used once, using `ObjectMapper` directly might be simpler.
 
 f. Adherence to constraints:
-The proposed change adheres to all constraints. No function signatures are changed, no code is removed, and the fix addresses the compilation error.
+- The function signature remains unchanged.
+- New variables might be created.
+- No existing code is removed unless it causes a compilation error.
 
-g. Summary:
-The best solution is to keep the code as is, since the `writeValue(File, Object)` method is available in the new version of the dependency. The error message "cannot access com.fasterxml.jackson.core.exc.StreamWriteException class file for com.fasterxml.jackson.core.exc.StreamWriteException not found" indicates a missing dependency or classpath issue, but the provided API changes suggest that the `writeValue` method should still be available. The problem is not directly related to the `writeValue` method itself, but rather to the accessibility of the `StreamWriteException` class. However, since the `writeValue(File, Object)` method is available, the code should compile and run correctly if the classpath issue is resolved. Therefore, no code changes are necessary.
+g. Final summary:
+The best solution is to use `ObjectMapper.writeValue(OutputStream, Object)` because it directly addresses the API change and is relatively straightforward to implement. It also avoids potential issues with reusing the `ObjectWriter` instance. We will create a `FileOutputStream` from `segmentListFile`, call `mapper.writeValue(outputStream, dataList)`, and close the `outputStream` in a `finally` block.
+
 </fix_planning>
 
 ```java
@@ -45,6 +59,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.io.FileOutputStream;
 
 import org.apache.commons.io.FileUtils;
 
@@ -272,7 +287,15 @@ public class RecognitionHelper {
 				dataList.add(pageList);
 			}
 			ObjectWriter writer = mapper.writer();
-			writer.writeValue(segmentListFile, dataList);
+            FileOutputStream outputStream = null;
+            try {
+                outputStream = new FileOutputStream(segmentListFile);
+                mapper.writeValue(outputStream, dataList);
+            } finally {
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            }
 
             processHandler = new ProcessHandler();
             processHandler.setFetchProcessConsole(true);

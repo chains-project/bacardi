@@ -1,0 +1,14 @@
+14a15
+> import java.io.FileOutputStream;
+242c243,251
+<                         writer.writeValue(segmentListFile, dataList);
+---
+>             FileOutputStream outputStream = null;
+>             try {
+>                 outputStream = new FileOutputStream(segmentListFile);
+>                 mapper.writeValue(outputStream, dataList);
+>             } finally {
+>                 if (outputStream != null) {
+>                     outputStream.close();
+>                 }
+>             }

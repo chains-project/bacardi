@@ -9,7 +9,8 @@
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -24,7 +25,6 @@ import java.util.Map;
 import org.jclouds.byon.Node;
 import org.jclouds.util.Closeables2;
 import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
@@ -111,11 +111,7 @@ public class YamlNode {
          InputStream in = null;
          try {
             in = byteSource.openStream();
-            Constructor constructor = new Constructor();
-            TypeDescription typeDescription = new TypeDescription(YamlNode.class);
-            constructor.addTypeDescription(typeDescription);
-            Yaml yaml = new Yaml(constructor);
-            return (YamlNode) yaml.load(in);
+            return (YamlNode) new Yaml().load(in);
          } catch (IOException ioe) {
             throw Throwables.propagate(ioe);
          } finally {

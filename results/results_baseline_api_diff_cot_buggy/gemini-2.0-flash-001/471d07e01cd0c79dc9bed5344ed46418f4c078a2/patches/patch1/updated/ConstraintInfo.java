@@ -15,7 +15,6 @@
  */
 package com.google.cloud.resourcemanager;
 
-import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.Objects;
 
@@ -29,15 +28,6 @@ import java.util.Objects;
 @Deprecated
 public class ConstraintInfo {
 
-  static final Function<ConstraintInfo, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
-      new Function<ConstraintInfo, ConstraintInfo>() {
-        @Override
-        public ConstraintInfo apply(ConstraintInfo constraintInfo) {
-          return constraintInfo;
-        }
-      };
-
-  private Boolean booleanConstraint;
   private String constraintDefault;
   private String description;
   private String displayName;
@@ -104,7 +94,6 @@ public class ConstraintInfo {
 
   /** Builder for {@code ConstraintInfo}. */
   static class Builder {
-    private Boolean booleanConstraint;
     private String constraintDefault;
     private String description;
     private String displayName;
@@ -117,18 +106,12 @@ public class ConstraintInfo {
     }
 
     Builder(ConstraintInfo info) {
-      this.booleanConstraint = info.booleanConstraint;
       this.constraintDefault = info.constraintDefault;
       this.description = info.description;
       this.displayName = info.displayName;
       this.constraints = info.constraints;
       this.name = info.name;
       this.version = info.version;
-    }
-
-    Builder setBooleanConstraint(Boolean booleanConstraint) {
-      this.booleanConstraint = booleanConstraint;
-      return this;
     }
 
     Builder setConstraintDefault(String constraintDefault) {
@@ -167,18 +150,12 @@ public class ConstraintInfo {
   }
 
   ConstraintInfo(Builder builder) {
-    this.booleanConstraint = builder.booleanConstraint;
     this.constraintDefault = builder.constraintDefault;
     this.description = builder.description;
     this.displayName = builder.displayName;
     this.constraints = builder.constraints;
     this.name = builder.name;
     this.version = builder.version;
-  }
-
-  /** Returns the boolean constraint to check whether the constraint is enforced or not. */
-  public Boolean getBooleanConstraint() {
-    return booleanConstraint;
   }
 
   /** Returns the default behavior of the constraint. */
@@ -220,8 +197,7 @@ public class ConstraintInfo {
       return false;
     }
     ConstraintInfo that = (ConstraintInfo) o;
-    return Objects.equals(booleanConstraint, that.booleanConstraint)
-        && Objects.equals(constraintDefault, that.constraintDefault)
+    return Objects.equals(constraintDefault, that.constraintDefault)
         && Objects.equals(description, that.description)
         && Objects.equals(displayName, that.displayName)
         && Objects.equals(constraints, that.constraints)
@@ -231,8 +207,7 @@ public class ConstraintInfo {
 
   @Override
   public int hashCode() {
-    return Objects.hash(
-        booleanConstraint, constraintDefault, description, displayName, constraints, name, version);
+    return Objects.hash(constraintDefault, description, displayName, constraints, name, version);
   }
 
   /** Returns a builder for the {@link ConstraintInfo} object. */

@@ -1,79 +1,52 @@
 3d2
 < import de.gwdg.metadataqa.api.json.JsonBranch;
-67,68c66,75
+67c66
 <     for (JsonBranch branch : schema.getPaths()) {
-<       if (branch.getParent() != null)
 ---
->     for (String path : schema.getPaths()) {
->       // JsonBranch branch : schema.getPaths()) {
->       // if (branch.getParent() != null)
->       // continue;
->       String label = path; // branch.getLabel();
->       if (label != null && label.contains("/")) {
->         String[] splitted = label.split("/");
->         label = splitted[splitted.length - 1];
->       }
->       if (label == null)
-70c77
-<       switch (branch.getLabel()) {
----
->       switch (label) {
-72c79
+>     for (var branch : schema.getPaths()) {
+69a69
+>       String jsonPath = branch.getJsonPath();
+72c72
 <           marcRecord.setLeader(new Leader(extractFirst(cache, branch)));
 ---
->           marcRecord.setLeader(new Leader(extractFirst(cache, path)));
-75c82
+>           marcRecord.setLeader(new Leader(extractFirst(cache, jsonPath)));
+75c75
 <           marcRecord.setControl001(new Control001(extractFirst(cache, branch)));
 ---
->           marcRecord.setControl001(new Control001(extractFirst(cache, path)));
-78c85
+>           marcRecord.setControl001(new Control001(extractFirst(cache, jsonPath)));
+78c78
 <           marcRecord.setControl003(new Control003(extractFirst(cache, branch)));
 ---
->           marcRecord.setControl003(new Control003(extractFirst(cache, path)));
-81c88
+>           marcRecord.setControl003(new Control003(extractFirst(cache, jsonPath)));
+81c81
 <           marcRecord.setControl005(new Control005(extractFirst(cache, branch), marcRecord));
 ---
->           marcRecord.setControl005(new Control005(extractFirst(cache, path), marcRecord));
-85c92
+>           marcRecord.setControl005(new Control005(extractFirst(cache, jsonPath), marcRecord));
+85c85
 <             new Control006(extractFirst(cache, branch), marcRecord));
 ---
->             new Control006(extractFirst(cache, path), marcRecord));
-89c96
+>             new Control006(extractFirst(cache, jsonPath), marcRecord));
+89c89
 <             new Control007(extractFirst(cache, branch), marcRecord));
 ---
->             new Control007(extractFirst(cache, path), marcRecord));
-93c100
+>             new Control007(extractFirst(cache, jsonPath), marcRecord));
+93c93
 <             new Control008(extractFirst(cache, branch), marcRecord));
 ---
->             new Control008(extractFirst(cache, path), marcRecord));
-96c103
+>             new Control008(extractFirst(cache, jsonPath), marcRecord));
+96c96
 <           JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());
 ---
->           JSONArray fieldInstances = (JSONArray) cache.getFragment(path); // branch.getJsonPath());
-104c111
-<               marcRecord.addUnhandledTags(branch.getLabel());
----
->               marcRecord.addUnhandledTags(label); // branch.getLabel());
-313,314c320,321
+>           JSONArray fieldInstances = (JSONArray) cache.getFragment(jsonPath);
+313,314c313,314
 <   private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
 <     List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());
 ---
->   private static List<String> extractList(JsonPathCache cache, String path) {
->     List<XmlFieldInstance> instances = cache.get(path);
-322,323c329,335
+>   private static List<String> extractList(JsonPathCache cache, String jsonPath) {
+>     List<XmlFieldInstance> instances = cache.get(jsonPath);
+322,323c322,323
 <   private static String extractFirst(JsonPathCache cache, JsonBranch branch) {
 <     List<String> list = extractList(cache, branch);
 ---
->   private static List<String> extractList(JsonPathCache cache, de.gwdg.metadataqa.api.json.JsonBranch branch) {
->     String path = branch.getJsonPath();
->     return extractList(cache, path);
->   }
-> 
->   private static String extractFirst(JsonPathCache cache, String path) {
->     List<String> list = extractList(cache, path);
-326a339,343
->   }
-> 
->   private static String extractFirst(JsonPathCache cache, de.gwdg.metadataqa.api.json.JsonBranch branch) {
->     String path = branch.getJsonPath();
->     return extractFirst(cache, path);
+>   private static String extractFirst(JsonPathCache cache, String jsonPath) {
+>     List<String> list = extractList(cache, jsonPath);

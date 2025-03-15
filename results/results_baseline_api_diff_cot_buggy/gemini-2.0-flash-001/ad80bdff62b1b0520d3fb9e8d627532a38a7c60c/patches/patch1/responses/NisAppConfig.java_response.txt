@@ -39,6 +39,7 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.*;
+import java.util.Arrays;
 
 @Configuration
 @ComponentScan(basePackages = {
@@ -105,12 +106,20 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		final org.flywaydb.core.api.configuration.ClassicConfiguration conf = new org.flywaydb.core.api.configuration.ClassicConfiguration();
-		final org.flywaydb.core.Flyway flyway = new org.flywaydb.core.Flyway(conf);
-		conf.setDataSource(this.dataSource());
-		conf.setClassLoader(NisAppConfig.class.getClassLoader());
-		conf.setLocations(prop.getProperty("flyway.locations").split(","));
-		conf.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		final org.flywaydb.core.api.configuration.ClassicConfiguration configuration = new org.flywaydb.core.api.configuration.ClassicConfiguration();
+		final org.flywaydb.core.Flyway flyway = new Flyway(configuration);
+		configuration.setDataSource(this.dataSource());
+		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
+
+		final String locationsString = prop.getProperty("flyway.locations");
+		final String[] locationStrings = locationsString.split(",");
+		final org.flywaydb.core.api.Location[] locations = Arrays.stream(locationStrings)
+				.map(String::trim)
+				.map(org.flywaydb.core.api.Location::new)
+				.toArray(org.flywaydb.core.api.Location[]::new);
+		configuration.setLocations(locations);
+
+		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
 		return flyway;
 	}
 

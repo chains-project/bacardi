@@ -1,24 +1,17 @@
 <fix_planning>
-The core issue is that the `javax.jws` and `javax.jws.soap` packages have been replaced with `jakarta.jws` and `jakarta.jws.soap` respectively. This means all the imports and annotations using the old packages are now invalid.
+The core issue is that the `javax.jws` and `javax.jws.soap` packages have been replaced with `jakarta.jws` and `jakarta.jws.soap` respectively. This means all imports from the old packages need to be updated. Also, `javax.jws.soap.SOAPBinding.ParameterStyle` has been moved to `jakarta.jws.soap.SOAPBinding.ParameterStyle`.
 
-Here's a breakdown of the necessary changes:
+Here's a breakdown:
 
-1. **Replace `javax.jws` imports with `jakarta.jws`:**
-   - `import javax.jws.WebMethod;` becomes `import jakarta.jws.WebMethod;`
-   - `import javax.jws.WebResult;` becomes `import jakarta.jws.WebResult;`
-   - `import javax.jws.WebParam;` becomes `import jakarta.jws.WebParam;`
-   - `import javax.jws.WebService;` becomes `import jakarta.jws.WebService;`
+*   **Problem:** The code uses `javax.jws.*` and `javax.jws.soap.*` which no longer exist.
+*   **API Change:** `javax.jws.*` is replaced by `jakarta.jws.*` and `javax.jws.soap.*` is replaced by `jakarta.jws.soap.*`.
+*   **Affected Lines:** All lines with `import javax.jws.*` and `import javax.jws.soap.*`, and all annotations using classes from those packages.
+*   **Proposed Fix:** Replace `javax.jws` with `jakarta.jws` and `javax.jws.soap` with `jakarta.jws.soap` in all import statements and annotations.
+*   **Side Effects:** None expected, as it's a direct package replacement.
+*   **Constraints:** The fix adheres to all constraints: no function signatures are changed, no code is removed unnecessarily, and the correct packages are used.
 
-2. **Replace `javax.jws.soap.SOAPBinding` with `jakarta.jws.soap.SOAPBinding`:**
-   - `import javax.jws.soap.SOAPBinding;` becomes `import jakarta.jws.soap.SOAPBinding;`
-
-3. **Update annotations to use the new packages:**
-   - `@WebService`, `@SOAPBinding`, `@WebMethod`, `@WebResult`, and `@WebParam` annotations need to be updated to use the `jakarta.jws` and `jakarta.jws.soap` packages.
-
-4. **`SOAPBinding.ParameterStyle.BARE` also needs to be updated:**
-   - `SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)` becomes `SOAPBinding(parameterStyle = jakarta.jws.soap.SOAPBinding.ParameterStyle.BARE)`
-
-Let's apply these changes to the code.
+**Summary:** The best solution is to replace all instances of `javax.jws` with `jakarta.jws` and `javax.jws.soap` with `jakarta.jws.soap` in the import statements and annotations. This directly addresses the API change and resolves the compilation errors.
+</fix_planning>
 
 ```java
 package com.premiumminds.billy.portugal.webservices.documents;
@@ -38,143 +31,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
  * 
  */
 @WebService(name = "fatcorewsPort", targetNamespace = "http://factemi.at.min_financas.pt/documents")
-@SOAPBinding(parameterStyle = jakarta.jws.soap.SOAPBinding.ParameterStyle.BARE)
-@XmlSeeAlso({
-    ObjectFactory.class
-})
-public interface FatcorewsPort {
-
-
-    /**
-     * 
-     * @param registerInvoiceRequest
-     * @return
-     *     returns com.premiumminds.billy.portugal.webservices.documents.RegisterInvoiceResponse
-     */
-    @WebMethod(operationName = "RegisterInvoice")
-    @WebResult(name = "RegisterInvoiceResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterInvoiceResponse")
-    public RegisterInvoiceResponse registerInvoice(
-        @WebParam(name = "RegisterInvoiceRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterInvoiceRequest")
-        RegisterInvoiceRequest registerInvoiceRequest);
-
-    /**
-     * 
-     * @param changeInvoiceStatusRequest
-     * @return
-     *     returns com.premiumminds.billy.portugal.webservices.documents.ChangeInvoiceStatusResponse
-     */
-    @WebMethod(operationName = "ChangeInvoiceStatus")
-    @WebResult(name = "ChangeInvoiceStatusResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangeInvoiceStatusResponse")
-    public ChangeInvoiceStatusResponse changeInvoiceStatus(
-        @WebParam(name = "ChangeInvoiceStatusRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangeInvoiceStatusRequest")
-        ChangeInvoiceStatusRequest changeInvoiceStatusRequest);
-
-    /**
-     * 
-     * @param deleteInvoiceRequest
-     * @return
-     *     returns com.premiumminds.billy.portugal.webservices.documents.DeleteInvoiceResponse
-     */
-    @WebMethod(operationName = "DeleteInvoice")
-    @WebResult(name = "DeleteInvoiceResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeleteInvoiceResponse")
-    public DeleteInvoiceResponse deleteInvoice(
-        @WebParam(name = "DeleteInvoiceRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeleteInvoiceRequest")
-        DeleteInvoiceRequest deleteInvoiceRequest);
-
-    /**
-     * 
-     * @param registerWorkRequest
-     * @return
-     *     returns com.premiumminds.billy.portugal.webservices.documents.RegisterWorkResponse
-     */
-    @WebMethod(operationName = "RegisterWork")
-    @WebResult(name = "RegisterWorkResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterWorkResponse")
-    public RegisterWorkResponse registerWork(
-        @WebParam(name = "RegisterWorkRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterWorkRequest")
-        RegisterWorkRequest registerWorkRequest);
-
-    /**
-     * 
-     * @param changeWorkStatusRequest
-     * @return
-     *     returns com.premiumminds.billy.portugal.webservices.documents.ChangeWorkStatusResponse
-     */
-    @WebMethod(operationName = "ChangeWorkStatus")
-    @WebResult(name = "ChangeWorkStatusResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangeWorkStatusResponse")
-    public ChangeWorkStatusResponse changeWorkStatus(
-        @WebParam(name = "ChangeWorkStatusRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangeWorkStatusRequest")
-        ChangeWorkStatusRequest changeWorkStatusRequest);
-
-    /**
-     * 
-     * @param deleteWorkRequest
-     * @return
-     *     returns com.premiumminds.billy.portugal.webservices.documents.DeleteWorkResponse
-     */
-    @WebMethod(operationName = "DeleteWork")
-    @WebResult(name = "DeleteWorkResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeleteWorkResponse")
-    public DeleteWorkResponse deleteWork(
-        @WebParam(name = "DeleteWorkRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeleteWorkRequest")
-        DeleteWorkRequest deleteWorkRequest);
-
-    /**
-     * 
-     * @param registerPaymentRequest
-     * @return
-     *     returns com.premiumminds.billy.portugal.webservices.documents.RegisterPaymentResponse
-     */
-    @WebMethod(operationName = "RegisterPayment")
-    @WebResult(name = "RegisterPaymentResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterPaymentResponse")
-    public RegisterPaymentResponse registerPayment(
-        @WebParam(name = "RegisterPaymentRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "RegisterPaymentRequest")
-        RegisterPaymentRequest registerPaymentRequest);
-
-    /**
-     * 
-     * @param changePaymentStatusRequest
-     * @return
-     *     returns com.premiumminds.billy.portugal.webservices.documents.ChangePaymentStatusResponse
-     */
-    @WebMethod(operationName = "ChangePaymentStatus")
-    @WebResult(name = "ChangePaymentStatusResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangePaymentStatusResponse")
-    public ChangePaymentStatusResponse changePaymentStatus(
-        @WebParam(name = "ChangePaymentStatusRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "ChangePaymentStatusRequest")
-        ChangePaymentStatusRequest changePaymentStatusRequest);
-
-    /**
-     * 
-     * @param deletePaymentRequest
-     * @return
-     *     returns com.premiumminds.billy.portugal.webservices.documents.DeletePaymentResponse
-     */
-    @WebMethod(operationName = "DeletePayment")
-    @WebResult(name = "DeletePaymentResponse", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeletePaymentResponse")
-    public DeletePaymentResponse deletePayment(
-        @WebParam(name = "DeletePaymentRequest", targetNamespace = "http://factemi.at.min_financas.pt/documents", partName = "DeletePaymentRequest")
-        DeletePaymentRequest deletePaymentRequest);
-
-}
-```</fix_planning>
-
-```java
-package com.premiumminds.billy.portugal.webservices.documents;
-
-import jakarta.jws.WebMethod;
-import jakarta.jws.WebParam;
-import jakarta.jws.WebResult;
-import jakarta.jws.WebService;
-import jakarta.jws.soap.SOAPBinding;
-import javax.xml.bind.annotation.XmlSeeAlso;
-
-
-/**
- * This class was generated by the JAX-WS RI.
- * JAX-WS RI 2.3.2
- * Generated source version: 2.2
- * 
- */
-@WebService(name = "fatcorewsPort", targetNamespace = "http://factemi.at.min_financas.pt/documents")
-@SOAPBinding(parameterStyle = jakarta.jws.soap.SOAPBinding.ParameterStyle.BARE)
+@SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
 @XmlSeeAlso({
     ObjectFactory.class
 })

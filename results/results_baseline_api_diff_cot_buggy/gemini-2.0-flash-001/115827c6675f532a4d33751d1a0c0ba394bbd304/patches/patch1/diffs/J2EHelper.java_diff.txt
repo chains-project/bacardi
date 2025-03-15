@@ -4,11 +4,16 @@
 ---
 > import jakarta.servlet.DispatcherType;
 > import jakarta.servlet.FilterRegistration;
-77c77
+17a18
+> import org.eclipse.jetty.servlet.FilterHolder;
+76,77c77,79
+<         final FilterRegistration.Dynamic filterRegistration = environment
 <                 .servlets().addFilter(filter.getClass().getName(), filter);
 ---
->                 .servlets().addFilter(filter.getClass().getName(), (jakarta.servlet.Filter) filter);
-80c80
+>         final FilterHolder holder = new FilterHolder(filter);
+>         final jakarta.servlet.FilterRegistration.Dynamic filterRegistration = environment
+>                 .servlets().addFilter(filter.getClass().getName(), holder);
+80c82
 <                 EnumSet.of(DispatcherType.REQUEST), true, mapping);
 ---
 >                 EnumSet.of(jakarta.servlet.DispatcherType.REQUEST), true, mapping);

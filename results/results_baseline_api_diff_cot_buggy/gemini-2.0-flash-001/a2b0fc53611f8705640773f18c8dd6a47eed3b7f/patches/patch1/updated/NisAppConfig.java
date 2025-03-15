@@ -105,13 +105,7 @@ public class NisAppConfig {
 		final Properties prop = new Properties();
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
-		org.flywaydb.core.api.configuration.ClassicConfiguration flywayConfiguration = new org.flywaydb.core.api.configuration.ClassicConfiguration();
-		final org.flywaydb.core.Flyway flyway = new Flyway(flywayConfiguration);
-		flywayConfiguration.setDataSource(this.dataSource());
-		flywayConfiguration.setClassLoader(NisAppConfig.class.getClassLoader());
-		String locations = prop.getProperty("flyway.locations");
-		flywayConfiguration.setLocations(new org.flywaydb.core.api.Location(locations));
-		flywayConfiguration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
+		final org.flywaydb.core.Flyway flyway = new org.flywaydb.core.Flyway(org.flywaydb.core.api.configuration.FluentConfiguration.configure().dataSource(this.dataSource()).classLoader(NisAppConfig.class.getClassLoader()).locations(org.flywaydb.core.api.Location.parse(prop.getProperty("flyway.locations"))).validateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate"))).load());
 		return flyway;
 	}
 

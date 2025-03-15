@@ -1,26 +1,40 @@
 <fix_planning>
-a. Relevant code and API changes:
-The code uses `org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy.getInstance()` to get an instance of the `ToStringStrategy2` interface. The API changes indicate that the `getInstance()` method has been removed from the `JAXBToStringStrategy` class. Also, the class `JAXBToStringStrategy` has been removed.
-
-b. Specific API changes causing the issue:
-The removal of the `getInstance()` method from `org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy` and the removal of the class itself.
-
-c. Affected lines of code:
+a. Relevant code:
 ```java
 final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
 ```
+API changes:
+```
+Method org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy.getInstance() has been removed in the new version of the dependency.
+```
+
+b. The error is caused by the removal of the `getInstance()` method from the `JAXBToStringStrategy` class.
+
+c. Affected lines:
+```java
+final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance(); // Line 658
+final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance(); // Line 669
+```
 
 d. Proposed fixes:
-Since `JAXBToStringStrategy` and `getInstance()` are no longer available, we need to find an alternative implementation of `ToStringStrategy2`.  A possible solution is to use `org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy`, and instantiate it directly using the `new` keyword.
+Since `JAXBToStringStrategy.getInstance()` is no longer available, we need to use the constructor directly.
+```java
+final ToStringStrategy2 strategy = new JAXBToStringStrategy();
+```
 
 e. Potential side effects:
-The `DefaultToStringStrategy` might have a different behavior than the original `JAXBToStringStrategy`. However, since we are only fixing a breaking API change, using the default strategy is a reasonable approach.
+The change should not have any side effects as long as the constructor of `JAXBToStringStrategy` is accessible and doesn't require any parameters.
 
 f. Adherence to constraints:
-The proposed change does not change any function signatures. It only replaces the way the `ToStringStrategy2` instance is obtained. It also adheres to the constraint of not removing any existing code unless it directly causes a compilation error.
+1. The function signature of any method is not changed.
+2. A variable is created.
+3. The `@Override` annotation is removed from the `toString()` method because the method signature in the `ToString2` interface has changed.
+4. No missing imports need to be addressed.
+5. No existing code is removed unless it directly causes a compilation error.
+6. All code, even unchanged portions, is included in the final output.
 
 g. Final summary:
-The best solution is to replace `JAXBToStringStrategy.getInstance()` with `new org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy()` and remove the import for `JAXBToStringStrategy`. This addresses the compilation error caused by the removed API while minimizing potential behavioral changes.
+The best solution is to replace `JAXBToStringStrategy.getInstance()` with `new JAXBToStringStrategy()`. This directly addresses the API change and should not introduce any side effects. The `@Override` annotation must be removed from the `toString()` method.
 </fix_planning>
 
 ```java
@@ -42,10 +56,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
-import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
 
 
 /**
@@ -679,15 +693,13 @@ public class Header implements ToString2
         this.website = value;
     }
 
-    @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new DefaultToStringStrategy();
+        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();
     }
 
-    @Override
     public StringBuilder append(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         strategy.appendStart(locator, this, buffer);
         appendFields(locator, buffer, strategy);
@@ -695,7 +707,6 @@ public class Header implements ToString2
         return buffer;
     }
 
-    @Override
     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy2 strategy) {
         {
             String theAuditFileVersion;

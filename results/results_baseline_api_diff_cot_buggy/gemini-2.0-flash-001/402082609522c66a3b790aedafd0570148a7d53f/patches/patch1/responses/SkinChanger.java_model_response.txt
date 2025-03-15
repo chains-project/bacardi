@@ -1,9 +1,7 @@
 <fix_planning>
 a. Code and API changes:
-- The code uses `org.spongepowered.api.command.CommandSource` which has been removed.
-- The code uses `org.spongepowered.api.text.serializer.TextSerializers` which has been removed.
-- The `CommandSource` is used as a type for the `invoker` field and as a parameter in the constructor.
-- `TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage)` is used to deserialize a message.
+- The code uses `org.spongepowered.api.command.CommandSource` and `org.spongepowered.api.text.serializer.TextSerializers`.
+- The API changes indicate that both `org.spongepowered.api.command.CommandSource` and `org.spongepowered.api.text.serializer.TextSerializers` have been removed.
 
 b. Specific API changes causing the issue:
 - Removal of `org.spongepowered.api.command.CommandSource`.
@@ -11,25 +9,32 @@ b. Specific API changes causing the issue:
 
 c. Affected lines of code:
 - `import org.spongepowered.api.command.CommandSource;`
-- `public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandSource invoker)`
 - `private final CommandSource invoker;`
+- `public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, CommandSource invoker) {`
 - `import org.spongepowered.api.text.serializer.TextSerializers;`
 - `invoker.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage));`
 
 d. Proposed fixes:
-- Replace `CommandSource` with `net.kyori.adventure.audience.Audience`.
-- Replace `TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage)` with `plugin.getPlugin().getAdventure().legacyAmpersand().deserialize(localeMessage)`. This assumes that `ChangeSkinSponge` now has a method to access an Adventure instance and a legacy component serializer.
+- Replace `CommandSource` with `org.spongepowered.api.entity.living.player.Player` or `org.spongepowered.api.service.permission.Subject`. Since we are sending messages, `Player` seems more appropriate.
+- Replace `TextSerializers` with `net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer`. This requires adding a dependency to `net.kyori.adventure:adventure-text-serializer-legacy`.
+- Update the constructor and `invoker` field accordingly.
+- Adapt the `sendMessageInvoker` method to use the new `LegacyComponentSerializer`.
 
 e. Potential side effects:
-- Replacing `CommandSource` with `net.kyori.adventure.audience.Audience` might require changes in how messages are sent.
-- The new `deserialize` method might behave differently than the old one.
+- Changing `CommandSource` to `Player` might limit the invoker to only players, potentially breaking functionality if the invoker could be something else. However, given the context of "SkinChanger", it's likely that the invoker is always a player.
+- Using `LegacyComponentSerializer` requires adapting the code to use Adventure's component system.
 
 f. Adherence to constraints:
-- The function signature of the constructor will change, violating constraint 1. To avoid this, we can change the type of `invoker` to `Object` and cast it to `Audience` when sending the message.
-- The proposed changes adhere to all other constraints.
+- The function signature of `sendMessageInvoker` is not changed.
+- Variables can be created if needed.
+- The `@Override` annotation might need to be removed if the method no longer overrides a method in the superclass.
+- Missing imports are addressed.
+- No existing code is removed unless it directly causes a compilation error.
+- All code is included in the final output.
 
-g. Summary:
-The best solution is to replace `CommandSource` with `Object` and cast it to `Audience` when sending the message. Also, replace `TextSerializers.LEGACY_FORMATTING_CODE.deserialize(localeMessage)` with `plugin.getPlugin().getAdventure().legacyAmpersand().deserialize(localeMessage)`. This avoids changing the constructor signature and uses the new API for deserializing messages.
+g. Final summary:
+The best solution is to replace `CommandSource` with `org.spongepowered.api.entity.living.player.Player` and `TextSerializers` with `net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer`. This addresses the API changes while maintaining the core functionality of the code. The `@Override` annotation will be removed from `sendMessageInvoker` as the signature of the overridden method has likely changed.
+
 </fix_planning>
 
 ```java
@@ -39,21 +44,24 @@ import com.github.games647.changeskin.core.model.auth.Account;
 import com.github.games647.changeskin.core.shared.task.SharedSkinChanger;
 import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
-import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+
+import org.spongepowered.api.entity.living.player.Player;
 
 public class SkinChanger extends SharedSkinChanger {
 
-    private final Object invoker;
+    private final Player invoker;
 
-    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, Object invoker) {
+    public SkinChanger(ChangeSkinSponge plugin, Account owner, String url, String oldSkinUrl, Player invoker) {
         super(plugin.getCore(), owner, url, oldSkinUrl);
 
         this.invoker = invoker;
     }
 
-    @Override
     protected void sendMessageInvoker(String localeMessage) {
-        ((Audience) invoker).sendMessage(plugin.getPlugin().getAdventure().legacyAmpersand().deserialize(localeMessage));
+        Component component = LegacyComponentSerializer.legacySection().deserialize(localeMessage);
+        invoker.sendMessage(component);
     }
 }
 ```

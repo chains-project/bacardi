@@ -1,34 +1,37 @@
 <fix_planning>
-a. Relevant parts of the code and API changes:
+a. Code and API changes:
 - The code uses `javax.mvc.locale.LocaleResolver` and `javax.mvc.locale.LocaleResolverContext`.
-- The API changes indicate that these classes have been removed and replaced with `jakarta.mvc.locale.LocaleResolver` and `jakarta.mvc.locale.LocaleResolverContext`.
+- The API changes indicate that `javax.mvc.locale.LocaleResolver` and `javax.mvc.locale.LocaleResolverContext` have been removed.
+- The API changes indicate that `jakarta.mvc.locale.LocaleResolver` and `jakarta.mvc.locale.LocaleResolverContext` have been added.
+- The method `javax.mvc.locale.LocaleResolverContext.getUriInfo()` has been removed and `jakarta.mvc.locale.LocaleResolverContext.getUriInfo()` has been added.
 
 b. Specific API changes causing the issue:
-- Removal of `javax.mvc.locale.LocaleResolver` and `javax.mvc.locale.LocaleResolverContext`.
+- The removal of `javax.mvc.locale.LocaleResolver` and `javax.mvc.locale.LocaleResolverContext` and the addition of `jakarta.mvc.locale.LocaleResolver` and `jakarta.mvc.locale.LocaleResolverContext` are causing compilation errors due to the missing classes.
 
 c. Affected lines of code:
-- `import javax.mvc.locale.LocaleResolverContext;`
 - `import javax.mvc.locale.LocaleResolver;`
+- `import javax.mvc.locale.LocaleResolverContext;`
 - `public class QueryParamLocaleResolver implements LocaleResolver {`
 - `public Locale resolveLocale(final LocaleResolverContext context) {`
 
-d. Proposed potential fixes for each affected line:
-- Replace `javax.mvc.locale.LocaleResolverContext` with `jakarta.mvc.locale.LocaleResolverContext`.
+d. Proposed fixes:
 - Replace `javax.mvc.locale.LocaleResolver` with `jakarta.mvc.locale.LocaleResolver`.
-- Update the class declaration to implement `jakarta.mvc.locale.LocaleResolver`.
-- Update the method signature to use `jakarta.mvc.locale.LocaleResolverContext`.
-- Remove the `@Override` annotation since the method signature is changing.
+- Replace `javax.mvc.locale.LocaleResolverContext` with `jakarta.mvc.locale.LocaleResolverContext`.
+- Update the imports accordingly.
+- Since the interface has changed, the @Override annotation might need to be removed if the method signature has changed. However, in this case, the method signature remains the same, so the @Override annotation can stay.
 
-e. Potential side effects of the proposed changes:
-- The code might rely on specific behavior of the old classes, but since the goal is to adapt to the new API, this is acceptable.
+e. Potential side effects:
+- The change in package names should not have any side effects as long as the new package is available in the classpath.
 
 f. Adherence to constraints:
-- The function signature of `resolveLocale` is technically changing, but this is necessary to adapt to the new API and the constraint allows for this.
-- The `@Override` annotation will be removed as required.
-- All other constraints are met.
+- The proposed changes only modify the client code.
+- The function signature of the `resolveLocale` method is not changed.
+- The `@Override` annotation is kept because the method still overrides a method from the interface.
+- The correct package is used for the imports.
+- No existing code is removed unless it directly causes a compilation error.
 
-g. Final summary of the chosen fix:
-The best solution is to replace the old `javax.mvc.locale` classes with their `jakarta.mvc.locale` counterparts and remove the `@Override` annotation. This directly addresses the compilation errors caused by the API changes and allows the code to function with the updated dependency.
+g. Summary:
+The best solution is to replace the `javax.mvc.locale` imports with `jakarta.mvc.locale` imports. This resolves the compilation errors caused by the API changes.
 </fix_planning>
 
 ```java
@@ -71,7 +74,7 @@ public class QueryParamLocaleResolver implements LocaleResolver {
     @Inject
     Logger log;
     
-    
+    @Override
     public Locale resolveLocale(final LocaleResolverContext context) {
         final String queryLang = context.getUriInfo()
                 .getQueryParameters()

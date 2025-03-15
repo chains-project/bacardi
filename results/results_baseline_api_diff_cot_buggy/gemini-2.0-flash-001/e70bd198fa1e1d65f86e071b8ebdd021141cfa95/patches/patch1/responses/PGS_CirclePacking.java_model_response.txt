@@ -1,45 +1,56 @@
 <fix_planning>
 a. Relevant parts of the code and API changes:
 
-The code uses the `org.tinspin.index` library for spatial indexing, specifically the `CoverTree` class and related classes like `PointDistanceFunction` and `PointEntryDist`. The API changes indicate that `CoverTree`, `PointDistanceFunction`, and `PointEntryDist` have been removed from the library, and the `query1NN` method is no longer available in the `CoverTree` class.
+The code uses `org.tinspin.index.covertree.CoverTree` to create a CoverTree, `org.tinspin.index.PointEntryDist` to store the nearest neighbor, and `org.tinspin.index.PointDistanceFunction` to define a custom distance metric. The `query1NN` method is used to find the nearest neighbor in the tree.
+
+The API changes indicate that:
+- `org.tinspin.index.PointEntryDist` has been removed.
+- `org.tinspin.index.PointDistanceFunction` has been removed.
+- `org.tinspin.index.covertree.CoverTree.query1NN(double[])` has been removed.
 
 b. Specific API changes causing the issue:
 
-The removal of `CoverTree`, `PointDistanceFunction`, `PointEntryDist`, and `query1NN` from `CoverTree` are the direct causes of the compilation errors.
+The removal of `query1NN`, `PointEntryDist`, and `PointDistanceFunction` directly breaks the code.
 
 c. Affected lines of code:
 
-*   `import org.tinspin.index.PointDistanceFunction;`
-*   `import org.tinspin.index.PointEntryDist;`
-*   `final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR });`
-*   `private static final PointDistanceFunction circleDistanceMetric = (p1, p2) -> {`
+- `import org.tinspin.index.PointEntryDist;`
+- `import org.tinspin.index.PointDistanceFunction;`
+- `final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR });`
+- `private static final PointDistanceFunction circleDistanceMetric = (p1, p2) -> {`
 
 d. Proposed potential fixes for each affected line:
 
-*   `import org.tinspin.index.PointDistanceFunction;`: Remove this import.
-*   `import org.tinspin.index.PointEntryDist;`: Remove this import.
-*   `final PointEntryDist<PVector> nn = tree.query1NN(new double[] { p.x, p.y, largestR });`: This line needs to be replaced with an alternative way to find the nearest neighbor. Since `CoverTree` and `query1NN` are no longer available, we need to use a different nearest neighbor search approach. A possible solution is to manually iterate through the points in the tree and calculate the distance to each point, keeping track of the nearest neighbor.
-*   `private static final PointDistanceFunction circleDistanceMetric = (p1, p2) -> {`: Since `PointDistanceFunction` is removed, we need to define the distance function directly where it's used.
+1.  **Remove `import org.tinspin.index.PointEntryDist;` and `import org.tinspin.index.PointDistanceFunction;`:** These imports are no longer needed as the classes are removed.
+2.  **Replace `tree.query1NN` with an alternative:** The `query1NN` method is removed. We need to find a replacement.  Since the CoverTree interface is also removed, we need to find a different nearest neighbor implementation.  A simple approach is to iterate through all the points in the tree and find the nearest one based on our custom distance metric.
+3.  **Replace `PointEntryDist<PVector>` with a custom class or data structure:** Since `PointEntryDist` is removed, we need to store the nearest neighbor and its distance in a different way. We can create a simple class or use a `Map.Entry<PVector, Double>` to store the nearest neighbor and its distance.
+4.  **Replace `PointDistanceFunction` with a `java.util.function.BiFunction`:** Since `PointDistanceFunction` is removed, we can use `java.util.function.BiFunction` to define the distance metric.
 
 e. Potential side effects of the proposed changes:
 
-*   Removing the imports will resolve the compilation errors related to the missing classes.
-*   Replacing the `query1NN` call with a manual nearest neighbor search will likely impact performance, as it will no longer use the optimized indexing provided by `CoverTree`.
-*   Defining the distance function inline will make the code slightly less readable.
+- Iterating through all points to find the nearest neighbor will be slower than using the `query1NN` method of the CoverTree.
+- Using a custom class or `Map.Entry` will require creating a new class or modifying the existing code to use `Map.Entry`.
 
 f. Adherence to constraints:
 
-*   The function signatures are not changed.
-*   Variables can be created to simplify the code.
-*   The `@Override` annotation is not present, so it doesn't need to be removed.
-*   Missing imports are addressed by removing them.
-*   No existing code is removed unless it directly causes a compilation error.
-*   All code is included in the final output.
+- The function signatures of the methods are not changed.
+- Variables can be created if it simplifies the code.
+- The `@Override` annotation is not used.
+- The correct package or class is used for imports.
+- No existing code is removed unless it directly causes a compilation or functionality error.
+- All code, even unchanged portions, is included in the final output.
 
 g. Final summary of the chosen fix:
 
-The best solution is to remove the imports for `PointDistanceFunction` and `PointEntryDist`, replace the `query1NN` call with a manual nearest neighbor search, and define the distance function inline. This approach addresses the compilation errors caused by the API changes while adhering to the given constraints. Although this might impact performance, it's the most straightforward way to restore the functionality without relying on the removed classes.
+The best solution is to:
 
+1.  Remove the imports for `PointEntryDist` and `PointDistanceFunction`.
+2.  Replace the `CoverTree` with a `List<PVector>` to store the circles.
+3.  Replace the `query1NN` call with a manual search through the list, calculating the distance using the custom distance metric (implemented as a lambda).
+4.  Store the nearest neighbor and its distance in a `Map.Entry<PVector, Double>`.
+5.  Use `java.util.function.BiFunction` to define the distance metric.
+
+This approach avoids using the removed classes and methods, while still providing the same functionality. Although it will be slower, it adheres to all the constraints and fixes the compilation errors.
 </fix_planning>
 
 ```java
@@ -51,7 +62,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.SplittableRandom;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -243,16 +256,7 @@ public final class PGS_CirclePacking {
 	public static List<PVector> stochasticPack(final PShape shape, final int points, final double minRadius, boolean triangulatePoints,
 			long seed) {
 
-		final CoverTree<PVector> tree = CoverTree.create(3, 2, (p1, p2) -> {
-			// from https://stackoverflow.com/a/21975136/
-			final double dx = p1[0] - p2[0];
-			final double dy = p1[1] - p2[1];
-			final double dz = p1[2] - p2[2];
-
-			double euclideanDistance = Math.sqrt(dx * dx + dy * dy);
-			double absZDifference = Math.abs(dz);
-			return euclideanDistance + absZDifference; // negative if inside
-		});
+		final List<PVector> tree = new ArrayList<>(); // using list instead of CoverTree
 		final List<PVector> out = new ArrayList<>();
 
 		List<PVector> steinerPoints = PGS_Processing.generateRandomPoints(shape, points, seed);
@@ -266,7 +270,10 @@ public final class PGS_CirclePacking {
 		// within shape edge
 		final List<PVector> vertices = PGS_Conversion.toPVector(shape);
 		Collections.shuffle(vertices); // shuffle vertices to reduce tree imbalance during insertion
-		vertices.forEach(p -> tree.insert(new double[] { p.x, p.y, 0 }, p));
+		vertices.forEach(p -> {
+			p.z = 0;
+			tree.add(p);
+		});
 
 		/*
 		 * "To find the circle nearest to a center (x, y), do a proximity search at (x,
@@ -276,20 +283,15 @@ public final class PGS_CirclePacking {
 
 		for (PVector p : steinerPoints) {
 			// find nearest-neighbour circle
-			PVector nn = null;
+			Map.Entry<PVector, Double> nn = null;
 			double minDist = Double.MAX_VALUE;
-			for (PVector other : vertices) {
-				double dist = Math.sqrt(Math.pow(p.x - other.x, 2) + Math.pow(p.y - other.y, 2));
+
+			for (PVector existingCircle : tree) {
+				double dist = circleDistanceMetric.apply(new double[] { p.x, p.y, largestR },
+						new double[] { existingCircle.x, existingCircle.y, existingCircle.z });
 				if (dist < minDist) {
 					minDist = dist;
-					nn = other;
-				}
-			}
-			for (PVector other : out) {
-				double dist = Math.sqrt(Math.pow(p.x - other.x, 2) + Math.pow(p.y - other.y, 2));
-				if (dist < minDist) {
-					minDist = dist;
-					nn = other;
+					nn = Map.entry(existingCircle, dist);
 				}
 			}
 
@@ -298,13 +300,13 @@ public final class PGS_CirclePacking {
 			 * find nearest circle), so calculate maximum radius for candidate circle using
 			 * 2d euclidean distance between center points minus radius of nearest circle.
 			 */
-			final float dx = p.x - nn.x;
-			final float dy = p.y - nn.y;
-			final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.z);
+			final float dx = p.x - nn.getKey().x;
+			final float dy = p.y - nn.getKey().y;
+			final float radius = (float) (Math.sqrt(dx * dx + dy * dy) - nn.getKey().z);
 			if (radius > minRadius) {
 				largestR = (radius >= largestR) ? radius : largestR;
 				p.z = radius;
-				tree.insert(new double[] { p.x, p.y, radius }, p); // insert circle into tree
+				tree.add(p); // insert circle into tree
 				out.add(p);
 			}
 		}
@@ -646,4 +648,4 @@ public final class PGS_CirclePacking {
 		double offset = 0;
 		for (double x = e.getMinX(); x < w; x += z) {
 			offset = (offset == radius) ? 0 : radius;
-			for (double y = e.getMinY() -
+			for (double y = e.getMinY() - offset; y < h

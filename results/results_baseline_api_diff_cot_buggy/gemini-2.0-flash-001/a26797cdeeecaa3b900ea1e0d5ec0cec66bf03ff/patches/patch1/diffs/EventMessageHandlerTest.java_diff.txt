@@ -1,10 +1,2 @@
-4d3
-< import ch.qos.logback.classic.Logger;
-17a17
-> import org.slf4j.Logger;
-111,112c111,112
-<         Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
-<         logger.setLevel(Level.INFO);
----
->         Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
->         ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(EventMessageHandler.class)).setLevel(Level.INFO);
+110a111
+>         @SuppressWarnings("unchecked")

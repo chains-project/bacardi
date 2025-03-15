@@ -8,7 +8,7 @@
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * is distributed on an "AS IS" BASIS,
+ * is distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -52,7 +52,7 @@ public class ProjectInfo implements Serializable {
   private final Long projectNumber;
   private final State state;
   private final Long createTimeMillis;
-  private final String parent;
+  private final ResourceId parent;
 
   /** The project lifecycle states. */
   public static final class State extends StringEnumValue {
@@ -135,28 +135,14 @@ public class ProjectInfo implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-      return obj instanceof ResourceId && Objects.equals(toPb(), ((ResourceId) obj).toPb());
+      return obj instanceof ResourceId && Objects.equals(id, ((ResourceId) obj).id) && Objects.equals(type, ((ResourceId) obj).type);
     }
 
     @Override
     public int hashCode() {
       return Objects.hash(id, type);
     }
-
-    com.google.api.services.cloudresourcemanager.model.ResourceId toPb() {
-      com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb =
-          new com.google.api.services.cloudresourcemanager.model.ResourceId();
-      resourceIdPb.setId(id);
-      resourceIdPb.setType(type.toLowerCase());
-      return resourceIdPb;
-    }
-
-    static ResourceId fromPb(
-        com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb) {
-      return new ResourceId(resourceIdPb.getId(), resourceIdPb.getType());
-    }
   }
-*/
 
   /** Builder for {@code ProjectInfo}. */
   public abstract static class Builder {
@@ -209,7 +195,7 @@ public class ProjectInfo implements Serializable {
 
     abstract Builder setCreateTimeMillis(Long createTimeMillis);
 
-    public abstract Builder setParent(String parent);
+    public abstract Builder setParent(ResourceId parent);
 
     public abstract ProjectInfo build();
   }
@@ -222,7 +208,7 @@ public class ProjectInfo implements Serializable {
     private Long projectNumber;
     private State state;
     private Long createTimeMillis;
-    private String parent;
+    private ResourceId parent;
 
     BuilderImpl(String projectId) {
       this.projectId = projectId;
@@ -293,7 +279,7 @@ public class ProjectInfo implements Serializable {
     }
 
     @Override
-    public Builder setParent(String parent) {
+    public Builder setParent(ResourceId parent) {
       this.parent = parent;
       return this;
     }
@@ -356,7 +342,7 @@ public class ProjectInfo implements Serializable {
     return state;
   }
 
-  public String getParent() {
+  ResourceId getParent() {
     return parent;
   }
 
@@ -396,37 +382,21 @@ public class ProjectInfo implements Serializable {
     projectPb.setName(name);
     projectPb.setProjectId(projectId);
     projectPb.setLabels(labels);
-    projectPb.setDisplayName(name); // Added to resolve issue where name was not being set. DisplayName is used instead.
-    if (state != null) {
-      projectPb.setState(state.toString());
+    if (parent != null) {
+      projectPb.setParent(parent.getId());
     }
-    if (createTimeMillis != null) {
-      projectPb.setCreateTime(
-          DateTimeFormatter.ISO_DATE_TIME
-              .withZone(ZoneOffset.UTC)
-              .format(Instant.ofEpochMilli(createTimeMillis)));
-    }
-    projectPb.setParent(parent);
     return projectPb;
   }
 
   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) {
     Builder builder =
-        newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
-    if (projectPb.getDisplayName() != null && !projectPb.getDisplayName().equals("Unnamed")) {
-      builder.setName(projectPb.getDisplayName());
+        newBuilder(projectPb.getProjectId()).setProjectNumber(projectNumber);
+    if (projectPb.getName() != null && !projectPb.getName().equals("Unnamed")) {
+      builder.setName(projectPb.getName());
     }
     if (projectPb.getLabels() != null) {
       builder.setLabels(projectPb.getLabels());
     }
-    if (projectPb.getState() != null) {
-      builder.setState(State.valueOf(projectPb.getState()));
-    }
-    if (projectPb.getCreateTime() != null) {
-      builder.setCreateTimeMillis(
-          DATE_TIME_FORMATTER.parse(projectPb.getCreateTime(), Instant.FROM).toEpochMilli());
-    }
-    builder.setParent(projectPb.getParent());
     return builder.build();
   }
 }

@@ -106,16 +106,11 @@ public class NisAppConfig {
 		prop.load(NisAppConfig.class.getClassLoader().getResourceAsStream("db.properties"));
 
 		final org.flywaydb.core.api.configuration.ClassicConfiguration configuration = new org.flywaydb.core.api.configuration.ClassicConfiguration();
+		final org.flywaydb.core.Flyway flyway = new org.flywaydb.core.Flyway(configuration);
 		configuration.setDataSource(this.dataSource());
 		configuration.setClassLoader(NisAppConfig.class.getClassLoader());
-		String locations = prop.getProperty("flyway.locations");
-		if (locations != null) {
-			configuration.setLocations(Arrays.stream(locations.split(","))
-					.map(org.flywaydb.core.api.Location::new)
-					.toArray(org.flywaydb.core.api.Location[]::new));
-		}
+		configuration.setLocations(prop.getProperty("flyway.locations").split(","));
 		configuration.setValidateOnMigrate(Boolean.valueOf(prop.getProperty("flyway.validate")));
-		final org.flywaydb.core.Flyway flyway = new org.flywaydb.core.Flyway(configuration);
 		return flyway;
 	}
 

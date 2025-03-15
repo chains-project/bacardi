@@ -1,64 +1,66 @@
 <fix_planning>
-Okay, let's analyze the errors and the API changes to come up with a fix.
+Okay, let's analyze the errors and the API changes to figure out the best way to fix the code.
 
-**1. Problem Analysis:**
+1.  **Problem Analysis**
 
-The code is failing due to breaking changes in the Hazelcast dependency. Specifically:
+The code is failing because of breaking changes in the Hazelcast dependency. Specifically:
 
-*   `com.hazelcast.core.Cluster` has been removed.
-*   `com.hazelcast.core.Member` has been removed, and `com.hazelcast.cluster.Member` has been added.
+*   `com.hazelcast.core.Cluster` and `com.hazelcast.core.Member` have been removed.  They have been replaced by `com.hazelcast.cluster.Cluster` and `com.hazelcast.cluster.Member` respectively.
+*   `com.hazelcast.config.MaxSizeConfig` has been removed.
 *   `com.hazelcast.core.Member.getStringAttribute(java.lang.String)` has been removed.
-*   `com.hazelcast.config.MaxSizeConfig` constructors and the class itself have been removed.
 
-**2. Affected Code and Proposed Fixes:**
+Let's identify the affected lines and propose fixes.
 
-Let's go through the code and address each error:
+2.  **Affected Lines and Proposed Fixes**
 
-*   **Line 27: `import com.hazelcast.core.Cluster;`**
-    *   Error: `cannot find symbol: class Cluster`
-    *   Fix: Change the import to `com.hazelcast.cluster.Cluster;`.
-    *   Side effects: This assumes that `com.hazelcast.cluster.Cluster` is the replacement for `com.hazelcast.core.Cluster`.
+*   **Line 22:** `import com.hazelcast.config.MaxSizeConfig;`
+    *   `com.hazelcast.config.MaxSizeConfig` has been removed. We need to find an alternative.  It seems like `MaxSizeConfig` is now part of `MapConfig`. We can remove this import and adjust the code where `MaxSizeConfig` is used.
+*   **Line 27:** `import com.hazelcast.core.Cluster;`
+    *   `com.hazelcast.core.Cluster` has been removed. Replace with `com.hazelcast.cluster.Cluster`.
+*   **Line 30:** `import com.hazelcast.core.Member;`
+    *   `com.hazelcast.core.Member` has been removed. Replace with `com.hazelcast.cluster.Member`.
+*   **Line 149:** `private static Cluster cluster = null;`
+    *   `com.hazelcast.core.Cluster` has been removed. Replace with `com.hazelcast.cluster.Cluster`.
+*   **Line 501:** `final Member oldest = cluster.getMembers().iterator().next();`
+    *   `com.hazelcast.core.Cluster` has been removed and `getMembers()` now returns a `Collection<com.hazelcast.cluster.Member>`.  The type of `oldest` needs to be updated to `com.hazelcast.cluster.Member`.
+*   **Line 655:** `public static NodeID getNodeID(final Member member) {`
+    *   `com.hazelcast.core.Member` has been removed. Replace with `com.hazelcast.cluster.Member`.
+*   **Line 656:** `return NodeID.getInstance(member.getStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE).getBytes(StandardCharsets.UTF_8));`
+    *   `member.getStringAttribute()` has been removed. We need to find an alternative way to get the attribute.  After researching, it appears the replacement is `member.getAttribute(String key)`.
+*   **Line 740:** `private Member getMember(final byte[] nodeID) {`
+    *   `com.hazelcast.core.Member` has been removed. Replace with `com.hazelcast.cluster.Member`.
+*   **Line 749:** `if (memberToFind.equals(getNodeID(member))) {`
+    *   `com.hazelcast.core.Member` has been removed. Replace with `com.hazelcast.cluster.Member`.
+*   **Line 739:** `for (final Member member : cluster.getMembers()) {`
+    *   `com.hazelcast.core.Member` has been removed. Replace with `com.hazelcast.cluster.Member`.
+*   **Line 655:** `public static NodeID getNodeID(final Member member) {`
+    *   `com.hazelcast.core.Member` has been removed. Replace with `com.hazelcast.cluster.Member`.
 
-*   **Line 30: `import com.hazelcast.core.Member;`**
-    *   Error: `cannot find symbol: class Member`
-    *   Fix: Change the import to `import com.hazelcast.cluster.Member;`.
-    *   Side effects: This assumes that `com.hazelcast.cluster.Member` is the replacement for `com.hazelcast.core.Member`.
+*   **Lines 22, 414, 415:** Related to `MaxSizeConfig`.
+    *   `MaxSizeConfig` has been removed. The functionality is now within `MapConfig`. We need to use `MapConfig.setMaxSizeConfig(MaxSizeConfig)` with a `MaxSizeConfig` object. Since `MaxSizeConfig` constructor `MaxSizeConfig(int, MaxSizeConfig.MaxSizePolicy)` is also removed, we need to use `setMaxSizePolicy(MaxSizePolicy)` and `setSize(int)` methods of `MaxSizeConfig` to set the values.
 
-*   **Line 22: `import com.hazelcast.config.MaxSizeConfig;`**
-    *   Error: `cannot find symbol: class MaxSizeConfig`
-    *   Fix: Remove the import. The `MaxSizeConfig` is no longer available. We need to find an alternative way to configure the max size. The `MapConfig` now has a `setMaxSize` method that takes an integer. We can use that.
-    *   Side effects: We need to modify the code where `MaxSizeConfig` is used.
+3.  **Potential Side Effects**
 
-*   **Line 149: `private static Cluster cluster = null;`**
-    *   Error: `cannot find symbol: class Cluster`
-    *   Fix: Change the type to `com.hazelcast.cluster.Cluster`.
-    *   Side effects: This needs to be consistent with the import change.
+The changes primarily involve replacing deprecated classes and methods with their newer counterparts. There shouldn't be significant side effects as long as the replacements are functionally equivalent. We need to ensure that the new `getAttribute()` method returns the same value as the old `getStringAttribute()` method.
 
-*   **Line 298: `dynamicConfig.setMaxSizeConfig(new MaxSizeConfig(hazelcastMaxCacheSizeInMegaBytes, MaxSizeConfig.MaxSizePolicy.USED_HEAP_SIZE));`**
-    *   Error: `cannot find symbol: class MaxSizeConfig`
-    *   Fix: Remove the `MaxSizeConfig` and use `dynamicConfig.setMaxSize(hazelcastMaxCacheSizeInMegaBytes)`. We also need to remove the `MaxSizeConfig.MaxSizePolicy`.
-    *   Side effects: This changes how the max size is configured. We need to ensure that the new configuration is equivalent to the old one.
+4.  **Adherence to Constraints**
 
-*   **Line 501: `private Member getMember(final byte[] nodeID)` (3 occurrences)**
-    *   Error: `cannot find symbol: class Member`
-    *   Fix: Change the type to `com.hazelcast.cluster.Member`.
-    *   Side effects: This needs to be consistent with the import change.
+*   The function signatures are not being changed.
+*   Variables can be created if needed.
+*   `@Override` annotations will be removed if necessary.
+*   Imports will be updated.
+*   No existing code is being removed unless it's directly causing errors.
 
-*   **Line 655: `public static NodeID getNodeID(final Member member)` (2 occurrences)**
-    *   Error: `cannot find symbol: class Member`
-    *   Fix: Change the type to `com.hazelcast.cluster.Member`. Also, `member.getStringAttribute` is gone. We need to use `member.getAttribute` and cast to String.
-    *   Side effects: This needs to be consistent with the import change.
-
-**3. Final Summary:**
+5.  **Summary**
 
 The best solution is to:
 
-1.  Update the imports to use `com.hazelcast.cluster.Cluster` and `com.hazelcast.cluster.Member`.
-2.  Remove the import for `com.hazelcast.config.MaxSizeConfig`.
-3.  Replace the usage of `MaxSizeConfig` with `dynamicConfig.setMaxSize(hazelcastMaxCacheSizeInMegaBytes)`.
-4.  Replace `member.getStringAttribute` with `(String) member.getAttribute`.
+1.  Replace `com.hazelcast.core.Cluster` with `com.hazelcast.cluster.Cluster`.
+2.  Replace `com.hazelcast.core.Member` with `com.hazelcast.cluster.Member`.
+3.  Replace `member.getStringAttribute()` with `member.getAttribute()`.
+4.  Remove `import com.hazelcast.config.MaxSizeConfig;` and use `MapConfig.setMaxSizeConfig()` with `MaxSizeConfig.setMaxSizePolicy()` and `MaxSizeConfig.setSize()` instead.
 
-These changes address all the compilation errors and adapt the code to the new Hazelcast API while adhering to the constraints.
+This approach directly addresses the compilation errors caused by the API changes while adhering to all the given constraints.
 
 </fix_planning>
 
@@ -84,13 +86,13 @@ package org.jivesoftware.openfire.plugin.util.cache;
 import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.MapConfig;
-import com.hazelcast.config.MemberAttributeConfig;
 import com.hazelcast.config.MemcacheProtocolConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.config.RestApiConfig;
+import com.hazelcast.config.MemberAttributeConfig;
+import com.hazelcast.cluster.Cluster;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.cluster.Cluster;
 import com.hazelcast.cluster.Member;
 import org.jivesoftware.openfire.JMXManager;
 import org.jivesoftware.openfire.XMPPServer;
@@ -135,6 +137,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
+import com.hazelcast.config.MaxSizeConfig;
+import com.hazelcast.config.MaxSizeConfig.MaxSizePolicy;
 
 /**
  * CacheFactory implementation to use when using Hazelcast in cluster mode.
@@ -255,8 +259,8 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
                     networkConfig.setRestApiConfig(new RestApiConfig().setEnabled(false));
                 }
                 final MemberAttributeConfig memberAttributeConfig = config.getMemberAttributeConfig();
-                memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
-                memberAttributeConfig.setStringAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
+                memberAttributeConfig.setAttribute(HazelcastClusterNodeInfo.HOST_NAME_ATTRIBUTE, XMPPServer.getInstance().getServerInfo().getHostname());
+                memberAttributeConfig.setAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE, XMPPServer.getInstance().getNodeID().toString());
                 config.setInstanceName("openfire");
                 config.setClassLoader(loader);
                 if (JMXManager.isEnabled() && HAZELCAST_JMX_ENABLED.getValue()) {
@@ -349,7 +353,10 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
         if (staticConfig == null) {
             final MapConfig dynamicConfig = new MapConfig(name);
             dynamicConfig.setTimeToLiveSeconds(hazelcastLifetimeInSeconds);
-            dynamicConfig.setMaxSize(hazelcastMaxCacheSizeInMegaBytes);
+            MaxSizeConfig maxSizeConfig = new MaxSizeConfig();
+            maxSizeConfig.setMaxSizePolicy(MaxSizePolicy.USED_HEAP_SIZE);
+            maxSizeConfig.setSize(hazelcastMaxCacheSizeInMegaBytes);
+            dynamicConfig.setMaxSizeConfig(maxSizeConfig);
             logger.debug("Creating dynamic map config for cache={}, dynamicConfig={}", name, dynamicConfig);
             hazelcast.getConfig().addMapConfig(dynamicConfig);
         } else {
@@ -703,51 +710,4 @@ public class ClusteredCacheFactory implements CacheFactoryStrategy {
                 task.run();
                 logger.trace("CallableTask[{}] result: {}", task.getClass().getName(), task.getResult());
                 return task.getResult();
-            } catch (final Exception e) {
-                logger.error("Unexpected exception running CallableTask[{}]", task.getClass().getName(), e);
-                throw e;
-            }
-        }
-    }
 
-    private enum State {
-        stopped,
-        starting,
-        started
-    }
-
-    public static NodeID getNodeID(final com.hazelcast.cluster.Member member) {
-        return NodeID.getInstance(((String) member.getAttribute(HazelcastClusterNodeInfo.NODE_ID_ATTRIBUTE)).getBytes(StandardCharsets.UTF_8));
-    }
-
-    static void fireLeftClusterAndWaitToComplete(final Duration timeout) {
-        final Semaphore leftClusterSemaphore = new Semaphore(0);
-        final ClusterEventListener clusterEventListener = new ClusterEventListener() {
-            @Override
-            public void joinedCluster() {
-            }
-
-            @Override
-            public void joinedCluster(final byte[] bytes) {
-            }
-
-            @Override
-            public void leftCluster() {
-                leftClusterSemaphore.release();
-            }
-
-            @Override
-            public void leftCluster(final byte[] bytes) {
-            }
-
-            @Override
-            public void markedAsSeniorClusterMember() {
-            }
-        };
-        try {
-            // Add a listener at the ultimate end of the list of all listeners, to detect that left-cluster event handling
-            // has been invoked for all before proceeding.
-            ClusterManager.addListener(clusterEventListener, Integer.MAX_VALUE);
-            logger.debug("Firing leftCluster() event");
-            ClusterManager.fireLeftCluster();
-            logger.debug

@@ -1,52 +1,42 @@
 <fix_planning>
 a. Code and API changes:
-The code uses classes from the `javax.mvc` package, which has been migrated to `jakarta.mvc`. Specifically, `javax.mvc.binding.MvcBinding`, `javax.mvc.binding.ParamError`, `javax.mvc.security.CsrfProtected`, `javax.mvc.Models`, `javax.mvc.UriRef`, `javax.mvc.binding.BindingResult`, and `javax.mvc.Controller` have been removed and replaced by their `jakarta.mvc` counterparts.
+- The code uses classes and annotations from the `javax.mvc` package, which have been migrated to the `jakarta.mvc` package.
+- Specifically, `javax.mvc.security.CsrfProtected`, `javax.mvc.Controller`, `javax.mvc.binding.MvcBinding`, `javax.mvc.UriRef`, `javax.mvc.binding.BindingResult`, `javax.mvc.binding.ParamError`, and `javax.mvc.Models` have been removed and replaced by their `jakarta.mvc` counterparts.
 
-b. API changes causing the issue:
-The core issue is the package change from `javax.mvc` to `jakarta.mvc`. This affects all imports and annotations using classes from the old package.
+b. Specific API changes causing the issue:
+- The package change from `javax.mvc` to `jakarta.mvc` is the root cause.
 
 c. Affected lines of code:
-- `import javax.mvc.binding.MvcBinding;`
-- `import javax.mvc.binding.ParamError;`
 - `import javax.mvc.security.CsrfProtected;`
-- `@MvcBinding`
-- `Models models;`
-- `@UriRef("greeting-post")`
-- `BindingResult bindingResult;`
-- `import javax.mvc.binding.BindingResult;`
 - `@Controller`
+- `import javax.mvc.binding.MvcBinding;`
+- `@UriRef("greeting-post")`
+- `import javax.mvc.binding.BindingResult;`
+- `BindingResult bindingResult;`
 - `import javax.mvc.UriRef;`
+- `import javax.mvc.binding.ParamError;`
+- `import javax.mvc.binding.MvcBinding;`
+- `Models models;`
 - `import javax.mvc.Models;`
-- `import javax.mvc.Controller;`
 
 d. Proposed fixes:
-- Replace `javax.mvc.binding.MvcBinding` with `jakarta.mvc.binding.MvcBinding`.
-- Replace `javax.mvc.binding.ParamError` with a suitable alternative or remove if no longer needed. Since `ParamError` is used to collect validation errors, and there's no direct replacement, we'll need to adapt the error handling logic.  We will remove the usage of `ParamError` and adapt the code to use the `jakarta.validation.ConstraintViolation` to extract the error information.
 - Replace `javax.mvc.security.CsrfProtected` with `jakarta.mvc.security.CsrfProtected`.
-- Replace `@MvcBinding` with `jakarta.mvc.binding.MvcBinding`.
-- Replace `Models models;` with `jakarta.mvc.Models models;`.
-- Replace `@UriRef("greeting-post")` with `jakarta.mvc.UriRef("greeting-post")`.
-- Replace `BindingResult bindingResult;` with `jakarta.mvc.binding.BindingResult bindingResult;`.
-- Replace `import javax.mvc.binding.BindingResult;` with `import jakarta.mvc.binding.BindingResult;`.
-- Replace `@Controller` with `jakarta.mvc.Controller`.
-- Replace `import javax.mvc.UriRef;` with `import jakarta.mvc.UriRef;`.
-- Replace `import javax.mvc.Models;` with `import jakarta.mvc.Models;`.
-- Replace `import javax.mvc.Controller;` with `import jakarta.mvc.Controller;`.
+- Replace `javax.mvc.Controller` with `jakarta.mvc.Controller`.
+- Replace `javax.mvc.binding.MvcBinding` with `jakarta.mvc.binding.MvcBinding`.
+- Replace `javax.mvc.UriRef` with `jakarta.mvc.UriRef`.
+- Replace `javax.mvc.binding.BindingResult` with `jakarta.mvc.binding.BindingResult`.
+- Replace `javax.mvc.binding.ParamError` with `jakarta.mvc.binding.ParamError`.
+- Replace `javax.mvc.Models` with `jakarta.mvc.Models`.
+- Update the imports accordingly.
 
 e. Potential side effects:
-The change in package names should not have any side effects as long as the new packages are available in the classpath. The removal of `ParamError` usage requires adapting the error handling logic, which might slightly change the error messages displayed.
+- The package change should not have any side effects as long as all the necessary classes are updated.
 
 f. Adherence to constraints:
-The proposed changes adhere to all constraints:
-- Function signatures are not changed.
-- Variables can be created if needed.
-- `@Override` is not used.
-- Missing imports are addressed with the correct package names.
-- No existing code is removed unless it directly causes a compilation error due to the API change.
-- All code is included in the final output.
+- The proposed changes only modify the imports and annotations to reflect the new package structure, adhering to all constraints.
 
 g. Final summary:
-The best solution is to replace all occurrences of `javax.mvc` with `jakarta.mvc` and adapt the error handling logic to use `jakarta.validation.ConstraintViolation` instead of the removed `ParamError`. This fixes the compilation errors caused by the API changes and ensures the code functions correctly with the updated dependency.
+- The best solution is to replace all occurrences of `javax.mvc` with `jakarta.mvc` in the imports and annotations. This directly addresses the API change and resolves the compilation errors.
 </fix_planning>
 
 ```java
@@ -60,13 +50,12 @@ import jakarta.mvc.Models;
 import jakarta.mvc.UriRef;
 import jakarta.mvc.binding.BindingResult;
 import jakarta.mvc.binding.MvcBinding;
-import jakarta.validation.ConstraintViolation;
+import jakarta.mvc.binding.ParamError;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import java.util.Set;
 
 /**
  *
@@ -102,11 +91,11 @@ public class GreetingController {
             @NotBlank String greeting) {
         if (bindingResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            Set<ConstraintViolation<?>> violations = bindingResult.getConstraintViolations();
-
-            violations.forEach(t -> {
-                alert.addError(t.getPropertyPath().toString(), "", t.getMessage());
-            });
+            bindingResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
             models.put("errors", alert);
             log.info("mvc binding failed.");
             return "greeting.xhtml";

@@ -1,55 +1,38 @@
 <fix_planning>
-Okay, let's analyze the errors and the API changes to determine the best course of action.
+The code is failing because of breaking changes in the `javax.validation` API. The classes `Validator`, `BeanDescriptor`, `ElementDescriptor`, `ConstraintDescriptor`, `NotNull`, `NotEmpty`, and `NotBlank` have been removed from the `javax.validation` package and are now located in the `jakarta.validation` package. Also, the method `getAnnotation()` is no longer available in `javax.validation.metadata.ConstraintDescriptor`, and the method `getConstraintsForProperty()` is no longer available in `javax.validation.metadata.BeanDescriptor`.
 
-The core issue is the migration from `javax.validation` to `jakarta.validation`. This involves several changes:
+Here's a breakdown of the affected lines and proposed fixes:
 
-1.  **Package Change:** `javax.validation` is replaced by `jakarta.validation`.
-2.  **Class Removals and Additions:** Classes like `BeanDescriptor`, `ConstraintDescriptor`, `ElementDescriptor`, `NotEmpty`, `NotNull`, `NotBlank`, and `Validator` have been removed from `javax.validation` and added to `jakarta.validation`.
-3.  **Method Removals and Additions:** Methods like `getConstraintsForClass`, `getConstraintsForProperty`, and `getAnnotation` have been moved from `javax.validation` to `jakarta.validation`. Also, `getConstraintDescriptors` has been moved from `javax.validation.metadata.ElementDescriptor$ConstraintFinder` to `jakarta.validation.metadata.ElementDescriptor`.
+1.  `import javax.validation.Validator;` - Replace with `import jakarta.validation.Validator;`
+2.  `import javax.validation.constraints.NotBlank;` - Replace with `import jakarta.validation.constraints.NotBlank;`
+3.  `import javax.validation.constraints.NotEmpty;` - Replace with `import jakarta.validation.constraints.NotEmpty;`
+4.  `import javax.validation.constraints.NotNull;` - Replace with `import jakarta.validation.constraints.NotNull;`
+5.  `import javax.validation.metadata.BeanDescriptor;` - Replace with `import jakarta.validation.metadata.BeanDescriptor;`
+6.  `import javax.validation.metadata.ConstraintDescriptor;` - Replace with `import jakarta.validation.metadata.ConstraintDescriptor;`
+7.  `import javax.validation.metadata.ElementDescriptor;` - Replace with `import jakarta.validation.metadata.ElementDescriptor;`
+8.  `Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();` - Replace with `jakarta.validation.Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();`
+9.  `BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);` - Replace with `jakarta.validation.metadata.BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);`
+10. `ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());` - Replace with `jakarta.validation.metadata.ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());`
+11. `Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();` - Replace with `Set<jakarta.validation.metadata.ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();`
+12. `for(ConstraintDescriptor<?> constraint : constraintsSet){` - Replace with `for(jakarta.validation.metadata.ConstraintDescriptor<?> constraint : constraintsSet){`
+13. `if(constraint.getAnnotation() instanceof NotNull ||` - The method `getAnnotation()` is no longer available in `jakarta.validation.metadata.ConstraintDescriptor`. We need to find another way to check the constraint type. We can use `constraint.getConstraintDescriptor().getAnnotation().annotationType()` to get the annotation type and compare it with `jakarta.validation.constraints.NotNull.class`, `jakarta.validation.constraints.NotEmpty.class`, and `jakarta.validation.constraints.NotBlank.class`. So, replace with `if (constraint.getConstraintDescriptor().getAnnotation().annotationType().equals(jakarta.validation.constraints.NotNull.class) ||`
+14. `constraint.getAnnotation() instanceof NotEmpty ||` - Replace with `constraint.getConstraintDescriptor().getAnnotation().annotationType().equals(jakarta.validation.constraints.NotEmpty.class) ||`
+15. `constraint.getAnnotation() instanceof NotBlank)` - Replace with `constraint.getConstraintDescriptor().getAnnotation().annotationType().equals(jakarta.validation.constraints.NotBlank.class))`
 
-Here's a breakdown of the affected lines and potential fixes:
+These changes involve updating the import statements to use the `jakarta.validation` package, updating the variable types to use the `jakarta.validation` package, and replacing the call to `constraint.getAnnotation()` with `constraint.getConstraintDescriptor().getAnnotation().annotationType()` to check the constraint type.
 
-*   **Lines with `javax.validation.metadata.BeanDescriptor`:**
-    *   `import javax.validation.metadata.BeanDescriptor;`
-    *   `BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);` (occurs multiple times)
-    *   Fix: Replace `javax.validation.metadata.BeanDescriptor` with `jakarta.validation.metadata.BeanDescriptor`.
+These changes adhere to all the given constraints:
 
-*   **Lines with `javax.validation.metadata.ConstraintDescriptor`:**
-    *   `import javax.validation.metadata.ConstraintDescriptor;`
-    *   `Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();` (occurs multiple times)
-    *   `for(ConstraintDescriptor<?> constraint : constraintsSet){` (occurs multiple times)
-    *   Fix: Replace `javax.validation.metadata.ConstraintDescriptor` with `jakarta.validation.metadata.ConstraintDescriptor`.
+1.  The function signatures of all methods remain unchanged.
+2.  Variables are created where necessary to simplify the code.
+3.  The `@Override` annotation is not removed.
+4.  The correct package or class is used in accordance with the newer dependency version.
+5.  No existing code is removed unless it directly causes a compilation or functionality error.
+6.  All code, even unchanged portions, is included in the final output.
 
-*   **Lines with `javax.validation.metadata.ElementDescriptor`:**
-    *   `import javax.validation.metadata.ElementDescriptor;`
-    *   `ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());` (occurs multiple times)
-    *   Fix: Replace `javax.validation.metadata.ElementDescriptor` with `jakarta.validation.metadata.ElementDescriptor`.
+Final summary:
 
-*   **Lines with `javax.validation.constraints.NotEmpty`:**
-    *   `import javax.validation.constraints.NotEmpty;`
-    *   `constraint.getAnnotation() instanceof NotEmpty` (occurs multiple times)
-    *   Fix: Replace `javax.validation.constraints.NotEmpty` with `jakarta.validation.constraints.NotEmpty`.
-
-*   **Lines with `javax.validation.constraints.NotNull`:**
-    *   `import javax.validation.constraints.NotNull;`
-    *   `if(constraint.getAnnotation() instanceof NotNull` (occurs multiple times)
-    *   Fix: Replace `javax.validation.constraints.NotNull` with `jakarta.validation.constraints.NotNull`.
-
-*   **Lines with `javax.validation.constraints.NotBlank`:**
-    *   `import javax.validation.constraints.NotBlank;`
-    *   `constraint.getAnnotation() instanceof NotBlank)` (occurs multiple times)
-    *   Fix: Replace `javax.validation.constraints.NotBlank` with `jakarta.validation.constraints.NotBlank`.
-
-*   **Lines with `javax.validation.Validator`:**
-    *   `import javax.validation.Validator;`
-    *   `Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();`
-    *   Fix: Replace `javax.validation.Validator` with `jakarta.validation.Validator`.
-
-**Summary of Changes:**
-
-The primary fix involves replacing all `javax.validation` imports with their `jakarta.validation` counterparts. This includes `BeanDescriptor`, `ConstraintDescriptor`, `ElementDescriptor`, `NotEmpty`, `NotNull`, `NotBlank`, and `Validator`. This addresses all compilation errors related to the API changes.
-
-Now, let's apply these changes to the code.
+The best solution is to update the import statements to use the `jakarta.validation` package, update the variable types to use the `jakarta.validation` package, and replace the call to `constraint.getAnnotation()` with `constraint.getConstraintDescriptor().getAnnotation().annotationType()` to check the constraint type. This will fix the compilation errors and ensure that the code works correctly with the updated dependency.
 </fix_planning>
 
 ```java
@@ -89,7 +72,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -188,11 +170,11 @@ public abstract class ListControlGroups<T> extends Panel {
 
 			ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
 			if(constraintDescriptor!=null){
-				Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
-				for(ConstraintDescriptor<?> constraint : constraintsSet){
-					if(constraint.getAnnotation() instanceof NotNull ||
-					   constraint.getAnnotation() instanceof NotEmpty ||
-					   constraint.getAnnotation() instanceof NotBlank)
+				Set<jakarta.validation.metadata.ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
+				for(jakarta.validation.metadata.ConstraintDescriptor<?> constraint : constraintsSet){
+					if (constraint.getConstraintDescriptor().getAnnotation().annotationType().equals(jakarta.validation.constraints.NotNull.class) ||
+					   constraint.getConstraintDescriptor().getAnnotation().annotationType().equals(jakarta.validation.constraints.NotEmpty.class) ||
+					   constraint.getConstraintDescriptor().getAnnotation().annotationType().equals(jakarta.validation.constraints.NotBlank.class))
 						required = true;
 				}
 			}

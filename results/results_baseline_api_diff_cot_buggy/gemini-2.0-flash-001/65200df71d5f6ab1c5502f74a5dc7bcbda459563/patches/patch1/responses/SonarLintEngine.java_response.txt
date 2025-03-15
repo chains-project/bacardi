@@ -160,7 +160,9 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
         AnalysisEngineConfiguration.Builder builder = AnalysisEngineConfiguration.builder();
-        globalConfig.getEnabledLanguages().forEach(builder::addEnabledLanguage);
+        for (Language language : globalConfig.getEnabledLanguages()) {
+            builder.addEnabledLanguage(language);
+        }
         return builder
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())

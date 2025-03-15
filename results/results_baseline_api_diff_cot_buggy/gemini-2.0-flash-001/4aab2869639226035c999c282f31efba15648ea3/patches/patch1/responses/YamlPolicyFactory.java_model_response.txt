@@ -1,27 +1,34 @@
 <fix_planning>
-a. Relevant parts of the code and API changes:
-- Code: `new Storages().newStorage(sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping())`
-- API Changes: `Class com.artipie.asto.factory.Storages has been removed in the new version of the dependency.` and `Method com.artipie.asto.factory.StorageFactory.newStorage(com.artipie.asto.factory.Config) has been added in the new version of the dependency.`
+a. Code and API changes:
+- The code uses `com.artipie.asto.factory.Storages` to create a storage instance.
+- The API changes indicate that the `com.artipie.asto.factory.Storages` class and its constructor have been removed.
+- The `new Storages().newStorage(sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping())` method call is failing because `Storages` no longer exists and `newStorage` method with such signature is also removed.
+- `StorageFactory.newStorage(Config)` has been added.
 
 b. Specific API changes causing the issue:
-The `Storages` class has been removed, and the `newStorage` method now expects a `Config` object instead of a string and a `YamlMapping`.
+- Removal of `com.artipie.asto.factory.Storages` class.
+- Removal of `com.artipie.asto.factory.Storages.newStorage(java.lang.String,com.amihaiemil.eoyaml.YamlMapping)` method.
 
 c. Affected lines of code:
 - Line 43: `new Storages().newStorage(`
+- Line 9: `import com.artipie.asto.factory.Storages;`
 
-d. Proposed potential fixes:
-Since `Storages` class is removed, we need to find an alternative way to create a storage. The API changes suggest that `newStorage` method now exists in `StorageFactory` and accepts a `Config` object. We can try to instantiate the appropriate `StorageFactory` directly (e.g., `FileStorageFactory`, `S3StorageFactory`, etc.) based on the `type` and then call `newStorage` with a `Config` object created from the `sub` configuration.
+d. Proposed fixes:
+- Replace `new Storages().newStorage(sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping())` with `StorageFactory.newStorage(Config)` and adapt the parameters accordingly.
+- Remove the import statement `import com.artipie.asto.factory.Storages;`
+- Create a `Config` instance from the `sub` `PolicyConfig`.
 
-e. Potential side effects of the proposed changes:
-We need to determine the correct `StorageFactory` based on the `type` string. This might require adding a switch statement or a similar mechanism. We also need to ensure that the `Config` object is created correctly from the `sub` configuration.
+e. Potential side effects:
+- The new `StorageFactory.newStorage(Config)` method might require a different configuration format. We need to ensure that the `Config` instance we create is compatible with the new method.
 
 f. Adherence to constraints:
-- We are not changing the function signature of `getPolicy`.
-- We might need to create variables to hold the `StorageFactory` and `Config` objects.
-- We are not removing any existing code unless it directly causes a compilation error.
+- The function signature of `getPolicy` remains unchanged.
+- We are creating a variable `storageConfig` to hold the `Config` instance.
+- We are removing the import statement for `Storages` as it no longer exists.
+- All code is included in the final output.
 
-g. Final summary of the chosen fix:
-The best solution is to replace the usage of the removed `Storages` class with direct instantiation of the appropriate `StorageFactory` based on the `type` specified in the configuration. We will use a switch statement to determine the correct factory and then call the `newStorage` method with a `Config` object created from the `sub` configuration. This approach aligns with the new API and addresses the compilation errors.
+g. Final summary:
+The best solution is to replace the deprecated `Storages` class with the new `StorageFactory` and its `newStorage(Config)` method. We need to create a `Config` instance from the `PolicyConfig sub` and pass it to the `newStorage` method. We also need to remove the import statement for the `Storages` class. This approach addresses the API changes directly and ensures that the code compiles and functions correctly with the updated dependency.
 </fix_planning>
 
 ```java
@@ -35,8 +42,6 @@ import com.amihaiemil.eoyaml.Yaml;
 import com.artipie.asto.blocking.BlockingStorage;
 import com.artipie.asto.factory.Config;
 import com.artipie.asto.factory.StorageFactory;
-import com.artipie.asto.fs.FileStorageFactory;
-import com.artipie.asto.s3.S3StorageFactory;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
@@ -68,22 +73,10 @@ public final class YamlPolicyFactory implements PolicyFactory {
     public Policy<?> getPolicy(final PolicyConfig config) {
         final PolicyConfig sub = config.config("storage");
         try {
-            final String type = sub.string("type");
-            final StorageFactory factory;
-            switch (type) {
-                case "fs":
-                    factory = new FileStorageFactory();
-                    break;
-                case "s3":
-                    factory = new S3StorageFactory();
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown storage type: " + type);
-            }
             final Config storageConfig = new Config.Yaml(Yaml.createYamlInput(sub.toString()).readYamlMapping());
             return new YamlPolicy(
                 new BlockingStorage(
-                    factory.newStorage(storageConfig)
+                    StorageFactory.newStorage(storageConfig)
                 )
             );
         } catch (final IOException err) {

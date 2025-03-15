@@ -21,16 +21,14 @@ import org.apache.maven.repository.RepositorySystem;
 
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
 
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptySet;
 import static java.util.Objects.requireNonNull;
-
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * Utilities specific for org.apache.maven.plugins:maven-compiler-plugin.
@@ -56,21 +54,6 @@ public final class MavenCompilerUtils {
         return GROUPID.equals(plugin.getGroupId()) && ARTIFACTID.equals(plugin.getArtifactId());
     }
 
-    private static Stream<Element> nodeListToStream(NodeList nodeList) {
-        return IntStream.range(0, nodeList.getLength())
-                .mapToObj(nodeList::item)
-                .filter(node -> node instanceof Element)
-                .map(node -> (Element) node);
-    }
-
-    private static Element getChildElement(Element parent, String name) {
-        NodeList nodeList = parent.getElementsByTagName(name);
-        if (nodeList.getLength() > 0 && nodeList.item(0) instanceof Element) {
-            return (Element) nodeList.item(0);
-        }
-        return null;
-    }
-
     /**
      * Extract annotation processors for maven-compiler-plugin configuration.
      *
@@ -88,16 +71,8 @@ public final class MavenCompilerUtils {
             return emptySet();
         }
         if (config instanceof Element) {
-            Element configElement = (Element) config;
-            NodeList annotationProcessorPathsList = configElement.getElementsByTagName("annotationProcessorPaths");
-
-            Stream<Element> annotationProcessorPathsStream = nodeListToStream(annotationProcessorPathsList);
-
-            return annotationProcessorPathsStream
-                    .flatMap(aggregate -> {
-                        NodeList pathList = aggregate.getElementsByTagName("path");
-                        return nodeListToStream(pathList);
-                    })
+            return toStream(((Element) config).getElementsByTagName("annotationProcessorPaths"))
+                    .flatMap(aggregate -> toStream(aggregate.getElementsByTagName("path")))
                     .map(processor -> system.createArtifact(
                             extractChildValue(processor, "groupId"),
                             extractChildValue(processor, "artifactId"),
@@ -117,6 +92,14 @@ public final class MavenCompilerUtils {
                 " was encountered: " + config.getClass());
     }
 
+    private static Stream<Element> toStream(NodeList nodeList) {
+        return stream(new Node[nodeList.getLength()])
+                .map(n -> nodeList.item(0))
+                .filter(Element.class::isInstance)
+                .map(Element.class::cast)
+                .limit(nodeList.getLength());
+    }
+
     /**
      * Extract child value if child is present, or return empty string if absent.
      *
@@ -125,7 +108,19 @@ public final class MavenCompilerUtils {
      * @return Returns child value if child node present or otherwise empty string.
      */
     private static String extractChildValue(Element node, String name) {
-        Element child = getChildElement(node, name);
+        final Element child = getChildElement(node, name);
         return child == null ? "" : child.getTextContent();
+    }
+
+    private static Element getChildElement(Element parent, String name) {
+        NodeList nodeList = parent.getElementsByTagName(name);
+        if (nodeList.getLength() == 0) {
+            return null;
+        }
+        Node node = nodeList.item(0);
+        if (node instanceof Element) {
+            return (Element) node;
+        }
+        return null;
     }
 }

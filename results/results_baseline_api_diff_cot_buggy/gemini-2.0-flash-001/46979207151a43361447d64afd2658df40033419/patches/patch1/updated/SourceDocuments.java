@@ -1,2 +1,1 @@
-final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
-    
+final ToStringStrategy2 strategy = new JAXBToStringStrategy();

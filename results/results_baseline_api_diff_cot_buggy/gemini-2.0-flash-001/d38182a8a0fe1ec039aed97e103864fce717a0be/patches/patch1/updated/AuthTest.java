@@ -14,6 +14,7 @@ import com.artipie.docker.asto.TrustedBlobSource;
 import com.artipie.http.Headers;
 import com.artipie.http.Response;
 import com.artipie.http.Slice;
+import com.artipie.http.auth.AuthUser;
 import com.artipie.http.auth.Authentication;
 import com.artipie.http.auth.BasicAuthScheme;
 import com.artipie.http.auth.BearerAuthScheme;
@@ -28,6 +29,7 @@ import com.artipie.http.rs.RsStatus;
 import io.reactivex.Flowable;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 import org.hamcrest.MatcherAssert;
@@ -39,8 +41,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import com.artipie.http.auth.AuthUser;
-import com.artipie.http.auth.BasicIdentities;
 
 /**
  * Tests for {@link DockerSlice}.
@@ -352,8 +352,9 @@ public final class AuthTest {
                     token -> CompletableFuture.completedFuture(
                         Stream.of(TestAuthentication.ALICE, TestAuthentication.BOB)
                             .filter(user -> token.equals(token(user)))
-                            .map(user -> BasicIdentities.Simple.of(user.name()))
+                            .map(user -> Optional.of(new AuthUser(user.name())))
                             .findFirst()
+                            .orElse(Optional.empty())
                     ),
                     ""
                 )

@@ -1,47 +1,33 @@
 <fix_planning>
-The problem is that several classes from the `redis.clients.jedis.commands` package have been removed in the newer version of the Jedis library. Specifically, `BasicRedisPipeline`, `BinaryScriptingCommandsPipeline`, `BinaryRedisPipeline`, `ScriptingCommandsPipeline`, `MultiKeyCommandsPipeline`, `ClusterPipeline`, `MultiKeyBinaryRedisPipeline`, and `RedisPipeline` are no longer available.
+The problem is that several classes from `redis.clients.jedis.commands` have been removed in the newer version of the Jedis library. Specifically, `BasicRedisPipeline`, `ScriptingCommandsPipeline`, `BinaryRedisPipeline`, `BinaryScriptingCommandsPipeline`, `ClusterPipeline`, `MultiKeyBinaryRedisPipeline`, `RedisPipeline`, and `MultiKeyCommandsPipeline` are no longer available.
 
-The `RedisGraphPipeline` interface extends all these removed interfaces, causing compilation errors.
+The `RedisGraphPipeline` interface extends all these removed interfaces, causing compilation errors. The fix involves removing these interfaces from the `extends` clause of the `RedisGraphPipeline` interface. Since `ClusterPipeline` is now an interface instead of a class, we should keep it.
 
-Affected lines:
+Here's a breakdown of the affected lines and proposed fixes:
 
-*   `import redis.clients.jedis.commands.BasicRedisPipeline;`
-*   `import redis.clients.jedis.commands.BinaryScriptingCommandsPipeline;`
-*   `import redis.clients.jedis.commands.BinaryRedisPipeline;`
-*   `import redis.clients.jedis.commands.MultiKeyCommandsPipeline;`
-*   `import redis.clients.jedis.commands.ClusterPipeline;`
-*   `import redis.clients.jedis.commands.ScriptingCommandsPipeline;`
-*   `import redis.clients.jedis.commands.MultiKeyBinaryRedisPipeline;`
-*   `import redis.clients.jedis.commands.RedisPipeline;`
-*   `public interface RedisGraphPipeline extends MultiKeyBinaryRedisPipeline, MultiKeyCommandsPipeline, ClusterPipeline, BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline, BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {`
+*   **Lines 3-10, 21-24**: These lines import the removed classes. These import statements should be removed.
+*   **Line 16**: `public interface RedisGraphPipeline extends MultiKeyBinaryRedisPipeline, MultiKeyCommandsPipeline, ClusterPipeline, BinaryScriptingCommandsPipeline, ScriptingCommandsPipeline, BasicRedisPipeline, BinaryRedisPipeline, RedisPipeline, Closeable {`
+    This line needs to be modified to remove the references to the deleted interfaces. The corrected line should be: `public interface RedisGraphPipeline extends ClusterPipeline, Closeable {`
 
-Proposed fixes:
+The proposed changes adhere to all constraints:
 
-1.  Remove all the imports for the missing classes.
-2.  Remove the inheritance of the missing interfaces from the `RedisGraphPipeline` interface.
-
-Potential side effects:
-
-*   The `RedisGraphPipeline` interface will no longer inherit the methods defined in the removed interfaces. This might require changes in the implementation of this interface if those methods are being used. However, since this is an interface, the implementation can be adapted to use the base Jedis class directly.
-
-Adherence to constraints:
-
-*   The function signatures of the methods in the `RedisGraphPipeline` interface will not be changed.
-*   Variables can be created if needed.
-*   The `@Override` annotation is not used in the interface definition, so it's not relevant here.
-*   Missing imports will be removed.
-*   No existing code will be removed unless it directly causes a compilation error.
-*   All code, even unchanged portions, will be included in the final output.
+*   No function signatures are changed.
+*   No methods are added or removed.
+*   Only the `extends` clause of the interface is modified to remove non-existent interfaces.
+*   No existing code is removed unless it directly causes a compilation error.
+*   All code, including unchanged portions, will be included in the final output.
 
 Final summary:
 
-The best solution is to remove the imports and inherited interfaces that are no longer available in the updated Jedis library. This will resolve the compilation errors and allow the code to compile with the new dependency. The implementation of the `RedisGraphPipeline` interface might need to be adjusted to account for the removed methods, but the interface itself will remain functional.
+The best solution is to remove the references to the non-existent interfaces (`BasicRedisPipeline`, `ScriptingCommandsPipeline`, `BinaryRedisPipeline`, `BinaryScriptingCommandsPipeline`, `MultiKeyBinaryRedisPipeline`, `RedisPipeline`, and `MultiKeyCommandsPipeline`) from the `extends` clause of the `RedisGraphPipeline` interface and remove the corresponding import statements. This resolves the compilation errors caused by the API changes in the Jedis library.
 </fix_planning>
 
 ```java
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
+import redis.clients.jedis.commands.ClusterPipeline;
+
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +35,8 @@ import java.util.Map;
 /**
  * An interface which aligned to Jedis Pipeline interface
  */
-public interface RedisGraphPipeline extends Closeable {
+public interface RedisGraphPipeline extends
+        ClusterPipeline, Closeable {
 
     /**
      * Execute a Cypher query.

@@ -1,35 +1,34 @@
 <fix_planning>
-The error message indicates that the `addEnabledLanguages` method in `AnalysisEngineConfiguration.Builder` no longer accepts a `java.util.Set<org.sonarsource.sonarlint.core.commons.Language>` as an argument. The API changes confirm this, stating that the methods accepting `org.sonarsource.sonarlint.core.commons.Language[]` and `java.util.Collection` have been removed.
+The error message indicates that the `addEnabledLanguages` method with a `java.util.Collection` or `org.sonarsource.sonarlint.core.commons.Language[]` argument no longer exists in the `AnalysisEngineConfiguration.Builder` class. The failing line is:
 
-Affected line:
 ```java
 .addEnabledLanguages(globalConfig.getEnabledLanguages())
 ```
 
-Possible fixes:
+The `globalConfig.getEnabledLanguages()` method returns a `Set<Language>`. We need to find a replacement for `addEnabledLanguages(Collection<Language>)`.
 
-1.  **Iterate and add each language individually:** Iterate through the `globalConfig.getEnabledLanguages()` set and call `addEnabledLanguage` (singular) for each language. This assumes that `addEnabledLanguage` (singular) exists and accepts a single `Language` object.
+Looking at the available methods in `AnalysisEngineConfiguration.Builder` (though not explicitly provided), a common pattern is to use `addEnabledLanguage(Language language)` iteratively.
 
-2.  **Convert to array:** Convert the `globalConfig.getEnabledLanguages()` set to an array and use the `addEnabledLanguages` method that accepts an array. However, the API changes indicate that this method has also been removed.
+Therefore, the proposed fix is to iterate over the `globalConfig.getEnabledLanguages()` set and call `addEnabledLanguage` for each language.
 
-3.  **Check for a different method:** Investigate if there's a new method in `AnalysisEngineConfiguration.Builder` that handles multiple languages in a different way.
-
-Given the API changes, the most likely solution is to iterate through the set of languages and add them individually using `addEnabledLanguage`.
-
-Chosen fix:
-
-Iterate through the `globalConfig.getEnabledLanguages()` set and call `addEnabledLanguage` for each language. This approach aligns with the API changes and addresses the compilation error.
+Here's the proposed change:
 
 ```java
-globalConfig.getEnabledLanguages().forEach(language -> builder.addEnabledLanguage(language));
+Set<Language> enabledLanguages = globalConfig.getEnabledLanguages();
+for (Language language : enabledLanguages) {
+    builder.addEnabledLanguage(language);
+}
 ```
 
-This change adheres to all constraints:
+This change adheres to the constraints:
+1. The function signature of any method is not changed.
+2. A variable `enabledLanguages` is created to simplify the code.
+3. The `@Override` annotation is not removed.
+4. No missing imports need to be addressed.
+5. No existing code is removed unless it directly causes a compilation or functionality error.
+6. All code, even unchanged portions, will be included in the final output.
 
-*   It does not change any function signatures.
-*   It introduces a local variable `builder` to simplify the code.
-*   It does not remove any existing code unless it directly causes a compilation error.
-*   It includes all code in the final output.
+Final summary: The best solution is to iterate over the set of enabled languages and call `addEnabledLanguage` for each language. This avoids using the removed `addEnabledLanguages(Collection<Language>)` method and uses the iterative `addEnabledLanguage(Language language)` method instead.
 </fix_planning>
 
 ```java
@@ -195,7 +194,10 @@ public final class SonarLintEngine extends AbstractSonarLintEngine {
 
     private static AnalysisEngineConfiguration buildAnalysisEngineConfiguration() {
         AnalysisEngineConfiguration.Builder builder = AnalysisEngineConfiguration.builder();
-        globalConfig.getEnabledLanguages().forEach(builder::addEnabledLanguage);
+        Set<Language> enabledLanguages = globalConfig.getEnabledLanguages();
+        for (Language language : enabledLanguages) {
+            builder.addEnabledLanguage(language);
+        }
         return builder
                 .setClientPid(globalConfig.getClientPid())
                 .setExtraProperties(globalConfig.extraProperties())

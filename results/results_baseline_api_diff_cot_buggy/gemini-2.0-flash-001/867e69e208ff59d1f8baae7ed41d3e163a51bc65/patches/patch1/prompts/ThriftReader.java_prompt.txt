@@ -151,33 +151,33 @@ The errors are triggered in the following specific lines:
 
 <error_lines>
 ```java
-private final TFramedTransport framedTransport;
+import org.apache.thrift.transport.TFramedTransport;
 ```
 ```java
-import org.apache.thrift.transport.TFramedTransport;
+private final TFramedTransport framedTransport;
 ```
 </error_lines>
 
 The API of the dependency has changed. Here are the relevant changes:
 
      Class org.apache.thrift.transport.TFramedTransport has been removed in the new version of the dependency.
-     Constructor org.apache.thrift.transport.TFramedTransport(org.apache.thrift.transport.TTransport,int) has been removed in the new version of the dependency.
-     Type reference org.apache.thrift.transport.layered.TFramedTransport(org.apache.thrift.transport.TTransport) has been added in the new version of the dependency.
-     Constructor org.apache.thrift.transport.TFramedTransport(org.apache.thrift.transport.TTransport) has been removed in the new version of the dependency.
      Type reference org.apache.thrift.transport.layered.TFramedTransport(org.apache.thrift.transport.TTransport,int) has been added in the new version of the dependency.
+     Type reference org.apache.thrift.transport.layered.TFramedTransport(org.apache.thrift.transport.TTransport) has been added in the new version of the dependency.
      Interface org.apache.thrift.transport.layered.TFramedTransport has been added in the new version of the dependency.
+     Constructor org.apache.thrift.transport.TFramedTransport(org.apache.thrift.transport.TTransport) has been removed in the new version of the dependency.
+     Constructor org.apache.thrift.transport.TFramedTransport(org.apache.thrift.transport.TTransport,int) has been removed in the new version of the dependency.
 
 Additional error information:
 
 <error_information>
-[ERROR] /singer/singer/src/main/java/com/pinterest/singer/reader/ThriftReader.java:[64,17] cannot find symbol
-  symbol:   class TFramedTransport
-  location: class com.pinterest.singer.reader.ThriftReader<T>
-
 [ERROR] /singer/singer/src/main/java/com/pinterest/singer/reader/ThriftReader.java:[23,35] cannot find symbol
   symbol:   class TFramedTransport
   location: package org.apache.thrift.transport
-<error_information>
+
+[ERROR] /singer/singer/src/main/java/com/pinterest/singer/reader/ThriftReader.java:[64,17] cannot find symbol
+  symbol:   class TFramedTransport
+  location: class com.pinterest.singer.reader.ThriftReader<T>
+</error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:
 

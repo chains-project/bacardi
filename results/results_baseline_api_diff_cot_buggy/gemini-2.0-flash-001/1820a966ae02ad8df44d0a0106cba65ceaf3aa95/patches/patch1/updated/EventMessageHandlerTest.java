@@ -108,10 +108,9 @@ class EventMessageHandlerTest {
                 aUserEntityWithRoleForService(service, true, "admin2")
         );
 
-        org.slf4j.Logger logger = LoggerFactory.getLogger(EventMessageHandler.class);
-        if (logger instanceof Logger) {
-            ((Logger) logger).setLevel(Level.INFO);
-        }
+        @SuppressWarnings("unchecked")
+        Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
+        logger.setLevel(Level.INFO);
         logger.addAppender(mockLogAppender);
     }
 

@@ -10,26 +10,31 @@
 < import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.SuperCall;
 < import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.This;
 ---
-> import java.util.concurrent.ConcurrentHashMap;
 > import net.bytebuddy.ByteBuddy;
 > import net.bytebuddy.implementation.Implementation;
 > import net.bytebuddy.implementation.MethodDelegation;
-> import net.bytebuddy.implementation.bind.annotation.RuntimeType;
-> import net.bytebuddy.implementation.bind.annotation.SuperCall;
+> import net.bytebuddy.implementation.auxiliary.AuxiliaryType;
 > import net.bytebuddy.implementation.bind.annotation.This;
+> import net.bytebuddy.implementation.bind.annotation.SuperCall;
 > import net.bytebuddy.matcher.ElementMatchers;
-40d37
+> import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+38a37,38
+> import java.util.concurrent.ConcurrentHashMap;
+> import java.util.concurrent.ConcurrentMap;
+40d39
 < import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.any;
-50,51c47
+50,51c49
 <     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy().with(TypeValidation.DISABLED)
 <             .with(new AuxiliaryType.NamingStrategy.SuffixingRandom("Assertj$Assumptions"));
 ---
 >     private static final ByteBuddy BYTE_BUDDY = new ByteBuddy();
-55c51
+55c53
 <     private static final TypeCache<SimpleKey> CACHE = new TypeCache.WithInlineExpunction<>(TypeCache.Sort.SOFT);
 ---
->     private static final ConcurrentHashMap<Class<?>, Class<?>> CACHE = new ConcurrentHashMap<>();
-215,218c211,212
+>     private static final ConcurrentMap<Class<?>, Class<?>> CACHE = new ConcurrentHashMap<>();
+59d56
+<         @RuntimeType
+215,218c212,213
 <         SimpleKey cacheKey = new SimpleKey(assertClass);
 <         return (Class<ASSERTION>) CACHE.findOrInsert(VavrAssumptions.class.getClassLoader(),
 <                 cacheKey,
@@ -37,7 +42,7 @@
 ---
 >         return (Class<? extends ASSERTION>) CACHE.computeIfAbsent(assertClass,
 >                 (key) -> generateAssumptionClass(assertClass));
-223c217
+223c218
 <                 .method(any())
 ---
->                 .method(ElementMatchers.any())
+>                 .method(ElementMatchers.isDeclaredBy(assertionType))

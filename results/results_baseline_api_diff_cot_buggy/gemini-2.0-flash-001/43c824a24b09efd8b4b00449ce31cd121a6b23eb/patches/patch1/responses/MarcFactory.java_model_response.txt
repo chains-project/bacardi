@@ -1,80 +1,59 @@
 <fix_planning>
 a. Relevant parts of the code and API changes:
 
-The code uses `de.gwdg.metadataqa.api.json.JsonBranch`, but this class has been removed in the new version of the dependency. Also, the method `getJsonPath()` from the removed class `JsonBranch` is used.
+The code uses `de.gwdg.metadataqa.api.json.JsonBranch` and its `getJsonPath()` method. The API changes indicate that the `JsonBranch` class and its `getJsonPath()` method have been removed.
 
 ```java
 import de.gwdg.metadataqa.api.json.JsonBranch;
 
-// ...
+...
 
-for (JsonBranch branch : schema.getPaths()) {
-    // ...
-    JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());
-}
-
-private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
+  private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {
     List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());
-    // ...
-}
+    ...
+  }
 
-private static String extractFirst(JsonPathCache cache, JsonBranch branch) {
+  private static String extractFirst(JsonPathCache cache, JsonBranch branch) {
     List<String> list = extractList(cache, branch);
-    // ...
-}
+    ...
+  }
 ```
-
-API Changes:
-
-*   `Class de.gwdg.metadataqa.api.json.JsonBranch has been removed in the new version of the dependency.`
-*   `Method de.gwdg.metadataqa.api.json.JsonBranch.getJsonPath() has been removed in the new version of the dependency.`
 
 b. Specific API changes causing the issue:
 
-The removal of `JsonBranch` and its `getJsonPath()` method are the direct causes of the compilation errors.
+- `Class de.gwdg.metadataqa.api.json.JsonBranch has been removed in the new version of the dependency.`
+- `Method de.gwdg.metadataqa.api.json.JsonBranch.getJsonPath() has been removed in the new version of the dependency.`
 
 c. Affected lines of code:
 
-*   `import de.gwdg.metadataqa.api.json.JsonBranch;`
-*   `for (JsonBranch branch : schema.getPaths()) {`
-*   `JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());`
-*   `private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {`
-*   `List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());`
-*   `private static String extractFirst(JsonPathCache cache, JsonBranch branch) {`
-*   `List<String> list = extractList(cache, branch);`
+- Line 3: `import de.gwdg.metadataqa.api.json.JsonBranch;`
+- Line 313: `private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {`
+- Line 314: `List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());`
+- Line 322: `private static String extractFirst(JsonPathCache cache, JsonBranch branch) {`
 
 d. Proposed potential fixes for each affected line:
 
-Since `JsonBranch` is removed, we need to find a replacement for it and its `getJsonPath()` method.  Without knowing the exact structure of `schema.getPaths()` and the return type of `cache.getFragment()` and `cache.get()`, it's difficult to provide a precise fix.  However, we can make the following assumptions and propose fixes based on them:
+- Line 3: Remove the import statement since the class no longer exists.
+- Line 313, 322: Since `JsonBranch` is removed, we need to find a replacement for it.  Since the `getJsonPath()` method is also removed, we need to find a way to access the json path.  We can modify the code to directly use the json path string instead of the `JsonBranch` object.  We need to find where the `extractList` and `extractFirst` methods are called and modify the calling code to pass the json path string directly.
+- Line 314: Replace `branch.getJsonPath()` with the actual json path string.
 
-1.  Assume `schema.getPaths()` now returns a `List<String>` where each string is the JSON path.
-2.  Assume `cache.getFragment()` and `cache.get()` can directly accept the JSON path string.
+e. Potential side effects of the proposed changes:
 
-Based on these assumptions, the fixes are:
+- Removing the import statement will cause compilation errors if other parts of the code still rely on the `JsonBranch` class.
+- Modifying the `extractList` and `extractFirst` methods will require changes in the calling code, which could introduce new errors.
 
-*   `import de.gwdg.metadataqa.api.json.JsonBranch;` : Remove this line.
-*   `for (JsonBranch branch : schema.getPaths()) {` : Change to `for (String path : schema.getPaths()) {`
-*   `JSONArray fieldInstances = (JSONArray) cache.getFragment(branch.getJsonPath());` : Change to `JSONArray fieldInstances = (JSONArray) cache.getFragment(path);`
-*   `private static List<String> extractList(JsonPathCache cache, JsonBranch branch) {` : Change to `private static List<String> extractList(JsonPathCache cache, String path) {`
-*   `List<XmlFieldInstance> instances = cache.get(branch.getJsonPath());` : Change to `List<XmlFieldInstance> instances = cache.get(path);`
-*   `private static String extractFirst(JsonPathCache cache, JsonBranch branch) {` : Change to `private static String extractFirst(JsonPathCache cache, String path) {`
-*   `List<String> list = extractList(cache, branch);` : Change to `List<String> list = extractList(cache, path);`
+f. Adherence to constraints:
 
-e. Consider any potential side effects of the proposed changes:
+- The proposed changes do not change the function signature of any method.
+- The proposed changes may require creating new variables.
+- The proposed changes may require removing the `@Override` annotation if the method no longer overrides a method in the updated dependency version.
+- The proposed changes address missing imports by removing the import statement.
+- The proposed changes do not remove any existing code unless it directly causes a compilation or functionality error.
 
-The proposed changes assume that `schema.getPaths()` now returns a `List<String>` and that `cache.getFragment()` and `cache.get()` accept a string as input. If these assumptions are incorrect, the code will either not compile or will produce incorrect results.
+g. Final summary of the chosen fix:
 
-f. Explicitly check if the proposed changes adhere to all the given constraints:
+The best solution is to remove the `JsonBranch` class and its usage.  Since the class is removed from the dependency, we need to modify the code to work without it.  The `extractList` and `extractFirst` methods are used to extract data from the `JsonPathCache` based on the json path.  We can modify the calling code to pass the json path string directly to these methods instead of the `JsonBranch` object.  This will require changes in the `create` method.
 
-1.  The function signatures of `extractList` and `extractFirst` are changed, violating constraint 1. We need to keep the original signatures. To do this, we can create local variables inside the methods.
-2.  We are creating local variables, which is allowed.
-3.  We are removing the import statement, which is allowed.
-4.  We are not removing any existing code unless it directly causes a compilation error.
-5.  We are including all code in the final output.
-
-g. Final summary of the chosen fix and why it's the best solution:
-
-The best solution is to adapt the code to the new API by removing the `JsonBranch` import, changing the loop variable type in the `create` method, and modifying the `extractList` and `extractFirst` methods to accept a `String` argument representing the JSON path. We will preserve the original method signatures of `extractList` and `extractFirst` by introducing local variables. This approach addresses the compilation errors caused by the API changes while adhering to all the given constraints.
 </fix_planning>
 
 ```java
@@ -143,44 +122,37 @@ public class MarcFactory {
 
   public static BibliographicRecord create(JsonPathCache cache, MarcVersion version) {
     var marcRecord = new Marc21Record();
-    for (String path : schema.getPaths()) {
-      // JsonBranch branch : schema.getPaths()) {
-      // if (branch.getParent() != null)
-      // continue;
-      String label = path; // branch.getLabel();
-      if (label != null && label.contains("/")) {
-        String[] splitted = label.split("/");
-        label = splitted[splitted.length - 1];
-      }
-      if (label == null)
+    for (var branch : schema.getPaths()) {
+      if (branch.getParent() != null)
         continue;
-      switch (label) {
+      String jsonPath = branch.getJsonPath();
+      switch (branch.getLabel()) {
         case "leader":
-          marcRecord.setLeader(new Leader(extractFirst(cache, path)));
+          marcRecord.setLeader(new Leader(extractFirst(cache, jsonPath)));
           break;
         case "001":
-          marcRecord.setControl001(new Control001(extractFirst(cache, path)));
+          marcRecord.setControl001(new Control001(extractFirst(cache, jsonPath)));
           break;
         case "003":
-          marcRecord.setControl003(new Control003(extractFirst(cache, path)));
+          marcRecord.setControl003(new Control003(extractFirst(cache, jsonPath)));
           break;
         case "005":
-          marcRecord.setControl005(new Control005(extractFirst(cache, path), marcRecord));
+          marcRecord.setControl005(new Control005(extractFirst(cache, jsonPath), marcRecord));
           break;
         case "006":
           marcRecord.setControl006(
-            new Control006(extractFirst(cache, path), marcRecord));
+            new Control006(extractFirst(cache, jsonPath), marcRecord));
           break;
         case "007":
           marcRecord.setControl007(
-            new Control007(extractFirst(cache, path), marcRecord));
+            new Control007(extractFirst(cache, jsonPath), marcRecord));
           break;
         case "008":
           marcRecord.setControl008(
-            new Control008(extractFirst(cache, path), marcRecord));
+            new Control008(extractFirst(cache, jsonPath), marcRecord));
           break;
         default:
-          JSONArray fieldInstances = (JSONArray) cache.getFragment(path); // branch.getJsonPath());
+          JSONArray fieldInstances = (JSONArray) cache.getFragment(jsonPath);
           for (var fieldInsanceNr = 0; fieldInsanceNr < fieldInstances.size(); fieldInsanceNr++) {
             var fieldInstance = (Map) fieldInstances.get(fieldInsanceNr);
             var field = MapToDatafield.parse(fieldInstance, version);
@@ -188,7 +160,7 @@ public class MarcFactory {
               marcRecord.addDataField(field);
               field.setMarcRecord(marcRecord);
             } else {
-              marcRecord.addUnhandledTags(label); // branch.getLabel());
+              marcRecord.addUnhandledTags(branch.getLabel());
             }
           }
           break;
@@ -397,8 +369,8 @@ public class MarcFactory {
     return field;
   }
 
-  private static List<String> extractList(JsonPathCache cache, String path) {
-    List<XmlFieldInstance> instances = cache.get(path);
+  private static List<String> extractList(JsonPathCache cache, String jsonPath) {
+    List<XmlFieldInstance> instances = cache.get(jsonPath);
     List<String> values = new ArrayList<>();
     if (instances != null)
       for (XmlFieldInstance instance : instances)
@@ -406,21 +378,11 @@ public class MarcFactory {
     return values;
   }
 
-  private static List<String> extractList(JsonPathCache cache, de.gwdg.metadataqa.api.json.JsonBranch branch) {
-    String path = branch.getJsonPath();
-    return extractList(cache, path);
-  }
-
-  private static String extractFirst(JsonPathCache cache, String path) {
-    List<String> list = extractList(cache, path);
+  private static String extractFirst(JsonPathCache cache, String jsonPath) {
+    List<String> list = extractList(cache, jsonPath);
     if (!list.isEmpty())
       return list.get(0);
     return null;
-  }
-
-  private static String extractFirst(JsonPathCache cache, de.gwdg.metadataqa.api.json.JsonBranch branch) {
-    String path = branch.getJsonPath();
-    return extractFirst(cache, path);
   }
 
   public static BibliographicRecord createFromFormattedText(String marcRecordAsText) {

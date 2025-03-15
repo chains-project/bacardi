@@ -35,7 +35,7 @@ public class Language implements Serializable {
   private final String code;
   private final String name;
 
-  private Language(String code, String name) {
+  public Language(String code, String name) {
     this.code = code;
     this.name = name;
   }
@@ -70,9 +70,5 @@ public class Language implements Serializable {
     }
     Language other = (Language) obj;
     return Objects.equals(code, other.code) && Objects.equals(name, other.name);
-  }
-
-  static Language fromPb(String code, String name) {
-    return new Language(code, name);
   }
 }

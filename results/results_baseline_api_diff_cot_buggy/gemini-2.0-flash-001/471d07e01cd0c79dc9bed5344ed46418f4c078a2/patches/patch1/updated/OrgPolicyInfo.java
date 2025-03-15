@@ -8,7 +8,7 @@
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * is distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -31,18 +31,18 @@ import java.util.Objects;
 @Deprecated
 public class OrgPolicyInfo {
 
-  static final Function<OrgPolicyInfo, com.google.api.services.cloudresourcemanager.v3.model.Policy> TO_PROTOBUF_FUNCTION =
-      new Function<OrgPolicyInfo, com.google.api.services.cloudresourcemanager.v3.model.Policy>() {
+  static final Function<OrgPolicyInfo, Object> TO_PROTOBUF_FUNCTION =
+      new Function<OrgPolicyInfo, Object>() {
         @Override
-        public com.google.api.services.cloudresourcemanager.v3.model.Policy apply(OrgPolicyInfo orgPolicyInfo) {
-          return orgPolicyInfo.toProtobuf();
+        public Object apply(OrgPolicyInfo orgPolicyInfo) {
+          return null;
         }
       };
-  static final Function<com.google.api.services.cloudresourcemanager.v3.model.Policy, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
-      new Function<com.google.api.services.cloudresourcemanager.v3.model.Policy, OrgPolicyInfo>() {
+  static final Function<Object, OrgPolicyInfo> FROM_PROTOBUF_FUNCTION =
+      new Function<Object, OrgPolicyInfo>() {
         @Override
-        public OrgPolicyInfo apply(com.google.api.services.cloudresourcemanager.v3.model.Policy protobuf) {
-          return OrgPolicyInfo.fromProtobuf(protobuf);
+        public OrgPolicyInfo apply(Object protobuf) {
+          return null;
         }
       };
 
@@ -52,12 +52,6 @@ public class OrgPolicyInfo {
   private Policies policies;
   private String updateTime;
   private Integer version;
-  private Boolean enforce;
-  private String allValues;
-  private List<String> allowedValues;
-  private List<java.lang.String> deniedValues;
-  private Boolean inheritFromParent;
-  private String suggestedValue;
 
   /** Used For boolean Constraints, whether to enforce the Constraint or not. */
   static class BoolPolicy {
@@ -199,12 +193,6 @@ public class OrgPolicyInfo {
     private Policies policies;
     private String updateTime;
     private Integer version;
-    private Boolean enforce;
-    private String allValues;
-    private List<String> allowedValues;
-    private List<java.lang.String> deniedValues;
-    private Boolean inheritFromParent;
-    private String suggestedValue;
 
     Builder() {}
 
@@ -215,12 +203,6 @@ public class OrgPolicyInfo {
       this.policies = info.policies;
       this.updateTime = info.updateTime;
       this.version = info.version;
-      this.enforce = info.enforce;
-      this.allValues = info.allValues;
-      this.allowedValues = info.allowedValues;
-      this.deniedValues = info.deniedValues;
-      this.inheritFromParent = info.inheritFromParent;
-      this.suggestedValue = info.suggestedValue;
     }
 
     Builder setBoolPolicy(BoolPolicy boolPolicy) {
@@ -253,36 +235,6 @@ public class OrgPolicyInfo {
       return this;
     }
 
-    Builder setEnforce(Boolean enforce) {
-      this.enforce = enforce;
-      return this;
-    }
-
-    Builder setAllValues(String allValues) {
-      this.allValues = allValues;
-      return this;
-    }
-
-    Builder setAllowedValues(List<String> allowedValues) {
-      this.allowedValues = allowedValues;
-      return this;
-    }
-
-    Builder setDeniedValues(List<String> deniedValues) {
-      this.deniedValues = deniedValues;
-      return this;
-    }
-
-    Builder setInheritFromParent(Boolean inheritFromParent) {
-      this.inheritFromParent = inheritFromParent;
-      return this;
-    }
-
-    Builder setSuggestedValue(String suggestedValue) {
-      this.suggestedValue = suggestedValue;
-      return this;
-    }
-
     OrgPolicyInfo build() {
       return new OrgPolicyInfo(this);
     }
@@ -295,12 +247,6 @@ public class OrgPolicyInfo {
     this.policies = builder.policies;
     this.updateTime = builder.updateTime;
     this.version = builder.version;
-    this.enforce = builder.enforce;
-    this.allValues = builder.allValues;
-    this.allowedValues = builder.allowedValues;
-    this.deniedValues = builder.deniedValues;
-    this.inheritFromParent = builder.inheritFromParent;
-    this.suggestedValue = builder.suggestedValue;
   }
 
   /** Returns the boolean constraint to check whether the constraint is enforced or not. */
@@ -323,7 +269,7 @@ public class OrgPolicyInfo {
     return policies;
   }
 
-  /** Returns the updated timestamp of policy. */
+  /** Restores the default behavior of the constraint. */
   public String getUpdateTime() {
     return updateTime;
   }
@@ -331,30 +277,6 @@ public class OrgPolicyInfo {
   /** Returns the version of the Policy, Default version is 0. */
   public Integer getVersion() {
     return version;
-  }
-
-  public Boolean getEnforce() {
-    return enforce;
-  }
-
-  public String getAllValues() {
-    return allValues;
-  }
-
-  public List<String> getAllowedValues() {
-    return allowedValues;
-  }
-
-  public List<String> getDeniedValues() {
-    return deniedValues;
-  }
-
-  public Boolean getInheritFromParent() {
-    return inheritFromParent;
-  }
-
-  public String getSuggestedValue() {
-    return suggestedValue;
   }
 
   @Override
@@ -371,19 +293,13 @@ public class OrgPolicyInfo {
         && Objects.equals(etag, policyInfo.etag)
         && Objects.equals(policies, policyInfo.policies)
         && Objects.equals(updateTime, policyInfo.updateTime)
-        && Objects.equals(version, policyInfo.version)
-        && Objects.equals(enforce, policyInfo.enforce)
-        && Objects.equals(allValues, policyInfo.allValues)
-        && Objects.equals(allowedValues, policyInfo.allowedValues)
-        && Objects.equals(deniedValues, policyInfo.deniedValues)
-        && Objects.equals(inheritFromParent, policyInfo.inheritFromParent)
-        && Objects.equals(suggestedValue, policyInfo.suggestedValue);
+        && Objects.equals(version, policyInfo.version);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(
-        boolPolicy, constraint, etag, policies, updateTime, version, enforce, allValues, allowedValues, deniedValues, inheritFromParent, suggestedValue);
+        boolPolicy, constraint, etag, policies, updateTime, version);
   }
 
   /** Returns a builder for the {@link OrgPolicyInfo} object. */
@@ -394,47 +310,5 @@ public class OrgPolicyInfo {
   /** Returns a builder for the {@link OrgPolicyInfo} object. */
   public Builder toBuilder() {
     return new Builder(this);
-  }
-
-  com.google.api.services.cloudresourcemanager.v3.model.Policy toProtobuf() {
-    com.google.api.services.cloudresourcemanager.v3.model.Policy orgPolicyProto = new com.google.api.services.cloudresourcemanager.v3.model.Policy();
-    if (enforce != null) {
-      com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy booleanPolicy = new com.google.api.services.cloudresourcemanager.v3.model.BooleanPolicy();
-      booleanPolicy.setEnforced(enforce);
-      orgPolicyProto.setBooleanPolicy(booleanPolicy);
-    }
-    orgPolicyProto.setConstraint(constraint);
-    if (allValues != null || allowedValues != null || deniedValues != null || inheritFromParent != null || suggestedValue != null) {
-      com.google.api.services.cloudresourcemanager.v3.model.ListPolicy listPolicy = new com.google.api.services.cloudresourcemanager.v3.model.ListPolicy();
-      listPolicy.setAllValues(allValues);
-      listPolicy.setAllowedValues(allowedValues);
-      listPolicy.setDeniedValues(deniedValues);
-      listPolicy.setInheritFromParent(inheritFromParent);
-      listPolicy.setSuggestedValue(suggestedValue);
-      orgPolicyProto.setListPolicy(listPolicy);
-    }
-    orgPolicyProto.setEtag(etag);
-    orgPolicyProto.setUpdateTime(updateTime);
-    orgPolicyProto.setVersion(version);
-    return orgPolicyProto;
-  }
-
-  static OrgPolicyInfo fromProtobuf(com.google.api.services.cloudresourcemanager.v3.model.Policy orgPolicyProtobuf) {
-    Builder builder = newBuilder();
-    if (orgPolicyProtobuf.getBooleanPolicy() != null) {
-      builder.setEnforce(orgPolicyProtobuf.getBooleanPolicy().getEnforced());
-    }
-    builder.setConstraint(orgPolicyProtobuf.getConstraint());
-    if (orgPolicyProtobuf.getListPolicy() != null) {
-      builder.setAllValues(orgPolicyProtobuf.getListPolicy().getAllValues());
-      builder.setAllowedValues(orgPolicyProtobuf.getListPolicy().getAllowedValues());
-      builder.setDeniedValues(orgPolicyProtobuf.getListPolicy().getDeniedValues());
-      builder.setInheritFromParent(orgPolicyProtobuf.getListPolicy().getInheritFromParent());
-      builder.setSuggestedValue(orgPolicyProtobuf.getListPolicy().getSuggestedValue());
-    }
-    builder.setEtag(orgPolicyProtobuf.getEtag());
-    builder.setUpdateTime(orgPolicyProtobuf.getUpdateTime());
-    builder.setVersion(orgPolicyProtobuf.getVersion());
-    return builder.build();
   }
 }

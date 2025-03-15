@@ -1,27 +1,13 @@
-9c9,12
+9c9,10
 < import com.artipie.asto.factory.Storages;
 ---
 > import com.artipie.asto.factory.Config;
 > import com.artipie.asto.factory.StorageFactory;
-> import com.artipie.asto.fs.FileStorageFactory;
-> import com.artipie.asto.s3.S3StorageFactory;
-40a44,56
->             final String type = sub.string("type");
->             final StorageFactory factory;
->             switch (type) {
->                 case "fs":
->                     factory = new FileStorageFactory();
->                     break;
->                 case "s3":
->                     factory = new S3StorageFactory();
->                     break;
->                 default:
->                     throw new IllegalArgumentException("Unknown storage type: " + type);
->             }
+40a42
 >             final Config storageConfig = new Config.Yaml(Yaml.createYamlInput(sub.toString()).readYamlMapping());
-43,45c59
+43,45c45
 <                     new Storages().newStorage(
 <                         sub.string("type"), Yaml.createYamlInput(sub.toString()).readYamlMapping()
 <                     )
 ---
->                     factory.newStorage(storageConfig)
+>                     StorageFactory.newStorage(storageConfig)

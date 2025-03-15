@@ -1,42 +1,25 @@
 <fix_planning>
-a. Code and API changes:
-The code uses classes and annotations from the `javax.mvc` package, which have been moved to the `jakarta.mvc` package. Specifically, `javax.mvc.binding.MvcBinding`, `javax.mvc.binding.BindingResult`, `javax.mvc.binding.ParamError`, `javax.mvc.Controller`, `javax.mvc.security.CsrfProtected`, `javax.mvc.UriRef`, and `javax.mvc.Models` have been replaced by their `jakarta.mvc` counterparts.
+The problem is caused by breaking changes in the javax.mvc API. Several classes and interfaces have been moved from the `javax.mvc.*` packages to the `jakarta.mvc.*` packages. Specifically, `javax.mvc.security.CsrfProtected`, `javax.mvc.Models`, `javax.mvc.binding.MvcBinding`, `javax.mvc.binding.BindingResult`, `javax.mvc.Controller`, `javax.mvc.UriRef`, and `javax.mvc.binding.ParamError` have been replaced by their `jakarta.mvc.*` counterparts.
 
-b. API changes causing the issue:
-The primary issue is the package change from `javax.mvc` to `jakarta.mvc`. This affects all imports and usages of classes from the `javax.mvc` package.
+Here's a breakdown of the affected lines and proposed fixes:
 
-c. Affected lines of code:
-- `import javax.mvc.binding.MvcBinding;`
-- `import javax.mvc.binding.BindingResult;`
-- `import javax.mvc.binding.ParamError;`
-- `import javax.mvc.UriRef;`
-- `import javax.mvc.Controller;`
-- `import javax.mvc.Models;`
-- `import javax.mvc.security.CsrfProtected;`
-- `@MvcBinding`
-- `@Controller`
-- `@CsrfProtected`
-- `BindingResult bindingResult;`
-- `Models models;`
+1.  `import javax.mvc.security.CsrfProtected;` should be replaced with `import jakarta.mvc.security.CsrfProtected;`
+2.  `@CsrfProtected` should be replaced with `@jakarta.mvc.security.CsrfProtected`
+3.  `import javax.mvc.Models;` should be replaced with `import jakarta.mvc.Models;`
+4.  `Models models;` should be replaced with `jakarta.mvc.Models models;`
+5.  `import javax.mvc.binding.MvcBinding;` should be replaced with `import jakarta.mvc.binding.MvcBinding;`
+6.  `@MvcBinding` should be replaced with `@jakarta.mvc.binding.MvcBinding`
+7.  `import javax.mvc.binding.BindingResult;` should be replaced with `import jakarta.mvc.binding.BindingResult;`
+8.  `BindingResult bindingResult;` should be replaced with `jakarta.mvc.binding.BindingResult bindingResult;`
+9.  `import javax.mvc.Controller;` should be replaced with `import jakarta.mvc.Controller;`
+10. `@Controller` should be replaced with `@jakarta.mvc.Controller`
+11. `import javax.mvc.UriRef;` should be replaced with `import jakarta.mvc.UriRef;`
+12. `import javax.mvc.binding.ParamError;` should be removed as it is not used.
 
-d. Proposed fixes:
-Replace `javax.mvc` imports with `jakarta.mvc` imports.
-Replace usages of `javax.mvc` classes with `jakarta.mvc` classes.
+These changes involve updating the import statements and fully qualifying the annotations to use the new `jakarta.mvc` namespace. This should resolve the compilation errors caused by the API changes. The constraints are met as we are only modifying import statements and annotations, and not changing any method signatures.
 
-e. Potential side effects:
-The package change should not have any side effects as long as all usages are updated consistently.
-
-f. Adherence to constraints:
-The proposed changes adhere to all constraints:
-- Function signatures are not changed.
-- Variables are not created unnecessarily.
-- The `@Override` annotation is not present.
-- Missing imports are addressed with the correct package.
-- No existing code is removed unless it directly causes an error.
-- All code is included in the final output.
-
-g. Summary:
-The best solution is to replace all occurrences of `javax.mvc` with `jakarta.mvc` in the imports and annotations. This directly addresses the API change and resolves the compilation errors.
+Final Summary:
+The best solution is to update the import statements and annotations to use the `jakarta.mvc` namespace, as this aligns with the updated dependency and resolves the compilation errors.
 </fix_planning>
 
 ```java
@@ -50,28 +33,28 @@ import jakarta.mvc.Models;
 import jakarta.mvc.UriRef;
 import jakarta.mvc.binding.BindingResult;
 import jakarta.mvc.binding.MvcBinding;
-import jakarta.mvc.binding.ParamError;
 import jakarta.mvc.security.CsrfProtected;
 import javax.validation.constraints.NotBlank;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import jakarta.mvc.binding.ParamError;
 
 /**
  *
  * @author hantsy
  */
 @Path("csrf")
-@Controller
+@jakarta.mvc.Controller
 @RequestScoped
 public class CsrfController {
 
     @Inject
-    BindingResult bindingResult;
+    jakarta.mvc.binding.BindingResult bindingResult;
 
     @Inject
-    Models models;
+    jakarta.mvc.Models models;
 
     @Inject
     AlertMessage flashMessage;
@@ -85,10 +68,10 @@ public class CsrfController {
     }
 
     @POST
-    @CsrfProtected
+    @jakarta.mvc.security.CsrfProtected
     public String post(
             @FormParam("greeting")
-            @MvcBinding
+            @jakarta.mvc.binding.MvcBinding
             @NotBlank String greeting) {
         if (bindingResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");

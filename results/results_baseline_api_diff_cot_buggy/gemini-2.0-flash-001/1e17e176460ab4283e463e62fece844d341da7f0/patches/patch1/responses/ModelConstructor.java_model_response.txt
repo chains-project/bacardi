@@ -1,31 +1,31 @@
 <fix_planning>
-a. Relevant parts of the code and API changes:
+a. Relevant code and API changes:
 - Code: `super(Model.class);`
-- API Changes: "Constructor org.yaml.snakeyaml.constructor.Constructor(java.lang.Class) has been removed in the new version of the dependency."
+- API Changes:
+  - `Constructor org.yaml.snakeyaml.constructor.Constructor(org.yaml.snakeyaml.TypeDescription) has been removed`
+  - `Constructor org.yaml.snakeyaml.constructor.Constructor(java.lang.Class,org.yaml.snakeyaml.LoaderOptions) has been added`
+  - `Constructor org.yaml.snakeyaml.constructor.Constructor() has been removed`
+  - `Constructor org.yaml.snakeyaml.constructor.Constructor(org.yaml.snakeyaml.LoaderOptions) has been added`
 
 b. Specific API changes causing the issue:
-The constructor `Constructor(java.lang.Class)` has been removed from the `org.yaml.snakeyaml.constructor.Constructor` class.
+The constructor `Constructor(Class)` has been removed. The new API provides `Constructor(Class, LoaderOptions)` and `Constructor(LoaderOptions)`.
 
 c. Affected lines of code:
 - `super(Model.class);`
 
-d. Proposed potential fixes for each affected line:
-The `Constructor(java.lang.Class)` constructor has been removed. We need to use a different constructor. The API changes indicate that `Constructor(java.lang.Class, org.yaml.snakeyaml.LoaderOptions)` is available. We can use this constructor by creating a `LoaderOptions` object.
+d. Proposed potential fixes:
+1. Replace `super(Model.class)` with `super(Model.class, new org.yaml.snakeyaml.LoaderOptions());`.
+2. Replace `super(Model.class)` with `super(new org.yaml.snakeyaml.LoaderOptions());` and then set the root type using `this.rootType = Model.class;`.
 
-e. Consider any potential side effects of the proposed changes:
-Using the new constructor with `LoaderOptions` might change the default loading behavior. However, since we are not setting any specific options in `LoaderOptions`, it should be safe to use the default options.
+e. Potential side effects of the proposed changes:
+1. Using `super(Model.class, new org.yaml.snakeyaml.LoaderOptions())` should be safe and maintain the original functionality.
+2. Using `super(new org.yaml.snakeyaml.LoaderOptions())` and setting the root type might introduce subtle changes in behavior, although unlikely in this specific case.
 
-f. Explicitly check if the proposed changes adhere to all the given constraints:
-1. Do not change the function signature of any method: We are not changing any function signatures.
-2. You may create variables if it simplifies the code: We might create a `LoaderOptions` variable.
-3. Remove the @Override annotation if and only if the method no longer overrides a method in the updated dependency version: Not applicable here.
-4. If fixing the issue requires addressing missing imports, ensure the correct package or class is used in accordance with the newer dependency version: No missing imports.
-5. Do not remove any existing code unless it directly causes a compilation or functionality error: We are not removing any code.
-6. Include all code, even unchanged portions, in your final output: We will include all code.
-7. Do not use placeholder comments like "// ... (rest of the code remains unchanged)": We will not use placeholder comments.
+f. Adherence to constraints:
+- All constraints are met by both proposed solutions.
 
-g. Final summary of the chosen fix and why it's the best solution:
-The best solution is to use the `Constructor(java.lang.Class, org.yaml.snakeyaml.LoaderOptions)` constructor instead of the removed `Constructor(java.lang.Class)` constructor. This can be done by creating a `LoaderOptions` object and passing it to the constructor. This adheres to all constraints and should not have any negative side effects.
+g. Final summary of the chosen fix:
+The best solution is to replace `super(Model.class)` with `super(Model.class, new org.yaml.snakeyaml.LoaderOptions());`. This directly addresses the API change while minimizing potential side effects. It also adheres to all given constraints.
 </fix_planning>
 
 ```java
@@ -40,12 +40,12 @@ package org.sonatype.maven.polyglot.yaml;
 
 import org.apache.maven.model.*;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
-import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.constructor.Construct;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.error.YAMLException;
 import org.yaml.snakeyaml.nodes.*;
+import org.yaml.snakeyaml.LoaderOptions;
 
 import java.util.Arrays;
 import java.util.HashMap;

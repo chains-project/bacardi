@@ -187,7 +187,7 @@ public class Product implements ToString2
 
     @Override
     public String toString() {
-        final ToStringStrategy2 strategy = new org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy();
+        final ToStringStrategy2 strategy = new JAXBToStringStrategy();
         final StringBuilder buffer = new StringBuilder();
         append(null, buffer, strategy);
         return buffer.toString();

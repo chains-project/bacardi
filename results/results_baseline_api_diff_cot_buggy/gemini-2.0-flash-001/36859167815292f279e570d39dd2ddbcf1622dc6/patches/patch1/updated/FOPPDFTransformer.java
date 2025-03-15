@@ -113,7 +113,7 @@ public abstract class FOPPDFTransformer {
         StreamSource transformSource = new StreamSource(templateStream);
 
         // create an instance of fop factory
-        FopFactoryConfig fopFactoryConfig = new FopFactoryConfig();
+        FopFactoryConfig fopFactoryConfig = null;
         FopFactory fopFactory = FopFactory.newInstance(fopFactoryConfig);
         // a user agent is needed for transformation
         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
@@ -180,7 +180,7 @@ public abstract class FOPPDFTransformer {
         throws WriterException, IOException
     {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
-        EnumMap<EncodeHintType, String> hints = new EnumMap<> (EncodeHintType.class);
+        EnumMap<EncodeHintType, String, String> hints = new EnumMap<> (EncodeHintType.class);
         hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M.name());
         hints.put(EncodeHintType.MARGIN, String.valueOf(4));
         hints.put(EncodeHintType.QR_VERSION, String.valueOf(9));

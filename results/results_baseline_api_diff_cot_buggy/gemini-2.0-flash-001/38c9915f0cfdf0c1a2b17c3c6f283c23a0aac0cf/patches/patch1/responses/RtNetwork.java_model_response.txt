@@ -1,40 +1,32 @@
 <fix_planning>
-a. Relevant parts of the code and API changes:
-- Code: `import org.cactoos.scalar.IoCheckedScalar;` and
-  ```java
-  return new IoCheckedScalar<>(
-            new Reduced<>(
-                Wallet::merge,
-                new Mapped<>(
-                    c -> c::wallet,
-                    new Sorted<>(new Copies(id, this))
-                )
-            )
-        ).value();
-  ```
-- API Changes: `Class org.cactoos.scalar.IoCheckedScalar has been removed in the new version of the dependency.` and `Constructor org.cactoos.scalar.IoCheckedScalar(org.cactoos.Scalar) has been removed in the new version of the dependency.`
+a. Code and API changes:
+The code uses `org.cactoos.scalar.IoCheckedScalar`. The API changes indicate that `org.cactoos.scalar.IoCheckedScalar` has been removed. The constructor `org.cactoos.scalar.IoCheckedScalar(org.cactoos.Scalar)` has also been removed.
 
 b. Specific API changes causing the issue:
-The class `org.cactoos.scalar.IoCheckedScalar` and its constructor have been removed.
+The removal of `org.cactoos.scalar.IoCheckedScalar` is the direct cause of the compilation error.
 
 c. Affected lines of code:
 - `import org.cactoos.scalar.IoCheckedScalar;`
-- The line containing `new IoCheckedScalar<>(...)`
+- `return new IoCheckedScalar<>( ... ).value();`
 
-d. Proposed potential fixes:
-Since `IoCheckedScalar` is removed, we need to find an alternative. `IoCheckedScalar` was used to wrap a `Scalar` and throw an `IOException` if the scalar's `value()` method threw an exception. We can replace it with a try-catch block.
+d. Proposed fixes:
+1. Replace `IoCheckedScalar` with `UncheckedScalar`. `UncheckedScalar` serves a similar purpose but doesn't throw checked exceptions. This would require changing the import statement and the instantiation.
+2. Inline the `IoCheckedScalar` functionality. This involves catching the `IOException` within the `pull` method and handling it appropriately.
 
-e. Potential side effects of the proposed changes:
-The try-catch block might make the code slightly longer, but it should not affect the functionality.
+e. Potential side effects:
+1. Using `UncheckedScalar` might mask potential `IOException`s, which could be undesirable. However, the original code already wraps the `IOException` within `IoCheckedScalar`, effectively turning it into an unchecked exception.
+2. Inlining the functionality might make the code slightly more verbose, but it avoids introducing a potentially problematic unchecked exception.
 
 f. Adherence to constraints:
-- We are not changing any function signatures.
-- We are creating a variable to hold the result of the `Reduced` operation.
-- We are removing the import statement that is no longer needed.
-- We are including all code in the final output.
+1. The function signature of `pull` must remain the same.
+2. Variables can be created.
+3. `@Override` should not be removed.
+4. Correct imports must be used.
+5. No existing code should be removed unless it causes an error.
 
-g. Final summary:
-The best solution is to replace the `IoCheckedScalar` with a try-catch block to handle potential `IOExceptions` thrown by the `Reduced` scalar's `value()` method. This approach directly addresses the removal of `IoCheckedScalar` and maintains the original functionality of the code.
+g. Chosen fix:
+The best solution is to inline the functionality of `IoCheckedScalar` by catching the `IOException` and re-throwing it as a `RuntimeException`. This avoids using the deprecated `IoCheckedScalar` and doesn't introduce new dependencies or change the method signature.
+
 </fix_planning>
 
 ```java
@@ -68,7 +60,6 @@ import java.util.Iterator;
 import org.cactoos.iterable.Mapped;
 import org.cactoos.iterable.Sorted;
 import org.cactoos.scalar.Reduced;
-import org.cactoos.Scalar;
 
 /**
  * Network implementation.
@@ -103,17 +94,25 @@ public final class RtNetwork implements Network {
 
     @Override
     public Wallet pull(final long id) throws IOException {
-        final Scalar<Wallet> reduced = new Reduced<>(
-            Wallet::merge,
-            new Mapped<>(
-                c -> c::wallet,
-                new Sorted<>(new Copies(id, this))
-            )
-        );
         try {
-            return reduced.value();
-        } catch (final Exception ex) {
-            throw new IOException(ex);
+            return new Reduced<>(
+                Wallet::merge,
+                new Mapped<>(
+                    c -> {
+                        try {
+                            return c.wallet();
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    },
+                    new Sorted<>(new Copies(id, this))
+                )
+            ).value();
+        } catch (RuntimeException ex) {
+            if (ex.getCause() instanceof IOException) {
+                throw (IOException) ex.getCause();
+            }
+            throw ex;
         }
     }
 

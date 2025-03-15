@@ -47,29 +47,4 @@ public interface TranslateRpc extends ServiceRpc {
       return get(options);
     }
   }
-
-  /**
-   * Returns a list of the languages supported by Google Translation.
-   *
-   * @param optionMap options to listing language translations
-   */
-  List<Object> listSupportedLanguages(Map<Option, ?> optionMap);
-
-  /**
-   * Detects the language of the provided texts.
-   *
-   * @param texts the texts to translate
-   * @return a list of lists of detections, one list of detections for each provided text, in order
-   */
-  List<List<Object>> detect(List<String> texts);
-
-  /**
-   * Translates the provided texts.
-   *
-   * @param texts the texts to translate
-   * @param optionMap options to text translation
-   * @return a list of resources containing translation information, in the same order of the
-   *     provided texts
-   */
-  List<Object> translate(List<String> texts, Map<Option, ?> optionMap);
 }

@@ -12,16 +12,16 @@ import java.util.UUID;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.parameter.CommandContext;
-import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.command.parameter.Parameter;
 
-import static org.spongepowered.api.command.CommandResult.success;
-import static org.spongepowered.api.util.Tuple.of;
-import static org.spongepowered.api.text.Text.of;
+import net.kyori.adventure.text.Text;
 
-public class SetCommand implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
+import static org.spongepowered.api.command.Command.Flags.builder;
+
+public class SetCommand implements CommandExecutor, ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
     private final ChangeSkinCore core;
@@ -33,20 +33,20 @@ public class SetCommand implements org.spongepowered.api.command.CommandExecutor
     }
 
     @Override
-    public CommandResult execute(CommandSource src, CommandContext args) {
-        if (!(src instanceof Player)) {
-            plugin.sendMessage(src, "no-console");
+    public CommandResult execute(CommandCause cause, CommandContext args) {
+        if (!(cause.root() instanceof Player)) {
+            plugin.sendMessage(cause, "no-console");
             return CommandResult.empty();
         }
 
-        UUID uniqueId = ((Player) src).getUniqueId();
+        UUID uniqueId = ((Player) cause.root()).getUniqueId();
         if (core.getCooldownService().isTracked(uniqueId)) {
-            plugin.sendMessage(src, "cooldown");
+            plugin.sendMessage(cause, "cooldown");
             return CommandResult.empty();
         }
 
-        Player receiver = (Player) src;
-        String targetSkin = args.one(Parameter.string().key("skin").build()).orElse("");
+        Player receiver = (Player) cause.root();
+        String targetSkin = args.<String>getOne("skin").get();
         boolean keepSkin = args.hasAny("keep");
 
         if ("reset".equals(targetSkin)) {
@@ -56,29 +56,30 @@ public class SetCommand implements org.spongepowered.api.command.CommandExecutor
         if (targetSkin.length() > 16) {
             UUID targetUUID = UUID.fromString(targetSkin);
 
-            if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(src, targetUUID, true)) {
+            if (core.getConfig().getBoolean("skinPermission") && !plugin.hasSkinPermission(cause, targetUUID, true)) {
                 return CommandResult.empty();
             }
 
-            plugin.sendMessage(src, "skin-change-queue");
-            Runnable skinDownloader = new SkinDownloader(plugin, src, receiver, targetUUID, keepSkin);
+            plugin.sendMessage(cause, "skin-change-queue");
+            Runnable skinDownloader = new SkinDownloader(plugin, cause, receiver, targetUUID, keepSkin);
             Task.builder().async().execute(skinDownloader).submit(plugin);
-            return success();
+            return CommandResult.success();
         }
 
-        Runnable nameResolver = new NameResolver(plugin, src, targetSkin, receiver, keepSkin);
+        Runnable nameResolver = new NameResolver(plugin, cause, targetSkin, receiver, keepSkin);
         Task.builder().async().execute(nameResolver).submit(plugin);
-        return success();
+        return CommandResult.success();
     }
 
     @Override
     public Command.Builder buildSpec() {
-        Parameter.Value<String> skinParameter = Parameter.string().key("skin").build();
+        Parameter.Key<String> skinKey = Parameter.key("skin", String.class);
+        Parameter skinParameter = Parameter.string().key(skinKey).build();
 
         return Command.builder()
                 .executor(this)
                 .addParameter(skinParameter)
-                .addFlag(Command.Flag.builder().setAliases("keep").build())
+                .addFlag(builder().setAliases("keep").build())
                 .permission(PomData.ARTIFACT_ID + ".command.setskin.base");
     }
 }

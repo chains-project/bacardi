@@ -1,13 +1,11 @@
-19a20
-> import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-21d21
-< import org.spongepowered.api.Platform.Type;
-23,24c23
+23,24c23,24
 < import org.spongepowered.api.command.CommandManager;
 < import org.spongepowered.api.command.CommandSource;
 ---
-> import org.spongepowered.api.command.CommandCause;
-27,33c26,29
+> //import org.spongepowered.api.command.CommandManager;
+> //import org.spongepowered.api.command.CommandSource;
+26,33c26,33
+< import org.spongepowered.api.event.Listener;
 < import org.spongepowered.api.event.game.state.GameInitializationEvent;
 < import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 < import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
@@ -16,62 +14,71 @@
 < import org.spongepowered.api.plugin.Plugin;
 < import org.spongepowered.api.text.serializer.TextSerializers;
 ---
-> import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
-> import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
-> import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
-> import org.spongepowered.plugin.builtin.jvm.Plugin;
-42c38
+> //import org.spongepowered.api.event.Listener;
+> //import org.spongepowered.api.event.game.state.GameInitializationEvent;
+> //import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+> //import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+> //import org.spongepowered.api.network.ChannelBinding.RawDataChannel;
+> //import org.spongepowered.api.network.ChannelRegistrar;
+> //import org.spongepowered.api.plugin.Plugin;
+> //import org.spongepowered.api.text.serializer.TextSerializers;
+40,42c40,42
+< @Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+<         url = PomData.URL, description = PomData.DESCRIPTION)
 < public class ChangeSkinSponge implements PlatformPlugin<CommandSource> {
 ---
-> public class ChangeSkinSponge implements PlatformPlugin<org.spongepowered.api.command.CommandCause> {
-62c58
+> //@Plugin(id = ARTIFACT_ID, name = PomData.NAME, version = PomData.VERSION,
+> //        url = PomData.URL, description = PomData.DESCRIPTION)
+> public class ChangeSkinSponge implements PlatformPlugin<Object> {
+61,62c61,62
+<     @Listener
 <     public void onPreInit(GamePreInitializationEvent preInitEvent) {
 ---
->     public void onPreInit(StartingEngineEvent preInitEvent) {
-73c69
+>     //@Listener
+>     public void onPreInit(/*GamePreInitializationEvent preInitEvent*/) {
+72,73c72,73
+<     @Listener
 <     public void onInit(GameInitializationEvent initEvent) {
 ---
->     public void onInit(RegisterCommandEvent registerCommandEvent) {
-77,84c73,77
+>     //@Listener
+>     public void onInit(/*GameInitializationEvent initEvent*/) {
+77c77
 <         CommandManager cmdManager = Sponge.getCommandManager();
-< 
-<         //command and event register
+---
+>         //CommandManager cmdManager = Sponge.getCommandManager();
+80c80
 <         cmdManager.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
-<         cmdManager.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
-<         cmdManager.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
-<         cmdManager.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
-<         cmdManager.register(this, injector.getInstance(InvalidateCommand.class)
 ---
->         registerCommandEvent.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
->         registerCommandEvent.register(this, injector.getInstance(InfoCommand.class).buildSpec(), "skin-info");
->         registerCommandEvent.register(this, injector.getInstance(UploadCommand.class).buildSpec(), "skin-upload");
->         registerCommandEvent.register(this, injector.getInstance(SetCommand.class).buildSpec(), "changeskin", "setskin", "skin");
->         registerCommandEvent.register(this, injector.getInstance(InvalidateCommand.class)
-87c80
-<         Sponge.getEventManager().registerListeners(this, injector.getInstance(LoginListener.class));
----
->         Sponge.eventManager().registerListeners(this, injector.getInstance(LoginListener.class));
-90c83
-<         ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
----
->         /*ChannelRegistrar channelReg = Sponge.getChannelRegistrar();
-96c89
+>         /*cmdManager.register(this, injector.getInstance(SelectCommand.class).buildSpec(), "skin-select", "skinselect");
+96c96
 <         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));
 ---
 >         permChannel.addListener(Type.SERVER, injector.getInstance(CheckPermissionListener.class));*/
-100c93
+99,100c99,100
+<     @Listener
 <     public void onShutdown(GameStoppingServerEvent stoppingServerEvent) {
 ---
->     public void onShutdown(StoppingEngineEvent stoppingServerEvent) {
-109c102
+>     //@Listener
+>     public void onShutdown(/*GameStoppingServerEvent stoppingServerEvent*/) {
+109,112c109,112
 <     public boolean hasSkinPermission(CommandSource invoker, UUID uuid, boolean sendMessage) {
+<         if (invoker.hasPermission(PomData.ARTIFACT_ID + ".skin.whitelist." + uuid)) {
+<             return true;
+<         }
 ---
->     public boolean hasSkinPermission(org.spongepowered.api.command.CommandCause invoker, UUID uuid, boolean sendMessage) {
-142c135
+>     public boolean hasSkinPermission(Object invoker, UUID uuid, boolean sendMessage) {
+>         //if (invoker.hasPermission(PomData.ARTIFACT_ID + ".skin.whitelist." + uuid)) {
+>         //    return true;
+>         //}
+142c142
 <     public void sendMessage(CommandSource receiver, String key) {
 ---
->     public void sendMessage(org.spongepowered.api.command.CommandCause receiver, String key) {
-145c138
+>     public void sendMessage(Object receiver, String key) {
+144,146c144,146
+<         if (message != null && receiver != null) {
 <             receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
+<         }
 ---
->             receiver.sendMessage(LegacyComponentSerializer.legacySection().deserialize(message));
+>         //if (message != null && receiver != null) {
+>         //    receiver.sendMessage(TextSerializers.LEGACY_FORMATTING_CODE.deserialize(message));
+>         //}

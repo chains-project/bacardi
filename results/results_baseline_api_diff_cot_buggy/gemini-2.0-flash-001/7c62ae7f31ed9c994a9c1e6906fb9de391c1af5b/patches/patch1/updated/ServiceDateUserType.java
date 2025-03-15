@@ -9,7 +9,7 @@
  *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -25,7 +25,6 @@ import java.text.ParseException;
 
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
-import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.usertype.UserType;
 import org.onebusaway.gtfs.model.calendar.ServiceDate;
 
@@ -66,8 +65,7 @@ public class ServiceDateUserType implements UserType {
     return new ServiceDate((ServiceDate) value);
   }
 
-  //@Override  // Removed due to API change
-  public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor sessionImplementor, Object owner)
+  public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor sessionImplementor, Object owner)
       throws HibernateException, SQLException {
 
     String value = rs.getString(names[0]);
@@ -82,8 +80,7 @@ public class ServiceDateUserType implements UserType {
     }
   }
 
-  //@Override  // Removed due to API change
-  public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor sessionImplementor)
+  public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor sessionImplementor)
       throws HibernateException, SQLException {
 
     if (value == null) {

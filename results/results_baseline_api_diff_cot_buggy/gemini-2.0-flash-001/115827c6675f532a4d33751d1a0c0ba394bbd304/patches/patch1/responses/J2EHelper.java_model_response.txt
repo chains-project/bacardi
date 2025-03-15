@@ -1,54 +1,53 @@
 <fix_planning>
 a. Relevant parts of the code and API changes:
-- Code:
-```java
-import javax.servlet.DispatcherType;
-import javax.servlet.FilterRegistration;
-...
-final FilterRegistration.Dynamic filterRegistration = environment
-                .servlets().addFilter(filter.getClass().getName(), filter);
-...
-filterRegistration.addMappingForUrlPatterns(
-                EnumSet.of(DispatcherType.REQUEST), true, mapping);
-```
-- API Changes:
-  - `javax.servlet.DispatcherType` has been removed, `jakarta.servlet.DispatcherType` added.
-  - `javax.servlet.FilterRegistration` has been removed, `jakarta.servlet.FilterRegistration` added.
-  - `javax.servlet.FilterRegistration.Dynamic` has been removed, `jakarta.servlet.FilterRegistration.Dynamic` added.
+
+- The code uses `javax.servlet.DispatcherType`, `javax.servlet.FilterRegistration`, and `javax.servlet.FilterRegistration.Dynamic`.
+- These classes have been removed and replaced with `jakarta.servlet.DispatcherType`, `jakarta.servlet.FilterRegistration`, and `jakarta.servlet.FilterRegistration$Dynamic` respectively.
+- The `addFilter` method of `io.dropwizard.jetty.setup.ServletEnvironment` now expects a `javax.servlet.Filter` or a `java.lang.Class<? extends javax.servlet.Filter>` or `org.eclipse.jetty.servlet.FilterHolder` as an argument, but the code passes an `org.pac4j.jee.filter.AbstractConfigFilter`.
 
 b. Specific API changes causing the issue:
-  - The `javax.servlet` package has been replaced with `jakarta.servlet`.
-  - `io.dropwizard.jetty.setup.ServletEnvironment.addFilter` now expects a `javax.servlet.Filter` (or a subclass) as an argument, but we are passing `org.pac4j.jee.filter.AbstractConfigFilter`.
+
+- Package change from `javax.servlet` to `jakarta.servlet`.
+- The `addFilter` method signature change.
 
 c. Affected lines of code:
-  - Line 5: `import javax.servlet.DispatcherType;`
-  - Line 6: `import javax.servlet.FilterRegistration;`
-  - Line 37: `filter.setClients(fConf.getClients());` - indirectly affected because it uses `javax.servlet.Filter`
-  - Line 77: `.servlets().addFilter(filter.getClass().getName(), filter);`
-  - Line 80: `EnumSet.of(DispatcherType.REQUEST), true, mapping);`
-  - Line 76: `final FilterRegistration.Dynamic filterRegistration = environment`
 
-d. Proposed potential fixes for each affected line:
-  - Line 5: Replace `javax.servlet.DispatcherType` with `jakarta.servlet.DispatcherType`.
-  - Line 6: Replace `javax.servlet.FilterRegistration` with `jakarta.servlet.FilterRegistration`.
-  - Line 37: No direct change needed here, but it depends on the fix for line 77.
-  - Line 77:
-    - Option 1: Cast `filter` to `javax.servlet.Filter`. This requires ensuring that `AbstractConfigFilter` implements `javax.servlet.Filter`.
-    - Option 2: Use `environment.servlets().addFilter(filter.getClass().getName(), (javax.servlet.Filter) filter)` after casting filter to `javax.servlet.Filter`.
-  - Line 80: Replace `DispatcherType.REQUEST` with `jakarta.servlet.DispatcherType.REQUEST`.
-  - Line 76: Replace `FilterRegistration` with `jakarta.servlet.FilterRegistration`.
+- Line 5: `import javax.servlet.DispatcherType;`
+- Line 6: `import javax.servlet.FilterRegistration;`
+- Line 37: `filter.setClients(fConf.getClients());` (indirectly, due to the package change affecting the Filter interface)
+- Line 76: `final FilterRegistration.Dynamic filterRegistration = environment`
+- Line 77: `.servlets().addFilter(filter.getClass().getName(), filter);`
+- Line 80: `EnumSet.of(DispatcherType.REQUEST), true, mapping);`
 
-e. Consider any potential side effects of the proposed changes:
-  - Changing the imports to `jakarta.servlet` should not have any side effects as it's a direct replacement.
-  - Casting `filter` to `javax.servlet.Filter` might cause issues if `AbstractConfigFilter` does not implement `javax.servlet.Filter` or if there are compatibility issues between the two versions. However, since the pac4j library is designed to work with Servlet APIs, it's highly likely that `AbstractConfigFilter` implements `javax.servlet.Filter`.
+d. Proposed fixes for each affected line:
 
-f. Explicitly check if the proposed changes adhere to all the given constraints:
-  - Constraints 1, 2, 3, 5, 6, and 7 are satisfied by the proposed changes.
-  - Constraint 4 is satisfied as we are using the correct package in accordance with the newer dependency version.
+- Line 5: Change to `import jakarta.servlet.DispatcherType;`
+- Line 6: Change to `import jakarta.servlet.FilterRegistration;`
+- Line 37: No direct change needed here, but the import changes will resolve the issue.
+- Line 76: Change to `final jakarta.servlet.FilterRegistration.Dynamic filterRegistration = environment`
+- Line 77: `.servlets().addFilter(filter.getClass().getName(), filter);` - This line requires more complex changes. Since `AbstractConfigFilter` is not a `javax.servlet.Filter` anymore, we need to adapt it. We can either wrap the `AbstractConfigFilter` in a `javax.servlet.Filter` or use a `FilterHolder`. Since we are using Dropwizard, we can use `new FilterHolder(filter)` to wrap the filter.
+- Line 80: Change to `EnumSet.of(jakarta.servlet.DispatcherType.REQUEST), true, mapping);`
 
-g. Final summary of the chosen fix and why it's the best solution:
-  - The best solution is to replace the `javax.servlet` imports with `jakarta.servlet` and cast the `filter` to `javax.servlet.Filter` when calling `addFilter`. This addresses the API changes directly and ensures compatibility with the new dependency version.
+e. Potential side effects of the proposed changes:
 
+- The package change should not have any side effects as it's a direct replacement.
+- Wrapping the filter in a `FilterHolder` might have subtle differences in behavior, but it's the recommended way to register filters in Dropwizard.
+
+f. Adherence to constraints:
+
+- The function signatures are not changed.
+- Variables are created where necessary.
+- The @Override annotation is not present, so no need to remove it.
+- Missing imports are addressed.
+- No existing code is removed unless it directly causes a compilation error.
+- All code is included in the final output.
+
+g. Final summary of the chosen fix:
+
+The best solution is to:
+1. Change the imports from `javax.servlet` to `jakarta.servlet`.
+2. Wrap the `AbstractConfigFilter` in a `FilterHolder` when registering the filter.
+This addresses the API changes and allows the code to compile and function correctly.
 </fix_planning>
 
 ```java
@@ -69,6 +68,7 @@ import org.pac4j.jee.filter.AbstractConfigFilter;
 import org.pac4j.jee.filter.CallbackFilter;
 import org.pac4j.jee.filter.LogoutFilter;
 import org.pac4j.jee.filter.SecurityFilter;
+import org.eclipse.jetty.servlet.FilterHolder;
 
 /**
  *
@@ -127,8 +127,9 @@ public final class J2EHelper {
 
         filter.setConfigOnly(config);
 
-        final FilterRegistration.Dynamic filterRegistration = environment
-                .servlets().addFilter(filter.getClass().getName(), (jakarta.servlet.Filter) filter);
+        final FilterHolder holder = new FilterHolder(filter);
+        final jakarta.servlet.FilterRegistration.Dynamic filterRegistration = environment
+                .servlets().addFilter(filter.getClass().getName(), holder);
 
         filterRegistration.addMappingForUrlPatterns(
                 EnumSet.of(jakarta.servlet.DispatcherType.REQUEST), true, mapping);

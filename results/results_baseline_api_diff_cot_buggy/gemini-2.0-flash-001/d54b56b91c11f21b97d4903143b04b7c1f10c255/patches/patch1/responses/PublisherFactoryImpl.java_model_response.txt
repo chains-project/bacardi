@@ -1,39 +1,33 @@
 <fix_planning>
 a. Code and API changes:
-- The code uses `PublishMetadata`, which has been removed from the new version of the dependency.
-- The code uses `SinglePartitionPublisherBuilder.setContext`, which has been removed from the new version of the dependency.
-- The code defines the method `newPublisher` which returns a `Publisher<PublishMetadata>`.
+- The code uses `com.google.cloud.pubsublite.PublishMetadata`, which has been removed.
+- The code uses `SinglePartitionPublisherBuilder.setContext()`, which has been removed.
 
 b. Specific API changes causing the issue:
-- Removal of `com.google.cloud.pubsublite.PublishMetadata`.
-- Removal of `com.google.cloud.pubsublite.internal.wire.SinglePartitionPublisherBuilder$Builder.setContext`.
+- Removal of `PublishMetadata` class.
+- Removal of `setContext()` method from `SinglePartitionPublisherBuilder`.
 
 c. Affected lines of code:
-- Line 20: `import com.google.cloud.pubsublite.PublishMetadata;`
-- Line 36: `public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {`
-- Line 53: `.setContext(PubsubContext.of(FRAMEWORK))`
+- `import com.google.cloud.pubsublite.PublishMetadata;`
+- `public Publisher<PublishMetadata> newPublisher(Map<String, String> params) {` (return type)
+- `SinglePartitionPublisherBuilder.newBuilder().setContext(PubsubContext.of(FRAMEWORK))`
 
 d. Proposed fixes:
-- Line 20: Remove the import statement `import com.google.cloud.pubsublite.PublishMetadata;`.
-- Line 36: Change the return type of `newPublisher` to `Publisher<byte[]>`. This requires changing the return type in the interface `PublisherFactory` as well, but we are only allowed to modify the client code. Therefore, we will need to remove the `@Override` annotation.
-- Line 53: Remove the line `.setContext(PubsubContext.of(FRAMEWORK))`.
+- Remove the import `com.google.cloud.pubsublite.PublishMetadata;`.
+- Change the return type of `newPublisher` from `Publisher<PublishMetadata>` to `Publisher<?>`. Since `PublishMetadata` is removed, we can use a wildcard `?` to represent an unknown type.
+- Remove the line `.setContext(PubsubContext.of(FRAMEWORK))` from the `SinglePartitionPublisherBuilder`.
 
-e. Potential side effects of the proposed changes:
-- Removing the import statement for `PublishMetadata` will cause compilation errors if `PublishMetadata` is used elsewhere in the class. However, it is only used in the method signature, which will be updated.
-- Changing the return type of `newPublisher` will require changes in the interface `PublisherFactory`. Since we cannot modify the interface, we must remove the `@Override` annotation.
-- Removing `.setContext` might change the behavior of the publisher. However, based on the API changes, this method is no longer available, so removing it is the only option.
+e. Potential side effects:
+- Changing the return type of `newPublisher` to `Publisher<?>` might require changes in the calling code if the type of the returned `Publisher` is explicitly used. However, since the interface `Publisher` is still present, the impact should be minimal.
+- Removing `setContext` might change the behavior of the publisher. However, since the method is removed from the API, it is likely that the context is now handled internally or through other means.
 
 f. Adherence to constraints:
-- The function signature of `newPublisher` is technically changed, but the constraint only applies to the parameters, not the return type. Since we are forced to change the return type, we must remove the `@Override` annotation.
-- We are creating no new variables.
-- We are removing the `@Override` annotation because the method no longer overrides a method in the updated dependency version.
-- We are ensuring the correct package or class is used in accordance with the newer dependency version.
-- We are not removing any existing code unless it directly causes a compilation or functionality error.
-- We are including all code, even unchanged portions, in our final output.
+- The function signature of `newPublisher` is changed, but only the return type, which is allowed.
+- No existing code is removed unless it directly causes a compilation error.
+- All code is included in the final output.
 
 g. Final summary:
-The best solution is to remove the import statement for `PublishMetadata`, change the return type of `newPublisher` to `Publisher<byte[]>`, remove the `@Override` annotation, and remove the line `.setContext(PubsubContext.of(FRAMEWORK))`. This addresses the compilation errors caused by the API changes while adhering to the given constraints.
-
+The best solution is to remove the import statement for `PublishMetadata`, change the return type of `newPublisher` to `Publisher<?>`, and remove the call to `setContext` on the `SinglePartitionPublisherBuilder`. This addresses the compilation errors caused by the API changes while minimizing the impact on the existing code.
 </fix_planning>
 
 ```java
@@ -70,7 +64,8 @@ class PublisherFactoryImpl implements PublisherFactory {
 
   private static final Framework FRAMEWORK = Framework.of("KAFKA_CONNECT");
 
-  public Publisher<byte[]> newPublisher(Map<String, String> params) {
+  @Override
+  public Publisher<?> newPublisher(Map<String, String> params) {
     Map<String, ConfigValue> config = ConfigDefs.config().validateAll(params);
     RoutingPublisherBuilder.Builder builder = RoutingPublisherBuilder.newBuilder();
     TopicPath topic =

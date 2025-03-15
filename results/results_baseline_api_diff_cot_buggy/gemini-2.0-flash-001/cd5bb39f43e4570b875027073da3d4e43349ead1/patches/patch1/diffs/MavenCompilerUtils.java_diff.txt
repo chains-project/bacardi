@@ -1,50 +1,44 @@
 21d20
 < import org.codehaus.plexus.util.xml.Xpp3Dom;
-24a24,25
-> import java.util.stream.IntStream;
+24a24,27
 > import java.util.stream.Stream;
-29a31,34
 > import org.w3c.dom.Element;
-> import org.w3c.dom.Node;
 > import org.w3c.dom.NodeList;
-> 
-53a59,73
->     private static Stream<Element> nodeListToStream(NodeList nodeList) {
->         return IntStream.range(0, nodeList.getLength())
->                 .mapToObj(nodeList::item)
->                 .filter(node -> node instanceof Element)
->                 .map(node -> (Element) node);
->     }
-> 
->     private static Element getChildElement(Element parent, String name) {
->         NodeList nodeList = parent.getElementsByTagName(name);
->         if (nodeList.getLength() > 0 && nodeList.item(0) instanceof Element) {
->             return (Element) nodeList.item(0);
->         }
->         return null;
->     }
-> 
-70,72c90,100
+> import org.w3c.dom.Node;
+70,72c73,75
 <         if (config instanceof Xpp3Dom) {
 <             return stream(((Xpp3Dom) config).getChildren("annotationProcessorPaths"))
 <                     .flatMap(aggregate -> stream(aggregate.getChildren("path")))
 ---
 >         if (config instanceof Element) {
->             Element configElement = (Element) config;
->             NodeList annotationProcessorPathsList = configElement.getElementsByTagName("annotationProcessorPaths");
+>             return toStream(((Element) config).getElementsByTagName("annotationProcessorPaths"))
+>                     .flatMap(aggregate -> toStream(aggregate.getElementsByTagName("path")))
+91a95,102
+>     private static Stream<Element> toStream(NodeList nodeList) {
+>         return stream(new Node[nodeList.getLength()])
+>                 .map(n -> nodeList.item(0))
+>                 .filter(Element.class::isInstance)
+>                 .map(Element.class::cast)
+>                 .limit(nodeList.getLength());
+>     }
 > 
->             Stream<Element> annotationProcessorPathsStream = nodeListToStream(annotationProcessorPathsList);
-> 
->             return annotationProcessorPathsStream
->                     .flatMap(aggregate -> {
->                         NodeList pathList = aggregate.getElementsByTagName("path");
->                         return nodeListToStream(pathList);
->                     })
-99,101c127,129
+99,101c110,124
 <     private static String extractChildValue(Xpp3Dom node, String name) {
 <         final Xpp3Dom child = node.getChild(name);
 <         return child == null ? "" : child.getValue();
 ---
 >     private static String extractChildValue(Element node, String name) {
->         Element child = getChildElement(node, name);
+>         final Element child = getChildElement(node, name);
 >         return child == null ? "" : child.getTextContent();
+>     }
+> 
+>     private static Element getChildElement(Element parent, String name) {
+>         NodeList nodeList = parent.getElementsByTagName(name);
+>         if (nodeList.getLength() == 0) {
+>             return null;
+>         }
+>         Node node = nodeList.item(0);
+>         if (node instanceof Element) {
+>             return (Element) node;
+>         }
+>         return null;

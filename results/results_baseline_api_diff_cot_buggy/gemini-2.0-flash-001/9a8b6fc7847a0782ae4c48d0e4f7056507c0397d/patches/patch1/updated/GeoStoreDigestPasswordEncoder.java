@@ -23,6 +23,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.jasypt.digest.StandardByteDigester;
 import org.jasypt.util.password.StrongPasswordEncryptor;
 import static it.geosolutions.geostore.core.security.password.SecurityUtils.toBytes;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * This Encoder provide encription and check of password using a digest
@@ -39,8 +40,22 @@ public class GeoStoreDigestPasswordEncoder extends AbstractGeoStorePasswordEncod
 	        setReversible(false);
 	    }
 
+	    @Override
 	    protected PasswordEncoder createStringEncoder() {
-	        return null;
+	        PasswordEncoder encoder = new PasswordEncoder() {
+                private final StrongPasswordEncryptor passwordEncryptor = new StrongPasswordEncryptor();
+
+                @Override
+                public String encode(CharSequence rawPassword) {
+                    return passwordEncryptor.encryptPassword(rawPassword.toString());
+                }
+
+                @Override
+                public boolean matches(CharSequence rawPassword, String encodedPassword) {
+                    return passwordEncryptor.checkPassword(rawPassword.toString(), encodedPassword);
+                }
+            };
+	        return encoder;
 	    }
 
 	    @Override

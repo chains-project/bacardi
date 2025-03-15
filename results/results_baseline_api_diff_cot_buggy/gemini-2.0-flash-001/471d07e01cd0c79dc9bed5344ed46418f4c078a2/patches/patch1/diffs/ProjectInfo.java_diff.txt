@@ -1,30 +1,26 @@
 11c11
 <  * distributed under the License is distributed on an "AS IS" BASIS,
 ---
->  * is distributed on an "AS IS" BASIS,
-55c55
-<   private final ResourceId parent;
+>  * is distributed under the License is distributed on an "AS IS" BASIS,
+138c138
+<       return obj instanceof ResourceId && Objects.equals(toPb(), ((ResourceId) obj).toPb());
 ---
->   private final String parent;
-158a159
-> */
-211c212
-<     public abstract Builder setParent(ResourceId parent);
----
->     public abstract Builder setParent(String parent);
-224c225
-<     private ResourceId parent;
----
->     private String parent;
-295c296
-<     public Builder setParent(ResourceId parent) {
----
->     public Builder setParent(String parent) {
-358c359
-<   ResourceId getParent() {
----
->   public String getParent() {
-392,394c393,395
+>       return obj instanceof ResourceId && Objects.equals(id, ((ResourceId) obj).id) && Objects.equals(type, ((ResourceId) obj).type);
+145,157d144
+< 
+<     com.google.api.services.cloudresourcemanager.model.ResourceId toPb() {
+<       com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb =
+<           new com.google.api.services.cloudresourcemanager.model.ResourceId();
+<       resourceIdPb.setId(id);
+<       resourceIdPb.setType(type.toLowerCase());
+<       return resourceIdPb;
+<     }
+< 
+<     static ResourceId fromPb(
+<         com.google.api.services.cloudresourcemanager.model.ResourceId resourceIdPb) {
+<       return new ResourceId(resourceIdPb.getId(), resourceIdPb.getType());
+<     }
+392,394c379,381
 <   com.google.api.services.cloudresourcemanager.model.Project toPb() {
 <     com.google.api.services.cloudresourcemanager.model.Project projectPb =
 <         new com.google.api.services.cloudresourcemanager.model.Project();
@@ -32,39 +28,37 @@
 >   com.google.api.services.cloudresourcemanager.v3.model.Project toPb() {
 >     com.google.api.services.cloudresourcemanager.v3.model.Project projectPb =
 >         new com.google.api.services.cloudresourcemanager.v3.model.Project();
-398c399
+398,407d384
 <     projectPb.setProjectNumber(projectNumber);
----
->     projectPb.setDisplayName(name); // Added to resolve issue where name was not being set. DisplayName is used instead.
-400c401
+<     if (state != null) {
 <       projectPb.setLifecycleState(state.toString());
----
->       projectPb.setState(state.toString());
-408,410c409
-<     if (parent != null) {
-<       projectPb.setParent(parent.toPb());
 <     }
+<     if (createTimeMillis != null) {
+<       projectPb.setCreateTime(
+<           DateTimeFormatter.ISO_DATE_TIME
+<               .withZone(ZoneOffset.UTC)
+<               .format(Instant.ofEpochMilli(createTimeMillis)));
+<     }
+409c386
+<       projectPb.setParent(parent.toPb());
 ---
->     projectPb.setParent(parent);
-414c413
+>       projectPb.setParent(parent.getId());
+414c391
 <   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.model.Project projectPb) {
 ---
 >   static ProjectInfo fromPb(com.google.api.services.cloudresourcemanager.v3.model.Project projectPb) {
-417,418c416,417
-<     if (projectPb.getName() != null && !projectPb.getName().equals("Unnamed")) {
-<       builder.setName(projectPb.getName());
+416c393
+<         newBuilder(projectPb.getProjectId()).setProjectNumber(projectPb.getProjectNumber());
 ---
->     if (projectPb.getDisplayName() != null && !projectPb.getDisplayName().equals("Unnamed")) {
->       builder.setName(projectPb.getDisplayName());
-423,424c422,423
+>         newBuilder(projectPb.getProjectId()).setProjectNumber(projectNumber);
+422,431d398
+<     }
 <     if (projectPb.getLifecycleState() != null) {
 <       builder.setState(State.valueOf(projectPb.getLifecycleState()));
----
->     if (projectPb.getState() != null) {
->       builder.setState(State.valueOf(projectPb.getState()));
-430,432c429
+<     }
+<     if (projectPb.getCreateTime() != null) {
+<       builder.setCreateTimeMillis(
+<           DATE_TIME_FORMATTER.parse(projectPb.getCreateTime(), Instant.FROM).toEpochMilli());
+<     }
 <     if (projectPb.getParent() != null) {
 <       builder.setParent(ResourceId.fromPb(projectPb.getParent()));
-<     }
----
->     builder.setParent(projectPb.getParent());

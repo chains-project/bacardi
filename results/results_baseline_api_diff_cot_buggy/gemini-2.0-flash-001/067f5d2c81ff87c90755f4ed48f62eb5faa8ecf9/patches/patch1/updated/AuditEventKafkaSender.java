@@ -8,7 +8,7 @@
  *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * is distributed under the License is distributed on an "AS IS" BASIS,
+ * is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -31,7 +31,6 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.thrift.TException;
 import org.apache.thrift.TSerializer;
-import org.apache.thrift.transport.TTransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -186,9 +185,9 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
     this.badPartitions.add(-1);
     try {
       this.serializer = new TSerializer();
-    } catch (TTransportException e) {
-      LOG.error("Failed to create TSerializer", e);
-      this.serializer = null;
+    } catch (Exception e) {
+      LOG.error("Failed to initialize TSerializer", e);
+      throw new RuntimeException("Failed to initialize TSerializer", e);
     }
   }
 
@@ -273,13 +272,9 @@ public class AuditEventKafkaSender implements LoggingAuditEventSender {
         event = queue.poll(DEQUEUE_WAIT_IN_SECONDS, TimeUnit.SECONDS);
         if (event != null) {
           try {
-            if (serializer != null) {
-              value = serializer.serialize(event);
-              record = new ProducerRecord<>(this.topic, currentPartitionId , null, value);
-              kafkaProducer.send(record, new KafkaProducerCallback(event, currentPartitionId));
-            } else {
-              LOG.error("Serializer is null, cannot serialize event");
-            }
+            value = serializer.serialize(event);
+            record = new ProducerRecord<>(this.topic, currentPartitionId , null, value);
+            kafkaProducer.send(record, new KafkaProducerCallback(event, currentPartitionId));
           } catch (TException e) {
             LOG.debug("[{}] failed to construct ProducerRecord because of serialization exception.",
                 Thread.currentThread().getName(), e);

@@ -85,32 +85,32 @@ The errors are triggered in the following specific lines:
 
 <error_lines>
 ```java
-if (new FilterBuilder().include(regex).apply(s)) {
+return new FilterBuilder().include(".+\\.class").apply(s);
 ```
 ```java
-return new FilterBuilder().include(".+\\.class").apply(s);
+if (new FilterBuilder().include(regex).apply(s)) {
 ```
 </error_lines>
 
 The API of the dependency has changed. Here are the relevant changes:
 
-     Method org.reflections.util.FilterBuilder$Exclude.apply(java.lang.String) has been removed in the new version of the dependency.
-     Method org.reflections.util.QueryFunction.apply(java.lang.Object) has been added in the new version of the dependency.
      Method org.reflections.util.FilterBuilder$Include.apply(java.lang.String) has been removed in the new version of the dependency.
-     Method org.reflections.util.FilterBuilder$Matcher.apply(java.lang.String) has been removed in the new version of the dependency.
      Method org.reflections.util.FilterBuilder.apply(java.lang.String) has been removed in the new version of the dependency.
+     Method org.reflections.util.FilterBuilder$Matcher.apply(java.lang.String) has been removed in the new version of the dependency.
+     Method org.reflections.util.QueryFunction.apply(java.lang.Object) has been added in the new version of the dependency.
+     Method org.reflections.util.FilterBuilder$Exclude.apply(java.lang.String) has been removed in the new version of the dependency.
 
 Additional error information:
 
 <error_information>
-[ERROR] /gauge-java/src/main/java/com/thoughtworks/gauge/scan/ClasspathScanner.java:[69,51] cannot find symbol
-  symbol:   method apply(java.lang.String)
-  location: class org.reflections.util.FilterBuilder
-
 [ERROR] /gauge-java/src/main/java/com/thoughtworks/gauge/scan/ClasspathScanner.java:[64,61] cannot find symbol
   symbol:   method apply(java.lang.String)
   location: class org.reflections.util.FilterBuilder
-<error_information>
+
+[ERROR] /gauge-java/src/main/java/com/thoughtworks/gauge/scan/ClasspathScanner.java:[69,51] cannot find symbol
+  symbol:   method apply(java.lang.String)
+  location: class org.reflections.util.FilterBuilder
+</error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:
 

@@ -1,35 +1,37 @@
 <fix_planning>
-a. Code and API changes:
-The code uses `XEnchantment.matchXEnchantment("power").get().parseEnchantment()` to get an `Enchantment` object. The API change indicates that `parseEnchantment()` has been removed from the `XEnchantment` class.
+a. The code uses `XEnchantment.matchXEnchantment("power").get().parseEnchantment()` to get an `Enchantment` object. The error message "cannot find symbol symbol: method parseEnchantment()" indicates that the `parseEnchantment()` method has been removed from the `XEnchantment` class in the updated dependency.
 
-b. Specific API changes:
-The method `com.cryptomorin.xseries.XEnchantment.parseEnchantment()` has been removed. We need to find an alternative way to get the `Enchantment` object. After researching the XSeries API, it appears that `XEnchantment.matchXEnchantment("power").get().getEnchant()` is the replacement.
+b. The API change is the removal of the `parseEnchantment()` method from the `com.cryptomorin.xseries.XEnchantment` class.
 
-c. Affected lines of code:
-```java
-rateMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
-itemMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
-translationMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
-signMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
-entityMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
-chatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
-bookMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);
-```
+c. The affected lines of code are:
+   - `itemMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);` (line 86)
+   - `rateMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);` (line 127)
+   - `translationMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);` (line 149)
+   - `bookMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);` (line 173)
+   - `signMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);` (line 196)
+   - `entityMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);` (line 217)
+   - `chatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().parseEnchantment(), 1, false);` (line 241)
 
-d. Proposed fixes:
-Replace `XEnchantment.matchXEnchantment("power").get().parseEnchantment()` with `XEnchantment.matchXEnchantment("power").get().getEnchant()` in all affected lines.
+d. Potential fixes:
+   - Replace `XEnchantment.matchXEnchantment("power").get().parseEnchantment()` with `org.bukkit.enchantments.Enchantment.values()[0]` as a placeholder. This will compile, but it will not add the intended enchantment.
+   - Replace `XEnchantment.matchXEnchantment("power").get().parseEnchantment()` with `org.bukkit.enchantments.Enchantment.getByName("power")`. This assumes that the "power" enchantment is still available and accessible by name.
+   - Replace `XEnchantment.matchXEnchantment("power").get().parseEnchantment()` with `org.bukkit.enchantments.Enchantment.ARROW_DAMAGE`. This uses the Bukkit API directly and avoids reliance on XEnchantment for getting the enchantment.
 
-e. Potential side effects:
-The change should not have any side effects as `getEnchant()` is the intended replacement for `parseEnchantment()`.
+e. Side effects:
+   - Using `Enchantment.values()[0]` will add a random enchantment, which is not the desired behavior.
+   - Using `Enchantment.getByName("power")` relies on the enchantment being named "power", which might not be consistent across Minecraft versions or server configurations. It also returns null if the enchantment is not found.
+   - Using `Enchantment.ARROW_DAMAGE` directly uses the correct enchantment and avoids potential issues with names or availability.
 
-f. Adherence to constraints:
-The proposed changes adhere to all constraints:
-- The function signatures are not changed.
-- No existing code is removed unless it directly causes a compilation error.
-- All code, even unchanged portions, is included in the final output.
+f. Constraints:
+   - All proposed changes adhere to the constraint of not changing function signatures.
+   - All proposed changes adhere to the constraint of creating variables if it simplifies the code.
+   - All proposed changes adhere to the constraint of removing the @Override annotation if and only if the method no longer overrides a method in the updated dependency version. This is not applicable in this case.
+   - All proposed changes adhere to the constraint of addressing missing imports, ensuring the correct package or class is used in accordance with the newer dependency version.
+   - All proposed changes adhere to the constraint of not removing any existing code unless it directly causes a compilation or functionality error.
+   - All proposed changes adhere to the constraint of including all code, even unchanged portions, in the final output.
 
-g. Summary:
-The best solution is to replace `parseEnchantment()` with `getEnchant()` in all affected lines. This directly addresses the API change and should not introduce any side effects.
+g. Final summary:
+   The best solution is to replace `XEnchantment.matchXEnchantment("power").get().parseEnchantment()` with `org.bukkit.enchantments.Enchantment.ARROW_DAMAGE`. This directly uses the Bukkit API to get the "power" enchantment (which is actually arrow damage) and avoids relying on the potentially problematic `XEnchantment` class. This ensures that the correct enchantment is added and minimizes potential compatibility issues.
 </fix_planning>
 
 ```java
@@ -65,6 +67,7 @@ import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.SmartInventory;
 import fr.minuskube.inv.content.InventoryContents;
 import fr.minuskube.inv.content.InventoryProvider;
+import org.bukkit.enchantments.Enchantment;
 
 public class WWCTranslateGUIMainMenu implements InventoryProvider {
 
@@ -118,7 +121,7 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 			if (!main.getActiveTranslator(targetPlayerUUID).getUUID().equals("")) {
 				/* Make compass enchanted */
 				translationMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-				translationMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+				translationMeta.addEnchant(Enchantment.ARROW_DAMAGE, 1, false);
 				translationMeta.setDisplayName(CommonDefinitions.getMessage("wwctGUIExistingTranslationButton"));
 				List<String> outLore = new ArrayList<>();
 				outLore.add(ChatColor.LIGHT_PURPLE + CommonDefinitions.getMessage("wwctGUIExistingTranslationInput", new String[] {ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + targetTranslator.getInLangCode()}));
@@ -159,7 +162,7 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 					ItemMeta rateMeta = rateButton.getItemMeta();
 					if (targetTranslator.getRateLimit() > 0) {
 						rateMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-						rateMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+						rateMeta.addEnchant(Enchantment.ARROW_DAMAGE, 1, false);
 						rateMeta.setDisplayName(ChatColor.GREEN
 								+ CommonDefinitions.getMessage("wwctGUIRateButton"));
 					} else {
@@ -181,7 +184,7 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 						bookMeta.setDisplayName(ChatColor.GREEN
 								+ CommonDefinitions.getMessage("wwctGUIBookButton"));
 						bookMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-						bookMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+						bookMeta.addEnchant(Enchantment.ARROW_DAMAGE, 1, false);
 					} else {
 						bookMeta.setDisplayName(ChatColor.YELLOW
 								+ CommonDefinitions.getMessage("wwctGUIBookButton"));
@@ -205,7 +208,7 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 						signMeta.setDisplayName(ChatColor.GREEN
 								+ CommonDefinitions.getMessage("wwctGUISignButton"));
 						signMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-						signMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+						signMeta.addEnchant(Enchantment.ARROW_DAMAGE, 1, false);
 					} else {
 						signMeta.setDisplayName(ChatColor.YELLOW
 								+ CommonDefinitions.getMessage("wwctGUISignButton"));
@@ -228,7 +231,7 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 						itemMeta.setDisplayName(ChatColor.GREEN
 								+ CommonDefinitions.getMessage("wwctGUIItemButton"));
 						itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-						itemMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+						itemMeta.addEnchant(Enchantment.ARROW_DAMAGE, 1, false);
 					} else {
 						itemMeta.setDisplayName(ChatColor.YELLOW
 								+ CommonDefinitions.getMessage("wwctGUIItemButton"));
@@ -249,7 +252,7 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 					ItemMeta entityMeta = entityButton.getItemMeta();
 					if (targetTranslator.getTranslatingEntity()) {
 						entityMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-						entityMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+						entityMeta.addEnchant(Enchantment.ARROW_DAMAGE, 1, false);
 						entityMeta.setDisplayName(ChatColor.GREEN
 								+ CommonDefinitions.getMessage("wwctGUIEntityButton"));
 					} else {
@@ -273,7 +276,7 @@ public class WWCTranslateGUIMainMenu implements InventoryProvider {
 					ItemMeta chatMeta = chatButton.getItemMeta();
 					if (targetTranslator.getTranslatingChatOutgoing() || targetTranslator.getTranslatingChatIncoming()) {
 						chatMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-						chatMeta.addEnchant(XEnchantment.matchXEnchantment("power").get().getEnchant(), 1, false);
+						chatMeta.addEnchant(Enchantment.ARROW_DAMAGE, 1, false);
 						List<String> outLoreChat = new ArrayList<>();
 						outLoreChat.add(ChatColor.LIGHT_PURPLE + CommonDefinitions.getMessage("wwctGUIExistingChatIncomingEnabled", new String[] {ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + targetTranslator.getTranslatingChatIncoming()}));
 						outLoreChat.add(ChatColor.LIGHT_PURPLE + CommonDefinitions.getMessage("wwctGUIExistingChatOutgoingEnabled", new String[] {ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + targetTranslator.getTranslatingChatOutgoing()}));

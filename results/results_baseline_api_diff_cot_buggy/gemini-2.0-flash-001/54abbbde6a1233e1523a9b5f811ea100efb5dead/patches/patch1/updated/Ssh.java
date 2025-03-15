@@ -290,7 +290,7 @@ public final class Ssh extends AbstractSshShell {
         session.setConfig("StrictHostKeyChecking", "no");
         session.setTimeout((int) TimeUnit.MINUTES.toMillis(1L));
         session.setServerAliveInterval((int) TimeUnit.SECONDS.toMillis(1L));
-        session.setServerAliveCountMax(Tv.MILLION);
+        session.setServerAliveCountMax(1000000);
         session.connect((int) TimeUnit.SECONDS.toMillis(10L));
         Logger.debug(
             this,

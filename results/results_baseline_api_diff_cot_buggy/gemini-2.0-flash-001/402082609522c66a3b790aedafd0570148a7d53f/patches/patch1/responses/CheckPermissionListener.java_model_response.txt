@@ -1,32 +1,76 @@
 <fix_planning>
-The core issue is the removal of `org.spongepowered.api.network.ChannelBinding.RawDataChannel`, `org.spongepowered.api.network.ChannelRegistrar`, `org.spongepowered.api.network.ChannelBuf`, and `org.spongepowered.api.network.RawDataListener`. We need to adapt the code to use the new networking API.
+Okay, let's analyze the errors and the API changes to determine the best course of action.
 
-Here's a breakdown of the necessary changes:
+**1. Problem Analysis**
 
-1.  **`import org.spongepowered.api.network.ChannelBinding.RawDataChannel;`**: This import is no longer valid. We need to find the replacement for `RawDataChannel`. Based on the API changes, it seems like we should use `org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel` or `org.spongepowered.api.network.channel.raw.handshake.RawHandshakeDataChannel` depending on the context. Since this channel is used for permission results, which are likely sent during gameplay, `org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel` seems more appropriate. However, since we don't have enough context to determine when the channel is registered, we will use `org.spongepowered.api.network.channel.RawDataChannel` and `org.spongepowered.api.network.channel.Channel` as a more general solution.
+The code is failing due to breaking changes in the Sponge API, specifically related to networking. The key issues are:
 
-2.  **`private final RawDataChannel permissionsResultChannel;`**:  `RawDataChannel` is gone. We'll replace it with `org.spongepowered.api.network.channel.RawDataChannel`.
+*   `org.spongepowered.api.network.ChannelRegistrar` has been removed.
+*   `org.spongepowered.api.network.ChannelBinding.RawDataChannel` has been removed.
+*   `org.spongepowered.api.network.RawDataListener` has been removed.
+*   `org.spongepowered.api.network.ChannelBuf` has been removed.
+*   `org.spongepowered.api.network.ChannelBuf.array()` has been removed.
 
-3.  **`CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar)`**: `ChannelRegistrar` is also gone. We need to find a way to obtain the channel. The new API doesn't seem to have a direct replacement for `ChannelRegistrar`. We will inject `org.spongepowered.api.network.channel.ChannelRegistry` instead and use it to get the channel.
+Let's identify the affected lines and propose fixes.
 
-4.  **`channelRegistrar.getOrCreateRaw(plugin, combinedName)`**: `getOrCreateRaw` is removed. We need to find a replacement. The new API uses `org.spongepowered.api.network.channel.ChannelRegistry#findChannel(Identifier)` or `org.spongepowered.api.network.channel.ChannelRegistry#registerChannel(Channel)` to manage channels. We will use `channelRegistry.getOrCreate(Identifier.of(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL), RawDataChannel.class)` to get the channel.
+**2. Affected Lines and Proposed Fixes**
 
-5.  **`import org.spongepowered.api.network.ChannelBuf;`**: `ChannelBuf` is removed. We need to find the replacement. The new API uses `org.spongepowered.api.network.channel.ChannelBuf`.
+*   **Line 11: `import org.spongepowered.api.network.ChannelBuf;`**
+    *   `ChannelBuf` has been removed. The replacement is `org.spongepowered.api.network.channel.ChannelBuf`.
+    *   Fix: `import org.spongepowered.api.network.channel.ChannelBuf;`
 
-6.  **`public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side)`**: `ChannelBuf` is gone. We'll replace it with `org.spongepowered.api.network.channel.ChannelBuf`. Also, `RawDataListener` is gone, so we need to remove the `@Override` annotation and change the interface to `java.util.function.BiConsumer<RemoteConnection, ChannelBuf>`.
+*   **Line 12: `import org.spongepowered.api.network.ChannelRegistrar;`**
+    *   `ChannelRegistrar` has been removed.  We need to find an alternative way to get the `RawDataChannel`. It seems like the channel registration is now handled differently.  Looking at the new API, it seems like we can get the channel directly from the `Server`.  However, since we don't have access to the `Server` instance here, we will need to inject the `RawPlayDataChannel` directly. This requires changing the constructor.
+    *   Fix: Remove the import. Modify the constructor to inject `RawPlayDataChannel`.
 
-7.  **`data.array()`**: `ChannelBuf.array()` is removed. The new API has `org.spongepowered.api.network.channel.ChannelBuf.readByteArray()`.
+*   **Line 17: `import org.spongepowered.api.network.ChannelBinding.RawDataChannel;`**
+    *   `RawDataChannel` has been removed. The replacement is `org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel`.
+    *   Fix: `import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;`
 
-8.  **`permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()))`**: `sendTo` is removed. The new API uses `org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel#sendTo(EngineConnection, Consumer<ChannelBuf>)`. We need to cast the `receiver` to `org.spongepowered.api.entity.living.player.server.ServerPlayer` and use the new `sendTo` method.
+*   **Line 20: `import org.spongepowered.api.network.RawDataListener;`**
+    *   `RawDataListener` has been removed. We need to find the replacement for this. It seems like we need to use `ChannelEventListener`.
+    *   Fix: Remove the import. Implement `ChannelEventListener.Raw`.
 
-Here's the final summary of the chosen fix:
+*   **Line 26: `public class CheckPermissionListener implements RawDataListener {`**
+    *   `RawDataListener` has been removed.
+    *   Fix: Implement `org.spongepowered.api.event.channel.ChannelEventListener.Raw` instead. This will also require implementing the `handle` method instead of `handlePayload`.
 
-*   Replace the deprecated classes and methods with their updated counterparts in the Sponge API.
-*   Adapt the channel registration and message sending to the new API.
-*   Remove the `@Override` annotation from `handlePayload` and change the interface to `java.util.function.BiConsumer<RemoteConnection, ChannelBuf>`.
-*   Add necessary imports for the new API.
+*   **Line 29: `private final RawDataChannel permissionsResultChannel;`**
+    *   `RawDataChannel` has been removed.
+    *   Fix: Change the type to `org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel`.
 
-This approach adheres to all the given constraints: it doesn't change function signatures, it creates variables where needed, it removes the `@Override` annotation where necessary, it uses the correct package for new imports, and it doesn't remove any code unless it directly causes a compilation error.
+*   **Line 32: `CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistrar channelRegistrar) {`**
+    *   `ChannelRegistrar` has been removed. We need to inject `RawPlayDataChannel` instead.
+    *   Fix: Change the constructor to inject `RawPlayDataChannel`.
+
+*   **Line 35: `permissionsResultChannel = channelRegistrar.getOrCreateRaw(plugin, combinedName);`**
+    *   `ChannelRegistrar.getOrCreateRaw` has been removed.
+    *   Fix: Remove this line. The `permissionsResultChannel` is now injected.
+
+*   **Line 40: `public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {`**
+    *   `ChannelBuf` has been removed. `handlePayload` is no longer the correct method.
+    *   Fix: Remove `@Override`. Change method to `public void handle(ConnectionEvent.Receive event, PacketContext context)`. Replace `ChannelBuf` with `org.spongepowered.api.network.channel.ChannelBuf`.
+
+*   **Line 42: `ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());`**
+    *   `ChannelBuf.array()` has been removed. The replacement is `org.spongepowered.api.network.channel.ChannelBuf.array()`.
+    *   Fix: `ByteArrayDataInput dataInput = ByteStreams.newDataInput(event.data().array());`
+
+*   **Line 78: `permissionsResultChannel.sendTo(receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));`**
+    *   `RawDataChannel.sendTo` has changed. It now takes a `ServerPlayer` and a `Consumer<ChannelBuf>`.
+    *   Fix: `permissionsResultChannel.sendTo((org.spongepowered.api.entity.living.player.server.ServerPlayer) receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));`
+
+**3. Final Summary**
+
+The best solution is to:
+
+1.  Replace the removed classes and methods with their updated counterparts.
+2.  Implement `ChannelEventListener.Raw` instead of `RawDataListener`.
+3.  Modify the constructor to inject `RawPlayDataChannel` instead of using `ChannelRegistrar`.
+4.  Adapt the `handlePayload` method to the new `handle` method signature and use the `event.data()` to access the `ChannelBuf`.
+5.  Update the `sendTo` method call to use the new API.
+
+These changes address all the compilation errors and adapt the code to the new Sponge API while adhering to the constraints.
+
 </fix_planning>
 
 ```java
@@ -43,45 +87,40 @@ import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
 
 import java.util.UUID;
-import java.util.function.Consumer;
 
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.network.RemoteConnection;
-import org.spongepowered.api.network.channel.Channel;
-import org.spongepowered.api.network.channel.ChannelBuf;
-import org.spongepowered.api.network.channel.ChannelRegistry;
-import org.spongepowered.api.network.channel.RawDataChannel;
-import org.spongepowered.api.ResourceKey;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.util.Identifiable;
 
 import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
 import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
 
-public class CheckPermissionListener implements java.util.function.BiConsumer<RemoteConnection, ChannelBuf> {
+import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
+import org.spongepowered.api.event.channel.ChannelEventListener;
+import org.spongepowered.api.event.channel.ConnectionEvent;
+import org.spongepowered.api.network.channel.PacketContext;
+import org.spongepowered.api.network.channel.ChannelBuf;
+
+public class CheckPermissionListener implements ChannelEventListener.Raw {
 
     private final ChangeSkinSponge plugin;
-    private final RawDataChannel permissionsResultChannel;
+    private final RawPlayDataChannel permissionsResultChannel;
 
     @Inject
-    CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistry channelRegistry) {
+    CheckPermissionListener(ChangeSkinSponge plugin, RawPlayDataChannel permissionsResultChannel) {
         this.plugin = plugin;
-
-        ResourceKey channelKey = ResourceKey.of(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL);
-        permissionsResultChannel = channelRegistry.getOrCreate(channelKey, RawDataChannel.class);
+        this.permissionsResultChannel = permissionsResultChannel;
     }
 
-    public void accept(RemoteConnection connection, ChannelBuf data) {
-        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.readByteArray());
+    public void handle(ConnectionEvent.Receive event, PacketContext context) {
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(event.data().array());
         CheckPermMessage checkMessage = new CheckPermMessage();
         checkMessage.readFrom(dataInput);
 
         CheckPermMessage message = new CheckPermMessage();
         message.readFrom(dataInput);
 
-        checkPermissions((Player) connection, message);
+        checkPermissions((Player) event.connection(), message);
     }
 
     private void checkPermissions(Player player, CheckPermMessage permMessage) {
@@ -115,9 +154,7 @@ public class CheckPermissionListener implements java.util.function.BiConsumer<Re
     private void sendResultMessage(Player receiver, PermResultMessage resultMessage) {
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
         resultMessage.writeTo(dataOutput);
-        byte[] bytes = dataOutput.toByteArray();
-
-        permissionsResultChannel.sendTo((ServerPlayer) receiver, channelBuf -> channelBuf.writeByteArray(bytes));
+        permissionsResultChannel.sendTo((org.spongepowered.api.entity.living.player.server.ServerPlayer) receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
     }
 }
 ```

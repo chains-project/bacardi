@@ -1,31 +1,32 @@
 <fix_planning>
 a. Code and API changes:
-- Code: `import javax.mvc.Models;` and `Models models;`
-- API Changes: `Interface jakarta.mvc.Models has been added in the new version of the dependency.` and `Class javax.mvc.Models has been removed in the new version of the dependency.`
+- The code uses `javax.mvc.Models`.
+- The API changes indicate that `javax.mvc.Models` has been removed and `jakarta.mvc.Models` has been added.
 
 b. Specific API changes causing the issue:
-The class `javax.mvc.Models` has been removed, and an interface `jakarta.mvc.Models` has been added. The code uses the removed class `javax.mvc.Models`.
+- The removal of `javax.mvc.Models` causes a "cannot find symbol" error.
 
 c. Affected lines of code:
 - `import javax.mvc.Models;`
-- `Models models;`
+- ` @Inject Models models;`
 
-d. Proposed potential fixes:
-1. Replace `import javax.mvc.Models;` with `import jakarta.mvc.Models;` and change `Models models;` to `jakarta.mvc.Models models;`.
+d. Proposed fixes:
+- Replace `import javax.mvc.Models;` with `import jakarta.mvc.Models;`
+- Replace `javax.mvc.Models` with `jakarta.mvc.Models` in the field declaration.
 
 e. Potential side effects:
-The change should not have any side effects as it only updates the import and type declaration to use the new interface.
+- The change should not have any side effects as it's a direct replacement of the old API with the new one.
 
 f. Adherence to constraints:
-1. The function signature of `toResponse` is not changed.
-2. No variables are created unnecessarily.
-3. The `@Override` annotation is kept as the method still overrides a method in the updated dependency version.
-4. The correct package `jakarta.mvc` is used for the `Models` import.
-5. No existing code is removed unless it directly causes a compilation error.
-6. All code is included in the final output.
+- The function signature of `toResponse` is not changed.
+- Variables are not created.
+- The `@Override` annotation is kept as the method still overrides a method from the `ExceptionMapper` interface.
+- The correct package is used for the import.
+- No existing code is removed unless it directly causes a compilation error.
+- All code is included in the final output.
 
-g. Final summary:
-The best solution is to replace the import statement and the type declaration of the `models` field to use the new `jakarta.mvc.Models` interface. This fixes the compilation error caused by the removal of `javax.mvc.Models` and adheres to all the given constraints.
+g. Summary:
+The best solution is to replace `javax.mvc.Models` with `jakarta.mvc.Models` and update the import statement accordingly. This directly addresses the API change and resolves the compilation error without introducing any side effects.
 </fix_planning>
 
 ```java
@@ -37,11 +38,11 @@ The best solution is to replace the import statement and the type declaration of
 package com.example.config;
 
 import com.example.domain.TaskNotFoundException;
+import jakarta.mvc.Models;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
-import jakarta.mvc.Models;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;

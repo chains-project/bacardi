@@ -1,20 +1,11 @@
-217,219c217,218
+217d216
 <   @Override
-<   protected Set<Property> getProperties(Class<? extends Object> type)
+219c218,219
 <           throws IntrospectionException {
 ---
->   
->   protected Set<Property> getProperties(Class<? extends Object> type) {
-235,237c234,241
-<   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
-<           throws IntrospectionException {
-<       Set<Property> standard = super.getProperties(type);
----
->   private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
->       Set<Property> standard = null;
->         try {
->                 standard = super.getProperties(type);
->         } catch (IntrospectionException e) {
->                 // TODO Auto-generated catch block
->                 e.printStackTrace();
->         }
+>           {
+>     try {
+231a232,234
+>       }
+>     } catch (IntrospectionException e) {
+>       throw new RuntimeException(e);

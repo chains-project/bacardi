@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.io.FileOutputStream;
 
 import org.apache.commons.io.FileUtils;
 
@@ -239,7 +240,15 @@ public class RecognitionHelper {
 				dataList.add(pageList);
 			}
 			ObjectWriter writer = mapper.writer();
-			writer.writeValue(segmentListFile, dataList);
+            FileOutputStream outputStream = null;
+            try {
+                outputStream = new FileOutputStream(segmentListFile);
+                mapper.writeValue(outputStream, dataList);
+            } finally {
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            }
 
             processHandler = new ProcessHandler();
             processHandler.setFetchProcessConsole(true);

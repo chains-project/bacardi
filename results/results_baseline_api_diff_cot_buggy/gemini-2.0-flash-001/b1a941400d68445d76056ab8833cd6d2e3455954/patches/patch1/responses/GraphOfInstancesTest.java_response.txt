@@ -8,10 +8,10 @@ import com.fluxtion.runtime.annotations.builder.ExcludeNode;
 import com.fluxtion.runtime.node.NamedNode;
 import lombok.Data;
 import org.junit.Test;
-import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.LoaderOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,8 +76,7 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
                 "- !stringHandler\n" +
                 "  id: C";
         sep(c -> {
-            LoaderOptions loaderOptions = new LoaderOptions();
-            Constructor constructor = new Constructor(loaderOptions);
+            Constructor constructor = new Constructor(new LoaderOptions());
             constructor.addTypeDescription(new TypeDescription(DoubleSum.class, "!doubleSum"));
             constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
             Yaml yaml = new Yaml(constructor);
@@ -113,8 +112,7 @@ public class GraphOfInstancesTest extends MultipleSepTargetInProcessTest {
                 "- !stringHandler\n" +
                 "  id: C";
         sep(c -> {
-            LoaderOptions loaderOptions = new LoaderOptions();
-            Constructor constructor = new Constructor(loaderOptions);
+            Constructor constructor = new Constructor(new LoaderOptions());
             constructor.addTypeDescription(new TypeDescription(DoubleSum.class, "!doubleSum"));
             constructor.addTypeDescription(new TypeDescription(StringHandler.class, "!stringHandler"));
             Yaml yaml = new Yaml(constructor);

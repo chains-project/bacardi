@@ -1,4 +1,4 @@
-4,17c4,15
+4,17c4,18
 < import javax.enterprise.context.RequestScoped;
 < import javax.inject.Inject;
 < import javax.mvc.Controller;
@@ -19,26 +19,25 @@
 > import jakarta.mvc.Controller;
 > import jakarta.mvc.Models;
 > import jakarta.mvc.UriRef;
+> import jakarta.mvc.binding.BindingResult;
+> import jakarta.mvc.binding.MvcBinding;
 > import jakarta.mvc.security.CsrfProtected;
+> import jakarta.validation.ConstraintViolation;
 > import jakarta.validation.constraints.NotBlank;
 > import jakarta.ws.rs.FormParam;
 > import jakarta.ws.rs.GET;
 > import jakarta.ws.rs.POST;
 > import jakarta.ws.rs.Path;
-> import jakarta.mvc.binding.MvcBinding;
-29,31d26
-<     BindingResult bindingResult;
-< 
-<     @Inject
-51,61d45
-<         if (bindingResult.isFailed()) {
-<             AlertMessage alert = AlertMessage.danger("Validation voilations!");
+> import java.util.Set;
+53,56c54,59
 <             bindingResult.getAllErrors()
 <                     .stream()
 <                     .forEach((ParamError t) -> {
 <                         alert.addError(t.getParamName(), "", t.getMessage());
-<                     });
-<             models.put("errors", alert);
-<             log.info("mvc binding failed.");
-<             return "csrf.xhtml";
-<         }
+---
+>             Set<ConstraintViolation<?>> errors = bindingResult.getConstraintViolations();
+> 
+>             errors.forEach(t -> {
+>                 String paramName = t.getPropertyPath().toString();
+>                 String message = t.getMessage();
+>                 alert.addError(paramName, "", message);

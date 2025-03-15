@@ -12,36 +12,33 @@ c. Affected lines of code:
 - Several lines using `Matchers` class, such as:
   - `RestResponse.assertBody(Matchers.containsString("hello, world!"))`
   - `RestResponse.assertHeader("Content-Type", Matchers.hasItem("text/plain"))`
-  - `this.assertStatus(final Matcher<Integer> matcher)`
-  - `this.assertBody(final Matcher<String> matcher)`
-  - `this.assertBinary(final Matcher<byte[]> matcher)`
   - `this.assertHeader(name, Matchers.hasItems(value))`
-  - `this.assertHeader(HttpHeaders.LOCATION, Matchers.not(Matchers.emptyIterableOf(String.class)))`
+  - `Matchers.not(Matchers.emptyIterableOf(String.class))`
   - `cookie, Matchers.notNullValue()`
 
-d. Proposed potential fixes for each affected line:
+d. Proposed potential fixes:
 - Remove the import statement `import org.hamcrest.Matchers;`.
-- Replace usages of `Matchers.containsString` with `org.hamcrest.CoreMatchers.containsString`.
-- Replace usages of `Matchers.hasItem` with `org.hamcrest.CoreMatchers.hasItem`.
-- Replace usages of `Matchers.hasItems` with `org.hamcrest.CoreMatchers.hasItems`.
-- Replace usages of `Matchers.not` with `org.hamcrest.CoreMatchers.not`.
-- Replace usages of `Matchers.emptyIterableOf` with `org.hamcrest.collection.IsEmptyIterable.emptyIterable`.
-- Replace usages of `Matchers.notNullValue` with `org.hamcrest.CoreMatchers.notNullValue`.
-- Add import statements for `org.hamcrest.CoreMatchers` and `org.hamcrest.collection.IsEmptyIterable`.
+- Replace usages of `Matchers.containsString`, `Matchers.hasItem`, `Matchers.hasItems`, `Matchers.not`, `Matchers.emptyIterableOf`, and `Matchers.notNullValue` with alternatives from `org.hamcrest.CoreMatchers` or other appropriate Hamcrest classes.
 
-e. Consider any potential side effects of the proposed changes:
-- The code might break if `org.hamcrest.CoreMatchers` or `org.hamcrest.collection.IsEmptyIterable` are not available in the classpath. However, since `org.hamcrest.Matchers` was removed, it's likely that these classes are the intended replacements.
+e. Potential side effects of the proposed changes:
+- Replacing `Matchers` methods with alternatives might require different import statements and could potentially change the behavior of the assertions if the replacement methods are not perfectly equivalent.
 
-f. Explicitly check if the proposed changes adhere to all the given constraints:
-- The function signatures are not changed.
-- Variables can be created if needed.
-- The `@Override` annotation is not present, so it doesn't need to be removed.
-- Missing imports are added.
-- No existing code is removed unless it directly causes a compilation error.
-- All code is included in the final output.
+f. Adherence to constraints:
+- The proposed changes do not change any function signatures.
+- New variables can be created if needed.
+- The `@Override` annotation is not present in the code.
+- Missing imports will be addressed.
+- No existing code will be removed unless it directly causes a compilation error.
+- All code will be included in the final output.
 
-g. Final summary of the chosen fix and why it's the best solution:
-The best solution is to replace the usages of the removed `org.hamcrest.Matchers` class with the corresponding methods from `org.hamcrest.CoreMatchers` and `org.hamcrest.collection.IsEmptyIterable`, and add the necessary import statements. This approach addresses the compilation errors caused by the API change while preserving the original functionality of the code.
+g. Final summary of the chosen fix:
+The best solution is to remove the import statement `import org.hamcrest.Matchers;` and replace the usages of methods from the removed `Matchers` class with their equivalents from `org.hamcrest.CoreMatchers`. This addresses the compilation error while preserving the intended functionality of the assertions. Specifically:
+- `Matchers.containsString` becomes `org.hamcrest.CoreMatchers.containsString`
+- `Matchers.hasItem` becomes `org.hamcrest.CoreMatchers.hasItem`
+- `Matchers.hasItems` becomes `org.hamcrest.CoreMatchers.hasItems`
+- `Matchers.not` becomes `org.hamcrest.CoreMatchers.not`
+- `Matchers.emptyIterableOf(String.class)` becomes `org.hamcrest.CoreMatchers.notNullValue(Iterable.class)` and requires changing the `not` matcher to `org.hamcrest.CoreMatchers.notNullValue`
+- `Matchers.notNullValue()` becomes `org.hamcrest.CoreMatchers.notNullValue()`
 </fix_planning>
 
 ```java
@@ -93,7 +90,6 @@ import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.collection.IsEmptyIterable;
 
 /**
  * REST response.
@@ -291,7 +287,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            CoreMatchers.not(IsEmptyIterable.emptyIterableOf(String.class))
+            CoreMatchers.not(CoreMatchers.notNullValue(Iterable.class))
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))

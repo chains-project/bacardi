@@ -1,17 +1,34 @@
 <fix_planning>
-The error occurs because the method `objectMapper.readValue(body, ExportResponse.class)` is no longer available in the updated Jackson library. The `body` variable is a `String`. The API changes indicate that `ObjectMapper.readValue(String, Class)` is also removed. However, `ObjectMapper.readValue(String, Class)` has been added.
+a. Code and API changes:
+The error occurs at line 88: `ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);`
+The API changes indicate that the method `com.fasterxml.jackson.databind.ObjectMapper.readValue(java.lang.String,java.lang.Class)` has been removed and added in the new version of the dependency. This suggests a potential version conflict or other issue. However, the error message "cannot access com.fasterxml.jackson.core.exc.StreamReadException class file for com.fasterxml.jackson.core.exc.StreamReadException not found" indicates a missing dependency or classpath issue related to Jackson core.
 
-Affected line:
-```java
-ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);
-```
+b. Specific API changes causing the issue:
+The primary issue is the missing `com.fasterxml.jackson.core.exc.StreamReadException` class, which suggests a problem with the Jackson Core dependency. While the API changes for `readValue` might be relevant, the immediate problem is the missing class.
 
-Possible fixes:
-1. Use the new `ObjectMapper.readValue(String, Class)` method.
+c. Affected lines of code:
+- Line 88: `ExportResponse exportResponse = objectMapper.readValue(body, ExportResponse.class);`
+- Potentially the `throwOnError` method, as it handles exceptions that might involve `StreamReadException`.
 
-Chosen fix:
-The simplest and most direct solution is to use the newly added `ObjectMapper.readValue(String, Class)` method, which directly replaces the functionality of the removed method. This adheres to all constraints, as it only modifies the method call and doesn't change any function signatures or remove any code unnecessarily.
+d. Proposed potential fixes:
+1. **Address the missing dependency:** Ensure that the Jackson Core dependency is correctly included in the project's dependencies and that the version is compatible with the Jackson Databind version. This is the most likely solution.
+2. **Check Jackson version compatibility:** Verify that the Jackson Databind version used is compatible with the Jackson Core version.
+3. **Use a different `readValue` method:** If the dependency issue cannot be resolved immediately, try using a different overload of the `readValue` method, such as `readValue(byte[], int, int, java.lang.Class)` or `readValue(java.io.InputStream, java.lang.Class)`, after converting the `body` to the appropriate input type. However, this is a less desirable solution as it might involve unnecessary data conversion.
 
+e. Potential side effects of the proposed changes:
+- Adding or updating dependencies might introduce conflicts with other dependencies in the project.
+- Using a different `readValue` method might affect performance or introduce subtle changes in behavior.
+
+f. Adherence to constraints:
+- The proposed fixes do not change the function signature of any method.
+- New variables can be created if needed.
+- The @Override annotation is not relevant in this case.
+- The fixes address missing imports by ensuring the correct Jackson Core dependency is available.
+- No existing code is removed unless it directly causes a compilation or functionality error.
+- All code, even unchanged portions, will be included in the final output.
+
+g. Final summary of the chosen fix:
+The primary issue is the missing `com.fasterxml.jackson.core.exc.StreamReadException` class. The best solution is to ensure that the Jackson Core dependency is correctly included in the project's dependencies and that the version is compatible with the Jackson Databind version. Since I cannot directly modify the project's dependencies, I will assume that the dependency issue is resolved externally. Given that the `readValue(String, Class)` method is available in the updated dependency, no code changes are needed. The error message suggests a classpath issue, which is outside the scope of code changes. I will provide the original code, assuming the dependency issue is resolved externally.
 </fix_planning>
 
 ```java

@@ -1,30 +1,32 @@
 <fix_planning>
 a. Code and API changes:
-The code uses `org.bouncycastle.crypto.tls.TlsFatalAlert` and `org.bouncycastle.crypto.tls.AlertDescription`. Both classes have been removed in the new version of the dependency. The constructor `org.bouncycastle.crypto.tls.TlsFatalAlert(short)` has also been removed.
+The code uses `org.bouncycastle.crypto.tls.AlertDescription` and `org.bouncycastle.crypto.tls.TlsFatalAlert`. Both classes and the constructor `TlsFatalAlert(short)` have been removed in the new version of the dependency.
 
 b. Specific API changes causing the issue:
-The removal of `TlsFatalAlert` and `AlertDescription` classes.
+The removal of `org.bouncycastle.crypto.tls.AlertDescription` and `org.bouncycastle.crypto.tls.TlsFatalAlert`, along with the constructor `TlsFatalAlert(short)`, are causing compilation errors.
 
 c. Affected lines of code:
-- `import org.bouncycastle.crypto.tls.TlsFatalAlert;`
 - `import org.bouncycastle.crypto.tls.AlertDescription;`
+- `import org.bouncycastle.crypto.tls.TlsFatalAlert;`
 - `throw new TlsFatalAlert(AlertDescription.bad_record_mac);` (occurs three times)
 
 d. Proposed fixes:
-Since `TlsFatalAlert` and `AlertDescription` are removed, we need to find a replacement.  A suitable replacement is `java.io.IOException`. We can throw a new `IOException` instead of `TlsFatalAlert`.
+Since `org.bouncycastle.crypto.tls.AlertDescription` and `org.bouncycastle.crypto.tls.TlsFatalAlert` are removed, we need to find a replacement for throwing the exception when the MAC check fails.  A general `IOException` can be thrown instead.
 
 e. Potential side effects:
-The code currently throws a `TlsFatalAlert`, which might be caught and handled specifically. Replacing it with `IOException` might require changes in the calling code to handle the new exception type. However, since we are constrained to only modify the given class, we will proceed with this replacement.
+Replacing `TlsFatalAlert` with `IOException` might change the specific exception type caught by callers, but since the original code already declares that the methods throw `IOException`, this change should be safe.
 
 f. Adherence to constraints:
-- We are not changing any function signatures.
-- We are creating a variable to hold the exception message.
-- We are removing the import statements for the removed classes.
-- We are not removing any existing code unless it directly causes a compilation error.
-- We are including all code in the final output.
+1. The function signatures of all methods are preserved.
+2. Variables can be created if needed.
+3. `@Override` is not used, so no need to remove it.
+4. The correct package or class will be used if fixing the issue requires addressing missing imports.
+5. No existing code is removed unless it directly causes a compilation or functionality error.
+6. All code, even unchanged portions, will be included in the final output.
 
 g. Final summary:
-The best solution is to replace the `TlsFatalAlert` with `IOException` and remove the import statements for the removed classes. This addresses the compilation errors caused by the API changes while adhering to the given constraints.
+The best solution is to replace the `TlsFatalAlert` with a general `IOException`. This addresses the compilation errors caused by the removed classes and constructor while maintaining the existing functionality and adhering to all constraints. The imports for the removed classes are also removed.
+
 </fix_planning>
 
 ```java

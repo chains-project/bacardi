@@ -7,8 +7,8 @@
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * copies of the Software, and to permit persons to whom it is furnished to do so,
+ * subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
  * in all copies or substantial portions of the Software.
@@ -26,7 +26,6 @@ package io.zold.api;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.StreamSupport;
 import org.cactoos.iterable.IterableEnvelope;
 import org.cactoos.iterable.IterableOf;
 import org.cactoos.iterable.Joined;
@@ -87,8 +86,9 @@ public final class Copies extends IterableEnvelope<Copy> {
      */
     private static boolean equalWallets(final Wallet first,
         final Wallet second) throws IOException {
-        return first.id() == second.id() && StreamSupport.stream(first.ledger().spliterator(), false).toList()
-            .size() == StreamSupport.stream(second.ledger().spliterator(), false).toList().size();
+        return first.id() == second.id() && java.util.stream.StreamSupport.stream(
+            first.ledger().spliterator(), false
+        ).count() == java.util.stream.StreamSupport.stream(second.ledger().spliterator(), false).count();
     }
 
     /**

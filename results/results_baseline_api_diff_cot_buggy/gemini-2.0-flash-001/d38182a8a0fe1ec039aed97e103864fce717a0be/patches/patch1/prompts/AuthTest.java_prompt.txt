@@ -387,10 +387,10 @@ The errors are triggered in the following specific lines:
 
 <error_lines>
 ```java
-token -> CompletableFuture.completedFuture(
+.map(user -> new Authentication.User(user.name()))
 ```
 ```java
-.map(user -> new Authentication.User(user.name()))
+token -> CompletableFuture.completedFuture(
 ```
 </error_lines>
 
@@ -403,15 +403,15 @@ The API of the dependency has changed. Here are the relevant changes:
 Additional error information:
 
 <error_information>
+[ERROR] /docker-adapter/src/test/java/com/artipie/docker/http/AuthTest.java:[353,60] cannot find symbol
+  symbol:   class User
+  location: interface com.artipie.http.auth.Authentication
+
 [ERROR] /docker-adapter/src/test/java/com/artipie/docker/http/AuthTest.java:[350,63] incompatible types: bad return type in lambda expression
     inference variable U has incompatible bounds
       equality constraints: java.util.Optional<com.artipie.http.auth.AuthUser>
       lower bounds: java.util.Optional<java.lang.Object>
-
-[ERROR] /docker-adapter/src/test/java/com/artipie/docker/http/AuthTest.java:[353,60] cannot find symbol
-  symbol:   class User
-  location: interface com.artipie.http.auth.Authentication
-<error_information>
+</error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:
 

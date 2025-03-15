@@ -59,7 +59,7 @@ public class SnmpmanAgent extends BaseAgent {
     /**
      * The list of managed object groups.
      */
-    private final List<ManagedObject<?>> groups = new ArrayList<>();
+    private final List<ManagedObject> groups = new ArrayList<>();
 
     /**
      * Initializes a new instance of an SNMP agent.
@@ -263,14 +263,14 @@ public class SnmpmanAgent extends BaseAgent {
                     MOGroup group = createGroup(root, variableBindings);
                     final Iterable<VariableBinding> subtree = generateSubtreeBindings(variableBindings, root);
                     DefaultMOContextScope scope = new DefaultMOContextScope(context, root, true, root.nextPeer(), false);
-                    ManagedObject<?> mo = server.lookup(new DefaultMOQuery(scope, false));
+                    ManagedObject mo = server.lookup(new DefaultMOQuery(scope, false));
                     if (mo != null) {
                         for (final VariableBinding variableBinding : subtree) {
                             group = new MOGroup(variableBinding.getOid(), variableBinding.getOid(), variableBinding.getVariable());
                             scope = new DefaultMOContextScope(context, variableBinding.getOid(), true, variableBinding.getOid().nextPeer(), false);
-                            ManagedObject<?> mo2 = server.lookup(new DefaultMOQuery(scope, false));
-                            if (mo2 != null) {
-                                log.warn("could not register single OID at {} because ManagedObject {} is already registered.", variableBinding.getOid(), mo2);
+                            mo = server.lookup(new DefaultMOQuery(scope, false));
+                            if (mo != null) {
+                                log.warn("could not register single OID at {} because ManagedObject {} is already registered.", variableBinding.getOid(), mo);
                             } else {
                                 groups.add(group);
                                 registerGroupAndContext(group, context);
@@ -354,15 +354,15 @@ public class SnmpmanAgent extends BaseAgent {
         try {
             if (context == null || context.toString().equals("")) {
                 MOContextScope contextScope = new DefaultMOContextScope(new OctetString(), group.getScope());
-                ManagedObject<?> other = server.lookup(new DefaultMOQuery(contextScope, false));
+                ManagedObject other = server.lookup(new DefaultMOQuery(contextScope, false));
                 if (other != null) {
                     log.warn("group {} already existed", group);
                     return;
                 }
 
                 contextScope = new DefaultMOContextScope(null, group.getScope());
-                ManagedObject<?> other2 = server.lookup(new DefaultMOQuery(contextScope, false));
-                if (other2 != null) {
+                other = server.lookup(new DefaultMOQuery(contextScope, false));
+                if (other != null) {
                     registerHard(group);
                     return;
                 }
@@ -437,7 +437,7 @@ public class SnmpmanAgent extends BaseAgent {
     private void unregisterDefaultManagedObjects(final OctetString ctx) {
         final OID startOID = new OID(".1");
         final DefaultMOContextScope hackScope = new DefaultMOContextScope(ctx, startOID, true, startOID.nextPeer(), false);
-        ManagedObject<?> query;
+        ManagedObject query;
         while ((query = server.lookup(new DefaultMOQuery(hackScope, false))) != null) {
             server.unregister(query, ctx);
         }
@@ -486,7 +486,7 @@ public class SnmpmanAgent extends BaseAgent {
     @Override
     protected void unregisterManagedObjects() {
         log.trace("unregistered managed objects for agent \"{}\"", agent);
-        for (final ManagedObject<?> mo : groups) {
+        for (final ManagedObject mo : groups) {
             server.unregister(mo, null);
         }
     }

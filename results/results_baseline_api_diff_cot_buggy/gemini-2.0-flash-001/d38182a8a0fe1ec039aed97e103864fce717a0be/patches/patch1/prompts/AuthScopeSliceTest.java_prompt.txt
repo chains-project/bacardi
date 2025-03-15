@@ -94,10 +94,10 @@ The errors are triggered in the following specific lines:
 
 <error_lines>
 ```java
-public Optional<Authentication.User> user() {
+return Optional.of(new Authentication.User("alice"));
 ```
 ```java
-return Optional.of(new Authentication.User("alice"));
+public Optional<Authentication.User> user() {
 ```
 </error_lines>
 
@@ -110,14 +110,14 @@ The API of the dependency has changed. Here are the relevant changes:
 Additional error information:
 
 <error_information>
-[ERROR] /docker-adapter/src/test/java/com/artipie/docker/http/AuthScopeSliceTest.java:[56,51] cannot find symbol
-  symbol:   class User
-  location: interface com.artipie.http.auth.Authentication
-
 [ERROR] /docker-adapter/src/test/java/com/artipie/docker/http/AuthScopeSliceTest.java:[57,62] cannot find symbol
   symbol:   class User
   location: interface com.artipie.http.auth.Authentication
-<error_information>
+
+[ERROR] /docker-adapter/src/test/java/com/artipie/docker/http/AuthScopeSliceTest.java:[56,51] cannot find symbol
+  symbol:   class User
+  location: interface com.artipie.http.auth.Authentication
+</error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:
 

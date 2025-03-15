@@ -1,52 +1,39 @@
-18c18
-<  * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
----
->  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-21,22c21,22
-<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-<  * SOFTWARE.
----
->  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
->  * THE SOFTWARE.
-30,31d29
+28a29
+> import java.nio.file.Files;
+30c31,32
 < import org.cactoos.collection.Filtered;
-< import org.cactoos.iterable.IterableOf;
-36d33
-< import org.cactoos.scalar.CheckedScalar;
-38d34
-< import org.cactoos.scalar.UncheckedScalar;
-40d35
-< import org.cactoos.text.SplitText;
-42a38,41
+---
+> import java.util.Arrays;
 > import org.cactoos.iterable.Filtered;
-> import org.cactoos.text.Split;
-> import org.cactoos.scalar.Scalar;
-> import org.cactoos.scalar.Unchecked;
-201,202c200
+36d37
+< import org.cactoos.scalar.CheckedScalar;
+38d38
+< import org.cactoos.scalar.UncheckedScalar;
+40d39
+< import org.cactoos.text.SplitText;
+201,208c200,202
 <             return new CheckedScalar<>(
 <                 () -> Long.parseUnsignedLong(
----
->             final Scalar<Long> scalar = () -> Long.parseUnsignedLong(
-204c202
+<                     new ListOf<>(
 <                         new SplitText(
----
->                     new Split(
-206c204
+<                             new TextOf(this.path),
 <                             "\n"
+<                         )
+<                     ).get(2).asString(),
 ---
->                         "\\n"
-211,213c209,214
+>             try {
+>                 return Long.parseUnsignedLong(
+>                     Files.readAllLines(this.path).get(2),
+211,213c205,208
 <                 ),
 <                 e -> new IOException(e)
 <             ).value();
 ---
->             );
->             try {
->                 return scalar.value();
+>                 );
 >             } catch (final Exception e) {
 >                 throw new IOException(e);
 >             }
-248,261c249,267
+248,258c243,256
 <                 incoming -> new Filtered<>(
 <                     origin -> new UncheckedScalar<>(
 <                         new Or(
@@ -58,30 +45,30 @@
 <                             () -> incoming.prefix().equals(origin.prefix())
 <                         )
 <                     ).value(),
-<                     ledger
-<                 ).isEmpty(),
-<                 other.ledger()
 ---
->                 other.ledger(),
 >                 incoming -> {
 >                     return new Filtered<>(
->                         ledger,
 >                         origin -> {
->                             final Scalar<Boolean> or = () -> incoming.equals(origin)
->                                 || (incoming.id() == origin.id()
->                                 && incoming.bnf().equals(origin.bnf()))
->                                 || (incoming.id() == origin.id()
->                                 && incoming.amount() < 0L)
->                                 || incoming.prefix().equals(origin.prefix());
 >                             try {
->                                 return !or.value();
+>                                 return incoming.equals(origin)
+>                                     || (incoming.id() == origin.id()
+>                                         && incoming.bnf().equals(origin.bnf()))
+>                                     || (incoming.id() == origin.id()
+>                                         && incoming.amount() < 0L)
+>                                     || incoming.prefix().equals(origin.prefix());
 >                             } catch (final Exception ex) {
 >                                 throw new IllegalStateException(ex);
 >                             }
->                         }
->                     ).isEmpty();
->                 }
-275c281
-<                         new SplitText(
+>                         },
+260c258,259
+<                 ).isEmpty(),
 ---
->                         new Split(
+>                     ).isEmpty();
+>                 },
+275,277c274,275
+<                         new SplitText(
+<                             new TextOf(this.path),
+<                             "\\n"
+---
+>                         Arrays.asList(
+>                             new TextOf(this.path).asString().split("\\n")

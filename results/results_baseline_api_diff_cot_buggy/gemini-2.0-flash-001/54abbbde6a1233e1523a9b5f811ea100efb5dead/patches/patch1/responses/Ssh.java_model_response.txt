@@ -1,34 +1,31 @@
 <fix_planning>
-a. Relevant parts of the code and API changes:
-- The code uses `com.jcabi.aspects.Tv` in the `@RetryOnFailure` annotation and as an import.
-- The API changes indicate that `com.jcabi.aspects.Tv` has been removed.
+a. Relevant code and API changes:
+- The code uses `com.jcabi.aspects.Tv` to define a constant for the number of retry attempts.
+- The API change indicates that `com.jcabi.aspects.Tv` has been removed.
 
 b. Specific API changes causing the issue:
-- The removal of the `com.jcabi.aspects.Tv` class.
+- Removal of the `com.jcabi.aspects.Tv` class.
 
 c. Affected lines of code:
 - `import com.jcabi.aspects.Tv;`
 - `attempts = Tv.SEVEN,`
 
-d. Proposed potential fixes for each affected line:
-- `import com.jcabi.aspects.Tv;`: Remove this import statement.
-- `attempts = Tv.SEVEN,`: Replace `Tv.SEVEN` with a numerical value. Since `Tv` is gone, we need to find a suitable replacement. `Tv.SEVEN` likely represented the integer 7.
+d. Proposed potential fixes:
+- Replace `Tv.SEVEN` with a numerical literal (e.g., 7).
+- Remove the import statement `import com.jcabi.aspects.Tv;`.
 
-e. Consider any potential side effects of the proposed changes:
-- Removing the import statement is safe as the class is no longer used.
-- Replacing `Tv.SEVEN` with `7` should maintain the intended functionality of retrying seven times.
+e. Potential side effects of the proposed changes:
+- Replacing `Tv.SEVEN` with a numerical literal directly encodes the retry attempts, making it less configurable without modifying the code. However, since the class `Tv` is removed, this is the only viable option.
 
-f. Explicitly check if the proposed changes adhere to all the given constraints:
-1. No function signatures are changed.
-2. A variable is not created.
-3. The `@Override` annotation is not removed.
-4. No new imports are added.
-5. No existing code is removed except for the unused import.
-6. All code is included in the final output.
-7. No placeholder comments are used.
+f. Adherence to constraints:
+- The function signature of any method is not changed.
+- A variable is not created.
+- The import statement is removed.
+- No existing code is removed unless it directly causes a compilation error.
+- All code, even unchanged portions, is included in the final output.
 
-g. Final summary of the chosen fix and why it's the best solution:
-- The best solution is to remove the import statement `import com.jcabi.aspects.Tv;` and replace `Tv.SEVEN` with the integer literal `7`. This directly addresses the compilation errors caused by the missing class while preserving the original functionality of the code.
+g. Final summary of the chosen fix:
+- The best solution is to replace `Tv.SEVEN` with the numerical literal `7` and remove the import statement `import com.jcabi.aspects.Tv;`. This directly addresses the compilation error caused by the missing class and adheres to all constraints.
 </fix_planning>
 
 ```java
@@ -324,7 +321,7 @@ public final class Ssh extends AbstractSshShell {
         session.setConfig("StrictHostKeyChecking", "no");
         session.setTimeout((int) TimeUnit.MINUTES.toMillis(1L));
         session.setServerAliveInterval((int) TimeUnit.SECONDS.toMillis(1L));
-        session.setServerAliveCountMax(Tv.MILLION);
+        session.setServerAliveCountMax(1000000);
         session.connect((int) TimeUnit.SECONDS.toMillis(10L));
         Logger.debug(
             this,

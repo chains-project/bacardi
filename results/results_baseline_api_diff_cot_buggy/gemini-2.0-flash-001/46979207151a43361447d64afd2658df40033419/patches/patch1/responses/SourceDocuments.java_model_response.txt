@@ -1,30 +1,49 @@
 <fix_planning>
-The problem is that `JAXBToStringStrategy.getInstance()` has been removed in the newer version of the `org.jvnet.jaxb2_commons` dependency. This method was used to obtain an instance of the `ToStringStrategy2` interface. Since the `getInstance()` method is no longer available, we need to find an alternative way to obtain an instance of `ToStringStrategy2`.
+Okay, let's analyze the problem.
 
-A possible solution is to use the default constructor of `org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy`. This class implements the `ToStringStrategy2` interface and provides a default implementation for the `toString` method.
+a. Relevant code and API changes:
 
-Here's a breakdown of the affected code and the proposed fix:
+The code uses `org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy.getInstance()` to get an instance of the `ToStringStrategy2` interface. The API changes indicate that the `getInstance()` method has been removed from the `JAXBToStringStrategy` class.
 
-*   **Affected code:**
+b. Specific API changes causing the issue:
 
-    ```java
-    final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
-    ```
+The removal of the `getInstance()` method from `org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy` is the root cause of the compilation errors.
 
-*   **API change:** `JAXBToStringStrategy.getInstance()` has been removed.
+c. Affected lines of code:
 
-*   **Proposed fix:** Replace `JAXBToStringStrategy.getInstance()` with `new org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy()`.
+The following lines are affected:
 
-*   **Potential side effects:** The `DefaultToStringStrategy` might have a different implementation than `JAXBToStringStrategy`, potentially affecting the output of the `toString()` method. However, since we are only aiming to fix the compilation error caused by the API change, this side effect is acceptable as long as the core functionality remains intact.
+```java
+final ToStringStrategy2 strategy = JAXBToStringStrategy.getInstance();
+```
 
-*   **Constraints check:**
-    *   The fix does not change any function signatures.
-    *   The fix creates a local variable `strategy`.
-    *   The fix adheres to all other constraints.
+This line appears multiple times throughout the class.
 
-*   **Summary:** The best solution is to replace `JAXBToStringStrategy.getInstance()` with `new org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy()` to resolve the compilation error caused by the API change. This approach minimizes code changes and adheres to all given constraints.
+d. Proposed potential fixes for each affected line:
 
-Now, let's apply the fix to the Java code.
+Since `JAXBToStringStrategy.getInstance()` is no longer available, we need to find an alternative way to obtain a `ToStringStrategy2` instance.  Looking at the `org.jvnet.jaxb2_commons.lang` package, it seems like we can directly instantiate `JAXBToStringStrategy`.
+
+Proposed fix:
+
+```java
+final ToStringStrategy2 strategy = new JAXBToStringStrategy();
+```
+
+e. Potential side effects of the proposed changes:
+
+Direct instantiation might have subtle side effects if the `JAXBToStringStrategy` class had a complex initialization process within its `getInstance()` method. However, based on common patterns, it's likely that direct instantiation will be equivalent.
+
+f. Adherence to constraints:
+
+*   The fix does not change any function signatures.
+*   The fix creates a variable.
+*   The fix does not remove any code unless it directly causes a compilation or functionality error.
+*   The fix does not require any new imports.
+*   The fix includes all code, even unchanged portions, in the final output.
+
+g. Final summary:
+
+The best solution is to replace calls to the removed `JAXBToStringStrategy.getInstance()` method with direct instantiation of the `JAXBToStringStrategy` class using `new JAXBToStringStrategy()`. This approach addresses the compilation error caused by the API change while adhering to all constraints.
 </fix_planning>
 
 ```java
@@ -49,7 +68,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
-import org.jvnet.jaxb2_commons.lang.DefaultToStringStrategy;
+import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToString2;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy2;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
@@ -339,7 +358,4 @@ import org.jvnet.jaxb2_commons.locator.ObjectLocator;
  *                                 &lt;/complexContent&gt;
  *                               &lt;/complexType&gt;
  *                             &lt;/element&gt;
- *                             &lt;element name="DocumentTotals"&gt;
- *                               &lt;complexType&gt;
- *                                 &lt;complexContent&gt;
- *                                   &lt;restriction base="{http://www.w3.org/2001/
+ *                             &lt;element

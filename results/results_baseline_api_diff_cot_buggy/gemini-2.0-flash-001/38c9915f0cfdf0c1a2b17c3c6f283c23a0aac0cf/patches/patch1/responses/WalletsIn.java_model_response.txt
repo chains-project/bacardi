@@ -1,45 +1,45 @@
 <fix_planning>
 a. Relevant code and API changes:
 
-The code uses `org.cactoos.scalar.IoCheckedScalar`, `org.cactoos.text.JoinedText`, and `org.cactoos.scalar.SolidScalar`, all of which have been removed in the newer version of the `cactoos` dependency. The constructor `IoCheckedScalar(org.cactoos.Scalar)` and `SolidScalar(org.cactoos.Scalar)` are also removed.
+The code uses `org.cactoos.scalar.IoCheckedScalar`, `org.cactoos.scalar.SolidScalar`, and `org.cactoos.text.JoinedText`. All three classes and their constructors used in the code have been removed in the newer version of the `cactoos` dependency.
 
-b. Specific API changes causing the issue:
+Specifically:
+- `new IoCheckedScalar<>(new SolidScalar<>(pth))` is used to create `this.path`.
+- `new JoinedText(".", Long.toHexString(this.random.nextLong()), this.ext).asString()` is used to generate a file name.
 
-The removal of the classes `IoCheckedScalar`, `JoinedText`, and `SolidScalar` directly causes compilation errors.
+b. API changes causing the issue:
+
+The removal of `IoCheckedScalar`, `SolidScalar`, and `JoinedText` classes and their constructors.
 
 c. Affected lines of code:
 
-- `import org.cactoos.scalar.IoCheckedScalar;`
-- `import org.cactoos.text.JoinedText;`
-- `import org.cactoos.scalar.SolidScalar;`
-- `private final IoCheckedScalar<Path> path;`
-- `this.path = new IoCheckedScalar<>(new SolidScalar<>(pth));`
-- `new JoinedText(".", Long.toHexString(this.random.nextLong()), this.ext).asString()`
+- Line 37: `import org.cactoos.scalar.IoCheckedScalar;`
+- Line 38: `import org.cactoos.scalar.SolidScalar;`
+- Line 40: `import org.cactoos.text.JoinedText;`
+- Line 53: `private final IoCheckedScalar<Path> path;`
+- Line 66: `this.path = new IoCheckedScalar<>(new SolidScalar<>(pth));`
+- Line 98: `new JoinedText(".", Long.toHexString(this.random.nextLong()), this.ext).asString()`
 
 d. Proposed fixes:
 
-- Remove the imports for `IoCheckedScalar`, `JoinedText`, and `SolidScalar`.
-- Replace `IoCheckedScalar<Path>` with `Scalar<Path>` and handle the potential `IOException` directly.
-- Replace `new IoCheckedScalar<>(new SolidScalar<>(pth))` with `pth`.
-- Replace `new JoinedText(".", Long.toHexString(this.random.nextLong()), this.ext).asString()` with a standard Java string concatenation.
+- Replace `IoCheckedScalar<Path>` with `Scalar<Path>` and remove the `IoCheckedScalar` wrapper. Use `pth.value()` directly.
+- Replace `SolidScalar<>(pth)` with `pth`.
+- Replace `JoinedText` with a standard Java string concatenation.
 
 e. Potential side effects:
 
-- Removing `IoCheckedScalar` requires handling the `IOException` that might be thrown by `pth.value()` directly.
-- Replacing `JoinedText` with string concatenation might slightly affect performance, but it's unlikely to be significant.
+- Removing `IoCheckedScalar` might expose potential `IOException`s. However, the code already handles `IOException` in the `iterator()` method, so this should be acceptable.
 
 f. Adherence to constraints:
 
-- The function signatures are not changed.
-- Variables can be created if needed.
-- The `@Override` annotation is not affected.
-- The correct packages are used.
-- No existing code is removed unless it directly causes an error.
-- All code is included in the final output.
+- The proposed changes do not change any function signatures.
+- The proposed changes create local variables to simplify the code.
+- The proposed changes remove the imports that are no longer needed.
+- The proposed changes do not remove any existing code unless it directly causes a compilation error.
 
 g. Final summary:
 
-The best solution is to remove the deprecated `cactoos` classes and use standard Java alternatives. This involves removing the imports, replacing `IoCheckedScalar` with `Scalar` and handling the `IOException`, and using string concatenation instead of `JoinedText`. This approach adheres to all constraints and resolves the compilation errors caused by the API changes.
+The best solution is to replace `IoCheckedScalar` and `SolidScalar` with `Scalar` and directly use the `pth` value. Replace `JoinedText` with string concatenation. This addresses the API changes while minimizing the impact on the existing code and adhering to all constraints.
 </fix_planning>
 
 ```java
@@ -52,7 +52,7 @@ The best solution is to remove the deprecated `cactoos` classes and use standard
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * copies of the Software, and to permit persons to whom this software is
  * furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included
@@ -155,18 +155,13 @@ public final class WalletsIn implements Wallets {
 
     @Override
     public Wallet create() throws IOException {
-        final Path wpth;
-        try {
-            wpth = this.path.value().resolve(
-                String.format(
-                    "%s.%s",
-                    Long.toHexString(this.random.nextLong()),
-                    this.ext
-                )
-            );
-        } catch (final IOException ex) {
-            throw new IOException("Failed to resolve path", ex);
-        }
+        final Path wpth = this.path.value().resolve(
+            String.format(
+                "%s.%s",
+                Long.toHexString(this.random.nextLong()),
+                this.ext
+            )
+        );
         if (wpth.toFile().exists()) {
             throw new IOException(
                 new UncheckedText(

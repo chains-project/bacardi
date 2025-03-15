@@ -1,14 +1,12 @@
-18,20d17
+18,21d17
 < import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;
 < import com.google.api.services.cloudresourcemanager.model.Constraint;
 < import com.google.api.services.cloudresourcemanager.model.ListConstraint;
-35,36c32,33
+< import com.google.common.base.Function;
+35,50d30
 <   static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
 <       new Function<Constraint, ConstraintInfo>() {
----
->   static final Function<ConstraintInfo, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
->       new Function<ConstraintInfo, ConstraintInfo>() {
-38,46c35,36
+<         @Override
 <         public ConstraintInfo apply(Constraint protobuf) {
 <           return ConstraintInfo.fromProtobuf(protobuf);
 <         }
@@ -18,14 +16,11 @@
 <         @Override
 <         public Constraint apply(ConstraintInfo constraintInfo) {
 <           return constraintInfo.toProtobuf();
----
->         public ConstraintInfo apply(ConstraintInfo constraintInfo) {
->           return constraintInfo;
-50c40
+<         }
+<       };
+< 
 <   private BooleanConstraint booleanConstraint;
----
->   private Boolean booleanConstraint;
-113,120d102
+113,120d92
 < 
 <     ListConstraint toProtobuf() {
 <       return new ListConstraint().setSuggestedValue(suggestedValue).setSupportsUnder(supportsUnder);
@@ -34,19 +29,35 @@
 <     static Constraints fromProtobuf(ListConstraint listConstraint) {
 <       return new Constraints(listConstraint.getSuggestedValue(), listConstraint.getSupportsUnder());
 <     }
-125c107
+125d96
 <     private BooleanConstraint booleanConstraint;
----
->     private Boolean booleanConstraint;
-147c129
+138d108
+<       this.booleanConstraint = info.booleanConstraint;
+147,151d116
 <     Builder setBooleanConstraint(BooleanConstraint booleanConstraint) {
----
->     Builder setBooleanConstraint(Boolean booleanConstraint) {
-198c180
+<       this.booleanConstraint = booleanConstraint;
+<       return this;
+<     }
+< 
+188d152
+<     this.booleanConstraint = builder.booleanConstraint;
+197,201d160
+<   /** Returns the boolean constraint to check whether the constraint is enforced or not. */
 <   public BooleanConstraint getBooleanConstraint() {
+<     return booleanConstraint;
+<   }
+< 
+241,242c200
+<     return Objects.equals(booleanConstraint, that.booleanConstraint)
+<         && Objects.equals(constraintDefault, that.constraintDefault)
 ---
->   public Boolean getBooleanConstraint() {
-264,293d245
+>     return Objects.equals(constraintDefault, that.constraintDefault)
+252,253c210
+<     return Objects.hash(
+<         booleanConstraint, constraintDefault, description, displayName, constraints, name, version);
+---
+>     return Objects.hash(constraintDefault, description, displayName, constraints, name, version);
+264,293d220
 <   }
 < 
 <   Constraint toProtobuf() {

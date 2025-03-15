@@ -12,7 +12,6 @@ import java.util.Optional;
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.network.channel.ChannelBuf;
 import org.spongepowered.api.network.RemoteConnection;
 import org.spongepowered.api.scheduler.Task;
@@ -24,15 +23,15 @@ public class UpdateSkinListener /*implements RawDataListener*/ {
 
     //@Override
     public void handlePayload(ChannelBuf data, RemoteConnection connection, Type side) {
-        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.array());
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.asByteArray());
         SkinUpdateMessage updateMessage = new SkinUpdateMessage();
         updateMessage.readFrom(dataInput);
 
         String playerName = updateMessage.getPlayerName();
-        Optional<Player> receiver = Sponge.game().server().player(playerName);
+        Optional<Player> receiver = Sponge.getServer().getPlayer(playerName);
         if (receiver.isPresent()) {
-            Runnable skinUpdater = new SkinApplier(plugin, (ServerPlayer) connection, receiver.get(), null, false);
-            Sponge.asyncScheduler().submit(skinUpdater, plugin);
+            Runnable skinUpdater = new SkinApplier(plugin, (Player) connection, receiver.get(), null, false);
+            Sponge.getAsyncScheduler().submit(skinUpdater, plugin);
         }
     }
 }

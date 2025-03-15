@@ -1,7 +1,10 @@
-162,163c162,164
+162,163c162,167
 <         return AnalysisEngineConfiguration.builder()
 <                 .addEnabledLanguages(globalConfig.getEnabledLanguages())
 ---
 >         AnalysisEngineConfiguration.Builder builder = AnalysisEngineConfiguration.builder();
->         globalConfig.getEnabledLanguages().forEach(builder::addEnabledLanguage);
+>         Set<Language> enabledLanguages = globalConfig.getEnabledLanguages();
+>         for (Language language : enabledLanguages) {
+>             builder.addEnabledLanguage(language);
+>         }
 >         return builder

@@ -1,7 +1,10 @@
-41a42,43
+16a17
 > import com.artipie.http.auth.AuthUser;
-> import com.artipie.http.auth.BasicIdentities;
+30a32
+> import java.util.Optional;
 353c355
 <                             .map(user -> new Authentication.User(user.name()))
 ---
->                             .map(user -> BasicIdentities.Simple.of(user.name()))
+>                             .map(user -> Optional.of(new AuthUser(user.name())))
+354a357
+>                             .orElse(Optional.empty())

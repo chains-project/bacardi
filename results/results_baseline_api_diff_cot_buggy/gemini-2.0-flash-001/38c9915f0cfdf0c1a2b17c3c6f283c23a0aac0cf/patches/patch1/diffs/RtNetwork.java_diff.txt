@@ -1,19 +1,27 @@
 30d29
 < import org.cactoos.scalar.IoCheckedScalar;
-31a31
-> import org.cactoos.Scalar;
-66,67c66
+66,67c65,66
 <         return new IoCheckedScalar<>(
 <             new Reduced<>(
 ---
->         final Scalar<Wallet> reduced = new Reduced<>(
-73,74c72,77
-<             )
-<         ).value();
----
->         );
 >         try {
->             return reduced.value();
->         } catch (final Exception ex) {
->             throw new IOException(ex);
+>             return new Reduced<>(
+70c69,75
+<                     c -> c::wallet,
+---
+>                     c -> {
+>                         try {
+>                             return c.wallet();
+>                         } catch (IOException ex) {
+>                             throw new RuntimeException(ex);
+>                         }
+>                     },
+73d77
+<             )
+74a79,84
+>         } catch (RuntimeException ex) {
+>             if (ex.getCause() instanceof IOException) {
+>                 throw (IOException) ex.getCause();
+>             }
+>             throw ex;
 >         }

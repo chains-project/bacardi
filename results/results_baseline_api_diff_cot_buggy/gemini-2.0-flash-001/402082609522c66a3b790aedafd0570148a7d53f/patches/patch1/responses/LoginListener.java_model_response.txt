@@ -1,50 +1,33 @@
 <fix_planning>
-a. Relevant code:
-```java
-import org.spongepowered.api.event.network.ClientConnectionEvent;
+a. Relevant code and API changes:
+- The code uses `org.spongepowered.api.event.network.ClientConnectionEvent.Auth`.
+- The API changes indicate that `org.spongepowered.api.event.network.ClientConnectionEvent` and `org.spongepowered.api.event.network.ClientConnectionEvent$Auth` have been removed.
+- The code uses `preLoginEvent.getProfile()` which was previously part of `ClientConnectionEvent.Auth`.
 
-@Listener
-public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {
-    GameProfile profile = preLoginEvent.getProfile();
-    String playerName = profile.getName().get();
-}
-```
+b. Specific API changes causing the issue:
+- Removal of `org.spongepowered.api.event.network.ClientConnectionEvent$Auth`.
 
-Relevant API changes:
-* `Class org.spongepowered.api.event.network.ClientConnectionEvent` has been removed.
-* `Class org.spongepowered.api.event.network.ClientConnectionEvent$Auth` has been removed.
-* `Method org.spongepowered.api.event.network.ClientConnectionEvent$Auth.getProfile()` has been removed.
-* `Method org.spongepowered.api.profile.GameProfile.getName()` has been removed.
-
-b. The `ClientConnectionEvent` and `ClientConnectionEvent.Auth` classes have been removed, and `ClientConnectionEvent.Auth.getProfile()` and `GameProfile.getName()` methods are no longer available.
-
-c. Affected lines:
-* Line 13: `import org.spongepowered.api.event.network.ClientConnectionEvent;`
-* Line 29: `public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent) {`
-* Line 31: `GameProfile profile = preLoginEvent.getProfile();`
-* Line 38: `String playerName = profile.getName().get();`
+c. Affected lines of code:
+- `import org.spongepowered.api.event.network.ClientConnectionEvent;`
+- `@Listener public void onPlayerPreLogin(ClientConnectionEvent.Auth preLoginEvent)`
+- `GameProfile profile = preLoginEvent.getProfile();`
 
 d. Proposed fixes:
-* Line 13: Remove the import statement.
-* Line 29: Replace `ClientConnectionEvent.Auth` with `org.spongepowered.api.event.network.ServerSideConnectionEvent.Auth` and update the parameter name.
-* Line 31: Replace `preLoginEvent.getProfile()` with `preLoginEvent.profile()` to get the `GameProfile`.
-* Line 38: Replace `profile.getName().get()` with `profile.name()` to get the player name.
+- Replace `ClientConnectionEvent.Auth` with `org.spongepowered.api.event.server.ClientPingServerEvent`. However, this event doesn't provide the profile.
+- Investigate alternative events that provide the `GameProfile` during login. `org.spongepowered.api.event.network.ServerSideConnectionEvent.Auth` seems like a suitable replacement.
 
 e. Potential side effects:
-* The code relies on the `ClientConnectionEvent.Auth` event. Replacing it with `org.spongepowered.api.event.network.ServerSideConnectionEvent.Auth` might change the behavior if the new event is triggered at a different time or has different properties.
-* The code relies on `GameProfile.getName().get()` to get the player name. Replacing it with `profile.name()` might change the behavior if the new method returns a different value.
+- Changing the event might require adapting the logic within the event handler.
 
-f. Constraints check:
-* The function signature of `onPlayerPreLogin` is preserved.
-* New variables are not created.
-* The `@Override` annotation is not removed.
-* The correct package or class is used in accordance with the newer dependency version.
-* No existing code is removed unless it directly causes a compilation or functionality error.
-* All code, even unchanged portions, is included in the final output.
+f. Adherence to constraints:
+- The proposed changes do not change the function signature of any method.
+- The proposed changes may require creating variables.
+- The proposed changes may require removing the `@Override` annotation.
+- The proposed changes address missing imports.
+- The proposed changes do not remove any existing code unless it directly causes a compilation or functionality error.
 
-g. Summary:
-The best solution is to replace `ClientConnectionEvent.Auth` with `org.spongepowered.api.event.network.ServerSideConnectionEvent.Auth`, `preLoginEvent.getProfile()` with `preLoginEvent.profile()`, and `profile.getName().get()` with `profile.name()`. This fixes the compilation errors and preserves the original functionality as much as possible.
-
+g. Final summary:
+The best solution is to replace `ClientConnectionEvent.Auth` with `org.spongepowered.api.event.network.ServerSideConnectionEvent.Auth.Login`, which appears to be the correct replacement based on the Sponge API documentation. This requires updating the import statement and casting the event.
 </fix_planning>
 
 ```java
@@ -76,10 +59,10 @@ public class LoginListener extends SharedListener {
     }
 
     @Listener
-    public void onPlayerPreLogin(ServerSideConnectionEvent.Auth preLoginEvent) {
+    public void onPlayerPreLogin(ServerSideConnectionEvent.Auth.Login preLoginEvent) {
         SkinStorage storage = core.getStorage();
-        GameProfile profile = preLoginEvent.profile();
-        UUID playerUUID = profile.uniqueId();
+        GameProfile profile = preLoginEvent.getProfile();
+        UUID playerUUID = profile.getUniqueId();
 
         UserPreference preferences = storage.getPreferences(playerUUID);
         Optional<SkinModel> optSkin = preferences.getTargetSkin();
@@ -92,7 +75,10 @@ public class LoginListener extends SharedListener {
             plugin.getApi().applyProperties(profile, targetSkin);
             save(preferences);
         } else {
-            String playerName = profile.name();
+            String playerName = profile.getName().orElse(null);
+            if (playerName == null) {
+                return;
+            }
             if (!core.getConfig().getBoolean("restoreSkins") || !refetchSkin(playerName, preferences)) {
                 setDefaultSkin(preferences, profile);
             }

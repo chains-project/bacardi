@@ -1,80 +1,39 @@
 <fix_planning>
 a. Relevant code and API changes:
-- Code:
-```java
-package com.github.games647.changeskin.sponge.task;
-
-import com.github.games647.changeskin.core.model.skin.SkinModel;
-import com.github.games647.changeskin.core.shared.task.SharedDownloader;
-import com.github.games647.changeskin.sponge.ChangeSkinSponge;
-
-import java.util.UUID;
-
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.scheduler.Task;
-
-public class SkinDownloader extends SharedDownloader {
-
-    private final ChangeSkinSponge plugin;
-    private final CommandSource invoker;
-    private final Player receiver;
-
-    public SkinDownloader(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, UUID targetUUID
-            , boolean keepSkin) {
-        super(plugin.getCore(), keepSkin, targetUUID, receiver.getUniqueId());
-
-        this.plugin = plugin;
-        this.invoker = invoker;
-        this.receiver = receiver;
-    }
-
-    @Override
-    protected void scheduleApplyTask(SkinModel skinData) {
-        Runnable skinUpdater = new SkinApplier(plugin, invoker, receiver, skinData, keepSkin);
-        Task.builder().execute(skinUpdater).submit(plugin);
-    }
-
-    @Override
-    public void sendMessageInvoker(String id) {
-        plugin.sendMessage(invoker, id);
-    }
-}
-```
-- API Changes:
-`Class org.spongepowered.api.command.CommandSource has been removed in the new version of the dependency.`
+- The code uses `org.spongepowered.api.command.CommandSource`.
+- The API changes indicate that `org.spongepowered.api.command.CommandSource` has been removed.
 
 b. Specific API changes causing the issue:
-The `org.spongepowered.api.command.CommandSource` class has been removed.
+- The removal of `org.spongepowered.api.command.CommandSource` is the direct cause of the compilation errors.
 
 c. Affected lines of code:
-- `import org.spongepowered.api.command.CommandSource;`
 - `private final CommandSource invoker;`
 - `public SkinDownloader(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, UUID targetUUID`
+- `import org.spongepowered.api.command.CommandSource;`
 - `public SkinDownloader(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, UUID targetUUID`
 
-d. Proposed potential fixes for each affected line:
-Since `CommandSource` has been removed, we need to find a suitable replacement. `CommandSource` was likely used to send messages to the entity that executed the command. `Player` implements `CommandCause`, which seems to be the replacement for `CommandSource`.
+d. Proposed fixes:
+Since `CommandSource` has been removed, we need to find a suitable replacement. Inspecting the Sponge API, it seems `org.spongepowered.api.service.permission.Subject` is a good candidate. `Player` already implements `Subject`, and it's likely the `CommandSource` was used for permission checks or sending messages. We can replace `CommandSource` with `Subject`.
 
-- `import org.spongepowered.api.command.CommandSource;`: Replace with `org.spongepowered.api.service.context.ContextSource;` and `org.spongepowered.api.command.CommandCause;`
-- `private final CommandSource invoker;`: Replace with `private final CommandCause invoker;`
-- `public SkinDownloader(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, UUID targetUUID`: Replace with `public SkinDownloader(ChangeSkinSponge plugin, CommandCause invoker, Player receiver, UUID targetUUID`
-- `public SkinDownloader(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, UUID targetUUID`: Replace with `public SkinDownloader(ChangeSkinSponge plugin, CommandCause invoker, Player receiver, UUID targetUUID`
-- `plugin.sendMessage(invoker, id);`: This line is in `sendMessageInvoker`. `plugin.sendMessage` likely takes a `CommandSource` as an argument. We need to check if it now takes a `CommandCause`. If it does, no change is needed here. If it still takes a `CommandSource`, we need to update `plugin.sendMessage` to accept a `CommandCause`. Since we are only allowed to modify the client code, we will assume that `plugin.sendMessage` can handle `CommandCause`.
+- Replace `import org.spongepowered.api.command.CommandSource;` with `import org.spongepowered.api.service.permission.Subject;`
+- Replace `private final CommandSource invoker;` with `private final Subject invoker;`
+- Replace `public SkinDownloader(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, UUID targetUUID` with `public SkinDownloader(ChangeSkinSponge plugin, Subject invoker, Player receiver, UUID targetUUID`
+- In `scheduleApplyTask`, the `SkinApplier` constructor will also need to be updated if it uses `CommandSource`. However, based on the provided code, we don't have access to the `SkinApplier` class, so we will assume it will be updated accordingly.
+- In `sendMessageInvoker`, the `plugin.sendMessage` method will also need to be updated if it uses `CommandSource`. However, based on the provided code, we don't have access to the `plugin.sendMessage` method, so we will assume it will be updated accordingly.
 
-e. Potential side effects of the proposed changes:
-The code relies on `CommandSource` for sending messages. Replacing it with `CommandCause` might change the way messages are sent, but it should be functionally equivalent.
+e. Potential side effects:
+- Replacing `CommandSource` with `Subject` might require changes in other parts of the code that rely on the specific functionality of `CommandSource`. We are assuming that `Subject` provides the necessary functionality or that the other parts of the code can be adapted to use `Subject`.
 
 f. Adherence to constraints:
-- We are not changing the function signature of any method except the constructor.
-- We are creating variables.
-- We are removing the @Override annotation if and only if the method no longer overrides a method in the updated dependency version.
+- We are not changing the function signature of any method, except for the constructor of `SkinDownloader`. However, this is necessary to adapt to the API change.
+- We are creating variables where necessary.
+- We are removing the `@Override` annotation only if the method no longer overrides a method in the updated dependency version.
 - We are ensuring the correct package or class is used in accordance with the newer dependency version.
 - We are not removing any existing code unless it directly causes a compilation or functionality error.
 - We are including all code, even unchanged portions, in our final output.
 
-g. Final summary of the chosen fix:
-The best solution is to replace `CommandSource` with `CommandCause` throughout the class. This addresses the compilation errors caused by the removal of `CommandSource` in the new Sponge API. We assume that `plugin.sendMessage` can handle `CommandCause`.
+g. Final summary:
+The best solution is to replace `org.spongepowered.api.command.CommandSource` with `org.spongepowered.api.service.permission.Subject`. This addresses the compilation errors caused by the API change and allows the code to function with the updated dependency. We are making the necessary changes to the `SkinDownloader` class and assuming that other parts of the code will be updated accordingly.
 
 </fix_planning>
 
@@ -87,17 +46,17 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 
 import java.util.UUID;
 
-import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.service.permission.Subject;
 
 public class SkinDownloader extends SharedDownloader {
 
     private final ChangeSkinSponge plugin;
-    private final CommandCause invoker;
+    private final Subject invoker;
     private final Player receiver;
 
-    public SkinDownloader(ChangeSkinSponge plugin, CommandCause invoker, Player receiver, UUID targetUUID
+    public SkinDownloader(ChangeSkinSponge plugin, Subject invoker, Player receiver, UUID targetUUID
             , boolean keepSkin) {
         super(plugin.getCore(), keepSkin, targetUUID, receiver.getUniqueId());
 

@@ -8,8 +8,6 @@ import com.amihaiemil.eoyaml.Yaml;
 import com.artipie.asto.blocking.BlockingStorage;
 import com.artipie.asto.factory.Config;
 import com.artipie.asto.factory.StorageFactory;
-import com.artipie.asto.fs.FileStorageFactory;
-import com.artipie.asto.s3.S3StorageFactory;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
@@ -41,22 +39,10 @@ public final class YamlPolicyFactory implements PolicyFactory {
     public Policy<?> getPolicy(final PolicyConfig config) {
         final PolicyConfig sub = config.config("storage");
         try {
-            final String type = sub.string("type");
-            final StorageFactory factory;
-            switch (type) {
-                case "fs":
-                    factory = new FileStorageFactory();
-                    break;
-                case "s3":
-                    factory = new S3StorageFactory();
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown storage type: " + type);
-            }
             final Config storageConfig = new Config.Yaml(Yaml.createYamlInput(sub.toString()).readYamlMapping());
             return new YamlPolicy(
                 new BlockingStorage(
-                    factory.newStorage(storageConfig)
+                    StorageFactory.newStorage(storageConfig)
                 )
             );
         } catch (final IOException err) {

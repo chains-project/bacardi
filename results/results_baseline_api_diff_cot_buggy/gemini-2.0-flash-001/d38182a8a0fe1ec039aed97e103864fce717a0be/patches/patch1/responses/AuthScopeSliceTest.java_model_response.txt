@@ -3,31 +3,28 @@ a. Code and API changes:
 The code uses `Authentication.User` which has been removed from the `com.artipie.http.auth.Authentication` interface. The constructor `Authentication.User(java.lang.String)` and `Authentication.User(java.lang.String,java.util.Collection)` have also been removed.
 
 b. Specific API changes causing the issue:
-The removal of the `Authentication.User` class and its constructors within the `com.artipie.http.auth.Authentication` interface is the root cause.
+The removal of `Authentication.User` class and its constructors from the `com.artipie.http.auth.Authentication` interface.
 
 c. Affected lines of code:
-- Line 56: `public Optional<Authentication.User> user() {`
-- Line 57: `return Optional.of(new Authentication.User("alice"));`
+```java
+return Optional.of(new Authentication.User("alice"));
+```
 
 d. Proposed fixes:
-Since `Authentication.User` is removed, we need to find a replacement. Looking at the `artipie-http` library, it seems `com.artipie.http.auth.User` is the replacement. We need to use `com.artipie.http.auth.User` instead of `com.artipie.http.auth.Authentication.User`. The constructor `User(String name)` exists in the new `com.artipie.http.auth.User` class.
+Since `Authentication.User` is removed, we need to find a replacement. Looking at the `artipie-http` library, it seems the `User` class has been moved to the `com.artipie.http.auth` package directly. So, we can try using `com.artipie.http.auth.User` instead of `Authentication.User`. We will also need to update the import statement.
 
-- Line 56: Change `Authentication.User` to `com.artipie.http.auth.User`.
-- Line 57: Change `new Authentication.User("alice")` to `new com.artipie.http.auth.User("alice")`.
-- Add import `import com.artipie.http.auth.User;`
-
-e. Potential side effects:
-The change should not have any side effects as we are replacing the deprecated class with its replacement.
+e. Potential side effects of the proposed changes:
+The change might affect other parts of the code that rely on the old `Authentication.User` class. However, since we are only modifying the test class, the impact should be minimal.
 
 f. Adherence to constraints:
-1. The function signature of the method is not changed.
-2. A new import statement is added.
-3. The `@Override` annotation is kept.
-4. No existing code is removed unless it directly causes a compilation or functionality error.
-5. All code, even unchanged portions, are included in the final output.
+1. We are not changing the function signature of any method.
+2. We are not removing any existing code unless it directly causes a compilation error.
+3. We are adding an import statement.
+4. We are not using placeholder comments.
+5. We are including all code in the final output.
 
-g. Summary:
-The best solution is to replace `Authentication.User` with `com.artipie.http.auth.User` and use the `User(String name)` constructor. This fixes the compilation errors caused by the API change.
+g. Summary of the chosen fix:
+The best solution is to replace `Authentication.User` with `com.artipie.http.auth.User` and update the import statement. This resolves the compilation error caused by the API change while adhering to all the given constraints.
 </fix_planning>
 
 ```java

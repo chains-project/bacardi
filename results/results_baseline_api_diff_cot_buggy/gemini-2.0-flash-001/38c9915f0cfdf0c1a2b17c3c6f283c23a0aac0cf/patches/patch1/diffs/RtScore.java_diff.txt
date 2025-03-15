@@ -1,15 +1,14 @@
-10,11c10
-<  * copies of the Software, and to permit persons to whom the Software is
-<  * furnished to do so, subject to the following conditions:
----
->  * copies of the Software, and to permit persons to whom it is furnished to do so, subject to the following conditions:
-21,22c20,21
-<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-<  * SOFTWARE.
----
->  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
->  * THE SOFTWARE.
-27c26
+27c27
 < import org.cactoos.iterable.LengthOf;
 ---
 > import org.cactoos.scalar.LengthOf;
+52,53c52,57
+<         return new LengthOf(other.suffixes()).intValue()
+<             - new LengthOf(this.sfxs).intValue();
+---
+>         try {
+>             return new LengthOf(other.suffixes()).value().intValue()
+>                 - new LengthOf(this.sfxs).value().intValue();
+>         } catch (final Exception ex) {
+>             throw new IllegalStateException(ex);
+>         }

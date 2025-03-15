@@ -1,10 +1,10 @@
 <fix_planning>
-a. Relevant parts of the code and API changes:
-- Code: `import org.hamcrest.Matchers;`
-- API Change: `Class org.hamcrest.Matchers has been removed in the new version of the dependency.`
+a. Code and API changes:
+- The code uses `org.hamcrest.Matchers`.
+- The API change states: "Class org.hamcrest.Matchers has been removed in the new version of the dependency."
 
 b. Specific API changes causing the issue:
-- The class `org.hamcrest.Matchers` has been removed.
+- The removal of the `org.hamcrest.Matchers` class.
 
 c. Affected lines of code:
 - `import org.hamcrest.Matchers;`
@@ -13,22 +13,21 @@ c. Affected lines of code:
 
 d. Proposed potential fixes:
 - Remove the import statement `import org.hamcrest.Matchers;`.
-- Replace `Matchers.<URI>hasProperty("rawPath", path)` with `org.hamcrest.beans.HasPropertyWithValue.<URI>hasProperty("rawPath", path)`.
-- Replace `Matchers.<URI>hasProperty("rawQuery", query)` with `org.hamcrest.beans.HasPropertyWithValue.<URI>hasProperty("rawQuery", query)`.
+- Replace `Matchers.<URI>hasProperty(...)` with `org.hamcrest.beans.HasPropertyWithValue.<URI>hasProperty(...)` in both occurrences. This utilizes the `HasPropertyWithValue` class from `org.hamcrest.beans` which provides similar functionality.
 
 e. Potential side effects of the proposed changes:
-- The code might not compile if `org.hamcrest.beans.HasPropertyWithValue` is not available or if `hasProperty` is not a static method.
+- The change in class might affect the behavior of the matchers, but since we are only changing the class name and the method `hasProperty` is expected to behave similarly, the risk is low.
 
 f. Adherence to constraints:
-- The function signatures of all methods are preserved.
+- The function signatures are not changed.
 - Variables can be created if needed.
 - The `@Override` annotation is not present, so it doesn't need to be removed.
-- The correct package or class is used for the import.
-- No existing code is removed unless it directly causes a compilation or functionality error.
-- All code, even unchanged portions, is included in the final output.
+- The correct package is used for the replacement class.
+- No existing code is removed unless it directly causes a compilation error.
+- All code is included in the final output.
 
-g. Final summary of the chosen fix:
-The best solution is to replace `Matchers.hasProperty` with `org.hamcrest.beans.HasPropertyWithValue.hasProperty` and remove the import statement `import org.hamcrest.Matchers;`. This addresses the compilation error caused by the removal of the `Matchers` class and uses the replacement class `org.hamcrest.beans.HasPropertyWithValue` which contains the static method `hasProperty`.
+g. Final summary:
+The best solution is to replace `Matchers.<URI>hasProperty(...)` with `org.hamcrest.beans.HasPropertyWithValue.<URI>hasProperty(...)` and remove the import statement `import org.hamcrest.Matchers;`. This addresses the compilation error caused by the removal of the `org.hamcrest.Matchers` class while maintaining the intended functionality.
 </fix_planning>
 
 ```java
@@ -65,7 +64,6 @@ package com.jcabi.http.mock;
 
 import java.net.URI;
 import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 import org.hamcrest.beans.HasPropertyWithValue;
 
 /**

@@ -1,15 +1,4 @@
-12,13c12
-<  * distributed under the License is distributed on an "AS IS" BASIS,
-<  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
----
->  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-27a27
-> import org.yaml.snakeyaml.TypeDescription;
-114c114,118
+114c114
 <             return (YamlNode) new Yaml(new Constructor(YamlNode.class)).load(in);
 ---
->             Constructor constructor = new Constructor();
->             TypeDescription typeDescription = new TypeDescription(YamlNode.class);
->             constructor.addTypeDescription(typeDescription);
->             Yaml yaml = new Yaml(constructor);
->             return (YamlNode) yaml.load(in);
+>             return (YamlNode) new Yaml().load(in);

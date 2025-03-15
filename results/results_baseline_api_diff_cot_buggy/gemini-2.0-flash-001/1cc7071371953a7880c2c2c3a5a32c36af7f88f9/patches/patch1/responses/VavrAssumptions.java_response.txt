@@ -21,19 +21,21 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import io.vavr.control.Validation;
-import java.util.concurrent.ConcurrentHashMap;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.implementation.Implementation;
 import net.bytebuddy.implementation.MethodDelegation;
-import net.bytebuddy.implementation.bind.annotation.RuntimeType;
-import net.bytebuddy.implementation.bind.annotation.SuperCall;
+import net.bytebuddy.implementation.auxiliary.AuxiliaryType;
 import net.bytebuddy.implementation.bind.annotation.This;
+import net.bytebuddy.implementation.bind.annotation.SuperCall;
 import net.bytebuddy.matcher.ElementMatchers;
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import org.assertj.core.util.CheckReturnValue;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import static org.assertj.core.util.Arrays.array;
 import static org.assertj.vavr.api.ClassLoadingStrategyFactory.classLoadingStrategy;
@@ -48,11 +50,10 @@ public class VavrAssumptions {
 
     private static final Implementation ASSUMPTION = MethodDelegation.to(AssumptionMethodInterceptor.class);
 
-    private static final ConcurrentHashMap<Class<?>, Class<?>> CACHE = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<Class<?>, Class<?>> CACHE = new ConcurrentHashMap<>();
 
     private static final class AssumptionMethodInterceptor {
 
-        @RuntimeType
         public static Object intercept(@This AbstractVavrAssert<?, ?> assertion, @SuperCall Callable<Object> proxy) throws Exception {
             try {
                 Object result = proxy.call();
@@ -214,7 +215,7 @@ public class VavrAssumptions {
 
     private static <ASSERTION> Class<? extends ASSERTION> generateAssumptionClass(Class<ASSERTION> assertionType) {
         return BYTE_BUDDY.subclass(assertionType)
-                .method(ElementMatchers.any())
+                .method(ElementMatchers.isDeclaredBy(assertionType))
                 .intercept(ASSUMPTION)
                 .make()
                 .load(VavrAssumptions.class.getClassLoader(), classLoadingStrategy(assertionType))

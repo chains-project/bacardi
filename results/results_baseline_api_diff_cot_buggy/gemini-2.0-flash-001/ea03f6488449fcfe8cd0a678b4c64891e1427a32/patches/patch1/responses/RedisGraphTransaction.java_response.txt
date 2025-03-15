@@ -1,6 +1,8 @@
 package com.redislabs.redisgraph;
 
 import redis.clients.jedis.Response;
+import redis.clients.jedis.ClusterPipeline;
+
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +10,8 @@ import java.util.Map;
 /**
  * An interface which aligned to Jedis transactional interface
  */
-public interface RedisGraphTransaction extends Closeable {
+public interface RedisGraphTransaction extends
+         ClusterPipeline, Closeable {
 
     /**
      * Execute a Cypher query.

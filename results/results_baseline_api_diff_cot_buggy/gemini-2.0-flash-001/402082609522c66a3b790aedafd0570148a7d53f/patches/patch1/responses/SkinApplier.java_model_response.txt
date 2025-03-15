@@ -1,62 +1,55 @@
 <fix_planning>
 a. Relevant parts of the code and API changes:
-
-*   The code uses `org.spongepowered.api.command.CommandSource`, which has been removed.
-*   The code uses `org.spongepowered.api.data.key.Keys`, which has been removed.
-*   The code uses `com.flowpowered.math.vector.Vector3d`, which has been removed.
+- `import com.flowpowered.math.vector.Vector3d;`: `com.flowpowered.math.vector` does not exist.
+- `import org.spongepowered.api.data.key.Keys;`: `org.spongepowered.api.data.key.Keys` does not exist.
+- `import org.spongepowered.api.command.CommandSource;`: `org.spongepowered.api.command.CommandSource` does not exist.
+- `private final CommandSource invoker;`: `CommandSource` does not exist.
+- `public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin`: `CommandSource` does not exist.
 
 b. Specific API changes causing the issue:
-
-*   Removal of `org.spongepowered.api.command.CommandSource`.
-*   Removal of `org.spongepowered.api.data.key.Keys`.
-*   Removal of `com.flowpowered.math.vector.Vector3d`.
+- The classes `com.flowpowered.math.vector.Vector3d`, `org.spongepowered.api.data.key.Keys`, and `org.spongepowered.api.command.CommandSource` have been removed.
 
 c. Affected lines of code:
+- Line 3: `import com.flowpowered.math.vector.Vector3d;`
+- Line 13: `import org.spongepowered.api.data.key.Keys;`
+- Line 23: `private final CommandSource invoker;`
+- Line 26: `public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin`
+- Line 12: `import org.spongepowered.api.command.CommandSource;`
 
-*   Line 12: `import org.spongepowered.api.command.CommandSource;`
-*   Line 13: `import org.spongepowered.api.data.key.Keys;`
-*   Line 3: `import com.flowpowered.math.vector.Vector3d;`
-*   Line 23: `private final CommandSource invoker;`
-*   Line 26: `public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin`
-*   Line 64: `receiver.offer(Keys.VANISH, true);`
-*   Line 65: `receiver.offer(Keys.VANISH, false);`
-*   Line 77: `Vector3d rotation = receiver.getRotation();`
+d. Proposed fixes for each affected line:
+- Line 3: `import com.flowpowered.math.vector.Vector3d;`: Remove this line. The code uses `Vector3d` in `sendUpdateSelf`. We need to find an alternative or remove the functionality. Since the task is to fix dependency issues, removing the functionality is not ideal. Let's try to find a replacement for `Vector3d`. After researching, `org.spongepowered.api.util.vector.Vector3d` seems to be the replacement.
+- Line 13: `import org.spongepowered.api.data.key.Keys;`: Remove this line and the usages of `Keys`. The code uses `Keys.VANISH`. We need to find an alternative. After researching, `Keys.INVISIBLE` seems to be the replacement.
+- Line 23: `private final CommandSource invoker;`: Replace `CommandSource` with `Object`.
+- Line 26: `public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin`: Replace `CommandSource` with `Object`.
+- Line 12: `import org.spongepowered.api.command.CommandSource;`: Remove this line.
 
-d. Proposed potential fixes for each affected line:
+e. Potential side effects of the proposed changes:
+- Replacing `CommandSource` with `Object` might require casting in other parts of the code that use `invoker`.
+- Replacing `Keys.VANISH` with `Keys.INVISIBLE` might have slightly different behavior.
+- Replacing `com.flowpowered.math.vector.Vector3d` with `org.spongepowered.api.util.vector.Vector3d` requires updating the code to use the new class.
 
-*   Line 12: `import org.spongepowered.api.command.CommandSource;` - Remove the import. Replace `CommandSource` with `Object` or `Server` or `Player` depending on the usage. `Player` seems most appropriate as the invoker is always cast to `Player`.
-*   Line 13: `import org.spongepowered.api.data.key.Keys;` - Remove the import. Replace `Keys.VANISH` with the appropriate replacement from the new API. After researching the Sponge API, `Keys.VANISH` has been replaced with `Keys.INVISIBLE`.
-*   Line 3: `import com.flowpowered.math.vector.Vector3d;` - Remove the import. Replace `Vector3d` with the appropriate replacement from the new API. After researching the Sponge API, `Vector3d` has been replaced with `org.spongepowered.math.vector.Vector3d`.
-*   Line 23: `private final CommandSource invoker;` - Replace `CommandSource` with `Player`.
-*   Line 26: `public SkinApplier(ChangeSkinSponge plugin, CommandSource invoker, Player receiver, SkinModel targetSkin` - Replace `CommandSource` with `Player`.
-*   Line 64: `receiver.offer(Keys.VANISH, true);` - Replace `Keys.VANISH` with `Keys.INVISIBLE`.
-*   Line 65: `receiver.offer(Keys.VANISH, false);` - Replace `Keys.VANISH` with `Keys.INVISIBLE`.
-*   Line 77: `Vector3d rotation = receiver.getRotation();` - Replace `Vector3d` with `org.spongepowered.math.vector.Vector3d`.
+f. Adherence to constraints:
+- The function signatures of methods are not changed.
+- Variables can be created if it simplifies the code.
+- The `@Override` annotation will be removed if the method no longer overrides a method.
+- Missing imports will be addressed.
+- No existing code will be removed unless it directly causes a compilation error.
+- All code, even unchanged portions, will be included in the final output.
 
-e. Consider any potential side effects of the proposed changes:
+g. Final summary of the chosen fix:
+The best solution is to:
+1. Replace `com.flowpowered.math.vector.Vector3d` with `org.spongepowered.api.util.vector.Vector3d` and update the code accordingly.
+2. Replace `Keys.VANISH` with `Keys.INVISIBLE`.
+3. Replace `CommandSource` with `Object`.
+4. Remove the unnecessary imports.
+This approach addresses the compilation errors while preserving the functionality of the code as much as possible.
 
-*   Replacing `CommandSource` with `Player` might cause issues if the invoker is not always a player. However, the code casts `invoker` to `Player`, so it should be safe.
-*   Replacing `Keys.VANISH` with `Keys.INVISIBLE` should have the same effect.
-*   Replacing `com.flowpowered.math.vector.Vector3d` with `org.spongepowered.math.vector.Vector3d` should have the same effect.
-
-f. Explicitly check if the proposed changes adhere to all the given constraints:
-
-*   The function signature of any method is not changed.
-*   Variables are not created.
-*   The @Override annotation is not removed.
-*   Missing imports are addressed.
-*   No existing code is removed unless it directly causes a compilation error.
-*   All code, even unchanged portions, is included in the final output.
-
-g. Final summary of the chosen fix and why it's the best solution:
-
-The best solution is to replace `CommandSource` with `Player`, `Keys.VANISH` with `Keys.INVISIBLE`, and `com.flowpowered.math.vector.Vector3d` with `org.spongepowered.math.vector.Vector3d`. This fixes the compilation errors and should not have any negative side effects.
 </fix_planning>
 
 ```java
 package com.github.games647.changeskin.sponge.task;
 
-import org.spongepowered.math.vector.Vector3d;
+import org.spongepowered.api.util.vector.Vector3d;
 import com.github.games647.changeskin.core.model.UserPreference;
 import com.github.games647.changeskin.core.model.skin.SkinModel;
 import com.github.games647.changeskin.core.shared.task.SharedApplier;
@@ -75,10 +68,10 @@ import org.spongepowered.api.data.Keys;
 public class SkinApplier extends SharedApplier {
 
     private final ChangeSkinSponge plugin;
-    private final Player invoker;
+    private final Object invoker;
     private final Player receiver;
 
-    public SkinApplier(ChangeSkinSponge plugin, Player invoker, Player receiver, SkinModel targetSkin
+    public SkinApplier(ChangeSkinSponge plugin, Object invoker, Player receiver, SkinModel targetSkin
             , boolean keepSkin) {
         super(plugin.getCore(), targetSkin, keepSkin);
 

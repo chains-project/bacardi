@@ -55,8 +55,13 @@ public class AppenderUtils {
     private OutputStream os;
 
     @Override
-    public void start() {
-        super.start();
+    public byte[] headerBytes() {
+      return new byte[0];
+    }
+
+    @Override
+    public byte[] footerBytes() {
+      return new byte[0];
     }
 
     public void init(OutputStream os) {
@@ -80,16 +85,6 @@ public class AppenderUtils {
 
     public void close() throws IOException {
       framedTransport.close();
-    }
-
-    @Override
-    public byte[] headerBytes() {
-        return new byte[0];
-    }
-
-    @Override
-    public byte[] footerBytes() {
-      return new byte[0];
     }
   }
 

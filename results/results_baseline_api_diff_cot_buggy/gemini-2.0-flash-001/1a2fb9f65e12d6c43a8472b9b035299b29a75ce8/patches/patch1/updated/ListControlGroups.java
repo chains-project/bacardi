@@ -34,7 +34,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -119,8 +118,8 @@ public abstract class ListControlGroups<T> extends Panel {
 
 		Set<String> properties = getPropertiesByOrder(modelClass);
 
-		Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
-		BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
+		jakarta.validation.Validator validator = HibernateValidatorProperty.validatorFactory.getValidator();
+		jakarta.validation.metadata.BeanDescriptor constraintDescriptors = validator.getConstraintsForClass(modelClass);
 		for(String property : properties){
 			PropertyDescriptor descriptor;
 			try {
@@ -131,13 +130,13 @@ public abstract class ListControlGroups<T> extends Panel {
 
 			boolean required = false;
 
-			ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
+			jakarta.validation.metadata.ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
 			if(constraintDescriptor!=null){
-				Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
-				for(ConstraintDescriptor<?> constraint : constraintsSet){
-					if(constraint.getAnnotation() instanceof NotNull ||
-					   constraint.getAnnotation() instanceof NotEmpty ||
-					   constraint.getAnnotation() instanceof NotBlank)
+				java.util.Set<jakarta.validation.metadata.ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
+				for(jakarta.validation.metadata.ConstraintDescriptor<?> constraint : constraintsSet){
+					if(constraint.getAnnotation() instanceof jakarta.validation.constraints.NotNull ||
+					   constraint.getAnnotation() instanceof jakarta.validation.constraints.NotEmpty ||
+					   constraint.getAnnotation() instanceof jakarta.validation.constraints.NotBlank)
 						required = true;
 				}
 			}

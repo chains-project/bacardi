@@ -1,17 +1,22 @@
 <fix_planning>
-The error indicates that `com.google.cloud.pubsublite.PublishMetadata` has been removed from the dependency. This affects the import statement and the declaration of the `publisher` field.
+The error indicates that `com.google.cloud.pubsublite.PublishMetadata` has been removed from the dependency. This class was used as a generic type parameter for the `Publisher` interface.
 
 Affected lines:
-1. `import com.google.cloud.pubsublite.PublishMetadata;`
-2. `private @Nullable Publisher<PublishMetadata> publisher;`
+1. `private @Nullable Publisher<PublishMetadata> publisher;`
+2. `import com.google.cloud.pubsublite.PublishMetadata;`
 
 Possible fixes:
 
-1. **Remove the import and replace `PublishMetadata` with a suitable alternative.** Since `PublishMetadata` is no longer available, we need to find out what information it carried and how it was used. Looking at the code, `PublishMetadata` is used as the generic type for the `Publisher`. We need to find out what the `Publisher` now uses as its generic type. Since the class is removed, we can assume that the publisher no longer publishes metadata. The best course of action is to change the publisher to publish `com.google.protobuf.Empty`.
+1.  **Remove the type parameter:**  The `Publisher` interface might still be usable without the `PublishMetadata` type parameter, or with a different type parameter. We need to investigate the updated `Publisher` interface to determine the correct type parameter, or if it's now a raw type.  If it's a raw type, we can change the declaration to `private @Nullable Publisher publisher;`. This is the preferred approach if `PublishMetadata` is no longer needed.
+
+2.  **Find a replacement:** If `PublishMetadata` has been replaced by another class, we can update the import and the type parameter accordingly. This requires understanding the new API and identifying the correct replacement.
+
+3.  **Remove the import and modify the publisher declaration:** If the `PublishMetadata` class is no longer available and the `Publisher` interface no longer requires a type parameter, we can remove the import statement and modify the publisher declaration to `private @Nullable Publisher publisher;`.
+
+Since the error message indicates that the class `PublishMetadata` has been removed, the most appropriate fix is to remove the type parameter from the `Publisher` declaration. This assumes that the `Publisher` interface can function without it, or that it now uses a different type parameter that is not directly relevant to this class.
 
 Chosen fix:
-
-The best solution is to replace `PublishMetadata` with `com.google.protobuf.Empty` and remove the import statement. This aligns with the API changes and ensures the code compiles and functions correctly. This change adheres to all constraints as it only modifies the client code to adapt to the dependency update.
+Remove the type parameter from the `Publisher` declaration and remove the import statement. This is the simplest solution and addresses the immediate compilation error.
 
 </fix_planning>
 
@@ -41,7 +46,6 @@ import com.google.cloud.pubsublite.internal.Publisher;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.Empty;
 import com.google.protobuf.util.Timestamps;
 import java.io.IOException;
 import java.util.Collection;
@@ -58,7 +62,7 @@ import org.apache.kafka.connect.sink.SinkTask;
 public class PubSubLiteSinkTask extends SinkTask {
 
   private final PublisherFactory factory;
-  private @Nullable Publisher<Empty> publisher;
+  private @Nullable Publisher publisher;
 
   @VisibleForTesting
   PubSubLiteSinkTask(PublisherFactory factory) {

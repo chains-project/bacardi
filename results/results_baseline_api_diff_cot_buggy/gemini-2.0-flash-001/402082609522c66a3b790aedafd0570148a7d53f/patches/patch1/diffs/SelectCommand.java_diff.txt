@@ -8,47 +8,38 @@
 ---
 > import org.spongepowered.api.command.parameter.CommandContext;
 > import org.spongepowered.api.command.parameter.Parameter;
-15,17c14,16
-< 
+16,19c15
 < import static org.spongepowered.api.command.args.GenericArguments.string;
 < import static org.spongepowered.api.text.Text.of;
+< 
+< public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
 ---
-> import org.spongepowered.api.command.exception.CommandException;
-> import org.spongepowered.api.command.CommandExecutor;
-> import org.spongepowered.api.command.CommandCause;
-29,31c28,30
+> public class SelectCommand implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
+29c25
 <     public CommandResult execute(CommandSource src, CommandContext args) {
-<         if (!(src instanceof Player)) {
-<             plugin.sendMessage(src, "no-console");
 ---
->     public CommandResult execute(CommandCause cause, CommandContext args) throws CommandException {
->         if (!(cause.cause().root() instanceof Player)) {
->             plugin.sendMessage(cause, "no-console");
-35c34
+>     public CommandResult execute(org.spongepowered.api.command.CommandSource src, CommandContext args) {
+32c28
+<             return CommandResult.empty();
+---
+>             return CommandResult.success();
+35c31
 <         String skinName = args.<String>getOne("skinName").get().toLowerCase().replace("skin-", "");
 ---
->         String skinName = args.<String>one("skinName").get().toLowerCase().replace("skin-", "");
-39c38
-<             Player receiver = (Player) src;
+>         String skinName = args.one(Parameter.key("skinName", String.class)).orElse("").toLowerCase().replace("skin-", "");
+40c36
+<             Task.builder().async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
 ---
->             Player receiver = (Player) cause.cause().root();
-42c41,42
-<             plugin.sendMessage(src, "invalid-skin-name");
----
->             plugin.sendMessage(cause, "invalid-skin-name");
->             return CommandResult.failure();
-49,50c49,53
+>             Task.builder().plugin(plugin).async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+49,50c45,48
 <     public CommandSpec buildSpec() {
 <         return CommandSpec.builder()
 ---
->     public Command.Builder buildSpec() {
->         Parameter skinName = Parameter.key("skinName").type(String.class).build();
+>     public Command buildSpec() {
+>         Parameter.Value<String> skinNameParam = Parameter.string().key("skinName").build();
 > 
 >         return Command.builder()
->                 .addParameter(skinName)
-52,54c55
+52c50
 <                 .arguments(string(of("skinName")))
-<                 .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
-<                 .build();
 ---
->                 .permission(PomData.ARTIFACT_ID + ".command.skinselect.base");
+>                 .addParameter(skinNameParam)

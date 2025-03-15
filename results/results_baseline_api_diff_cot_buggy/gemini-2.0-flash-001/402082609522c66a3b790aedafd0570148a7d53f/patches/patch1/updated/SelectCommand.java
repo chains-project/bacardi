@@ -11,11 +11,8 @@ import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.parameter.Parameter;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.command.exception.CommandException;
-import org.spongepowered.api.command.CommandExecutor;
-import org.spongepowered.api.command.CommandCause;
 
-public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
+public class SelectCommand implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
 
     private final ChangeSkinSponge plugin;
 
@@ -25,33 +22,33 @@ public class SelectCommand implements CommandExecutor, ChangeSkinCommand {
     }
 
     @Override
-    public CommandResult execute(CommandCause cause, CommandContext args) throws CommandException {
-        if (!(cause.cause().root() instanceof Player)) {
-            plugin.sendMessage(cause, "no-console");
-            return CommandResult.empty();
+    public CommandResult execute(org.spongepowered.api.command.CommandSource src, CommandContext args) {
+        if (!(src instanceof Player)) {
+            plugin.sendMessage(src, "no-console");
+            return CommandResult.success();
         }
 
-        String skinName = args.<String>one("skinName").get().toLowerCase().replace("skin-", "");
+        String skinName = args.one(Parameter.key("skinName", String.class)).orElse("").toLowerCase().replace("skin-", "");
 
         try {
             int targetId = Integer.parseInt(skinName);
-            Player receiver = (Player) cause.cause().root();
-            Task.builder().async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
+            Player receiver = (Player) src;
+            Task.builder().plugin(plugin).async().execute(new SkinSelector(plugin, receiver, targetId)).submit(plugin);
         } catch (NumberFormatException numberFormatException) {
-            plugin.sendMessage(cause, "invalid-skin-name");
-            return CommandResult.failure();
+            plugin.sendMessage(src, "invalid-skin-name");
         }
 
         return CommandResult.success();
     }
 
     @Override
-    public Command.Builder buildSpec() {
-        Parameter skinName = Parameter.key("skinName").type(String.class).build();
+    public Command buildSpec() {
+        Parameter.Value<String> skinNameParam = Parameter.string().key("skinName").build();
 
         return Command.builder()
-                .addParameter(skinName)
                 .executor(this)
-                .permission(PomData.ARTIFACT_ID + ".command.skinselect.base");
+                .addParameter(skinNameParam)
+                .permission(PomData.ARTIFACT_ID + ".command.skinselect.base")
+                .build();
     }
 }

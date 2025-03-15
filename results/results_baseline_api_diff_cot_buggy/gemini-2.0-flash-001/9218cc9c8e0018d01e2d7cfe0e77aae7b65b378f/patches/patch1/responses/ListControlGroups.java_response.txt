@@ -34,7 +34,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -133,11 +132,11 @@ public abstract class ListControlGroups<T> extends Panel {
 
 			ElementDescriptor constraintDescriptor = constraintDescriptors.getConstraintsForProperty(descriptor.getName());
 			if(constraintDescriptor!=null){
-				Set<ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
-				for(ConstraintDescriptor<?> constraint : constraintsSet){
-					if(constraint.getAnnotation() instanceof NotNull ||
-					   constraint.getAnnotation() instanceof NotEmpty ||
-					   constraint.getAnnotation() instanceof NotBlank)
+				Set<jakarta.validation.metadata.ConstraintDescriptor<?>> constraintsSet = constraintDescriptor.getConstraintDescriptors();
+				for(jakarta.validation.metadata.ConstraintDescriptor<?> constraint : constraintsSet){
+					if (constraint.getConstraintDescriptor().getAnnotation().annotationType().equals(jakarta.validation.constraints.NotNull.class) ||
+					   constraint.getConstraintDescriptor().getAnnotation().annotationType().equals(jakarta.validation.constraints.NotEmpty.class) ||
+					   constraint.getConstraintDescriptor().getAnnotation().annotationType().equals(jakarta.validation.constraints.NotBlank.class))
 						required = true;
 				}
 			}

@@ -8,28 +8,28 @@ import jakarta.mvc.Models;
 import jakarta.mvc.UriRef;
 import jakarta.mvc.binding.BindingResult;
 import jakarta.mvc.binding.MvcBinding;
-import jakarta.mvc.binding.ParamError;
 import jakarta.mvc.security.CsrfProtected;
 import javax.validation.constraints.NotBlank;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import jakarta.mvc.binding.ParamError;
 
 /**
  *
  * @author hantsy
  */
 @Path("csrf")
-@Controller
+@jakarta.mvc.Controller
 @RequestScoped
 public class CsrfController {
 
     @Inject
-    BindingResult bindingResult;
+    jakarta.mvc.binding.BindingResult bindingResult;
 
     @Inject
-    Models models;
+    jakarta.mvc.Models models;
 
     @Inject
     AlertMessage flashMessage;
@@ -43,10 +43,10 @@ public class CsrfController {
     }
 
     @POST
-    @CsrfProtected
+    @jakarta.mvc.security.CsrfProtected
     public String post(
             @FormParam("greeting")
-            @MvcBinding
+            @jakarta.mvc.binding.MvcBinding
             @NotBlank String greeting) {
         if (bindingResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");

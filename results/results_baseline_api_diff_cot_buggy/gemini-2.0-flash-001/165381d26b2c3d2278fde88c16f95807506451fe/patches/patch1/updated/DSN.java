@@ -332,7 +332,7 @@ public class DSN {
 
       private final List<Integer> l;
 
-      private final PrettyPrinterConfiguration noComments = new com.github.javaparser.printer.configuration.PrettyPrinterConfiguration().setPrintComments(false);
+      private final PrettyPrinterConfiguration noComments = new PrettyPrinterConfiguration().setPrintComments(false);
 
         UnitTestsVisitor(List<Integer> numbers) {
             this.l = numbers;

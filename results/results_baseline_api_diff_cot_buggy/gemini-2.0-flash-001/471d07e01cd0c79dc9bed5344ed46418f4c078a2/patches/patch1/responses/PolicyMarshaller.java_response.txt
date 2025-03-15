@@ -51,7 +51,6 @@ final class PolicyMarshaller
     }
   }
 
-  @Override
   protected Policy fromPb(com.google.api.services.cloudresourcemanager.v3.model.Policy policyPb) {
     Map<Role, Set<Identity>> bindings = new HashMap<>();
     if (policyPb.getBindings() != null) {
@@ -72,13 +71,12 @@ final class PolicyMarshaller
     return new Builder(bindings, policyPb.getEtag(), policyPb.getVersion()).build();
   }
 
-  @Override
   protected com.google.api.services.cloudresourcemanager.v3.model.Policy toPb(Policy policy) {
     com.google.api.services.cloudresourcemanager.v3.model.Policy policyPb =
         new com.google.api.services.cloudresourcemanager.v3.model.Policy();
     List<Binding> bindingPbList = new LinkedList<>();
     for (Map.Entry<Role, Set<Identity>> binding : policy.getBindings().entrySet()) {
-      Binding bindingPb = new Binding();
+      Binding bindingPb = new com.google.api.services.cloudresourcemanager.v3.model.Binding();
       bindingPb.setRole(binding.getKey().getValue());
       bindingPb.setMembers(
           Lists.transform(

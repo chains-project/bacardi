@@ -15,6 +15,7 @@ import org.pac4j.jee.filter.AbstractConfigFilter;
 import org.pac4j.jee.filter.CallbackFilter;
 import org.pac4j.jee.filter.LogoutFilter;
 import org.pac4j.jee.filter.SecurityFilter;
+import org.eclipse.jetty.servlet.FilterHolder;
 
 /**
  *
@@ -73,8 +74,9 @@ public final class J2EHelper {
 
         filter.setConfigOnly(config);
 
-        final FilterRegistration.Dynamic filterRegistration = environment
-                .servlets().addFilter(filter.getClass().getName(), (jakarta.servlet.Filter) filter);
+        final FilterHolder holder = new FilterHolder(filter);
+        final jakarta.servlet.FilterRegistration.Dynamic filterRegistration = environment
+                .servlets().addFilter(filter.getClass().getName(), holder);
 
         filterRegistration.addMappingForUrlPatterns(
                 EnumSet.of(jakarta.servlet.DispatcherType.REQUEST), true, mapping);

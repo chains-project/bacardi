@@ -13,9 +13,6 @@
 package org.assertj.vavr.api;
 
 import io.vavr.control.Try;
-import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassLoadingStrategy;
-import org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector;
-
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 
@@ -26,35 +23,8 @@ class ClassLoadingStrategyFactory {
         () -> MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class)
     ).getOrElse((Method) null);
 
-    static ClassLoadingStrategy<ClassLoader> classLoadingStrategy(Class<?> assertClass) {
-        boolean reflectionAvailable = false;
-        try {
-            Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingReflection");
-            reflectionAvailable = true;
-        } catch (ClassNotFoundException e) {
-            // ignore
-        }
-
-        boolean lookupAvailable = false;
-        try {
-            Class.forName("org.assertj.core.internal.bytebuddy.dynamic.loading.ClassInjector$UsingLookup");
-            lookupAvailable = true;
-        } catch (ClassNotFoundException e) {
-            // ignore
-        }
-
-        if (reflectionAvailable) {
-            return ClassLoadingStrategy.Default.WRAPPER;
-        } else if (lookupAvailable && PRIVATE_LOOKUP_IN != null) {
-            try {
-                return ClassLoadingStrategy.Default.WRAPPER;
-                //return ClassLoadingStrategy.UsingLookup.of(PRIVATE_LOOKUP_IN.invoke(null, assertClass, LOOKUP));
-            } catch (Exception e) {
-                throw new IllegalStateException("Could not access package of " + assertClass, e);
-            }
-        } else {
-            throw new IllegalStateException("No code generation strategy available");
-        }
+    static ClassLoader classLoadingStrategy(Class<?> assertClass) {
+        return ClassLoader.getSystemClassLoader();
     }
 
 }

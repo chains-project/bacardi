@@ -8,13 +8,12 @@ import jakarta.mvc.Models;
 import jakarta.mvc.UriRef;
 import jakarta.mvc.binding.BindingResult;
 import jakarta.mvc.binding.MvcBinding;
-import jakarta.validation.ConstraintViolation;
+import jakarta.mvc.binding.ParamError;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import java.util.Set;
 
 /**
  *
@@ -50,11 +49,11 @@ public class GreetingController {
             @NotBlank String greeting) {
         if (bindingResult.isFailed()) {
             AlertMessage alert = AlertMessage.danger("Validation voilations!");
-            Set<ConstraintViolation<?>> violations = bindingResult.getConstraintViolations();
-
-            violations.forEach(t -> {
-                alert.addError(t.getPropertyPath().toString(), "", t.getMessage());
-            });
+            bindingResult.getAllErrors()
+                    .stream()
+                    .forEach((ParamError t) -> {
+                        alert.addError(t.getParamName(), "", t.getMessage());
+                    });
             models.put("errors", alert);
             log.info("mvc binding failed.");
             return "greeting.xhtml";

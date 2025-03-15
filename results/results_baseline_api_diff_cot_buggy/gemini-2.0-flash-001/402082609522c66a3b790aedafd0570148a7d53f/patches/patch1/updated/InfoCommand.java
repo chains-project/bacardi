@@ -22,7 +22,7 @@ import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
-public class InfoCommand implements org.spongepowered.api.command.CommandExecutor {
+public class InfoCommand implements org.spongepowered.api.command.CommandExecutor, ChangeSkinCommand {
 
     @Inject
     private ChangeSkinSponge plugin;
@@ -33,29 +33,30 @@ public class InfoCommand implements org.spongepowered.api.command.CommandExecuto
 
     @Override
     public CommandResult execute(CommandCause src, CommandContext args) throws CommandException {
-        if (!(src instanceof org.spongepowered.api.command.CommandCause && ((org.spongepowered.api.command.CommandCause) src).cause().root() instanceof Player)) {
+        if (!(src instanceof Player)) {
             plugin.sendMessage(src, "no-console");
-            return CommandResult.empty();
+            return CommandResult.failure();
         }
 
-        UUID uniqueId = ((Player) ((org.spongepowered.api.command.CommandCause) src).cause().root()).uniqueId();
-
-        Sponge.asyncScheduler().submit(Task.builder().plugin(plugin).execute(() -> {
+        UUID uniqueId = ((Player) src).getUniqueId();
+        Sponge.getServer().getScheduler().submit(Task.builder().execute(() -> {
             UserPreference preferences = plugin.getCore().getStorage().getPreferences(uniqueId);
-            Sponge.server().scheduler().submit(Task.builder().plugin(plugin).execute(() -> sendSkinDetails(uniqueId, preferences)).build());
-        }).build());
+            Sponge.getServer().getScheduler().submit(Task.builder().execute(() -> sendSkinDetails(uniqueId, preferences)).plugin(plugin).build());
+        }).plugin(plugin).build());
 
         return CommandResult.success();
     }
 
-    public Command.Builder buildSpec() {
+    @Override
+    public Command buildSpec() {
         return Command.builder()
                 .executor(this)
-                .permission(PomData.ARTIFACT_ID + ".command.skininfo.base");
+                .permission(PomData.ARTIFACT_ID + ".command.skininfo.base")
+                .build();
     }
 
     private void sendSkinDetails(UUID uuid, UserPreference preference) {
-        Optional<Player> optPlayer = Sponge.server().player(uuid);
+        Optional<Player> optPlayer = Sponge.getServer().getPlayer(uuid);
         if (optPlayer.isPresent()) {
             Player player = optPlayer.get();
 

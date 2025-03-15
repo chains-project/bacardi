@@ -132,10 +132,10 @@ The errors are triggered in the following specific lines:
 
 <error_lines>
 ```java
-public HttpSessionContext getSessionContext() {
+import jakarta.servlet.http.HttpSessionContext;
 ```
 ```java
-import jakarta.servlet.http.HttpSessionContext;
+public HttpSessionContext getSessionContext() {
 ```
 </error_lines>
 
@@ -146,14 +146,14 @@ The API of the dependency has changed. Here are the relevant changes:
 Additional error information:
 
 <error_information>
-[ERROR] /myfaces-tobago/tobago-core/src/test/java/org/apache/myfaces/tobago/internal/mock/servlet/MockHttpSession.java:[67,10] cannot find symbol
-  symbol:   class HttpSessionContext
-  location: class org.apache.myfaces.tobago.internal.mock.servlet.MockHttpSession
-
 [ERROR] /myfaces-tobago/tobago-core/src/test/java/org/apache/myfaces/tobago/internal/mock/servlet/MockHttpSession.java:[24,28] cannot find symbol
   symbol:   class HttpSessionContext
   location: package jakarta.servlet.http
-<error_information>
+
+[ERROR] /myfaces-tobago/tobago-core/src/test/java/org/apache/myfaces/tobago/internal/mock/servlet/MockHttpSession.java:[67,10] cannot find symbol
+  symbol:   class HttpSessionContext
+  location: class org.apache.myfaces.tobago.internal.mock.servlet.MockHttpSession
+</error_information>
 
 Your task is to fix the issue by modifying only the client code. Follow these steps:
 

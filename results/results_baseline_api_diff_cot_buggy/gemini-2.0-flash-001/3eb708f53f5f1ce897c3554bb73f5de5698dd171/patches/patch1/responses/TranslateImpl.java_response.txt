@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.function.Function;
 
 final class TranslateImpl extends BaseService<TranslateOptions> implements Translate {
 
@@ -45,16 +46,7 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   @Override
   public List<Language> listSupportedLanguages(final LanguageListOption... options) {
     try {
-      return runWithRetries(
-          new Callable<List<Language>>() {
-            @Override
-            public List<Language> call() {
-              return translateRpc.listSupportedLanguages(optionMap(options));
-            }
-          },
-          getOptions().getRetrySettings(),
-          EXCEPTION_HANDLER,
-          getOptions().getClock());
+      return translateRpc.listSupportedLanguages(optionMap(options));
     } catch (RetryHelperException e) {
       throw TranslateException.translateAndThrow(e);
     }
@@ -63,18 +55,19 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   @Override
   public List<Detection> detect(final List<String> texts) {
     try {
-      List<Detection> detectionsPb =
+      List<String> detectionsPb =
           runWithRetries(
-              new Callable<List<Detection>>() {
+              new Callable<List<String>>() {
                 @Override
-                public List<Detection> call() {
+                public List<String> call() {
                   return translateRpc.detect(texts);
                 }
               },
               getOptions().getRetrySettings(),
               EXCEPTION_HANDLER,
               getOptions().getClock());
-      return detectionsPb;
+
+      return Lists.transform(detectionsPb, Detection::new);
     } catch (RetryHelperException e) {
       throw TranslateException.translateAndThrow(e);
     }
@@ -93,16 +86,7 @@ final class TranslateImpl extends BaseService<TranslateOptions> implements Trans
   @Override
   public List<Translation> translate(final List<String> texts, final TranslateOption... options) {
     try {
-      return runWithRetries(
-          new Callable<List<Translation>>() {
-            @Override
-            public List<Translation> call() {
-              return translateRpc.translate(texts, optionMap(options));
-            }
-          },
-          getOptions().getRetrySettings(),
-          EXCEPTION_HANDLER,
-          getOptions().getClock());
+      return translateRpc.translate(texts, optionMap(options));
     } catch (RetryHelperException e) {
       throw TranslateException.translateAndThrow(e);
     }

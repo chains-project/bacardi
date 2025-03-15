@@ -1,63 +1,46 @@
 <fix_planning>
-The problem is caused by breaking changes in the javax.mvc dependency, which has been updated to jakarta.mvc. The classes and interfaces in the javax.mvc package have been removed or replaced with corresponding elements in the jakarta.mvc package.
+The problem is caused by the breaking changes in the javax.mvc API. Several classes and packages have been removed or replaced with new ones in the jakarta.mvc namespace.
 
 Here's a breakdown of the issues and proposed solutions:
 
-1.  **`javax.mvc.security.CsrfProtected`**:
-    *   API Change: Class `javax.mvc.security.CsrfProtected` has been removed, and interface `jakarta.mvc.security.CsrfProtected` has been added.
-    *   Affected Lines:
-        *   `import javax.mvc.security.CsrfProtected;`
-        *   `@CsrfProtected` (lines 89 and 134)
-    *   Proposed Fix: Replace the import statement with `import jakarta.mvc.security.CsrfProtected;` and replace the annotation with `@jakarta.mvc.security.CsrfProtected`.
-    *   Side Effects: None.
-    *   Adherence to Constraints: Yes.
+1.  **`javax.mvc.Controller` is removed, use `jakarta.mvc.Controller`**:
+    *   Affected line: `@Controller`
+    *   Fix: Replace `javax.mvc.Controller` with `jakarta.mvc.Controller`.
+    *   Side effects: None.
+    *   Adherence to constraints: Yes.
 
-2.  **`javax.mvc.binding.BindingResult`**:
-    *   API Change: Class `javax.mvc.binding.BindingResult` has been removed.  There is no direct replacement.
-    *   Affected Lines:
-        *   `import javax.mvc.binding.BindingResult;`
-        *   `private BindingResult validationResult;`
-    *   Proposed Fix: Replace the import statement with `import jakarta.mvc.binding.BindingResult;` and replace the type of the field with `jakarta.mvc.binding.BindingResult`.
-    *   Side Effects: None.
-    *   Adherence to Constraints: Yes.
+2.  **`javax.mvc.Models` is removed, use `jakarta.mvc.Models`**:
+    *   Affected lines: `import javax.mvc.Models;`, `private Models models;`
+    *   Fix: Replace `javax.mvc.Models` with `jakarta.mvc.Models`.
+    *   Side effects: None.
+    *   Adherence to constraints: Yes.
 
-3.  **`javax.mvc.Models`**:
-    *   API Change: Class `javax.mvc.Models` has been removed, and interface `jakarta.mvc.Models` has been added.
-    *   Affected Lines:
-        *   `import javax.mvc.Models;`
-        *   `private Models models;`
-    *   Proposed Fix: Replace the import statement with `import jakarta.mvc.Models;` and replace the type of the field with `jakarta.mvc.Models`.
-    *   Side Effects: None.
-    *   Adherence to Constraints: Yes.
+3.  **`javax.mvc.View` is removed, use `jakarta.mvc.View`**:
+    *   Affected lines: `import javax.mvc.View;`, `@View("tasks.xhtml")`
+    *   Fix: Replace `javax.mvc.View` with `jakarta.mvc.View`.
+    *   Side effects: None.
+    *   Adherence to constraints: Yes.
 
-4.  **`javax.mvc.binding.ParamError`**:
-    *   API Change: Class `javax.mvc.binding.ParamError` has been removed.
-    *   Affected Lines:
-        *   `import javax.mvc.binding.ParamError;`
-    *   Proposed Fix: Replace the import statement with `import jakarta.mvc.binding.ParamError;`.
-    *   Side Effects: None.
-    *   Adherence to Constraints: Yes.
+4.  **`javax.mvc.security.CsrfProtected` is removed, use `jakarta.mvc.security.CsrfProtected`**:
+    *   Affected lines: `import javax.mvc.security.CsrfProtected;`, `@CsrfProtected`
+    *   Fix: Replace `javax.mvc.security.CsrfProtected` with `jakarta.mvc.security.CsrfProtected`.
+    *   Side effects: None.
+    *   Adherence to constraints: Yes.
 
-5.  **`javax.mvc.View`**:
-    *   API Change: Class `javax.mvc.View` has been removed, and interface `jakarta.mvc.View` has been added.
-    *   Affected Lines:
-        *   `import javax.mvc.View;`
-        *   `@View("tasks.xhtml")`
-    *   Proposed Fix: Replace the import statement with `import jakarta.mvc.View;` and replace the annotation with `@jakarta.mvc.View`.
-    *   Side Effects: None.
-    *   Adherence to Constraints: Yes.
+5.  **`javax.mvc.binding.BindingResult` is removed**:
+    *   Affected lines: `import javax.mvc.binding.BindingResult;`, `private BindingResult validationResult;`
+    *   Fix: Replace `javax.mvc.binding.BindingResult` with `jakarta.mvc.binding.BindingResult`.
+    *   Side effects: None.
+    *   Adherence to constraints: Yes.
 
-6.  **`javax.mvc.Controller`**:
-    *   API Change: Class `javax.mvc.Controller` has been removed, and interface `jakarta.mvc.Controller` has been added.
-    *   Affected Lines:
-        *   `import javax.mvc.Controller;`
-        *   `@Controller`
-    *   Proposed Fix: Replace the import statement with `import jakarta.mvc.Controller;` and replace the annotation with `@jakarta.mvc.Controller`.
-    *   Side Effects: None.
-    *   Adherence to Constraints: Yes.
+6.  **`javax.mvc.binding.ParamError` is removed**:
+    *   Affected lines: `import javax.mvc.binding.ParamError;`
+    *   Fix: Replace `javax.mvc.binding.ParamError` with `jakarta.mvc.binding.ParamError`.
+    *   Side effects: None.
+    *   Adherence to constraints: Yes.
 
-Final Summary:
-The best solution is to replace all `javax.mvc` imports with `jakarta.mvc` imports and update the corresponding annotations and class types. This directly addresses the API changes and resolves the compilation errors without introducing any side effects. All changes adhere to the given constraints.
+Final summary:
+The best solution is to replace all instances of `javax.mvc.*` with their corresponding `jakarta.mvc.*` counterparts. This directly addresses the API changes and resolves the compilation errors without introducing any side effects or violating the given constraints.
 </fix_planning>
 
 ```java
@@ -74,6 +57,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
+import jakarta.mvc.View;
 import jakarta.mvc.binding.BindingResult;
 import jakarta.mvc.binding.ParamError;
 import jakarta.mvc.security.CsrfProtected;
@@ -90,7 +74,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import org.eclipse.krazo.engine.Viewable;
-import jakarta.mvc.View;
 
 @Path("tasks")
 @Controller

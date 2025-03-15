@@ -85,7 +85,7 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 	}
 
 	@Override
-	protected StandardPBEStringEncryptor createStringEncoder() {
+	protected PasswordEncoder createStringEncoder() {
 		byte[] password = lookupPasswordFromKeyStore();
 
 		char[] chars = toChars(password);
@@ -98,7 +98,17 @@ public class GeoStorePBEPasswordEncoder extends AbstractGeoStorePasswordEncoder 
 			}
 			stringEncrypter.setAlgorithm(getAlgorithm());
 
-			return stringEncrypter;
+			return new PasswordEncoder() {
+				@Override
+				public String encodePassword(String rawPass, Object salt) {
+					return stringEncrypter.encrypt(rawPass);
+				}
+
+				@Override
+				public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
+					return stringEncrypter.decrypt(encPass).equals(rawPass);
+				}
+			};
 		} finally {
 			scramble(password);
 			scramble(chars);

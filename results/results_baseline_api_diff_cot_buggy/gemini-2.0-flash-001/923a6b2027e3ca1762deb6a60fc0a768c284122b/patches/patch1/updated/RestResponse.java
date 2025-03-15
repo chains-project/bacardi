@@ -46,7 +46,6 @@ import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.collection.IsEmptyIterable;
 
 /**
  * REST response.
@@ -244,7 +243,7 @@ public final class RestResponse extends AbstractResponse {
     public Request follow() {
         this.assertHeader(
             HttpHeaders.LOCATION,
-            CoreMatchers.not(IsEmptyIterable.emptyIterableOf(String.class))
+            CoreMatchers.not(CoreMatchers.notNullValue(Iterable.class))
         );
         return this.jump(
             URI.create(this.headers().get(HttpHeaders.LOCATION).get(0))

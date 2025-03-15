@@ -11,45 +11,40 @@ import com.google.common.io.ByteStreams;
 import com.google.inject.Inject;
 
 import java.util.UUID;
-import java.util.function.Consumer;
 
 import org.spongepowered.api.Platform.Type;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.network.RemoteConnection;
-import org.spongepowered.api.network.channel.Channel;
-import org.spongepowered.api.network.channel.ChannelBuf;
-import org.spongepowered.api.network.channel.ChannelRegistry;
-import org.spongepowered.api.network.channel.RawDataChannel;
-import org.spongepowered.api.ResourceKey;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.util.Identifiable;
 
 import static com.github.games647.changeskin.core.message.PermResultMessage.PERMISSION_RESULT_CHANNEL;
 import static com.github.games647.changeskin.sponge.PomData.ARTIFACT_ID;
 
-public class CheckPermissionListener implements java.util.function.BiConsumer<RemoteConnection, ChannelBuf> {
+import org.spongepowered.api.network.channel.raw.play.RawPlayDataChannel;
+import org.spongepowered.api.event.channel.ChannelEventListener;
+import org.spongepowered.api.event.channel.ConnectionEvent;
+import org.spongepowered.api.network.channel.PacketContext;
+import org.spongepowered.api.network.channel.ChannelBuf;
+
+public class CheckPermissionListener implements ChannelEventListener.Raw {
 
     private final ChangeSkinSponge plugin;
-    private final RawDataChannel permissionsResultChannel;
+    private final RawPlayDataChannel permissionsResultChannel;
 
     @Inject
-    CheckPermissionListener(ChangeSkinSponge plugin, ChannelRegistry channelRegistry) {
+    CheckPermissionListener(ChangeSkinSponge plugin, RawPlayDataChannel permissionsResultChannel) {
         this.plugin = plugin;
-
-        ResourceKey channelKey = ResourceKey.of(ARTIFACT_ID, PERMISSION_RESULT_CHANNEL);
-        permissionsResultChannel = channelRegistry.getOrCreate(channelKey, RawDataChannel.class);
+        this.permissionsResultChannel = permissionsResultChannel;
     }
 
-    public void accept(RemoteConnection connection, ChannelBuf data) {
-        ByteArrayDataInput dataInput = ByteStreams.newDataInput(data.readByteArray());
+    public void handle(ConnectionEvent.Receive event, PacketContext context) {
+        ByteArrayDataInput dataInput = ByteStreams.newDataInput(event.data().array());
         CheckPermMessage checkMessage = new CheckPermMessage();
         checkMessage.readFrom(dataInput);
 
         CheckPermMessage message = new CheckPermMessage();
         message.readFrom(dataInput);
 
-        checkPermissions((Player) connection, message);
+        checkPermissions((Player) event.connection(), message);
     }
 
     private void checkPermissions(Player player, CheckPermMessage permMessage) {
@@ -83,8 +78,6 @@ public class CheckPermissionListener implements java.util.function.BiConsumer<Re
     private void sendResultMessage(Player receiver, PermResultMessage resultMessage) {
         ByteArrayDataOutput dataOutput = ByteStreams.newDataOutput();
         resultMessage.writeTo(dataOutput);
-        byte[] bytes = dataOutput.toByteArray();
-
-        permissionsResultChannel.sendTo((ServerPlayer) receiver, channelBuf -> channelBuf.writeByteArray(bytes));
+        permissionsResultChannel.sendTo((org.spongepowered.api.entity.living.player.server.ServerPlayer) receiver, buf -> buf.writeByteArray(dataOutput.toByteArray()));
     }
 }

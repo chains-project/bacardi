@@ -1,15 +1,3 @@
-10,11c10,11
-<  * copies of the Software, and to permit persons to whom the Software is
-<  * furnished to do so, subject to the following conditions:
----
->  * copies, and to permit persons to whom the Software is furnished to do so,
->  * subject to the following conditions:
-21,22c21,22
-<  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-<  * SOFTWARE.
----
->  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
->  * THE SOFTWARE.
 29a30
 > import java.util.Arrays;
 33d33
@@ -21,15 +9,13 @@
 < import org.cactoos.scalar.UncheckedScalar;
 40d36
 < import org.cactoos.text.SplitText;
-42,43d37
+42d37
 < import org.cactoos.text.TrimmedText;
-< import org.cactoos.text.UncheckedText;
-88c82
+88c83
 <     private final IoCheckedScalar<String> transaction;
 ---
 >     private final String transaction;
-94,102c88,92
-<     RtTransaction(final String trnsct) {
+95,102c90,91
 <         this.transaction = new IoCheckedScalar<>(
 <             new StickyScalar<>(
 <                 () -> {
@@ -39,36 +25,30 @@
 <                         ).asString().isEmpty()
 <                     ) {
 ---
->     RtTransaction(final String trnsct) throws IOException {
->         String tempTransaction;
 >         try {
->             final String trimmed = trnsct.trim();
->             if (trimmed.isEmpty()) {
-107,110c97
+>             if (trnsct.trim().isEmpty()) {
+107,110c96,97
 <                     final List<Text> pieces =
 <                         new ListOf<>(
 <                             new SplitText(trnsct, ";")
 <                         );
 ---
->             final List<String> pieces = Arrays.asList(trimmed.split(";"));
+>             final List<String> pieces =
+>                 Arrays.asList(trnsct.split(";"));
 112c99
 <                     if (new LengthOf(pieces).intValue() != 7) {
 ---
 >             if (pieces.size() != 7) {
-121c108,112
+121c108,110
 <                     return trnsct;
 ---
->             tempTransaction = trnsct;
+>             this.transaction = trnsct;
 >         } catch (final IOException ex) {
->             throw ex;
->         } catch (final Exception ex) {
->             throw new IOException(ex);
-123,124c114
+>             throw new IllegalArgumentException(ex);
+123,124d111
 <             )
 <         );
----
->         this.transaction = tempTransaction;
-130,136c120,123
+130,136c117,118
 <         final String ident = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
@@ -77,40 +57,21 @@
 <             ).value()
 <         ).asString();
 ---
->         try {
->             final String ident = new ItemAt<>(
->                 0, new ListOf<>(this.transaction.split(";"))
->             ).value();
-139d125
-<                 new UncheckedText(
-144d129
-<                     )
-149a135,139
->         } catch (final IOException ex) {
->             throw ex;
->         } catch (final Exception ex) {
->             throw new IOException(ex);
->         }
-153a144
->         try {
-155,156d145
+>         final String[] parts = this.transaction.split(";");
+>         final String ident = parts[0];
+153a136
+>         final String[] parts = this.transaction.split(";");
+155,161c138
 <             new UncheckedText(
 <                 new IoCheckedScalar<>(
-158,161c147,148
+<                     new ItemAt<>(
 <                         1, new SplitText(this.transaction.value(), ";")
 <                     )
 <                 ).value()
 <             ).asString(),
 ---
->                     1, new ListOf<>(this.transaction.split(";"))
->                 ).value(),
-163a151,155
->         } catch (final IOException ex) {
->             throw ex;
->         } catch (final Exception ex) {
->             throw new IOException(ex);
->         }
-168,174c160,163
+>             parts[1],
+168,174c145,146
 <         final String amnt = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
@@ -119,117 +80,57 @@
 <             ).value()
 <         ).asString();
 ---
->         try {
->             final String amnt = new ItemAt<>(
->                 2, new ListOf<>(this.transaction.split(";"))
->             ).value();
-177d165
-<                 new UncheckedText(
-182d169
-<                     )
-187a175,179
->         } catch (final IOException ex) {
->             throw ex;
->         } catch (final Exception ex) {
->             throw new IOException(ex);
->         }
-192,194c184,185
+>         final String[] parts = this.transaction.split(";");
+>         final String amnt = parts[2];
+192,199c164,165
 <         final String prefix = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
----
->         try {
->             final String prefix = new ItemAt<>(
-196,199c187,188
+<                     //@checkstyle MagicNumberCheck (1 line)
 <                     3, new SplitText(this.transaction.value(), ";")
 <                 )
 <             ).value()
 <         ).asString();
 ---
->                 3, new ListOf<>(this.transaction.split(";"))
->             ).value();
-207a197,201
->         } catch (final IOException ex) {
->             throw ex;
->         } catch (final Exception ex) {
->             throw new IOException(ex);
->         }
-212,214c206,207
+>         final String[] parts = this.transaction.split(";");
+>         final String prefix = parts[3];
+212,219c178,179
 <         final String bnf = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
----
->         try {
->             final String bnf = new ItemAt<>(
-216,219c209,210
+<                     //@checkstyle MagicNumberCheck (1 line)
 <                     4, new SplitText(this.transaction.value(), ";")
 <                 )
 <             ).value()
 <         ).asString();
 ---
->                 4, new ListOf<>(this.transaction.split(";"))
->             ).value();
-222d212
-<                 new UncheckedText(
-227d216
-<                     )
-231a221,225
->         } catch (final IOException ex) {
->             throw ex;
->         } catch (final Exception ex) {
->             throw new IOException(ex);
->         }
-236,238c230,231
+>         final String[] parts = this.transaction.split(";");
+>         final String bnf = parts[4];
+236,243c196,197
 <         final String dtls = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
----
->         try {
->             final String dtls = new ItemAt<>(
-240,243c233,234
+<                     //@checkstyle MagicNumberCheck (1 line)
 <                     5, new SplitText(this.transaction.value(), ";")
 <                 )
 <             ).value()
 <         ).asString();
 ---
->                 5, new ListOf<>(this.transaction.split(";"))
->             ).value();
-246d236
-<                 new UncheckedText(
-251d240
-<                     )
-255a245,249
->         } catch (final IOException ex) {
->             throw ex;
->         } catch (final Exception ex) {
->             throw new IOException(ex);
->         }
-260,262c254,255
+>         final String[] parts = this.transaction.split(";");
+>         final String dtls = parts[5];
+260,267c214,215
 <         final String sign = new UncheckedText(
 <             new IoCheckedScalar<>(
 <                 new ItemAt<>(
----
->         try {
->             final String sign = new ItemAt<>(
-264,267c257,258
+<                     //@checkstyle MagicNumberCheck (1 line)
 <                     6, new SplitText(this.transaction.value(), ";")
 <                 )
 <             ).value()
 <         ).asString();
 ---
->                 6, new ListOf<>(this.transaction.split(";"))
->             ).value();
-272d262
-<                 new UncheckedText(
-277d266
-<                     )
-281a271,275
->         } catch (final IOException ex) {
->             throw ex;
->         } catch (final Exception ex) {
->             throw new IOException(ex);
->         }
-286c280
+>         final String[] parts = this.transaction.split(";");
+>         final String sign = parts[6];
+286c234
 <         return new UncheckedScalar<>(this.transaction).value();
 ---
 >         return this.transaction;

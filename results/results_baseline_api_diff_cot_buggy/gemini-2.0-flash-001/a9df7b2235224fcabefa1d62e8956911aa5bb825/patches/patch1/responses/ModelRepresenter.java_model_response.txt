@@ -1,36 +1,24 @@
 <fix_planning>
-a. Code and API changes:
-The error occurs in the `getProperties` method, which is marked with `@Override`. The error message "Exception IntrospectionException is not compatible with throws clause in Representer.getProperties(Class<? extends Object>)" indicates that the `getProperties` method in the `Representer` class no longer throws `IntrospectionException` in the updated SnakeYAML library.
+The error message "Exception IntrospectionException is not compatible with throws clause in Representer.getProperties(Class<? extends Object>)" indicates that the `getProperties` method in the `Representer` class no longer throws `IntrospectionException` in the updated SnakeYAML library. The `ModelRepresenter` class overrides this method and declares that it throws `IntrospectionException`. This discrepancy causes a compilation error.
 
-b. Specific API changes causing the issue:
-The `org.yaml.snakeyaml.representer.Representer.getProperties(java.lang.Class)` method's signature has changed, and it no longer throws `IntrospectionException`.
+The API changes confirm that `org.yaml.snakeyaml.representer.Representer.getProperties(java.lang.Class)` has been removed and added in different versions, and `org.yaml.snakeyaml.introspector.PropertyUtils.getProperties(java.lang.Class)` has been added and removed in different versions.
 
-c. Affected lines of code:
+Affected lines:
 ```java
-@Override
 protected Set<Property> getProperties(Class<? extends Object> type)
-        throws IntrospectionException {
 ```
+(appears twice)
 
-d. Proposed fixes:
-1. Remove the `throws IntrospectionException` clause from the `getProperties` method signature.
-2. Remove the `@Override` annotation since the method signature no longer matches the parent class.
-3. Handle the `IntrospectionException` within the method using a try-catch block.
+Possible fixes:
 
-e. Potential side effects:
-1. Removing the `@Override` annotation means the method is no longer guaranteed to override a method in the parent class. If the parent class's method signature changes again in the future, this could lead to unexpected behavior.
-2. Handling the exception within the method might mask potential errors during property introspection.
+1. Remove the `@Override` annotation and the `throws IntrospectionException` clause from the `getProperties` method in `ModelRepresenter`. This would make the method a new method specific to `ModelRepresenter` and not an override of a method in the parent class. This is the preferred solution as it aligns with the API change.
 
-f. Adherence to constraints:
-1. The function signature of `getProperties` is technically changed by removing `throws IntrospectionException`, but this is necessary to resolve the compilation error.
-2. Variables can be created if needed.
-3. The `@Override` annotation is removed because the method no longer overrides the parent class's method.
-4. No missing imports need to be addressed.
-5. No existing code is removed unless it directly causes a compilation error.
-6. All code is included in the final output.
+2. Catch the `IntrospectionException` within the `getProperties` method. This would involve wrapping the existing code in a try-catch block. However, this approach is less desirable because it doesn't address the root cause of the problem (the API change) and might introduce unnecessary complexity.
 
-g. Final summary:
-The best solution is to remove the `@Override` annotation and the `throws IntrospectionException` clause from the `getProperties` method signature. This directly addresses the compilation error caused by the API change in SnakeYAML. While it's possible to wrap the method body in a try-catch block, it's unnecessary since the exception is no longer declared to be thrown. Removing the `@Override` annotation is acceptable because the method signature no longer matches the parent class.
+The best solution is to remove the `@Override` annotation and the `throws IntrospectionException` clause. This directly addresses the API change and avoids any potential side effects. It also adheres to all the given constraints.
+
+Final summary:
+The `@Override` annotation and `throws IntrospectionException` clause are removed from the `getProperties` method to resolve the compilation error caused by the API change in the SnakeYAML library.
 </fix_planning>
 
 ```java
@@ -250,31 +238,30 @@ class ModelRepresenter extends Representer {
   /*
    * Change the default order. Important data goes first.
    */
-  
-  protected Set<Property> getProperties(Class<? extends Object> type) {
-    if (type.isAssignableFrom(Model.class)) {
-      return sortTypeWithOrder(type, ORDER_MODEL);
-    } else if (type.isAssignableFrom(Developer.class)) {
-      return sortTypeWithOrder(type, ORDER_DEVELOPER);
-    } else if (type.isAssignableFrom(Contributor.class)) {
-      return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
-    }  else if (type.isAssignableFrom(Dependency.class)) {
-      return sortTypeWithOrder(type, ORDER_DEPENDENCY);
-    }  else if (type.isAssignableFrom(Plugin.class)) {
-      return sortTypeWithOrder(type, ORDER_PLUGIN);
-    } else {
-      return super.getProperties(type);
+  protected Set<Property> getProperties(Class<? extends Object> type)
+          {
+    try {
+      if (type.isAssignableFrom(Model.class)) {
+        return sortTypeWithOrder(type, ORDER_MODEL);
+      } else if (type.isAssignableFrom(Developer.class)) {
+        return sortTypeWithOrder(type, ORDER_DEVELOPER);
+      } else if (type.isAssignableFrom(Contributor.class)) {
+        return sortTypeWithOrder(type, ORDER_CONTRIBUTOR);
+      } else if (type.isAssignableFrom(Dependency.class)) {
+        return sortTypeWithOrder(type, ORDER_DEPENDENCY);
+      } else if (type.isAssignableFrom(Plugin.class)) {
+        return sortTypeWithOrder(type, ORDER_PLUGIN);
+      } else {
+        return super.getProperties(type);
+      }
+    } catch (IntrospectionException e) {
+      throw new RuntimeException(e);
     }
   }
 
-  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order) {
-      Set<Property> standard = null;
-	try {
-		standard = super.getProperties(type);
-	} catch (IntrospectionException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
+  private Set<Property> sortTypeWithOrder(Class<? extends Object> type, List<String> order)
+          throws IntrospectionException {
+      Set<Property> standard = super.getProperties(type);
       Set<Property> sorted = new TreeSet<Property>(new ModelPropertyComparator(order));
       sorted.addAll(standard);
       return sorted;

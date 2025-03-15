@@ -1,4 +1,4 @@
-1,4336d0
+1,17c1
 < /*
 <  * Copyright 2014 Feedzai
 <  *
@@ -16,7 +16,9 @@
 <  */
 < package com.feedzai.commons.sql.abstraction.engine.impl.abs;
 < 
-< import ch.qos.logback.classic.Level;
+---
+> import org.slf4j.LoggerFactory;
+19,66c3,4
 < import ch.qos.logback.classic.Logger;
 < import com.feedzai.commons.sql.abstraction.ddl.AlterColumn;
 < import com.feedzai.commons.sql.abstraction.ddl.DbColumn;
@@ -65,8 +67,12 @@
 < import org.junit.experimental.categories.Category;
 < import org.junit.runner.RunWith;
 < import org.junit.runners.Parameterized;
-< import org.slf4j.LoggerFactory;
-< 
+---
+> import ch.qos.logback.classic.spi.Configurator;
+> import ch.qos.logback.classic.LoggerContext;
+67a6
+> import org.slf4j.impl.StaticLoggerBinder;
+69,4329c8
 < import java.io.ByteArrayOutputStream;
 < import java.io.ObjectOutputStream;
 < import java.sql.Connection;
@@ -4328,10 +4334,15 @@
 <      */
 <     private enum TestEnum {
 <         TEST_ENUM_VAL;
-< 
+---
+> // ...
+4331,4336c10,11
 <         @Override
 <         public String toString() {
 <             return super.toString() + " description";
 <         }
 <     }
 < }
+---
+> LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+> loggerContext.getLogger("ROOT").setLevel(Level.TRACE);

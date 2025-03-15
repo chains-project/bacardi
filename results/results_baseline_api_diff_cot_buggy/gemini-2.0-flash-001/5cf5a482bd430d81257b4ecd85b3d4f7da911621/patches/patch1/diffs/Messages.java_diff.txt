@@ -4,22 +4,11 @@
 < import javax.mvc.MvcContext;
 ---
 > import jakarta.servlet.http.HttpServletRequest;
-9,10c8,9
-<  * Provides I18n messages for the UI per request. To get the correct locale, the method {@link MvcContext#getLocale()}
-<  * is used. This method uses the built-in {@link javax.mvc.locale.LocaleResolver} of the used MVC Implementation.
----
->  * Provides I18n messages for the UI per request. To get the correct locale, the method {@link HttpServletRequest#getLocale()}
->  * is used.
-13,14c12
-<  * @see MvcContext#getLocale()
-<  * @see javax.mvc.locale.LocaleResolver
----
->  * @see HttpServletRequest#getLocale()
-23c21
+23c22
 <     private MvcContext mvcContext;
 ---
 >     private HttpServletRequest request;
-33c31
+33c32
 <         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, mvcContext.getLocale());
 ---
 >         final ResourceBundle bundle = ResourceBundle.getBundle(BASE_NAME, request.getLocale());

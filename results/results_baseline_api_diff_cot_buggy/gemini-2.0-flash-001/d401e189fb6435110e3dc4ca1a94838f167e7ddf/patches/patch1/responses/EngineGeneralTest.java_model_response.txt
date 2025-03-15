@@ -1,22 +1,40 @@
 <fix_planning>
-The error occurs because `ch.qos.logback.classic.Logger` has been removed. The code attempts to cast the root logger obtained from `LoggerFactory` to `ch.qos.logback.classic.Logger`.
+The error is caused by the removal of the `ch.qos.logback.classic.Logger` interface. The code attempts to cast the result of `LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)` to `ch.qos.logback.classic.Logger`, but since that interface no longer exists, the cast fails.
 
-*   **Affected line:** `((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.TRACE);`
+Affected line:
+```java
+((Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.TRACE);
+```
 
-*   **Problem:** The cast to `ch.qos.logback.classic.Logger` is no longer valid.
+Possible fixes:
 
-*   **Potential fixes:**
+1.  Remove the cast: `LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME).setLevel(Level.TRACE);`
+    *   This might work if `LoggerFactory.getLogger()` now returns an object that directly has a `setLevel()` method. However, `org.slf4j.Logger` does not have `setLevel()` method.
+2.  Cast to `org.slf4j.Logger` and then use `setLevel()` if it exists. `org.slf4j.Logger` does not have `setLevel()` method.
+3.  Get the root logger using `org.slf4j.LoggerFactory` and cast it to `ch.qos.logback.classic.Logger`. Then set the level.
+    *   This approach relies on the underlying implementation being Logback. This is risky because the logging implementation could change.
+4.  Use `org.slf4j.LoggerFactory` to get the logger and then configure logback directly.
 
-    1.  Remove the line entirely. This would disable the setting of the root logger level, potentially affecting the test's logging output.
-    2.  Cast to `org.slf4j.Logger` instead, and attempt to set the level. However, `org.slf4j.Logger` does not have a `setLevel` method.
-    3.  Use `org.slf4j.LoggerFactory` to get the logger and then use `org.slf4j.bridge.SLF4JBridgeHandler` to bridge the logging to JUL and set the level there. This is a more complex solution and might not be appropriate for a simple test.
-    4.  Instead of casting, use `LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME)` to get the logger and configure it through logback's configuration files. This requires adding a logback.xml or logback-test.xml file to the classpath, which might be an overkill for a simple test.
-    5.  Suppress the error. This is not a real fix.
+The best approach is to configure logback directly, assuming logback is the underlying implementation.
 
-*   **Chosen fix:** The simplest and most appropriate fix is to use `org.slf4j.LoggerFactory` to get the logger and then cast it to `ch.qos.logback.classic.Logger` and set the level. Since `ch.qos.logback.classic.Logger` is removed, we can't cast to it. We can remove the cast and use `org.slf4j.Logger` instead. However, `org.slf4j.Logger` does not have `setLevel` method. So, we can get the `LoggerContext` and then get the logger from it and set the level.
+```java
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.spi.Configurator;
+import ch.qos.logback.classic.LoggerContext;
+import org.slf4j.LoggerFactory;
+import org.slf4j.impl.StaticLoggerBinder;
 
-*   **Summary:** Replace the line with code that obtains the `LoggerContext` and sets the level on the root logger. This avoids the invalid cast and achieves the desired logging configuration.
+// ...
 
+LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+loggerContext.getLogger("ROOT").setLevel(Level.TRACE);
+```
+
+This approach avoids casting to a specific Logback class directly in the main code, making it more resilient to potential changes in the logging framework. It configures Logback directly, which is a more robust solution.
+
+Final summary:
+The chosen fix involves obtaining the `LoggerContext` from `LoggerFactory` and setting the level on the root logger. This approach avoids direct casting to Logback classes in the main code, making it more resilient to changes in the logging framework.
 </fix_planning>
 
 ```java
@@ -200,8 +218,8 @@ public class EngineGeneralTest {
 
     @BeforeClass
     public static void initStatic() {
-        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-        lc.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME).setLevel(Level.TRACE);
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        loggerContext.getLogger("ROOT").setLevel(Level.TRACE);
     }
 
     @Before
@@ -710,5 +728,4 @@ public class EngineGeneralTest {
      * The steps performed on this test are:
      * <ol>
      *     <li>Add batch to transaction and purposely fail to flush</li>
-     *     <li>Ensure the existence of the Exception and rollback transaction</li>
-     *     <li>
+     *     

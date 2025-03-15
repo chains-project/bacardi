@@ -1,4 +1,6 @@
-18c18
+5d4
+< import liquibase.executor.ExecutorService;
+18c17
 <         ExecutorService.getInstance().getExecutor(this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
 ---
->         getExecutor().execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));
+>         liquibase.Scope.getCurrentScope().getSingleton(liquibase.executor.Executor.class, this).execute(new DropStoredProcedureStatement(this.getLiquibaseCatalogName(), this.getLiquibaseSchemaName()));

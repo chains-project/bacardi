@@ -1,43 +1,33 @@
 <fix_planning>
-The core issue is that the classes `com.google.api.services.cloudresourcemanager.model.BooleanConstraint`, `com.google.api.services.cloudresourcemanager.model.Constraint`, and `com.google.api.services.cloudresourcemanager.model.ListConstraint` have been removed from the new version of the `com.google.api.services.cloudresourcemanager` dependency.
+The core issue is the removal of `com.google.api.services.cloudresourcemanager.model.Constraint`, `com.google.api.services.cloudresourcemanager.model.BooleanConstraint`, and `com.google.api.services.cloudresourcemanager.model.ListConstraint` classes. Since these classes are removed, we need to remove any usages of them. Since the v3 GAPIC client is now available, we should migrate to use that. However, since we are constrained to only modify the client code, we cannot directly use the v3 GAPIC client. Instead, we will remove the protobuf conversion methods and fields that rely on the removed classes.
 
-Here's a breakdown of the affected code and potential fixes:
+Here's a breakdown of the affected code and proposed fixes:
 
-1. **Imports:**
-   - `"import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;"`
-   - `"import com.google.api.services.cloudresourcemanager.model.Constraint;"`
-   - `"import com.google.api.services.cloudresourcemanager.model.ListConstraint;"`
-   These imports are no longer valid and need to be removed. Since the classes are removed, we need to find replacements or remove the usages.
+1.  **Imports:**
+    *   `import com.google.api.services.cloudresourcemanager.model.BooleanConstraint;` - Remove this line.
+    *   `import com.google.api.services.cloudresourcemanager.model.Constraint;` - Remove this line.
+    *   `import com.google.api.services.cloudresourcemanager.model.ListConstraint;` - Remove this line.
 
-2. **`BooleanConstraint` usages:**
-   - `"private BooleanConstraint booleanConstraint;"` (lines 50, 125, 147, 198)
-   - `"public BooleanConstraint getBooleanConstraint()"` (line 198)
-   - `"Builder setBooleanConstraint(BooleanConstraint booleanConstraint)"` (line 147)
-   Since `BooleanConstraint` is removed, we can replace it with `java.lang.Boolean`.
+2.  **Fields:**
+    *   `private BooleanConstraint booleanConstraint;` - Remove this line.
+    *   `static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION = ...` - Remove this line.
+    *   `static final Function<ConstraintInfo, Constraint> TO_PROTOBUF_FUNCTION = ...` - Remove this line.
 
-3. **`ListConstraint` usages:**
-   - `"ListConstraint toProtobuf()"` (lines 114, 118)
-   - `"static Constraints fromProtobuf(ListConstraint listConstraint)"` (lines 118)
-   The `ListConstraint` class is removed. Since the `toProtobuf` and `fromProtobuf` methods are used to convert to and from `ListConstraint`, and `ListConstraint` is no longer available, we should remove these methods and the corresponding calls. The fields `suggestedValue` and `supportsUnder` can be directly used.
+3.  **Methods:**
+    *   `public BooleanConstraint getBooleanConstraint() { ... }` - Remove this method.
+    *   `Builder setBooleanConstraint(BooleanConstraint booleanConstraint) { ... }` - Remove this method.
+    *   `ListConstraint toProtobuf() { ... }` in `Constraints` class - Remove this method.
+    *   `static Constraints fromProtobuf(ListConstraint listConstraint) { ... }` in `Constraints` class - Remove this method.
+    *   `Constraint toProtobuf() { ... }` - Remove this method.
+    *   `static ConstraintInfo fromProtobuf(Constraint constraintProtobuf) { ... }` - Remove this method.
 
-4. **`Constraint` usages:**
-   - `static final Function<Constraint, ConstraintInfo> FROM_PROTOBUF_FUNCTION =` (line 35)
-   - `static final Function<ConstraintInfo, Constraint> TO_PROTOBUF_FUNCTION =` (line 42)
-   - `static ConstraintInfo fromProtobuf(Constraint constraintProtobuf)` (line 280)
-   - `Constraint toProtobuf()` (line 266)
-   The `Constraint` class is removed. We need to remove the `FROM_PROTOBUF_FUNCTION` and `TO_PROTOBUF_FUNCTION` and the methods `fromProtobuf` and `toProtobuf`.
+4.  **Class `Constraints`:**
+    *   Remove `ListConstraint toProtobuf()` and `static Constraints fromProtobuf(ListConstraint listConstraint)` methods.
 
-**Chosen Fix:**
+These changes will remove all references to the removed classes, resolving the compilation errors. The functionality related to protobuf conversion will be lost, but the class will still be usable for representing constraint information.
 
-The best approach is to:
-
-1.  Remove the invalid imports.
-2.  Replace `BooleanConstraint` with `java.lang.Boolean`.
-3.  Remove the `toProtobuf` and `fromProtobuf` methods in the `Constraints` class.
-4.  Remove the `FROM_PROTOBUF_FUNCTION` and `TO_PROTOBUF_FUNCTION` and the methods `fromProtobuf` and `toProtobuf` in the `ConstraintInfo` class.
-
-This approach directly addresses the API changes, removes the compilation errors, and minimizes changes to the existing logic.
-
+Final Summary:
+The best solution is to remove the protobuf conversion methods and the fields that depend on the removed classes. This adheres to the constraint of only modifying the client code and avoids introducing new dependencies or complex logic. This approach directly addresses the compilation errors caused by the API changes.
 </fix_planning>
 
 ```java
@@ -58,7 +48,6 @@ This approach directly addresses the API changes, removes the compilation errors
  */
 package com.google.cloud.resourcemanager;
 
-import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import java.util.Objects;
 
@@ -72,15 +61,6 @@ import java.util.Objects;
 @Deprecated
 public class ConstraintInfo {
 
-  static final Function<ConstraintInfo, ConstraintInfo> FROM_PROTOBUF_FUNCTION =
-      new Function<ConstraintInfo, ConstraintInfo>() {
-        @Override
-        public ConstraintInfo apply(ConstraintInfo constraintInfo) {
-          return constraintInfo;
-        }
-      };
-
-  private Boolean booleanConstraint;
   private String constraintDefault;
   private String description;
   private String displayName;
@@ -147,7 +127,6 @@ public class ConstraintInfo {
 
   /** Builder for {@code ConstraintInfo}. */
   static class Builder {
-    private Boolean booleanConstraint;
     private String constraintDefault;
     private String description;
     private String displayName;
@@ -160,18 +139,12 @@ public class ConstraintInfo {
     }
 
     Builder(ConstraintInfo info) {
-      this.booleanConstraint = info.booleanConstraint;
       this.constraintDefault = info.constraintDefault;
       this.description = info.description;
       this.displayName = info.displayName;
       this.constraints = info.constraints;
       this.name = info.name;
       this.version = info.version;
-    }
-
-    Builder setBooleanConstraint(Boolean booleanConstraint) {
-      this.booleanConstraint = booleanConstraint;
-      return this;
     }
 
     Builder setConstraintDefault(String constraintDefault) {
@@ -210,18 +183,12 @@ public class ConstraintInfo {
   }
 
   ConstraintInfo(Builder builder) {
-    this.booleanConstraint = builder.booleanConstraint;
     this.constraintDefault = builder.constraintDefault;
     this.description = builder.description;
     this.displayName = builder.displayName;
     this.constraints = builder.constraints;
     this.name = builder.name;
     this.version = builder.version;
-  }
-
-  /** Returns the boolean constraint to check whether the constraint is enforced or not. */
-  public Boolean getBooleanConstraint() {
-    return booleanConstraint;
   }
 
   /** Returns the default behavior of the constraint. */
@@ -263,8 +230,7 @@ public class ConstraintInfo {
       return false;
     }
     ConstraintInfo that = (ConstraintInfo) o;
-    return Objects.equals(booleanConstraint, that.booleanConstraint)
-        && Objects.equals(constraintDefault, that.constraintDefault)
+    return Objects.equals(constraintDefault, that.constraintDefault)
         && Objects.equals(description, that.description)
         && Objects.equals(displayName, that.displayName)
         && Objects.equals(constraints, that.constraints)
@@ -274,8 +240,7 @@ public class ConstraintInfo {
 
   @Override
   public int hashCode() {
-    return Objects.hash(
-        booleanConstraint, constraintDefault, description, displayName, constraints, name, version);
+    return Objects.hash(constraintDefault, description, displayName, constraints, name, version);
   }
 
   /** Returns a builder for the {@link ConstraintInfo} object. */

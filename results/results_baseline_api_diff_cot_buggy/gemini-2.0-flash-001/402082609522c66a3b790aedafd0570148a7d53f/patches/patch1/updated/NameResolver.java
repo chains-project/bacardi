@@ -6,15 +6,16 @@ import com.github.games647.changeskin.sponge.ChangeSkinSponge;
 import java.util.UUID;
 
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.service.permission.Subject;
 
 public class NameResolver extends SharedNameResolver {
 
     private final ChangeSkinSponge plugin;
-    private final Object invoker;
+    private final Subject invoker;
     private final Player receiver;
     private final boolean keepSkin;
 
-    public NameResolver(ChangeSkinSponge plugin, Object invoker, String targetName, Player receiver
+    public NameResolver(ChangeSkinSponge plugin, Subject invoker, String targetName, Player receiver
             , boolean keepSkin) {
         super(plugin.getCore(), targetName, keepSkin);
 
@@ -22,11 +23,6 @@ public class NameResolver extends SharedNameResolver {
         this.invoker = invoker;
         this.receiver = receiver;
         this.keepSkin = keepSkin;
-    }
-
-    public NameResolver(ChangeSkinSponge plugin, org.spongepowered.api.command.CommandSource invoker, String targetName, Player receiver
-            , boolean keepSkin) {
-        this(plugin, (Object) invoker, targetName, receiver, keepSkin);
     }
 
     @Override

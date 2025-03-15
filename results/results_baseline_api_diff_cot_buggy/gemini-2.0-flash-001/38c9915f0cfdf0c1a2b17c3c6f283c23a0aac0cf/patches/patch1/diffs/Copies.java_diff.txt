@@ -1,3 +1,9 @@
+10,11c10,11
+<  * copies of the Software, and to permit persons to whom the Software is
+<  * furnished to do so, subject to the following conditions:
+---
+>  * copies of the Software, and to permit persons to whom it is furnished to do so,
+>  * subject to the following conditions:
 21,22c21,22
 <  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 <  * SOFTWARE.
@@ -6,14 +12,13 @@
 >  * THE SOFTWARE.
 26d25
 < import io.zold.api.Copies.Copy;
-30c29
+30d28
 < import org.cactoos.collection.CollectionOf;
----
-> import java.util.stream.StreamSupport;
-91,93c90,91
+91,93c89,91
 <         return first.id() == second.id() && new CollectionOf<>(
 <             first.ledger()
 <         ).size() == new CollectionOf<>(second.ledger()).size();
 ---
->         return first.id() == second.id() && StreamSupport.stream(first.ledger().spliterator(), false).toList()
->             .size() == StreamSupport.stream(second.ledger().spliterator(), false).toList().size();
+>         return first.id() == second.id() && java.util.stream.StreamSupport.stream(
+>             first.ledger().spliterator(), false
+>         ).count() == java.util.stream.StreamSupport.stream(second.ledger().spliterator(), false).count();

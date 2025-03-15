@@ -1,34 +1,35 @@
 <fix_planning>
-a. Relevant parts of the code and API changes:
-- Code: `import org.hamcrest.Matchers;` and `Matchers.<URI>hasProperty("rawPath", path)` and `Matchers.<URI>hasProperty("rawQuery", query)`
-- API Changes: `Class org.hamcrest.Matchers has been removed in the new version of the dependency.` and `Constructor org.hamcrest.Matchers() has been removed in the new version of the dependency.`
+a. Code and API changes:
+- The code uses `org.hamcrest.Matchers`.
+- The API changes indicate that `org.hamcrest.Matchers` has been removed.
 
 b. Specific API changes causing the issue:
-The class `org.hamcrest.Matchers` has been removed. This means we can no longer use the static methods within that class, specifically `Matchers.hasProperty`.
+- The removal of the `org.hamcrest.Matchers` class.
 
 c. Affected lines of code:
 - `import org.hamcrest.Matchers;`
 - `Matchers.<URI>hasProperty("rawPath", path)`
 - `Matchers.<URI>hasProperty("rawQuery", query)`
 
-d. Proposed potential fixes for each affected line:
-- `import org.hamcrest.Matchers;`: Remove this import statement.
-- `Matchers.<URI>hasProperty("rawPath", path)`: Replace `Matchers.hasProperty` with a suitable alternative. Since `org.hamcrest.Matchers` is removed, we need to find another way to create a matcher that checks for a property. `org.hamcrest.beans.HasPropertyWithValue.hasProperty` seems like a suitable replacement.
-- `Matchers.<URI>hasProperty("rawQuery", query)`: Replace `Matchers.hasProperty` with a suitable alternative. Use `org.hamcrest.beans.HasPropertyWithValue.hasProperty`.
+d. Proposed fixes:
+- Remove the import statement `import org.hamcrest.Matchers;`.
+- Replace `Matchers.<URI>hasProperty("rawPath", path)` with `org.hamcrest.core.IsInstanceOf.instanceOf(URI.class)` and `org.hamcrest.beans.HasPropertyWithValue.hasProperty("rawPath", path)`.
+- Replace `Matchers.<URI>hasProperty("rawQuery", query)` with `org.hamcrest.core.IsInstanceOf.instanceOf(URI.class)` and `org.hamcrest.beans.HasPropertyWithValue.hasProperty("rawQuery", query)`.
+- Add imports for `org.hamcrest.core.IsInstanceOf` and `org.hamcrest.beans.HasPropertyWithValue`.
 
-e. Potential side effects of the proposed changes:
-- Using `org.hamcrest.beans.HasPropertyWithValue.hasProperty` might have slightly different behavior than the original `Matchers.hasProperty`, but it should be functionally equivalent in this context. We need to import `org.hamcrest.beans.HasPropertyWithValue` to use `hasProperty`.
+e. Potential side effects:
+- The change in matcher implementation might slightly affect the behavior of the tests, although the intended logic should remain the same.
 
 f. Adherence to constraints:
-1. Function signatures are not changed.
-2. Variables can be created if needed.
-3. `@Override` annotation is not present.
-4. Missing imports are addressed.
-5. No existing code is removed unless it causes an error.
-6. All code is included in the final output.
+- The function signatures are not changed.
+- Variables can be created if needed.
+- The @Override annotation is not present, so it doesn't need to be removed.
+- The correct packages are used for the new imports.
+- No existing code is removed unless it directly causes a compilation error.
+- All code is included in the final output.
 
-g. Final summary of the chosen fix:
-The best solution is to remove the import for `org.hamcrest.Matchers` and replace `Matchers.hasProperty` with `org.hamcrest.beans.HasPropertyWithValue.hasProperty`. This addresses the API change by using an alternative method to achieve the same functionality. This approach adheres to all constraints.
+g. Summary:
+The best solution is to remove the import for `org.hamcrest.Matchers` and replace the calls to `Matchers.hasProperty` with `org.hamcrest.beans.HasPropertyWithValue.hasProperty`. This addresses the compilation error caused by the removal of the `Matchers` class while preserving the intended functionality.
 </fix_planning>
 
 ```java
@@ -66,6 +67,7 @@ package com.jcabi.http.mock;
 import java.net.URI;
 import org.hamcrest.Matcher;
 import org.hamcrest.beans.HasPropertyWithValue;
+import org.hamcrest.core.IsInstanceOf;
 
 /**
  * Convenient set of matchers for {@link MkQuery}.

@@ -1,118 +1,73 @@
 <fix_planning>
-a. Relevant parts of the code and API changes:
+The problem is caused by breaking changes in the Jakarta MVC API. The `javax.mvc` package has been replaced with `jakarta.mvc`, and several classes have been moved or replaced with interfaces.
 
-- Code:
-```java
-import javax.mvc.binding.MvcBinding;
-import javax.mvc.security.CsrfProtected;
-import javax.mvc.binding.BindingResult;
-import javax.mvc.Controller;
-import javax.mvc.binding.ParamError;
-import javax.mvc.UriRef;
-import javax.mvc.Models;
-@Path("greeting")
-@Controller
-public class GreetingController {
-    @Inject
-    BindingResult bindingResult;
-    @Inject
-    Models models;
-    @POST
-    @UriRef("greeting-post")
-    public String post(
-            @FormParam("greeting")
-            @MvcBinding
-            @NotBlank String greeting) {
-        if (bindingResult.isFailed()) {
-            bindingResult.getAllErrors()
-                    .stream()
-                    .forEach((ParamError t) -> {
-                    });
-        }
-    }
-```
+Here's a breakdown of the issues and proposed solutions:
 
-- API Changes:
-```
-     Interface jakarta.mvc.binding.MvcBinding has been added in the new version of the dependency.
-     Class javax.mvc.binding.MvcBinding has been removed in the new version of the dependency.
-     Interface jakarta.mvc.security.CsrfProtected has been added in the new version of the dependency.
-     Class javax.mvc.security.CsrfProtected has been removed in the new version of the dependency.
-     Class javax.mvc.binding.BindingResult has been removed in the new version of the dependency.
-     Interface jakarta.mvc.Controller has been added in the new version of the dependency.
-     Class javax.mvc.Controller has been removed in the new version of the dependency.
-     Class javax.mvc.binding.ParamError has been removed in the new version of the dependency.
-     Class javax.mvc.UriRef has been removed in the new version of the dependency.
-     Interface jakarta.mvc.UriRef has been added in the new version of the dependency.
-     Interface jakarta.mvc.Models has been added in the new version of the dependency.
-     Class javax.mvc.Models has been removed in the new version of the dependency.
-```
+1.  **`javax.mvc.UriRef` has been removed, use `jakarta.mvc.UriRef`**:
+    *   Affected line: `@UriRef("greeting-post")`
+    *   Proposed fix: Replace `javax.mvc.UriRef` with `jakarta.mvc.UriRef`.
+    *   Side effects: None.
+    *   Adherence to constraints: Yes.
 
-b. Specific API changes causing the issue:
+2.  **`javax.mvc.binding.BindingResult` has been removed**:
+    *   Affected line: `import javax.mvc.binding.BindingResult;` and `BindingResult bindingResult;`
+    *   Proposed fix: Replace `javax.mvc.binding.BindingResult` with `jakarta.mvc.binding.BindingResult`.
+    *   Side effects: None.
+    *   Adherence to constraints: Yes.
 
-The `javax.mvc` classes have been removed and replaced with interfaces in the `jakarta.mvc` package.
+3.  **`javax.mvc.binding.ParamError` has been removed**:
+    *   Affected line: `import javax.mvc.binding.ParamError;`
+    *   Proposed fix: Replace `javax.mvc.binding.ParamError` with `jakarta.mvc.binding.ParamError`.
+    *   Side effects: None.
+    *   Adherence to constraints: Yes.
 
-c. Affected lines of code:
+4.  **`javax.mvc.security.CsrfProtected` has been removed, use `jakarta.mvc.security.CsrfProtected`**:
+    *   Affected line: `import javax.mvc.security.CsrfProtected;`
+    *   Proposed fix: Replace `javax.mvc.security.CsrfProtected` with `jakarta.mvc.security.CsrfProtected`.
+    *   Side effects: None.
+    *   Adherence to constraints: Yes.
 
-- `import javax.mvc.binding.MvcBinding;`
-- `import javax.mvc.security.CsrfProtected;`
-- `import javax.mvc.binding.BindingResult;`
-- `import javax.mvc.Controller;`
-- `import javax.mvc.binding.ParamError;`
-- `import javax.mvc.UriRef;`
-- `import javax.mvc.Models;`
-- `@Controller`
-- `@UriRef("greeting-post")`
-- `@MvcBinding`
-- `BindingResult bindingResult;`
-- `Models models;`
+5.  **`javax.mvc.Controller` has been removed, use `jakarta.mvc.Controller`**:
+    *   Affected line: `@Controller`
+    *   Proposed fix: Replace `javax.mvc.Controller` with `jakarta.mvc.Controller`.
+    *   Side effects: None.
+    *   Adherence to constraints: Yes.
 
-d. Proposed potential fixes for each affected line:
+6.  **`javax.mvc.UriRef` has been removed, use `jakarta.mvc.UriRef`**:
+    *   Affected line: `import javax.mvc.UriRef;`
+    *   Proposed fix: Replace `javax.mvc.UriRef` with `jakarta.mvc.UriRef`.
+    *   Side effects: None.
+    *   Adherence to constraints: Yes.
 
-- Replace `javax.mvc.binding.MvcBinding` with `jakarta.mvc.binding.MvcBinding`
-- Replace `javax.mvc.security.CsrfProtected` with `jakarta.mvc.security.CsrfProtected`
-- Replace `javax.mvc.binding.BindingResult` with `jakarta.mvc.binding.BindingResult`
-- Replace `javax.mvc.Controller` with `jakarta.mvc.Controller`
-- Replace `javax.mvc.binding.ParamError` with `jakarta.mvc.binding.ParamError`
-- Replace `javax.mvc.UriRef` with `jakarta.mvc.UriRef`
-- Replace `javax.mvc.Models` with `jakarta.mvc.Models`
-- Replace `@Controller` with `@jakarta.mvc.Controller`
-- Replace `@UriRef("greeting-post")` with `@jakarta.mvc.UriRef("greeting-post")`
-- Replace `@MvcBinding` with `@jakarta.mvc.binding.MvcBinding`
-- Replace `BindingResult bindingResult;` with `jakarta.mvc.binding.BindingResult bindingResult;`
-- Replace `Models models;` with `jakarta.mvc.Models models;`
+7.  **`javax.mvc.binding.MvcBinding` has been removed, use `jakarta.mvc.binding.MvcBinding`**:
+    *   Affected line: `@MvcBinding` and `import javax.mvc.binding.MvcBinding;`
+    *   Proposed fix: Replace `javax.mvc.binding.MvcBinding` with `jakarta.mvc.binding.MvcBinding`.
+    *   Side effects: None.
+    *   Adherence to constraints: Yes.
 
-e. Potential side effects of the proposed changes:
+8.  **`javax.mvc.Models` has been removed, use `jakarta.mvc.Models`**:
+    *   Affected line: `Models models;` and `import javax.mvc.Models;`
+    *   Proposed fix: Replace `javax.mvc.Models` with `jakarta.mvc.Models`.
+    *   Side effects: None.
+    *   Adherence to constraints: Yes.
 
-The change should not have any side effects as it is simply updating the imports and annotations to use the new `jakarta.mvc` package.
-
-f. Adherence to constraints:
-
-The proposed changes adhere to all the given constraints:
-- The function signatures are not changed.
-- Variables are not created unnecessarily.
-- The `@Override` annotation is not present.
-- The correct package is used for the imports.
-- No existing code is removed unless it directly causes a compilation error.
-- All code is included in the final output.
-
-g. Final summary of the chosen fix:
-
-The best solution is to replace all instances of `javax.mvc` with `jakarta.mvc` in the imports and annotations. This will resolve the compilation errors caused by the API changes in the dependency.
+Summary:
+The fix involves replacing all instances of `javax.mvc.*` with `jakarta.mvc.*` in the imports and annotations. This addresses the API changes and resolves the compilation errors. All proposed changes adhere to the given constraints.
 </fix_planning>
 
 ```java
 package com.example.web;
 
 import java.util.logging.Logger;
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.mvc.UriRef;
 import jakarta.mvc.binding.BindingResult;
 import jakarta.mvc.binding.MvcBinding;
 import jakarta.mvc.binding.ParamError;
+import jakarta.mvc.security.CsrfProtected;
 import javax.validation.constraints.NotBlank;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;

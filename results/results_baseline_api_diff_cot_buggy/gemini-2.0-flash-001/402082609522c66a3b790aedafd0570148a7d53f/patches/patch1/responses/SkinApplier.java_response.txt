@@ -1,6 +1,6 @@
 package com.github.games647.changeskin.sponge.task;
 
-import org.spongepowered.math.vector.Vector3d;
+import org.spongepowered.api.util.vector.Vector3d;
 import com.github.games647.changeskin.core.model.UserPreference;
 import com.github.games647.changeskin.core.model.skin.SkinModel;
 import com.github.games647.changeskin.core.shared.task.SharedApplier;
@@ -19,10 +19,10 @@ import org.spongepowered.api.data.Keys;
 public class SkinApplier extends SharedApplier {
 
     private final ChangeSkinSponge plugin;
-    private final Player invoker;
+    private final Object invoker;
     private final Player receiver;
 
-    public SkinApplier(ChangeSkinSponge plugin, Player invoker, Player receiver, SkinModel targetSkin
+    public SkinApplier(ChangeSkinSponge plugin, Object invoker, Player receiver, SkinModel targetSkin
             , boolean keepSkin) {
         super(plugin.getCore(), targetSkin, keepSkin);
 

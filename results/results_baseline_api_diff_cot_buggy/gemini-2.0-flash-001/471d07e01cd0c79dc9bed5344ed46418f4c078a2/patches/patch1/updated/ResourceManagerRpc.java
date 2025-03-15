@@ -87,7 +87,7 @@ public interface ResourceManagerRpc extends ServiceRpc {
    *
    * @throws ResourceManagerException upon failure
    */
-  com.google.api.services.cloudresourcemanager.v3.model.Project create(com.google.api.services.cloudresourcemanager.v3.model.Project project);
+  Project create(Project project);
 
   /**
    * Marks the project identified by the specified project ID for deletion.
@@ -102,14 +102,14 @@ public interface ResourceManagerRpc extends ServiceRpc {
    *
    * @throws ResourceManagerException upon failure
    */
-  com.google.api.services.cloudresourcemanager.v3.model.Project get(String projectId, Map<Option, ?> options);
+  Project get(String projectId, Map<Option, ?> options);
 
   /**
    * Lists the projects visible to the current user.
    *
    * @throws ResourceManagerException upon failure
    */
-  Tuple<String, Iterable<com.google.api.services.cloudresourcemanager.v3.model.Project>> list(Map<Option, ?> options);
+  Tuple<String, Iterable<Project>> list(Map<Option, ?> options);
 
   /**
    * Restores the project identified by the specified project ID. Undelete will only succeed if the
@@ -126,21 +126,21 @@ public interface ResourceManagerRpc extends ServiceRpc {
    *
    * @throws ResourceManagerException upon failure
    */
-  com.google.api.services.cloudresourcemanager.v3.model.Project replace(com.google.api.services.cloudresourcemanager.v3.model.Project project);
+  Project replace(Project project);
 
   /**
    * Returns the IAM policy associated with a project.
    *
    * @throws ResourceManagerException upon failure
    */
-  com.google.api.services.cloudresourcemanager.v3.model.Policy getPolicy(String projectId);
+  Policy getPolicy(String projectId);
 
   /**
    * Replaces the IAM policy associated with the given project.
    *
    * @throws ResourceManagerException upon failure
    */
-  com.google.api.services.cloudresourcemanager.v3.model.Policy replacePolicy(String projectId, com.google.api.services.cloudresourcemanager.v3.model.Policy newPolicy);
+  Policy replacePolicy(String projectId, Policy newPolicy);
 
   /**
    * Tests whether the caller has the given permissions. Returns a list of booleans corresponding to
